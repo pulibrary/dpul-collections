@@ -23,7 +23,7 @@ manifest = if File.exist?('cached-collection-manifest.json')
 manifest = JSON.parse(manifest)
 FileUtils.mkdir('figgy_manifest_fixtures') unless File.exist?('figgy_manifest_fixtures')
 
-Parallel.map(manifest['manifests'], in_threads: 15) do |member_manifest|
+Parallel.each(manifest['manifests'], in_processes: 30) do |member_manifest|
   puts "Parsing #{member_manifest['@id']}"
   begin
     manifest = JSON.parse(URI.open(member_manifest['@id']).read)
