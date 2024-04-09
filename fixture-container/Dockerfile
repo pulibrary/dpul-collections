@@ -1,4 +1,4 @@
-FROM quay.io/pulibrary/ci-solr:8.4-2.0.0
+FROM solr:8.4
 USER root
 RUN apt-get update && apt-get install ruby -y
 USER solr
