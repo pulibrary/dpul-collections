@@ -1,0 +1,51 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'open-uri'
+require 'json'
+require 'pry'
+require 'fileutils'
+require 'parallel'
+
+COLLECTION_MANIFEST = 'https://figgy.princeton.edu/collections/b80f8d41-3be5-440e-8bdb-eff6489f3088/manifest'
+# COLLECTION_MANIFEST = 'https://figgy.princeton.edu/collections/6ff2c854-f102-4a5e-861d-276179a3a5f0/manifest'
+
+puts 'Parsing collection manifest'
+manifest = if File.exist?('cached-collection-manifest.json')
+             File.read('cached-collection-manifest.json')
+           else
+             content = URI.open(COLLECTION_MANIFEST, read_timeout: 900).read
+             File.open('cached-collection-manifest.json', "w") do |f|
+               f.puts content
+             end
+             content
+           end
+manifest = JSON.parse(manifest)
+FileUtils.mkdir('figgy_manifest_fixtures') unless File.exist?('figgy_manifest_fixtures')
+
+Parallel.each(manifest['manifests'], in_processes: 30) do |member_manifest|
+  puts "Parsing #{member_manifest['@id']}"
+  begin
+    manifest = JSON.parse(URI.open(member_manifest['@id']).read)
+    see_also = manifest['seeAlso']
+    see_also = [see_also] unless see_also.is_a?(Array)
+    see_also = see_also.find { |x| x['format'] == 'application/ld+json' }
+    metadata = JSON.parse(URI.open(see_also['@id']).read)
+    identifier = metadata['identifier']&.first&.split('/')&.last
+    title = metadata['title'].first
+    if title.is_a?(Hash)
+      title = title['@value']
+    end
+    json = {
+      id: identifier,
+      title_tesi: title,
+      description_tesim: metadata['abstract'],
+      thumbnail_ssi: manifest['thumbnail']['@id'],
+      manifest_ssi: manifest['@id']
+    }
+    File.open("figgy_manifest_fixtures/#{identifier}.json", 'w') do |f|
+      f.puts JSON.dump(json)
+    end
+  rescue
+  end
+end
