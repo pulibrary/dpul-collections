@@ -3,8 +3,9 @@ import Config
 # Configure your database
 config :dpul_collections, DpulCollections.Repo,
   username: "postgres",
-  password: "postgres",
+  password: "",
   hostname: "localhost",
+  port: "5434",
   database: "dpul_collections_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
