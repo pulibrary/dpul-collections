@@ -1,13 +1,5 @@
 name: dpul-collections
 services:
-  solr:
-    api: 3
-    type: lando
-    app_mount: false
-    moreHttpPorts:
-      - 8983
-    services:
-      image: ghcr.io/pulibrary/dpul-collections:fixtures-v1
-      ports:
-        - "8983:8983"
-      command: solr-fg
+  database:
+    type: postgres:15
+    portforward: 5434
