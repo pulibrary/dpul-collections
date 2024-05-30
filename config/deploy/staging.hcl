@@ -1,4 +1,4 @@
-job "dpulc_staging" {
+job "dpulc-staging" {
   region = "global"
   datacenters = ["dc1"]
   type = "service"
@@ -35,7 +35,7 @@ job "dpulc_staging" {
         env = true
         change_mode = "restart"
         data = <<EOF
-        {{- with nomadVar "nomad/jobs/dpulc_staging" -}}
+        {{- with nomadVar "nomad/jobs/dpulc-staging" -}}
         DATABASE_URL = ecto://{{ .DB_USER }}:{{ .DB_PASSWORD }}@{{ .POSTGRES_HOST }}/{{ .DB_NAME }}
         SECRET_KEY_BASE = {{ .SECRET_KEY_BASE }}
         {{- end -}}
@@ -54,7 +54,7 @@ job "dpulc_staging" {
         env = true
         change_mode = "restart"
         data = <<EOF
-        {{- with nomadVar "nomad/jobs/dpulc_staging" -}}
+        {{- with nomadVar "nomad/jobs/dpulc-staging" -}}
         DATABASE_URL = ecto://{{ .DB_USER }}:{{ .DB_PASSWORD }}@{{ .POSTGRES_HOST }}/{{ .DB_NAME }}
         SECRET_KEY_BASE = {{ .SECRET_KEY_BASE }}
         {{- end -}}
