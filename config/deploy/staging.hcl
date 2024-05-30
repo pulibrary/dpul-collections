@@ -1,3 +1,7 @@
+variable "branch_or_sha" {
+  type = string
+  default = "main"
+}
 job "dpulc-staging" {
   region = "global"
   datacenters = ["dc1"]
@@ -25,7 +29,7 @@ job "dpulc-staging" {
       }
       driver = "docker"
       config {
-        image = "ghcr.io/pulibrary/dpul-collections:main"
+        image = "ghcr.io/pulibrary/dpul-collections:${ var.branch_or_sha }"
         command = "bash"
         args    = ["-c", "/app/bin/migrate"]
         force_pull = true
@@ -45,7 +49,7 @@ job "dpulc-staging" {
     task "webserver" {
       driver = "docker"
       config {
-        image = "ghcr.io/pulibrary/dpul-collections:main"
+        image = "ghcr.io/pulibrary/dpul-collections:${ var.branch_or_sha }"
         ports = ["http"]
         force_pull = true
       }
