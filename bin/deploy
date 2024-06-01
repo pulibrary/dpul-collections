@@ -1,0 +1,12 @@
+#!/bin/bash
+ENV=$1
+BRANCH_NAME="${BRANCH:-main}"
+REPOSITORY="${REPO:-dpul-collections}"
+if [[ -z ${ENV} ]];
+then
+  echo "Missing Environment. Command: BRANCH=main ./bin/deploy staging"
+  exit
+fi
+ssh deploy@nomad-host-prod1.lib.princeton.edu << EOF
+  curl -s "https://raw.githubusercontent.com/pulibrary/${REPOSITORY}/${BRANCH_NAME}/config/deploy/${ENV}.hcl" | nomad job run -var "branch_or_sha=sha-$(git ls-remote https://github.com/pulibrary/${REPOSITORY}.git ${BRANCH_NAME} | awk '{ print substr($1,1,7) }')" -
+EOF
