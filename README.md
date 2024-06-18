@@ -19,6 +19,11 @@ The SECRET_KEY_BASE below is just a filler one for the purpose of testing locall
 
 Run Docker Image: `docker run -t -p 4000:4000 -e DATABASE_URL='ecto://postgres:@host.docker.internal:5434/database' -e SECRET_KEY_BASE='B8rwzeX3DFLveiJ4cP28lRGc0PWdEr8ZF/hDoPRucw95Nzf2IPnu7lhEB+Yldx6Z' dpul-collections`
 
+## Deployment
+
+1. Connect to VPN
+1. `BRANCH=<branch> ./bin/deploy staging`
+
 ## Learn more
 
   * Official website: https://www.phoenixframework.org/

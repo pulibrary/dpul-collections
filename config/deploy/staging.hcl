@@ -6,6 +6,9 @@ job "dpulc-staging" {
   region = "global"
   datacenters = ["dc1"]
   type = "service"
+  update {
+    auto_revert       = true
+  }
   group "web" {
     count = 2
     network {
