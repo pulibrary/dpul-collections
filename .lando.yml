@@ -3,3 +3,14 @@ services:
   database:
     type: postgres:15
     portforward: 5434
+  figgy_database:
+    type: compose
+    app_mount: false
+    services:
+      image: "ghcr.io/pulibrary/dpul-collections:figgy-fixtures"
+      environment:
+        POSTGRES_PASSWORD: "postgres"
+      ports:
+        - "5435:5432"
+      # This comes from the base image ENTRYPOINT + CMD
+      command: "docker-entrypoint.sh postgres"
