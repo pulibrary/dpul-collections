@@ -102,7 +102,10 @@ Participant TransformationLog
 Participant IndexerV1
 Participant SolrIndex
 
-HydratorV1->>LogLocationTable: Set(type: hydrator, log_location: nil, log_version: 1)
+HydratorV1->>LogLocationTable: Set(type: hydrator, log_location: pre_figgy_timestamp, log_version: 1)
+loop Populate the Log in Batches
 HydratorV1->>LogLocationTable: Get last log_location
-HydratorV1->>FiggyDB: Get X (e.g. 500) records starting at log_location
-HydratorV1->>LogLocationTable: Set(type: hydrator, log_location: nil, log_version: 1)
+HydratorV1->>FiggyDB: Get X (e.g. 500) records with update_at later than log_location
+HydratorV1->>HydrationLog: Store the records with log version 1
+HydratorV1->>LogLocationTable: Set(log_location: latest_updated_at_from_batch)
+end
