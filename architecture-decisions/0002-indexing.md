@@ -33,17 +33,17 @@ flowchart LR
 
 ### Hydration
 
-Hydration will copy records from Figgy and place them into a cache in DPUL-Collections. This pattern will allow us to do the following steps no matter the uptime or performance characteristics of our source repository.
+Hydration will copy records from Figgy and place them into a cache in DPUL-Collections. This pattern will allow us to do the transformation and indexing steps no matter the uptime or performance characteristics of our source repository.
 
-Every minute DPUL-C will poll Figgy's `orm_resources` table for newly updated records and copy them into a local postgres cache that has the following structure:
+The Hydrator will query Figgy's `orm_resources` table for newly updated records and copy them into a local postgres cache that has the following structure:
 
-| id   | data  | log_order | figgy_modified_date |
-|------|-------|-----------|---------------------|
-| UUID | JSONB | INT       | DATETIME            |
+| id   | data  | log_order | log_version | record_id |
+|------|-------|-----------|-------------|-----------|
+| INT  | BLOB  | INT       | INT         | VARCHAR   |
 
 We'll pull records as well as DeletionMarkers so we'll know and record when records have been deleted from Figgy.
 
-#### Performance Requirements
+#### Performance Requirements for Full Hydration
 
 1 Hour - 2 Days
 
@@ -53,13 +53,13 @@ The faster we can do a full re-harvest, the faster we can pull in broad metadata
 
 ### Transformation
 
-Every minute Transformation will poll the records cached by the Hydration step, convert them to a Solr document, and store that solr document in a local postgres cache with the following structure:
+The Transformer will query the hydration log to fetch the records cached by the Hydration step, convert them to a Solr document, and store that solr document in a local postgres cache with the following structure:
 
-| id   | data  | log_order |
-|------|-------|-----------|
-| UUID | JSONB | INT       |
+| id   | data  | log_order | log_version | record_id |
+|------|-------|-----------|-------------|-----------|
+| INT  | BLOB  | INT       | INT         | VARCHAR   |
 
-#### Performance Requirements
+#### Performance Requirements for Full Transformation
 
 30 minutes - 2 hours
 
@@ -67,11 +67,11 @@ Every minute Transformation will poll the records cached by the Hydration step, 
 
 We will need to do a re-transformation when we add new fields to the index, which we expect to do often. The faster we can do that, the more of those tickets we can do. With a two hour transformation stage we can do more than one such transformation a day, significantly improving our productivity.
 
-### Reindex
+### Indexing
 
-Every minute Reindex will poll the records cached by the Transformation step and index them into Solr as a batch.
+The Indexer will query the transformation log to fetch the records cached by the Transformation step and index them into Solr as a batch.
 
-#### Performance Requirements
+#### Performance Requirements for Full Indexing
 
 10 minutes - 1 hour
 
@@ -124,8 +124,45 @@ IndexerV1->>IndexerV1: Sleep for poll interval if recordset is empty
 end
 ```
 
+## Commonalities between Hydrator, Transformer, Indexer
+
+Each of these will keep track of the last object they acted on in a LogLocationTable with the following structure:
+
+
+| id   | log_location | log_version | type    |
+|------|--------------|-------------|---------|
+| INT  | varchar      | INT         | VARCHAR |
+
+For Hydrator, log_location is figgy_updated_at
+For Transformer, log_location is a log_order value from the HydrationLog
+For Indexer, log_location is a log_order value from the TransformationLog
+
+log_version (table I’m writing)
+
+the ways log_location works is: stuff
+(table I’m reading)
+
+
+
+## Concurrent Logic
+
+To support concurrency in these processes:
+
+- We will pull batches from an event log serially and only parallelize within a batch
+- When we pull from an event log we will ensure we only pull the most recent entry for each record id
+
+## Event Log Cleanup
+
+We will periodically delete rows from each event log as follows:
+
+- Where multiple rows have the same record_id, the older ones will be deleted
+- We believe we can always do this without race conditions
+
+
 ## Consequences
 
 We need to find a way to validate that we're indexing 100% of the documents that we pull from Figgy.
+
+The event logs will contain every deleted figgy resource.
 
 Keeping track of three different tables may be complicated. However, we expect to be able to scale this architecture out to allow for multiple harvest sources and transformation steps in the future.
