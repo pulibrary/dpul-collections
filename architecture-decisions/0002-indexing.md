@@ -79,15 +79,9 @@ Every minute Reindex will poll the records cached by the Transformation step and
 
 We expect reindexing to need to happen often - either because of changing weights in Solr, migrating Solr machines, or testing new configurations. By tightening up this time as much as possible we can try many different weights in a day, supporting our vision of being able to create a joyful discovery experience. We believe this performance estimate is reasonable given that there won't be any transformation necessary - it will go as fast as Solr can accept documents.
 
-## Consequences
+## Sequence Diagram
 
-We need to find a way to validate that we're indexing 100% of the documents that we pull from Figgy.
-
-Keeping track of three different tables may be complicated. However, we expect to be able to scale this architecture out to allow for multiple harvest sources and transformation steps in the future.
-
-
-## WIP full diagram
-
+```mermaid
 ---
 title: A full Indexing Pipeline workflow
 ---
@@ -108,4 +102,30 @@ HydratorV1->>LogLocationTable: Get last log_location
 HydratorV1->>FiggyDB: Get X (e.g. 500) records with update_at later than log_location
 HydratorV1->>HydrationLog: Store the records with log version 1
 HydratorV1->>LogLocationTable: Set(log_location: latest_updated_at_from_batch)
+HydratorV1->>HydratorV1: Sleep for poll interval if recordset is empty
 end
+
+TransformerV1->>LogLocationTable: Set(type: transformer, log_location: 0, log_version: 1)
+loop Populate the TransformationLog in Batches
+TransformerV1->>LogLocationTable: Get last log_location
+TransformerV1->>HydrationLog: Get X (e.g. 500) records with log_order higher than log_location
+TransformerV1->>TransformationLog: Store the transformed records with log version 1
+TransformerV1->>LogLocationTable: Set(log_location: highest_log_order from that batch)
+TransformerV1->>TransformerV1: Sleep for poll interval if recordset is empty
+end
+
+IndexerV1->>LogLocationTable: Set(type: indexer, log_location: 0, log_version: 1)
+loop Populate the SolrIndex in Batches
+IndexerV1->>LogLocationTable: Get last log_location
+IndexerV1->>TransformationLog: Get X (e.g. 500) records with log_order higher than log_location
+IndexerV1->>SolrIndex: Store the documents
+IndexerV1->>LogLocationTable: Set(log_location: highest_log_order from that batch)
+IndexerV1->>IndexerV1: Sleep for poll interval if recordset is empty
+end
+```
+
+## Consequences
+
+We need to find a way to validate that we're indexing 100% of the documents that we pull from Figgy.
+
+Keeping track of three different tables may be complicated. However, we expect to be able to scale this architecture out to allow for multiple harvest sources and transformation steps in the future.
