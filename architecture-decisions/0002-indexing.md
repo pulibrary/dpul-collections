@@ -89,11 +89,11 @@ title: A full Indexing Pipeline workflow
 sequenceDiagram
 Participant LogLocationTable
 Participant FiggyDB
-Participant HydratorV1
+Participant HydratorV1 as Hydrator(log_version: 1)
 Participant HydrationLog
-Participant TransformerV1
+Participant TransformerV1 as Transformer(log_version: 1)
 Participant TransformationLog
-Participant IndexerV1
+Participant IndexerV1 as Indexer(log_version: 1, solr_collection: dpul)
 Participant SolrIndex
 
 HydratorV1->>LogLocationTable: Set(type: hydrator, log_location: pre_figgy_timestamp, log_version: 1)
