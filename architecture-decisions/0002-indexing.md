@@ -84,3 +84,25 @@ We expect reindexing to need to happen often - either because of changing weight
 We need to find a way to validate that we're indexing 100% of the documents that we pull from Figgy.
 
 Keeping track of three different tables may be complicated. However, we expect to be able to scale this architecture out to allow for multiple harvest sources and transformation steps in the future.
+
+
+## WIP full diagram
+
+---
+title: A full Indexing Pipeline workflow
+---
+
+sequenceDiagram
+Participant LogLocationTable
+Participant FiggyDB
+Participant HydratorV1
+Participant HydrationLog
+Participant TransformerV1
+Participant TransformationLog
+Participant IndexerV1
+Participant SolrIndex
+
+HydratorV1->>LogLocationTable: Set(type: hydrator, log_location: nil, log_version: 1)
+HydratorV1->>LogLocationTable: Get last log_location
+HydratorV1->>FiggyDB: Get X (e.g. 500) records starting at log_location
+HydratorV1->>LogLocationTable: Set(type: hydrator, log_location: nil, log_version: 1)
