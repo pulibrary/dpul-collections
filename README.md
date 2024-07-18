@@ -11,6 +11,12 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
 Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
 
+## Running Tests
+
+`mix spec`
+
+This will run all your tests and store your coverage data in `./cover`.
+
 ## Build & Run Production Docker Image Locally
 
 Build Docker Image: `docker build . -t dpul-collections`
