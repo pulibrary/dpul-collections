@@ -18,7 +18,7 @@ Often times systems like this use event streaming platforms such as Kafka, but w
 
 ## Decision
 
-Our indexing pipeline will consist of three steps - Hydration, Transformation, and Indexing.
+Our indexing pipeline will consist of three steps - Hydration, Transformation, and Indexing. Collectively we'll call these the Processors. 
 
 Each step has a performance requirement - the lower bound is the point at which we stop optimizing in the case of running that full process, the upper bound is the maximum we'll allow it to take before re-architecting.
 
@@ -26,9 +26,9 @@ For newly added records (not a full pipeline run of all records), we expect to s
 
 ```mermaid
 flowchart LR
-    A[Figgy Postgres] -->|Hydrate| B[DPUL-C Figgy Record Cache]
-    B -->|Transform| C[DPUL-C Solr Record Cache]
-    C -->|Index| D[DPUL-C Solr]
+    A[Figgy Postgres] -->|Hydrate| B[Hydration Log]
+    B -->|Transform| C[Transformation Log]
+    C -->|Index| D[Solr Index]
 ```
 
 ### Hydration
@@ -124,25 +124,20 @@ IndexerV1->>IndexerV1: Sleep for poll interval if recordset is empty
 end
 ```
 
-## Commonalities between Hydrator, Transformer, Indexer
+## Commonalities between Processors
 
-Each of these will keep track of the last object they acted on in a LogLocationTable with the following structure:
+Each Processor will keep track of the last object they acted on in a LogLocationTable with the following structure:
 
 
 | id   | log_location | log_version | type    |
 |------|--------------|-------------|---------|
 | INT  | varchar      | INT         | VARCHAR |
 
-For Hydrator, log_location is figgy_updated_at
-For Transformer, log_location is a log_order value from the HydrationLog
-For Indexer, log_location is a log_order value from the TransformationLog
+- For Hydrator, log_location is figgy_updated_at
+- For Transformer, log_location is a log_order value from the HydrationLog
+- For Indexer, log_location is a log_order value from the TransformationLog
 
-log_version (table I’m writing)
-
-the ways log_location works is: stuff
-(table I’m reading)
-
-
+The log_version will be the same for each Processor within a given pipeline. It will be configured manually before a full pipeline run. It will be used to read the correct rows out of each log.
 
 ## Concurrent Logic
 
