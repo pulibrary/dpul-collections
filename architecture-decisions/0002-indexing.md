@@ -43,7 +43,7 @@ The Hydration Log has the following structure:
 
 We'll pull records as well as DeletionMarkers so we'll know and record when records have been deleted from Figgy.
 
-The Hydrator will also pull from a retry queue. If there are resource IDs in the retry queue the Hydrator will duplicate the last row found for that resource, updating its log order to be the next number in the sequence.
+If retries have been enqueued, the Hydrator will pull from the retry queue instad of from Figgy. For each resource ID in the retry queue, the Hydrator will duplicate the last row found for that resource in the Hydration Log, updating its log order to be the next number in the sequence.
 
 #### Performance Requirements for Full Hydration
 
@@ -91,6 +91,7 @@ title: A full Indexing Pipeline workflow
 sequenceDiagram
 Participant LogLocationTable
 Participant FiggyDB
+Participant RetryQueue
 Participant HydratorV1 as Hydrator(log_version: 1)
 Participant HydrationLog
 Participant TransformerV1 as Transformer(log_version: 1)
@@ -100,6 +101,8 @@ Participant SolrIndex
 
 HydratorV1->>LogLocationTable: Set(type: hydrator, log_location: pre_figgy_timestamp, log_version: 1)
 loop Populate the Log in Batches
+HydratorV1->>RetryQueue: Get resource IDs from queue
+HydratorV1->>HydratorV1: Duplicate retry resource rows into log
 HydratorV1->>LogLocationTable: Get last log_location
 HydratorV1->>FiggyDB: Get X (e.g. 500) records with update_at later than log_location
 HydratorV1->>HydrationLog: Store the records with log version 1
@@ -156,15 +159,14 @@ We will periodically delete rows from each event log as follows:
 - We believe we can always do this without race conditions
 
 ## Resilience and Error Handling 
-If postgres or Solr fails, we should let the Processors crash and restart indefinitely. When the service comes back up, they will resume their expected operation. 
+If postgres or Solr fails, we should let the Processors crash and restart indefinitely. When the service comes back up, they will resume their expected operation.
 
 When a Transformation error occurs:
 0. The Transformer does its best to create a Solr record, with incomplete data. 
 1. It gets logged by writing the error message in the `error` field and sending the notification to Honeybadger.
 2. DLS can review errors via scripts and Honeybadger weekly review.
 3. DLS fixes error(s).
-4. DLS promotes the record in the Hydration Log to re-transform.
-
+4. DLS adds the record ID to the retry queue.
 
 ## Consequences
 
