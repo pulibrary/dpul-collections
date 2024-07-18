@@ -2,6 +2,8 @@
 
 # Women Life Freedom Movement: Iran 2022
 PROJECT_ID=2961c153-54ab-4c6a-b5cd-aa992f4c349b
+# First box in Women Life Freedom Movement
+BOX_ID=82624edb-c360-4d8a-b202-f103ee639e8e
 
 # Export the project
 ssh deploy@figgy-web-prod1.princeton.edu "cd /opt/figgy/current && PGPASSWORD=\$FIGGY_DB_RO_PASSWORD psql -d \$FIGGY_DB -U \$FIGGY_DB_RO_USERNAME -h \$FIGGY_DB_HOST -c \"\\copy (select * from orm_resources WHERE id = '$PROJECT_ID') TO '/tmp/project-export.binary' BINARY\""
@@ -36,7 +38,28 @@ END
 
 ssh deploy@figgy-web-prod1.princeton.edu "cd /opt/figgy/current && PGPASSWORD=\$FIGGY_DB_RO_PASSWORD psql -d \$FIGGY_DB -U \$FIGGY_DB_RO_USERNAME -h \$FIGGY_DB_HOST -c \"\\copy ($VOCABULARY_QUERY) TO '/tmp/project-vocabulary-export.binary' BINARY\""
 
+# Get deletion markers for any Folders deleted from the project's box.
+DELETION_MARKERS_QUERY=$(cat <<-END
+select * FROM orm_resources WHERE internal_resource='DeletionMarker' AND metadata @> '{\"parent_id\": [{\"id\": \"$BOX_ID\"}]}'
+END
+)
+
+ssh deploy@figgy-web-prod1.princeton.edu "cd /opt/figgy/current && PGPASSWORD=\$FIGGY_DB_RO_PASSWORD psql -d \$FIGGY_DB -U \$FIGGY_DB_RO_USERNAME -h \$FIGGY_DB_HOST -c \"\\copy ($DELETION_MARKERS_QUERY) TO '/tmp/project-dm-export.binary' BINARY\""
+
+# Get a few resources we don't want to index in Phase 1-3
+IGNORABLE_RESOURCES_QUERY=$(cat <<-END
+select * from orm_resources WHERE internal_resource = 'Event' LIMIT 10
+END
+)
+IGNORABLE_RESOURCES_QUERY_2=$(cat <<-END
+select * from orm_resources WHERE internal_resource = 'ScannedResource' LIMIT 10
+END
+)
+
+ssh deploy@figgy-web-prod1.princeton.edu "cd /opt/figgy/current && PGPASSWORD=\$FIGGY_DB_RO_PASSWORD psql -d \$FIGGY_DB -U \$FIGGY_DB_RO_USERNAME -h \$FIGGY_DB_HOST -c \"\\copy ($IGNORABLE_RESOURCES_QUERY) TO '/tmp/project-ignore-export.binary' BINARY\""
+ssh deploy@figgy-web-prod1.princeton.edu "cd /opt/figgy/current && PGPASSWORD=\$FIGGY_DB_RO_PASSWORD psql -d \$FIGGY_DB -U \$FIGGY_DB_RO_USERNAME -h \$FIGGY_DB_HOST -c \"\\copy ($IGNORABLE_RESOURCES_QUERY_2) TO '/tmp/project-ignore2-export.binary' BINARY\""
+
 # Get the DB schema
 ssh deploy@figgy-web-prod1.princeton.edu "cd /opt/figgy/current && PGPASSWORD=\$FIGGY_DB_RO_PASSWORD pg_dump -Fc -U \$FIGGY_DB_RO_USERNAME -h \$FIGGY_DB_HOST -f /tmp/db-schema.sql --schema-only \$FIGGY_DB"
 
-scp deploy@figgy-web-prod1.princeton.edu:/tmp/\{db-schema.sql,project-vocabulary-export.binary,project-members-export.binary,project-export.binary\} fixture-exports/
+scp deploy@figgy-web-prod1.princeton.edu:/tmp/\{db-schema.sql,*-export.binary\} fixture-exports/
