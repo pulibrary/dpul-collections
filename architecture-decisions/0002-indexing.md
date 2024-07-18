@@ -43,6 +43,8 @@ The Hydration Log has the following structure:
 
 We'll pull records as well as DeletionMarkers so we'll know and record when records have been deleted from Figgy.
 
+The Hydrator will also pull from a retry queue. If there are resource IDs in the retry queue the Hydrator will duplicate the last row found for that resource, updating its log order to be the next number in the sequence.
+
 #### Performance Requirements for Full Hydration
 
 1 Hour - 2 Days
@@ -158,9 +160,9 @@ If postgres or Solr fails, we should let the Processors crash and restart indefi
 
 When a Transformation error occurs:
 0. The Transformer does its best to create a Solr record, with incomplete data. 
-1. It gets logged by writing the error message in the `error` field.
-2. DLS gets notified.
-3. DLS investigates/fixes.
+1. It gets logged by writing the error message in the `error` field and sending the notification to Honeybadger.
+2. DLS can review errors via scripts and Honeybadger weekly review.
+3. DLS fixes error(s).
 4. DLS promotes the record in the Hydration Log to re-transform.
 
 
