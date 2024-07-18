@@ -84,11 +84,7 @@ We expect reindexing to need to happen often - either because of changing weight
 ## Sequence Diagram
 
 ```mermaid
----
-title: A full Indexing Pipeline workflow
----
-
-sequenceDiagram
+sequenceDiagram title A full Indexing Pipeline workflow
 Participant LogLocationTable
 Participant FiggyDB
 Participant RetryQueue
