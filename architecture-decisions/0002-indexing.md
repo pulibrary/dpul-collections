@@ -55,9 +55,9 @@ The faster we can do a full re-harvest, the faster we can pull in broad metadata
 
 The Transformer will query the Hydration Log to fetch the records cached by the Hydration step, convert them to a Solr document, and store that solr document in a local postgres cache (the Transformation Log) with the following structure:
 
-| id   | data  | log_order | log_version | record_id |
-|------|-------|-----------|-------------|-----------|
-| INT  | BLOB  | INT       | INT         | VARCHAR   |
+| id   | data  | log_order | log_version | record_id | error   |
+|------|-------|-----------|-------------|-----------|---------|
+| INT  | BLOB  | INT       | INT         | VARCHAR   | TEXT    | 
 
 #### Performance Requirements for Full Transformation
 
@@ -152,6 +152,16 @@ We will periodically delete rows from each event log as follows:
 
 - Where multiple rows have the same record_id, the older ones will be deleted
 - We believe we can always do this without race conditions
+
+## Resilience and Error Handling 
+If postgres or Solr fails, we should let the Processors crash and restart indefinitely. When the service comes back up, they will resume their expected operation. 
+
+When a Transformation error occurs:
+0. The Transformer does its best to create a Solr record, with incomplete data. 
+1. It gets logged by writing the error message in the `error` field.
+2. DLS gets notified.
+3. DLS investigates/fixes.
+4. DLS promotes the record in the Hydration Log to re-transform.
 
 
 ## Consequences
