@@ -10,11 +10,11 @@ Accepted
 
 DPUL-Collections must have a resilient indexing pipeline that can quickly harvest, transform, and index records. We foresee needing to process millions of records, regularly change weighting algorithms, and accept records from external institutions which may not be stable in the long term.
 
-There must be a verifiable method of ensuring that 100% of Figgy's relevant records are indexed into DPUL-Collections, to prevent us from constantly scrambling and diagnosing indexing issues as we do now with our spotlight-powered DPUL.
-
 We will initially pull data from Figgy, so the performance requirements in this document are based on the size of Figgy's database.
 
 Often times systems like this use event streaming platforms such as Kafka, but we'd like to prevent adding new technology to our stack. We think we can use Postgres tables as a compact event log.
+
+Many of the ideas and concepts that led to this architecture were introduced to us in [Designing Data Intensive Applications](https://catalog.princeton.edu/catalog/99127097737806421).
 
 ## Decision
 
@@ -158,16 +158,21 @@ We will periodically delete rows from each event log as follows:
 If postgres or Solr fails, we should let the Processors crash and restart indefinitely. When the service comes back up, they will resume their expected operation.
 
 When a Transformation error occurs:
-0. The Transformer does its best to create a Solr record, with incomplete data. 
+
+1. The Transformer does its best to create a Solr record, with incomplete data. 
 1. It gets logged by writing the error message in the `error` field and sending the notification to Honeybadger.
-2. DLS can review errors via scripts and Honeybadger weekly review.
-3. DLS fixes error(s).
-4. DLS adds the record ID to the retry queue.
+1. DLS can review errors via scripts and Honeybadger weekly review.
+1. DLS fixes error(s).
+1. DLS adds the record ID to the retry queue.
 
 ## Consequences
-
-We need to find a way to validate that we're indexing 100% of the documents that we pull from Figgy.
 
 The event logs will contain every deleted figgy resource.
 
 Keeping track of three different tables may be complicated. However, we expect to be able to scale this architecture out to allow for multiple harvest sources and transformation steps in the future.
+
+Handling Transformer errors at first will require a lot of DLS intervention. We might change that in the future, but we want to get a handle on the kinds of errors that are happening and record the kinds of automatic interventions that might be useful to implement.
+
+Two of the new tables (the Logs) could be very large, requiring more disk space - each containing every resource we're indexing into Solr. However, we think they're necessary to meet our performance and reliability goals.
+
+We're relying on Figgy having a single database we can harvest from. If Figgy's database architecture or schema change, we'll have to change our code.
