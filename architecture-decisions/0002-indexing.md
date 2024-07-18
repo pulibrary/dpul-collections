@@ -8,11 +8,11 @@ Accepted
 
 ## Context
 
-DPUL-Collections must have a resilient indexing pipeline that can quickly harvest, transform, and index millions of records. We foresee needing to index millions of records, regularly change weighting algorithms, and accept records from external institutions which may not be stable in the long term.
+DPUL-Collections must have a resilient indexing pipeline that can quickly harvest, transform, and index records. We foresee needing to process millions of records, regularly change weighting algorithms, and accept records from external institutions which may not be stable in the long term.
 
 There must be a verifiable method of ensuring that 100% of Figgy's relevant records are indexed into DPUL-Collections, to prevent us from constantly scrambling and diagnosing indexing issues as we do now with our spotlight-powered DPUL.
 
-We will be starting with indexing from Figgy, so that's where our initial performance requirements will be based upon.
+We will initially pull data from Figgy, so the performance requirements in this document are based on the size of Figgy's database.
 
 Often times systems like this use event streaming platforms such as Kafka, but we'd like to prevent adding new technology to our stack. We think we can use Postgres tables as a compact event log.
 
@@ -33,9 +33,9 @@ flowchart LR
 
 ### Hydration
 
-Hydration will copy records from Figgy and place them into a cache in DPUL-Collections. This pattern will allow us to do the transformation and indexing steps no matter the uptime or performance characteristics of our source repository.
+The Hydrator will query Figgy's `orm_resources` table for newly updated records and copy them into a local postgres cache (the Hydration Log). This pattern will allow us to do the transformation and indexing steps no matter the uptime or performance characteristics of our source repository.
 
-The Hydrator will query Figgy's `orm_resources` table for newly updated records and copy them into a local postgres cache that has the following structure:
+The Hydration Log has the following structure:
 
 | id   | data  | log_order | log_version | record_id |
 |------|-------|-----------|-------------|-----------|
@@ -53,7 +53,7 @@ The faster we can do a full re-harvest, the faster we can pull in broad metadata
 
 ### Transformation
 
-The Transformer will query the hydration log to fetch the records cached by the Hydration step, convert them to a Solr document, and store that solr document in a local postgres cache with the following structure:
+The Transformer will query the Hydration Log to fetch the records cached by the Hydration step, convert them to a Solr document, and store that solr document in a local postgres cache (the Transformation Log) with the following structure:
 
 | id   | data  | log_order | log_version | record_id |
 |------|-------|-----------|-------------|-----------|
@@ -65,11 +65,11 @@ The Transformer will query the hydration log to fetch the records cached by the 
 
 ##### Performance Reasoning
 
-We will need to do a re-transformation when we add new fields to the index, which we expect to do often. The faster we can do that, the more of those tickets we can do. With a two hour transformation stage we can do more than one such transformation a day, significantly improving our productivity.
+We will need to do a re-transformation when we add new fields to the index, which we expect to do often. The faster we can do that, the more of those tickets we can do. With a two hour transformation stage we can do more than one such transformation per day, significantly improving our productivity.
 
 ### Indexing
 
-The Indexer will query the transformation log to fetch the records cached by the Transformation step and index them into Solr as a batch.
+The Indexer will query the Transformation Log to fetch the records cached by the Transformation step and index them into Solr as a batch.
 
 #### Performance Requirements for Full Indexing
 
@@ -133,11 +133,11 @@ Each Processor will keep track of the last object they acted on in a LogLocation
 |------|--------------|-------------|---------|
 | INT  | varchar      | INT         | VARCHAR |
 
-- For Hydrator, log_location is figgy_updated_at
-- For Transformer, log_location is a log_order value from the HydrationLog
-- For Indexer, log_location is a log_order value from the TransformationLog
+- For Hydrator, `log_location` is an `updated_at` value from the Figgy database.
+- For Transformer, `log_location` is a `log_order` value from the HydrationLog
+- For Indexer, `log_location` is a `log_order` value from the TransformationLog
 
-The log_version will be the same for each Processor within a given pipeline. It will be configured manually before a full pipeline run. It will be used to read the correct rows out of each log.
+The value of `log_version` will be the same for each Processor within a given pipeline. It will be configured manually before a full pipeline run. It will be used to read the correct rows out of each log.
 
 ## Concurrent Logic
 
