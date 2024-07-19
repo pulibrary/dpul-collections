@@ -10,10 +10,6 @@ defmodule DpulCollectionsWeb.Router do
     plug :put_secure_browser_headers
   end
 
-  pipeline :api do
-    plug :accepts, ["json"]
-  end
-
   scope "/", DpulCollectionsWeb do
     pipe_through :browser
 

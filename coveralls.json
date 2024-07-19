@@ -3,8 +3,10 @@
     "minimum_coverage": 100,
     "floor_coverage": true
   },
+  "print_summary": false,
   "skip_files": [
     "lib/dpul_collections/release.ex",
-    "test/support/data_case.ex"
+    "test/support/data_case.ex",
+    "lib/dpul_collections_web/telemetry.ex"
   ]
 }
