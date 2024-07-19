@@ -1,0 +1,101 @@
+version: 2.1
+
+description: Common jobs for testing and building phoenix applications
+
+executors:
+  builder:
+    docker:
+      - image: cimg/elixir:1.16.2-erlang-26.2.1-browsers
+        environment:
+          TEST_POSTGRES_PORT: 5432
+      - image: cimg/postgres:15.2
+    working_directory: ~/project
+
+commands:
+  install-deps:
+    description: Installs mix and npm dependencies
+    parameters:
+      include-assets:
+        type: boolean
+        default: true
+    steps:
+      - restore_cache:
+          keys:
+            - v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
+            - v1-mix-cache-{{ .Branch }}
+            - v1-mix-cache
+      - restore_cache:
+          keys:
+            - v1-build-cache-{{ .Branch }}
+            - v1-build-cache
+      - run:
+          name: Install hex
+          command: mix local.hex --force
+      - run:
+          name: Install rebar
+          command: mix local.rebar --force
+      - run:
+          name: Install mix deps
+          command: mix deps.get
+      - when:
+          condition: << parameters.include-assets >>
+          steps:
+            - run:
+                name: Install npm deps
+                command: npm install --prefix=./assets
+      - save_cache:
+          key: v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
+          paths: "deps"
+      - save_cache:
+          key: v1-mix-cache-{{ .Branch }}
+          paths: "deps"
+      - save_cache:
+          key: v1-mix-cache
+          paths: "deps"
+      - save_cache:
+          key: v1-build-cache-{{ .Branch }}
+          paths: "_build"
+      - save_cache:
+          key: v1-build-cache
+          paths: "_build"
+
+  mix-format:
+    description: Validates code has been formatted with mix format
+    steps:
+      - run:
+          name: Check elixir formatting
+          command: mix format --check-formatted --dry-run
+
+  mix-test:
+    description: Runs all tests via mix
+    steps:
+      - run:
+          name: Run tests
+          command: MIX_ENV=test mix test
+
+jobs:
+  check-formatting:
+    executor: builder
+    steps:
+      - checkout
+      - install-deps:
+          include-assets: false
+      - mix-format
+
+  run-unit-tests:
+    executor: builder
+    steps:
+      - checkout
+      - install-deps:
+          include-assets: false
+      - mix-test
+      - store_artifacts:
+          path: cover
+          destination: cover
+
+workflows:
+  version: 2
+  build_accept_deploy:
+    jobs:
+      - check-formatting
+      - run-unit-tests

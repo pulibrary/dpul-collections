@@ -9,7 +9,7 @@ config :dpul_collections, DpulCollections.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
-  port: 5434,
+  port: System.get_env("TEST_POSTGRES_PORT") || 5434,
   database: "dpul_collections_test#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: System.schedulers_online() * 2
