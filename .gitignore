@@ -34,4 +34,5 @@ dpul_collections-*.tar
 # In case you use Node.js/npm, you want to ignore these.
 npm-debug.log
 /assets/node_modules/
-
+figgy-fixture-container/fixture-exports/*.binary
+figgy-fixture-container/fixture-exports/*.sql
