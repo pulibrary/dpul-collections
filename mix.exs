@@ -82,15 +82,14 @@ defmodule DpulCollections.MixProject do
       setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
+      test: ["ecto.create --quiet", "ecto.migrate --quiet", "coveralls.html"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["tailwind dpul_collections", "esbuild dpul_collections"],
       "assets.deploy": [
         "tailwind dpul_collections --minify",
         "esbuild dpul_collections --minify",
         "phx.digest"
-      ],
-      spec: ["coveralls.html"]
+      ]
     ]
   end
 end
