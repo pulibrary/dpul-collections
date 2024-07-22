@@ -30,7 +30,7 @@ job "dpulc-staging" {
         hook = "prestart"
         sidecar = false
       }
-      driver = "docker"
+      driver = "podman"
       config {
         image = "ghcr.io/pulibrary/dpul-collections:${ var.branch_or_sha }"
         command = "bash"
@@ -50,7 +50,7 @@ job "dpulc-staging" {
       }
     }
     task "webserver" {
-      driver = "docker"
+      driver = "podman"
       config {
         image = "ghcr.io/pulibrary/dpul-collections:${ var.branch_or_sha }"
         ports = ["http"]
