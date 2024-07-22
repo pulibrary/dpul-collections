@@ -37,9 +37,9 @@ The Hydrator will query Figgy's `orm_resources` table for newly updated records 
 
 The Hydration Log has the following structure:
 
-| id   | data  | log_order | log_version | record_id |
-|------|-------|-----------|-------------|-----------|
-| INT  | BLOB  | INT       | INT         | VARCHAR   |
+| id   | data  | log_order | log_version | record_id | source_log_order |
+|------|-------|-----------|-------------|-----------|------------------|
+| INT  | BLOB  | DATETIME  | INT         | VARCHAR   | DATETIME         |
 
 We'll pull records as well as DeletionMarkers so we'll know and record when records have been deleted from Figgy.
 
@@ -57,9 +57,9 @@ The faster we can do a full re-harvest, the faster we can pull in broad metadata
 
 The Transformer will query the Hydration Log to fetch the records cached by the Hydration step, convert them to a Solr document, and store that solr document in a local postgres cache (the Transformation Log) with the following structure:
 
-| id   | data  | log_order | log_version | record_id | error   |
-|------|-------|-----------|-------------|-----------|---------|
-| INT  | BLOB  | INT       | INT         | VARCHAR   | TEXT    | 
+| id   | data  | log_order | log_version | record_id | error   | source_log_order |
+|------|-------|-----------|-------------|-----------|---------|------------------|
+| INT  | BLOB  | DATETIME  | INT         | VARCHAR   | TEXT    | DATETIME         |
 
 #### Performance Requirements for Full Transformation
 
@@ -144,15 +144,10 @@ The value of `log_version` will be the same for each Processor within a given pi
 
 To support concurrency in these processes:
 
-- We will pull batches from an event log serially and only parallelize within a batch
-- When we pull from an event log we will ensure we only pull the most recent entry for each record id
-
-## Event Log Cleanup
-
-We will periodically delete rows from each event log as follows:
-
-- Where multiple rows have the same record_id, the older ones will be deleted
-- We believe we can always do this without race conditions
+- When writing to a log, the processor will do an upsert with a query like `INSERT INTO hydration_log(data, log_order, log_version, record_id, source_log_order) VALUES ('{}', NOW(), 1, '1da0340e-df0d-47cb-9567-4049e26141d9', <updated_at_from_figgy>) ON CONFLICT (record_id, log_version) DO UPDATE SET log_order = NOW(), data = '{}', source_log_order = <updated_at_from_figgy> WHERE source_log_order <= <updated_at_from_figgy>`
+    * If there's already a row for the above record_id and log_version, it will update it, meaning no compaction necessary. There's only ever one record per record_id in the log.
+    * If we're running an update for something from the log that's older than the current state, it won't update the row - a more recent event already ran. This means we can process the log in any order and at any level of parallelization.
+    * If we're re-running a process because we've reset the log_order in the LogLocationTable, then it will write new records because it allows updating rows where source_log_order is equal.
 
 ## Resilience and Error Handling 
 If postgres or Solr fails, we should let the Processors crash and restart indefinitely. When the service comes back up, they will resume their expected operation.
