@@ -34,5 +34,6 @@ defmodule DpulCollections.Application do
     DpulCollectionsWeb.Endpoint.config_change(changed, removed)
     :ok
   end
+
   # coveralls-ignore-end
 end

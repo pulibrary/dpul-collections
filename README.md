@@ -13,9 +13,14 @@ Ready to run in production? Please [check our deployment guides](https://hexdocs
 
 ## Running Tests
 
-`mix spec`
+`mix test`
 
 This will run all your tests and store your coverage data in `./cover`.
+
+## Checking Formatting
+
+`mix format` will format your code
+`mix format --check-formatting` will tell you formatting that must be done.
 
 ## Build & Run Production Docker Image Locally
 
