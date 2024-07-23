@@ -12,7 +12,7 @@ DPUL-Collections must have a resilient indexing pipeline that can quickly harves
 
 We will initially pull data from Figgy, so the performance requirements in this document are based on the size of Figgy's database.
 
-Often times systems like this use event streaming platforms such as Kafka, but we'd like to prevent adding new technology to our stack. We think we can use Postgres tables as a compact event log.
+Often times systems like this use event streaming platforms such as Kafka, but we'd like to prevent adding new technology to our stack. We think we can use Postgres tables as an event log.
 
 Many of the ideas and concepts that led to this architecture were introduced to us in [Designing Data Intensive Applications](https://catalog.princeton.edu/catalog/99127097737806421).
 
@@ -147,7 +147,7 @@ To support concurrency in these processes:
 - We will pull batches from an event log serially and only parallelize within a batch
 - When we pull from an event log we will ensure we only pull the most recent entry for each record id
 
-## Event Log Cleanup
+## Event Log Cleanup / Compaction
 
 We will periodically delete rows from each event log as follows:
 
@@ -176,3 +176,5 @@ Handling Transformer errors at first will require a lot of DLS intervention. We 
 Two of the new tables (the Logs) could be very large, requiring more disk space - each containing every resource we're indexing into Solr. However, we think they're necessary to meet our performance and reliability goals.
 
 We're relying on Figgy having a single database we can harvest from. If Figgy's database architecture or schema change, we'll have to change our code.
+
+If the proposed concurrency method of batching and parallelization becomes a bottleneck, we can switch to a model where we use multiple consumers on each log, partitioned on the record ID or some portion or format thereof.
