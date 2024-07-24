@@ -14,6 +14,17 @@ config :dpul_collections, DpulCollections.Repo,
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: System.schedulers_online() * 2
 
+# Configure your other database
+config :dpul_collections, DpulCollections.FiggyRepo,
+  username: "postgres",
+  password: "postgres",
+  hostname: System.get_env("TEST_POSTGRES_FIGGY_HOST") || "localhost",
+  port: System.get_env("TEST_POSTGRES_PORT") || 5435,
+  database: "postgres",
+  stacktrace: true,
+  show_sensitive_data_on_connection_error: true,
+  pool_size: 10
+
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :dpul_collections, DpulCollectionsWeb.Endpoint,
