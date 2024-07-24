@@ -43,8 +43,6 @@ The Hydration Cache has the following structure:
 
 We'll pull records as well as DeletionMarkers so we'll know and record when records have been deleted from Figgy.
 
-If retries have been enqueued, the Hydrator will pull from the retry queue instad of from Figgy. For each resource ID in the retry queue, the Hydrator will duplicate the last row found for that resource in the Hydration Cache, updating its cache order to be the next number in the sequence.
-
 #### Performance Requirements for Full Hydration
 
 1 Hour - 2 Days
@@ -57,9 +55,9 @@ The faster we can do a full re-harvest, the faster we can pull in broad metadata
 
 The Transformer will query the Hydration Cache to fetch the records cached by the Hydration step, convert them to a Solr document, and store that solr document in a local postgres cache (the Transformation Cache) with the following structure:
 
-| id   | data  | cache_order | cache_version | record_id | error   | source_cache_order |
-|------|-------|-------------|---------------|-----------|---------|--------------------|
-| INT  | BLOB  | DATETIME    | INT           | VARCHAR   | TEXT    | DATETIME           |
+| id   | data  | cache_order | cache_version | record_id | source_cache_order |
+|------|-------|-------------|---------------|-----------|--------------------|
+| INT  | BLOB  | DATETIME    | INT           | VARCHAR   | DATETIME           |
 
 #### Performance Requirements for Full Transformation
 
@@ -87,7 +85,6 @@ We expect reindexing to need to happen often - either because of changing weight
 sequenceDiagram title A full Indexing Pipeline workflow
 Participant ProcessorMarkers
 Participant FiggyDB
-Participant RetryQueue
 Participant HydratorV1 as Hydrator(cache_version: 1)
 Participant HydrationCache
 Participant TransformerV1 as Transformer(cache_version: 1)
@@ -97,8 +94,6 @@ Participant SolrIndex
 
 HydratorV1->>ProcessorMarkers: Set(type: hydrator, cache_location: pre_figgy_timestamp, cache_version: 1)
 loop Populate the Cache in Batches
-HydratorV1->>RetryQueue: Get resource IDs from queue
-HydratorV1->>HydratorV1: Duplicate retry resource rows into cache
 HydratorV1->>ProcessorMarkers: Get last cache_location
 HydratorV1->>FiggyDB: Get X (e.g. 500) records with update_at later than cache_location
 HydratorV1->>HydrationCache: Store the records with cache version 1
@@ -150,15 +145,8 @@ To support concurrency in these processes we will use the source_cache_order fie
     * If we're re-running a process because we've reset the cache_order in the ProcessorMarkers table, then it will write new records because it allows updating rows where source_cache_order is equal.
 
 ## Resilience and Error Handling 
-If postgres or Solr fails, we should let the Processors crash and restart indefinitely. When the service comes back up, they will resume their expected operation.
 
-When a Transformation error occurs:
-
-1. The Transformer does its best to create a Solr record, with incomplete data. 
-1. It gets logged by writing the error message in the `error` field and sending the notification to Honeybadger.
-1. DLS can review errors via scripts and Honeybadger weekly review.
-1. DLS fixes error(s).
-1. DLS adds the record ID to the retry queue.
+The system will have a way to automatically retry errors caused by system downtime, and log errors caused by bugs in our code.
 
 ## Consequences
 
