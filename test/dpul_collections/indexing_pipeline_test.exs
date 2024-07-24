@@ -94,4 +94,84 @@ defmodule DpulCollections.IndexingPipelineTest do
                IndexingPipeline.change_hydration_cache_entry(hydration_cache_entry)
     end
   end
+
+  describe "processor_markers" do
+    alias DpulCollections.IndexingPipeline.ProcessorMarker
+
+    import DpulCollections.IndexingPipelineFixtures
+
+    @invalid_attrs %{type: nil, cache_location: nil, cache_version: nil}
+
+    test "list_processor_markers/0 returns all processor_markers" do
+      processor_marker = processor_marker_fixture()
+      assert IndexingPipeline.list_processor_markers() == [processor_marker]
+    end
+
+    test "get_processor_marker!/1 returns the processor_marker with given id" do
+      processor_marker = processor_marker_fixture()
+      assert IndexingPipeline.get_processor_marker!(processor_marker.id) == processor_marker
+    end
+
+    test "create_processor_marker/1 with valid data creates a processor_marker" do
+      valid_attrs = %{
+        type: "some type",
+        cache_location: ~U[2024-07-23 20:40:00Z],
+        cache_version: 42
+      }
+
+      assert {:ok, %ProcessorMarker{} = processor_marker} =
+               IndexingPipeline.create_processor_marker(valid_attrs)
+
+      assert processor_marker.type == "some type"
+      assert processor_marker.cache_location == ~U[2024-07-23 20:40:00Z]
+      assert processor_marker.cache_version == 42
+    end
+
+    test "create_processor_marker/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} =
+               IndexingPipeline.create_processor_marker(@invalid_attrs)
+    end
+
+    test "update_processor_marker/2 with valid data updates the processor_marker" do
+      processor_marker = processor_marker_fixture()
+
+      update_attrs = %{
+        type: "some updated type",
+        cache_location: ~U[2024-07-24 20:40:00Z],
+        cache_version: 43
+      }
+
+      assert {:ok, %ProcessorMarker{} = processor_marker} =
+               IndexingPipeline.update_processor_marker(processor_marker, update_attrs)
+
+      assert processor_marker.type == "some updated type"
+      assert processor_marker.cache_location == ~U[2024-07-24 20:40:00Z]
+      assert processor_marker.cache_version == 43
+    end
+
+    test "update_processor_marker/2 with invalid data returns error changeset" do
+      processor_marker = processor_marker_fixture()
+
+      assert {:error, %Ecto.Changeset{}} =
+               IndexingPipeline.update_processor_marker(processor_marker, @invalid_attrs)
+
+      assert processor_marker == IndexingPipeline.get_processor_marker!(processor_marker.id)
+    end
+
+    test "delete_processor_marker/1 deletes the processor_marker" do
+      processor_marker = processor_marker_fixture()
+
+      assert {:ok, %ProcessorMarker{}} =
+               IndexingPipeline.delete_processor_marker(processor_marker)
+
+      assert_raise Ecto.NoResultsError, fn ->
+        IndexingPipeline.get_processor_marker!(processor_marker.id)
+      end
+    end
+
+    test "change_processor_marker/1 returns a processor_marker changeset" do
+      processor_marker = processor_marker_fixture()
+      assert %Ecto.Changeset{} = IndexingPipeline.change_processor_marker(processor_marker)
+    end
+  end
 end

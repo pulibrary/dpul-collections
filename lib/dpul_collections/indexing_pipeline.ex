@@ -101,4 +101,100 @@ defmodule DpulCollections.IndexingPipeline do
   def change_hydration_cache_entry(%HydrationCacheEntry{} = hydration_cache_entry, attrs \\ %{}) do
     HydrationCacheEntry.changeset(hydration_cache_entry, attrs)
   end
+
+  alias DpulCollections.IndexingPipeline.ProcessorMarker
+
+  @doc """
+  Returns the list of processor_markers.
+
+  ## Examples
+
+      iex> list_processor_markers()
+      [%ProcessorMarker{}, ...]
+
+  """
+  def list_processor_markers do
+    Repo.all(ProcessorMarker)
+  end
+
+  @doc """
+  Gets a single processor_marker.
+
+  Raises `Ecto.NoResultsError` if the Processor marker does not exist.
+
+  ## Examples
+
+      iex> get_processor_marker!(123)
+      %ProcessorMarker{}
+
+      iex> get_processor_marker!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_processor_marker!(id), do: Repo.get!(ProcessorMarker, id)
+
+  @doc """
+  Creates a processor_marker.
+
+  ## Examples
+
+      iex> create_processor_marker(%{field: value})
+      {:ok, %ProcessorMarker{}}
+
+      iex> create_processor_marker(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_processor_marker(attrs \\ %{}) do
+    %ProcessorMarker{}
+    |> ProcessorMarker.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a processor_marker.
+
+  ## Examples
+
+      iex> update_processor_marker(processor_marker, %{field: new_value})
+      {:ok, %ProcessorMarker{}}
+
+      iex> update_processor_marker(processor_marker, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_processor_marker(%ProcessorMarker{} = processor_marker, attrs) do
+    processor_marker
+    |> ProcessorMarker.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a processor_marker.
+
+  ## Examples
+
+      iex> delete_processor_marker(processor_marker)
+      {:ok, %ProcessorMarker{}}
+
+      iex> delete_processor_marker(processor_marker)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_processor_marker(%ProcessorMarker{} = processor_marker) do
+    Repo.delete(processor_marker)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking processor_marker changes.
+
+  ## Examples
+
+      iex> change_processor_marker(processor_marker)
+      %Ecto.Changeset{data: %ProcessorMarker{}}
+
+  """
+  def change_processor_marker(%ProcessorMarker{} = processor_marker, attrs \\ %{}) do
+    ProcessorMarker.changeset(processor_marker, attrs)
+  end
 end
