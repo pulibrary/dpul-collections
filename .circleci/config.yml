@@ -12,6 +12,8 @@ executors:
       - image: cimg/postgres:15.2
       - image: ghcr.io/pulibrary/dpul-collections:figgy-fixtures
         name: figgy_database
+        environment:
+          POSTGRES_PASSWORD: "postgres"
     working_directory: ~/project
 
 commands:
