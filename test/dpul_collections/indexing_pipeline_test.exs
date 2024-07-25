@@ -174,4 +174,10 @@ defmodule DpulCollections.IndexingPipelineTest do
       assert %Ecto.Changeset{} = IndexingPipeline.change_processor_marker(processor_marker)
     end
   end
+
+  describe "figgy database" do
+    test "get a resource from the figgy db" do
+
+    end
+  end
 end
