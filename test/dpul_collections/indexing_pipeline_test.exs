@@ -176,8 +176,8 @@ defmodule DpulCollections.IndexingPipelineTest do
   end
 
   describe "figgy database" do
-    test "get a resource from the figgy db" do
-
+    test "get_figgy_resource!/1 returns a resource from the figgy db" do
+      assert IndexingPipeline.get_figgy_resource!("8b0631b7-e1e4-49c2-904f-cd3141167a80").id == "8b0631b7-e1e4-49c2-904f-cd3141167a80"
     end
   end
 end

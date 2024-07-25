@@ -4,7 +4,7 @@ defmodule DpulCollections.IndexingPipeline do
   """
 
   import Ecto.Query, warn: false
-  alias DpulCollections.Repo
+  alias DpulCollections.{Repo, FiggyRepo}
 
   alias DpulCollections.IndexingPipeline.HydrationCacheEntry
 
@@ -197,4 +197,20 @@ defmodule DpulCollections.IndexingPipeline do
   def change_processor_marker(%ProcessorMarker{} = processor_marker, attrs \\ %{}) do
     ProcessorMarker.changeset(processor_marker, attrs)
   end
+
+  @doc """
+  Gets a single Resource by id from Figgy Database.
+
+  Raises `Ecto.NoResultsError` if the Resource does not exist.
+
+  ## Examples
+
+      iex> get_figgy_resource!(123)
+      %HydrationCacheEntry{}
+
+      iex> get_figgy_resource!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_figgy_resource!(id), do: FiggyRepo.get!(FiggyResource, id)
 end
