@@ -9,7 +9,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyResource do
     field :internal_resource, :string
     field :lock_version, :integer
     field :metadata, :map
-    field :created_at, :naive_datetime
-    field :updated_at, :naive_datetime
+    field :created_at, :utc_datetime
+    field :updated_at, :utc_datetime
   end
 end

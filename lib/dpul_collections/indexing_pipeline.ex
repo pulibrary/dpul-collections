@@ -213,4 +213,10 @@ defmodule DpulCollections.IndexingPipeline do
 
   """
   def get_figgy_resource!(id), do: FiggyRepo.get!(FiggyResource, id)
+
+  def get_figgy_resources_since!(updated_at, count) do
+    query = from r in FiggyResource, where: r.updated_at >= ^updated_at, limit: ^count, order_by: [asc: r.updated_at]
+    FiggyRepo.all(query)
+  end
+
 end

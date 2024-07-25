@@ -1,4 +1,5 @@
 defmodule DpulCollections.IndexingPipeline.FiggyProducer do
+  alias DpulCollections.IndexingPipeline
   use GenStage
 
   def start_link(number) do
@@ -10,7 +11,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
   end
 
   def handle_demand(demand, state) when demand > 0 do
-    records = [%{id: "3cb7627b-defc-401b-9959-42ebc4488f74"}]
+    records = IndexingPipeline.get_figgy_resources_since!(~U[1900-01-01 00:00:00Z], 1)
     {:noreply, records, state}
   end
 end
