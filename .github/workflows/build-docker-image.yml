@@ -55,3 +55,70 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           file: Dockerfile
+  container-vuln-scan:
+    needs: build-and-push-image
+    runs-on: ubuntu-latest
+    if: 
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha
+        env:
+          DOCKER_METADATA_PR_HEAD_SHA: true
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.20.0
+        id: runscanner
+        continue-on-error: true
+        with:
+          image-ref: 'ghcr.io/pulibrary/dpul-collections:${{ steps.meta.outputs.version }}'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+          output: 'vulnerabilities.table'
+      - name: Set variables
+        id: scanner
+        if: ${{ always() }}
+        run: |
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "results<<$EOF" >> $GITHUB_OUTPUT
+          echo "$(cat vulnerabilities.table)" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+      - name: Output variable
+        if: ${{ always() }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          SCANNER_OUTPUTS: ${{ steps.scanner.outputs.results }}
+        run: echo "${{ env.SCANNER_OUTPUTS }}"
+      - name: Find Comment for scan
+        if: github.event_name == 'pull_request'
+        uses: peter-evans/find-comment@v3
+        id: fc
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: 'Container Scanning Status: '
+      - name: Create or update comment
+        if: github.event_name == 'pull_request'
+        uses: peter-evans/create-or-update-comment@v4
+        env:
+          SCANNER_OUTPUTS: ${{ steps.scanner.outputs.results }}
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ## Container Scanning Status: ${{ steps.runscanner.outcome != 'success' && '❌ Failure' || '✅ Success' }}
+            ```
+            ${{ env.SCANNER_OUTPUTS }}
+            ```
+          edit-mode: replace
