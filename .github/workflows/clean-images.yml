@@ -1,0 +1,24 @@
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "5 * * * *"  # every hour
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    name: Delete old images
+    steps:
+      - name: Fetch multi-platform package version SHAs
+        id: multi-arch-digests
+        run: |
+          package1=$(docker manifest inspect ghcr.io/pulibrary/dpul-collections:main | jq -r '.manifests.[] | .digest' | paste -s -d ' ' -)
+          echo "multi-arch-digests=$package1" >> $GITHUB_OUTPUT
+      - uses: snok/container-retention-policy@v3.0.0
+        with:
+          account: pulibrary
+          token: ${{ secrets.GITHUB_TOKEN }}
+          image-names: "dpul-collections"
+          image-tags: "!main pr-* sha-*"  # target any image that has a tag starting with the word test or dev
+          cut-off: 2w
+          keep-n-most-recent: 10
+          skip-shas: ${{ steps.multi-arch-digests.outputs.multi-arch-digests }}
