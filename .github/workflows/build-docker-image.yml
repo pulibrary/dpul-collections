@@ -122,3 +122,26 @@ jobs:
             ${{ env.SCANNER_OUTPUTS }}
             ```
           edit-mode: replace
+      - name: Create issue
+        if: steps.runscanner.outcome != 'success' && github.event_name != 'pull_request'
+        uses: JasonEtco/create-an-issue@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          SCANNER_OUTPUTS: ${{ steps.scanner.outputs.results }}
+        with:
+          filename: .github/failed-vuln-check.md
+          update_existing: true
+      - name: Find existing security issue
+        id: issues
+        if: steps.runscanner.outcome == 'success' && github.event_name != 'pull_request'
+        uses: lee-dohm/select-matching-issues@v1
+        with:
+          query: 'Container Vulnerability Scanner Failed is:open '
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Close found issues
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: steps.runscanner.outcome == 'success' && github.event_name != 'pull_request'
+        run: cat ${{ steps.issues.outputs.path }} | xargs gh issue close -c 'Container Scan Passing on Merge to Main'

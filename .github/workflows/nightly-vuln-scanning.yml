@@ -1,9 +1,6 @@
 name: Run nightly vulnerability check
 
 on:
-  push:
-    branches:
-      - main
   schedule:
     - cron: '0 0 * * *'
 
