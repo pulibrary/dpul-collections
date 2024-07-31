@@ -8,7 +8,6 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
       initial_state = %{last_queried_marker: nil}
       {:noreply, records, new_state} = FiggyProducer.handle_demand(1, initial_state)
       assert Enum.at(records, 0).id == "3cb7627b-defc-401b-9959-42ebc4488f74"
-      IO.inspect(Enum.at(records, 0))
 
       expected_state =
         %{
@@ -16,6 +15,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
           pulled_records: [Enum.at(records, 0).id],
           acked_records: []
         }
+
       assert new_state == expected_state
     end
 
@@ -26,6 +26,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
           pulled_records: ["3cb7627b-defc-401b-9959-42ebc4488f74"],
           acked_records: []
         }
+
       {:noreply, records, new_state} = FiggyProducer.handle_demand(2, initial_state)
       record1 = Enum.at(records, 0)
       record2 = Enum.at(records, 1)
@@ -41,6 +42,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
           pulled_records: Enum.map(records, fn r -> r.id end),
           acked_records: []
         }
+
       assert new_state == expected_state
     end
   end
