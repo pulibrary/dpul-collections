@@ -1,6 +1,6 @@
 defmodule DpulCollections.IndexingPipeline.FiggyResource do
   @moduledoc """
-  Documentation for ExManifestApi.Resource
+  Schema for a resource in the Figgy database
   """
   use Ecto.Schema
 
@@ -9,7 +9,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyResource do
     field :internal_resource, :string
     field :lock_version, :integer
     field :metadata, :map
-    field :created_at, :utc_datetime
-    field :updated_at, :utc_datetime
+    field :created_at, :naive_datetime
+    field :updated_at, :naive_datetime
   end
 end

@@ -11,7 +11,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
   end
 
   def handle_demand(demand, %{last_queried_marker: nil}) when demand > 0 do
-    records = IndexingPipeline.get_figgy_resources_since!(~U[1900-01-01 00:00:00Z], demand)
+    records = IndexingPipeline.get_figgy_resources_since!(~N[1900-01-01 00:00:00], demand)
 
     new_state = %{
       last_queried_marker: Enum.at(records, 0).updated_at,
