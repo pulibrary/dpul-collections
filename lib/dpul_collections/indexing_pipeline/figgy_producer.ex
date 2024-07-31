@@ -1,4 +1,8 @@
 defmodule DpulCollections.IndexingPipeline.FiggyProducer do
+  @moduledoc """
+  GenStage Producer that pulls records from the Figgy database
+  """
+
   alias DpulCollections.IndexingPipeline
   use GenStage
 
