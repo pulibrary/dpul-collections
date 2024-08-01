@@ -4,15 +4,16 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
   alias DpulCollections.IndexingPipeline.FiggyProducer
 
   describe "FiggyProducer" do
-    test "handle_demand/2 with initial state returns figgy resources" do
+    test "handle_demand/2 with initial state and demand > 1 returns figgy resources" do
       initial_state = %{last_queried_marker: nil}
-      {:noreply, records, new_state} = FiggyProducer.handle_demand(1, initial_state)
+      {:noreply, records, new_state} = FiggyProducer.handle_demand(2, initial_state)
       assert Enum.at(records, 0).id == "3cb7627b-defc-401b-9959-42ebc4488f74"
 
+      # TODO: actually, these should hold {id, timestamp} tuples
       expected_state =
         %{
-          last_queried_marker: Enum.at(records, 0).updated_at,
-          pulled_records: [Enum.at(records, 0).id],
+          last_queried_marker: Enum.at(records, -1).updated_at,
+          pulled_records: Enum.map(records, fn r -> r.id end),
           acked_records: []
         }
 

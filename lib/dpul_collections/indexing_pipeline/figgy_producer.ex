@@ -18,8 +18,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
     records = IndexingPipeline.get_figgy_resources_since!(~U[1900-01-01 00:00:00Z], demand)
 
     new_state = %{
-      last_queried_marker: Enum.at(records, 0).updated_at,
-      pulled_records: [Enum.at(records, 0).id],
+      last_queried_marker: Enum.at(records, -1).updated_at,
+      pulled_records:
+        Enum.map(records, fn r -> r.id end),
       acked_records: []
     }
 
