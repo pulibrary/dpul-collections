@@ -22,7 +22,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
     test "handle_demand/2 with consecutive state and demand > 1 returns figgy resources" do
       initial_state =
         %{
-          last_queried_marker: ~N[2018-03-09 20:19:33],
+          last_queried_marker: ~U[2018-03-09 20:19:33Z],
           pulled_records: ["3cb7627b-defc-401b-9959-42ebc4488f74"],
           acked_records: []
         }
