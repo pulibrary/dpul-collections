@@ -4,6 +4,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
   """
 
   alias DpulCollections.IndexingPipeline
+  alias DpulCollections.IndexingPipeline.FiggyResource
   use GenStage
 
   def start_link(number) do
@@ -18,9 +19,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
     records = IndexingPipeline.get_figgy_resources_since!(~U[1900-01-01 00:00:00Z], demand)
 
     new_state = %{
-      last_queried_marker: Enum.at(records, -1).updated_at,
-      pulled_records:
-        Enum.map(records, fn r -> r.id end),
+      last_queried_marker: Enum.at(records, -1) |> marker,
+      pulled_records: Enum.map(records, &marker/1),
       acked_records: []
     }
 
@@ -43,5 +43,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
     }
 
     {:noreply, records, new_state}
+  end
+
+  defp marker(record=%FiggyResource{}) do
+    {record.updated_at, record.id}
   end
 end

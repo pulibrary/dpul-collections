@@ -9,11 +9,11 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
       {:noreply, records, new_state} = FiggyProducer.handle_demand(2, initial_state)
       assert Enum.at(records, 0).id == "3cb7627b-defc-401b-9959-42ebc4488f74"
 
-      # TODO: actually, these should hold {id, timestamp} tuples
+      last_record = Enum.at(records, -1)
       expected_state =
         %{
-          last_queried_marker: Enum.at(records, -1).updated_at,
-          pulled_records: Enum.map(records, fn r -> r.id end),
+          last_queried_marker: {last_record.updated_at, last_record.id},
+          pulled_records: Enum.map(records, fn r -> {r.updated_at, r.id} end),
           acked_records: []
         }
 
@@ -37,6 +37,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
       assert record1.id == "3cb7627b-defc-401b-9959-42ebc4488f74"
       assert record2.id == "69990556-434c-476a-9043-bbf9a1bda5a4"
 
+      # TODO: update markers
       expected_state =
         %{
           last_queried_marker: Enum.at(records, -1).updated_at,
