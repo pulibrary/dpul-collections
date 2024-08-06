@@ -214,10 +214,50 @@ defmodule DpulCollections.IndexingPipeline do
   """
   def get_figgy_resource!(id), do: FiggyRepo.get!(FiggyResource, id)
 
+  @doc """
+
+  Query to return a limited number of figgy resources using the value of a marker tuple.
+
+  1. Orders figgy records by updated_at and then id is ascending order
+  2. Selects records where
+      - record.updated_at is greater or equal to marker.updated_at AND
+      - record.id does not equal marker.id
+      OR
+      - record.updated_at is greater than marker.updated_at AND
+      - record.id does not equal marker.id
+  3. Return the number of records indicated by the count parmater
+
+  ## Parameters
+    - marker: Tuple in the form {updated_at, id}
+    - count: Number of records to return
+
+  ## Examples
+
+    Records in Figgy:
+    { id: "a", updated_at: 1 }
+    { id: "b", updated_at: 2 }
+    { id: "d", updated_at: 3 } # Duplicate time stamp
+    { id: "c", updated_at: 3 } # Duplicate time stamp
+    { id: "e", updated_at: 3 } # Duplicate time stamp
+    { id: "a", updated_at: 4 } # Repeated id (edited and saved)
+
+    get_figgy_resources_since!({1, "a"}, 2) ->
+      { id: "b", updated_at: 2 }
+      { id: "c", updated_at: 3 }
+
+    get_figgy_resources_since!({3, "c"}, 3) ->
+      { id: "d", updated_at: 3 }
+      { id: "e", updated_at: 3 }
+      { id: "a", updated_at: 4 }
+  """
+
+  @spec get_figgy_resources_since!(marker :: {UTCDateTime.t(), String.t()}, count :: integer) :: list(FiggyResource)
   def get_figgy_resources_since!({updated_at, id}, count) do
     query =
       from r in FiggyResource,
-        where: (r.updated_at >= ^updated_at and r.id > ^id) or (r.updated_at > ^updated_at and r.id == ^id),
+        where:
+          (r.updated_at >= ^updated_at and r.id > ^id) or
+            (r.updated_at > ^updated_at and r.id == ^id),
         limit: ^count,
         order_by: [asc: r.updated_at, asc: r.id]
 
