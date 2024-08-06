@@ -37,14 +37,15 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
 
     new_state = %{
       last_queried_marker: Enum.at(records, -1) |> marker,
-      pulled_records: Enum.concat(pulled_records, Enum.map(records, &marker/1)),
+      pulled_records:
+        Enum.concat(pulled_records, Enum.map(records, &marker/1)),
       acked_records: acked_records
     }
 
     {:noreply, records, new_state}
   end
 
-  defp marker(record = %FiggyResource{}) do
+  defp marker(record=%FiggyResource{}) do
     {record.updated_at, record.id}
   end
 end
