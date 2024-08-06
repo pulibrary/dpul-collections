@@ -215,18 +215,17 @@ defmodule DpulCollections.IndexingPipeline do
   def get_figgy_resource!(id), do: FiggyRepo.get!(FiggyResource, id)
 
   @doc """
-
   ## Description
   Query to return a limited number of figgy resources using the value of a marker tuple.
 
-  1. Orders figgy records by updated_at and then id is ascending order
+  1. Orders figgy records by updated_at and then id in ascending order
   2. Selects records where
-      - record.updated_at is greater or equal to marker.updated_at AND
-      - record.id does not equal marker.id
+      - record.updated_at is greater than or equal to marker.updated_at AND
+      - record.id is greater than marker.id
       - OR
       - record.updated_at is greater than marker.updated_at AND
-      - record.id does not equal marker.id
-  3. Return the number of records indicated by the count parmater
+      - record.id does equals marker.id
+  3. Return the number of records indicated by the count parameter
 
   ## Examples
 
@@ -247,15 +246,38 @@ defmodule DpulCollections.IndexingPipeline do
       { id: "d", updated_at: 3 }
       { id: "e", updated_at: 3 }
       { id: "a", updated_at: 4 }
-  """
 
-  @spec get_figgy_resources_since!(marker :: {updated_at :: UTCDateTime.t(), id :: String.t()}, count :: integer) :: list(FiggyResource)
+      get_figgy_resources_since!({1, "a"}, 5) ->
+      { id: "b", updated_at: 2 }
+      { id: "c", updated_at: 3 }
+      { id: "d", updated_at: 3 }
+      { id: "e", updated_at: 3 }
+      { id: "a", updated_at: 4 }
+  """
+  @spec get_figgy_resources_since!(
+          marker :: {updated_at :: UTCDateTime.t(), id :: String.t()},
+          count :: integer
+        ) :: list(FiggyResource)
   def get_figgy_resources_since!({updated_at, id}, count) do
     query =
       from r in FiggyResource,
-        where:
-          (r.updated_at >= ^updated_at and r.id > ^id) or
-            (r.updated_at > ^updated_at and r.id == ^id),
+        where: r.updated_at >= ^updated_at and r.id != ^id,
+        # where:
+        #   (r.updated_at >= ^updated_at and r.id > ^id) or
+        #     (r.updated_at > ^updated_at and r.id == ^id),
+        limit: ^count,
+        order_by: [asc: r.updated_at, asc: r.id]
+
+    FiggyRepo.all(query)
+  end
+
+  @spec get_figgy_resources_since!(
+          nil,
+          count :: integer
+        ) :: list(FiggyResource)
+  def get_figgy_resources_since!(nil, count) do
+    query =
+      from r in FiggyResource,
         limit: ^count,
         order_by: [asc: r.updated_at, asc: r.id]
 
