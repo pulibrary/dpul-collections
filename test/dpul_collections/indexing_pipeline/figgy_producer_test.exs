@@ -24,7 +24,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
       assert new_state == expected_state
     end
 
-    test "handle_demand/2 with consecutive state and demand > 1 returns figgy resources" do
+    test "handle_demand/2 with consecutive state returns a new record" do
       initial_state =
         %{
           last_queried_marker: {~U[2018-03-09 20:19:34.465203Z], "69990556-434c-476a-9043-bbf9a1bda5a4"},
@@ -37,14 +37,14 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
           acked_records: []
         }
 
-      {:noreply, records, new_state} = FiggyProducer.handle_demand(2, initial_state)
+      {:noreply, records, new_state} = FiggyProducer.handle_demand(1, initial_state)
       record1 = Enum.at(records, 0)
-      record2 = Enum.at(records, 1)
+      # record2 = Enum.at(records, 1)
       # we will get the same record again because we're doing >= on the
       # last_queried_marker date stamp, to make sure
       # we don't miss any records.
-      assert record1.id == "69990556-434c-476a-9043-bbf9a1bda5a4"
-      assert record2.id == "47276197-e223-471c-99d7-405c5f6c5285"
+      # assert record1.id == "69990556-434c-476a-9043-bbf9a1bda5a4"
+      assert record1.id == "47276197-e223-471c-99d7-405c5f6c5285"
 
       expected_state =
         %{
@@ -53,10 +53,6 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
             {
               ~U[2018-03-09 20:19:33.414040Z],
               "3cb7627b-defc-401b-9959-42ebc4488f74"
-            },
-            {
-              ~U[2018-03-09 20:19:34.465203Z],
-              "69990556-434c-476a-9043-bbf9a1bda5a4"
             },
             {
               ~U[2018-03-09 20:19:34.465203Z],

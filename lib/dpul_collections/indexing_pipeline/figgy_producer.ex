@@ -28,12 +28,12 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
   end
 
   def handle_demand(demand, %{
-        last_queried_marker: { last_queried_updated_at, _last_queried_id },
+        last_queried_marker: last_queried_marker,
         pulled_records: pulled_records,
         acked_records: acked_records
       })
       when demand > 0 do
-    records = IndexingPipeline.get_figgy_resources_since!(last_queried_updated_at, demand)
+    records = IndexingPipeline.get_figgy_resources_since!(last_queried_marker, demand)
 
     new_state = %{
       last_queried_marker: Enum.at(records, -1) |> marker,
