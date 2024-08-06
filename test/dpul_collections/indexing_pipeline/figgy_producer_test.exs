@@ -68,5 +68,43 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
 
       assert new_state == expected_state
     end
+
+    test "handle_demand/2 when the marker record has been updated" do
+      initial_state =
+        %{
+          # This is a manufactured marker.
+          # This timestamp is set to be right before the actual record updated_at.
+          last_queried_marker:
+            {~U[2018-03-09 20:19:34.465204Z], "47276197-e223-471c-99d7-405c5f6c5285"},
+          pulled_records: [
+            {~U[2018-03-09 20:19:34.465204Z], "47276197-e223-471c-99d7-405c5f6c5285"}
+          ],
+          acked_records: []
+        }
+
+      {:noreply, records, new_state} = FiggyProducer.handle_demand(1, initial_state)
+      record1 = Enum.at(records, 0)
+
+      assert record1.id == "47276197-e223-471c-99d7-405c5f6c5285"
+
+      expected_state =
+        %{
+          last_queried_marker:
+            {~U[2018-03-09 20:19:34.486004Z], "47276197-e223-471c-99d7-405c5f6c5285"},
+          pulled_records: [
+            {
+              ~U[2018-03-09 20:19:34.465204Z],
+              "47276197-e223-471c-99d7-405c5f6c5285"
+            },
+            {
+              ~U[2018-03-09 20:19:34.486004Z],
+              "47276197-e223-471c-99d7-405c5f6c5285"
+            }
+          ],
+          acked_records: []
+        }
+
+      assert new_state == expected_state
+    end
   end
 end
