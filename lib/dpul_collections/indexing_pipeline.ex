@@ -220,11 +220,10 @@ defmodule DpulCollections.IndexingPipeline do
 
   1. Orders figgy records by updated_at and then id in ascending order
   2. Selects records where
-      - record.updated_at is greater than or equal to marker.updated_at AND
+      - record.updated_at equals to marker.updated_at AND
       - record.id is greater than marker.id
       - OR
-      - record.updated_at is greater than marker.updated_at AND
-      - record.id does equals marker.id
+      - record.updated_at is greater than marker.updated_at
   3. Return the number of records indicated by the count parameter
 
   ## Examples
@@ -238,14 +237,23 @@ defmodule DpulCollections.IndexingPipeline do
       { id: "a", updated_at: 4 } # Repeated id (edited and saved)
 
     Function calls:
+
+      We get the records back ordered by timestamp, then id:
+
       get_figgy_resources_since!({1, "a"}, 2) ->
       { id: "b", updated_at: 2 }
       { id: "c", updated_at: 3 }
+
+
+      We get the records for the same time stamp for ids after the one given:
 
       get_figgy_resources_since!({3, "c"}, 3) ->
       { id: "d", updated_at: 3 }
       { id: "e", updated_at: 3 }
       { id: "a", updated_at: 4 }
+
+
+      We get a record again if it's been updated since it was last fetched:
 
       get_figgy_resources_since!({1, "a"}, 5) ->
       { id: "b", updated_at: 2 }
@@ -254,6 +262,7 @@ defmodule DpulCollections.IndexingPipeline do
       { id: "e", updated_at: 3 }
       { id: "a", updated_at: 4 }
   """
+
   @spec get_figgy_resources_since!(
           marker :: {updated_at :: UTCDateTime.t(), id :: String.t()},
           count :: integer
