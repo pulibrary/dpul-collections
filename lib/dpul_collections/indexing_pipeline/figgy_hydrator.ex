@@ -4,7 +4,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydrator do
   """
   use Broadway
 
-  def start_link() do
+  # TODO
+  # this opts param will to give us the cache_version, then we need to set it
+  def start_link(_opts) do
     producer_module = Application.fetch_env!(:dpul_collections, :producer_module)
     producer_options = Application.get_env(:dpul_collections, :producer_options, [])
 
@@ -22,14 +24,20 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydrator do
     )
   end
 
-  @impl true
+  @impl Broadway
+  # (note that the start_link param will populate _context)
   def handle_message(_processor, message, _context) do
+    # store in HydrationCache:
+    # - data (blob) - this is the record
+    # - cache_order (datetime) - this is our own new timestamp for this table
+    # - cache_version (this only changes manually, we have to hold onto it as state)
+    # - record_id (varchar) - the figgy UUID
+    # - source_cache_order (datetime) - the figgy updated_at
     message
   end
 
-  @impl true
+  @impl Broadway
   def handle_batch(_batcher, messages, _batch_info, _context) do
     messages
   end
-
 end
