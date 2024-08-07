@@ -7,8 +7,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
   alias DpulCollections.IndexingPipeline.FiggyResource
   use GenStage
 
-  def start_link(number) do
-    GenStage.start_link(__MODULE__, number, name: __MODULE__)
+  def start_link() do
+    initial_state = %{last_queried_marker: nil}
+    GenStage.start_link(__MODULE__, initial_state, name: __MODULE__)
   end
 
   @impl GenStage

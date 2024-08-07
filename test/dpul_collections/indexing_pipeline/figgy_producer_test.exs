@@ -106,5 +106,30 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
 
       assert new_state == expected_state
     end
+
+    defmodule TestConsumer do
+      def start_link(producer) do
+        GenStage.start_link(__MODULE__, {producer, self()})
+      end
+
+      def init({producer, owner}) do
+        {:consumer, owner, subscribe_to: [producer]}
+      end
+
+      def handle_events(events, _from, owner) do
+        send(owner, {:received, events})
+        {:noreply, [], owner}
+      end
+    end
+
+    test "check the results" do
+      {:ok, stage} = FiggyProducer.start_link()
+      {:ok, _cons} = TestConsumer.start_link(stage)
+
+      assert_receive {:received, _records}
+
+      # The test consumer will also stop, since it is subscribed to the stage
+      GenStage.stop(stage)
+    end
   end
 end
