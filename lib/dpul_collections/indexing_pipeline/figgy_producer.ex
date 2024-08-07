@@ -11,10 +11,12 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
     GenStage.start_link(__MODULE__, number, name: __MODULE__)
   end
 
+  @impl GenStage
   def init(counter) do
     {:producer, counter}
   end
 
+  @impl GenStage
   def handle_demand(demand, %{last_queried_marker: nil}) when demand > 0 do
     records = IndexingPipeline.get_figgy_resources_since!(nil, demand)
 
@@ -27,6 +29,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
     {:noreply, records, new_state}
   end
 
+  @impl GenStage
   def handle_demand(demand, %{
         last_queried_marker: last_queried_marker,
         pulled_records: pulled_records,
