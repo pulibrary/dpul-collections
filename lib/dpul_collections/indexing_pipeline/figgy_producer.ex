@@ -7,15 +7,23 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
   alias DpulCollections.IndexingPipeline.FiggyResource
   use GenStage
 
-  def start_link() do
-    initial_state = %{last_queried_marker: nil}
-    GenStage.start_link(__MODULE__, initial_state, name: __MODULE__)
+  def start_link(index_version \\ 0) do
+    GenStage.start_link(__MODULE__, index_version, name: __MODULE__)
   end
 
   @impl GenStage
-  def init(counter) do
-    {:producer, counter}
+  def init(_index_version) do
+    ## TODO: Set last_queried_marker if it's found in the database
+    # Pass index_version, check db for marker, if it's not found we create one
+    # with the index_version and nil? Or just start it with last_queried_marker
+    # nil.
+    initial_state = %{last_queried_marker: nil}
+    {:producer, initial_state}
   end
+
+  # TODO: Function to reset current index version's saved marker
+  # TODO: Function to save a marker to the db for a given index version (part
+  #    of ack)
 
   @impl GenStage
   def handle_demand(demand, %{last_queried_marker: nil}) when demand > 0 do
