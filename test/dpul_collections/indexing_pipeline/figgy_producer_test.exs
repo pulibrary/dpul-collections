@@ -1,16 +1,18 @@
 defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
   use DpulCollections.DataCase
 
-  alias DpulCollections.IndexingPipeline.FiggyProducer
+  alias DpulCollections.IndexingPipeline.{ FiggyProducer, FiggyResource }
 
   describe "FiggyProducer" do
     test "handle_demand/2 with initial state and demand > 1 returns figgy resources" do
       initial_state = %{last_queried_marker: nil}
       {:noreply, messages, new_state} = FiggyProducer.handle_demand(2, initial_state)
 
-      assert Enum.count(messages) == 2
-      assert %Broadway.Message{data: %{id: "3cb7627b-defc-401b-9959-42ebc4488f74"}} = Enum.at(messages, 0)
-      assert %Broadway.Message{data: %{id: "69990556-434c-476a-9043-bbf9a1bda5a4"}} = Enum.at(messages, 1)
+      ids = Enum.map(messages, fn %Broadway.Message{data: %FiggyResource{id: id}} -> id end)
+      assert ids == [
+        "3cb7627b-defc-401b-9959-42ebc4488f74",
+        "69990556-434c-476a-9043-bbf9a1bda5a4"
+      ]
 
       expected_state =
         %{
