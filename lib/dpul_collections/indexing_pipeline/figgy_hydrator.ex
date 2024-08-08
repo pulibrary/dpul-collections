@@ -2,6 +2,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydrator do
   @moduledoc """
   Broadway consumer that demands Figgy records and caches them in the database.
   """
+  alias DpulCollections.IndexingPipeline
   use Broadway
 
   # TODO
@@ -33,6 +34,10 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydrator do
     # - cache_version (this only changes manually, we have to hold onto it as state)
     # - record_id (varchar) - the figgy UUID
     # - source_cache_order (datetime) - the figgy updated_at
+    IndexingPipeline.create_hydration_cache_entry(
+      data: message.data,
+      # cache_version: context.cache_version,
+    )
     message
   end
 
