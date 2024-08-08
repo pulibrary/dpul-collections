@@ -3,7 +3,7 @@ defmodule DpulCollections.IndexingPipeline.HydrationCacheEntry do
   import Ecto.Changeset
 
   schema "hydration_cache_entries" do
-    field :data, :binary
+    field :data, :map
     field :cache_version, :integer
     field :record_id, :string
     field :source_cache_order, :utc_datetime
