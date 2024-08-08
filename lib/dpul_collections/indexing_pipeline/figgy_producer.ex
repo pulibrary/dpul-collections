@@ -38,6 +38,17 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
     {:noreply, records, new_state}
   end
 
+  
+  @spec wrap_record(
+    record :: FiggyResource
+  ) :: Broadway.Message.t()
+  defp wrap_record(record) do
+    %Broadway.Message{
+      data: record,
+      acknowledger: {__MODULE__, :ack_id, :ack_data}
+    }
+  end
+
   @impl GenStage
   def handle_demand(demand, %{
         last_queried_marker: last_queried_marker,
