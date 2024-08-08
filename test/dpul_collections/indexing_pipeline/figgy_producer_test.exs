@@ -1,7 +1,7 @@
 defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
   use DpulCollections.DataCase
 
-  alias DpulCollections.IndexingPipeline.{ FiggyProducer, FiggyResource }
+  alias DpulCollections.IndexingPipeline.{FiggyProducer, FiggyResource}
 
   describe "FiggyProducer" do
     test "handle_demand/2 with initial state and demand > 1 returns figgy resources" do
@@ -9,10 +9,11 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
       {:noreply, messages, new_state} = FiggyProducer.handle_demand(2, initial_state)
 
       ids = Enum.map(messages, fn %Broadway.Message{data: %FiggyResource{id: id}} -> id end)
+
       assert ids == [
-        "3cb7627b-defc-401b-9959-42ebc4488f74",
-        "69990556-434c-476a-9043-bbf9a1bda5a4"
-      ]
+               "3cb7627b-defc-401b-9959-42ebc4488f74",
+               "69990556-434c-476a-9043-bbf9a1bda5a4"
+             ]
 
       expected_state =
         %{
@@ -40,14 +41,10 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
           acked_records: []
         }
 
-      {:noreply, records, new_state} = FiggyProducer.handle_demand(1, initial_state)
-      record1 = Enum.at(records, 0)
-      # record2 = Enum.at(records, 1)
-      # we will get the same record again because we're doing >= on the
-      # last_queried_marker date stamp, to make sure
-      # we don't miss any records.
-      # assert record1.id == "69990556-434c-476a-9043-bbf9a1bda5a4"
-      assert record1.id == "47276197-e223-471c-99d7-405c5f6c5285"
+      {:noreply, messages, new_state} = FiggyProducer.handle_demand(1, initial_state)
+
+      ids = Enum.map(messages, fn %Broadway.Message{data: %FiggyResource{id: id}} -> id end)
+      assert ids = ["47276197-e223-471c-99d7-405c5f6c5285"]
 
       expected_state =
         %{
@@ -86,10 +83,10 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
           acked_records: []
         }
 
-      {:noreply, records, new_state} = FiggyProducer.handle_demand(1, initial_state)
-      record1 = Enum.at(records, 0)
+      {:noreply, messages, new_state} = FiggyProducer.handle_demand(1, initial_state)
 
-      assert record1.id == "47276197-e223-471c-99d7-405c5f6c5285"
+      ids = Enum.map(messages, fn %Broadway.Message{data: %FiggyResource{id: id}} -> id end)
+      assert ids = ["47276197-e223-471c-99d7-405c5f6c5285"]
 
       expected_state =
         %{
@@ -130,7 +127,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
       {:ok, stage} = FiggyProducer.start_link()
       {:ok, _cons} = TestConsumer.start_link(stage)
 
-      assert_receive {:received, _records}
+      assert_receive {:received, _messages}
 
       # The test consumer will also stop, since it is subscribed to the stage
       GenStage.stop(stage)

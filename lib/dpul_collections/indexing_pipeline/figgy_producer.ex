@@ -35,18 +35,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
       acked_records: []
     }
 
-    {:noreply, records, new_state}
-  end
-
-  
-  @spec wrap_record(
-    record :: FiggyResource
-  ) :: Broadway.Message.t()
-  defp wrap_record(record) do
-    %Broadway.Message{
-      data: record,
-      acknowledger: {__MODULE__, :ack_id, :ack_data}
-    }
+    {:noreply, Enum.map(records, &wrap_record/1), new_state}
   end
 
   @impl GenStage
@@ -64,10 +53,18 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
       acked_records: acked_records
     }
 
-    {:noreply, records, new_state}
+    {:noreply, Enum.map(records, &wrap_record/1), new_state}
   end
 
   defp marker(record = %FiggyResource{}) do
     {record.updated_at, record.id}
+  end
+
+  @spec wrap_record(record :: FiggyResource) :: Broadway.Message.t()
+  defp wrap_record(record) do
+    %Broadway.Message{
+      data: record,
+      acknowledger: {__MODULE__, :figgy_producer_ack, :unused_ack_data}
+    }
   end
 end
