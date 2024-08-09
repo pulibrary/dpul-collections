@@ -38,9 +38,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydrator do
         cache_version: 0,
         record_id: message.data.id,
         source_cache_order: message.data.updated_at,
-        data: message.data.metadata
+        data: message.data |> Map.from_struct() |> Map.delete(:__meta__)
       }
-    ) |> dbg
+    )
     message
   end
 

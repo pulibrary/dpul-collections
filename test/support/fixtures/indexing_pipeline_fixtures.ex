@@ -12,7 +12,7 @@ defmodule DpulCollections.IndexingPipelineFixtures do
       attrs
       |> Enum.into(%{
         cache_version: 42,
-        data: "some data",
+        data: %{},
         record_id: "some record_id",
         source_cache_order: ~U[2024-07-23 20:05:00Z]
       })

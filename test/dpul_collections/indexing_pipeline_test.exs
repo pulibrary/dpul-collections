@@ -24,7 +24,7 @@ defmodule DpulCollections.IndexingPipelineTest do
 
     test "create_hydration_cache_entry/1 with valid data creates a hydration_cache_entry" do
       valid_attrs = %{
-        data: "some data",
+        data: %{},
         cache_version: 42,
         record_id: "some record_id",
         source_cache_order: ~U[2024-07-23 20:05:00Z]
@@ -33,7 +33,7 @@ defmodule DpulCollections.IndexingPipelineTest do
       assert {:ok, %HydrationCacheEntry{} = hydration_cache_entry} =
                IndexingPipeline.create_hydration_cache_entry(valid_attrs)
 
-      assert hydration_cache_entry.data == "some data"
+      assert hydration_cache_entry.data == %{}
       assert hydration_cache_entry.cache_version == 42
       assert hydration_cache_entry.record_id == "some record_id"
       assert hydration_cache_entry.source_cache_order == ~U[2024-07-23 20:05:00Z]
@@ -48,7 +48,7 @@ defmodule DpulCollections.IndexingPipelineTest do
       hydration_cache_entry = hydration_cache_entry_fixture()
 
       update_attrs = %{
-        data: "some updated data",
+        data: %{},
         cache_version: 43,
         record_id: "some updated record_id",
         source_cache_order: ~U[2024-07-24 20:05:00Z]
@@ -57,7 +57,7 @@ defmodule DpulCollections.IndexingPipelineTest do
       assert {:ok, %HydrationCacheEntry{} = hydration_cache_entry} =
                IndexingPipeline.update_hydration_cache_entry(hydration_cache_entry, update_attrs)
 
-      assert hydration_cache_entry.data == "some updated data"
+      assert hydration_cache_entry.data == %{}
       assert hydration_cache_entry.cache_version == 43
       assert hydration_cache_entry.record_id == "some updated record_id"
       assert hydration_cache_entry.source_cache_order == ~U[2024-07-24 20:05:00Z]

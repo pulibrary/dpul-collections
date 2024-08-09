@@ -123,7 +123,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
       end
     end
 
-    test "check the results" do
+    test "integration test" do
       {:ok, stage} = FiggyProducer.start_link()
       {:ok, _cons} = TestConsumer.start_link(stage)
 
