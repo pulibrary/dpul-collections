@@ -17,25 +17,13 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
     # Pass index_version, check db for marker, if it's not found we create one
     # with the index_version and nil? Or just start it with last_queried_marker
     # nil.
-    initial_state = %{last_queried_marker: nil}
-    {:producer, initial_state}
-  end
-
-  # TODO: Function to reset current index version's saved marker
-  # TODO: Function to save a marker to the db for a given index version (part
-  #    of ack)
-
-  @impl GenStage
-  def handle_demand(demand, %{last_queried_marker: nil}) when demand > 0 do
-    records = IndexingPipeline.get_figgy_resources_since!(nil, demand)
-
-    new_state = %{
-      last_queried_marker: Enum.at(records, -1) |> marker,
-      pulled_records: Enum.map(records, &marker/1),
+    initial_state = %{
+      last_queried_marker: nil,
+      pulled_records: [],
       acked_records: []
     }
 
-    {:noreply, Enum.map(records, &wrap_record/1), new_state}
+    {:producer, initial_state}
   end
 
   @impl GenStage
