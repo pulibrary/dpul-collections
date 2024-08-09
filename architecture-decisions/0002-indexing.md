@@ -127,7 +127,7 @@ Each Processor will keep track of the last object they acted on in a ProcessorMa
 
 | id   | cache_location | cache_version | type    |
 |------|----------------|---------------|---------|
-| INT  | varchar        | INT           | VARCHAR |
+| INT  | DATETIME       | INT           | VARCHAR |
 
 - For Hydrator, `cache_location` is an `updated_at` value from the Figgy database.
 - For Transformer, `cache_location` is a `cache_order` value from the HydrationCache
