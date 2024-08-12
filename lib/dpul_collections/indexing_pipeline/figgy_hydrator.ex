@@ -34,13 +34,14 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydrator do
     # - cache_version (this only changes manually, we have to hold onto it as state)
     # - record_id (varchar) - the figgy UUID
     # - source_cache_order (datetime) - the figgy updated_at
-    {:ok, _} = IndexingPipeline.create_hydration_cache_entry(%{
+    {:ok, _} =
+      IndexingPipeline.create_hydration_cache_entry(%{
         cache_version: 0,
         record_id: message.data.id,
         source_cache_order: message.data.updated_at,
         data: message.data |> Map.from_struct() |> Map.delete(:__meta__)
-      }
-    )
+      })
+
     message
   end
 
