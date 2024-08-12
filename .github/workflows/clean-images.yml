@@ -18,7 +18,7 @@ jobs:
           account: pulibrary
           token: ${{ secrets.GITHUB_TOKEN }}
           image-names: "dpul-collections"
-          image-tags: "!main pr-* sha-*"  # target any image that has a tag starting with the word test or dev
+          image-tags: "!main pr-* sha-* !figgy-fixtures"  # target any image that has a tag starting with the word test or dev
           cut-off: 2w
           keep-n-most-recent: 10
           skip-shas: ${{ steps.multi-arch-digests.outputs.multi-arch-digests }}
