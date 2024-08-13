@@ -44,6 +44,11 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
     {:noreply, Enum.map(records, &wrap_record/1), new_state}
   end
 
+  @impl GenStage
+  def handle_info({:ack, :figgy_producer_ack, successful_messages, failed_messages}, state) do
+    IO.puts "Please!"
+  end
+
   defp marker(record = %FiggyResource{}) do
     {record.updated_at, record.id}
   end
@@ -56,7 +61,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
   defp wrap_record(record) do
     %Broadway.Message{
       data: record,
-      acknowledger: {__MODULE__, :figgy_producer_ack, :unused_ack_data}
+      acknowledger: Broadway.CallerAcknowledger.init({self(), :figgy_producer_ack}, :ignored)
     }
   end
 end

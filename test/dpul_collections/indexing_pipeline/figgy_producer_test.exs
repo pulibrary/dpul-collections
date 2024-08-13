@@ -132,5 +132,11 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
       # The test consumer will also stop, since it is subscribed to the stage
       GenStage.stop(stage)
     end
+
+    test "message acknowledgement" do
+      {:ok, stage} = FiggyProducer.start_link()
+      send(stage, {:ack, :figgy_producer_ack, [], []})
+      :timer.sleep(1000)
+    end
   end
 end
