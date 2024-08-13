@@ -110,34 +110,6 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
       assert new_state == expected_state
     end
 
-    defmodule TestConsumer do
-      def start_link(producer) do
-        GenStage.start_link(__MODULE__, {producer, self()})
-      end
-
-      def init({producer, owner}) do
-        {:consumer, %{owner: owner, subscription: nil}, subscribe_to: [producer]}
-      end
-
-      def handle_subscribe(:producer, _options, from, state) do
-        new_state = %{state | subscription: from}
-        {:manual, new_state}
-      end
-
-      def handle_events(events, _from, state) do
-        send(state.owner, {:received, events})
-        {:noreply, [], state.owner}
-      end
-
-      def handle_cast({:request, demand}, state) do
-        GenStage.ask(state.subscription, demand)
-        {:noreply, [], state}
-      end
-
-      def request(pid, demand) do
-        GenServer.cast(pid, { :request, demand })
-      end
-    end
 
     test "integration test" do
       {:ok, stage} = FiggyProducer.start_link()
@@ -150,38 +122,6 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
       GenStage.stop(stage)
     end
 
-    defmodule FiggyTestProducer do
-      use GenStage
-
-      def start_link() do
-        GenStage.start_link(__MODULE__, nil, name: __MODULE__)
-      end
-
-      @impl GenStage
-      def init({producer_stage, owner}) do
-        {:ok, cons} = TestConsumer.start_link(producer_stage)
-        {:producer, %{consumer: cons, owner: owner}}
-      end
-
-      def handle_demand(demand, state) do
-        {:noreply, [], state}
-      end
-
-      def handle_info({:received, messages}, state) do
-        send(state.owner, {:received, messages})
-        {:noreply, messages, state}
-      end
-
-      def handle_cast({:fulfill_messages, demand}, state) do
-        TestConsumer.request(state.consumer, demand)
-        {:noreply, [], state}
-      end
-
-      def process(pid, demand) do
-        GenServer.cast(pid, { :fulfill_messages, demand })
-      end
-    end
-
     test "message acknowledgement" do
       # Is there a way to put FiggyProducer into manual mode, so we can ask it
       # to deliver one?
@@ -189,8 +129,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
       :telemetry.attach("batch-finished-handler", [:broadway, :batch_processor, :stop], fn event, _, _, _ -> send(pid, {:batch_finished}) end, nil)
       {:ok, stage} = FiggyProducer.start_link()
       {:ok, hydrator} = FiggyHydrator.start_link(0, FiggyTestProducer, { stage, self() }, 1)
-      Broadway.producer_names(FiggyHydrator) |> hd |> FiggyTestProducer.process(1)
-      assert_receive {:received, _messages}
+      FiggyTestProducer.process(1)
       assert_receive {:batch_finished}
 
       cache_entry = IndexingPipeline.list_hydration_cache_entries() |> hd
@@ -203,7 +142,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
                "internal_resource" => "EphemeraTerm"
              } = cache_entry.data
       # send(stage, {:ack, :figgy_producer_ack, [], []})
-      # :timer.sleep(1000)
+      :timer.sleep(1000)
       # Test if ProcessorMarker table has been updated
     end
   end
