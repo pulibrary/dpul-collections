@@ -7,7 +7,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydrator do
 
   # TODO
   # this opts param will to give us the cache_version, then we need to set it
-  def start_link(_opts) do
+  def start_link(cache_version) do
+
     producer_module = Application.fetch_env!(:dpul_collections, :producer_module)
     producer_options = Application.get_env(:dpul_collections, :producer_options, [])
 
@@ -21,7 +22,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydrator do
       ],
       batchers: [
         default: [batch_size: 10]
-      ]
+      ],
+      context: %{cache_version: cache_version}
     )
   end
 
