@@ -7,7 +7,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorTest do
 
   describe "FiggyHydrator" do
     test "handle_message/3" do
-      initial_state = %{last_queried_marker: nil}
+      initial_state = FiggyProducer.init(0) |> elem(1)
       {:noreply, [message], _} = FiggyProducer.handle_demand(1, initial_state)
       data = message.data
       ref = Broadway.test_message(FiggyHydrator, data)
