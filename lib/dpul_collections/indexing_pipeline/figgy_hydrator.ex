@@ -8,7 +8,6 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydrator do
   # TODO
   # this opts param will to give us the cache_version, then we need to set it
   def start_link(cache_version) do
-
     producer_module = Application.fetch_env!(:dpul_collections, :producer_module)
     producer_options = Application.get_env(:dpul_collections, :producer_options, [])
 
@@ -29,7 +28,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydrator do
 
   @impl Broadway
   # (note that the start_link param will populate _context)
-  def handle_message(_processor, message, _context) do
+  def handle_message(_processor, message, %{cache_version: cache_version}) do
     # store in HydrationCache:
     # - data (blob) - this is the record
     # - cache_order (datetime) - this is our own new timestamp for this table
@@ -38,8 +37,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydrator do
     # - source_cache_order (datetime) - the figgy updated_at
     {:ok, _} =
       IndexingPipeline.create_hydration_cache_entry(%{
-        # TODO: Pull this from state.
-        cache_version: 0,
+        cache_version: cache_version,
         record_id: message.data.id,
         source_cache_order: message.data.updated_at,
         data: message.data |> Map.from_struct() |> Map.delete(:__meta__)
