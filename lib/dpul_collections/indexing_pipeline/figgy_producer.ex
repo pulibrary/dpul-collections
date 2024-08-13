@@ -36,7 +36,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
     records = IndexingPipeline.get_figgy_resources_since!(last_queried_marker, demand)
 
     new_state = %{
-      last_queried_marker: Enum.at(records, -1) |> marker,
+      last_queried_marker: (Enum.at(records, -1) |> marker) || last_queried_marker,
       pulled_records: Enum.concat(pulled_records, Enum.map(records, &marker/1)),
       acked_records: acked_records
     }
@@ -47,16 +47,19 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
   @impl GenStage
   def handle_info({:ack, :figgy_producer_ack, successful_messages, failed_messages}, state) do
     messages = []
-    if Enum.count(successful_messages) != 0
+    if Enum.count(successful_messages) != 0 do
       # insert data into ProcessorMarkers
       # do something with state?
     else
       # do something else?
     end
-
+    IO.inspect successful_messages
     {:noreply, messages, state}
   end
 
+  defp marker(nil) do
+    nil
+  end
   defp marker(record = %FiggyResource{}) do
     {record.updated_at, record.id}
   end

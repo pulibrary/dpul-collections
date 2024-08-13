@@ -11,7 +11,7 @@ defmodule DpulCollections.Application do
       DpulCollectionsWeb.Telemetry,
       DpulCollections.Repo,
       DpulCollections.FiggyRepo,
-      {DpulCollections.IndexingPipeline.FiggyHydrator, 0},
+      # {DpulCollections.IndexingPipeline.FiggyHydrator, 0},
       {DNSCluster, query: Application.get_env(:dpul_collections, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: DpulCollections.PubSub},
       # Start the Finch HTTP client for sending emails

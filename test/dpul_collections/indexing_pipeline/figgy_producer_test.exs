@@ -135,9 +135,12 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
     end
 
     test "message acknowledgement" do
+      # Is there a way to put FiggyProducer into manual mode, so we can ask it
+      # to deliver one?
       {:ok, stage} = FiggyProducer.start_link()
-      send(stage, {:ack, :figgy_producer_ack, [], []})
-      :timer.sleep(1000)
+      {:ok, hydrator} = FiggyHydrator.start_link(0, FiggyProducer)
+      # send(stage, {:ack, :figgy_producer_ack, [], []})
+      :timer.sleep(10000)
       # Test if ProcessorMarker table has been updated
     end
   end
