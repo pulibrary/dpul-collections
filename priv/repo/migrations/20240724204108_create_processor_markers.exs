@@ -3,11 +3,11 @@ defmodule DpulCollections.Repo.Migrations.CreateProcessorMarkers do
 
   def change do
     create table(:processor_markers) do
-      add :cache_location, :utc_datetime
+      add :cache_location, :utc_datetime_usec
       add :cache_version, :integer
       add :type, :string
 
-      timestamps(type: :utc_datetime)
+      timestamps(type: :utc_datetime_usec)
     end
   end
 end

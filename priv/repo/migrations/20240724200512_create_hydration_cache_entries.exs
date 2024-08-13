@@ -6,9 +6,9 @@ defmodule DpulCollections.Repo.Migrations.CreateHydrationCacheEntries do
       add :data, :map
       add :cache_version, :integer
       add :record_id, :string
-      add :source_cache_order, :utc_datetime
+      add :source_cache_order, :utc_datetime_usec
 
-      timestamps(updated_at: :cache_order, inserted_at: false, type: :utc_datetime)
+      timestamps(updated_at: :cache_order, inserted_at: false, type: :utc_datetime_usec)
     end
 
     create(

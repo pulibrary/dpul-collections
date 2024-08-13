@@ -6,9 +6,9 @@ defmodule DpulCollections.IndexingPipeline.HydrationCacheEntry do
     field :data, :map
     field :cache_version, :integer
     field :record_id, :string
-    field :source_cache_order, :utc_datetime
+    field :source_cache_order, :utc_datetime_usec
 
-    timestamps(updated_at: :cache_order, inserted_at: false, type: :utc_datetime)
+    timestamps(updated_at: :cache_order, inserted_at: false, type: :utc_datetime_usec)
   end
 
   @doc false

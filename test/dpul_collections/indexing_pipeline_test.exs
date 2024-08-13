@@ -36,7 +36,7 @@ defmodule DpulCollections.IndexingPipelineTest do
       assert hydration_cache_entry.data == %{}
       assert hydration_cache_entry.cache_version == 42
       assert hydration_cache_entry.record_id == "some record_id"
-      assert hydration_cache_entry.source_cache_order == ~U[2024-07-23 20:05:00Z]
+      assert hydration_cache_entry.source_cache_order == ~U[2024-07-23 20:05:00.000000Z]
     end
 
     test "create_hydration_cache_entry/1 with invalid data returns error changeset" do
@@ -60,7 +60,7 @@ defmodule DpulCollections.IndexingPipelineTest do
       assert hydration_cache_entry.data == %{}
       assert hydration_cache_entry.cache_version == 43
       assert hydration_cache_entry.record_id == "some updated record_id"
-      assert hydration_cache_entry.source_cache_order == ~U[2024-07-24 20:05:00Z]
+      assert hydration_cache_entry.source_cache_order == ~U[2024-07-24 20:05:00.000000Z]
     end
 
     test "update_hydration_cache_entry/2 with invalid data returns error changeset" do
@@ -123,7 +123,7 @@ defmodule DpulCollections.IndexingPipelineTest do
                IndexingPipeline.create_processor_marker(valid_attrs)
 
       assert processor_marker.type == "some type"
-      assert processor_marker.cache_location == ~U[2024-07-23 20:40:00Z]
+      assert processor_marker.cache_location == ~U[2024-07-23 20:40:00.000000Z]
       assert processor_marker.cache_version == 42
     end
 
@@ -145,7 +145,7 @@ defmodule DpulCollections.IndexingPipelineTest do
                IndexingPipeline.update_processor_marker(processor_marker, update_attrs)
 
       assert processor_marker.type == "some updated type"
-      assert processor_marker.cache_location == ~U[2024-07-24 20:40:00Z]
+      assert processor_marker.cache_location == ~U[2024-07-24 20:40:00.000000Z]
       assert processor_marker.cache_version == 43
     end
 

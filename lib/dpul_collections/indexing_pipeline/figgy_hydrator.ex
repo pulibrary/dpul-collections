@@ -36,6 +36,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydrator do
     # - source_cache_order (datetime) - the figgy updated_at
     {:ok, _} =
       IndexingPipeline.create_hydration_cache_entry(%{
+        # TODO: Pull this from state.
         cache_version: 0,
         record_id: message.data.id,
         source_cache_order: message.data.updated_at,

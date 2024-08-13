@@ -22,6 +22,12 @@ config :dpul_collections, DpulCollections.FiggyRepo,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
+# Setup test to use a Stand-In Producer
+config :dpul_collections,
+  producer_module: DpulCollections.IndexingPipeline.FiggyProducer,
+  # change if required for your dev/prod producer
+  producer_options: []
+
 # For development, we disable any cache and enable
 # debugging and code reloading.
 #
