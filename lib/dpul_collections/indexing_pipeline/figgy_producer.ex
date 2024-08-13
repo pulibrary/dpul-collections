@@ -48,6 +48,10 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
     {record.updated_at, record.id}
   end
 
+  # TODO: Function to reset current index version's saved marker
+  # TODO: Function to save a marker to the db for a given index version (part
+  #    of ack)
+
   @spec wrap_record(record :: FiggyResource) :: Broadway.Message.t()
   defp wrap_record(record) do
     %Broadway.Message{
