@@ -136,8 +136,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
 
     test "message acknowledgement" do
       {:ok, stage} = FiggyProducer.start_link()
-      {:ok, state} = send(stage, {:ack, :figgy_producer_ack, [], []})
+      send(stage, {:ack, :figgy_producer_ack, [], []})
       :timer.sleep(1000)
+      # Test if ProcessorMarker table has been updated
     end
   end
 end

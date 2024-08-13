@@ -46,7 +46,15 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
 
   @impl GenStage
   def handle_info({:ack, :figgy_producer_ack, successful_messages, failed_messages}, state) do
-    {:ok, state}
+    messages = []
+    if Enum.count(successful_messages) != 0
+      # insert data into ProcessorMarkers
+      # do something with state?
+    else
+      # do something else?
+    end
+
+    {:noreply, messages, state}
   end
 
   defp marker(record = %FiggyResource{}) do
