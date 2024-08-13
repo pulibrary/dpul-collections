@@ -46,7 +46,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
 
   @impl GenStage
   def handle_info({:ack, :figgy_producer_ack, successful_messages, failed_messages}, state) do
-    IO.puts "Please!"
+    {:ok, state}
   end
 
   defp marker(record = %FiggyResource{}) do

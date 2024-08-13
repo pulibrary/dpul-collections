@@ -1,4 +1,5 @@
 defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
+  alias DpulCollections.IndexingPipeline.FiggyHydrator
   use DpulCollections.DataCase
 
   alias DpulCollections.IndexingPipeline.{FiggyProducer, FiggyResource}
@@ -135,7 +136,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
 
     test "message acknowledgement" do
       {:ok, stage} = FiggyProducer.start_link()
-      send(stage, {:ack, :figgy_producer_ack, [], []})
+      {:ok, state} = send(stage, {:ack, :figgy_producer_ack, [], []})
       :timer.sleep(1000)
     end
   end
