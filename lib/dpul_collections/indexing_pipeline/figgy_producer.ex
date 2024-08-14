@@ -48,14 +48,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
   def handle_info({:ack, :figgy_producer_ack, successful_messages, failed_messages}, state) do
     messages = []
 
-    if Enum.count(successful_messages) != 0 do
-      # insert data into ProcessorMarkers
-      # do something with state?
-    else
-      # do something else?
-    end
-
-    IO.inspect(successful_messages)
+    
     notify_ack(successful_messages |> length(), failed_messages |> length())
     {:noreply, messages, state}
   end

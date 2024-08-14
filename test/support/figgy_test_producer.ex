@@ -7,9 +7,9 @@ defmodule FiggyTestProducer do
   end
 
   @impl GenStage
-  def init({producer_stage, owner}) do
-    {:ok, cons} = TestConsumer.start_link(producer_stage)
-    {:producer, %{consumer: cons, owner: owner}}
+  def init({figgy_producer_pid, test_runner_pid}) do
+    {:ok, consumer_pid} = TestConsumer.start_link(figgy_producer_pid)
+    {:producer, %{consumer_pid: consumer_pid, test_runner_pid: test_runner_pid}}
   end
 
   @impl GenStage
@@ -18,18 +18,21 @@ defmodule FiggyTestProducer do
   end
 
   @impl GenStage
+  # The received message comes from TestConsumer
   def handle_info({:received, messages}, state) do
-    send(state.owner, {:received, messages})
+    send(state.test_runner_pid, {:received, messages})
     {:noreply, messages, state}
   end
 
   @impl GenStage
   def handle_cast({:fulfill_messages, demand}, state) do
-    TestConsumer.request(state.consumer, demand)
+    TestConsumer.request(state.consumer_pid, demand)
     {:noreply, [], state}
   end
 
   def process(demand) do
+    # Get the PID for FiggyTestProducer GenServer,
+    # then cast fulfill message to itself
     Broadway.producer_names(FiggyHydrator)
     |> hd
     |> GenServer.cast({:fulfill_messages, demand})

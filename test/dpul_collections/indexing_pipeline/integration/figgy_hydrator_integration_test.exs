@@ -5,8 +5,6 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
   alias DpulCollections.IndexingPipeline
 
   test "message acknowledgement" do
-    # Is there a way to put FiggyProducer into manual mode, so we can ask it
-    # to deliver one?
     pid = self()
 
     :telemetry.attach(
@@ -16,8 +14,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
       nil
     )
 
-    {:ok, stage} = FiggyProducer.start_link()
-    {:ok, hydrator} = FiggyHydrator.start_link(0, FiggyTestProducer, {stage, self()}, 1)
+    {:ok, figgy_producer_pid} = FiggyProducer.start_link()
+    {:ok, _hydrator} = FiggyHydrator.start_link(0, FiggyTestProducer, {figgy_producer_pid, self()}, 1)
     FiggyTestProducer.process(1)
     assert_receive {:ack_done}
 
