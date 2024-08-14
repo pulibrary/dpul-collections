@@ -53,6 +53,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
     messages = []
     state = %{state | acked_records: (state.acked_records ++ pending_markers) |> Enum.sort()}
     {new_state, last_removed_marker} = process_markers(state, nil)
+
     if last_removed_marker != nil do
       {cache_location, cache_record_id} = last_removed_marker
       IndexingPipeline.write_hydrator_marker(state.cache_version, cache_location, cache_record_id)
@@ -76,7 +77,12 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
     |> Map.put(:acked_records, acked_records)
     |> process_markers(first_record)
   end
-  defp process_markers(state = %{pulled_records: [], acked_records: acked_records}, last_removed_marker) when length(acked_records) > 0 do
+
+  defp process_markers(
+         state = %{pulled_records: [], acked_records: acked_records},
+         last_removed_marker
+       )
+       when length(acked_records) > 0 do
     state
     |> Map.put(:acked_records, [])
     |> process_markers(last_removed_marker)
