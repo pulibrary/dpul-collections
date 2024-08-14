@@ -28,15 +28,18 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
   end
 
   @impl GenStage
-  def handle_demand(demand, state = %{
-        last_queried_marker: last_queried_marker,
-        pulled_records: pulled_records,
-        acked_records: acked_records
-      })
+  def handle_demand(
+        demand,
+        state = %{
+          last_queried_marker: last_queried_marker,
+          pulled_records: pulled_records,
+          acked_records: acked_records
+        }
+      )
       when demand > 0 do
     records = IndexingPipeline.get_figgy_resources_since!(last_queried_marker, demand)
 
-    new_state = 
+    new_state =
       state
       |> Map.put(:last_queried_marker, Enum.at(records, -1) |> marker || last_queried_marker)
       |> Map.put(:pulled_records, Enum.concat(pulled_records, Enum.map(records, &marker/1)))
@@ -50,8 +53,10 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
     messages = []
     state = %{state | acked_records: (state.acked_records ++ pending_markers) |> Enum.sort()}
     {new_state, last_removed_marker} = process_markers(state, nil)
-    {cache_location, cache_record_id} = last_removed_marker
-    IndexingPipeline.write_hydrator_marker(state.cache_version, cache_location, cache_record_id)
+    if last_removed_marker != nil do
+      {cache_location, cache_record_id} = last_removed_marker
+      IndexingPipeline.write_hydrator_marker(state.cache_version, cache_location, cache_record_id)
+    end
 
     notify_ack(pending_markers |> length())
     {:noreply, messages, new_state}
