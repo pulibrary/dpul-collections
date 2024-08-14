@@ -45,18 +45,24 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
   end
 
   @impl GenStage
-  def handle_info({:ack, :figgy_producer_ack, successful_messages, failed_messages}, state) do
+  def handle_info({:ack, :figgy_producer_ack, acked_markers}, state) do
     messages = []
 
-    notify_ack(successful_messages |> length(), failed_messages |> length())
+    notify_ack(acked_markers |> length())
     {:noreply, messages, state}
   end
 
-  defp notify_ack(successful_message_count, failed_message_count) do
+  def ack({pid, :figgy_producer_ack}, successful, failed) do
+    # Do some error handling
+    acked_markers = (successful ++ failed) |> Enum.map(&marker/1) |> Enum.sort()
+    send(pid, {:ack, :figgy_producer_ack, acked_markers})
+  end
+
+  defp notify_ack(acked_message_count) do
     :telemetry.execute(
       [:figgy_producer, :ack, :done],
       %{},
-      %{success_count: successful_message_count, failed_count: failed_message_count}
+      %{acked_count: acked_message_count}
     )
   end
 
@@ -68,6 +74,10 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
     {record.updated_at, record.id}
   end
 
+  defp marker(%Broadway.Message{data: data}) do
+    marker(data)
+  end
+
   # TODO: Function to reset current index version's saved marker
   # TODO: Function to save a marker to the db for a given index version (part
   #    of ack)
@@ -76,7 +86,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
   defp wrap_record(record) do
     %Broadway.Message{
       data: record,
-      acknowledger: Broadway.CallerAcknowledger.init({self(), :figgy_producer_ack}, :ignored)
+      acknowledger: {__MODULE__, {self(), :figgy_producer_ack}, nil}
     }
   end
 end
