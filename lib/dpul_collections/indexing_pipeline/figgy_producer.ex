@@ -76,6 +76,11 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
     |> Map.put(:acked_records, acked_records)
     |> process_markers(first_record)
   end
+  defp process_markers(state = %{pulled_records: [], acked_records: acked_records}, last_removed_marker) when length(acked_records) > 0 do
+    state
+    |> Map.put(:acked_records, [])
+    |> process_markers(last_removed_marker)
+  end
 
   defp process_markers(state, last_removed_marker), do: {state, last_removed_marker}
 
