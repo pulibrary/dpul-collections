@@ -45,12 +45,23 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
   end
 
   @impl GenStage
-  def handle_info({:ack, :figgy_producer_ack, acked_markers}, state) do
+  def handle_info({:ack, :figgy_producer_ack, pending_markers}, state) do
     messages = []
-
-    notify_ack(acked_markers |> length())
-    {:noreply, messages, state}
+    state = %{state | acked_records: (state.acked_records ++ pending_markers) |> Enum.sort}
+    { new_state, _last_removed_marker } = process_markers(state, nil)
+    notify_ack(pending_markers |> length())
+    {:noreply, messages, new_state}
   end
+
+  # If the first element of pulled_records is the first element of
+  # acked_records, remove it from both and process again.
+  defp process_markers(state = %{pulled_records: [first_record | pulled_records], acked_records: [first_record | acked_records]}, _last_removed_marker) do
+    state
+    |> Map.put(:pulled_records, pulled_records)
+    |> Map.put(:acked_records, acked_records)
+    |> process_markers(first_record)
+  end
+  defp process_markers(state, last_removed_marker), do: { state, last_removed_marker }
 
   def ack({pid, :figgy_producer_ack}, successful, failed) do
     # Do some error handling
