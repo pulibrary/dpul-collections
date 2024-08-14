@@ -15,7 +15,10 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
     )
 
     {:ok, figgy_producer_pid} = FiggyProducer.start_link()
-    {:ok, _hydrator} = FiggyHydrator.start_link(0, FiggyTestProducer, {figgy_producer_pid, self()}, 1)
+
+    {:ok, _hydrator} =
+      FiggyHydrator.start_link(0, FiggyTestProducer, {figgy_producer_pid, self()}, 1)
+
     FiggyTestProducer.process(1)
     assert_receive {:ack_done}
 

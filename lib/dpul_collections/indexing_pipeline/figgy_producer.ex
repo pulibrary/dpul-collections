@@ -48,7 +48,6 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
   def handle_info({:ack, :figgy_producer_ack, successful_messages, failed_messages}, state) do
     messages = []
 
-    
     notify_ack(successful_messages |> length(), failed_messages |> length())
     {:noreply, messages, state}
   end

@@ -4,7 +4,8 @@ defmodule TestConsumer do
   end
 
   def init({producer_pid, receive_target_pid}) do
-    {:consumer, %{receive_target_pid: receive_target_pid, subscription: nil}, subscribe_to: [producer_pid]}
+    {:consumer, %{receive_target_pid: receive_target_pid, subscription: nil},
+     subscribe_to: [producer_pid]}
   end
 
   def handle_subscribe(:producer, _options, from, state) do

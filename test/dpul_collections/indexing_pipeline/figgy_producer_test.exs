@@ -109,5 +109,29 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
 
       assert new_state == expected_state
     end
+
+    describe "handle_info/2 with figgy producer ack" do
+      test "acknowledging first and third record" do
+        start_state = %{
+          last_queried_marker:
+            {~U[2018-03-09 20:19:34.486004Z], "47276197-e223-471c-99d7-405c5f6c5285"},
+          pulled_records: [
+            {
+              ~U[2018-03-09 20:19:33.414040Z],
+              "3cb7627b-defc-401b-9959-42ebc4488f74"
+            },
+            {
+              ~U[2018-03-09 20:19:34.465203Z],
+              "69990556-434c-476a-9043-bbf9a1bda5a4"
+            },
+            {
+              ~U[2018-03-09 20:19:34.486004Z],
+              "47276197-e223-471c-99d7-405c5f6c5285"
+            }
+          ],
+          acked_records: []
+        }
+      end
+    end
   end
 end
