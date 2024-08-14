@@ -32,7 +32,6 @@ defmodule FiggyTestProducer do
   def process(demand) do
     Broadway.producer_names(FiggyHydrator)
     |> hd
-    |> GenServer.cast({ :fulfill_messages, demand })
+    |> GenServer.cast({:fulfill_messages, demand})
   end
 end
-

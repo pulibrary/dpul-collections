@@ -8,8 +8,11 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydrator do
   # TODO
   # this opts param will to give us the cache_version, then we need to set it
   def start_link(cache_version, producer_module \\ nil, producer_options \\ nil, batch_size \\ 10) do
-    producer_module = producer_module || Application.fetch_env!(:dpul_collections, :producer_module)
-    producer_options = producer_options || Application.get_env(:dpul_collections, :producer_options, [])
+    producer_module =
+      producer_module || Application.fetch_env!(:dpul_collections, :producer_module)
+
+    producer_options =
+      producer_options || Application.get_env(:dpul_collections, :producer_options, [])
 
     Broadway.start_link(__MODULE__,
       name: __MODULE__,

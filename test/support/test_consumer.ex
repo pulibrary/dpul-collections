@@ -23,6 +23,6 @@ defmodule TestConsumer do
   end
 
   def request(pid, demand) do
-    GenServer.cast(pid, { :request, demand })
+    GenServer.cast(pid, {:request, demand})
   end
 end
