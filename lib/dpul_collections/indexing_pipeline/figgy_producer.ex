@@ -12,7 +12,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
   end
 
   @impl GenStage
-  def init(_cache_version) do
+  def init(cache_version) do
     ## TODO: Set last_queried_marker if it's found in the database
     # Pass index_version, check db for marker, if it's not found we create one
     # with the index_version and nil? Or just start it with last_queried_marker
@@ -20,14 +20,15 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
     initial_state = %{
       last_queried_marker: nil,
       pulled_records: [],
-      acked_records: []
+      acked_records: [],
+      cache_version: cache_version
     }
 
     {:producer, initial_state}
   end
 
   @impl GenStage
-  def handle_demand(demand, %{
+  def handle_demand(demand, state = %{
         last_queried_marker: last_queried_marker,
         pulled_records: pulled_records,
         acked_records: acked_records
@@ -35,11 +36,11 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
       when demand > 0 do
     records = IndexingPipeline.get_figgy_resources_since!(last_queried_marker, demand)
 
-    new_state = %{
-      last_queried_marker: Enum.at(records, -1) |> marker || last_queried_marker,
-      pulled_records: Enum.concat(pulled_records, Enum.map(records, &marker/1)),
-      acked_records: acked_records
-    }
+    new_state = 
+      state
+      |> Map.put(:last_queried_marker, Enum.at(records, -1) |> marker || last_queried_marker)
+      |> Map.put(:pulled_records, Enum.concat(pulled_records, Enum.map(records, &marker/1)))
+      |> Map.put(:acked_records, acked_records)
 
     {:noreply, Enum.map(records, &wrap_record/1), new_state}
   end
@@ -50,7 +51,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
     state = %{state | acked_records: (state.acked_records ++ pending_markers) |> Enum.sort()}
     {new_state, last_removed_marker} = process_markers(state, nil)
     {cache_location, cache_record_id} = last_removed_marker
-    IndexingPipeline.write_hydrator_marker(0, cache_location, cache_record_id)
+    IndexingPipeline.write_hydrator_marker(state.cache_version, cache_location, cache_record_id)
 
     notify_ack(pending_markers |> length())
     {:noreply, messages, new_state}

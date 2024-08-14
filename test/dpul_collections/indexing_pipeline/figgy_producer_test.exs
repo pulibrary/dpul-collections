@@ -24,7 +24,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
             {~U[2018-03-09 20:19:33.414040Z], "3cb7627b-defc-401b-9959-42ebc4488f74"},
             {~U[2018-03-09 20:19:34.465203Z], "69990556-434c-476a-9043-bbf9a1bda5a4"}
           ],
-          acked_records: []
+          acked_records: [],
+          cache_version: 0
         }
 
       assert new_state == expected_state
@@ -39,7 +40,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
             {~U[2018-03-09 20:19:33.414040Z], "3cb7627b-defc-401b-9959-42ebc4488f74"},
             {~U[2018-03-09 20:19:34.465203Z], "69990556-434c-476a-9043-bbf9a1bda5a4"}
           ],
-          acked_records: []
+          acked_records: [],
+          cache_version: 0
         }
 
       {:noreply, messages, new_state} = FiggyProducer.handle_demand(1, initial_state)
@@ -65,7 +67,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
               "47276197-e223-471c-99d7-405c5f6c5285"
             }
           ],
-          acked_records: []
+          acked_records: [],
+          cache_version: 0
         }
 
       assert new_state == expected_state
@@ -81,7 +84,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
           pulled_records: [
             {~U[2018-03-09 20:19:34.465204Z], "47276197-e223-471c-99d7-405c5f6c5285"}
           ],
-          acked_records: []
+          acked_records: [],
+          cache_version: 0
         }
 
       {:noreply, messages, new_state} = FiggyProducer.handle_demand(1, initial_state)
@@ -103,7 +107,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
               "47276197-e223-471c-99d7-405c5f6c5285"
             }
           ],
-          acked_records: []
+          acked_records: [],
+          cache_version: 0
         }
 
       assert new_state == expected_state
@@ -122,7 +127,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
           marker2,
           marker3
         ],
-        acked_records: []
+        acked_records: [],
+        cache_version: 1
       }
 
       acked_markers =
@@ -141,14 +147,15 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
         ],
         acked_records: [
           marker3
-        ]
+        ],
+        cache_version: 1
       }
 
       {:noreply, [], new_state} =
         FiggyProducer.handle_info({:ack, :figgy_producer_ack, acked_markers}, initial_state)
 
       assert new_state == expected_state
-      processor_marker = IndexingPipeline.get_hydrator_marker(0)
+      processor_marker = IndexingPipeline.get_hydrator_marker(1)
 
       assert marker1 == {processor_marker.cache_location, processor_marker.cache_record_id}
 
@@ -159,7 +166,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
         last_queried_marker:
           {~U[2018-03-09 20:19:34.486004Z], "47276197-e223-471c-99d7-405c5f6c5285"},
         pulled_records: [],
-        acked_records: []
+        acked_records: [],
+        cache_version: 1
       }
 
       {:noreply, [], new_state} =
@@ -167,7 +175,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
 
       assert new_state == expected_state
 
-      processor_marker = IndexingPipeline.get_hydrator_marker(0)
+      processor_marker = IndexingPipeline.get_hydrator_marker(1)
       assert marker3 == {processor_marker.cache_location, processor_marker.cache_record_id}
 
       # TODO: Test that the marker gets persisted to the marker table.

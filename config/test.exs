@@ -36,12 +36,6 @@ config :dpul_collections, DpulCollectionsWeb.Endpoint,
 # In test we don't send emails.
 config :dpul_collections, DpulCollections.Mailer, adapter: Swoosh.Adapters.Test
 
-# Setup test to use a Stand-In Producer
-config :dpul_collections,
-  producer_module: Broadway.DummyProducer,
-  # change if required for your dev/prod producer
-  producer_options: []
-
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
 
