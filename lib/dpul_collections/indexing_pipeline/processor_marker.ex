@@ -5,6 +5,7 @@ defmodule DpulCollections.IndexingPipeline.ProcessorMarker do
   schema "processor_markers" do
     field :type, :string
     field :cache_location, :utc_datetime_usec
+    field :cache_record_id, :string
     field :cache_version, :integer
 
     timestamps(type: :utc_datetime_usec)

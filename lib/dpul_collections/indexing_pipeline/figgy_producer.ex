@@ -7,12 +7,12 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
   alias DpulCollections.IndexingPipeline.FiggyResource
   use GenStage
 
-  def start_link(index_version \\ 0) do
-    GenStage.start_link(__MODULE__, index_version, name: __MODULE__)
+  def start_link(cache_version \\ 0) do
+    GenStage.start_link(__MODULE__, cache_version, name: __MODULE__)
   end
 
   @impl GenStage
-  def init(_index_version) do
+  def init(_cache_version) do
     ## TODO: Set last_queried_marker if it's found in the database
     # Pass index_version, check db for marker, if it's not found we create one
     # with the index_version and nil? Or just start it with last_queried_marker
@@ -47,21 +47,31 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
   @impl GenStage
   def handle_info({:ack, :figgy_producer_ack, pending_markers}, state) do
     messages = []
-    state = %{state | acked_records: (state.acked_records ++ pending_markers) |> Enum.sort}
-    { new_state, _last_removed_marker } = process_markers(state, nil)
+    state = %{state | acked_records: (state.acked_records ++ pending_markers) |> Enum.sort()}
+    {new_state, last_removed_marker} = process_markers(state, nil)
+    {cache_location, cache_record_id} = last_removed_marker
+    IndexingPipeline.write_hydrator_marker(0, cache_location, cache_record_id)
+
     notify_ack(pending_markers |> length())
     {:noreply, messages, new_state}
   end
 
   # If the first element of pulled_records is the first element of
   # acked_records, remove it from both and process again.
-  defp process_markers(state = %{pulled_records: [first_record | pulled_records], acked_records: [first_record | acked_records]}, _last_removed_marker) do
+  defp process_markers(
+         state = %{
+           pulled_records: [first_record | pulled_records],
+           acked_records: [first_record | acked_records]
+         },
+         _last_removed_marker
+       ) do
     state
     |> Map.put(:pulled_records, pulled_records)
     |> Map.put(:acked_records, acked_records)
     |> process_markers(first_record)
   end
-  defp process_markers(state, last_removed_marker), do: { state, last_removed_marker }
+
+  defp process_markers(state, last_removed_marker), do: {state, last_removed_marker}
 
   def ack({pid, :figgy_producer_ack}, successful, failed) do
     # Do some error handling

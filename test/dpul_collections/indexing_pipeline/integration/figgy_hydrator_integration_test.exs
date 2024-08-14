@@ -10,7 +10,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
     :telemetry.attach(
       "ack-handler",
       [:figgy_producer, :ack, :done],
-      fn event, _, _, _ -> send(pid, {:ack_done}) end,
+      fn _event, _, _, _ -> send(pid, {:ack_done}) end,
       nil
     )
 

@@ -199,6 +199,29 @@ defmodule DpulCollections.IndexingPipeline do
   end
 
   @doc """
+  Writes or updates hydration markers
+  """
+  def write_hydrator_marker(cache_version, cache_location, cache_record_id) do
+    Repo.insert!(
+      %ProcessorMarker{
+        type: "hydrator",
+        cache_version: cache_version,
+        cache_location: cache_location,
+        cache_record_id: cache_record_id
+      },
+      on_conflict: [set: [cache_location: cache_location, cache_record_id: cache_record_id]],
+      conflict_target: [:type, :cache_version]
+    )
+  end
+
+  @doc """
+  Gets the hydrator marker for a specific cache version
+  """
+  def get_hydrator_marker(cache_version) do
+    Repo.get_by(ProcessorMarker, type: "hydrator", cache_version: cache_version)
+  end
+
+  @doc """
   Gets a single Resource by id from Figgy Database.
 
   Raises `Ecto.NoResultsError` if the Resource does not exist.
