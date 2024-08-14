@@ -54,7 +54,16 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
       # do something else?
     end
     IO.inspect successful_messages
+    notify_ack(successful_messages |> length(), failed_messages |> length())
     {:noreply, messages, state}
+  end
+
+  defp notify_ack(successful_message_count, failed_message_count) do
+    :telemetry.execute(
+      [:figgy_producer, :ack, :done],
+      %{},
+      %{success_count: successful_message_count, failed_count: failed_message_count}
+    )
   end
 
   defp marker(nil) do
