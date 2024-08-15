@@ -102,6 +102,27 @@ defmodule DpulCollections.IndexingPipeline do
     HydrationCacheEntry.changeset(hydration_cache_entry, attrs)
   end
 
+  @doc """
+  Writes or updates hydration cache entries.
+  """
+  def write_hydration_cache_entry(attrs \\ %{}) do
+    conflict_query =
+      HydrationCacheEntry
+      |> update(set: [data: ^attrs.data, source_cache_order: ^attrs.source_cache_order])
+      |> where([c], c.source_cache_order <= ^attrs.source_cache_order)
+
+    try do
+      %HydrationCacheEntry{}
+      |> HydrationCacheEntry.changeset(attrs)
+      |> Repo.insert(
+        on_conflict: conflict_query,
+        conflict_target: [:cache_version, :record_id]
+      )
+    rescue
+      Ecto.StaleEntryError -> {:ok, nil}
+    end
+  end
+
   alias DpulCollections.IndexingPipeline.ProcessorMarker
 
   @doc """
@@ -212,27 +233,6 @@ defmodule DpulCollections.IndexingPipeline do
       on_conflict: [set: [cache_location: cache_location, cache_record_id: cache_record_id]],
       conflict_target: [:type, :cache_version]
     )
-  end
-
-  @doc """
-  Writes or updates hydration cache entries.
-  """
-  def write_hydration_cache_entry(attrs \\ %{}) do
-    conflict_query =
-      HydrationCacheEntry
-      |> update(set: [data: ^attrs.data, source_cache_order: ^attrs.source_cache_order])
-      |> where([c], c.source_cache_order <= ^attrs.source_cache_order)
-
-    try do
-      %HydrationCacheEntry{}
-      |> HydrationCacheEntry.changeset(attrs)
-      |> Repo.insert(
-        on_conflict: conflict_query,
-        conflict_target: [:cache_version, :record_id]
-      )
-    rescue
-      Ecto.StaleEntryError -> {:ok, nil}
-    end
   end
 
   @doc """

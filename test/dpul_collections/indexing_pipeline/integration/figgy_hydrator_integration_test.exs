@@ -20,6 +20,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
     hydrator
   end
 
+  defp records do
+  end
+
   test "message acknowledgement" do
     hydrator = start_producer()
 
