@@ -3,6 +3,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydrator do
   Broadway consumer that demands Figgy records and caches them in the database.
   """
   alias DpulCollections.IndexingPipeline
+  alias DpulCollections.IndexingPipeline.FiggyProducer
   use Broadway
 
   # TODO
