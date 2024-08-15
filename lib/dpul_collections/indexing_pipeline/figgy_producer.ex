@@ -8,7 +8,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
   use GenStage
 
   def start_link(cache_version \\ 0) do
-    GenStage.start_link(__MODULE__, cache_version, name: __MODULE__)
+    GenStage.start_link(__MODULE__, cache_version)
   end
 
   @impl GenStage

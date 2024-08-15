@@ -1,9 +1,10 @@
 defmodule FiggyTestProducer do
-  alias DpulCollections.IndexingPipeline.FiggyHydrator
+  alias DpulCollections.IndexingPipeline.{ FiggyHydrator, FiggyProducer }
   use GenStage
 
   @impl GenStage
-  def init({figgy_producer_pid, test_runner_pid}) do
+  def init({test_runner_pid}) do
+    {:ok, figgy_producer_pid} = FiggyProducer.start_link()
     {:ok, consumer_pid} = TestConsumer.start_link(figgy_producer_pid)
     {:producer, %{consumer_pid: consumer_pid, test_runner_pid: test_runner_pid}}
   end
