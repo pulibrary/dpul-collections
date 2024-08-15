@@ -20,7 +20,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
     initial_state = %{
       last_queried_marker: nil,
       pulled_records: [],
-      acked_records: [],
+      acked_records: :ordsets.new(),
       cache_version: cache_version
     }
 
@@ -51,7 +51,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
   @impl GenStage
   def handle_info({:ack, :figgy_producer_ack, pending_markers}, state) do
     messages = []
-    state = %{state | acked_records: (state.acked_records ++ pending_markers) |> Enum.sort()}
+    state = %{state | acked_records: :ordsets.from_list(state.acked_records ++ pending_markers)}
     {new_state, last_removed_marker} = process_markers(state, nil)
 
     if last_removed_marker != nil do
@@ -84,7 +84,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
        )
        when length(acked_records) > 0 do
     state
-    |> Map.put(:acked_records, [])
+    |> Map.put(:acked_records, :ordsets.new())
     |> process_markers(last_removed_marker)
   end
 
@@ -92,7 +92,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
 
   def ack({pid, :figgy_producer_ack}, successful, failed) do
     # Do some error handling
-    acked_markers = (successful ++ failed) |> Enum.map(&marker/1) |> Enum.sort()
+    acked_markers = :ordsets.from_list(successful ++ failed) |> Enum.map(&marker/1)
     send(pid, {:ack, :figgy_producer_ack, acked_markers})
   end
 
@@ -116,9 +116,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
     marker(data)
   end
 
-  # TODO: Function to reset current index version's saved marker
-  # TODO: Function to save a marker to the db for a given index version (part
-  #    of ack)
+  # TODO: Function to reset current index version's saved marker, i.e. full reindex
 
   @spec wrap_record(record :: FiggyResource) :: Broadway.Message.t()
   defp wrap_record(record) do
