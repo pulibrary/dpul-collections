@@ -215,6 +215,23 @@ defmodule DpulCollections.IndexingPipeline do
   end
 
   @doc """
+  Writes or updates hydration cache entries.
+  """
+  def write_hydration_cache_entry(attrs \\ %{}) do
+    conflict_query = HydrationCacheEntry |> update(set: [data: ^attrs.data, source_cache_order: ^attrs.source_cache_order]) |> where([c], c.source_cache_order <= ^attrs.source_cache_order)
+    try do
+      %HydrationCacheEntry{}
+      |> HydrationCacheEntry.changeset(attrs)
+      |> Repo.insert(
+        on_conflict: conflict_query,
+        conflict_target: [:cache_version, :record_id]
+      )
+    rescue
+      Ecto.StaleEntryError -> {:ok, nil}
+    end
+  end
+
+  @doc """
   Gets the hydrator marker for a specific cache version
   """
   def get_hydrator_marker(cache_version) do
