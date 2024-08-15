@@ -218,7 +218,11 @@ defmodule DpulCollections.IndexingPipeline do
   Writes or updates hydration cache entries.
   """
   def write_hydration_cache_entry(attrs \\ %{}) do
-    conflict_query = HydrationCacheEntry |> update(set: [data: ^attrs.data, source_cache_order: ^attrs.source_cache_order]) |> where([c], c.source_cache_order <= ^attrs.source_cache_order)
+    conflict_query =
+      HydrationCacheEntry
+      |> update(set: [data: ^attrs.data, source_cache_order: ^attrs.source_cache_order])
+      |> where([c], c.source_cache_order <= ^attrs.source_cache_order)
+
     try do
       %HydrationCacheEntry{}
       |> HydrationCacheEntry.changeset(attrs)

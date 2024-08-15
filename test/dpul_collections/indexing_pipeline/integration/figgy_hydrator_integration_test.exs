@@ -48,6 +48,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
       source_cache_order: ~U[2200-03-09 20:19:33.414040Z],
       data: %{}
     })
+
     # Process that past record.
     hydrator = start_producer()
     FiggyTestProducer.process(1)
