@@ -29,13 +29,14 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
     end
 
     test "handle_demand/2 with consecutive state returns a new record" do
+      {marker1, marker2, marker3} = FiggyTestSupport.markers()
       initial_state =
         %{
           last_queried_marker:
-            {~U[2018-03-09 20:19:34.465203Z], "69990556-434c-476a-9043-bbf9a1bda5a4"},
+            marker2,
           pulled_records: [
-            {~U[2018-03-09 20:19:33.414040Z], "3cb7627b-defc-401b-9959-42ebc4488f74"},
-            {~U[2018-03-09 20:19:34.465203Z], "69990556-434c-476a-9043-bbf9a1bda5a4"}
+            marker1,
+            marker2
           ],
           acked_records: [],
           cache_version: 0
@@ -44,25 +45,16 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
       {:noreply, messages, new_state} = FiggyProducer.handle_demand(1, initial_state)
 
       ids = Enum.map(messages, fn %Broadway.Message{data: %FiggyResource{id: id}} -> id end)
-      assert ids == ["47276197-e223-471c-99d7-405c5f6c5285"]
+      assert ids == [elem(marker3, 1)]
 
       expected_state =
         %{
           last_queried_marker:
-            {~U[2018-03-09 20:19:34.486004Z], "47276197-e223-471c-99d7-405c5f6c5285"},
+            marker3,
           pulled_records: [
-            {
-              ~U[2018-03-09 20:19:33.414040Z],
-              "3cb7627b-defc-401b-9959-42ebc4488f74"
-            },
-            {
-              ~U[2018-03-09 20:19:34.465203Z],
-              "69990556-434c-476a-9043-bbf9a1bda5a4"
-            },
-            {
-              ~U[2018-03-09 20:19:34.486004Z],
-              "47276197-e223-471c-99d7-405c5f6c5285"
-            }
+            marker1,
+            marker2,
+            marker3
           ],
           acked_records: [],
           cache_version: 0
@@ -72,14 +64,17 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
     end
 
     test "handle_demand/2 when the marker record has been updated" do
+      {_marker1, marker2, marker3} = FiggyTestSupport.markers()
+      fabricated_marker = { DateTime.add(elem(marker2, 0), 1, :microsecond), elem(marker3,1) }
+
       initial_state =
         %{
           # This is a manufactured marker.
           # This timestamp is set to be right before the actual record updated_at.
           last_queried_marker:
-            {~U[2018-03-09 20:19:34.465204Z], "47276197-e223-471c-99d7-405c5f6c5285"},
+            fabricated_marker,
           pulled_records: [
-            {~U[2018-03-09 20:19:34.465204Z], "47276197-e223-471c-99d7-405c5f6c5285"}
+            fabricated_marker,
           ],
           acked_records: [],
           cache_version: 0
@@ -88,21 +83,15 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
       {:noreply, messages, new_state} = FiggyProducer.handle_demand(1, initial_state)
 
       ids = Enum.map(messages, fn %Broadway.Message{data: %FiggyResource{id: id}} -> id end)
-      assert ids == ["47276197-e223-471c-99d7-405c5f6c5285"]
+      assert ids == [elem(marker3, 1)]
 
       expected_state =
         %{
           last_queried_marker:
-            {~U[2018-03-09 20:19:34.486004Z], "47276197-e223-471c-99d7-405c5f6c5285"},
+            marker3,
           pulled_records: [
-            {
-              ~U[2018-03-09 20:19:34.465204Z],
-              "47276197-e223-471c-99d7-405c5f6c5285"
-            },
-            {
-              ~U[2018-03-09 20:19:34.486004Z],
-              "47276197-e223-471c-99d7-405c5f6c5285"
-            }
+            fabricated_marker,
+            marker3
           ],
           acked_records: [],
           cache_version: 0
@@ -112,10 +101,12 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
     end
 
     test "handle_demand/2 when the query returns no records" do
+      {marker1, marker2, marker3} = FiggyTestSupport.markers()
+      # Move last_queried marker to a marker 200 years in the future.
+      fabricated_marker = { DateTime.add(elem(marker3, 0), 356*10, :day), elem(marker3, 1) }
       initial_state =
         %{
-          last_queried_marker:
-            {~U[2200-03-09 20:19:34.465203Z], "69990556-434c-476a-9043-bbf9a1bda5a4"},
+          last_queried_marker: fabricated_marker,
           pulled_records: [],
           acked_records: [],
           cache_version: 0
@@ -127,8 +118,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
 
       expected_state =
         %{
-          last_queried_marker:
-            {~U[2200-03-09 20:19:34.465203Z], "69990556-434c-476a-9043-bbf9a1bda5a4"},
+          last_queried_marker: fabricated_marker,
           pulled_records: [],
           acked_records: [],
           cache_version: 0
@@ -141,8 +131,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
       {marker1, marker2, marker3} = FiggyTestSupport.markers()
 
       initial_state = %{
-        last_queried_marker:
-          {~U[2018-03-09 20:19:34.486004Z], "47276197-e223-471c-99d7-405c5f6c5285"},
+        last_queried_marker: marker3,
         pulled_records: [
           marker1,
           marker2,
@@ -160,8 +149,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
         |> Enum.sort()
 
       expected_state = %{
-        last_queried_marker:
-          {~U[2018-03-09 20:19:34.486004Z], "47276197-e223-471c-99d7-405c5f6c5285"},
+        last_queried_marker: marker3,
         pulled_records: [
           marker2,
           marker3
@@ -184,8 +172,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
       acked_markers = [marker2]
 
       expected_state = %{
-        last_queried_marker:
-          {~U[2018-03-09 20:19:34.486004Z], "47276197-e223-471c-99d7-405c5f6c5285"},
+        last_queried_marker: marker3,
         pulled_records: [],
         acked_records: [],
         cache_version: 1
@@ -198,18 +185,13 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
 
       processor_marker = IndexingPipeline.get_hydrator_marker(1)
       assert marker3 == {processor_marker.cache_location, processor_marker.cache_record_id}
-
-      # Edge cases to test:
-      # 1. Something breaks, an already acked_record is acked again, resulting
-      #    in duplicates in acked_records
     end
 
     test "handle_info/2 with figgy producer ack, nothing to acknowledge" do
       {marker1, marker2, marker3} = FiggyTestSupport.markers()
 
       initial_state = %{
-        last_queried_marker:
-          {~U[2018-03-09 20:19:34.486004Z], "47276197-e223-471c-99d7-405c5f6c5285"},
+        last_queried_marker: marker3,
         pulled_records: [
           marker1,
           marker2,
@@ -226,8 +208,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
         |> Enum.sort()
 
       expected_state = %{
-        last_queried_marker:
-          {~U[2018-03-09 20:19:34.486004Z], "47276197-e223-471c-99d7-405c5f6c5285"},
+        last_queried_marker: marker3,
         pulled_records: [
           marker1,
           marker2,
@@ -248,11 +229,10 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
     end
 
     test "handle_info/2 with figgy producer ack, empty pulled_records" do
-      {marker1, _marker2, _marker3} = FiggyTestSupport.markers()
+      {marker1, _marker2, marker3} = FiggyTestSupport.markers()
 
       initial_state = %{
-        last_queried_marker:
-          {~U[2018-03-09 20:19:34.486004Z], "47276197-e223-471c-99d7-405c5f6c5285"},
+        last_queried_marker: marker3,
         pulled_records: [],
         acked_records: [],
         cache_version: 1
@@ -265,8 +245,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
         |> Enum.sort()
 
       expected_state = %{
-        last_queried_marker:
-          {~U[2018-03-09 20:19:34.486004Z], "47276197-e223-471c-99d7-405c5f6c5285"},
+        last_queried_marker: marker3,
         pulled_records: [],
         acked_records: [],
         cache_version: 1

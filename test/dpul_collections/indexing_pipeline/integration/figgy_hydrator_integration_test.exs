@@ -20,22 +20,20 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
     hydrator
   end
 
-  defp records do
-  end
-
   test "message acknowledgement" do
+    {marker1, marker2, marker3} = FiggyTestSupport.markers()
     hydrator = start_producer()
 
     FiggyTestProducer.process(1)
     assert_receive {:ack_done}
 
     cache_entry = IndexingPipeline.list_hydration_cache_entries() |> hd
-    assert cache_entry.record_id == "3cb7627b-defc-401b-9959-42ebc4488f74"
+    assert cache_entry.record_id == elem(marker1, 1)
     assert cache_entry.cache_version == 0
-    assert cache_entry.source_cache_order == ~U[2018-03-09 20:19:33.414040Z]
-
+    assert cache_entry.source_cache_order == elem(marker1, 0)
+    marker_1_id = elem(marker1, 0)
     assert %{
-             "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
+             "id" => marker_1_id,
              "internal_resource" => "EphemeraTerm"
            } = cache_entry.data
 
@@ -66,11 +64,12 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
   end
 
   test "loads a marker from the database on startup" do
+    {marker1, marker2, _marker3} = FiggyTestSupport.markers()
     # Create a marker
     IndexingPipeline.write_hydrator_marker(
       0,
-      ~U[2018-03-09 20:19:33.414040Z],
-      "3cb7627b-defc-401b-9959-42ebc4488f74"
+      elem(marker1, 0),
+      elem(marker1, 1)
     )
 
     # Start the producer
@@ -79,9 +78,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
     FiggyTestProducer.process(1)
     assert_receive {:ack_done}
     cache_entry = IndexingPipeline.list_hydration_cache_entries() |> hd
-    assert cache_entry.record_id == "69990556-434c-476a-9043-bbf9a1bda5a4"
+    assert cache_entry.record_id == elem(marker2, 1)
     assert cache_entry.cache_version == 0
-    assert cache_entry.source_cache_order == ~U[2018-03-09 20:19:34.465203Z]
+    assert cache_entry.source_cache_order == elem(marker2, 0)
     hydrator |> Broadway.stop(:normal)
   end
 end
