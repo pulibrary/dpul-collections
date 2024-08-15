@@ -1,14 +1,14 @@
 defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
   use DpulCollections.DataCase
 
-  alias DpulCollections.IndexingPipeline.{FiggyProducer, FiggyHydrator}
+  alias DpulCollections.IndexingPipeline.FiggyHydrator
   alias DpulCollections.IndexingPipeline
 
   def start_producer do
     pid = self()
 
     :telemetry.attach(
-      "ack-handler-#{pid |> :erlang.pid_to_list}",
+      "ack-handler-#{pid |> :erlang.pid_to_list()}",
       [:figgy_producer, :ack, :done],
       fn _event, _, _, _ -> send(pid, {:ack_done}) end,
       nil
@@ -16,6 +16,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
 
     {:ok, hydrator} =
       FiggyHydrator.start_link(0, FiggyTestProducer, {self()}, 1)
+
     hydrator
   end
 
@@ -34,12 +35,18 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
              "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
              "internal_resource" => "EphemeraTerm"
            } = cache_entry.data
+
     hydrator |> Broadway.stop(:normal)
   end
 
   test "loads a marker from the database on startup" do
     # Create a marker
-    IndexingPipeline.write_hydrator_marker(0, ~U[2018-03-09 20:19:33.414040Z], "3cb7627b-defc-401b-9959-42ebc4488f74")
+    IndexingPipeline.write_hydrator_marker(
+      0,
+      ~U[2018-03-09 20:19:33.414040Z],
+      "3cb7627b-defc-401b-9959-42ebc4488f74"
+    )
+
     # Start the producer
     hydrator = start_producer()
     # Make sure the first record that comes back is what we expect

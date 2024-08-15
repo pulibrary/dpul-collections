@@ -1,5 +1,5 @@
 defmodule FiggyTestProducer do
-  alias DpulCollections.IndexingPipeline.{ FiggyHydrator, FiggyProducer }
+  alias DpulCollections.IndexingPipeline.{FiggyHydrator, FiggyProducer}
   use GenStage
 
   @impl GenStage

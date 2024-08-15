@@ -4,7 +4,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
   """
 
   alias DpulCollections.IndexingPipeline
-  alias DpulCollections.IndexingPipeline.FiggyResource
+  alias DpulCollections.IndexingPipeline.{FiggyResource, ProcessorMarker}
   use GenStage
 
   def start_link(cache_version \\ 0) do
@@ -13,12 +13,10 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
 
   @impl GenStage
   def init(cache_version) do
-    ## TODO: Set last_queried_marker if it's found in the database
-    # Pass index_version, check db for marker, if it's not found we create one
-    # with the index_version and nil? Or just start it with last_queried_marker
-    # nil.
+    last_queried_marker = IndexingPipeline.get_hydrator_marker(cache_version)
+
     initial_state = %{
-      last_queried_marker: nil,
+      last_queried_marker: last_queried_marker |> process_marker(),
       pulled_records: [],
       acked_records: :ordsets.new(),
       cache_version: cache_version
@@ -26,6 +24,15 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
 
     {:producer, initial_state}
   end
+
+  defp process_marker(%ProcessorMarker{
+         cache_location: cache_location,
+         cache_record_id: cache_record_id
+       }) do
+    {cache_location, cache_record_id}
+  end
+
+  defp process_marker(nil), do: nil
 
   @impl GenStage
   def handle_demand(
