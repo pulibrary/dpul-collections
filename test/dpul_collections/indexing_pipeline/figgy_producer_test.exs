@@ -114,10 +114,42 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
       assert new_state == expected_state
     end
 
-    test "handle_info/2 with figgy producer ack, acknowledging first and third record" do
+    test "handle_demand/2 when the query returns no records" do
+      initial_state =
+        %{
+          last_queried_marker:
+            {~U[2200-03-09 20:19:34.465203Z], "69990556-434c-476a-9043-bbf9a1bda5a4"},
+          pulled_records: [],
+          acked_records: [],
+          cache_version: 0
+        }
+
+      {:noreply, messages, new_state} = FiggyProducer.handle_demand(1, initial_state)
+
+      assert messages == []
+
+      expected_state =
+        %{
+          last_queried_marker:
+            {~U[2200-03-09 20:19:34.465203Z], "69990556-434c-476a-9043-bbf9a1bda5a4"},
+          pulled_records: [],
+          acked_records: [],
+          cache_version: 0
+        }
+
+      assert new_state == expected_state
+    end
+
+    # Returns fixture markers for handle_info tests.
+    defp markers do
       marker1 = {~U[2018-03-09 20:19:33.414040Z], "3cb7627b-defc-401b-9959-42ebc4488f74"}
       marker2 = {~U[2018-03-09 20:19:34.465203Z], "69990556-434c-476a-9043-bbf9a1bda5a4"}
       marker3 = {~U[2018-03-09 20:19:34.486004Z], "47276197-e223-471c-99d7-405c5f6c5285"}
+      { marker1, marker2, marker3 }
+    end
+
+    test "handle_info/2 with figgy producer ack, acknowledging first and third record" do
+      { marker1, marker2, marker3 } = markers()
 
       initial_state = %{
         last_queried_marker:
@@ -184,9 +216,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
     end
 
     test "handle_info/2 with figgy producer ack, nothing to acknowledge" do
-      marker1 = {~U[2018-03-09 20:19:33.414040Z], "3cb7627b-defc-401b-9959-42ebc4488f74"}
-      marker2 = {~U[2018-03-09 20:19:34.465203Z], "69990556-434c-476a-9043-bbf9a1bda5a4"}
-      marker3 = {~U[2018-03-09 20:19:34.486004Z], "47276197-e223-471c-99d7-405c5f6c5285"}
+      { marker1, marker2, marker3 } = markers()
 
       initial_state = %{
         last_queried_marker:
@@ -229,9 +259,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
     end
 
     test "handle_info/2 with figgy producer ack, empty pulled_records" do
-      marker1 = {~U[2018-03-09 20:19:33.414040Z], "3cb7627b-defc-401b-9959-42ebc4488f74"}
-      marker2 = {~U[2018-03-09 20:19:34.465203Z], "69990556-434c-476a-9043-bbf9a1bda5a4"}
-      marker3 = {~U[2018-03-09 20:19:34.486004Z], "47276197-e223-471c-99d7-405c5f6c5285"}
+      { marker1, _marker2, _marker3 } = markers()
 
       initial_state = %{
         last_queried_marker:
@@ -264,9 +292,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
     end
 
     test "handle_info/2 with figgy producer ack, duplicate ack records" do
-      marker1 = {~U[2018-03-09 20:19:33.414040Z], "3cb7627b-defc-401b-9959-42ebc4488f74"}
-      marker2 = {~U[2018-03-09 20:19:34.465203Z], "69990556-434c-476a-9043-bbf9a1bda5a4"}
-      marker3 = {~U[2018-03-09 20:19:34.486004Z], "47276197-e223-471c-99d7-405c5f6c5285"}
+      { marker1, marker2, _marker3 } = markers()
 
       initial_state = %{
         last_queried_marker:

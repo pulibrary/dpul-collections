@@ -2,10 +2,6 @@ defmodule FiggyTestProducer do
   alias DpulCollections.IndexingPipeline.FiggyHydrator
   use GenStage
 
-  def start_link() do
-    GenStage.start_link(__MODULE__, nil, name: __MODULE__)
-  end
-
   @impl GenStage
   def init({figgy_producer_pid, test_runner_pid}) do
     {:ok, consumer_pid} = TestConsumer.start_link(figgy_producer_pid)
