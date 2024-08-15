@@ -6,7 +6,7 @@ defmodule FiggyTestProducer do
   def init({test_runner_pid}) do
     {:ok, figgy_producer_pid} = FiggyProducer.start_link()
     {:ok, consumer_pid} = TestConsumer.start_link(figgy_producer_pid)
-    {:producer, %{consumer_pid: consumer_pid, test_runner_pid: test_runner_pid}}
+    {:producer, %{consumer_pid: consumer_pid, test_runner_pid: test_runner_pid, figgy_producer_pid: figgy_producer_pid}}
   end
 
   @impl GenStage

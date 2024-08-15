@@ -7,19 +7,21 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydrator do
 
   # TODO
   # this opts param will to give us the cache_version, then we need to set it
-  def start_link(cache_version, producer_module \\ nil, producer_options \\ nil, batch_size \\ 10) do
+  def start_link(options \\ []) do
+    default = [cache_version: 0, producer_module: FiggyProducer, producer_options: 0, batch_size: 10]
+    options = Keyword.merge(default, options)
     Broadway.start_link(__MODULE__,
       name: __MODULE__,
       producer: [
-        module: {producer_module, producer_options}
+        module: {options[:producer_module], options[:producer_options]}
       ],
       processors: [
         default: []
       ],
       batchers: [
-        default: [batch_size: batch_size]
+        default: [batch_size: options[:batch_size]]
       ],
-      context: %{cache_version: cache_version}
+      context: %{cache_version: options[:cache_version]}
     )
   end
 
