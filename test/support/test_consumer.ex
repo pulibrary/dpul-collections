@@ -1,4 +1,9 @@
 defmodule TestConsumer do
+  @moduledoc """
+  TestConsumer allows for manual consumption of messages from a Producer and
+  then notifies a receive_target of any messages it gets. We largely use this
+  for integration tests.
+  """
   def start_link(producer) do
     GenStage.start_link(__MODULE__, {producer, self()})
   end
@@ -13,6 +18,7 @@ defmodule TestConsumer do
     {:manual, new_state}
   end
 
+  @type test_consumer_message :: {:received, [%Broadway.Message{}]}
   def handle_events(events, _from, state) do
     send(state.receive_target_pid, {:received, events})
     {:noreply, [], state}

@@ -6,11 +6,22 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydrator do
   alias DpulCollections.IndexingPipeline.FiggyProducer
   use Broadway
 
-  # TODO
-  # this opts param will to give us the cache_version, then we need to set it
+  @type start_opts ::
+          {:cache_version, Integer}
+          | {:producer_module, Module}
+          | {:producer_options, any()}
+          | {:batch_size, Integer}
+  @spec start_link([start_opts()]) :: Broadway.on_start()
   def start_link(options \\ []) do
-    default = [cache_version: 0, producer_module: FiggyProducer, producer_options: 0, batch_size: 10]
+    default = [
+      cache_version: 0,
+      producer_module: FiggyProducer,
+      producer_options: 0,
+      batch_size: 10
+    ]
+
     options = Keyword.merge(default, options)
+
     Broadway.start_link(__MODULE__,
       name: __MODULE__,
       producer: [
