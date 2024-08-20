@@ -127,6 +127,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
 
     test "handle_info/2 with figgy producer ack, acknowledging first and third record" do
       {marker1, marker2, marker3} = FiggyTestSupport.markers()
+      cache_version = 1
 
       initial_state = %{
         last_queried_marker: marker3,
@@ -136,7 +137,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
           marker3
         ],
         acked_records: [],
-        cache_version: 1
+        cache_version: cache_version
       }
 
       acked_markers =
@@ -155,14 +156,14 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
         acked_records: [
           marker3
         ],
-        cache_version: 1
+        cache_version: cache_version
       }
 
       {:noreply, [], new_state} =
         FiggyProducer.handle_info({:ack, :figgy_producer_ack, acked_markers}, initial_state)
 
       assert new_state == expected_state
-      processor_marker = IndexingPipeline.get_hydrator_marker(1)
+      processor_marker = IndexingPipeline.get_hydrator_marker(cache_version)
 
       assert marker1 == {processor_marker.cache_location, processor_marker.cache_record_id}
 
@@ -173,7 +174,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
         last_queried_marker: marker3,
         pulled_records: [],
         acked_records: [],
-        cache_version: 1
+        cache_version: cache_version
       }
 
       {:noreply, [], new_state} =
@@ -181,7 +182,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
 
       assert new_state == expected_state
 
-      processor_marker = IndexingPipeline.get_hydrator_marker(1)
+      processor_marker = IndexingPipeline.get_hydrator_marker(cache_version)
       assert marker3 == {processor_marker.cache_location, processor_marker.cache_record_id}
     end
 

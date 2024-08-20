@@ -63,11 +63,14 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
   def handle_info({:ack, :figgy_producer_ack, pending_markers}, state) do
     messages = []
 
-    state = %{
+    sorted_markers =
+      (state.acked_records ++ pending_markers)
+      |> Enum.uniq()
+      |> Enum.sort(ProcessorMarker)
+
+    state =
       state
-      | acked_records:
-          :ordsets.from_list(state.acked_records ++ pending_markers) |> Enum.sort(ProcessorMarker)
-    }
+      |> Map.put(:acked_records, sorted_markers)
 
     {new_state, last_removed_marker} = process_markers(state, nil)
 
@@ -98,6 +101,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
     |> process_markers(first_record)
   end
 
+  # Handles the case where the producer crashes, resets pulled_records to an
+  # empty list, and then gets a message acknowledgement.
   defp process_markers(
          state = %{pulled_records: [], acked_records: acked_records},
          last_removed_marker
@@ -111,12 +116,14 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
   defp process_markers(state, last_removed_marker), do: {state, last_removed_marker}
 
   @impl Broadway.Acknowledger
-  def ack({pid, :figgy_producer_ack}, successful, failed) do
-    # Do some error handling
+  def ack({figgy_producer_pid, :figgy_producer_ack}, successful, failed) do
+    # TODO: Do some error handling
     acked_markers = (successful ++ failed) |> Enum.map(&ProcessorMarker.to_marker/1)
-    send(pid, {:ack, :figgy_producer_ack, acked_markers})
+    send(figgy_producer_pid, {:ack, :figgy_producer_ack, acked_markers})
   end
 
+  # This happens when ack is finished, we listen to this telemetry event in
+  # tests so we know when the Hydrator's done processing a message.
   defp notify_ack(acked_message_count) do
     :telemetry.execute(
       [:figgy_producer, :ack, :done],

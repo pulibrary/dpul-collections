@@ -25,7 +25,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
     hydrator
   end
 
-  test "message acknowledgement" do
+  test "hydration cache entry creation" do
     {marker1, marker2, marker3} = FiggyTestSupport.markers()
     hydrator = start_producer()
 
@@ -46,7 +46,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
     hydrator |> Broadway.stop(:normal)
   end
 
-  test "updates existing hydration cache entries, doesn't override newer ones" do
+  test "doesn't override newer hydration cache entries" do
     # Create a hydration cache entry for a record that has a source_cache_order
     # in the future.
     IndexingPipeline.create_hydration_cache_entry(%{
@@ -67,6 +67,30 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
     # Ensure that entry has the source_cache_order we set at the beginning.
     entry = entries |> hd
     assert entry.source_cache_order == ~U[2200-03-09 20:19:33.414040Z]
+  end
+
+  test "updates existing hydration cache entries" do
+    {marker1, _marker2, _marker3} = FiggyTestSupport.markers()
+    # Create a hydration cache entry for a record that has a source_cache_order
+    # in the future.
+    IndexingPipeline.create_hydration_cache_entry(%{
+      cache_version: 0,
+      record_id: "3cb7627b-defc-401b-9959-42ebc4488f74",
+      source_cache_order: ~U[1900-03-09 20:19:33.414040Z],
+      data: %{}
+    })
+
+    # Process that past record.
+    hydrator = start_producer()
+    FiggyTestProducer.process(1)
+    assert_receive {:ack_done}
+    hydrator |> Broadway.stop(:normal)
+    # Ensure there's only one hydration cache entry.
+    entries = IndexingPipeline.list_hydration_cache_entries()
+    assert length(entries) == 1
+    # Ensure that entry has the source_cache_order we set at the beginning.
+    entry = entries |> hd
+    assert entry.source_cache_order == marker1 |> elem(0)
   end
 
   test "loads a marker from the database on startup" do

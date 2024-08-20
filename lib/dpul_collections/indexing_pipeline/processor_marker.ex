@@ -47,6 +47,7 @@ defmodule DpulCollections.IndexingPipeline.ProcessorMarker do
   end
 
   def to_marker(nil), do: nil
+
   @spec to_marker(%FiggyResource{}) :: marker()
   def to_marker(%FiggyResource{updated_at: updated_at, id: id}) do
     {updated_at, id}
