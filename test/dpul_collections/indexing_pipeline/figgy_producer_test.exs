@@ -30,10 +30,10 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
 
     test "handle_demand/2 with consecutive state returns a new record" do
       {marker1, marker2, marker3} = FiggyTestSupport.markers()
+
       initial_state =
         %{
-          last_queried_marker:
-            marker2,
+          last_queried_marker: marker2,
           pulled_records: [
             marker1,
             marker2
@@ -49,8 +49,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
 
       expected_state =
         %{
-          last_queried_marker:
-            marker3,
+          last_queried_marker: marker3,
           pulled_records: [
             marker1,
             marker2,
@@ -65,16 +64,15 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
 
     test "handle_demand/2 when the marker record has been updated" do
       {_marker1, marker2, marker3} = FiggyTestSupport.markers()
-      fabricated_marker = { DateTime.add(elem(marker2, 0), 1, :microsecond), elem(marker3,1) }
+      fabricated_marker = {DateTime.add(elem(marker2, 0), 1, :microsecond), elem(marker3, 1)}
 
       initial_state =
         %{
           # This is a manufactured marker.
           # This timestamp is set to be right before the actual record updated_at.
-          last_queried_marker:
-            fabricated_marker,
+          last_queried_marker: fabricated_marker,
           pulled_records: [
-            fabricated_marker,
+            fabricated_marker
           ],
           acked_records: [],
           cache_version: 0
@@ -87,8 +85,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
 
       expected_state =
         %{
-          last_queried_marker:
-            marker3,
+          last_queried_marker: marker3,
           pulled_records: [
             fabricated_marker,
             marker3
@@ -103,7 +100,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
     test "handle_demand/2 when the query returns no records" do
       {marker1, marker2, marker3} = FiggyTestSupport.markers()
       # Move last_queried marker to a marker 200 years in the future.
-      fabricated_marker = { DateTime.add(elem(marker3, 0), 356*10, :day), elem(marker3, 1) }
+      fabricated_marker = {DateTime.add(elem(marker3, 0), 356 * 10, :day), elem(marker3, 1)}
+
       initial_state =
         %{
           last_queried_marker: fabricated_marker,

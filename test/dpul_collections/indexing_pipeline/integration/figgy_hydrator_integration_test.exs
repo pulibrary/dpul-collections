@@ -15,7 +15,12 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
     )
 
     {:ok, hydrator} =
-      FiggyHydrator.start_link(cache_version: 0, producer_module: FiggyTestProducer, producer_options: {self()}, batch_size: 1)
+      FiggyHydrator.start_link(
+        cache_version: 0,
+        producer_module: FiggyTestProducer,
+        producer_options: {self()},
+        batch_size: 1
+      )
 
     hydrator
   end
@@ -32,6 +37,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
     assert cache_entry.cache_version == 0
     assert cache_entry.source_cache_order == elem(marker1, 0)
     marker_1_id = elem(marker1, 0)
+
     assert %{
              "id" => marker_1_id,
              "internal_resource" => "EphemeraTerm"
