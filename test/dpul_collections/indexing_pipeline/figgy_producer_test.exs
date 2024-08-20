@@ -7,7 +7,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
   describe "FiggyProducer" do
     test "handle_demand/2 with initial state and demand > 1 returns figgy resources" do
       {marker1, marker2, _marker3} = FiggyTestSupport.markers()
-      initial_state = FiggyProducer.init(0) |> elem(1)
+      {:producer, initial_state} = FiggyProducer.init(0)
       {:noreply, messages, new_state} = FiggyProducer.handle_demand(2, initial_state)
 
       ids = Enum.map(messages, fn %Broadway.Message{data: %FiggyResource{id: id}} -> id end)
