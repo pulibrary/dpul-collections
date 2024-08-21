@@ -1,0 +1,28 @@
+#!/bin/bash
+ENV=$1
+TYPE="${2:-bash}"
+REPOSITORY="${REPO:-dpul-collections}"
+CONSOLE_COMMAND=${CONSOLE_C:-./bin/dpul_collections remote}
+JOB_NAME="${JOBNAME:-dpulc}"
+JOB_TASK="${JOBTASK:-webserver}"
+
+# Make sure we're on VPN
+if ! nslookup nomad-host-prod1.lib.princeton.edu 2>&1 > /dev/null
+then
+  echo "Unable to connect to nomad-host-prod1. Ensure you're on VPN."
+  exit 1
+fi
+
+if [[ -z "${ENV}" ]];
+then
+  echo "Missing Environment. Command: './bin/console staging [bash/repl]'."
+  exit
+fi
+
+COMMAND="/bin/bash"
+# Connect to the environment given.
+if [ "$TYPE" = "repl" ]
+then
+  COMMAND=$CONSOLE_COMMAND
+fi
+ssh -t deploy@nomad-host-prod1.lib.princeton.edu "nomad alloc exec -task ${JOB_TASK} -job ${JOB_NAME}-${ENV} ${COMMAND}"
