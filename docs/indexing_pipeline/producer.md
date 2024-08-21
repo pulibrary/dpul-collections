@@ -50,6 +50,8 @@ Start state: `{last_queried_marker: record[3].updated_at, pulled_records: [1,2,3
 
 If the first element is the same in pulled_records and acked_records, then remove that element from both. Repeat until there's no match. Then write the timestamp from the last element that got removed from pulled_records.
 
+If the first marker in acked_records is less than the first marker in pulled_records, discard it. This means we must have acked that record already, and we don't need to ack it again. This could happen in certain producer crash scenarios.
+
 The processor will block during this acknowledgement, so you don't have to worry about race conditions here.
 
 End State: `{last_queried_marker: record[3].updated_at, pulled_records: [2,3], acked_records: [3]}`

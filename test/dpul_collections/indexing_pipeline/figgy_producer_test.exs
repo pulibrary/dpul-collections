@@ -1,7 +1,7 @@
 defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
   use DpulCollections.DataCase
 
-  alias DpulCollections.IndexingPipeline.{FiggyProducer, FiggyResource}
+  alias DpulCollections.IndexingPipeline.{FiggyProducer, FiggyResource, ProcessorMarker}
   alias DpulCollections.IndexingPipeline
 
   describe "FiggyProducer" do
@@ -297,6 +297,64 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
       assert new_state == expected_state
       processor_marker = IndexingPipeline.get_hydrator_marker(1)
       assert processor_marker == nil
+    end
+
+    test "handle_info/2 with figgy producer ack, acking after crash and respawn" do
+      {marker1, marker2, marker3} = FiggyTestSupport.markers()
+
+      # Producer sent out marker1 then crashed, started again, then sent out
+      # marker1 and marker2.
+      # The consumer has marker1, marker1, and marker2 to process.
+      initial_state = %{
+        last_queried_marker: marker2,
+        pulled_records: [
+          marker1,
+          marker2
+        ],
+        acked_records: [
+        ],
+        cache_version: 1
+      }
+
+      first_ack =
+        [
+          marker1
+        ]
+
+      expected_state = %{
+        last_queried_marker: marker2,
+        pulled_records: [
+          marker2
+        ],
+        acked_records: [
+        ],
+        cache_version: 1
+      }
+
+      {:noreply, [], new_state} =
+        FiggyProducer.handle_info({:ack, :figgy_producer_ack, first_ack}, initial_state)
+
+      second_ack =
+        [
+          marker1,
+          marker2
+        ]
+
+      expected_state = %{
+        last_queried_marker: marker2,
+        pulled_records: [
+        ],
+        acked_records: [
+        ],
+        cache_version: 1
+      }
+
+      {:noreply, [], new_state} =
+        FiggyProducer.handle_info({:ack, :figgy_producer_ack, second_ack}, new_state)
+
+      assert new_state == expected_state
+      processor_marker = IndexingPipeline.get_hydrator_marker(1) |> ProcessorMarker.to_marker
+      assert processor_marker == marker2
     end
   end
 end

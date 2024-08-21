@@ -113,6 +113,22 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
     |> process_markers(last_removed_marker)
   end
 
+  defp process_markers(
+    state = %{
+      pulled_records: [first_pulled_record | _],
+      acked_records: [first_acked_record | tail_acked_records]
+    },
+    last_removed_marker
+  ) do
+    if ProcessorMarker.compare(first_acked_record, first_pulled_record) == :lt do
+      state
+      |> Map.put(:acked_records, tail_acked_records)
+      |> process_markers(last_removed_marker)
+    else
+      {state, last_removed_marker}
+    end
+  end
+
   defp process_markers(state, last_removed_marker), do: {state, last_removed_marker}
 
   @impl Broadway.Acknowledger
