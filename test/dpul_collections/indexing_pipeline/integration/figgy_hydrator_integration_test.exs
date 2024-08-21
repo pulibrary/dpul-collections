@@ -26,20 +26,20 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
   end
 
   test "hydration cache entry creation" do
-    {marker1, marker2, marker3} = FiggyTestSupport.markers()
+    {marker1, _marker2, _marker3} = FiggyTestSupport.markers()
     hydrator = start_producer()
 
     FiggyTestProducer.process(1)
     assert_receive {:ack_done}
 
     cache_entry = IndexingPipeline.list_hydration_cache_entries() |> hd
-    assert cache_entry.record_id == elem(marker1, 1)
+    assert cache_entry.record_id == marker1.id
     assert cache_entry.cache_version == 0
-    assert cache_entry.source_cache_order == elem(marker1, 0)
-    marker_1_id = elem(marker1, 0)
+    assert cache_entry.source_cache_order == marker1.timestamp
+    marker_1_id = marker1.id
 
     assert %{
-             "id" => marker_1_id,
+             "id" => ^marker_1_id,
              "internal_resource" => "EphemeraTerm"
            } = cache_entry.data
 
@@ -90,7 +90,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
     assert length(entries) == 1
     # Ensure that entry has the source_cache_order we set at the beginning.
     entry = entries |> hd
-    assert entry.source_cache_order == marker1 |> elem(0)
+    assert entry.source_cache_order == marker1.timestamp
   end
 
   test "loads a marker from the database on startup" do
@@ -98,8 +98,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
     # Create a marker
     IndexingPipeline.write_hydrator_marker(
       0,
-      elem(marker1, 0),
-      elem(marker1, 1)
+      marker1.timestamp,
+      marker1.id
     )
 
     # Start the producer
@@ -108,9 +108,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
     FiggyTestProducer.process(1)
     assert_receive {:ack_done}
     cache_entry = IndexingPipeline.list_hydration_cache_entries() |> hd
-    assert cache_entry.record_id == elem(marker2, 1)
+    assert cache_entry.record_id == marker2.id
     assert cache_entry.cache_version == 0
-    assert cache_entry.source_cache_order == elem(marker2, 0)
+    assert cache_entry.source_cache_order == marker2.timestamp
     hydrator |> Broadway.stop(:normal)
   end
 end
