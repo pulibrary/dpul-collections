@@ -1,5 +1,7 @@
 defmodule FiggyTestSupport do
-  alias DpulCollections.IndexingPipeline.ResourceMarker
+  import Ecto.Query, warn: false
+  alias DpulCollections.IndexingPipeline.{ResourceMarker, FiggyResource}
+  alias DpulCollections.FiggyRepo
 
   # @spec markers :: {ProcessorMarker.marker(), ProcessorMarker.marker(), ProcessorMarker.marker()}
   # These are the first three known resource markers in the test database.
@@ -22,5 +24,15 @@ defmodule FiggyTestSupport do
     }
 
     {marker1, marker2, marker3}
+  end
+
+  # Get the last marker from the figgy repo.
+  def last_marker do
+    query =
+      from r in FiggyResource,
+        limit: 1,
+        order_by: [desc: r.updated_at, desc: r.id]
+
+    FiggyRepo.all(query) |> hd |> ResourceMarker.from()
   end
 end
