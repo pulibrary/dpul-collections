@@ -39,7 +39,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydrator do
 
   @impl Broadway
   # (note that the start_link param will populate _context)
-  def handle_message(_processor, message, %{cache_version: cache_version}) do
+  # Only write to the cache if it's an ephemera folder
+  def handle_message(_processor, message = %Broadway.Message{data: %{internal_resource: "EphemeraFolder"}}, %{cache_version: cache_version}) do
     # store in HydrationCache:
     # - data (blob) - this is the record
     # - cache_order (datetime) - this is our own new timestamp for this table
@@ -54,6 +55,12 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydrator do
         data: message.data |> Map.from_struct() |> Map.delete(:__meta__)
       })
 
+    message
+  end
+
+  @impl Broadway
+  # fallback so we acknowledge messages we intentionally don't write
+  def handle_message(_processor, message, %{cache_version: cache_version}) do
     message
   end
 

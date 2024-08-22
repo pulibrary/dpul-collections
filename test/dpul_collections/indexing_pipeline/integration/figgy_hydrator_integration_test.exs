@@ -1,8 +1,8 @@
 defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
   use DpulCollections.DataCase
 
-  alias DpulCollections.FiggyRepo
-  alias DpulCollections.IndexingPipeline.{FiggyHydrator, FiggyResource}
+  alias DpulCollections.{FiggyRepo, Repo}
+  alias DpulCollections.IndexingPipeline.{FiggyHydrator, FiggyResource, HydrationCacheEntry}
   alias DpulCollections.IndexingPipeline
 
   def start_producer(batch_size \\ 1) do
@@ -135,6 +135,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
     # Wait for the last ID to show up.
     task = Task.async(fn -> wait_for_hydrated_id(FiggyTestSupport.last_marker().id) end)
     Task.await(task, 15000)
+    entry_count = Repo.aggregate(HydrationCacheEntry, :count)
+    assert FiggyTestSupport.ephemera_folder_count() == entry_count
     :timer.sleep(2000)
     hydrator |> Broadway.stop(:normal)
   end
