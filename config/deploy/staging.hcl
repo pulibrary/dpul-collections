@@ -6,6 +6,7 @@ job "dpulc-staging" {
   region = "global"
   datacenters = ["dc1"]
   type = "service"
+  node_pool = "staging"
   update {
     auto_revert       = true
   }
