@@ -117,7 +117,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
   end
 
   def wait_for_hydrated_id(id, cache_version \\ 0) do
-    case IndexingPipeline.get_hydrator_marker(0) do
+    case IndexingPipeline.get_processor_marker!("hydrator", 0) do
       %{cache_record_id: ^id} ->
         true
 

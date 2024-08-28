@@ -20,7 +20,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
           cache_version: Integer
         }
   def init(cache_version) do
-    last_queried_marker = IndexingPipeline.get_hydrator_marker(cache_version)
+    last_queried_marker = IndexingPipeline.get_processor_marker!("hydrator", cache_version)
 
     initial_state = %{
       last_queried_marker: last_queried_marker |> ResourceMarker.from(),

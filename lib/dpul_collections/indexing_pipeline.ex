@@ -155,6 +155,13 @@ defmodule DpulCollections.IndexingPipeline do
   def get_processor_marker!(id), do: Repo.get!(ProcessorMarker, id)
 
   @doc """
+  Gets the processor marker for a specific cache version
+  """
+  def get_processor_marker!(type, cache_version) do
+    Repo.get_by(ProcessorMarker, type: type, cache_version: cache_version)
+  end
+
+  @doc """
   Creates a processor_marker.
 
   ## Examples
@@ -233,13 +240,6 @@ defmodule DpulCollections.IndexingPipeline do
       on_conflict: [set: [cache_location: cache_location, cache_record_id: cache_record_id]],
       conflict_target: [:type, :cache_version]
     )
-  end
-
-  @doc """
-  Gets the hydrator marker for a specific cache version
-  """
-  def get_hydrator_marker(cache_version) do
-    Repo.get_by(ProcessorMarker, type: "hydrator", cache_version: cache_version)
   end
 
   @doc """
