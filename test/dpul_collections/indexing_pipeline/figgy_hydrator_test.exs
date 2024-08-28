@@ -5,7 +5,6 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorTest do
 
   describe "FiggyHydrator" do
     test "handle_message/3 only writes EphemeraFolders and EphemeraTerms to the HydrationCache" do
-
       ephemera_folder_message = %Broadway.Message{
         acknowledger: nil,
         data: %FiggyResource{

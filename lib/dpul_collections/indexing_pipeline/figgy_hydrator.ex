@@ -40,7 +40,11 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydrator do
   @impl Broadway
   # (note that the start_link param will populate _context)
   # Only write to the cache if it's an ephemera folder
-  def handle_message(_processor, message = %Broadway.Message{data: %{internal_resource: "EphemeraFolder"}}, %{cache_version: cache_version}) do
+  def handle_message(
+        _processor,
+        message = %Broadway.Message{data: %{internal_resource: "EphemeraFolder"}},
+        %{cache_version: cache_version}
+      ) do
     write_to_hydration_cache(message, cache_version)
 
     message
@@ -48,7 +52,11 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydrator do
 
   @impl Broadway
   # Only write to the cache if it's an ephemera term
-  def handle_message(_processor, message = %Broadway.Message{data: %{internal_resource: "EphemeraTerm"}}, %{cache_version: cache_version}) do
+  def handle_message(
+        _processor,
+        message = %Broadway.Message{data: %{internal_resource: "EphemeraTerm"}},
+        %{cache_version: cache_version}
+      ) do
     write_to_hydration_cache(message, cache_version)
 
     message

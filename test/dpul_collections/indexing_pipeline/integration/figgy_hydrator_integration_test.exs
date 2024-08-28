@@ -136,7 +136,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
     task = Task.async(fn -> wait_for_hydrated_id(FiggyTestSupport.last_marker().id) end)
     Task.await(task, 15000)
     entry_count = Repo.aggregate(HydrationCacheEntry, :count)
-    assert FiggyTestSupport.ephemera_folder_count() == entry_count
+    assert FiggyTestSupport.included_resource_count() == entry_count
     :timer.sleep(2000)
     hydrator |> Broadway.stop(:normal)
   end

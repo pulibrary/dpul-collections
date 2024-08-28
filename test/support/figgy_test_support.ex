@@ -36,10 +36,10 @@ defmodule FiggyTestSupport do
     FiggyRepo.all(query) |> hd |> ResourceMarker.from()
   end
 
-  def ephemera_folder_count do
+  def included_resource_count do
     query =
       from r in FiggyResource,
-        where: [internal_resource: "EphemeraFolder"]
+        where: r.internal_resource == "EphemeraFolder" or r.internal_resource == "EphemeraTerm"
 
     FiggyRepo.aggregate(query, :count)
   end
