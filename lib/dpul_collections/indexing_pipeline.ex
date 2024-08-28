@@ -180,24 +180,6 @@ defmodule DpulCollections.IndexingPipeline do
   end
 
   @doc """
-  Updates a processor_marker.
-
-  ## Examples
-
-      iex> update_processor_marker(processor_marker, %{field: new_value})
-      {:ok, %ProcessorMarker{}}
-
-      iex> update_processor_marker(processor_marker, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_processor_marker(%ProcessorMarker{} = processor_marker, attrs) do
-    processor_marker
-    |> ProcessorMarker.changeset(attrs)
-    |> Repo.update()
-  end
-
-  @doc """
   Deletes a processor_marker.
 
   ## Examples
@@ -211,19 +193,6 @@ defmodule DpulCollections.IndexingPipeline do
   """
   def delete_processor_marker(%ProcessorMarker{} = processor_marker) do
     Repo.delete(processor_marker)
-  end
-
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking processor_marker changes.
-
-  ## Examples
-
-      iex> change_processor_marker(processor_marker)
-      %Ecto.Changeset{data: %ProcessorMarker{}}
-
-  """
-  def change_processor_marker(%ProcessorMarker{} = processor_marker, attrs \\ %{}) do
-    ProcessorMarker.changeset(processor_marker, attrs)
   end
 
   @doc """
