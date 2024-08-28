@@ -220,12 +220,12 @@ defmodule DpulCollections.IndexingPipeline do
   end
 
   @doc """
-  Writes or updates hydration markers
+  Writes or updates processor markers
   """
-  def write_hydrator_marker(cache_version, cache_location, cache_record_id) do
+  def write_processor_marker(type, cache_version, cache_location, cache_record_id) do
     Repo.insert!(
       %ProcessorMarker{
-        type: "hydrator",
+        type: type,
         cache_version: cache_version,
         cache_location: cache_location,
         cache_record_id: cache_record_id
