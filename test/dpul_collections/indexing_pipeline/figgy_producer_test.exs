@@ -6,7 +6,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
 
   describe "FiggyProducer" do
     test "handle_demand/2 with initial state and demand > 1 returns figgy resources" do
-      {marker1, marker2, _marker3} = FiggyTestSupport.markers()
+      {marker1, marker2, _marker3} = FiggyTestFixtures.markers()
       {:producer, initial_state} = FiggyProducer.init(0)
       {:noreply, messages, new_state} = FiggyProducer.handle_demand(2, initial_state)
 
@@ -29,7 +29,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
     end
 
     test "handle_demand/2 with consecutive state returns a new record" do
-      {marker1, marker2, marker3} = FiggyTestSupport.markers()
+      {marker1, marker2, marker3} = FiggyTestFixtures.markers()
 
       initial_state =
         %{
@@ -63,7 +63,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
     end
 
     test "handle_demand/2 when the marker record has been updated" do
-      {_marker1, marker2, marker3} = FiggyTestSupport.markers()
+      {_marker1, marker2, marker3} = FiggyTestFixtures.markers()
 
       fabricated_marker = %ResourceMarker{
         timestamp: DateTime.add(marker2.timestamp, 1, :microsecond),
@@ -102,7 +102,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
     end
 
     test "handle_demand/2 when the query returns no records" do
-      {_marker1, _marker2, marker3} = FiggyTestSupport.markers()
+      {_marker1, _marker2, marker3} = FiggyTestFixtures.markers()
       # Move last_queried marker to a marker 200 years in the future.
       fabricated_marker = %ResourceMarker{
         timestamp: DateTime.add(marker3.timestamp, 356 * 10, :day),
@@ -133,7 +133,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
     end
 
     test "handle_info/2 with figgy producer ack, acknowledging first and third record" do
-      {marker1, marker2, marker3} = FiggyTestSupport.markers()
+      {marker1, marker2, marker3} = FiggyTestFixtures.markers()
       cache_version = 1
 
       initial_state = %{
@@ -201,7 +201,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
     end
 
     test "handle_info/2 with figgy producer ack, nothing to acknowledge" do
-      {marker1, marker2, marker3} = FiggyTestSupport.markers()
+      {marker1, marker2, marker3} = FiggyTestFixtures.markers()
 
       initial_state = %{
         last_queried_marker: marker3,
@@ -242,7 +242,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
     end
 
     test "handle_info/2 with figgy producer ack, empty pulled_records" do
-      {marker1, _marker2, marker3} = FiggyTestSupport.markers()
+      {marker1, _marker2, marker3} = FiggyTestFixtures.markers()
 
       initial_state = %{
         last_queried_marker: marker3,
@@ -273,7 +273,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
     end
 
     test "handle_info/2 with figgy producer ack, duplicate ack records" do
-      {marker1, marker2, marker3} = FiggyTestSupport.markers()
+      {marker1, marker2, marker3} = FiggyTestFixtures.markers()
 
       initial_state = %{
         last_queried_marker: marker3,
@@ -314,7 +314,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
     end
 
     test "handle_info/2 with figgy producer ack, acking after crash and respawn" do
-      {marker1, marker2, _marker3} = FiggyTestSupport.markers()
+      {marker1, marker2, _marker3} = FiggyTestFixtures.markers()
 
       # Producer sent out marker1 then crashed, started again, then sent out
       # marker1 and marker2.

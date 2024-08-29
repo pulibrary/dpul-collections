@@ -27,7 +27,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
   end
 
   test "hydration cache entry creation" do
-    {marker1, _marker2, _marker3} = FiggyTestSupport.markers()
+    {marker1, _marker2, _marker3} = FiggyTestFixtures.markers()
     hydrator = start_producer()
 
     FiggyTestProducer.process(1)
@@ -71,7 +71,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
   end
 
   test "updates existing hydration cache entries" do
-    {marker1, _marker2, _marker3} = FiggyTestSupport.markers()
+    {marker1, _marker2, _marker3} = FiggyTestFixtures.markers()
     # Create a hydration cache entry for a record that has a source_cache_order
     # in the future.
     IndexingPipeline.write_hydration_cache_entry(%{
@@ -95,7 +95,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
   end
 
   test "loads a marker from the database on startup" do
-    {marker1, marker2, _marker3} = FiggyTestSupport.markers()
+    {marker1, marker2, _marker3} = FiggyTestFixtures.markers()
     # Create a marker
     IndexingPipeline.write_processor_marker(%{
       type: "hydrator",

@@ -5,7 +5,7 @@ defmodule DpulCollections.IndexingPipeline.ResourceMarkerTest do
 
   describe "marker comparison" do
     test "sorts markers appropriately" do
-      {marker1, marker2, marker3} = FiggyTestSupport.markers()
+      {marker1, marker2, marker3} = FiggyTestFixtures.markers()
 
       assert Enum.sort([marker1, marker3, marker2], ResourceMarker) == [
                marker1,

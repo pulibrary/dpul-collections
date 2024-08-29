@@ -68,7 +68,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydrator do
     message
   end
 
-  def write_to_hydration_cache(message, cache_version) do
+  defp write_to_hydration_cache(message, cache_version) do
     # store in HydrationCache:
     # - data (blob) - this is the record
     # - cache_order (datetime) - this is our own new timestamp for this table
