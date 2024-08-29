@@ -5,10 +5,15 @@ description: Common jobs for testing and building phoenix applications
 executors:
   builder:
     docker:
-      - image: cimg/elixir:1.16.2-erlang-26.2.1-browsers
+      - image: cimg/elixir:1.17.2-erlang-26.2.1-browsers
         environment:
           TEST_POSTGRES_PORT: 5432
+          TEST_POSTGRES_FIGGY_HOST: figgy_database
       - image: cimg/postgres:15.2
+      - image: ghcr.io/pulibrary/dpul-collections:figgy-fixtures
+        name: figgy_database
+        environment:
+          POSTGRES_PASSWORD: "postgres"
     working_directory: ~/project
 
 commands:

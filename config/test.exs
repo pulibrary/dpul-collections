@@ -5,6 +5,7 @@ import Config
 # The MIX_TEST_PARTITION environment variable can be used
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
+
 config :dpul_collections, DpulCollections.Repo,
   username: "postgres",
   password: "postgres",
@@ -13,6 +14,17 @@ config :dpul_collections, DpulCollections.Repo,
   database: "dpul_collections_test#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: System.schedulers_online() * 2
+
+# Configure your other database
+config :dpul_collections, DpulCollections.FiggyRepo,
+  username: "postgres",
+  password: "postgres",
+  hostname: System.get_env("TEST_POSTGRES_FIGGY_HOST") || "localhost",
+  port: System.get_env("TEST_POSTGRES_PORT") || 5435,
+  database: "postgres",
+  stacktrace: true,
+  show_sensitive_data_on_connection_error: true,
+  pool_size: 10
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.

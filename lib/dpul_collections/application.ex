@@ -10,6 +10,11 @@ defmodule DpulCollections.Application do
     children = [
       DpulCollectionsWeb.Telemetry,
       DpulCollections.Repo,
+      DpulCollections.FiggyRepo,
+      # Controllable Hydrator for testing in dev.
+      # {DpulCollections.IndexingPipeline.FiggyHydrator, producer_module: FiggyTestProducer, producer_options: {self()}},
+      # Production Hydrator
+      # DpulCollections.IndexingPipeline.FiggyHydrator,
       {DNSCluster, query: Application.get_env(:dpul_collections, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: DpulCollections.PubSub},
       # Start the Finch HTTP client for sending emails
