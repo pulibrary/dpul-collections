@@ -77,12 +77,12 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducer do
     if last_removed_marker != nil do
       %ResourceMarker{timestamp: cache_location, id: cache_record_id} = last_removed_marker
 
-      IndexingPipeline.write_processor_marker(
-        "hydrator",
-        state.cache_version,
-        cache_location,
-        cache_record_id
-      )
+      IndexingPipeline.write_processor_marker(%{
+        type: "hydrator",
+        cache_version: state.cache_version,
+        cache_location: cache_location,
+        cache_record_id: cache_record_id
+      })
     end
 
     notify_ack(pending_markers |> length())

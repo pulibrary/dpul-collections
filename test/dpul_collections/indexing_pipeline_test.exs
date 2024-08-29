@@ -116,7 +116,8 @@ defmodule DpulCollections.IndexingPipelineTest do
       valid_attrs = %{
         type: "some type",
         cache_location: ~U[2024-07-23 20:40:00Z],
-        cache_version: 42
+        cache_version: 42,
+        cache_record_id: "3cb7627b-defc-401b-9959-42ebc4488f74"
       }
 
       assert {:ok, %ProcessorMarker{} = processor_marker} =

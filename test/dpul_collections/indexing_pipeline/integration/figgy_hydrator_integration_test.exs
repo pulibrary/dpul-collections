@@ -97,12 +97,12 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
   test "loads a marker from the database on startup" do
     {marker1, marker2, _marker3} = FiggyTestSupport.markers()
     # Create a marker
-    IndexingPipeline.write_processor_marker(
-      "hydrator",
-      0,
-      marker1.timestamp,
-      marker1.id
-    )
+    IndexingPipeline.write_processor_marker(%{
+      type: "hydrator",
+      cache_version: 0,
+      cache_location: marker1.timestamp,
+      cache_record_id: marker1.id
+    })
 
     # Start the producer
     hydrator = start_producer()

@@ -30,7 +30,8 @@ defmodule DpulCollections.IndexingPipelineFixtures do
       |> Enum.into(%{
         cache_location: ~U[2024-07-23 20:40:00Z],
         cache_version: 42,
-        type: "some type"
+        type: "some type",
+        cache_record_id: "3cb7627b-defc-401b-9959-42ebc4488f74"
       })
       |> DpulCollections.IndexingPipeline.create_processor_marker()
 

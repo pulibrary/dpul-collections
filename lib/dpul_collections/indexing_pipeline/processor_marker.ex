@@ -14,7 +14,7 @@ defmodule DpulCollections.IndexingPipeline.ProcessorMarker do
   @doc false
   def changeset(processor_marker, attrs) do
     processor_marker
-    |> cast(attrs, [:cache_location, :cache_version, :type])
-    |> validate_required([:cache_location, :cache_version, :type])
+    |> cast(attrs, [:cache_location, :cache_version, :type, :cache_record_id])
+    |> validate_required([:cache_location, :cache_version, :type, :cache_record_id])
   end
 end

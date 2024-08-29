@@ -198,15 +198,13 @@ defmodule DpulCollections.IndexingPipeline do
   @doc """
   Writes or updates processor markers
   """
-  def write_processor_marker(type, cache_version, cache_location, cache_record_id) do
-    Repo.insert!(
-      %ProcessorMarker{
-        type: type,
-        cache_version: cache_version,
-        cache_location: cache_location,
-        cache_record_id: cache_record_id
-      },
-      on_conflict: [set: [cache_location: cache_location, cache_record_id: cache_record_id]],
+  def write_processor_marker(attrs \\ %{}) do
+    %ProcessorMarker{}
+    |> ProcessorMarker.changeset(attrs)
+    |> Repo.insert(
+      on_conflict: [
+        set: [cache_location: attrs.cache_location, cache_record_id: attrs.cache_record_id]
+      ],
       conflict_target: [:type, :cache_version]
     )
   end
