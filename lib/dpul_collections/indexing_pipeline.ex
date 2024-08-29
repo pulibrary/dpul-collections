@@ -6,7 +6,12 @@ defmodule DpulCollections.IndexingPipeline do
   import Ecto.Query, warn: false
   alias DpulCollections.{Repo, FiggyRepo}
 
-  alias DpulCollections.IndexingPipeline.{HydrationCacheEntry, FiggyResource, ResourceMarker}
+  alias DpulCollections.IndexingPipeline.{
+    HydrationCacheEntry,
+    HydrationCacheEntryMarker,
+    FiggyResource,
+    ResourceMarker
+  }
 
   @doc """
   Returns the list of hydration_cache_entries.
@@ -72,6 +77,38 @@ defmodule DpulCollections.IndexingPipeline do
     rescue
       Ecto.StaleEntryError -> {:ok, nil}
     end
+  end
+
+  @spec get_hydration_cache_entries_since!(
+          marker :: HydrationCacheEntryMarker.t(),
+          count :: integer
+        ) :: list(HydrationCacheEntry)
+  def get_hydration_cache_entries_since!(
+        %HydrationCacheEntryMarker{timestamp: source_cache_order, id: id},
+        count
+      ) do
+    query =
+      from r in HydrationCacheEntry,
+        where:
+          (r.source_cache_order == ^source_cache_order and r.record_id > ^id) or
+            r.source_cache_order > ^source_cache_order,
+        limit: ^count,
+        order_by: [asc: r.source_cache_order, asc: r.record_id]
+
+    Repo.all(query)
+  end
+
+  @spec get_hydration_cache_entries_since!(
+          nil,
+          count :: integer
+        ) :: list(HydrationCacheEntry)
+  def get_hydration_cache_entries_since!(nil, count) do
+    query =
+      from r in HydrationCacheEntry,
+        limit: ^count,
+        order_by: [asc: r.source_cache_order, asc: r.record_id]
+
+    Repo.all(query)
   end
 
   alias DpulCollections.IndexingPipeline.ProcessorMarker
@@ -232,5 +269,73 @@ defmodule DpulCollections.IndexingPipeline do
         order_by: [asc: r.updated_at, asc: r.id]
 
     FiggyRepo.all(query)
+  end
+
+  alias DpulCollections.IndexingPipeline.TransformationCacheEntry
+
+  @doc """
+  Returns the list of transformation_cache_entries.
+
+  ## Examples
+
+      iex> list_transformation_cache_entries()
+      [%TransformationCacheEntry{}, ...]
+
+  """
+  def list_transformation_cache_entries do
+    Repo.all(TransformationCacheEntry)
+  end
+
+  @doc """
+  Gets a single transformation_cache_entry.
+
+  Raises `Ecto.NoResultsError` if the Hydration cache entry does not exist.
+
+  ## Examples
+
+      iex> get_transformation_cache_entry!(123)
+      %TransformationCacheEntry{}
+
+      iex> get_transformation_cache_entry!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_transformation_cache_entry!(id), do: Repo.get!(TransformationCacheEntry, id)
+
+  @doc """
+  Deletes a transformation_cache_entry.
+
+  ## Examples
+
+      iex> delete_transformation_cache_entry(transformation_cache_entry)
+      {:ok, %TransformationCacheEntry{}}
+
+      iex> delete_transformation_cache_entry(transformation_cache_entry)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_transformation_cache_entry(%TransformationCacheEntry{} = transformation_cache_entry) do
+    Repo.delete(transformation_cache_entry)
+  end
+
+  @doc """
+  Writes or updates hydration cache entries.
+  """
+  def write_transformation_cache_entry(attrs \\ %{}) do
+    conflict_query =
+      TransformationCacheEntry
+      |> update(set: [data: ^attrs.data, source_cache_order: ^attrs.source_cache_order])
+      |> where([c], c.source_cache_order <= ^attrs.source_cache_order)
+
+    try do
+      %TransformationCacheEntry{}
+      |> TransformationCacheEntry.changeset(attrs)
+      |> Repo.insert(
+        on_conflict: conflict_query,
+        conflict_target: [:cache_version, :record_id]
+      )
+    rescue
+      Ecto.StaleEntryError -> {:ok, nil}
+    end
   end
 end

@@ -1,7 +1,15 @@
 defmodule FiggyTestSupport do
   import Ecto.Query, warn: false
-  alias DpulCollections.IndexingPipeline.{ResourceMarker, FiggyResource}
+
+  alias DpulCollections.IndexingPipeline.{
+    ResourceMarker,
+    FiggyResource,
+    HydrationCacheEntry,
+    HydrationCacheEntryMarker
+  }
+
   alias DpulCollections.FiggyRepo
+  alias DpulCollections.Repo
 
   # Get the last marker from the figgy repo.
   def last_marker do
@@ -13,10 +21,27 @@ defmodule FiggyTestSupport do
     FiggyRepo.all(query) |> hd |> ResourceMarker.from()
   end
 
-  def included_resource_count do
+  def last_hydration_cache_entry_marker do
+    query =
+      from r in HydrationCacheEntry,
+        limit: 1,
+        order_by: [desc: r.source_cache_order, desc: r.id]
+
+    Repo.all(query) |> hd |> HydrationCacheEntryMarker.from()
+  end
+
+  def total_resource_count do
     query =
       from r in FiggyResource,
         where: r.internal_resource == "EphemeraFolder" or r.internal_resource == "EphemeraTerm"
+
+    FiggyRepo.aggregate(query, :count)
+  end
+
+  def ephemera_folder_count do
+    query =
+      from r in FiggyResource,
+        where: r.internal_resource == "EphemeraFolder"
 
     FiggyRepo.aggregate(query, :count)
   end

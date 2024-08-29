@@ -37,4 +37,21 @@ defmodule DpulCollections.IndexingPipelineFixtures do
 
     processor_marker
   end
+
+  @doc """
+  Generate a transformation_cache_entry.
+  """
+  def transformation_cache_entry_fixture(attrs \\ %{}) do
+    {:ok, transformation_cache_entry} =
+      attrs
+      |> Enum.into(%{
+        cache_version: 42,
+        data: %{},
+        record_id: "some record_id",
+        source_cache_order: ~U[2024-07-23 20:05:00Z]
+      })
+      |> DpulCollections.IndexingPipeline.write_transformation_cache_entry()
+
+    transformation_cache_entry
+  end
 end

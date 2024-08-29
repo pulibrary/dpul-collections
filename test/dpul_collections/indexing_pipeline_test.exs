@@ -65,4 +65,36 @@ defmodule DpulCollections.IndexingPipelineTest do
       assert IndexingPipeline.get_figgy_resource!(ephemera_folder_id).id == ephemera_folder_id
     end
   end
+
+  describe "transformation_cache_entries" do
+    alias DpulCollections.IndexingPipeline.TransformationCacheEntry
+
+    import DpulCollections.IndexingPipelineFixtures
+
+    test "list_transformation_cache_entries/0 returns all transformation_cache_entries" do
+      transformation_cache_entry = transformation_cache_entry_fixture()
+
+      assert IndexingPipeline.list_transformation_cache_entries() == [
+               transformation_cache_entry
+             ]
+    end
+
+    test "get_transformation_cache_entry!/1 returns the transformation_cache_entry with given id" do
+      transformation_cache_entry = transformation_cache_entry_fixture()
+
+      assert IndexingPipeline.get_transformation_cache_entry!(transformation_cache_entry.id) ==
+               transformation_cache_entry
+    end
+
+    test "delete_transformation_cache_entry/1 deletes the transformation_cache_entry" do
+      transformation_cache_entry = transformation_cache_entry_fixture()
+
+      assert {:ok, %TransformationCacheEntry{}} =
+               IndexingPipeline.delete_transformation_cache_entry(transformation_cache_entry)
+
+      assert_raise Ecto.NoResultsError, fn ->
+        IndexingPipeline.get_transformation_cache_entry!(transformation_cache_entry.id)
+      end
+    end
+  end
 end
