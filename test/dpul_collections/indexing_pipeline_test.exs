@@ -100,8 +100,6 @@ defmodule DpulCollections.IndexingPipelineTest do
 
     import DpulCollections.IndexingPipelineFixtures
 
-    @invalid_attrs %{type: nil, cache_location: nil, cache_version: nil}
-
     test "list_processor_markers/0 returns all processor_markers" do
       processor_marker = processor_marker_fixture()
       assert IndexingPipeline.list_processor_markers() == [processor_marker]
@@ -110,27 +108,6 @@ defmodule DpulCollections.IndexingPipelineTest do
     test "get_processor_marker!/1 returns the processor_marker with given id" do
       processor_marker = processor_marker_fixture()
       assert IndexingPipeline.get_processor_marker!(processor_marker.id) == processor_marker
-    end
-
-    test "create_processor_marker/1 with valid data creates a processor_marker" do
-      valid_attrs = %{
-        type: "some type",
-        cache_location: ~U[2024-07-23 20:40:00Z],
-        cache_version: 42,
-        cache_record_id: "3cb7627b-defc-401b-9959-42ebc4488f74"
-      }
-
-      assert {:ok, %ProcessorMarker{} = processor_marker} =
-               IndexingPipeline.create_processor_marker(valid_attrs)
-
-      assert processor_marker.type == "some type"
-      assert processor_marker.cache_location == ~U[2024-07-23 20:40:00.000000Z]
-      assert processor_marker.cache_version == 42
-    end
-
-    test "create_processor_marker/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} =
-               IndexingPipeline.create_processor_marker(@invalid_attrs)
     end
 
     test "delete_processor_marker/1 deletes the processor_marker" do

@@ -33,7 +33,7 @@ defmodule DpulCollections.IndexingPipelineFixtures do
         type: "some type",
         cache_record_id: "3cb7627b-defc-401b-9959-42ebc4488f74"
       })
-      |> DpulCollections.IndexingPipeline.create_processor_marker()
+      |> DpulCollections.IndexingPipeline.write_processor_marker()
 
     processor_marker
   end

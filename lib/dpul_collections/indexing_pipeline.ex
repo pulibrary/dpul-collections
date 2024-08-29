@@ -162,24 +162,6 @@ defmodule DpulCollections.IndexingPipeline do
   end
 
   @doc """
-  Creates a processor_marker.
-
-  ## Examples
-
-      iex> create_processor_marker(%{field: value})
-      {:ok, %ProcessorMarker{}}
-
-      iex> create_processor_marker(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_processor_marker(attrs \\ %{}) do
-    %ProcessorMarker{}
-    |> ProcessorMarker.changeset(attrs)
-    |> Repo.insert()
-  end
-
-  @doc """
   Deletes a processor_marker.
 
   ## Examples
