@@ -38,24 +38,6 @@ defmodule DpulCollections.IndexingPipeline do
   def get_hydration_cache_entry!(id), do: Repo.get!(HydrationCacheEntry, id)
 
   @doc """
-  Updates a hydration_cache_entry.
-
-  ## Examples
-
-      iex> update_hydration_cache_entry(hydration_cache_entry, %{field: new_value})
-      {:ok, %HydrationCacheEntry{}}
-
-      iex> update_hydration_cache_entry(hydration_cache_entry, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_hydration_cache_entry(%HydrationCacheEntry{} = hydration_cache_entry, attrs) do
-    hydration_cache_entry
-    |> HydrationCacheEntry.changeset(attrs)
-    |> Repo.update()
-  end
-
-  @doc """
   Deletes a hydration_cache_entry.
 
   ## Examples
@@ -69,19 +51,6 @@ defmodule DpulCollections.IndexingPipeline do
   """
   def delete_hydration_cache_entry(%HydrationCacheEntry{} = hydration_cache_entry) do
     Repo.delete(hydration_cache_entry)
-  end
-
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking hydration_cache_entry changes.
-
-  ## Examples
-
-      iex> change_hydration_cache_entry(hydration_cache_entry)
-      %Ecto.Changeset{data: %HydrationCacheEntry{}}
-
-  """
-  def change_hydration_cache_entry(%HydrationCacheEntry{} = hydration_cache_entry, attrs \\ %{}) do
-    HydrationCacheEntry.changeset(hydration_cache_entry, attrs)
   end
 
   @doc """
