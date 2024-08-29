@@ -22,28 +22,6 @@ defmodule DpulCollections.IndexingPipelineTest do
                hydration_cache_entry
     end
 
-    test "create_hydration_cache_entry/1 with valid data creates a hydration_cache_entry" do
-      valid_attrs = %{
-        data: %{},
-        cache_version: 42,
-        record_id: "some record_id",
-        source_cache_order: ~U[2024-07-23 20:05:00Z]
-      }
-
-      assert {:ok, %HydrationCacheEntry{} = hydration_cache_entry} =
-               IndexingPipeline.create_hydration_cache_entry(valid_attrs)
-
-      assert hydration_cache_entry.data == %{}
-      assert hydration_cache_entry.cache_version == 42
-      assert hydration_cache_entry.record_id == "some record_id"
-      assert hydration_cache_entry.source_cache_order == ~U[2024-07-23 20:05:00.000000Z]
-    end
-
-    test "create_hydration_cache_entry/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} =
-               IndexingPipeline.create_hydration_cache_entry(@invalid_attrs)
-    end
-
     test "update_hydration_cache_entry/2 with valid data updates the hydration_cache_entry" do
       hydration_cache_entry = hydration_cache_entry_fixture()
 

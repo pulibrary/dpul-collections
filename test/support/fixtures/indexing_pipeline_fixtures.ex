@@ -16,7 +16,7 @@ defmodule DpulCollections.IndexingPipelineFixtures do
         record_id: "some record_id",
         source_cache_order: ~U[2024-07-23 20:05:00Z]
       })
-      |> DpulCollections.IndexingPipeline.create_hydration_cache_entry()
+      |> DpulCollections.IndexingPipeline.write_hydration_cache_entry()
 
     hydration_cache_entry
   end

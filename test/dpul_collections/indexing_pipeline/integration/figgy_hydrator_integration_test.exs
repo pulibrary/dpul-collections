@@ -50,7 +50,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
   test "doesn't override newer hydration cache entries" do
     # Create a hydration cache entry for a record that has a source_cache_order
     # in the future.
-    IndexingPipeline.create_hydration_cache_entry(%{
+    IndexingPipeline.write_hydration_cache_entry(%{
       cache_version: 0,
       record_id: "3cb7627b-defc-401b-9959-42ebc4488f74",
       source_cache_order: ~U[2200-03-09 20:19:33.414040Z],
@@ -74,7 +74,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
     {marker1, _marker2, _marker3} = FiggyTestSupport.markers()
     # Create a hydration cache entry for a record that has a source_cache_order
     # in the future.
-    IndexingPipeline.create_hydration_cache_entry(%{
+    IndexingPipeline.write_hydration_cache_entry(%{
       cache_version: 0,
       record_id: "3cb7627b-defc-401b-9959-42ebc4488f74",
       source_cache_order: ~U[1900-03-09 20:19:33.414040Z],

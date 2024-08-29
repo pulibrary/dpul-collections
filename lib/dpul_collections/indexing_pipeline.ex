@@ -38,24 +38,6 @@ defmodule DpulCollections.IndexingPipeline do
   def get_hydration_cache_entry!(id), do: Repo.get!(HydrationCacheEntry, id)
 
   @doc """
-  Creates a hydration_cache_entry.
-
-  ## Examples
-
-      iex> create_hydration_cache_entry(%{field: value})
-      {:ok, %HydrationCacheEntry{}}
-
-      iex> create_hydration_cache_entry(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_hydration_cache_entry(attrs \\ %{}) do
-    %HydrationCacheEntry{}
-    |> HydrationCacheEntry.changeset(attrs)
-    |> Repo.insert()
-  end
-
-  @doc """
   Updates a hydration_cache_entry.
 
   ## Examples
