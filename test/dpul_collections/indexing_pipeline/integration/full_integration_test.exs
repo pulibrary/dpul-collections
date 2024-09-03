@@ -75,7 +75,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     count = FiggyRepo.aggregate(FiggyResource, :count)
     FiggyTestProducer.process(count)
     # Wait for the last ID to show up.
-    task = Task.async(fn -> wait_for_hydrated_id(FiggyTestSupport.last_marker().id) end)
+    task = Task.async(fn -> wait_for_hydrated_id(FiggyTestSupport.last_figgy_resource_marker().id) end)
     Task.await(task, 15000)
     :timer.sleep(2000)
     hydrator |> Broadway.stop(:normal)

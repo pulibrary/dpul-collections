@@ -12,7 +12,7 @@ defmodule FiggyTestSupport do
   alias DpulCollections.Repo
 
   # Get the last marker from the figgy repo.
-  def last_marker do
+  def last_figgy_resource_marker do
     query =
       from r in FiggyResource,
         limit: 1,
