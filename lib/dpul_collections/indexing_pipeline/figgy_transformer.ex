@@ -40,6 +40,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformer do
 
   @impl Broadway
   # (note that the start_link param will populate _context)
+  @spec handle_message(any(), %Broadway.Message{data: HydrationCacheEntry.t()}, %{
+          required(:cache_version) => integer()
+        }) :: Broadway.Message.t()
   def handle_message(
         _processor,
         message = %Broadway.Message{data: %{data: %{"internal_resource" => "EphemeraFolder"}}},
@@ -63,6 +66,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformer do
 
   @impl Broadway
   # fallback so we acknowledge messages we intentionally don't write
+  @spec handle_message(any(), any(), %{required(:cache_version) => integer()}) ::
+          Broadway.Message.t()
   def handle_message(_processor, message, %{cache_version: _cache_version}) do
     message
   end
