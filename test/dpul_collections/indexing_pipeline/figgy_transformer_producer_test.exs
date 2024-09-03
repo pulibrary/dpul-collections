@@ -150,7 +150,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducerTest do
         )
 
       assert new_state == expected_state
-      processor_marker = IndexingPipeline.get_processor_marker!("transformer", cache_version)
+
+      processor_marker =
+        IndexingPipeline.get_processor_marker!("figgy_transformer", cache_version)
 
       assert marker1 == %HydrationCacheEntryMarker{
                timestamp: processor_marker.cache_location,
@@ -175,7 +177,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducerTest do
 
       assert new_state == expected_state
 
-      processor_marker = IndexingPipeline.get_processor_marker!("transformer", cache_version)
+      processor_marker =
+        IndexingPipeline.get_processor_marker!("figgy_transformer", cache_version)
 
       assert marker3 == %HydrationCacheEntryMarker{
                timestamp: processor_marker.cache_location,
@@ -223,7 +226,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducerTest do
         )
 
       assert new_state == expected_state
-      processor_marker = IndexingPipeline.get_processor_marker!("transformer", 1)
+      processor_marker = IndexingPipeline.get_processor_marker!("figgy_transformer", 1)
       assert processor_marker == nil
     end
 
@@ -257,7 +260,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducerTest do
         )
 
       assert new_state == expected_state
-      processor_marker = IndexingPipeline.get_processor_marker!("transformer", 1)
+      processor_marker = IndexingPipeline.get_processor_marker!("figgy_transformer", 1)
       assert processor_marker == nil
     end
 
@@ -301,7 +304,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducerTest do
         )
 
       assert new_state == expected_state
-      processor_marker = IndexingPipeline.get_processor_marker!("transformer", 1)
+      processor_marker = IndexingPipeline.get_processor_marker!("figgy_transformer", 1)
       assert processor_marker == nil
     end
 
@@ -365,7 +368,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducerTest do
       assert new_state == expected_state
 
       processor_marker =
-        IndexingPipeline.get_processor_marker!("transformer", 1)
+        IndexingPipeline.get_processor_marker!("figgy_transformer", 1)
         |> HydrationCacheEntryMarker.from()
 
       assert processor_marker == marker2

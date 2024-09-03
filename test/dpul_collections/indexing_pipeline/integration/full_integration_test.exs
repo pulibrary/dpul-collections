@@ -17,7 +17,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     {:ok, hydrator} =
       FiggyHydrator.start_link(
         cache_version: 0,
-        producer_module: FiggyTestProducer,
+        producer_module: TestFiggyProducer,
         producer_options: {self()},
         batch_size: batch_size
       )
@@ -58,7 +58,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
   end
 
   def wait_for_transformed_id(id, cache_version \\ 0) do
-    case IndexingPipeline.get_processor_marker!("transformer", 0) do
+    case IndexingPipeline.get_processor_marker!("figgy_transformer", 0) do
       %{cache_record_id: ^id} ->
         true
 
@@ -73,9 +73,11 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     hydrator = start_figgy_producer(50)
     # Demand all of them.
     count = FiggyRepo.aggregate(FiggyResource, :count)
-    FiggyTestProducer.process(count)
+    TestFiggyProducer.process(count)
     # Wait for the last ID to show up.
-    task = Task.async(fn -> wait_for_hydrated_id(FiggyTestSupport.last_figgy_resource_marker().id) end)
+    task =
+      Task.async(fn -> wait_for_hydrated_id(FiggyTestSupport.last_figgy_resource_marker().id) end)
+
     Task.await(task, 15000)
     :timer.sleep(2000)
     hydrator |> Broadway.stop(:normal)

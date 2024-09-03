@@ -319,7 +319,7 @@ defmodule DpulCollections.IndexingPipeline do
   end
 
   @doc """
-  Writes or updates hydration cache entries.
+  Writes or updates transformation cache entries.
   """
   def write_transformation_cache_entry(attrs \\ %{}) do
     conflict_query =

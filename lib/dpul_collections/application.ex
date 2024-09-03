@@ -12,7 +12,7 @@ defmodule DpulCollections.Application do
       DpulCollections.Repo,
       DpulCollections.FiggyRepo,
       # Controllable Hydrator for testing in dev.
-      # {DpulCollections.IndexingPipeline.FiggyHydrator, producer_module: FiggyTestProducer, producer_options: {self()}},
+      # {DpulCollections.IndexingPipeline.FiggyHydrator, producer_module: TestFiggyProducer, producer_options: {self()}},
       # Production Hydrator
       # DpulCollections.IndexingPipeline.FiggyHydrator,
       {DNSCluster, query: Application.get_env(:dpul_collections, :dns_cluster_query) || :ignore},

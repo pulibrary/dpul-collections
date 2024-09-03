@@ -1,12 +1,13 @@
 defmodule TestFiggyTransformerProducer do
   @moduledoc """
-  A producer used for tests that allows you to control how many Figgy records
-  are provided to the FiggyHydrator via .process/1.
+  A producer used for tests that allows you to control how many Hydration cache
+  entries are provided to the FiggyTransformer via .process/1.
 
-  FiggyHydrator demands from FiggyTestProducer, which never returns records 
-  until asked by .process/1. When .process/1 is called, TestConsumer requests <demand>
-  records from FiggyProducer, and when it gets them it sends a message to
-  FiggyTestProducer, which then sends those records to FiggyHydrator.
+  FiggyTransformer demands from TestFiggyTransformerProducer, which never returns
+  records until asked by .process/1. When .process/1 is called, TestConsumer
+  requests <demand> records from FiggyTransformerProducer, and when it gets them it
+  sends a message to TestFiggyTransformerProducer, which then sends those records
+  to FiggyTransformer.
   """
   alias DpulCollections.IndexingPipeline.{FiggyTransformer, FiggyTransformerProducer}
   use GenStage
@@ -60,7 +61,7 @@ defmodule TestFiggyTransformerProducer do
   """
   @spec process(Integer) :: :ok
   def process(demand) do
-    # Get the PID for FiggyTestProducer GenServer,
+    # Get the PID for TestFiggyProducer GenServer,
     # then cast fulfill message to itself
     Broadway.producer_names(FiggyTransformer)
     |> hd

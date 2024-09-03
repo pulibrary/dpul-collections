@@ -141,7 +141,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerIntegrationTest do
 
     # Create a marker
     IndexingPipeline.write_processor_marker(%{
-      type: "transformer",
+      type: "figgy_transformer",
       cache_version: 0,
       cache_location: marker1.timestamp,
       cache_record_id: marker1.id

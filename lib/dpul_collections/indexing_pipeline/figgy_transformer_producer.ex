@@ -20,7 +20,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducer do
           cache_version: Integer
         }
   def init(cache_version) do
-    last_queried_marker = IndexingPipeline.get_processor_marker!("transformer", cache_version)
+    last_queried_marker =
+      IndexingPipeline.get_processor_marker!("figgy_transformer", cache_version)
 
     initial_state = %{
       last_queried_marker: last_queried_marker |> HydrationCacheEntryMarker.from(),
@@ -79,7 +80,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducer do
         last_removed_marker
 
       IndexingPipeline.write_processor_marker(%{
-        type: "transformer",
+        type: "figgy_transformer",
         cache_version: state.cache_version,
         cache_location: cache_location,
         cache_record_id: cache_record_id
