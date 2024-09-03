@@ -1,20 +1,20 @@
-defmodule DpulCollections.IndexingPipeline.TransformerProducerTest do
+defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducerTest do
   use DpulCollections.DataCase
 
   alias DpulCollections.IndexingPipeline.{
-    TransformerProducer,
+    FiggyTransformerProducer,
     HydrationCacheEntry,
     HydrationCacheEntryMarker
   }
 
   alias DpulCollections.IndexingPipeline
 
-  describe "TransformerProducer" do
+  describe "FiggyTransformerProducer" do
     test "handle_demand/2 with initial state and demand > 1 returns transformation cache entries" do
       {marker1, marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers()
 
-      {:producer, initial_state} = TransformerProducer.init(0)
-      {:noreply, messages, new_state} = TransformerProducer.handle_demand(2, initial_state)
+      {:producer, initial_state} = FiggyTransformerProducer.init(0)
+      {:noreply, messages, new_state} = FiggyTransformerProducer.handle_demand(2, initial_state)
 
       ids =
         Enum.map(messages, fn %Broadway.Message{data: %HydrationCacheEntry{record_id: id}} ->
@@ -51,7 +51,7 @@ defmodule DpulCollections.IndexingPipeline.TransformerProducerTest do
           cache_version: 0
         }
 
-      {:noreply, messages, new_state} = TransformerProducer.handle_demand(1, initial_state)
+      {:noreply, messages, new_state} = FiggyTransformerProducer.handle_demand(1, initial_state)
 
       ids =
         Enum.map(messages, fn %Broadway.Message{data: %HydrationCacheEntry{record_id: id}} ->
@@ -94,7 +94,7 @@ defmodule DpulCollections.IndexingPipeline.TransformerProducerTest do
           cache_version: 0
         }
 
-      {:noreply, messages, new_state} = TransformerProducer.handle_demand(1, initial_state)
+      {:noreply, messages, new_state} = FiggyTransformerProducer.handle_demand(1, initial_state)
 
       assert messages == []
 
@@ -144,7 +144,7 @@ defmodule DpulCollections.IndexingPipeline.TransformerProducerTest do
       }
 
       {:noreply, [], new_state} =
-        TransformerProducer.handle_info(
+        FiggyTransformerProducer.handle_info(
           {:ack, :transformer_producer_ack, acked_hydration_cache_markers},
           initial_state
         )
@@ -168,7 +168,7 @@ defmodule DpulCollections.IndexingPipeline.TransformerProducerTest do
       }
 
       {:noreply, [], new_state} =
-        TransformerProducer.handle_info(
+        FiggyTransformerProducer.handle_info(
           {:ack, :transformer_producer_ack, acked_hydration_cache_markers},
           initial_state
         )
@@ -217,7 +217,7 @@ defmodule DpulCollections.IndexingPipeline.TransformerProducerTest do
       }
 
       {:noreply, [], new_state} =
-        TransformerProducer.handle_info(
+        FiggyTransformerProducer.handle_info(
           {:ack, :transformer_producer_ack, acked_hydration_cache_markers},
           initial_state
         )
@@ -251,7 +251,7 @@ defmodule DpulCollections.IndexingPipeline.TransformerProducerTest do
       }
 
       {:noreply, [], new_state} =
-        TransformerProducer.handle_info(
+        FiggyTransformerProducer.handle_info(
           {:ack, :transformer_producer_ack, acked_hydration_cache_markers},
           initial_state
         )
@@ -295,7 +295,7 @@ defmodule DpulCollections.IndexingPipeline.TransformerProducerTest do
       }
 
       {:noreply, [], new_state} =
-        TransformerProducer.handle_info(
+        FiggyTransformerProducer.handle_info(
           {:ack, :transformer_producer_ack, acked_hydration_cache_markers},
           initial_state
         )
@@ -336,7 +336,7 @@ defmodule DpulCollections.IndexingPipeline.TransformerProducerTest do
       }
 
       {:noreply, [], new_state} =
-        TransformerProducer.handle_info(
+        FiggyTransformerProducer.handle_info(
           {:ack, :transformer_producer_ack, first_ack},
           initial_state
         )
@@ -357,7 +357,10 @@ defmodule DpulCollections.IndexingPipeline.TransformerProducerTest do
       }
 
       {:noreply, [], new_state} =
-        TransformerProducer.handle_info({:ack, :transformer_producer_ack, second_ack}, new_state)
+        FiggyTransformerProducer.handle_info(
+          {:ack, :transformer_producer_ack, second_ack},
+          new_state
+        )
 
       assert new_state == expected_state
 

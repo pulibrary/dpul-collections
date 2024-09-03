@@ -1,10 +1,10 @@
-defmodule DpulCollections.IndexingPipeline.Transformer do
+defmodule DpulCollections.IndexingPipeline.FiggyTransformer do
   @moduledoc """
   Broadway consumer that demands HydrationCacheEntry records, transforms
   them into Solr documents, and caches them in a database.
   """
   alias DpulCollections.IndexingPipeline
-  alias DpulCollections.IndexingPipeline.TransformerProducer
+  alias DpulCollections.IndexingPipeline.FiggyTransformerProducer
   use Broadway
 
   @type start_opts ::
@@ -16,7 +16,7 @@ defmodule DpulCollections.IndexingPipeline.Transformer do
   def start_link(options \\ []) do
     default = [
       cache_version: 0,
-      producer_module: TransformerProducer,
+      producer_module: FiggyTransformerProducer,
       producer_options: 0,
       batch_size: 10
     ]
@@ -69,7 +69,7 @@ defmodule DpulCollections.IndexingPipeline.Transformer do
 
   defp write_to_transformation_cache(message, cache_version) do
     hydration_cache_entry = message.data
-    solr_doc = transform_to_solr_document_from_figgy(hydration_cache_entry)
+    solr_doc = transform_to_solr_document(hydration_cache_entry)
 
     # store in TransformationCache:
     # - data (map) - this is the transformed solr document map
@@ -86,7 +86,7 @@ defmodule DpulCollections.IndexingPipeline.Transformer do
       })
   end
 
-  defp transform_to_solr_document_from_figgy(hydration_cache_entry) do
+  defp transform_to_solr_document(hydration_cache_entry) do
     %{record_id: id} = hydration_cache_entry
     %{data: %{"metadata" => %{"title" => title}}} = hydration_cache_entry
 

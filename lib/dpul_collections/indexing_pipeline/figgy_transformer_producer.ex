@@ -1,4 +1,4 @@
-defmodule DpulCollections.IndexingPipeline.TransformerProducer do
+defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducer do
   @moduledoc """
   GenStage Producer that pulls records from the Hyrdation Cache.
   """

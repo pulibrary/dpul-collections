@@ -1,4 +1,4 @@
-defmodule DpulCollections.IndexingPipeline.TransformerIntegrationTest do
+defmodule DpulCollections.IndexingPipeline.FiggyTransformerIntegrationTest do
   use DpulCollections.DataCase
 
   alias DpulCollections.{FiggyRepo, Repo}
@@ -6,8 +6,8 @@ defmodule DpulCollections.IndexingPipeline.TransformerIntegrationTest do
   alias DpulCollections.IndexingPipeline.{
     FiggyHydrator,
     FiggyResource,
+    FiggyTransformer,
     HydrationCacheEntry,
-    Transformer,
     TransformationCacheEntry
   }
 
@@ -36,9 +36,9 @@ defmodule DpulCollections.IndexingPipeline.TransformerIntegrationTest do
     )
 
     {:ok, transformer} =
-      Transformer.start_link(
+      FiggyTransformer.start_link(
         cache_version: 0,
-        producer_module: TestTransformerProducer,
+        producer_module: TestFiggyTransformerProducer,
         producer_options: {self()},
         batch_size: batch_size
       )
@@ -62,7 +62,7 @@ defmodule DpulCollections.IndexingPipeline.TransformerIntegrationTest do
 
     transformer = start_transformer_producer()
 
-    TestTransformerProducer.process(1)
+    TestFiggyTransformerProducer.process(1)
     assert_receive {:ack_done}
 
     cache_entry = IndexingPipeline.list_transformation_cache_entries() |> hd
@@ -96,7 +96,7 @@ defmodule DpulCollections.IndexingPipeline.TransformerIntegrationTest do
 
     # Process that past record.
     transformer = start_transformer_producer()
-    TestTransformerProducer.process(1)
+    TestFiggyTransformerProducer.process(1)
     assert_receive {:ack_done}
     transformer |> Broadway.stop(:normal)
     # Ensure there's only one transformation cache entry.
@@ -124,7 +124,7 @@ defmodule DpulCollections.IndexingPipeline.TransformerIntegrationTest do
 
     # Process that past record.
     transformer = start_transformer_producer()
-    TestTransformerProducer.process(1)
+    TestFiggyTransformerProducer.process(1)
     assert_receive {:ack_done}
     transformer |> Broadway.stop(:normal)
     # Ensure there's only one transformation cache entry.
@@ -170,7 +170,7 @@ defmodule DpulCollections.IndexingPipeline.TransformerIntegrationTest do
 
     # Start the producer
     transformer = start_transformer_producer()
-    TestTransformerProducer.process(1)
+    TestFiggyTransformerProducer.process(1)
     assert_receive {:ack_done}
     # Make sure the first record that comes back is what we expect
     cache_entry = IndexingPipeline.list_transformation_cache_entries() |> hd
@@ -192,7 +192,7 @@ defmodule DpulCollections.IndexingPipeline.TransformerIntegrationTest do
 
     # Process that past record.
     transformer = start_transformer_producer()
-    TestTransformerProducer.process(1)
+    TestFiggyTransformerProducer.process(1)
     assert_receive {:ack_done}
     transformer |> Broadway.stop(:normal)
     # Ensure there are no transformation cache entries.
@@ -237,7 +237,7 @@ defmodule DpulCollections.IndexingPipeline.TransformerIntegrationTest do
     # Start the transformer producer
     transformer = start_transformer_producer(50)
     entry_count = Repo.aggregate(HydrationCacheEntry, :count)
-    TestTransformerProducer.process(entry_count)
+    TestFiggyTransformerProducer.process(entry_count)
     # Wait for the last ID to show up.
     task =
       Task.async(fn ->
