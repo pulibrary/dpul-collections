@@ -5,7 +5,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformer do
   """
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.FiggyTransformerProducer
-  alias DpulCollections.IndexingPipeline.{TransformationCacheEntry, HydrationCacheEntry}
+  alias DpulCollections.IndexingPipeline.TransformationCacheEntry
+  alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry
   use Broadway
 
   @type start_opts ::

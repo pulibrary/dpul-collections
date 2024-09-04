@@ -6,8 +6,8 @@ defmodule DpulCollections.IndexingPipeline do
   import Ecto.Query, warn: false
   alias DpulCollections.{Repo, FiggyRepo}
 
+  alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry
   alias DpulCollections.IndexingPipeline.{
-    HydrationCacheEntry,
     HydrationCacheEntryMarker,
     FiggyResource,
     ResourceMarker

@@ -3,11 +3,11 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
   alias DpulCollections.{FiggyRepo, Repo}
 
+  alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry
   alias DpulCollections.IndexingPipeline.{
     FiggyHydrator,
     FiggyResource,
     FiggyTransformer,
-    HydrationCacheEntry,
     TransformationCacheEntry
   }
 

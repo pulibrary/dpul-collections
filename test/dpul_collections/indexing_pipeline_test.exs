@@ -4,7 +4,7 @@ defmodule DpulCollections.IndexingPipelineTest do
   alias DpulCollections.IndexingPipeline
 
   describe "hydration_cache_entries" do
-    alias DpulCollections.IndexingPipeline.HydrationCacheEntry
+    alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry
 
     import DpulCollections.IndexingPipelineFixtures
 

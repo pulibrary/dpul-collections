@@ -1,7 +1,8 @@
 defmodule DpulCollections.IndexingPipeline.FiggyHydratorTest do
   use DpulCollections.DataCase
 
-  alias DpulCollections.IndexingPipeline.{FiggyHydrator, FiggyResource, HydrationCacheEntry}
+  alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry
+  alias DpulCollections.IndexingPipeline.{FiggyHydrator, FiggyResource}
 
   describe "FiggyHydrator" do
     test "handle_message/3 only writes EphemeraFolders and EphemeraTerms to the HydrationCache" do

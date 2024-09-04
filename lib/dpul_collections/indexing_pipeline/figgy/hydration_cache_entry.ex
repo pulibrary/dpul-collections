@@ -1,8 +1,8 @@
-defmodule DpulCollections.IndexingPipeline.HydrationCacheEntry do
+defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   use Ecto.Schema
   import Ecto.Changeset
 
-  schema "hydration_cache_entries" do
+  schema "figgy_hydration_cache_entries" do
     field :data, :map
     field :cache_version, :integer
     field :record_id, :string
