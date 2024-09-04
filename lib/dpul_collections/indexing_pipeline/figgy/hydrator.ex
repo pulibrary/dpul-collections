@@ -1,4 +1,4 @@
-defmodule DpulCollections.IndexingPipeline.FiggyHydrator do
+defmodule DpulCollections.IndexingPipeline.Figgy.Hydrator do
   @moduledoc """
   Broadway consumer that demands Figgy records and caches them in the database.
   """

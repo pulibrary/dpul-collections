@@ -4,8 +4,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
   alias DpulCollections.{FiggyRepo, Repo}
 
   alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry
+  alias DpulCollections.IndexingPipeline.Figgy.Hydrator
   alias DpulCollections.IndexingPipeline.{
-    FiggyHydrator,
     FiggyResource,
     FiggyTransformer,
     TransformationCacheEntry
@@ -15,7 +15,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
   def start_figgy_producer(batch_size \\ 1) do
     {:ok, hydrator} =
-      FiggyHydrator.start_link(
+      Hydrator.start_link(
         cache_version: 0,
         producer_module: TestFiggyProducer,
         producer_options: {self()},
