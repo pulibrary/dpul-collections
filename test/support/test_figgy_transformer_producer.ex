@@ -9,14 +9,15 @@ defmodule TestFiggyTransformerProducer do
   sends a message to TestFiggyTransformerProducer, which then sends those records
   to FiggyTransformer.
   """
-  alias DpulCollections.IndexingPipeline.{FiggyTransformer, FiggyTransformerProducer}
+  alias DpulCollections.IndexingPipeline.Figgy
+  alias DpulCollections.IndexingPipeline.FiggyTransformer
   use GenStage
 
   @impl GenStage
   @type state :: %{consumer_pid: pid(), test_runner_pid: pid(), transformer_producer_pid: pid()}
   @spec init({pid()}) :: {:producer, state()}
   def init({test_runner_pid}) do
-    {:ok, transformer_producer_pid} = FiggyTransformerProducer.start_link()
+    {:ok, transformer_producer_pid} = Figgy.TransformerProducer.start_link()
     {:ok, consumer_pid} = TestConsumer.start_link(transformer_producer_pid)
 
     {:producer,
