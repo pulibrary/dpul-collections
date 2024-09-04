@@ -5,7 +5,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Producer do
 
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy
-  alias DpulCollections.IndexingPipeline.ResourceMarker
   use GenStage
   @behaviour Broadway.Acknowledger
 
@@ -15,16 +14,16 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Producer do
 
   @impl GenStage
   @type state :: %{
-          last_queried_marker: ResourceMarker.t(),
-          pulled_records: [ResourceMarker.t()],
-          acked_records: [ResourceMarker.t()],
+          last_queried_marker: Figgy.ResourceMarker.t(),
+          pulled_records: [Figgy.ResourceMarker.t()],
+          acked_records: [Figgy.ResourceMarker.t()],
           cache_version: Integer
         }
   def init(cache_version) do
     last_queried_marker = IndexingPipeline.get_processor_marker!("hydrator", cache_version)
 
     initial_state = %{
-      last_queried_marker: last_queried_marker |> ResourceMarker.from(),
+      last_queried_marker: last_queried_marker |> Figgy.ResourceMarker.from(),
       pulled_records: [],
       acked_records: [],
       cache_version: cache_version
@@ -49,11 +48,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Producer do
       state
       |> Map.put(
         :last_queried_marker,
-        Enum.at(records, -1) |> ResourceMarker.from() || last_queried_marker
+        Enum.at(records, -1) |> Figgy.ResourceMarker.from() || last_queried_marker
       )
       |> Map.put(
         :pulled_records,
-        Enum.concat(pulled_records, Enum.map(records, &ResourceMarker.from/1))
+        Enum.concat(pulled_records, Enum.map(records, &Figgy.ResourceMarker.from/1))
       )
       |> Map.put(:acked_records, acked_records)
 
@@ -67,7 +66,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Producer do
     sorted_markers =
       (state.acked_records ++ pending_markers)
       |> Enum.uniq()
-      |> Enum.sort(ResourceMarker)
+      |> Enum.sort(Figgy.ResourceMarker)
 
     state =
       state
@@ -76,7 +75,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Producer do
     {new_state, last_removed_marker} = process_markers(state, nil)
 
     if last_removed_marker != nil do
-      %ResourceMarker{timestamp: cache_location, id: cache_record_id} = last_removed_marker
+      %Figgy.ResourceMarker{timestamp: cache_location, id: cache_record_id} = last_removed_marker
 
       IndexingPipeline.write_processor_marker(%{
         type: "hydrator",
@@ -94,7 +93,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Producer do
   # last removed marker so it can be saved to the database.
   # If the first element of pulled_records is the first element of
   # acked_records, remove it from both and process again.
-  @spec process_markers(state(), ResourceMarker.t()) :: {state, ResourceMarker.t()}
+  @spec process_markers(state(), Figgy.ResourceMarker.t()) :: {state, Figgy.ResourceMarker.t()}
   defp process_markers(
          state = %{
            pulled_records: [first_record | pulled_records],
@@ -127,7 +126,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Producer do
          },
          last_removed_marker
        ) do
-    if ResourceMarker.compare(first_acked_record, first_pulled_record) == :lt do
+    if Figgy.ResourceMarker.compare(first_acked_record, first_pulled_record) == :lt do
       state
       |> Map.put(:acked_records, tail_acked_records)
       |> process_markers(last_removed_marker)
@@ -141,7 +140,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Producer do
   @impl Broadway.Acknowledger
   def ack({figgy_producer_pid, :figgy_producer_ack}, successful, failed) do
     # TODO: Do some error handling
-    acked_markers = (successful ++ failed) |> Enum.map(&ResourceMarker.from/1)
+    acked_markers = (successful ++ failed) |> Enum.map(&Figgy.ResourceMarker.from/1)
     send(figgy_producer_pid, {:ack, :figgy_producer_ack, acked_markers})
   end
 

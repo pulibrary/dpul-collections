@@ -1,4 +1,4 @@
-defmodule DpulCollections.IndexingPipeline.ResourceMarker do
+defmodule DpulCollections.IndexingPipeline.Figgy.ResourceMarker do
   @type t :: %__MODULE__{id: String.t(), timestamp: UTCDateTime}
   defstruct [:id, :timestamp]
 

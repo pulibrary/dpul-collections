@@ -7,7 +7,6 @@ defmodule DpulCollections.IndexingPipeline do
   alias DpulCollections.{Repo, FiggyRepo}
 
   alias DpulCollections.IndexingPipeline.Figgy
-  alias DpulCollections.IndexingPipeline.ResourceMarker
 
   @doc """
   Returns the list of hydration_cache_entries.
@@ -241,10 +240,10 @@ defmodule DpulCollections.IndexingPipeline do
   """
 
   @spec get_figgy_resources_since!(
-          marker :: ResourceMarker.t(),
+          marker :: Figgy.ResourceMarker.t(),
           count :: integer
         ) :: list(Figgy.Resource)
-  def get_figgy_resources_since!(%ResourceMarker{timestamp: updated_at, id: id}, count) do
+  def get_figgy_resources_since!(%Figgy.ResourceMarker{timestamp: updated_at, id: id}, count) do
     query =
       from r in Figgy.Resource,
         where: (r.updated_at == ^updated_at and r.id > ^id) or r.updated_at > ^updated_at,

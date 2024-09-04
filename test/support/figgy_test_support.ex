@@ -2,7 +2,6 @@ defmodule FiggyTestSupport do
   import Ecto.Query, warn: false
 
   alias DpulCollections.IndexingPipeline.Figgy
-  alias DpulCollections.IndexingPipeline.ResourceMarker
 
   alias DpulCollections.FiggyRepo
   alias DpulCollections.Repo
@@ -14,7 +13,7 @@ defmodule FiggyTestSupport do
         limit: 1,
         order_by: [desc: r.updated_at, desc: r.id]
 
-    FiggyRepo.all(query) |> hd |> ResourceMarker.from()
+    FiggyRepo.all(query) |> hd |> Figgy.ResourceMarker.from()
   end
 
   def last_hydration_cache_entry_marker do

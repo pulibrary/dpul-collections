@@ -2,7 +2,6 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
   use DpulCollections.DataCase
 
   alias DpulCollections.IndexingPipeline.Figgy
-  alias DpulCollections.IndexingPipeline.ResourceMarker
   alias DpulCollections.IndexingPipeline
 
   describe "Figgy.Producer" do
@@ -66,7 +65,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
     test "handle_demand/2 when the marker record has been updated" do
       {_marker1, marker2, marker3} = FiggyTestFixtures.markers()
 
-      fabricated_marker = %ResourceMarker{
+      fabricated_marker = %Figgy.ResourceMarker{
         timestamp: DateTime.add(marker2.timestamp, 1, :microsecond),
         id: marker3.id
       }
@@ -105,7 +104,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
     test "handle_demand/2 when the query returns no records" do
       {_marker1, _marker2, marker3} = FiggyTestFixtures.markers()
       # Move last_queried marker to a marker 200 years in the future.
-      fabricated_marker = %ResourceMarker{
+      fabricated_marker = %Figgy.ResourceMarker{
         timestamp: DateTime.add(marker3.timestamp, 356 * 10, :day),
         id: marker3.id
       }
@@ -173,7 +172,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
       assert new_state == expected_state
       processor_marker = IndexingPipeline.get_processor_marker!("hydrator", cache_version)
 
-      assert marker1 == %ResourceMarker{
+      assert marker1 == %Figgy.ResourceMarker{
                timestamp: processor_marker.cache_location,
                id: processor_marker.cache_record_id
              }
@@ -195,7 +194,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
 
       processor_marker = IndexingPipeline.get_processor_marker!("hydrator", cache_version)
 
-      assert marker3 == %ResourceMarker{
+      assert marker3 == %Figgy.ResourceMarker{
                timestamp: processor_marker.cache_location,
                id: processor_marker.cache_record_id
              }
@@ -368,7 +367,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyProducerTest do
       assert new_state == expected_state
 
       processor_marker =
-        IndexingPipeline.get_processor_marker!("hydrator", 1) |> ResourceMarker.from()
+        IndexingPipeline.get_processor_marker!("hydrator", 1) |> Figgy.ResourceMarker.from()
 
       assert processor_marker == marker2
     end

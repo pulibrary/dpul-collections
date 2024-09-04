@@ -1,6 +1,5 @@
 defmodule FiggyTestFixtures do
-  alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryMarker
-  alias DpulCollections.IndexingPipeline.ResourceMarker
+  alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline
 
   # TODO: Rename module to TestFixtures
@@ -10,17 +9,17 @@ defmodule FiggyTestFixtures do
   # They're here so that if they change, we don't have to change them in the
   # whole test suite.
   def markers do
-    marker1 = %ResourceMarker{
+    marker1 = %Figgy.ResourceMarker{
       timestamp: ~U[2018-03-09 20:19:33.414040Z],
       id: "3cb7627b-defc-401b-9959-42ebc4488f74"
     }
 
-    marker2 = %ResourceMarker{
+    marker2 = %Figgy.ResourceMarker{
       timestamp: ~U[2018-03-09 20:19:34.465203Z],
       id: "69990556-434c-476a-9043-bbf9a1bda5a4"
     }
 
-    marker3 = %ResourceMarker{
+    marker3 = %Figgy.ResourceMarker{
       timestamp: ~U[2018-03-09 20:19:34.486004Z],
       id: "47276197-e223-471c-99d7-405c5f6c5285"
     }
@@ -67,17 +66,17 @@ defmodule FiggyTestFixtures do
         }
       })
 
-    marker1 = %HydrationCacheEntryMarker{
+    marker1 = %Figgy.HydrationCacheEntryMarker{
       timestamp: entry1.source_cache_order,
       id: entry1.record_id
     }
 
-    marker2 = %HydrationCacheEntryMarker{
+    marker2 = %Figgy.HydrationCacheEntryMarker{
       timestamp: entry2.source_cache_order,
       id: entry2.record_id
     }
 
-    marker3 = %HydrationCacheEntryMarker{
+    marker3 = %Figgy.HydrationCacheEntryMarker{
       timestamp: entry3.source_cache_order,
       id: entry3.record_id
     }
