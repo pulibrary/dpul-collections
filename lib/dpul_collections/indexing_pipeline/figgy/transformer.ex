@@ -1,4 +1,4 @@
-defmodule DpulCollections.IndexingPipeline.FiggyTransformer do
+defmodule DpulCollections.IndexingPipeline.Figgy.Transformer do
   @moduledoc """
   Broadway consumer that demands Figgy.HydrationCacheEntry records, transforms
   them into Solr documents, and caches them in a database.

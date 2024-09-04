@@ -1,7 +1,7 @@
 defmodule DpulCollections.IndexingPipeline.FiggyTransformerIntegrationTest do
   use DpulCollections.DataCase
 
-  alias DpulCollections.IndexingPipeline.FiggyTransformer
+  alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline
 
   def start_transformer_producer(batch_size \\ 1) do
@@ -15,7 +15,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerIntegrationTest do
     )
 
     {:ok, transformer} =
-      FiggyTransformer.start_link(
+      Figgy.Transformer.start_link(
         cache_version: 0,
         producer_module: TestFiggyTransformerProducer,
         producer_options: {self()},
