@@ -8,7 +8,6 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducer do
   use GenStage
   @behaviour Broadway.Acknowledger
 
-
   @spec start_link(integer()) :: Broadway.on_start()
   def start_link(cache_version \\ 0) do
     GenStage.start_link(__MODULE__, cache_version)
@@ -37,6 +36,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducer do
   end
 
   @impl GenStage
+  @spec handle_demand(integer(), state()) :: {:noreply, list(Broadway.Message.t()), state()}
   def handle_demand(
         demand,
         state = %{
@@ -64,6 +64,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducer do
   end
 
   @impl GenStage
+  @spec handle_info({atom(), atom(), list(%HydrationCacheEntryMarker{})}, state()) ::
+          {:noreply, list(Broadway.Message.t()), state()}
   def handle_info({:ack, :transformer_producer_ack, pending_markers}, state) do
     messages = []
 
@@ -144,6 +146,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducer do
   defp process_markers(state, last_removed_marker), do: {state, last_removed_marker}
 
   @impl Broadway.Acknowledger
+  @spec ack({pid(), atom()}, list(Broadway.Message.t()), list(Broadway.Message.t())) :: any()
   def ack({transformer_producer_pid, :transformer_producer_ack}, successful, failed) do
     # TODO: Do some error handling
     acked_markers = (successful ++ failed) |> Enum.map(&HydrationCacheEntryMarker.from/1)
@@ -152,6 +155,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducer do
 
   # This happens when ack is finished, we listen to this telemetry event in
   # tests so we know when the Hydrator's done processing a message.
+  @spec notify_ack(integer()) :: any()
   defp notify_ack(acked_message_count) do
     :telemetry.execute(
       [:transformer_producer, :ack, :done],

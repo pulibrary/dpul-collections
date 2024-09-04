@@ -63,12 +63,14 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformer do
   end
 
   @impl Broadway
-  @spec handle_batch(any(), list(Broadway.Message.t()), any(), any()) :: list(Broadway.Message.t())
+  @spec handle_batch(any(), list(Broadway.Message.t()), any(), any()) ::
+          list(Broadway.Message.t())
   def handle_batch(_batcher, messages, _batch_info, _context) do
     messages
   end
 
-  @spec write_to_transformation_cache(Broadway.Message.t(), integer()) :: {:ok, %TransformationCacheEntry{} | nil}
+  @spec write_to_transformation_cache(Broadway.Message.t(), integer()) ::
+          {:ok, %TransformationCacheEntry{} | nil}
   defp write_to_transformation_cache(message, cache_version) do
     hydration_cache_entry = message.data
     solr_doc = transform_to_solr_document(hydration_cache_entry)
