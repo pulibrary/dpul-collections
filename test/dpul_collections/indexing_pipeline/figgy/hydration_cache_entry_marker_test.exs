@@ -1,4 +1,4 @@
-defmodule DpulCollections.IndexingPipeline.HydrationCacheEntryMarkerTest do
+defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryMarkerTest do
   use DpulCollections.DataCase
 
   alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryMarker

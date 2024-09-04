@@ -1,4 +1,4 @@
-defmodule DpulCollections.IndexingPipeline.ResourceMarkerTest do
+defmodule DpulCollections.IndexingPipeline.Figgy.ResourceMarkerTest do
   use DpulCollections.DataCase
 
   alias DpulCollections.IndexingPipeline.Figgy
