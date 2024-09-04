@@ -3,7 +3,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydratorTest do
 
   alias DpulCollections.IndexingPipeline.Figgy
 
-  describe "Figgy.Hydrator" do
+  describe "Figgy.HydrationConsumer" do
     test "handle_message/3 only writes EphemeraFolders and EphemeraTerms to the Figgy.HydrationCache" do
       ephemera_folder_message = %Broadway.Message{
         acknowledger: nil,
@@ -32,9 +32,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydratorTest do
         }
       }
 
-      Figgy.Hydrator.handle_message(nil, ephemera_folder_message, %{cache_version: 0})
-      Figgy.Hydrator.handle_message(nil, ephemera_term_message, %{cache_version: 0})
-      Figgy.Hydrator.handle_message(nil, scanned_resource_message, %{cache_version: 0})
+      Figgy.HydrationConsumer.handle_message(nil, ephemera_folder_message, %{cache_version: 0})
+      Figgy.HydrationConsumer.handle_message(nil, ephemera_term_message, %{cache_version: 0})
+      Figgy.HydrationConsumer.handle_message(nil, scanned_resource_message, %{cache_version: 0})
 
       entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
       assert entry_count == 2

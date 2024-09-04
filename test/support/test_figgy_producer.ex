@@ -1,22 +1,21 @@
 defmodule TestFiggyProducer do
   @moduledoc """
   A producer used for tests that allows you to control how many Figgy records
-  are provided to the Figgy.Hydrator via .process/1.
+  are provided to the Figgy.HydrationConsumer via .process/1.
 
-  Figgy.Hydrator demands from TestFiggyProducer, which never returns records 
+  Figgy.HydrationConsumer demands from TestFiggyProducer, which never returns records 
   until asked by .process/1. When .process/1 is called, TestConsumer requests <demand>
-  records from FiggyProducer, and when it gets them it sends a message to
-  TestFiggyProducer, which then sends those records to Figgy.Hydrator.
+  records from Figgy.HydrationProducer, and when it gets them it sends a message to
+  TestFiggyProducer, which then sends those records to Figgy.HydrationConsumer.
   """
-  alias DpulCollections.IndexingPipeline.Figgy.Producer
-  alias DpulCollections.IndexingPipeline.Figgy.Hydrator
+  alias DpulCollections.IndexingPipeline.Figgy
   use GenStage
 
   @impl GenStage
   @type state :: %{consumer_pid: pid(), test_runner_pid: pid(), figgy_producer_pid: pid()}
   @spec init({pid()}) :: {:producer, state()}
   def init({test_runner_pid}) do
-    {:ok, figgy_producer_pid} = Producer.start_link()
+    {:ok, figgy_producer_pid} = Figgy.HydrationProducer.start_link()
     {:ok, consumer_pid} = TestConsumer.start_link(figgy_producer_pid)
 
     {:producer,
@@ -37,7 +36,7 @@ defmodule TestFiggyProducer do
 
   @impl GenStage
   @doc """
-  TestConsumer sends this message - when received, tell the test runner and return the messages to the Hydrator.
+  TestConsumer sends this message - when received, tell the test runner and return the messages to the Figgy.HydrationConsumer.
   """
   @spec handle_info(TestConsumer.test_consumer_message(), state()) ::
           {:noreply, [%Broadway.Message{}], state()}
@@ -57,13 +56,13 @@ defmodule TestFiggyProducer do
   end
 
   @doc """
-  Request Hydrator to process <demand> records.
+  Request Figgy.HydrationConsumer to process <demand> records.
   """
   @spec process(Integer) :: :ok
   def process(demand) do
     # Get the PID for TestFiggyProducer GenServer,
     # then cast fulfill message to itself
-    Broadway.producer_names(Hydrator)
+    Broadway.producer_names(Figgy.HydrationConsumer)
     |> hd
     |> GenServer.cast({:fulfill_messages, demand})
   end

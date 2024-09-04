@@ -1,7 +1,7 @@
 defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
   use DpulCollections.DataCase
 
-  alias DpulCollections.IndexingPipeline.Figgy.Hydrator
+  alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline
 
   def start_producer(batch_size \\ 1) do
@@ -15,7 +15,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
     )
 
     {:ok, hydrator} =
-      Hydrator.start_link(
+      Figgy.HydrationConsumer.start_link(
         cache_version: 0,
         producer_module: TestFiggyProducer,
         producer_options: {self()},

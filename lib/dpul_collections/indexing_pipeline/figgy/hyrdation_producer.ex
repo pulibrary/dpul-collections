@@ -1,4 +1,4 @@
-defmodule DpulCollections.IndexingPipeline.Figgy.Producer do
+defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducer do
   @moduledoc """
   GenStage Producer that pulls records from the Figgy database
   """

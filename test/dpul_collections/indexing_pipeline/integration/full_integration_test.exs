@@ -7,7 +7,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
   def start_figgy_producer(batch_size \\ 1) do
     {:ok, hydrator} =
-      Figgy.Hydrator.start_link(
+      Figgy.HydrationConsumer.start_link(
         cache_version: 0,
         producer_module: TestFiggyProducer,
         producer_options: {self()},

@@ -4,11 +4,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ProducerTest do
   alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline
 
-  describe "Figgy.Producer" do
+  describe "Figgy.HydrationProducer" do
     test "handle_demand/2 with initial state and demand > 1 returns figgy resources" do
       {marker1, marker2, _marker3} = FiggyTestFixtures.markers()
-      {:producer, initial_state} = Figgy.Producer.init(0)
-      {:noreply, messages, new_state} = Figgy.Producer.handle_demand(2, initial_state)
+      {:producer, initial_state} = Figgy.HydrationProducer.init(0)
+      {:noreply, messages, new_state} = Figgy.HydrationProducer.handle_demand(2, initial_state)
 
       ids = Enum.map(messages, fn %Broadway.Message{data: %Figgy.Resource{id: id}} -> id end)
 
@@ -42,7 +42,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ProducerTest do
           cache_version: 0
         }
 
-      {:noreply, messages, new_state} = Figgy.Producer.handle_demand(1, initial_state)
+      {:noreply, messages, new_state} = Figgy.HydrationProducer.handle_demand(1, initial_state)
 
       ids = Enum.map(messages, fn %Broadway.Message{data: %Figgy.Resource{id: id}} -> id end)
       assert ids == [marker3.id]
@@ -82,7 +82,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ProducerTest do
           cache_version: 0
         }
 
-      {:noreply, messages, new_state} = Figgy.Producer.handle_demand(1, initial_state)
+      {:noreply, messages, new_state} = Figgy.HydrationProducer.handle_demand(1, initial_state)
 
       ids = Enum.map(messages, fn %Broadway.Message{data: %Figgy.Resource{id: id}} -> id end)
       assert ids == [marker3.id]
@@ -117,7 +117,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ProducerTest do
           cache_version: 0
         }
 
-      {:noreply, messages, new_state} = Figgy.Producer.handle_demand(1, initial_state)
+      {:noreply, messages, new_state} = Figgy.HydrationProducer.handle_demand(1, initial_state)
 
       assert messages == []
 
@@ -167,7 +167,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ProducerTest do
       }
 
       {:noreply, [], new_state} =
-        Figgy.Producer.handle_info({:ack, :figgy_producer_ack, acked_markers}, initial_state)
+        Figgy.HydrationProducer.handle_info(
+          {:ack, :figgy_producer_ack, acked_markers},
+          initial_state
+        )
 
       assert new_state == expected_state
       processor_marker = IndexingPipeline.get_processor_marker!("hydrator", cache_version)
@@ -188,7 +191,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ProducerTest do
       }
 
       {:noreply, [], new_state} =
-        Figgy.Producer.handle_info({:ack, :figgy_producer_ack, acked_markers}, initial_state)
+        Figgy.HydrationProducer.handle_info(
+          {:ack, :figgy_producer_ack, acked_markers},
+          initial_state
+        )
 
       assert new_state == expected_state
 
@@ -234,7 +240,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ProducerTest do
       }
 
       {:noreply, [], new_state} =
-        Figgy.Producer.handle_info({:ack, :figgy_producer_ack, acked_markers}, initial_state)
+        Figgy.HydrationProducer.handle_info(
+          {:ack, :figgy_producer_ack, acked_markers},
+          initial_state
+        )
 
       assert new_state == expected_state
       processor_marker = IndexingPipeline.get_processor_marker!("hydrator", 1)
@@ -265,7 +274,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ProducerTest do
       }
 
       {:noreply, [], new_state} =
-        Figgy.Producer.handle_info({:ack, :figgy_producer_ack, acked_markers}, initial_state)
+        Figgy.HydrationProducer.handle_info(
+          {:ack, :figgy_producer_ack, acked_markers},
+          initial_state
+        )
 
       assert new_state == expected_state
       processor_marker = IndexingPipeline.get_processor_marker!("hydrator", 1)
@@ -306,7 +318,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ProducerTest do
       }
 
       {:noreply, [], new_state} =
-        Figgy.Producer.handle_info({:ack, :figgy_producer_ack, acked_markers}, initial_state)
+        Figgy.HydrationProducer.handle_info(
+          {:ack, :figgy_producer_ack, acked_markers},
+          initial_state
+        )
 
       assert new_state == expected_state
       processor_marker = IndexingPipeline.get_processor_marker!("hydrator", 1)
@@ -316,7 +331,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ProducerTest do
     test "handle_info/2 with figgy producer ack, acking after crash and respawn" do
       {marker1, marker2, _marker3} = FiggyTestFixtures.markers()
 
-      # Figgy.Producer sent out marker1 then crashed, started again, then sent out
+      # Figgy.HydrationProducer sent out marker1 then crashed, started again, then sent out
       # marker1 and marker2.
       # The consumer has marker1, marker1, and marker2 to process.
       initial_state = %{
@@ -344,7 +359,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ProducerTest do
       }
 
       {:noreply, [], new_state} =
-        Figgy.Producer.handle_info({:ack, :figgy_producer_ack, first_ack}, initial_state)
+        Figgy.HydrationProducer.handle_info({:ack, :figgy_producer_ack, first_ack}, initial_state)
 
       assert new_state == expected_state
 
@@ -362,7 +377,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ProducerTest do
       }
 
       {:noreply, [], new_state} =
-        Figgy.Producer.handle_info({:ack, :figgy_producer_ack, second_ack}, new_state)
+        Figgy.HydrationProducer.handle_info({:ack, :figgy_producer_ack, second_ack}, new_state)
 
       assert new_state == expected_state
 
