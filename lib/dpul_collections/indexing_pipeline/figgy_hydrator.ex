@@ -45,7 +45,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydrator do
         message = %Broadway.Message{data: %{internal_resource: "EphemeraFolder"}},
         %{cache_version: cache_version}
       ) do
-    write_to_hydration_cache(message, cache_version)
+    write_to_figgy_hydration_cache(message, cache_version)
 
     message
   end
@@ -57,7 +57,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydrator do
         message = %Broadway.Message{data: %{internal_resource: "EphemeraTerm"}},
         %{cache_version: cache_version}
       ) do
-    write_to_hydration_cache(message, cache_version)
+    write_to_figgy_hydration_cache(message, cache_version)
 
     message
   end
@@ -68,15 +68,15 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydrator do
     message
   end
 
-  defp write_to_hydration_cache(message, cache_version) do
-    # store in HydrationCache:
+  defp write_to_figgy_hydration_cache(message, cache_version) do
+    # store in FiggyHydrationCache:
     # - data (blob) - this is the record
     # - cache_order (datetime) - this is our own new timestamp for this table
     # - cache_version (this only changes manually, we have to hold onto it as state)
     # - record_id (varchar) - the figgy UUID
     # - source_cache_order (datetime) - the figgy updated_at
     {:ok, _} =
-      IndexingPipeline.write_hydration_cache_entry(%{
+      IndexingPipeline.write_figgy_hydration_cache_entry(%{
         cache_version: cache_version,
         record_id: message.data.id,
         source_cache_order: message.data.updated_at,

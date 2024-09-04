@@ -4,7 +4,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducer do
   """
 
   alias DpulCollections.IndexingPipeline
-  alias DpulCollections.IndexingPipeline.HydrationCacheEntryMarker
+  alias DpulCollections.IndexingPipeline.FiggyHydrationCacheEntryMarker
   use GenStage
   @behaviour Broadway.Acknowledger
 
@@ -15,9 +15,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducer do
 
   @impl GenStage
   @type state :: %{
-          last_queried_marker: HydrationCacheEntryMarker.t(),
-          pulled_records: [HydrationCacheEntryMarker.t()],
-          acked_records: [HydrationCacheEntryMarker.t()],
+          last_queried_marker: FiggyHydrationCacheEntryMarker.t(),
+          pulled_records: [FiggyHydrationCacheEntryMarker.t()],
+          acked_records: [FiggyHydrationCacheEntryMarker.t()],
           cache_version: Integer
         }
   @spec init(integer()) :: {:producer, state()}
@@ -26,7 +26,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducer do
       IndexingPipeline.get_processor_marker!("figgy_transformer", cache_version)
 
     initial_state = %{
-      last_queried_marker: last_queried_marker |> HydrationCacheEntryMarker.from(),
+      last_queried_marker: last_queried_marker |> FiggyHydrationCacheEntryMarker.from(),
       pulled_records: [],
       acked_records: [],
       cache_version: cache_version
@@ -52,11 +52,11 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducer do
       state
       |> Map.put(
         :last_queried_marker,
-        Enum.at(records, -1) |> HydrationCacheEntryMarker.from() || last_queried_marker
+        Enum.at(records, -1) |> FiggyHydrationCacheEntryMarker.from() || last_queried_marker
       )
       |> Map.put(
         :pulled_records,
-        Enum.concat(pulled_records, Enum.map(records, &HydrationCacheEntryMarker.from/1))
+        Enum.concat(pulled_records, Enum.map(records, &FiggyHydrationCacheEntryMarker.from/1))
       )
       |> Map.put(:acked_records, acked_records)
 
@@ -64,7 +64,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducer do
   end
 
   @impl GenStage
-  @spec handle_info({atom(), atom(), list(%HydrationCacheEntryMarker{})}, state()) ::
+  @spec handle_info({atom(), atom(), list(%FiggyHydrationCacheEntryMarker{})}, state()) ::
           {:noreply, list(Broadway.Message.t()), state()}
   def handle_info({:ack, :transformer_producer_ack, pending_markers}, state) do
     messages = []
@@ -72,7 +72,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducer do
     sorted_markers =
       (state.acked_records ++ pending_markers)
       |> Enum.uniq()
-      |> Enum.sort(HydrationCacheEntryMarker)
+      |> Enum.sort(FiggyHydrationCacheEntryMarker)
 
     state =
       state
@@ -81,7 +81,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducer do
     {new_state, last_removed_marker} = process_markers(state, nil)
 
     if last_removed_marker != nil do
-      %HydrationCacheEntryMarker{timestamp: cache_location, id: cache_record_id} =
+      %FiggyHydrationCacheEntryMarker{timestamp: cache_location, id: cache_record_id} =
         last_removed_marker
 
       IndexingPipeline.write_processor_marker(%{
@@ -100,8 +100,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducer do
   # last removed marker so it can be saved to the database.
   # If the transformer element of pulled_records is the first element of
   # acked_records, remove it from both and process again.
-  @spec process_markers(state(), HydrationCacheEntryMarker.t()) ::
-          {state, HydrationCacheEntryMarker.t()}
+  @spec process_markers(state(), FiggyHydrationCacheEntryMarker.t()) ::
+          {state, FiggyHydrationCacheEntryMarker.t()}
   defp process_markers(
          state = %{
            pulled_records: [first_record | pulled_records],
@@ -134,7 +134,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducer do
          },
          last_removed_marker
        ) do
-    if HydrationCacheEntryMarker.compare(first_acked_record, first_pulled_record) == :lt do
+    if FiggyHydrationCacheEntryMarker.compare(first_acked_record, first_pulled_record) == :lt do
       state
       |> Map.put(:acked_records, tail_acked_records)
       |> process_markers(last_removed_marker)
@@ -149,7 +149,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducer do
   @spec ack({pid(), atom()}, list(Broadway.Message.t()), list(Broadway.Message.t())) :: any()
   def ack({transformer_producer_pid, :transformer_producer_ack}, successful, failed) do
     # TODO: Do some error handling
-    acked_markers = (successful ++ failed) |> Enum.map(&HydrationCacheEntryMarker.from/1)
+    acked_markers = (successful ++ failed) |> Enum.map(&FiggyHydrationCacheEntryMarker.from/1)
     send(transformer_producer_pid, {:ack, :transformer_producer_ack, acked_markers})
   end
 
@@ -164,7 +164,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducer do
     )
   end
 
-  @spec wrap_record(record :: HydratorCacheEntry) :: Broadway.Message.t()
+  @spec wrap_record(record :: FiggyHydrationCacheEntry) :: Broadway.Message.t()
   defp wrap_record(record) do
     %Broadway.Message{
       data: record,
