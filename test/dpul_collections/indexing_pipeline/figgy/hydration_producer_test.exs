@@ -1,4 +1,4 @@
-defmodule DpulCollections.IndexingPipeline.Figgy.ProducerTest do
+defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
   use DpulCollections.DataCase
 
   alias DpulCollections.IndexingPipeline.Figgy
