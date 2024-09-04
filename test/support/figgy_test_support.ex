@@ -1,11 +1,11 @@
 defmodule FiggyTestSupport do
   import Ecto.Query, warn: false
 
+  alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryMarker
   alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry
   alias DpulCollections.IndexingPipeline.{
     ResourceMarker,
-    FiggyResource,
-    HydrationCacheEntryMarker
+    FiggyResource
   }
 
   alias DpulCollections.FiggyRepo

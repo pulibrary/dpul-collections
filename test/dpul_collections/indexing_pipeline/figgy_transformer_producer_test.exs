@@ -2,9 +2,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducerTest do
   use DpulCollections.DataCase
 
   alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry
+  alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryMarker
   alias DpulCollections.IndexingPipeline.{
-    FiggyTransformerProducer,
-    HydrationCacheEntryMarker
+    FiggyTransformerProducer
   }
 
   alias DpulCollections.IndexingPipeline

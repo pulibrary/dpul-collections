@@ -4,7 +4,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducer do
   """
 
   alias DpulCollections.IndexingPipeline
-  alias DpulCollections.IndexingPipeline.HydrationCacheEntryMarker
+  alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryMarker
   use GenStage
   @behaviour Broadway.Acknowledger
 

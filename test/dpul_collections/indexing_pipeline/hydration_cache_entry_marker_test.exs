@@ -1,7 +1,7 @@
 defmodule DpulCollections.IndexingPipeline.HydrationCacheEntryMarkerTest do
   use DpulCollections.DataCase
 
-  alias DpulCollections.IndexingPipeline.HydrationCacheEntryMarker
+  alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryMarker
 
   describe "marker comparison" do
     test "sorts markers appropriately" do

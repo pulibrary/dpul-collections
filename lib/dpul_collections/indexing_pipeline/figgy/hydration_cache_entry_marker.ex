@@ -1,4 +1,4 @@
-defmodule DpulCollections.IndexingPipeline.HydrationCacheEntryMarker do
+defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryMarker do
   @type t :: %__MODULE__{id: String.t(), timestamp: UTCDateTime}
   defstruct [:id, :timestamp]
 

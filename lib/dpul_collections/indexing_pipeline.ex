@@ -7,8 +7,9 @@ defmodule DpulCollections.IndexingPipeline do
   alias DpulCollections.{Repo, FiggyRepo}
 
   alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry
+  alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryMarker
+
   alias DpulCollections.IndexingPipeline.{
-    HydrationCacheEntryMarker,
     FiggyResource,
     ResourceMarker
   }

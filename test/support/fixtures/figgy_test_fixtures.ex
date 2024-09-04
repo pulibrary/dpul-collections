@@ -1,5 +1,6 @@
 defmodule FiggyTestFixtures do
-  alias DpulCollections.IndexingPipeline.{ResourceMarker, HydrationCacheEntryMarker}
+  alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryMarker
+  alias DpulCollections.IndexingPipeline.ResourceMarker
   alias DpulCollections.IndexingPipeline
 
   # TODO: Rename module to TestFixtures
