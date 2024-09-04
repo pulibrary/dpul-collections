@@ -15,7 +15,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
     )
 
     {:ok, transformer} =
-      Figgy.Transformer.start_link(
+      Figgy.TransformationConsumer.start_link(
         cache_version: 0,
         producer_module: TestFiggyTransformerProducer,
         producer_options: {self()},

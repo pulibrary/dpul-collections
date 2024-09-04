@@ -1,13 +1,13 @@
 defmodule TestFiggyTransformerProducer do
   @moduledoc """
   A producer used for tests that allows you to control how many Hydration cache
-  entries are provided to the Figgy.Transformer via .process/1.
+  entries are provided to the Figgy.TransformationConsumer via .process/1.
 
-  Figgy.Transformer demands from TestFiggyTransformerProducer, which never returns
+  Figgy.TransformationConsumer demands from TestFiggyTransformerProducer, which never returns
   records until asked by .process/1. When .process/1 is called, TestConsumer
-  requests <demand> records from Figgy.TransformerProducer, and when it gets them it
+  requests <demand> records from Figgy.TransformationProducer, and when it gets them it
   sends a message to TestFiggyTransformerProducer, which then sends those records
-  to Figgy.Transformer.
+  to Figgy.TransformationConsumer.
   """
   alias DpulCollections.IndexingPipeline.Figgy
   use GenStage
@@ -16,7 +16,7 @@ defmodule TestFiggyTransformerProducer do
   @type state :: %{consumer_pid: pid(), test_runner_pid: pid(), transformer_producer_pid: pid()}
   @spec init({pid()}) :: {:producer, state()}
   def init({test_runner_pid}) do
-    {:ok, transformer_producer_pid} = Figgy.TransformerProducer.start_link()
+    {:ok, transformer_producer_pid} = Figgy.TransformationProducer.start_link()
     {:ok, consumer_pid} = TestConsumer.start_link(transformer_producer_pid)
 
     {:producer,
@@ -57,13 +57,13 @@ defmodule TestFiggyTransformerProducer do
   end
 
   @doc """
-  Request Figgy.Transformer to process <demand> records.
+  Request Figgy.TransformationConsumer to process <demand> records.
   """
   @spec process(Integer) :: :ok
   def process(demand) do
     # Get the PID for TestFiggyProducer GenServer,
     # then cast fulfill message to itself
-    Broadway.producer_names(Figgy.Transformer)
+    Broadway.producer_names(Figgy.TransformationConsumer)
     |> hd
     |> GenServer.cast({:fulfill_messages, demand})
   end

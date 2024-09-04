@@ -1,4 +1,4 @@
-defmodule DpulCollections.IndexingPipeline.Figgy.Transformer do
+defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
   @moduledoc """
   Broadway consumer that demands Figgy.HydrationCacheEntry records, transforms
   them into Solr documents, and caches them in a database.
@@ -16,7 +16,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Transformer do
   def start_link(options \\ []) do
     default = [
       cache_version: 0,
-      producer_module: Figgy.TransformerProducer,
+      producer_module: Figgy.TransformationProducer,
       producer_options: 0,
       batch_size: 10
     ]

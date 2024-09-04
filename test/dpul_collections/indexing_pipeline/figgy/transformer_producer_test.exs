@@ -4,12 +4,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
   alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline
 
-  describe "Figgy.TransformerProducer" do
+  describe "Figgy.TransformationProducer" do
     test "handle_demand/2 with initial state and demand > 1 returns transformation cache entries" do
       {marker1, marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers()
 
-      {:producer, initial_state} = Figgy.TransformerProducer.init(0)
-      {:noreply, messages, new_state} = Figgy.TransformerProducer.handle_demand(2, initial_state)
+      {:producer, initial_state} = Figgy.TransformationProducer.init(0)
+
+      {:noreply, messages, new_state} =
+        Figgy.TransformationProducer.handle_demand(2, initial_state)
 
       ids =
         Enum.map(messages, fn %Broadway.Message{data: %Figgy.HydrationCacheEntry{record_id: id}} ->
@@ -46,7 +48,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
           cache_version: 0
         }
 
-      {:noreply, messages, new_state} = Figgy.TransformerProducer.handle_demand(1, initial_state)
+      {:noreply, messages, new_state} =
+        Figgy.TransformationProducer.handle_demand(1, initial_state)
 
       ids =
         Enum.map(messages, fn %Broadway.Message{data: %Figgy.HydrationCacheEntry{record_id: id}} ->
@@ -89,7 +92,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
           cache_version: 0
         }
 
-      {:noreply, messages, new_state} = Figgy.TransformerProducer.handle_demand(1, initial_state)
+      {:noreply, messages, new_state} =
+        Figgy.TransformationProducer.handle_demand(1, initial_state)
 
       assert messages == []
 
@@ -139,7 +143,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
       }
 
       {:noreply, [], new_state} =
-        Figgy.TransformerProducer.handle_info(
+        Figgy.TransformationProducer.handle_info(
           {:ack, :transformer_producer_ack, acked_hydration_cache_markers},
           initial_state
         )
@@ -165,7 +169,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
       }
 
       {:noreply, [], new_state} =
-        Figgy.TransformerProducer.handle_info(
+        Figgy.TransformationProducer.handle_info(
           {:ack, :transformer_producer_ack, acked_hydration_cache_markers},
           initial_state
         )
@@ -215,7 +219,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
       }
 
       {:noreply, [], new_state} =
-        Figgy.TransformerProducer.handle_info(
+        Figgy.TransformationProducer.handle_info(
           {:ack, :transformer_producer_ack, acked_hydration_cache_markers},
           initial_state
         )
@@ -249,7 +253,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
       }
 
       {:noreply, [], new_state} =
-        Figgy.TransformerProducer.handle_info(
+        Figgy.TransformationProducer.handle_info(
           {:ack, :transformer_producer_ack, acked_hydration_cache_markers},
           initial_state
         )
@@ -293,7 +297,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
       }
 
       {:noreply, [], new_state} =
-        Figgy.TransformerProducer.handle_info(
+        Figgy.TransformationProducer.handle_info(
           {:ack, :transformer_producer_ack, acked_hydration_cache_markers},
           initial_state
         )
@@ -334,7 +338,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
       }
 
       {:noreply, [], new_state} =
-        Figgy.TransformerProducer.handle_info(
+        Figgy.TransformationProducer.handle_info(
           {:ack, :transformer_producer_ack, first_ack},
           initial_state
         )
@@ -355,7 +359,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
       }
 
       {:noreply, [], new_state} =
-        Figgy.TransformerProducer.handle_info(
+        Figgy.TransformationProducer.handle_info(
           {:ack, :transformer_producer_ack, second_ack},
           new_state
         )
