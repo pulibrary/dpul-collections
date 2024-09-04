@@ -3,7 +3,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Hydrator do
   Broadway consumer that demands Figgy records and caches them in the database.
   """
   alias DpulCollections.IndexingPipeline
-  alias DpulCollections.IndexingPipeline.FiggyProducer
+  alias DpulCollections.IndexingPipeline.Figgy.Producer
   use Broadway
 
   @type start_opts ::
@@ -15,7 +15,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Hydrator do
   def start_link(options \\ []) do
     default = [
       cache_version: 0,
-      producer_module: FiggyProducer,
+      producer_module: Producer,
       producer_options: 0,
       batch_size: 10
     ]

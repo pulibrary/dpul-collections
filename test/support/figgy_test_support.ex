@@ -3,6 +3,7 @@ defmodule FiggyTestSupport do
 
   alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryMarker
   alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry
+
   alias DpulCollections.IndexingPipeline.{
     ResourceMarker,
     FiggyResource

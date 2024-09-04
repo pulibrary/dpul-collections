@@ -5,6 +5,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
   alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry
   alias DpulCollections.IndexingPipeline.Figgy.Hydrator
+
   alias DpulCollections.IndexingPipeline.{
     FiggyResource,
     FiggyTransformer,

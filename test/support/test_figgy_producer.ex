@@ -8,7 +8,7 @@ defmodule TestFiggyProducer do
   records from FiggyProducer, and when it gets them it sends a message to
   TestFiggyProducer, which then sends those records to Figgy.Hydrator.
   """
-  alias DpulCollections.IndexingPipeline.FiggyProducer
+  alias DpulCollections.IndexingPipeline.Figgy.Producer
   alias DpulCollections.IndexingPipeline.Figgy.Hydrator
   use GenStage
 
@@ -16,7 +16,7 @@ defmodule TestFiggyProducer do
   @type state :: %{consumer_pid: pid(), test_runner_pid: pid(), figgy_producer_pid: pid()}
   @spec init({pid()}) :: {:producer, state()}
   def init({test_runner_pid}) do
-    {:ok, figgy_producer_pid} = FiggyProducer.start_link()
+    {:ok, figgy_producer_pid} = Producer.start_link()
     {:ok, consumer_pid} = TestConsumer.start_link(figgy_producer_pid)
 
     {:producer,
