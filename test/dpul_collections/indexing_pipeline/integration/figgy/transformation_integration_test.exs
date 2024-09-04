@@ -1,4 +1,4 @@
-defmodule DpulCollections.IndexingPipeline.FiggyTransformerIntegrationTest do
+defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest do
   use DpulCollections.DataCase
 
   alias DpulCollections.IndexingPipeline.Figgy
