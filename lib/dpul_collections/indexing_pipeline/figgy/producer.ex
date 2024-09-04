@@ -4,7 +4,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Producer do
   """
 
   alias DpulCollections.IndexingPipeline
-  alias DpulCollections.IndexingPipeline.{FiggyResource, ResourceMarker}
+  alias DpulCollections.IndexingPipeline.Figgy
+  alias DpulCollections.IndexingPipeline.ResourceMarker
   use GenStage
   @behaviour Broadway.Acknowledger
 
@@ -156,7 +157,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Producer do
 
   # TODO: Function to reset current index version's saved marker, i.e. full reindex
 
-  @spec wrap_record(record :: FiggyResource) :: Broadway.Message.t()
+  @spec wrap_record(record :: Figgy.Resource) :: Broadway.Message.t()
   defp wrap_record(record) do
     %Broadway.Message{
       data: record,

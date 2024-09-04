@@ -3,11 +3,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
   alias DpulCollections.{FiggyRepo, Repo}
 
-  alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry
-  alias DpulCollections.IndexingPipeline.Figgy.Hydrator
+  alias DpulCollections.IndexingPipeline.Figgy
 
   alias DpulCollections.IndexingPipeline.{
-    FiggyResource,
     FiggyTransformer,
     TransformationCacheEntry
   }
@@ -16,7 +14,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
   def start_figgy_producer(batch_size \\ 1) do
     {:ok, hydrator} =
-      Hydrator.start_link(
+      Figgy.Hydrator.start_link(
         cache_version: 0,
         producer_module: TestFiggyProducer,
         producer_options: {self()},
@@ -73,7 +71,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # Start the figgy producer
     hydrator = start_figgy_producer(50)
     # Demand all of them.
-    count = FiggyRepo.aggregate(FiggyResource, :count)
+    count = FiggyRepo.aggregate(Figgy.Resource, :count)
     TestFiggyProducer.process(count)
     # Wait for the last ID to show up.
     task =
@@ -84,12 +82,12 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     hydrator |> Broadway.stop(:normal)
 
     # the hydrator pulled all ephemera folders and terms
-    entry_count = Repo.aggregate(HydrationCacheEntry, :count)
+    entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
     assert FiggyTestSupport.total_resource_count() == entry_count
 
     # Start the transformer producer
     transformer = start_transformer_producer(50)
-    entry_count = Repo.aggregate(HydrationCacheEntry, :count)
+    entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
     TestFiggyTransformerProducer.process(entry_count)
     # Wait for the last ID to show up.
     task =

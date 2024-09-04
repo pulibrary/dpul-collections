@@ -6,13 +6,8 @@ defmodule DpulCollections.IndexingPipeline do
   import Ecto.Query, warn: false
   alias DpulCollections.{Repo, FiggyRepo}
 
-  alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry
-  alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryMarker
-
-  alias DpulCollections.IndexingPipeline.{
-    FiggyResource,
-    ResourceMarker
-  }
+  alias DpulCollections.IndexingPipeline.Figgy
+  alias DpulCollections.IndexingPipeline.ResourceMarker
 
   @doc """
   Returns the list of hydration_cache_entries.
@@ -20,11 +15,11 @@ defmodule DpulCollections.IndexingPipeline do
   ## Examples
 
       iex> list_hydration_cache_entries()
-      [%HydrationCacheEntry{}, ...]
+      [%Figgy.HydrationCacheEntry{}, ...]
 
   """
   def list_hydration_cache_entries do
-    Repo.all(HydrationCacheEntry)
+    Repo.all(Figgy.HydrationCacheEntry)
   end
 
   @doc """
@@ -35,13 +30,13 @@ defmodule DpulCollections.IndexingPipeline do
   ## Examples
 
       iex> get_hydration_cache_entry!(123)
-      %HydrationCacheEntry{}
+      %Figgy.HydrationCacheEntry{}
 
       iex> get_hydration_cache_entry!(456)
       ** (Ecto.NoResultsError)
 
   """
-  def get_hydration_cache_entry!(id), do: Repo.get!(HydrationCacheEntry, id)
+  def get_hydration_cache_entry!(id), do: Repo.get!(Figgy.HydrationCacheEntry, id)
 
   @doc """
   Deletes a hydration_cache_entry.
@@ -49,13 +44,13 @@ defmodule DpulCollections.IndexingPipeline do
   ## Examples
 
       iex> delete_hydration_cache_entry(hydration_cache_entry)
-      {:ok, %HydrationCacheEntry{}}
+      {:ok, %Figgy.HydrationCacheEntry{}}
 
       iex> delete_hydration_cache_entry(hydration_cache_entry)
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_hydration_cache_entry(%HydrationCacheEntry{} = hydration_cache_entry) do
+  def delete_hydration_cache_entry(%Figgy.HydrationCacheEntry{} = hydration_cache_entry) do
     Repo.delete(hydration_cache_entry)
   end
 
@@ -64,13 +59,13 @@ defmodule DpulCollections.IndexingPipeline do
   """
   def write_hydration_cache_entry(attrs \\ %{}) do
     conflict_query =
-      HydrationCacheEntry
+      Figgy.HydrationCacheEntry
       |> update(set: [data: ^attrs.data, source_cache_order: ^attrs.source_cache_order])
       |> where([c], c.source_cache_order <= ^attrs.source_cache_order)
 
     try do
-      %HydrationCacheEntry{}
-      |> HydrationCacheEntry.changeset(attrs)
+      %Figgy.HydrationCacheEntry{}
+      |> Figgy.HydrationCacheEntry.changeset(attrs)
       |> Repo.insert(
         on_conflict: conflict_query,
         conflict_target: [:cache_version, :record_id]
@@ -81,15 +76,15 @@ defmodule DpulCollections.IndexingPipeline do
   end
 
   @spec get_hydration_cache_entries_since!(
-          marker :: HydrationCacheEntryMarker.t(),
+          marker :: Figgy.HydrationCacheEntryMarker.t(),
           count :: integer
-        ) :: list(HydrationCacheEntry)
+        ) :: list(Figgy.HydrationCacheEntry)
   def get_hydration_cache_entries_since!(
-        %HydrationCacheEntryMarker{timestamp: source_cache_order, id: id},
+        %Figgy.HydrationCacheEntryMarker{timestamp: source_cache_order, id: id},
         count
       ) do
     query =
-      from r in HydrationCacheEntry,
+      from r in Figgy.HydrationCacheEntry,
         where:
           (r.source_cache_order == ^source_cache_order and r.record_id > ^id) or
             r.source_cache_order > ^source_cache_order,
@@ -102,10 +97,10 @@ defmodule DpulCollections.IndexingPipeline do
   @spec get_hydration_cache_entries_since!(
           nil,
           count :: integer
-        ) :: list(HydrationCacheEntry)
+        ) :: list(Figgy.HydrationCacheEntry)
   def get_hydration_cache_entries_since!(nil, count) do
     query =
-      from r in HydrationCacheEntry,
+      from r in Figgy.HydrationCacheEntry,
         limit: ^count,
         order_by: [asc: r.source_cache_order, asc: r.record_id]
 
@@ -188,13 +183,13 @@ defmodule DpulCollections.IndexingPipeline do
   ## Examples
 
       iex> get_figgy_resource!(123)
-      %HydrationCacheEntry{}
+      %Figgy.HydrationCacheEntry{}
 
       iex> get_figgy_resource!(456)
       ** (Ecto.NoResultsError)
 
   """
-  def get_figgy_resource!(id), do: FiggyRepo.get!(FiggyResource, id)
+  def get_figgy_resource!(id), do: FiggyRepo.get!(Figgy.Resource, id)
 
   @doc """
   ## Description
@@ -248,10 +243,10 @@ defmodule DpulCollections.IndexingPipeline do
   @spec get_figgy_resources_since!(
           marker :: ResourceMarker.t(),
           count :: integer
-        ) :: list(FiggyResource)
+        ) :: list(Figgy.Resource)
   def get_figgy_resources_since!(%ResourceMarker{timestamp: updated_at, id: id}, count) do
     query =
-      from r in FiggyResource,
+      from r in Figgy.Resource,
         where: (r.updated_at == ^updated_at and r.id > ^id) or r.updated_at > ^updated_at,
         limit: ^count,
         order_by: [asc: r.updated_at, asc: r.id]
@@ -262,10 +257,10 @@ defmodule DpulCollections.IndexingPipeline do
   @spec get_figgy_resources_since!(
           nil,
           count :: integer
-        ) :: list(FiggyResource)
+        ) :: list(Figgy.Resource)
   def get_figgy_resources_since!(nil, count) do
     query =
-      from r in FiggyResource,
+      from r in Figgy.Resource,
         limit: ^count,
         order_by: [asc: r.updated_at, asc: r.id]
 
