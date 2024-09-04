@@ -5,6 +5,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformer do
   """
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.FiggyTransformerProducer
+  alias DpulCollections.IndexingPipeline.{TransformationCacheEntry, HydrationCacheEntry}
   use Broadway
 
   @type start_opts ::
@@ -54,17 +55,6 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformer do
   end
 
   @impl Broadway
-  def handle_message(
-        _processor,
-        message = %Broadway.Message{data: %{data: %{"internal_resource" => "EphemeraTerm"}}},
-        %{cache_version: cache_version}
-      ) do
-    update_linked_resources(message, cache_version)
-
-    message
-  end
-
-  @impl Broadway
   # fallback so we acknowledge messages we intentionally don't write
   @spec handle_message(any(), any(), %{required(:cache_version) => integer()}) ::
           Broadway.Message.t()
@@ -72,6 +62,13 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformer do
     message
   end
 
+  @impl Broadway
+  @spec handle_batch(any(), list(Broadway.Message.t()), any(), any()) :: list(Broadway.Message.t())
+  def handle_batch(_batcher, messages, _batch_info, _context) do
+    messages
+  end
+
+  @spec write_to_transformation_cache(Broadway.Message.t(), integer()) :: {:ok, %TransformationCacheEntry{} | nil}
   defp write_to_transformation_cache(message, cache_version) do
     hydration_cache_entry = message.data
     solr_doc = transform_to_solr_document(hydration_cache_entry)
@@ -91,6 +88,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformer do
       })
   end
 
+  @spec transform_to_solr_document(%HydrationCacheEntry{}) :: %{}
   defp transform_to_solr_document(hydration_cache_entry) do
     %{record_id: id} = hydration_cache_entry
     %{data: %{"metadata" => %{"title" => title}}} = hydration_cache_entry
@@ -99,16 +97,5 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformer do
       id: id,
       title_ssm: title
     }
-  end
-
-  def update_linked_resources(_message, _cache_version) do
-    # TODO: Implement
-    # In the initial case; find EphemeraFolder solr documents that contain a specific
-    # EphemeraTerm and update the document with the new value of the term.
-  end
-
-  @impl Broadway
-  def handle_batch(_batcher, messages, _batch_info, _context) do
-    messages
   end
 end

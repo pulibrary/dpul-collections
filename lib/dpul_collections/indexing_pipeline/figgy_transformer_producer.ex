@@ -8,6 +8,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducer do
   use GenStage
   @behaviour Broadway.Acknowledger
 
+
+  @spec start_link(integer()) :: Broadway.on_start()
   def start_link(cache_version \\ 0) do
     GenStage.start_link(__MODULE__, cache_version)
   end
@@ -19,6 +21,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerProducer do
           acked_records: [HydrationCacheEntryMarker.t()],
           cache_version: Integer
         }
+  @spec init(integer()) :: {:producer, state()}
   def init(cache_version) do
     last_queried_marker =
       IndexingPipeline.get_processor_marker!("figgy_transformer", cache_version)
