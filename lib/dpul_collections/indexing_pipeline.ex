@@ -266,7 +266,7 @@ defmodule DpulCollections.IndexingPipeline do
     FiggyRepo.all(query)
   end
 
-  alias DpulCollections.IndexingPipeline.TransformationCacheEntry
+  alias DpulCollections.IndexingPipeline.Figgy
 
   @doc """
   Returns the list of transformation_cache_entries.
@@ -274,11 +274,11 @@ defmodule DpulCollections.IndexingPipeline do
   ## Examples
 
       iex> list_transformation_cache_entries()
-      [%TransformationCacheEntry{}, ...]
+      [%Figgy.TransformationCacheEntry{}, ...]
 
   """
   def list_transformation_cache_entries do
-    Repo.all(TransformationCacheEntry)
+    Repo.all(Figgy.TransformationCacheEntry)
   end
 
   @doc """
@@ -289,13 +289,13 @@ defmodule DpulCollections.IndexingPipeline do
   ## Examples
 
       iex> get_transformation_cache_entry!(123)
-      %TransformationCacheEntry{}
+      %Figgy.TransformationCacheEntry{}
 
       iex> get_transformation_cache_entry!(456)
       ** (Ecto.NoResultsError)
 
   """
-  def get_transformation_cache_entry!(id), do: Repo.get!(TransformationCacheEntry, id)
+  def get_transformation_cache_entry!(id), do: Repo.get!(Figgy.TransformationCacheEntry, id)
 
   @doc """
   Deletes a transformation_cache_entry.
@@ -303,13 +303,15 @@ defmodule DpulCollections.IndexingPipeline do
   ## Examples
 
       iex> delete_transformation_cache_entry(transformation_cache_entry)
-      {:ok, %TransformationCacheEntry{}}
+      {:ok, %Figgy.TransformationCacheEntry{}}
 
       iex> delete_transformation_cache_entry(transformation_cache_entry)
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_transformation_cache_entry(%TransformationCacheEntry{} = transformation_cache_entry) do
+  def delete_transformation_cache_entry(
+        %Figgy.TransformationCacheEntry{} = transformation_cache_entry
+      ) do
     Repo.delete(transformation_cache_entry)
   end
 
@@ -318,13 +320,13 @@ defmodule DpulCollections.IndexingPipeline do
   """
   def write_transformation_cache_entry(attrs \\ %{}) do
     conflict_query =
-      TransformationCacheEntry
+      Figgy.TransformationCacheEntry
       |> update(set: [data: ^attrs.data, source_cache_order: ^attrs.source_cache_order])
       |> where([c], c.source_cache_order <= ^attrs.source_cache_order)
 
     try do
-      %TransformationCacheEntry{}
-      |> TransformationCacheEntry.changeset(attrs)
+      %Figgy.TransformationCacheEntry{}
+      |> Figgy.TransformationCacheEntry.changeset(attrs)
       |> Repo.insert(
         on_conflict: conflict_query,
         conflict_target: [:cache_version, :record_id]

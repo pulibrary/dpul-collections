@@ -5,7 +5,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Transformer do
   """
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy
-  alias DpulCollections.IndexingPipeline.TransformationCacheEntry
   use Broadway
 
   @type start_opts ::
@@ -70,7 +69,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Transformer do
   end
 
   @spec write_to_transformation_cache(Broadway.Message.t(), integer()) ::
-          {:ok, %TransformationCacheEntry{} | nil}
+          {:ok, %Figgy.TransformationCacheEntry{} | nil}
   defp write_to_transformation_cache(message, cache_version) do
     hydration_cache_entry = message.data
     solr_doc = transform_to_solr_document(hydration_cache_entry)

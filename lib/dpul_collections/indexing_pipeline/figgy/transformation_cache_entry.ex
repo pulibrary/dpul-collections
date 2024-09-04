@@ -1,8 +1,8 @@
-defmodule DpulCollections.IndexingPipeline.TransformationCacheEntry do
+defmodule DpulCollections.IndexingPipeline.Figgy.TransformationCacheEntry do
   use Ecto.Schema
   import Ecto.Changeset
 
-  schema "transformation_cache_entries" do
+  schema "figgy_transformation_cache_entries" do
     field :data, :map
     field :cache_version, :integer
     field :record_id, :string

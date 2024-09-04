@@ -3,7 +3,6 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
   alias DpulCollections.{FiggyRepo, Repo}
   alias DpulCollections.IndexingPipeline.Figgy
-  alias DpulCollections.IndexingPipeline.TransformationCacheEntry
   alias DpulCollections.IndexingPipeline
 
   def start_figgy_producer(batch_size \\ 1) do
@@ -90,7 +89,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       end)
 
     Task.await(task, 15000)
-    transformation_cache_entry_count = Repo.aggregate(TransformationCacheEntry, :count)
+    transformation_cache_entry_count = Repo.aggregate(Figgy.TransformationCacheEntry, :count)
 
     # the transformer only processes ephemera folders
     assert FiggyTestSupport.ephemera_folder_count() == transformation_cache_entry_count
