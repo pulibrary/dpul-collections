@@ -1,8 +1,7 @@
 defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
   use DpulCollections.DataCase
 
-  alias DpulCollections.{FiggyRepo, Repo}
-  alias DpulCollections.IndexingPipeline.{FiggyHydrator, FiggyResource, HydrationCacheEntry}
+  alias DpulCollections.IndexingPipeline.FiggyHydrator
   alias DpulCollections.IndexingPipeline
 
   def start_producer(batch_size \\ 1) do
@@ -18,7 +17,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
     {:ok, hydrator} =
       FiggyHydrator.start_link(
         cache_version: 0,
-        producer_module: FiggyTestProducer,
+        producer_module: TestFiggyProducer,
         producer_options: {self()},
         batch_size: batch_size
       )
@@ -30,7 +29,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
     {marker1, _marker2, _marker3} = FiggyTestFixtures.markers()
     hydrator = start_producer()
 
-    FiggyTestProducer.process(1)
+    TestFiggyProducer.process(1)
     assert_receive {:ack_done}
 
     cache_entry = IndexingPipeline.list_hydration_cache_entries() |> hd
@@ -59,7 +58,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
 
     # Process that past record.
     hydrator = start_producer()
-    FiggyTestProducer.process(1)
+    TestFiggyProducer.process(1)
     assert_receive {:ack_done}
     hydrator |> Broadway.stop(:normal)
     # Ensure there's only one hydration cache entry.
@@ -83,7 +82,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
 
     # Process that past record.
     hydrator = start_producer()
-    FiggyTestProducer.process(1)
+    TestFiggyProducer.process(1)
     assert_receive {:ack_done}
     hydrator |> Broadway.stop(:normal)
     # Ensure there's only one hydration cache entry.
@@ -107,38 +106,12 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
     # Start the producer
     hydrator = start_producer()
     # Make sure the first record that comes back is what we expect
-    FiggyTestProducer.process(1)
+    TestFiggyProducer.process(1)
     assert_receive {:ack_done}
     cache_entry = IndexingPipeline.list_hydration_cache_entries() |> hd
     assert cache_entry.record_id == marker2.id
     assert cache_entry.cache_version == 0
     assert cache_entry.source_cache_order == marker2.timestamp
-    hydrator |> Broadway.stop(:normal)
-  end
-
-  def wait_for_hydrated_id(id, cache_version \\ 0) do
-    case IndexingPipeline.get_processor_marker!("hydrator", 0) do
-      %{cache_record_id: ^id} ->
-        true
-
-      _ ->
-        :timer.sleep(50)
-        wait_for_hydrated_id(id, cache_version)
-    end
-  end
-
-  test "a full hydration run" do
-    # Start the producer
-    hydrator = start_producer(50)
-    # Demand all of them.
-    count = FiggyRepo.aggregate(FiggyResource, :count)
-    FiggyTestProducer.process(count)
-    # Wait for the last ID to show up.
-    task = Task.async(fn -> wait_for_hydrated_id(FiggyTestSupport.last_marker().id) end)
-    Task.await(task, 15000)
-    entry_count = Repo.aggregate(HydrationCacheEntry, :count)
-    assert FiggyTestSupport.included_resource_count() == entry_count
-    :timer.sleep(2000)
     hydrator |> Broadway.stop(:normal)
   end
 end

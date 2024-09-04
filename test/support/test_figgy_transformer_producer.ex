@@ -1,28 +1,29 @@
-defmodule FiggyTestProducer do
+defmodule TestFiggyTransformerProducer do
   @moduledoc """
-  A producer used for tests that allows you to control how many Figgy records
-  are provided to the FiggyHydrator via .process/1.
+  A producer used for tests that allows you to control how many Hydration cache
+  entries are provided to the FiggyTransformer via .process/1.
 
-  FiggyHydrator demands from FiggyTestProducer, which never returns records 
-  until asked by .process/1. When .process/1 is called, TestConsumer requests <demand>
-  records from FiggyProducer, and when it gets them it sends a message to
-  FiggyTestProducer, which then sends those records to FiggyHydrator.
+  FiggyTransformer demands from TestFiggyTransformerProducer, which never returns
+  records until asked by .process/1. When .process/1 is called, TestConsumer
+  requests <demand> records from FiggyTransformerProducer, and when it gets them it
+  sends a message to TestFiggyTransformerProducer, which then sends those records
+  to FiggyTransformer.
   """
-  alias DpulCollections.IndexingPipeline.{FiggyHydrator, FiggyProducer}
+  alias DpulCollections.IndexingPipeline.{FiggyTransformer, FiggyTransformerProducer}
   use GenStage
 
   @impl GenStage
-  @type state :: %{consumer_pid: pid(), test_runner_pid: pid(), figgy_producer_pid: pid()}
+  @type state :: %{consumer_pid: pid(), test_runner_pid: pid(), transformer_producer_pid: pid()}
   @spec init({pid()}) :: {:producer, state()}
   def init({test_runner_pid}) do
-    {:ok, figgy_producer_pid} = FiggyProducer.start_link()
-    {:ok, consumer_pid} = TestConsumer.start_link(figgy_producer_pid)
+    {:ok, transformer_producer_pid} = FiggyTransformerProducer.start_link()
+    {:ok, consumer_pid} = TestConsumer.start_link(transformer_producer_pid)
 
     {:producer,
      %{
        consumer_pid: consumer_pid,
        test_runner_pid: test_runner_pid,
-       figgy_producer_pid: figgy_producer_pid
+       transformer_producer_pid: transformer_producer_pid
      }}
   end
 
@@ -56,13 +57,13 @@ defmodule FiggyTestProducer do
   end
 
   @doc """
-  Request FiggyHydrator to process <demand> records.
+  Request FiggyTransformer to process <demand> records.
   """
   @spec process(Integer) :: :ok
   def process(demand) do
-    # Get the PID for FiggyTestProducer GenServer,
+    # Get the PID for TestFiggyProducer GenServer,
     # then cast fulfill message to itself
-    Broadway.producer_names(FiggyHydrator)
+    Broadway.producer_names(FiggyTransformer)
     |> hd
     |> GenServer.cast({:fulfill_messages, demand})
   end
