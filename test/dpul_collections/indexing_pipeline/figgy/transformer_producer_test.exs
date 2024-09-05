@@ -5,7 +5,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
   alias DpulCollections.IndexingPipeline
 
   describe "Figgy.TransformationProducer" do
-    test "handle_demand/2 with initial state and demand > 1 returns transformation cache entries" do
+    test "handle_demand/2 with initial state and demand > 1 returns hydration cache entries" do
       {marker1, marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers()
 
       {:producer, initial_state} = Figgy.TransformationProducer.init(0)

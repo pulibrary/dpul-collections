@@ -96,7 +96,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
 
     %{
       id: id,
-      title_ssm: title
+      title_ss: title
     }
   end
 end
