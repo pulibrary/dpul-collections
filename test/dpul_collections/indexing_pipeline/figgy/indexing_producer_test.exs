@@ -1,18 +1,18 @@
-defmodule DpulCollections.IndexingPipeline.IndexingProducerTest do
+defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerTest do
   use DpulCollections.DataCase
 
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy
 
-  describe "IndexingProducer" do
+  describe "Figgy.IndexingProducer" do
     test "handle_demand/2 with initial state and demand > 1 returns transformation cache entries" do
       {marker1, marker2, _marker3} = FiggyTestFixtures.transformation_cache_markers()
 
       index_version = 0
-      {:producer, initial_state} = IndexingProducer.init(index_version)
+      {:producer, initial_state} = Figgy.IndexingProducer.init(index_version)
 
       {:noreply, messages, new_state} =
-        IndexingProducer.handle_demand(2, initial_state)
+        Figgy.IndexingProducer.handle_demand(2, initial_state)
 
       ids =
         Enum.map(messages, fn %Broadway.Message{data: %Figgy.TransformationCacheEntry{record_id: id}} ->
