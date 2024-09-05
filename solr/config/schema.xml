@@ -137,8 +137,14 @@
       "*_tsi" => "*_t"
       "*_tsim" => "*_txt"
       "*_tesi" => "*_txt_en"
-      "*_tesim" => 
+      "*_tesim" => "*_txt_ens" (we added this below)
+      "*_dtsi" => "*_dt"
+      "*_bsi" => "*_bs"
+      "*_itsi" => "*_i"
     -->
+
+    <dynamicField name="*_txt_ens" type="text_en"  indexed="true"  stored="true" multiValued="true"/>
+
     <dynamicField name="*_i"  type="pint"    indexed="true"  stored="true"/>
     <dynamicField name="*_is" type="pints"    indexed="true"  stored="true"/>
     <dynamicField name="*_s"  type="string"  indexed="true"  stored="true" />
