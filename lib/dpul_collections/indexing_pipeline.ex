@@ -297,6 +297,38 @@ defmodule DpulCollections.IndexingPipeline do
   """
   def get_transformation_cache_entry!(id), do: Repo.get!(Figgy.TransformationCacheEntry, id)
 
+  @spec get_transformation_cache_entries_since!(
+          marker :: Figgy.TransformationCacheEntryMarker.t(),
+          count :: integer
+        ) :: list(Figgy.TransformationCacheEntry)
+  def get_transformation_cache_entries_since!(
+        %Figgy.TransformationCacheEntryMarker{timestamp: source_cache_order, id: id},
+        count
+      ) do
+    query =
+      from r in Figgy.TransformationCacheEntry,
+        where:
+          (r.source_cache_order == ^source_cache_order and r.record_id > ^id) or
+            r.source_cache_order > ^source_cache_order,
+        limit: ^count,
+        order_by: [asc: r.source_cache_order, asc: r.record_id]
+
+    Repo.all(query)
+  end
+
+  @spec get_transformation_cache_entries_since!(
+          nil,
+          count :: integer
+        ) :: list(Figgy.TransformationCacheEntry)
+  def get_transformation_cache_entries_since!(nil, count) do
+    query =
+      from r in Figgy.TransformationCacheEntry,
+        limit: ^count,
+        order_by: [asc: r.source_cache_order, asc: r.record_id]
+
+    Repo.all(query)
+  end
+
   @doc """
   Deletes a transformation_cache_entry.
 

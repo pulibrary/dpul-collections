@@ -52,7 +52,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
 
     assert %{
              "id" => ^marker_1_id,
-             "title_ssm" => ["test title"]
+             "title_ss" => ["test title"]
            } = cache_entry.data
 
     transformer |> Broadway.stop(:normal)

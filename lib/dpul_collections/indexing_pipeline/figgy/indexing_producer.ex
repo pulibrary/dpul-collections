@@ -45,7 +45,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducer do
         }
       )
       when demand > 0 do
-    records = IndexingPipeline.get_transformation_cache_entries_since!(last_queried_marker, demand)
+    records =
+      IndexingPipeline.get_transformation_cache_entries_since!(last_queried_marker, demand)
 
     new_state =
       state
@@ -55,7 +56,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducer do
       )
       |> Map.put(
         :pulled_records,
-        Enum.concat(pulled_records, Enum.map(records, &Figgy.TransformationCacheEntryMarker.from/1))
+        Enum.concat(
+          pulled_records,
+          Enum.map(records, &Figgy.TransformationCacheEntryMarker.from/1)
+        )
       )
       |> Map.put(:acked_records, acked_records)
 
@@ -133,7 +137,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducer do
          },
          last_removed_marker
        ) do
-    if Figgy.TransformationCacheEntryMarker.compare(first_acked_record, first_pulled_record) == :lt do
+    if Figgy.TransformationCacheEntryMarker.compare(first_acked_record, first_pulled_record) ==
+         :lt do
       state
       |> Map.put(:acked_records, tail_acked_records)
       |> process_markers(last_removed_marker)
@@ -148,7 +153,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducer do
   @spec ack({pid(), atom()}, list(Broadway.Message.t()), list(Broadway.Message.t())) :: any()
   def ack({indexing_producer_pid, :indexing_producer_ack}, successful, failed) do
     # TODO: Do some error handling
-    acked_markers = (successful ++ failed) |> Enum.map(&Figgy.TransformationCacheEntryMarker.from/1)
+    acked_markers =
+      (successful ++ failed) |> Enum.map(&Figgy.TransformationCacheEntryMarker.from/1)
+
     send(indexing_producer_pid, {:ack, :indexing_producer_ack, acked_markers})
   end
 
