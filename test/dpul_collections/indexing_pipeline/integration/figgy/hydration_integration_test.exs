@@ -1,7 +1,7 @@
-defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
+defmodule DpulCollections.IndexingPipeline.Figgy.HyrdationIntegrationTest do
   use DpulCollections.DataCase
 
-  alias DpulCollections.IndexingPipeline.FiggyHydrator
+  alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline
 
   def start_producer(batch_size \\ 1) do
@@ -15,9 +15,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
     )
 
     {:ok, hydrator} =
-      FiggyHydrator.start_link(
+      Figgy.HydrationConsumer.start_link(
         cache_version: 0,
-        producer_module: TestFiggyProducer,
+        producer_module: MockFiggyHydrationProducer,
         producer_options: {self()},
         batch_size: batch_size
       )
@@ -29,7 +29,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
     {marker1, _marker2, _marker3} = FiggyTestFixtures.markers()
     hydrator = start_producer()
 
-    TestFiggyProducer.process(1)
+    MockFiggyHydrationProducer.process(1)
     assert_receive {:ack_done}
 
     cache_entry = IndexingPipeline.list_hydration_cache_entries() |> hd
@@ -58,7 +58,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
 
     # Process that past record.
     hydrator = start_producer()
-    TestFiggyProducer.process(1)
+    MockFiggyHydrationProducer.process(1)
     assert_receive {:ack_done}
     hydrator |> Broadway.stop(:normal)
     # Ensure there's only one hydration cache entry.
@@ -82,7 +82,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
 
     # Process that past record.
     hydrator = start_producer()
-    TestFiggyProducer.process(1)
+    MockFiggyHydrationProducer.process(1)
     assert_receive {:ack_done}
     hydrator |> Broadway.stop(:normal)
     # Ensure there's only one hydration cache entry.
@@ -106,7 +106,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydratorIntegrationTest do
     # Start the producer
     hydrator = start_producer()
     # Make sure the first record that comes back is what we expect
-    TestFiggyProducer.process(1)
+    MockFiggyHydrationProducer.process(1)
     assert_receive {:ack_done}
     cache_entry = IndexingPipeline.list_hydration_cache_entries() |> hd
     assert cache_entry.record_id == marker2.id

@@ -1,22 +1,22 @@
-defmodule TestFiggyProducer do
+defmodule MockFiggyHydrationProducer do
   @moduledoc """
   A producer used for tests that allows you to control how many Figgy records
-  are provided to the FiggyHydrator via .process/1.
+  are provided to the Figgy.HydrationConsumer via .process/1.
 
-  FiggyHydrator demands from TestFiggyProducer, which never returns records 
-  until asked by .process/1. When .process/1 is called, TestConsumer requests <demand>
-  records from FiggyProducer, and when it gets them it sends a message to
-  TestFiggyProducer, which then sends those records to FiggyHydrator.
+  Figgy.HydrationConsumer demands from MockFiggyHydrationProducer, which never returns records 
+  until asked by .process/1. When .process/1 is called, MockConsumer requests <demand>
+  records from Figgy.HydrationProducer, and when it gets them it sends a message to
+  MockFiggyHydrationProducer, which then sends those records to Figgy.HydrationConsumer.
   """
-  alias DpulCollections.IndexingPipeline.{FiggyHydrator, FiggyProducer}
+  alias DpulCollections.IndexingPipeline.Figgy
   use GenStage
 
   @impl GenStage
   @type state :: %{consumer_pid: pid(), test_runner_pid: pid(), figgy_producer_pid: pid()}
   @spec init({pid()}) :: {:producer, state()}
   def init({test_runner_pid}) do
-    {:ok, figgy_producer_pid} = FiggyProducer.start_link()
-    {:ok, consumer_pid} = TestConsumer.start_link(figgy_producer_pid)
+    {:ok, figgy_producer_pid} = Figgy.HydrationProducer.start_link()
+    {:ok, consumer_pid} = MockConsumer.start_link(figgy_producer_pid)
 
     {:producer,
      %{
@@ -36,9 +36,9 @@ defmodule TestFiggyProducer do
 
   @impl GenStage
   @doc """
-  TestConsumer sends this message - when received, tell the test runner and return the messages to the Hydrator.
+  MockConsumer sends this message - when received, tell the test runner and return the messages to the Figgy.HydrationConsumer.
   """
-  @spec handle_info(TestConsumer.test_consumer_message(), state()) ::
+  @spec handle_info(MockConsumer.test_consumer_message(), state()) ::
           {:noreply, [%Broadway.Message{}], state()}
   def handle_info({:received, messages}, state) do
     send(state.test_runner_pid, {:received, messages})
@@ -48,21 +48,21 @@ defmodule TestFiggyProducer do
   @impl GenStage
   @doc """
   The TestProducer process receives this message from process/1 so that we can
-  pass the pid to TestConsumer.
+  pass the pid to MockConsumer.
   """
   def handle_cast({:fulfill_messages, demand}, state) do
-    TestConsumer.request(state.consumer_pid, demand)
+    MockConsumer.request(state.consumer_pid, demand)
     {:noreply, [], state}
   end
 
   @doc """
-  Request FiggyHydrator to process <demand> records.
+  Request Figgy.HydrationConsumer to process <demand> records.
   """
   @spec process(Integer) :: :ok
   def process(demand) do
     # Get the PID for TestFiggyProducer GenServer,
     # then cast fulfill message to itself
-    Broadway.producer_names(FiggyHydrator)
+    Broadway.producer_names(Figgy.HydrationConsumer)
     |> hd
     |> GenServer.cast({:fulfill_messages, demand})
   end

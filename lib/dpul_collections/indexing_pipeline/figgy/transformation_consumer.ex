@@ -1,11 +1,10 @@
-defmodule DpulCollections.IndexingPipeline.FiggyTransformer do
+defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
   @moduledoc """
-  Broadway consumer that demands HydrationCacheEntry records, transforms
+  Broadway consumer that demands Figgy.HydrationCacheEntry records, transforms
   them into Solr documents, and caches them in a database.
   """
   alias DpulCollections.IndexingPipeline
-  alias DpulCollections.IndexingPipeline.FiggyTransformerProducer
-  alias DpulCollections.IndexingPipeline.{TransformationCacheEntry, HydrationCacheEntry}
+  alias DpulCollections.IndexingPipeline.Figgy
   use Broadway
 
   @type start_opts ::
@@ -17,7 +16,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformer do
   def start_link(options \\ []) do
     default = [
       cache_version: 0,
-      producer_module: FiggyTransformerProducer,
+      producer_module: Figgy.TransformationProducer,
       producer_options: 0,
       batch_size: 10
     ]
@@ -41,7 +40,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformer do
 
   @impl Broadway
   # (note that the start_link param will populate _context)
-  @spec handle_message(any(), %Broadway.Message{data: HydrationCacheEntry.t()}, %{
+  @spec handle_message(any(), %Broadway.Message{data: Figgy.HydrationCacheEntry.t()}, %{
           required(:cache_version) => integer()
         }) :: Broadway.Message.t()
   def handle_message(
@@ -70,7 +69,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformer do
   end
 
   @spec write_to_transformation_cache(Broadway.Message.t(), integer()) ::
-          {:ok, %TransformationCacheEntry{} | nil}
+          {:ok, %Figgy.TransformationCacheEntry{} | nil}
   defp write_to_transformation_cache(message, cache_version) do
     hydration_cache_entry = message.data
     solr_doc = transform_to_solr_document(hydration_cache_entry)
@@ -90,7 +89,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformer do
       })
   end
 
-  @spec transform_to_solr_document(%HydrationCacheEntry{}) :: %{}
+  @spec transform_to_solr_document(%Figgy.HydrationCacheEntry{}) :: %{}
   defp transform_to_solr_document(hydration_cache_entry) do
     %{record_id: id} = hydration_cache_entry
     %{data: %{"metadata" => %{"title" => title}}} = hydration_cache_entry

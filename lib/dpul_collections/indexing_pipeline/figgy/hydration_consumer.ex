@@ -1,9 +1,9 @@
-defmodule DpulCollections.IndexingPipeline.FiggyHydrator do
+defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   @moduledoc """
   Broadway consumer that demands Figgy records and caches them in the database.
   """
   alias DpulCollections.IndexingPipeline
-  alias DpulCollections.IndexingPipeline.FiggyProducer
+  alias DpulCollections.IndexingPipeline.Figgy
   use Broadway
 
   @type start_opts ::
@@ -15,7 +15,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyHydrator do
   def start_link(options \\ []) do
     default = [
       cache_version: 0,
-      producer_module: FiggyProducer,
+      producer_module: Figgy.HydrationProducer,
       producer_options: 0,
       batch_size: 10
     ]

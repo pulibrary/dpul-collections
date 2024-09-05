@@ -1,8 +1,9 @@
-defmodule DpulCollections.IndexingPipeline.HydrationCacheEntryMarker do
+defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryMarker do
   @type t :: %__MODULE__{id: String.t(), timestamp: UTCDateTime}
   defstruct [:id, :timestamp]
 
-  alias DpulCollections.IndexingPipeline.{ProcessorMarker, HydrationCacheEntry}
+  alias DpulCollections.IndexingPipeline.ProcessorMarker
+  alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry
   @spec from(%ProcessorMarker{}) :: t()
   @doc """
   Converts ProcessorMarker struct to a marker tuple.

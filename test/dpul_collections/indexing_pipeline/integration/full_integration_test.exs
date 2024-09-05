@@ -2,22 +2,14 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
   use DpulCollections.DataCase
 
   alias DpulCollections.{FiggyRepo, Repo}
-
-  alias DpulCollections.IndexingPipeline.{
-    FiggyHydrator,
-    FiggyResource,
-    FiggyTransformer,
-    HydrationCacheEntry,
-    TransformationCacheEntry
-  }
-
+  alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline
 
   def start_figgy_producer(batch_size \\ 1) do
     {:ok, hydrator} =
-      FiggyHydrator.start_link(
+      Figgy.HydrationConsumer.start_link(
         cache_version: 0,
-        producer_module: TestFiggyProducer,
+        producer_module: MockFiggyHydrationProducer,
         producer_options: {self()},
         batch_size: batch_size
       )
@@ -36,9 +28,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     )
 
     {:ok, transformer} =
-      FiggyTransformer.start_link(
+      Figgy.TransformationConsumer.start_link(
         cache_version: 0,
-        producer_module: TestFiggyTransformerProducer,
+        producer_module: MockFiggyTransformationProducer,
         producer_options: {self()},
         batch_size: batch_size
       )
@@ -72,8 +64,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # Start the figgy producer
     hydrator = start_figgy_producer(50)
     # Demand all of them.
-    count = FiggyRepo.aggregate(FiggyResource, :count)
-    TestFiggyProducer.process(count)
+    count = FiggyRepo.aggregate(Figgy.Resource, :count)
+    MockFiggyHydrationProducer.process(count)
     # Wait for the last ID to show up.
     task =
       Task.async(fn -> wait_for_hydrated_id(FiggyTestSupport.last_figgy_resource_marker().id) end)
@@ -83,13 +75,13 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     hydrator |> Broadway.stop(:normal)
 
     # the hydrator pulled all ephemera folders and terms
-    entry_count = Repo.aggregate(HydrationCacheEntry, :count)
+    entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
     assert FiggyTestSupport.total_resource_count() == entry_count
 
     # Start the transformer producer
     transformer = start_transformer_producer(50)
-    entry_count = Repo.aggregate(HydrationCacheEntry, :count)
-    TestFiggyTransformerProducer.process(entry_count)
+    entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
+    MockFiggyTransformationProducer.process(entry_count)
     # Wait for the last ID to show up.
     task =
       Task.async(fn ->
@@ -97,7 +89,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       end)
 
     Task.await(task, 15000)
-    transformation_cache_entry_count = Repo.aggregate(TransformationCacheEntry, :count)
+    transformation_cache_entry_count = Repo.aggregate(Figgy.TransformationCacheEntry, :count)
 
     # the transformer only processes ephemera folders
     assert FiggyTestSupport.ephemera_folder_count() == transformation_cache_entry_count

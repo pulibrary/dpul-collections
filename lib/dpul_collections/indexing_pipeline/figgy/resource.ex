@@ -1,4 +1,4 @@
-defmodule DpulCollections.IndexingPipeline.FiggyResource do
+defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   @moduledoc """
   Schema for a resource in the Figgy database
   """

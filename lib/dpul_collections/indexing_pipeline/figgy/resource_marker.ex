@@ -1,8 +1,10 @@
-defmodule DpulCollections.IndexingPipeline.ResourceMarker do
+defmodule DpulCollections.IndexingPipeline.Figgy.ResourceMarker do
   @type t :: %__MODULE__{id: String.t(), timestamp: UTCDateTime}
   defstruct [:id, :timestamp]
 
-  alias DpulCollections.IndexingPipeline.{ProcessorMarker, FiggyResource}
+  alias DpulCollections.IndexingPipeline.Figgy
+  alias DpulCollections.IndexingPipeline.ProcessorMarker
+
   @spec from(%ProcessorMarker{}) :: t()
   @doc """
   Converts ProcessorMarker struct to a marker tuple.
@@ -16,8 +18,8 @@ defmodule DpulCollections.IndexingPipeline.ResourceMarker do
 
   def from(nil), do: nil
 
-  @spec from(%FiggyResource{}) :: t()
-  def from(%FiggyResource{updated_at: updated_at, id: id}) do
+  @spec from(%Figgy.Resource{}) :: t()
+  def from(%Figgy.Resource{updated_at: updated_at, id: id}) do
     %__MODULE__{timestamp: updated_at, id: id}
   end
 

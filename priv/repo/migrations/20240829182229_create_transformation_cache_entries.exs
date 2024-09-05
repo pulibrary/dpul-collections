@@ -2,7 +2,7 @@ defmodule DpulCollections.Repo.Migrations.CreateTransformationCacheEntries do
   use Ecto.Migration
 
   def change do
-    create table(:transformation_cache_entries) do
+    create table(:figgy_transformation_cache_entries) do
       add :data, :map
       add :cache_version, :integer
       add :record_id, :string
@@ -13,9 +13,9 @@ defmodule DpulCollections.Repo.Migrations.CreateTransformationCacheEntries do
 
     create(
       unique_index(
-        :transformation_cache_entries,
+        :figgy_transformation_cache_entries,
         [:record_id, :cache_version],
-        name: :transformation_record_id_cache_version_idx
+        name: :figgy_transformation_record_id_cache_version_idx
       )
     )
   end

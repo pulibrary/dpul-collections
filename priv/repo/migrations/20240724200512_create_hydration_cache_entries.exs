@@ -1,8 +1,8 @@
-defmodule DpulCollections.Repo.Migrations.CreateHydrationCacheEntries do
+defmodule DpulCollections.Repo.Migrations.CreateFiggyHydrationCacheEntries do
   use Ecto.Migration
 
   def change do
-    create table(:hydration_cache_entries) do
+    create table(:figgy_hydration_cache_entries) do
       add :data, :map
       add :cache_version, :integer
       add :record_id, :string
@@ -13,9 +13,9 @@ defmodule DpulCollections.Repo.Migrations.CreateHydrationCacheEntries do
 
     create(
       unique_index(
-        :hydration_cache_entries,
+        :figgy_hydration_cache_entries,
         [:record_id, :cache_version],
-        name: :hydration_record_id_cache_version_idx
+        name: :figgy_hydration_record_id_cache_version_idx
       )
     )
   end

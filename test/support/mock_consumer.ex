@@ -1,6 +1,6 @@
-defmodule TestConsumer do
+defmodule MockConsumer do
   @moduledoc """
-  TestConsumer allows for manual consumption of messages from a Producer and
+  MockConsumer allows for manual consumption of messages from a Producer and
   then notifies a receive_target of any messages it gets. We largely use this
   for integration tests.
   """

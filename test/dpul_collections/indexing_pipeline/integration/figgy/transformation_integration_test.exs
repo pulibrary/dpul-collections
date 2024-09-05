@@ -1,7 +1,7 @@
-defmodule DpulCollections.IndexingPipeline.FiggyTransformerIntegrationTest do
+defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest do
   use DpulCollections.DataCase
 
-  alias DpulCollections.IndexingPipeline.FiggyTransformer
+  alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline
 
   def start_transformer_producer(batch_size \\ 1) do
@@ -15,9 +15,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerIntegrationTest do
     )
 
     {:ok, transformer} =
-      FiggyTransformer.start_link(
+      Figgy.TransformationConsumer.start_link(
         cache_version: 0,
-        producer_module: TestFiggyTransformerProducer,
+        producer_module: MockFiggyTransformationProducer,
         producer_options: {self()},
         batch_size: batch_size
       )
@@ -41,7 +41,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerIntegrationTest do
 
     transformer = start_transformer_producer()
 
-    TestFiggyTransformerProducer.process(1)
+    MockFiggyTransformationProducer.process(1)
     assert_receive {:ack_done}
 
     cache_entry = IndexingPipeline.list_transformation_cache_entries() |> hd
@@ -75,7 +75,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerIntegrationTest do
 
     # Process that past record.
     transformer = start_transformer_producer()
-    TestFiggyTransformerProducer.process(1)
+    MockFiggyTransformationProducer.process(1)
     assert_receive {:ack_done}
     transformer |> Broadway.stop(:normal)
     # Ensure there's only one transformation cache entry.
@@ -103,7 +103,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerIntegrationTest do
 
     # Process that past record.
     transformer = start_transformer_producer()
-    TestFiggyTransformerProducer.process(1)
+    MockFiggyTransformationProducer.process(1)
     assert_receive {:ack_done}
     transformer |> Broadway.stop(:normal)
     # Ensure there's only one transformation cache entry.
@@ -149,7 +149,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerIntegrationTest do
 
     # Start the producer
     transformer = start_transformer_producer()
-    TestFiggyTransformerProducer.process(1)
+    MockFiggyTransformationProducer.process(1)
     assert_receive {:ack_done}
     # Make sure the first record that comes back is what we expect
     cache_entry = IndexingPipeline.list_transformation_cache_entries() |> hd
@@ -171,7 +171,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyTransformerIntegrationTest do
 
     # Process that past record.
     transformer = start_transformer_producer()
-    TestFiggyTransformerProducer.process(1)
+    MockFiggyTransformationProducer.process(1)
     assert_receive {:ack_done}
     transformer |> Broadway.stop(:normal)
     # Ensure there are no transformation cache entries.
