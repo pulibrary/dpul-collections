@@ -132,7 +132,12 @@
        RESTRICTION: the glob-like pattern in the name attribute must have a "*" only at the start or the end.  -->
    
     <!-- The default solr config has dynamic fields that map from blacklight dynamic fields as follows:
-      `ssi` 
+      "*_ssi" => "*_s"
+      "*_ssim" => "*_ss"
+      "*_tsi" => "*_t"
+      "*_tsim" => "*_txt"
+      "*_tesi" => "*_txt_en"
+      "*_tesim" => 
     -->
     <dynamicField name="*_i"  type="pint"    indexed="true"  stored="true"/>
     <dynamicField name="*_is" type="pints"    indexed="true"  stored="true"/>
