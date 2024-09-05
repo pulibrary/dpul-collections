@@ -35,6 +35,11 @@ Run Docker Image: `docker run -t -p 4000:4000 -e DATABASE_URL='ecto://postgres:@
 1. Connect to VPN
 1. `BRANCH=<branch> ./bin/deploy staging`
 
+## Connecting to Staging Shell or IEX Console
+
+1. Connect to VPN
+1. `./bin/console staging [bash/repl]`
+
 ## Figgy Fixtures
 
 We copy fixtures from Figgy's production database into a Docker container so that we can easily use it for testing indexing. To rebuild that container:
