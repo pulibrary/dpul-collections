@@ -131,6 +131,9 @@
        EXAMPLE:  name="*_i" will match any field ending in _i (like myid_i, z_i)
        RESTRICTION: the glob-like pattern in the name attribute must have a "*" only at the start or the end.  -->
    
+    <!-- The default solr config has dynamic fields that map from blacklight dynamic fields as follows:
+      `ssi` 
+    -->
     <dynamicField name="*_i"  type="pint"    indexed="true"  stored="true"/>
     <dynamicField name="*_is" type="pints"    indexed="true"  stored="true"/>
     <dynamicField name="*_s"  type="string"  indexed="true"  stored="true" />
