@@ -4,6 +4,12 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
   alias DpulCollections.{FiggyRepo, Repo}
   alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline
+  alias DpulCollections.Solr
+
+  setup do
+    Solr.delete_all()
+    :ok
+  end
 
   def start_figgy_producer(batch_size \\ 1) do
     {:ok, hydrator} =
