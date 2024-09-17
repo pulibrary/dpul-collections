@@ -68,7 +68,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducer do
 
     # Set a timer to try fulfilling demand again later
     if new_state.stored_demand > 0 do
-      Process.send_after(self(), :check_for_updates, 500)
+      Process.send_after(self(), :check_for_updates, 50)
     end
 
     {:noreply, Enum.map(records, &wrap_record/1), new_state}
