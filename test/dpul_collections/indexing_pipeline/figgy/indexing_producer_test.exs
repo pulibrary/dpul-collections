@@ -156,7 +156,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerTest do
       assert new_state == expected_state
 
       processor_marker =
-        IndexingPipeline.get_processor_marker!("indexer", cache_version)
+        IndexingPipeline.get_processor_marker!("figgy_indexer", cache_version)
 
       assert marker1 == %Figgy.TransformationCacheEntryMarker{
                timestamp: processor_marker.cache_location,
@@ -182,7 +182,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerTest do
       assert new_state == expected_state
 
       processor_marker =
-        IndexingPipeline.get_processor_marker!("indexer", cache_version)
+        IndexingPipeline.get_processor_marker!("figgy_indexer", cache_version)
 
       assert marker3 == %Figgy.TransformationCacheEntryMarker{
                timestamp: processor_marker.cache_location,
@@ -230,7 +230,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerTest do
         )
 
       assert new_state == expected_state
-      processor_marker = IndexingPipeline.get_processor_marker!("indexer", 1)
+      processor_marker = IndexingPipeline.get_processor_marker!("figgy_indexer", 1)
       assert processor_marker == nil
     end
 
@@ -264,7 +264,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerTest do
         )
 
       assert new_state == expected_state
-      processor_marker = IndexingPipeline.get_processor_marker!("indexer", 1)
+      processor_marker = IndexingPipeline.get_processor_marker!("figgy_indexer", 1)
       assert processor_marker == nil
     end
 
@@ -308,7 +308,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerTest do
         )
 
       assert new_state == expected_state
-      processor_marker = IndexingPipeline.get_processor_marker!("indexer", 1)
+      processor_marker = IndexingPipeline.get_processor_marker!("figgy_indexer", 1)
       assert processor_marker == nil
     end
 
@@ -372,7 +372,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerTest do
       assert new_state == expected_state
 
       processor_marker =
-        IndexingPipeline.get_processor_marker!("indexer", 1)
+        IndexingPipeline.get_processor_marker!("figgy_indexer", 1)
         |> Figgy.TransformationCacheEntryMarker.from()
 
       assert processor_marker == marker2

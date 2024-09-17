@@ -51,9 +51,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
   @spec handle_batch(any(), list(Broadway.Message.t()), any(), any()) ::
           list(Broadway.Message.t())
   def handle_batch(_batcher, messages, _batch_info, _context) do
-    messages 
+    messages
     |> Enum.map(&unwrap/1)
     |> Solr.add()
+
     messages
   end
 
