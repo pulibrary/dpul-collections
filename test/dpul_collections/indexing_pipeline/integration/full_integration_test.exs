@@ -71,7 +71,6 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       Task.async(fn -> wait_for_hydrated_id(FiggyTestSupport.last_figgy_resource_marker().id) end)
 
     Task.await(task, 15000)
-    :timer.sleep(2000)
     hydrator |> Broadway.stop(:normal)
 
     # the hydrator pulled all ephemera folders and terms
@@ -93,18 +92,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     # the transformer only processes ephemera folders
     assert FiggyTestSupport.ephemera_folder_count() == transformation_cache_entry_count
-    :timer.sleep(2000)
     transformer |> Broadway.stop(:normal)
 
-    # query everything and return the count
-    response = Req.get(
-      Application.fetch_env!(:hui, :default)[:url],
-      json: %{q: "*:*"}
-    )
-    |> IO.inspect
-    # {:ok, response} = Hui.search(:default, [q: "*:*"], Hui.Http.Client.impl())
-    # {:ok, body} = Jason.decode(response.body)
-    # total_hits = body["response"]["numFound"]
-    # assert total_hits == 0
+    assert DpulCollections.Solr.document_count() == transformation_cache_entry_count
   end
 end

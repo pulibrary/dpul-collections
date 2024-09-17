@@ -50,7 +50,5 @@ config :phoenix_live_view,
   enable_expensive_runtime_checks: true
 
 # Configure Solr connection
-config :hui, :default,
-  url: "http://localhost:8984/solr/dpulc-test/select",
-  headers: [{"accept", "application/json"}],
-  options: [timeout: 10_000]
+config :dpul_collections, :solr,
+  url: "http://localhost:8984/solr/dpulc-test/select"
