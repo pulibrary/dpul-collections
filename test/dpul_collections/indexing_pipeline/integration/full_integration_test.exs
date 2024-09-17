@@ -97,6 +97,14 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     transformer |> Broadway.stop(:normal)
 
     # query everything and return the count
-    Hui.search(:default, [q: "*:*"], Hui.Http.Client.impl()) |> dbg
+    response = Req.get(
+      Application.fetch_env!(:hui, :default)[:url],
+      json: %{q: "*:*"}
+    )
+    |> IO.inspect
+    # {:ok, response} = Hui.search(:default, [q: "*:*"], Hui.Http.Client.impl())
+    # {:ok, body} = Jason.decode(response.body)
+    # total_hits = body["response"]["numFound"]
+    # assert total_hits == 0
   end
 end

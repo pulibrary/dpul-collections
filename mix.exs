@@ -72,7 +72,8 @@ defmodule DpulCollections.MixProject do
       {:bandit, "~> 1.2"},
       {:excoveralls, "~> 0.18", only: :test},
       {:broadway, "~> 1.0"},
-      {:ex_doc, "~> 0.21", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.21", only: :dev, runtime: false},
+      {:req, "~> 0.5.0"}
     ]
   end
 
