@@ -36,8 +36,6 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     {:ok, transformer} =
       Figgy.TransformationConsumer.start_link(
         cache_version: 0,
-        producer_module: MockFiggyTransformationProducer,
-        producer_options: {self()},
         batch_size: batch_size
       )
 
@@ -57,8 +55,6 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     {:ok, indexer} =
       Figgy.IndexingConsumer.start_link(
         cache_version: 0,
-        producer_module: MockFiggyIndexingProducer,
-        producer_options: {self()},
         batch_size: batch_size
       )
 
@@ -101,6 +97,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
   test "a full hydrator and transformer run" do
     # Start the figgy producer
     hydrator = start_figgy_producer(50)
+    transformer = start_transformer_producer(50)
+    indexer = start_indexing_producer(50)
     # Demand all of them.
     count = FiggyRepo.aggregate(Figgy.Resource, :count)
     MockFiggyHydrationProducer.process(count)
@@ -109,42 +107,22 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       Task.async(fn -> wait_for_hydrated_id(FiggyTestSupport.last_figgy_resource_marker().id) end)
 
     Task.await(task, 15000)
-    hydrator |> Broadway.stop(:normal)
+    Solr.commit()
 
     # the hydrator pulled all ephemera folders and terms
     entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
     assert FiggyTestSupport.total_resource_count() == entry_count
 
-    # Start the transformer producer
-    transformer = start_transformer_producer(50)
-    entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
-    MockFiggyTransformationProducer.process(entry_count)
-    # Wait for the last ID to show up.
-    task =
-      Task.async(fn ->
-        wait_for_transformed_id(FiggyTestSupport.last_hydration_cache_entry_marker().id)
-      end)
-
-    Task.await(task, 15000)
     transformation_cache_entry_count = Repo.aggregate(Figgy.TransformationCacheEntry, :count)
 
     # the transformer only processes ephemera folders
     assert FiggyTestSupport.ephemera_folder_count() == transformation_cache_entry_count
-    transformer |> Broadway.stop(:normal)
 
     # Start the indexing producer
-    indexer = start_indexing_producer(50)
-    MockFiggyIndexingProducer.process(transformation_cache_entry_count)
-    # Wait for the last ID to show up.
-    task =
-      Task.async(fn ->
-        wait_for_indexed_id(FiggyTestSupport.last_transformation_cache_entry_marker().id)
-      end)
-
-    Task.await(task, 15000)
-    Solr.commit()
     assert Solr.document_count() == transformation_cache_entry_count
 
+    hydrator |> Broadway.stop(:normal)
+    transformer |> Broadway.stop(:normal)
     indexer |> Broadway.stop(:normal)
   end
 end
