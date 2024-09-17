@@ -48,3 +48,9 @@ config :phoenix, :plug_init_mode, :runtime
 config :phoenix_live_view,
   # Enable helpful, but potentially expensive runtime checks
   enable_expensive_runtime_checks: true
+
+# Configure Solr connection
+config :hui, :default,
+  url: "http://localhost:8984/solr/dpulc-test/select",
+  headers: [{"accept", "application/json"}],
+  options: [timeout: 10_000]

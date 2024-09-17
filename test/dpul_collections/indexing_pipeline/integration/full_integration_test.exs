@@ -95,5 +95,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     assert FiggyTestSupport.ephemera_folder_count() == transformation_cache_entry_count
     :timer.sleep(2000)
     transformer |> Broadway.stop(:normal)
+
+    # query everything and return the count
+    Hui.search(:default, [q: "*:*"], Hui.Http.Client.impl()) |> dbg
   end
 end

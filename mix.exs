@@ -61,6 +61,7 @@ defmodule DpulCollections.MixProject do
        app: false,
        compile: false,
        depth: 1},
+      {:hui, "~> 0.11.0"},
       {:swoosh, "~> 1.5"},
       {:finch, "~> 0.13"},
       {:telemetry_metrics, "~> 1.0"},
