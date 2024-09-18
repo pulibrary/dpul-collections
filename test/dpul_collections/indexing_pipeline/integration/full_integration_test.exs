@@ -104,6 +104,11 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     MockFiggyHydrationProducer.process(count)
     # Wait for the last ID to show up.
     task =
+      Task.async(fn -> wait_for_hydrated_id(FiggyTestSupport.last_figgy_resource_marker().id) end)
+
+    Task.await(task, 15000)
+
+    task =
       Task.async(fn -> wait_for_transformed_id(FiggyTestSupport.last_ephemera_folder_id()) end)
 
     Task.await(task, 15000)
