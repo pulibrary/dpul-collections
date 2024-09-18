@@ -31,7 +31,7 @@ defmodule FiggyTestSupport do
     query =
       from r in Figgy.HydrationCacheEntry,
         limit: 1,
-        order_by: [desc: r.source_cache_order, desc: r.id]
+        order_by: [desc: r.cache_order, desc: r.id]
 
     Repo.all(query) |> hd |> Figgy.HydrationCacheEntryMarker.from()
   end

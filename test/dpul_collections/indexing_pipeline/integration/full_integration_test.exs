@@ -109,7 +109,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     Task.await(task, 15000)
 
     task =
-      Task.async(fn -> wait_for_transformed_id(FiggyTestSupport.last_ephemera_folder_id()) end)
+      Task.async(fn -> wait_for_transformed_id(FiggyTestSupport.last_hydration_cache_entry_marker().id) end)
 
     Task.await(task, 15000)
     Solr.commit()

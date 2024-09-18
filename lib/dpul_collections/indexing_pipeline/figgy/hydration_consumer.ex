@@ -60,7 +60,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         source_cache_order: message.data.updated_at,
         data: message.data |> Map.from_struct() |> Map.delete(:__meta__)
       })
-      IO.inspect {internal_resource, response.record_id}
       {:ok, response}
   end
 
