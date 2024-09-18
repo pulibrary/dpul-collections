@@ -3,7 +3,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
   Broadway consumer that demands Figgy.TransformationCacheEntry records and indexes
   them into Solr.
   """
-  alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.Solr
   use Broadway
