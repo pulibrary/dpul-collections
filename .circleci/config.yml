@@ -89,9 +89,11 @@ jobs:
       TEST_POSTGRES_PORT: 5432
     steps:
       - checkout
-      - run: sudo apt-get update
-      - run: sudo add-apt-repository ppa:rabbitmq/rabbitmq-erlang
-      - run: sudo apt-get update && sudo apt-get install elixir erlang-dev erlang-xmerl
+      - run: git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.14.1
+      - run: echo ". $HOME/.asdf/asdf.sh" >> ~/.bashrc && source ~/.bashrc
+      - run: asdf plugin-add erlang https://github.com/asdf-vm/asdf-erlang.git
+      - run: asdf plugin-add elixir https://github.com/asdf-vm/asdf-elixir.git
+      - run: asdf install
       - run: docker compose up -d
       - install-deps:
           include-assets: false
