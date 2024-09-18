@@ -15,7 +15,7 @@ services:
   database:
     image: postgres:15-alpine
     ports:
-      - 5432:5432
+      - 5434:5432
   figgy_database:
     image: ghcr.io/pulibrary/dpul-collections:figgy-fixtures
     environment:

@@ -6,9 +6,6 @@ executors:
   builder:
     docker:
       - image: cimg/elixir:1.17.2-erlang-26.2.1-browsers
-        environment:
-          TEST_POSTGRES_PORT: 5432
-          TEST_POSTGRES_FIGGY_HOST: figgy_database
     working_directory: ~/project
 
 commands:
@@ -85,16 +82,14 @@ jobs:
   run-unit-tests:
     machine:
       image: ubuntu-2204:current
-    environment:
-      TEST_POSTGRES_PORT: 5432
     steps:
       - checkout
+      - run: docker compose up -d
       - run: git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.14.1
       - run: echo ". $HOME/.asdf/asdf.sh" >> ~/.bashrc && source ~/.bashrc
       - run: asdf plugin-add erlang https://github.com/asdf-vm/asdf-erlang.git
       - run: asdf plugin-add elixir https://github.com/asdf-vm/asdf-elixir.git
       - run: asdf install
-      - run: docker compose up -d
       - install-deps:
           include-assets: false
       - mix-test
