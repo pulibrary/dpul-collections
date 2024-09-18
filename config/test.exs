@@ -50,4 +50,5 @@ config :phoenix_live_view,
   enable_expensive_runtime_checks: true
 
 # Configure Solr connection
-config :dpul_collections, :solr, url: System.get_env("SOLR_URL") || "http://localhost:8984/solr/dpulc-test"
+config :dpul_collections, :solr,
+  url: System.get_env("SOLR_URL") || "http://localhost:8984/solr/dpulc-test"
