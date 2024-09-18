@@ -36,11 +36,28 @@ defmodule DpulCollections.Solr do
     commit()
   end
 
+  def client() do
+    url_hash = Application.fetch_env!(:dpul_collections, :solr)
+
+    Req.new(
+      base_url: url_hash[:url],
+      auth: auth(url_hash)
+    )
+  end
+
+  defp auth(%{username: ""}), do: nil
+
+  defp auth(%{username: username, password: password}) do
+    {:basic, "#{username}:#{password}"}
+  end
+
   defp select_url do
-    Path.join(Application.fetch_env!(:dpul_collections, :solr)[:url], "select")
+    client()
+    |> Req.merge(url: "/select")
   end
 
   defp update_url do
-    Path.join(Application.fetch_env!(:dpul_collections, :solr)[:url], "update")
+    client()
+    |> Req.merge(url: "/update")
   end
 end

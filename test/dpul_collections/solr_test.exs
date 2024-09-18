@@ -38,4 +38,28 @@ defmodule DpulCollections.SolrTest do
     Solr.delete_all()
     assert Solr.document_count() == 0
   end
+
+  setup context do
+    if solr_settings = context[:solr_settings] do
+      existing_env = Application.fetch_env!(:dpul_collections, :solr)
+      Application.put_env(:dpul_collections, :solr, solr_settings)
+      on_exit(fn -> Application.put_env(:dpul_collections, :solr, existing_env) end)
+    end
+
+    :ok
+  end
+
+  @tag solr_settings: %{url: "http://localhost:8983/solr/bla", username: "test", password: "test"}
+  test ".client/0 setting auth works" do
+    client = Solr.client()
+    assert client.options.base_url == "http://localhost:8983/solr/bla"
+    assert client.options.auth == {:basic, "test:test"}
+  end
+
+  @tag solr_settings: %{url: "http://localhost:8983/solr/bla", username: ""}
+  test ".client/0 with no auth works" do
+    client = Solr.client()
+    assert client.options.base_url == "http://localhost:8983/solr/bla"
+    assert client.options.auth == nil
+  end
 end
