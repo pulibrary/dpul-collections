@@ -16,7 +16,7 @@ services:
       command: "docker-entrypoint.sh postgres"
   test_solr:
     type: solr:8
-    portforward: 8984
+    portforward: 8983
     core: dpulc-test
     config:
       dir: solr/config
