@@ -85,6 +85,7 @@ jobs:
     steps:
       - checkout
       - run: docker compose up -d
+      - run: docker ps
       - run: git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.14.1
       - run: echo ". $HOME/.asdf/asdf.sh" >> ~/.bashrc && source ~/.bashrc
       - run: asdf plugin-add erlang https://github.com/asdf-vm/asdf-erlang.git
