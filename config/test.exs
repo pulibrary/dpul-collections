@@ -48,3 +48,10 @@ config :phoenix, :plug_init_mode, :runtime
 config :phoenix_live_view,
   # Enable helpful, but potentially expensive runtime checks
   enable_expensive_runtime_checks: true
+
+# Configure Solr connection
+config :dpul_collections, :solr, %{
+  url: System.get_env("SOLR_URL") || "http://localhost:8984/solr/dpulc-test",
+  username: System.get_env("SOLR_USERNAME"),
+  password: System.get_env("SOLR_PASSWORD")
+}

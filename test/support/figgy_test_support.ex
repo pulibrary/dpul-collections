@@ -25,6 +25,15 @@ defmodule FiggyTestSupport do
     Repo.all(query) |> hd |> Figgy.HydrationCacheEntryMarker.from()
   end
 
+  def last_transformation_cache_entry_marker do
+    query =
+      from r in Figgy.TransformationCacheEntry,
+        limit: 1,
+        order_by: [desc: r.source_cache_order, desc: r.id]
+
+    Repo.all(query) |> hd |> Figgy.TransformationCacheEntryMarker.from()
+  end
+
   def total_resource_count do
     query =
       from r in Figgy.Resource,

@@ -1,20 +1,23 @@
-defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
+defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerTest do
   use DpulCollections.DataCase
 
-  alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline
+  alias DpulCollections.IndexingPipeline.Figgy
 
-  describe "Figgy.TransformationProducer" do
-    test "handle_demand/2 with initial state and demand > 1 returns hydration cache entries" do
-      {marker1, marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers()
+  describe "Figgy.IndexingProducer" do
+    test "handle_demand/2 with initial state and demand > 1 returns transformation cache entries" do
+      {marker1, marker2, _marker3} = FiggyTestFixtures.transformation_cache_markers()
 
-      {:producer, initial_state} = Figgy.TransformationProducer.init(0)
+      index_version = 0
+      {:producer, initial_state} = Figgy.IndexingProducer.init(index_version)
 
       {:noreply, messages, new_state} =
-        Figgy.TransformationProducer.handle_demand(2, initial_state)
+        Figgy.IndexingProducer.handle_demand(2, initial_state)
 
       ids =
-        Enum.map(messages, fn %Broadway.Message{data: %Figgy.HydrationCacheEntry{record_id: id}} ->
+        Enum.map(messages, fn %Broadway.Message{
+                                data: %Figgy.TransformationCacheEntry{record_id: id}
+                              } ->
           id
         end)
 
@@ -28,14 +31,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
             marker2
           ],
           acked_records: [],
-          cache_version: 0
+          cache_version: index_version
         }
 
       assert new_state == expected_state
     end
 
     test "handle_demand/2 with consecutive state returns a new record" do
-      {marker1, marker2, marker3} = FiggyTestFixtures.hydration_cache_markers()
+      {marker1, marker2, marker3} = FiggyTestFixtures.transformation_cache_markers()
 
       initial_state =
         %{
@@ -49,10 +52,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
         }
 
       {:noreply, messages, new_state} =
-        Figgy.TransformationProducer.handle_demand(1, initial_state)
+        Figgy.IndexingProducer.handle_demand(1, initial_state)
 
       ids =
-        Enum.map(messages, fn %Broadway.Message{data: %Figgy.HydrationCacheEntry{record_id: id}} ->
+        Enum.map(messages, fn %Broadway.Message{
+                                data: %Figgy.TransformationCacheEntry{record_id: id}
+                              } ->
           id
         end)
 
@@ -74,12 +79,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
     end
 
     test "handle_demand/2 when the query returns no records" do
-      {_marker1, _marker2, marker3} = FiggyTestFixtures.hydration_cache_markers()
+      {_marker1, _marker2, marker3} = FiggyTestFixtures.transformation_cache_markers()
 
       # Move last_queried marker to a marker 200 years in the future.
-      marker3_cache_entry = IndexingPipeline.list_hydration_cache_entries() |> hd
+      marker3_cache_entry = IndexingPipeline.list_transformation_cache_entries() |> hd
 
-      fabricated_marker = %Figgy.HydrationCacheEntryMarker{
+      fabricated_marker = %Figgy.TransformationCacheEntryMarker{
         timestamp: DateTime.add(marker3_cache_entry.cache_order, 356 * 10, :day),
         id: marker3.id
       }
@@ -93,7 +98,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
         }
 
       {:noreply, messages, new_state} =
-        Figgy.TransformationProducer.handle_demand(1, initial_state)
+        Figgy.IndexingProducer.handle_demand(1, initial_state)
 
       assert messages == []
 
@@ -108,9 +113,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
       assert new_state == expected_state
     end
 
-    test "handle_info/2 with transformer producer ack, acknowledging first and third record" do
+    test "handle_info/2 with indexing producer ack, acknowledging first and third record" do
       cache_version = 1
-      {marker1, marker2, marker3} = FiggyTestFixtures.hydration_cache_markers(cache_version)
+      {marker1, marker2, marker3} = FiggyTestFixtures.transformation_cache_markers(cache_version)
 
       initial_state = %{
         last_queried_marker: marker3,
@@ -123,7 +128,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
         cache_version: cache_version
       }
 
-      acked_hydration_cache_markers =
+      acked_indexing_markers =
         [
           marker1,
           marker3
@@ -143,23 +148,23 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
       }
 
       {:noreply, [], new_state} =
-        Figgy.TransformationProducer.handle_info(
-          {:ack, :transformer_producer_ack, acked_hydration_cache_markers},
+        Figgy.IndexingProducer.handle_info(
+          {:ack, :indexing_producer_ack, acked_indexing_markers},
           initial_state
         )
 
       assert new_state == expected_state
 
       processor_marker =
-        IndexingPipeline.get_processor_marker!("figgy_transformer", cache_version)
+        IndexingPipeline.get_processor_marker!("figgy_indexer", cache_version)
 
-      assert marker1 == %Figgy.HydrationCacheEntryMarker{
+      assert marker1 == %Figgy.TransformationCacheEntryMarker{
                timestamp: processor_marker.cache_location,
                id: processor_marker.cache_record_id
              }
 
       initial_state = new_state
-      acked_hydration_cache_markers = [marker2]
+      acked_indexing_markers = [marker2]
 
       expected_state = %{
         last_queried_marker: marker3,
@@ -169,24 +174,24 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
       }
 
       {:noreply, [], new_state} =
-        Figgy.TransformationProducer.handle_info(
-          {:ack, :transformer_producer_ack, acked_hydration_cache_markers},
+        Figgy.IndexingProducer.handle_info(
+          {:ack, :indexing_producer_ack, acked_indexing_markers},
           initial_state
         )
 
       assert new_state == expected_state
 
       processor_marker =
-        IndexingPipeline.get_processor_marker!("figgy_transformer", cache_version)
+        IndexingPipeline.get_processor_marker!("figgy_indexer", cache_version)
 
-      assert marker3 == %Figgy.HydrationCacheEntryMarker{
+      assert marker3 == %Figgy.TransformationCacheEntryMarker{
                timestamp: processor_marker.cache_location,
                id: processor_marker.cache_record_id
              }
     end
 
-    test "handle_info/2 with transformer producer ack, nothing to acknowledge" do
-      {marker1, marker2, marker3} = FiggyTestFixtures.hydration_cache_markers(1)
+    test "handle_info/2 with indexing producer ack, nothing to acknowledge" do
+      {marker1, marker2, marker3} = FiggyTestFixtures.transformation_cache_markers(1)
 
       initial_state = %{
         last_queried_marker: marker3,
@@ -199,7 +204,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
         cache_version: 1
       }
 
-      acked_hydration_cache_markers =
+      acked_indexing_markers =
         [
           marker2
         ]
@@ -219,18 +224,18 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
       }
 
       {:noreply, [], new_state} =
-        Figgy.TransformationProducer.handle_info(
-          {:ack, :transformer_producer_ack, acked_hydration_cache_markers},
+        Figgy.IndexingProducer.handle_info(
+          {:ack, :indexing_producer_ack, acked_indexing_markers},
           initial_state
         )
 
       assert new_state == expected_state
-      processor_marker = IndexingPipeline.get_processor_marker!("figgy_transformer", 1)
+      processor_marker = IndexingPipeline.get_processor_marker!("figgy_indexer", 1)
       assert processor_marker == nil
     end
 
-    test "handle_info/2 with transformer producer ack, empty pulled_records" do
-      {marker1, _marker2, marker3} = FiggyTestFixtures.hydration_cache_markers(1)
+    test "handle_info/2 with indexing producer ack, empty pulled_records" do
+      {marker1, _marker2, marker3} = FiggyTestFixtures.transformation_cache_markers(1)
 
       initial_state = %{
         last_queried_marker: marker3,
@@ -239,7 +244,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
         cache_version: 1
       }
 
-      acked_hydration_cache_markers =
+      acked_indexing_markers =
         [
           marker1
         ]
@@ -253,18 +258,18 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
       }
 
       {:noreply, [], new_state} =
-        Figgy.TransformationProducer.handle_info(
-          {:ack, :transformer_producer_ack, acked_hydration_cache_markers},
+        Figgy.IndexingProducer.handle_info(
+          {:ack, :indexing_producer_ack, acked_indexing_markers},
           initial_state
         )
 
       assert new_state == expected_state
-      processor_marker = IndexingPipeline.get_processor_marker!("figgy_transformer", 1)
+      processor_marker = IndexingPipeline.get_processor_marker!("figgy_indexer", 1)
       assert processor_marker == nil
     end
 
-    test "handle_info/2 with transformer producer ack, duplicate ack records" do
-      {marker1, marker2, marker3} = FiggyTestFixtures.hydration_cache_markers(1)
+    test "handle_info/2 with indexing producer ack, duplicate ack records" do
+      {marker1, marker2, marker3} = FiggyTestFixtures.transformation_cache_markers(1)
 
       initial_state = %{
         last_queried_marker: marker3,
@@ -278,7 +283,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
         cache_version: 1
       }
 
-      acked_hydration_cache_markers =
+      acked_indexing_markers =
         [
           marker2
         ]
@@ -297,18 +302,18 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
       }
 
       {:noreply, [], new_state} =
-        Figgy.TransformationProducer.handle_info(
-          {:ack, :transformer_producer_ack, acked_hydration_cache_markers},
+        Figgy.IndexingProducer.handle_info(
+          {:ack, :indexing_producer_ack, acked_indexing_markers},
           initial_state
         )
 
       assert new_state == expected_state
-      processor_marker = IndexingPipeline.get_processor_marker!("figgy_transformer", 1)
+      processor_marker = IndexingPipeline.get_processor_marker!("figgy_indexer", 1)
       assert processor_marker == nil
     end
 
-    test "handle_info/2 with transformer producer ack, acking after crash and respawn" do
-      {marker1, marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers(1)
+    test "handle_info/2 with indexing producer ack, acking after crash and respawn" do
+      {marker1, marker2, _marker3} = FiggyTestFixtures.transformation_cache_markers(1)
 
       # Producer sent out marker1 then crashed, started again, then sent out
       # marker1 and marker2.
@@ -338,8 +343,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
       }
 
       {:noreply, [], new_state} =
-        Figgy.TransformationProducer.handle_info(
-          {:ack, :transformer_producer_ack, first_ack},
+        Figgy.IndexingProducer.handle_info(
+          {:ack, :indexing_producer_ack, first_ack},
           initial_state
         )
 
@@ -359,16 +364,16 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
       }
 
       {:noreply, [], new_state} =
-        Figgy.TransformationProducer.handle_info(
-          {:ack, :transformer_producer_ack, second_ack},
+        Figgy.IndexingProducer.handle_info(
+          {:ack, :indexing_producer_ack, second_ack},
           new_state
         )
 
       assert new_state == expected_state
 
       processor_marker =
-        IndexingPipeline.get_processor_marker!("figgy_transformer", 1)
-        |> Figgy.HydrationCacheEntryMarker.from()
+        IndexingPipeline.get_processor_marker!("figgy_indexer", 1)
+        |> Figgy.TransformationCacheEntryMarker.from()
 
       assert processor_marker == marker2
     end

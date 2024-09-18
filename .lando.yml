@@ -14,3 +14,15 @@ services:
         - "5435:5432"
       # This comes from the base image ENTRYPOINT + CMD
       command: "docker-entrypoint.sh postgres"
+  test_solr:
+    type: solr:8
+    portforward: 8984
+    core: dpulc-test
+    config:
+      dir: solr/config
+  development_solr:
+    type: solr:8
+    portforward: true
+    core: dpulc-dev
+    config:
+      dir: solr/config
