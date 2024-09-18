@@ -1,0 +1,25 @@
+services:
+  solr:
+    image: solr:9.6.1
+    volumes:
+      - $PWD/solr/conf:/opt/solr/conf
+    ports:
+      - 8983:8983
+    entrypoint:
+      - docker-entrypoint.sh
+      - solr-precreate
+      - blacklight-core
+      - /opt/solr/conf
+      - "-Xms256m"
+      - "-Xmx512m"
+  database:
+    image: postgres:15-alpine
+    ports:
+      - 5432:5432
+  figgy_database:
+    image: ghcr.io/pulibrary/dpul-collections:figgy-fixtures
+    environment:
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5435:5432
+    command: "docker-entrypoint.sh postgres"
