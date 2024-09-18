@@ -37,29 +37,18 @@ defmodule DpulCollections.Solr do
   end
 
   def client() do
-    url_hash = url_hash(Application.fetch_env!(:dpul_collections, :solr)[:url])
+    url_hash = Application.fetch_env!(:dpul_collections, :solr)
 
     Req.new(
-      base_url: base_url(url_hash),
+      base_url: url_hash[:url],
       auth: auth(url_hash)
     )
   end
 
-  defp url_hash(url) do
-    Regex.named_captures(
-      ~r/^(?<protocol>.+?\/\/)((?<username>.+?):(?<password>.+?)@)?(?<address>.+)$/,
-      url
-    )
-  end
+  defp auth(%{username: ""}), do: nil
 
-  defp auth(%{"username" => ""}), do: nil
-
-  defp auth(%{"username" => username, "password" => password}) do
+  defp auth(%{username: username, password: password}) do
     {:basic, "#{username}:#{password}"}
-  end
-
-  defp base_url(%{"protocol" => protocol, "address" => address}) do
-    protocol <> address
   end
 
   defp select_url do
