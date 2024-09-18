@@ -38,7 +38,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   end
 
   @impl Broadway
-  # fallback so we acknowledge messages we intentionally don't write
+  # pass through messages and write to cache in batcher to avoid race condition
   def handle_message(_processor, message, %{cache_version: _cache_version}) do
     message
   end
@@ -53,13 +53,15 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     # - cache_version (this only changes manually, we have to hold onto it as state)
     # - record_id (varchar) - the figgy UUID
     # - source_cache_order (datetime) - the figgy updated_at
-    {:ok, _} =
+    {:ok, response} =
       IndexingPipeline.write_hydration_cache_entry(%{
         cache_version: cache_version,
         record_id: message.data.id,
         source_cache_order: message.data.updated_at,
         data: message.data |> Map.from_struct() |> Map.delete(:__meta__)
       })
+      IO.inspect {internal_resource, response.record_id}
+      {:ok, response}
   end
 
   defp write_to_hydration_cache(_, _), do: {:ok, nil}

@@ -16,6 +16,17 @@ defmodule FiggyTestSupport do
     FiggyRepo.all(query) |> hd |> Figgy.ResourceMarker.from()
   end
 
+  # Get the last folder id from the figgy repo.
+  def last_ephemera_folder_id do
+    query =
+      from r in Figgy.Resource,
+        where: r.internal_resource == "EphemeraFolder",
+        limit: 1,
+        order_by: [desc: r.updated_at, desc: r.id]
+
+    FiggyRepo.all(query) |> hd |> Map.get(:id)
+  end
+
   def last_hydration_cache_entry_marker do
     query =
       from r in Figgy.HydrationCacheEntry,
