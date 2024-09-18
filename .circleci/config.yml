@@ -9,6 +9,7 @@ executors:
         environment:
           TEST_POSTGRES_PORT: 5432
           TEST_POSTGRES_FIGGY_HOST: figgy_database
+          SOLR_URL: http://solr:SolrRocks@localhost:8983/solr/dpulc-test
       - image: cimg/postgres:15.2
       - image: ghcr.io/pulibrary/dpul-collections:figgy-fixtures
         name: figgy_database
