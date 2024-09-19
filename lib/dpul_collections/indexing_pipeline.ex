@@ -302,16 +302,16 @@ defmodule DpulCollections.IndexingPipeline do
           count :: integer
         ) :: list(Figgy.TransformationCacheEntry)
   def get_transformation_cache_entries_since!(
-        %Figgy.TransformationCacheEntryMarker{timestamp: source_cache_order, id: id},
+        %Figgy.TransformationCacheEntryMarker{timestamp: cache_order, id: id},
         count
       ) do
     query =
       from r in Figgy.TransformationCacheEntry,
         where:
-          (r.source_cache_order == ^source_cache_order and r.record_id > ^id) or
-            r.source_cache_order > ^source_cache_order,
+          (r.cache_order == ^cache_order and r.record_id > ^id) or
+            r.cache_order > ^cache_order,
         limit: ^count,
-        order_by: [asc: r.source_cache_order, asc: r.record_id]
+        order_by: [asc: r.cache_order, asc: r.record_id]
 
     Repo.all(query)
   end
@@ -324,7 +324,7 @@ defmodule DpulCollections.IndexingPipeline do
     query =
       from r in Figgy.TransformationCacheEntry,
         limit: ^count,
-        order_by: [asc: r.source_cache_order, asc: r.record_id]
+        order_by: [asc: r.cache_order, asc: r.record_id]
 
     Repo.all(query)
   end
@@ -353,7 +353,7 @@ defmodule DpulCollections.IndexingPipeline do
   def write_transformation_cache_entry(attrs \\ %{}) do
     conflict_query =
       Figgy.TransformationCacheEntry
-      |> update(set: [data: ^attrs.data, source_cache_order: ^attrs.source_cache_order])
+      |> update(set: [data: ^attrs.data, source_cache_order: ^attrs.source_cache_order, cache_order: ^DateTime.utc_now()])
       |> where([c], c.source_cache_order <= ^attrs.source_cache_order)
 
     try do

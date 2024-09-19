@@ -119,17 +119,17 @@ defmodule FiggyTestFixtures do
       })
 
     marker1 = %Figgy.TransformationCacheEntryMarker{
-      timestamp: entry1.source_cache_order,
+      timestamp: entry1.cache_order,
       id: entry1.record_id
     }
 
     marker2 = %Figgy.TransformationCacheEntryMarker{
-      timestamp: entry2.source_cache_order,
+      timestamp: entry2.cache_order,
       id: entry2.record_id
     }
 
     marker3 = %Figgy.TransformationCacheEntryMarker{
-      timestamp: entry3.source_cache_order,
+      timestamp: entry3.cache_order,
       id: entry3.record_id
     }
 

@@ -18,7 +18,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationCacheEntryMarker 
   def from(nil), do: nil
 
   @spec from(%TransformationCacheEntry{}) :: t()
-  def from(%TransformationCacheEntry{source_cache_order: timestamp, record_id: id}) do
+  def from(%TransformationCacheEntry{cache_order: timestamp, record_id: id}) do
     %__MODULE__{timestamp: timestamp, id: id}
   end
 
