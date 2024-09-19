@@ -88,7 +88,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducer do
     total_demand - fulfilled_demand
   end
 
-  def handle_info(:check_for_updates, state = %{stored_demand: demand}) 
+  def handle_info(:check_for_updates, state = %{stored_demand: demand})
       when demand > 0 do
     new_demand = 0
     handle_demand(new_demand, state)

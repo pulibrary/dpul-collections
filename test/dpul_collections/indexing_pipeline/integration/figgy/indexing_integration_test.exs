@@ -35,7 +35,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
     {marker1, _marker2, _marker3} = FiggyTestFixtures.transformation_cache_markers()
 
     indexer = start_indexing_producer()
- 
+
     MockFiggyIndexingProducer.process(1)
     assert_receive {:ack_done}
 
@@ -52,12 +52,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
   test "updates existing solr document versions" do
     {marker1, _marker2, _marker3} = FiggyTestFixtures.transformation_cache_markers()
 
-    Solr.add(
-      %{
-        "id" => marker1.id,
-        "title" => ["old title"]
-      }
-    )
+    Solr.add(%{
+      "id" => marker1.id,
+      "title" => ["old title"]
+    })
 
     # Process that past record.
     indexer = start_indexing_producer()
@@ -68,9 +66,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
     Solr.commit()
     assert Solr.document_count() == 1
     # Ensure that entry has the new title
-    # doc = Solr.get(marker1.id)
-    # assert doc["title_ss"] == ["test title 1"]
-  end 
+    doc = Solr.find_by_id(marker1.id)
+    assert doc["title_ss"] == ["test title 1"]
+  end
 
   test "loads a marker from the database on startup" do
     {marker1, marker2, _marker3} = FiggyTestFixtures.transformation_cache_markers()
