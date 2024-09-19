@@ -85,31 +85,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
     indexer = start_indexing_producer()
     MockFiggyIndexingProducer.process(1)
     assert_receive {:ack_done}
+    Solr.commit()
     # Make sure the first record that comes back is what we expect
-    cache_entry = IndexingPipeline.list_transformation_cache_entries() |> hd
-    assert cache_entry.record_id == marker2.id
-    assert cache_entry.cache_version == 0
-    assert cache_entry.source_cache_order == marker2.timestamp
+    doc = Solr.find_by_id(marker2.id)
+    assert doc["title_ss"] == ["test title 2"]
     indexer |> Broadway.stop(:normal)
-  end
-
-  test "doesn't process non-figgy transformation cache entries" do
-    IndexingPipeline.write_transformation_cache_entry(%{
-      cache_version: 0,
-      record_id: "some-other-id",
-      source_cache_order: ~U[2100-03-09 20:19:33.414040Z],
-      data: %{
-        "non_figgy_property" => "stuff"
-      }
-    })
-
-    # Process that past record.
-    indexer = start_indexing_producer()
-    MockFiggyIndexingProducer.process(1)
-    assert_receive {:ack_done}
-    indexer |> Broadway.stop(:normal)
-    # Ensure there are no transformation cache entries.
-    entries = IndexingPipeline.list_transformation_cache_entries()
-    assert length(entries) == 0
   end
 end
