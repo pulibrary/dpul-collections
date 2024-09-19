@@ -29,9 +29,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
   test "a full hydrator and transformer run" do
     # Start the figgy producer
-    {:ok, hydrator} = Figgy.HydrationConsumer.start_link(batch_size: 50)
-    {:ok, transformer} = Figgy.TransformationConsumer.start_link(batch_size: 50)
     {:ok, indexer} = Figgy.IndexingConsumer.start_link(batch_size: 50)
+    {:ok, transformer} = Figgy.TransformationConsumer.start_link(batch_size: 50)
+    {:ok, hydrator} = Figgy.HydrationConsumer.start_link(batch_size: 50)
 
     task =
       Task.async(fn -> wait_for_index_completion() end)
@@ -42,16 +42,15 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
     assert FiggyTestSupport.total_resource_count() == entry_count
 
-    transformation_cache_entry_count = Repo.aggregate(Figgy.TransformationCacheEntry, :count)
-
     # the transformer only processes ephemera folders
+    transformation_cache_entry_count = Repo.aggregate(Figgy.TransformationCacheEntry, :count)
     assert FiggyTestSupport.ephemera_folder_count() == transformation_cache_entry_count
 
-    # Start the indexing producer
+    # indexed all the documents
     assert Solr.document_count() == transformation_cache_entry_count
 
-    indexer |> Broadway.stop(:normal)
-    transformer |> Broadway.stop(:normal)
     hydrator |> Broadway.stop(:normal)
+    transformer |> Broadway.stop(:normal)
+    indexer |> Broadway.stop(:normal)
   end
 end

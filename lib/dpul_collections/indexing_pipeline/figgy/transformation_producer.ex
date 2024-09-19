@@ -23,6 +23,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducer do
         }
   @spec init(integer()) :: {:producer, state()}
   def init(cache_version) do
+    # trap the exit so we can stop gracefully
+    # see https://www.erlang.org/doc/apps/erts/erlang.html#process_flag/2
+    Process.flag(:trap_exit, true)
+
     last_queried_marker =
       IndexingPipeline.get_processor_marker!("figgy_transformer", cache_version)
 
@@ -86,7 +90,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducer do
 
   def handle_info(:check_for_updates, state = %{stored_demand: demand}) 
       when demand > 0 do
-    handle_demand(0, state)
+    new_demand = 0
+    handle_demand(new_demand, state)
   end
 
   def handle_info(:check_for_updates, state) do
@@ -124,6 +129,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducer do
 
     notify_ack(pending_markers |> length())
     {:noreply, messages, new_state}
+  end
+
+  # When we stop broadway we don't want to allow any more polling because
+  # the asynchronous :check_for_updates messages cause db connection errors
+  def handle_info({:EXIT, _PID, _reason}, state) do
+    state = Map.put(state, :stored_demand, 0)
+    {:stop, [], state}
   end
 
   # Updates state, removing any acked_records from pulled_records and returns the
