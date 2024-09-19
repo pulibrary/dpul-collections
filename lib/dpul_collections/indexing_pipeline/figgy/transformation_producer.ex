@@ -131,13 +131,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducer do
     {:noreply, messages, new_state}
   end
 
-  # When we stop broadway we don't want to allow any more polling because
-  # the asynchronous :check_for_updates messages cause db connection errors
-  def handle_info({:EXIT, _PID, _reason}, state) do
-    state = Map.put(state, :stored_demand, 0)
-    {:stop, [], state}
-  end
-
   # Updates state, removing any acked_records from pulled_records and returns the
   # last removed marker so it can be saved to the database.
   # If the transformer element of pulled_records is the first element of
