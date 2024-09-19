@@ -32,7 +32,6 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       Task.async(fn -> wait_for_index_completion() end)
 
     Task.await(task, 15000)
-    Solr.commit()
 
     # the hydrator pulled all ephemera folders and terms
     entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
