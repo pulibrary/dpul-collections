@@ -394,5 +394,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerTest do
 
       assert processor_marker == marker2
     end
+
+    test ".handle_info(:check_for_updates) with no stored demand" do
+      assert Figgy.IndexingProducer.handle_info(:check_for_updates, %{stored_demand: 0}) ==
+               {:noreply, [], %{stored_demand: 0}}
+    end
   end
 end
