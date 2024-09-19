@@ -31,8 +31,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducer do
       pulled_records: [],
       acked_records: [],
       cache_version: cache_version,
-      stored_demand: 0,
-      debug_counter: 0
+      stored_demand: 0
     }
 
     {:producer, initial_state}
@@ -66,7 +65,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducer do
       )
       |> Map.put(:acked_records, acked_records)
       |> Map.put(:stored_demand, calculate_stored_demand(total_demand, length(records)))
-      |> Map.put(:debug_counter, state.debug_counter + length(records))
 
     # Set a timer to try fulfilling demand again later
     if new_state.stored_demand > 0 do
