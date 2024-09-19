@@ -31,7 +31,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           internal_resource: "ScannedResource"
         }
       }
-      Figgy.HydrationConsumer.handle_batch(nil, [ephemera_folder_message, ephemera_term_message, scanned_resource_message], nil, %{cache_version: 0})
+
+      Figgy.HydrationConsumer.handle_batch(
+        nil,
+        [ephemera_folder_message, ephemera_term_message, scanned_resource_message],
+        nil,
+        %{cache_version: 0}
+      )
 
       entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
       assert entry_count == 2

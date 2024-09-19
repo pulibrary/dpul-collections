@@ -44,9 +44,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   end
 
   defp write_to_hydration_cache(
-    message = %Broadway.Message{data: %{internal_resource: internal_resource}}, 
-    cache_version
-    ) when internal_resource in ["EphemeraFolder", "EphemeraTerm"] do
+         message = %Broadway.Message{data: %{internal_resource: internal_resource}},
+         cache_version
+       )
+       when internal_resource in ["EphemeraFolder", "EphemeraTerm"] do
     # store in HydrationCache:
     # - data (blob) - this is the record
     # - cache_order (datetime) - this is our own new timestamp for this table
@@ -60,7 +61,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         source_cache_order: message.data.updated_at,
         data: message.data |> Map.from_struct() |> Map.delete(:__meta__)
       })
-      {:ok, response}
+
+    {:ok, response}
   end
 
   defp write_to_hydration_cache(_, _), do: {:ok, nil}

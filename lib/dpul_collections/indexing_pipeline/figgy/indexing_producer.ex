@@ -46,8 +46,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducer do
           acked_records: acked_records,
           stored_demand: stored_demand
         }
-  ) do
+      ) do
     total_demand = stored_demand + demand
+
     records =
       IndexingPipeline.get_transformation_cache_entries_since!(last_queried_marker, total_demand)
 
@@ -74,7 +75,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducer do
 
     {:noreply, Enum.map(records, &wrap_record/1), new_state}
   end
-
 
   defp calculate_stored_demand(total_demand, fulfilled_demand)
        when total_demand == fulfilled_demand do

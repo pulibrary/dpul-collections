@@ -12,14 +12,18 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
   end
 
   def wait_for_index_completion() do
-    transformer_cache_entries = IndexingPipeline.list_transformation_cache_entries |> length
+    transformer_cache_entries = IndexingPipeline.list_transformation_cache_entries() |> length
     ephemera_folder_count = FiggyTestSupport.ephemera_folder_count()
-    continue = if transformer_cache_entries == ephemera_folder_count do
-      DpulCollections.Solr.commit()
-      if DpulCollections.Solr.document_count() == transformer_cache_entries do
-        true
+
+    continue =
+      if transformer_cache_entries == ephemera_folder_count do
+        DpulCollections.Solr.commit()
+
+        if DpulCollections.Solr.document_count() == transformer_cache_entries do
+          true
+        end
       end
-    end
+
     continue || (:timer.sleep(100) && wait_for_index_completion())
   end
 
@@ -28,6 +32,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     {:ok, hydrator} = Figgy.HydrationConsumer.start_link(batch_size: 50)
     {:ok, transformer} = Figgy.TransformationConsumer.start_link(batch_size: 50)
     {:ok, indexer} = Figgy.IndexingConsumer.start_link(batch_size: 50)
+
     task =
       Task.async(fn -> wait_for_index_completion() end)
 

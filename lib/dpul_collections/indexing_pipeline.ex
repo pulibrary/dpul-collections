@@ -59,7 +59,13 @@ defmodule DpulCollections.IndexingPipeline do
   def write_hydration_cache_entry(attrs \\ %{}) do
     conflict_query =
       Figgy.HydrationCacheEntry
-      |> update(set: [data: ^attrs.data, source_cache_order: ^attrs.source_cache_order, cache_order: ^DateTime.utc_now()])
+      |> update(
+        set: [
+          data: ^attrs.data,
+          source_cache_order: ^attrs.source_cache_order,
+          cache_order: ^DateTime.utc_now()
+        ]
+      )
       |> where([c], c.source_cache_order <= ^attrs.source_cache_order)
 
     try do
@@ -353,7 +359,13 @@ defmodule DpulCollections.IndexingPipeline do
   def write_transformation_cache_entry(attrs \\ %{}) do
     conflict_query =
       Figgy.TransformationCacheEntry
-      |> update(set: [data: ^attrs.data, source_cache_order: ^attrs.source_cache_order, cache_order: ^DateTime.utc_now()])
+      |> update(
+        set: [
+          data: ^attrs.data,
+          source_cache_order: ^attrs.source_cache_order,
+          cache_order: ^DateTime.utc_now()
+        ]
+      )
       |> where([c], c.source_cache_order <= ^attrs.source_cache_order)
 
     try do

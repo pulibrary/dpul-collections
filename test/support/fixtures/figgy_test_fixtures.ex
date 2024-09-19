@@ -41,6 +41,7 @@ defmodule FiggyTestFixtures do
       })
 
     :timer.sleep(1)
+
     {:ok, entry2} =
       IndexingPipeline.write_hydration_cache_entry(%{
         cache_version: cache_version,
@@ -54,6 +55,7 @@ defmodule FiggyTestFixtures do
       })
 
     :timer.sleep(1)
+
     {:ok, entry3} =
       IndexingPipeline.write_hydration_cache_entry(%{
         cache_version: cache_version,
