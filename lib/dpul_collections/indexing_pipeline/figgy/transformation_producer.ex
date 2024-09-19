@@ -88,10 +88,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducer do
     handle_demand(0, state)
   end
 
-  def handle_info(:check_for_updates, state) do
-    {:noreply, [], state}
-  end
-
   @impl GenStage
   @spec handle_info({atom(), atom(), list(%Figgy.HydrationCacheEntryMarker{})}, state()) ::
           {:noreply, list(Broadway.Message.t()), state()}
