@@ -28,17 +28,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
   test "transformation cache entry creation" do
     {marker1, _marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers()
 
-    IndexingPipeline.write_hydration_cache_entry(%{
-      cache_version: 0,
-      record_id: marker1.id,
-      source_cache_order: marker1.timestamp,
-      data: %{
-        "id" => marker1.id,
-        "internal_resource" => "EphemeraFolder",
-        "metadata" => %{"title" => ["test title"]}
-      }
-    })
-
     transformer = start_transformer_producer()
 
     MockFiggyTransformationProducer.process(1)
@@ -52,7 +41,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
 
     assert %{
              "id" => ^marker_1_id,
-             "title_ss" => ["test title"]
+             "title_ss" => ["test title 1"]
            } = cache_entry.data
 
     transformer |> Broadway.stop(:normal)
@@ -116,28 +105,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
 
   test "loads a marker from the database on startup" do
     {marker1, marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers()
-
-    IndexingPipeline.write_hydration_cache_entry(%{
-      cache_version: 0,
-      record_id: marker1.id,
-      source_cache_order: marker1.timestamp,
-      data: %{
-        "id" => marker1.id,
-        "internal_resource" => "EphemeraFolder",
-        "metadata" => %{"title" => ["test title 1"]}
-      }
-    })
-
-    IndexingPipeline.write_hydration_cache_entry(%{
-      cache_version: 0,
-      record_id: marker2.id,
-      source_cache_order: marker2.timestamp,
-      data: %{
-        "id" => marker2.id,
-        "internal_resource" => "EphemeraFolder",
-        "metadata" => %{"title" => ["test title 2"]}
-      }
-    })
 
     # Create a marker
     IndexingPipeline.write_processor_marker(%{

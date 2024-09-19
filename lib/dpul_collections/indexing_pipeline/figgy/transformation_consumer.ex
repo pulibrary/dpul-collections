@@ -84,7 +84,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
       IndexingPipeline.write_transformation_cache_entry(%{
         cache_version: cache_version,
         record_id: hydration_cache_entry |> Map.get(:record_id),
-        source_cache_order: hydration_cache_entry |> Map.get(:source_cache_order),
+        source_cache_order: hydration_cache_entry |> Map.get(:cache_order),
         data: solr_doc
       })
   end
