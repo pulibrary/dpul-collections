@@ -32,7 +32,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
   end
 
   test "solr document creation" do
-    {marker1, _marker2, _marker3} = FiggyTestFixtures.transformation_cache_markers()
+    FiggyTestFixtures.transformation_cache_markers()
 
     indexer = start_indexing_producer()
 

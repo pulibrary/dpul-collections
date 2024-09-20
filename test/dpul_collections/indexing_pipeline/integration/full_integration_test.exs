@@ -1,7 +1,7 @@
 defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
   use DpulCollections.DataCase
 
-  alias DpulCollections.{FiggyRepo, Repo}
+  alias DpulCollections.Repo
   alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.Solr

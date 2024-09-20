@@ -4,7 +4,6 @@ defmodule FiggyTestSupport do
   alias DpulCollections.IndexingPipeline.Figgy
 
   alias DpulCollections.FiggyRepo
-  alias DpulCollections.Repo
 
   def total_resource_count do
     query =
