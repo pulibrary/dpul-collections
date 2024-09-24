@@ -33,11 +33,15 @@ defmodule DpulCollections.Application do
 
   # coveralls-ignore-start
   def environment_children(_) do
-    [
-      {DpulCollections.IndexingPipeline.Figgy.IndexingConsumer, cache_version: 0, batch_size: 50},
-      {DpulCollections.IndexingPipeline.Figgy.TransformationConsumer,cache_version: 0, batch_size: 50},
-      {DpulCollections.IndexingPipeline.Figgy.HydrationConsumer,cache_version: 0, batch_size: 50}
-    ]
+    if Phoenix.Endpoint.server?(:dpul_collections, DpulCollectionsWeb.Endpoint) do
+      [
+        {DpulCollections.IndexingPipeline.Figgy.IndexingConsumer, cache_version: 0, batch_size: 50},
+        {DpulCollections.IndexingPipeline.Figgy.TransformationConsumer,cache_version: 0, batch_size: 50},
+        {DpulCollections.IndexingPipeline.Figgy.HydrationConsumer,cache_version: 0, batch_size: 50}
+      ]
+    else
+      []
+    end
   end
   # coveralls-ignore-end
 
