@@ -39,10 +39,24 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
   end
 
   @impl Broadway
+  @spec handle_message(any(), any(), %{required(:cache_version) => integer()}) :: Broadway.Message.t()
+  def handle_message(
+    _processor,
+    message = %Broadway.Message{data: %{data: %{"internal_resource" => internal_resource}}},
+    _state
+  )
+  when internal_resource in ["EphemeraFolder"] do
+    solr_doc = transform_to_solr_document(message.data)
+    message
+    |> put_in([message.data, :data], solr_doc)
+  end
+
+  @impl Broadway
   @spec handle_message(any(), any(), %{required(:cache_version) => integer()}) ::
           Broadway.Message.t()
   def handle_message(_processor, message, %{cache_version: _cache_version}) do
     message
+    |> put_in([message.data, :data], nil)
   end
 
   @impl Broadway
@@ -56,13 +70,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
   @spec write_to_transformation_cache(Broadway.Message.t(), integer()) ::
           {:ok, %Figgy.TransformationCacheEntry{} | nil}
   defp write_to_transformation_cache(
-         message = %Broadway.Message{data: %{data: %{"internal_resource" => internal_resource}}},
+         message = %Broadway.Message{data: %{data: solr_document}},
          cache_version
-       )
-       when internal_resource in ["EphemeraFolder"] do
+  ) do
     hydration_cache_entry = message.data
-    solr_doc = transform_to_solr_document(hydration_cache_entry)
-
     # store in TransformationCache:
     # - data (map) - this is the transformed solr document map
     # - cache_order (datetime) - this is our own new timestamp for this table
@@ -74,7 +85,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
         cache_version: cache_version,
         record_id: hydration_cache_entry |> Map.get(:record_id),
         source_cache_order: hydration_cache_entry |> Map.get(:cache_order),
-        data: solr_doc
+        data: solr_document
       })
   end
 
