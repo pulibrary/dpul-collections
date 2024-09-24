@@ -39,22 +39,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
   end
 
   @impl Broadway
-  # (note that the start_link param will populate _context)
-  @spec handle_message(any(), %Broadway.Message{data: Figgy.HydrationCacheEntry.t()}, %{
-          required(:cache_version) => integer()
-        }) :: Broadway.Message.t()
-  def handle_message(
-        _processor,
-        message = %Broadway.Message{data: %{data: %{"internal_resource" => "EphemeraFolder"}}},
-        %{cache_version: cache_version}
-      ) do
-    write_to_transformation_cache(message, cache_version)
-
-    message
-  end
-
-  @impl Broadway
-  # fallback so we acknowledge messages we intentionally don't write
   @spec handle_message(any(), any(), %{required(:cache_version) => integer()}) ::
           Broadway.Message.t()
   def handle_message(_processor, message, %{cache_version: _cache_version}) do
@@ -64,13 +48,18 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
   @impl Broadway
   @spec handle_batch(any(), list(Broadway.Message.t()), any(), any()) ::
           list(Broadway.Message.t())
-  def handle_batch(_batcher, messages, _batch_info, _context) do
+  def handle_batch(_batcher, messages, _batch_info, %{cache_version: cache_version}) do
+    Enum.each(messages, &write_to_transformation_cache(&1, cache_version))
     messages
   end
 
   @spec write_to_transformation_cache(Broadway.Message.t(), integer()) ::
           {:ok, %Figgy.TransformationCacheEntry{} | nil}
-  defp write_to_transformation_cache(message, cache_version) do
+  defp write_to_transformation_cache(
+         message = %Broadway.Message{data: %{data: %{"internal_resource" => internal_resource}}},
+         cache_version
+       )
+       when internal_resource in ["EphemeraFolder"] do
     hydration_cache_entry = message.data
     solr_doc = transform_to_solr_document(hydration_cache_entry)
 
@@ -88,6 +77,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
         data: solr_doc
       })
   end
+
+  defp write_to_transformation_cache(_, _), do: {:ok, nil}
 
   @spec transform_to_solr_document(%Figgy.HydrationCacheEntry{}) :: %{}
   defp transform_to_solr_document(hydration_cache_entry) do
