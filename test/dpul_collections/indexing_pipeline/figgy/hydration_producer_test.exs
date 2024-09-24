@@ -133,7 +133,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
           pulled_records: [],
           acked_records: [],
           cache_version: 0,
-          stored_demand: 0
+          stored_demand: 1
         }
 
       assert new_state == expected_state
@@ -404,6 +404,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
         IndexingPipeline.get_processor_marker!("hydrator", 1) |> Figgy.ResourceMarker.from()
 
       assert processor_marker == marker2
+    end
+
+    test ".handle_info(:check_for_updates) with no stored demand" do
+      assert Figgy.HydrationProducer.handle_info(:check_for_updates, %{stored_demand: 0}) ==
+               {:noreply, [], %{stored_demand: 0}}
     end
   end
 end
