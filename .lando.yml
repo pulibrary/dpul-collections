@@ -22,7 +22,7 @@ services:
       dir: solr/config
   development_solr:
     type: solr:8
-    portforward: true
+    portforward: 8985
     core: dpulc-dev
     config:
       dir: solr/config

@@ -11,10 +11,6 @@ defmodule DpulCollections.Application do
       DpulCollectionsWeb.Telemetry,
       DpulCollections.Repo,
       DpulCollections.FiggyRepo,
-      # Controllable Hydrator for testing in dev.
-      # {DpulCollections.IndexingPipeline.FiggyHydrator, producer_module: TestFiggyProducer, producer_options: {self()}},
-      # Production Hydrator
-      # DpulCollections.IndexingPipeline.FiggyHydrator,
       {DNSCluster, query: Application.get_env(:dpul_collections, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: DpulCollections.PubSub},
       # Start the Finch HTTP client for sending emails
@@ -23,13 +19,27 @@ defmodule DpulCollections.Application do
       # {DpulCollections.Worker, arg},
       # Start to serve requests, typically the last entry
       DpulCollectionsWeb.Endpoint
-    ]
+    ] ++ environment_children(Mix.env)
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: DpulCollections.Supervisor]
     Supervisor.start_link(children, opts)
   end
+
+  def environment_children(:test) do
+    []
+  end
+
+  # coveralls-ignore-start
+  def environment_children(_) do
+    [
+      {DpulCollections.IndexingPipeline.Figgy.IndexingConsumer, cache_version: 0, batch_size: 50},
+      {DpulCollections.IndexingPipeline.Figgy.TransformationConsumer,cache_version: 0, batch_size: 50},
+      {DpulCollections.IndexingPipeline.Figgy.HydrationConsumer,cache_version: 0, batch_size: 50}
+    ]
+  end
+  # coveralls-ignore-end
 
   # Tell Phoenix to update the endpoint configuration
   # whenever the application is updated.
@@ -39,6 +49,5 @@ defmodule DpulCollections.Application do
     DpulCollectionsWeb.Endpoint.config_change(changed, removed)
     :ok
   end
-
   # coveralls-ignore-end
 end
