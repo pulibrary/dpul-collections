@@ -31,7 +31,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerTest do
             marker2
           ],
           acked_records: [],
-          cache_version: index_version
+          cache_version: index_version,
+          stored_demand: 0
         }
 
       assert new_state == expected_state
@@ -48,7 +49,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerTest do
             marker2
           ],
           acked_records: [],
-          cache_version: 0
+          cache_version: 0,
+          stored_demand: 0
         }
 
       {:noreply, messages, new_state} =
@@ -72,7 +74,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerTest do
             marker3
           ],
           acked_records: [],
-          cache_version: 0
+          cache_version: 0,
+          stored_demand: 0
         }
 
       assert new_state == expected_state
@@ -94,7 +97,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerTest do
           last_queried_marker: fabricated_marker,
           pulled_records: [],
           acked_records: [],
-          cache_version: 0
+          cache_version: 0,
+          stored_demand: 0
         }
 
       {:noreply, messages, new_state} =
@@ -107,7 +111,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerTest do
           last_queried_marker: fabricated_marker,
           pulled_records: [],
           acked_records: [],
-          cache_version: 0
+          cache_version: 0,
+          stored_demand: 1
         }
 
       assert new_state == expected_state
@@ -125,7 +130,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerTest do
           marker3
         ],
         acked_records: [],
-        cache_version: cache_version
+        cache_version: cache_version,
+        stored_demand: 0
       }
 
       acked_indexing_markers =
@@ -144,7 +150,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerTest do
         acked_records: [
           marker3
         ],
-        cache_version: cache_version
+        cache_version: cache_version,
+        stored_demand: 0
       }
 
       {:noreply, [], new_state} =
@@ -170,7 +177,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerTest do
         last_queried_marker: marker3,
         pulled_records: [],
         acked_records: [],
-        cache_version: cache_version
+        cache_version: cache_version,
+        stored_demand: 0
       }
 
       {:noreply, [], new_state} =
@@ -201,7 +209,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerTest do
           marker3
         ],
         acked_records: [],
-        cache_version: 1
+        cache_version: 1,
+        stored_demand: 0
       }
 
       acked_indexing_markers =
@@ -220,7 +229,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerTest do
         acked_records: [
           marker2
         ],
-        cache_version: 1
+        cache_version: 1,
+        stored_demand: 0
       }
 
       {:noreply, [], new_state} =
@@ -241,7 +251,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerTest do
         last_queried_marker: marker3,
         pulled_records: [],
         acked_records: [],
-        cache_version: 1
+        cache_version: 1,
+        stored_demand: 0
       }
 
       acked_indexing_markers =
@@ -254,7 +265,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerTest do
         last_queried_marker: marker3,
         pulled_records: [],
         acked_records: [],
-        cache_version: 1
+        cache_version: 1,
+        stored_demand: 0
       }
 
       {:noreply, [], new_state} =
@@ -280,7 +292,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerTest do
         acked_records: [
           marker2
         ],
-        cache_version: 1
+        cache_version: 1,
+        stored_demand: 0
       }
 
       acked_indexing_markers =
@@ -298,7 +311,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerTest do
         acked_records: [
           marker2
         ],
-        cache_version: 1
+        cache_version: 1,
+        stored_demand: 0
       }
 
       {:noreply, [], new_state} =
@@ -325,7 +339,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerTest do
           marker2
         ],
         acked_records: [],
-        cache_version: 1
+        cache_version: 1,
+        stored_demand: 0
       }
 
       first_ack =
@@ -339,7 +354,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerTest do
           marker2
         ],
         acked_records: [],
-        cache_version: 1
+        cache_version: 1,
+        stored_demand: 0
       }
 
       {:noreply, [], new_state} =
@@ -360,7 +376,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerTest do
         last_queried_marker: marker2,
         pulled_records: [],
         acked_records: [],
-        cache_version: 1
+        cache_version: 1,
+        stored_demand: 0
       }
 
       {:noreply, [], new_state} =
@@ -376,6 +393,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerTest do
         |> Figgy.TransformationCacheEntryMarker.from()
 
       assert processor_marker == marker2
+    end
+
+    test ".handle_info(:check_for_updates) with no stored demand" do
+      assert Figgy.IndexingProducer.handle_info(:check_for_updates, %{stored_demand: 0}) ==
+               {:noreply, [], %{stored_demand: 0}}
     end
   end
 end

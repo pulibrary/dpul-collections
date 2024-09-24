@@ -17,10 +17,15 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducer do
           last_queried_marker: Figgy.TransformationCacheEntryMarker.t(),
           pulled_records: [Figgy.TransformationCacheEntryMarker.t()],
           acked_records: [Figgy.TransformationCacheEntryMarker.t()],
-          cache_version: Integer
+          cache_version: Integer,
+          stored_demand: Integer
         }
   @spec init(integer()) :: {:producer, state()}
   def init(cache_version) do
+    # trap the exit so we can stop gracefully
+    # see https://www.erlang.org/doc/apps/erts/erlang.html#process_flag/2
+    Process.flag(:trap_exit, true)
+
     last_queried_marker =
       IndexingPipeline.get_processor_marker!("figgy_indexer", cache_version)
 
@@ -28,7 +33,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducer do
       last_queried_marker: last_queried_marker |> Figgy.TransformationCacheEntryMarker.from(),
       pulled_records: [],
       acked_records: [],
-      cache_version: cache_version
+      cache_version: cache_version,
+      stored_demand: 0
     }
 
     {:producer, initial_state}
@@ -41,12 +47,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducer do
         state = %{
           last_queried_marker: last_queried_marker,
           pulled_records: pulled_records,
-          acked_records: acked_records
+          acked_records: acked_records,
+          stored_demand: stored_demand
         }
-      )
-      when demand > 0 do
+      ) do
+    total_demand = stored_demand + demand
+
     records =
-      IndexingPipeline.get_transformation_cache_entries_since!(last_queried_marker, demand)
+      IndexingPipeline.get_transformation_cache_entries_since!(last_queried_marker, total_demand)
 
     new_state =
       state
@@ -62,8 +70,32 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducer do
         )
       )
       |> Map.put(:acked_records, acked_records)
+      |> Map.put(:stored_demand, calculate_stored_demand(total_demand, length(records)))
+
+    # Set a timer to try fulfilling demand again later
+    if new_state.stored_demand > 0 do
+      Process.send_after(self(), :check_for_updates, 50)
+    end
 
     {:noreply, Enum.map(records, &wrap_record/1), new_state}
+  end
+
+  defp calculate_stored_demand(total_demand, fulfilled_demand)
+       when total_demand == fulfilled_demand do
+    0
+  end
+
+  defp calculate_stored_demand(total_demand, fulfilled_demand)
+       when total_demand > fulfilled_demand do
+    total_demand - fulfilled_demand
+  end
+
+  def handle_info(:check_for_updates, state = %{stored_demand: demand}) when demand > 0 do
+    handle_demand(0, state)
+  end
+
+  def handle_info(:check_for_updates, state) do
+    {:noreply, [], state}
   end
 
   @impl GenStage

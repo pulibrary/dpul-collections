@@ -30,6 +30,37 @@ defmodule DpulCollections.IndexingPipelineTest do
         IndexingPipeline.get_hydration_cache_entry!(hydration_cache_entry.id)
       end
     end
+
+    test "write_hydration_cache_entry/1 upserts a cache entry" do
+      {:ok, first_write} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          data: %{},
+          source_cache_order: ~U[2024-07-23 20:05:00Z],
+          cache_version: 0,
+          record_id: "some record_id"
+        })
+
+      {:ok, second_write} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          data: %{},
+          source_cache_order: ~U[2024-07-24 20:05:00Z],
+          cache_version: 0,
+          record_id: "some record_id"
+        })
+
+      {:ok, nil} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          data: %{},
+          source_cache_order: ~U[2024-07-22 20:05:00Z],
+          cache_version: 0,
+          record_id: "some record_id"
+        })
+
+      reloaded = IndexingPipeline.get_hydration_cache_entry!(second_write.id)
+      assert first_write.cache_order != reloaded.cache_order
+      assert reloaded.source_cache_order == second_write.source_cache_order
+      assert IndexingPipeline.list_hydration_cache_entries() |> length == 1
+    end
   end
 
   describe "processor_markers" do

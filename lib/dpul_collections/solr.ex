@@ -10,6 +10,19 @@ defmodule DpulCollections.Solr do
     response.body["response"]["numFound"]
   end
 
+  def find_by_id(id) do
+    {:ok, response} =
+      Req.get(
+        select_url(),
+        params: [q: "id:#{id}"]
+      )
+
+    case response.body["response"]["docs"] do
+      [] -> nil
+      [doc] -> doc
+    end
+  end
+
   @spec add(list(map())) :: {:ok, Req.Response.t()} | {:error, Exception.t()}
   def add(docs) do
     Req.post(

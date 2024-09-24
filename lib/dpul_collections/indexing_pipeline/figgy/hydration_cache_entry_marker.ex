@@ -18,7 +18,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryMarker do
   def from(nil), do: nil
 
   @spec from(%HydrationCacheEntry{}) :: t()
-  def from(%HydrationCacheEntry{source_cache_order: timestamp, record_id: id}) do
+  def from(%HydrationCacheEntry{cache_order: timestamp, record_id: id}) do
     %__MODULE__{timestamp: timestamp, id: id}
   end
 
