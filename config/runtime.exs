@@ -49,6 +49,20 @@ if config_env() == :prod do
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
     socket_options: maybe_ipv6
 
+  solr_url =
+    System.get_env("SOLR_URL") ||
+      raise """
+      environment variable SOLR_URL is missing.
+      For example: http://localhost:8985/solr/dpulc-dev
+      """
+
+  # Configure Solr connection
+  config :dpul_collections, :solr, %{
+    url: solr_url,
+    username: "",
+    password: ""
+  }
+
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you
   # want to use a different value for prod and you most likely don't want
