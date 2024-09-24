@@ -38,54 +38,38 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   end
 
   @impl Broadway
-  # (note that the start_link param will populate _context)
-  # Only write to the cache if it's an ephemera folder
-  def handle_message(
-        _processor,
-        message = %Broadway.Message{data: %{internal_resource: "EphemeraFolder"}},
-        %{cache_version: cache_version}
-      ) do
-    write_to_hydration_cache(message, cache_version)
-
-    message
-  end
-
-  @impl Broadway
-  # Only write to the cache if it's an ephemera term
-  def handle_message(
-        _processor,
-        message = %Broadway.Message{data: %{internal_resource: "EphemeraTerm"}},
-        %{cache_version: cache_version}
-      ) do
-    write_to_hydration_cache(message, cache_version)
-
-    message
-  end
-
-  @impl Broadway
-  # fallback so we acknowledge messages we intentionally don't write
+  # pass through messages and write to cache in batcher to avoid race condition
   def handle_message(_processor, message, %{cache_version: _cache_version}) do
     message
   end
 
-  defp write_to_hydration_cache(message, cache_version) do
+  defp write_to_hydration_cache(
+         message = %Broadway.Message{data: %{internal_resource: internal_resource}},
+         cache_version
+       )
+       when internal_resource in ["EphemeraFolder", "EphemeraTerm"] do
     # store in HydrationCache:
     # - data (blob) - this is the record
     # - cache_order (datetime) - this is our own new timestamp for this table
     # - cache_version (this only changes manually, we have to hold onto it as state)
     # - record_id (varchar) - the figgy UUID
     # - source_cache_order (datetime) - the figgy updated_at
-    {:ok, _} =
+    {:ok, response} =
       IndexingPipeline.write_hydration_cache_entry(%{
         cache_version: cache_version,
         record_id: message.data.id,
         source_cache_order: message.data.updated_at,
         data: message.data |> Map.from_struct() |> Map.delete(:__meta__)
       })
+
+    {:ok, response}
   end
 
+  defp write_to_hydration_cache(_, _), do: {:ok, nil}
+
   @impl Broadway
-  def handle_batch(_batcher, messages, _batch_info, _context) do
+  def handle_batch(_batcher, messages, _batch_info, %{cache_version: cache_version}) do
+    Enum.each(messages, &write_to_hydration_cache(&1, cache_version))
     messages
   end
 end
