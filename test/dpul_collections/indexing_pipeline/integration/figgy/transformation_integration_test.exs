@@ -75,7 +75,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
     assert entry.source_cache_order == ~U[2200-03-09 20:19:33.414040Z]
   end
 
-  test "updates existing hydration cache entries" do
+  test "updates existing transformation cache entries" do
     {marker1, _marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers()
 
     # Create a tranformation cache entry for a record that has a source_cache_order
