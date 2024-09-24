@@ -17,7 +17,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducer do
           last_queried_marker: Figgy.ResourceMarker.t(),
           pulled_records: [Figgy.ResourceMarker.t()],
           acked_records: [Figgy.ResourceMarker.t()],
-          cache_version: Integer
+          cache_version: Integer,
+          stored_demand: Integer
         }
   def init(cache_version) do
     last_queried_marker = IndexingPipeline.get_processor_marker!("hydrator", cache_version)
@@ -26,7 +27,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducer do
       last_queried_marker: last_queried_marker |> Figgy.ResourceMarker.from(),
       pulled_records: [],
       acked_records: [],
-      cache_version: cache_version
+      cache_version: cache_version,
+      stored_demand: 0
     }
 
     {:producer, initial_state}
