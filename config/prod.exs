@@ -8,6 +8,9 @@ import Config
 config :dpul_collections, DpulCollectionsWeb.Endpoint,
   cache_static_manifest: "priv/static/cache_manifest.json"
 
+# Set environment
+config :dpul_collections, :current_env, :prod
+
 # Configures Swoosh API Client
 config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: DpulCollections.Finch
 
