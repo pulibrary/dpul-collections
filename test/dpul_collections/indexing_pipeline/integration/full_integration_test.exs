@@ -3,8 +3,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
   alias DpulCollections.Repo
   alias DpulCollections.IndexingPipeline.Figgy
-  alias DpulCollections.IndexingPipeline
-  alias DpulCollections.Solr
+  alias DpulCollections.{IndexingPipeline, Solr, Utilities}
 
   setup do
     Solr.delete_all()
@@ -41,10 +40,14 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
   end
 
   test "a full hydrator and transformer run" do
-    # Start the figgy producer
-    {:ok, indexer} = Figgy.IndexingConsumer.start_link(cache_version: 1, batch_size: 50)
-    {:ok, transformer} = Figgy.TransformationConsumer.start_link(cache_version: 1, batch_size: 50)
-    {:ok, hydrator} = Figgy.HydrationConsumer.start_link(cache_version: 1, batch_size: 50)
+    # Start the figgy pipeline in a way that mimics how it is started in test and prod
+    children = [
+      {Figgy.IndexingConsumer, cache_version: 1, batch_size: 50},
+      {Figgy.TransformationConsumer, cache_version: 1, batch_size: 50},
+      {Figgy.HydrationConsumer, cache_version: 1, batch_size: 50}
+    ]
+
+    Supervisor.start_link(children, strategy: :one_for_one, name: DpulCollections.TestSupervisor)
 
     task =
       Task.async(fn -> wait_for_index_completion() end)
@@ -73,9 +76,20 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     assert transformation_processor_marker.cache_version == 1
     assert indexing_processor_marker.cache_version == 1
 
-    hydrator |> Broadway.stop(:normal)
-    transformer |> Broadway.stop(:normal)
-    indexer |> Broadway.stop(:normal)
+    # test reindexing
+    Repo.truncate(Figgy.TransformationCacheEntry)
+    Repo.truncate(Figgy.HydrationCacheEntry)
+    Solr.delete_all()
+    assert Solr.document_count() == 0
+    Utilities.reindex_all(1)
+
+    task =
+      Task.async(fn -> wait_for_index_completion() end)
+
+    Task.await(task, 15000)
+    assert Solr.document_count() == transformation_cache_entry_count
+
+    Supervisor.stop(DpulCollections.TestSupervisor, :normal)
   end
 
   test "indexes description" do
