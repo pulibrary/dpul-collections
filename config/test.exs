@@ -55,3 +55,6 @@ config :dpul_collections, :solr, %{
   username: System.get_env("SOLR_USERNAME"),
   password: System.get_env("SOLR_PASSWORD")
 }
+
+# Set this poll interval really small so it triggers in test.
+config :dpul_collections, :figgy_hydrator, poll_interval: 50

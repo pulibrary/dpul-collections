@@ -22,7 +22,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
             marker2
           ],
           acked_records: [],
-          cache_version: 0
+          cache_version: 0,
+          stored_demand: 0
         }
 
       assert new_state == expected_state
@@ -39,7 +40,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
             marker2
           ],
           acked_records: [],
-          cache_version: 0
+          cache_version: 0,
+          stored_demand: 0
         }
 
       {:noreply, messages, new_state} = Figgy.HydrationProducer.handle_demand(1, initial_state)
@@ -56,7 +58,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
             marker3
           ],
           acked_records: [],
-          cache_version: 0
+          cache_version: 0,
+          stored_demand: 0
         }
 
       assert new_state == expected_state
@@ -79,7 +82,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
             fabricated_marker
           ],
           acked_records: [],
-          cache_version: 0
+          cache_version: 0,
+          stored_demand: 0
         }
 
       {:noreply, messages, new_state} = Figgy.HydrationProducer.handle_demand(1, initial_state)
@@ -95,7 +99,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
             marker3
           ],
           acked_records: [],
-          cache_version: 0
+          cache_version: 0,
+          stored_demand: 0
         }
 
       assert new_state == expected_state
@@ -114,7 +119,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
           last_queried_marker: fabricated_marker,
           pulled_records: [],
           acked_records: [],
-          cache_version: 0
+          cache_version: 0,
+          stored_demand: 0
         }
 
       {:noreply, messages, new_state} = Figgy.HydrationProducer.handle_demand(1, initial_state)
@@ -126,7 +132,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
           last_queried_marker: fabricated_marker,
           pulled_records: [],
           acked_records: [],
-          cache_version: 0
+          cache_version: 0,
+          stored_demand: 1
         }
 
       assert new_state == expected_state
@@ -144,7 +151,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
           marker3
         ],
         acked_records: [],
-        cache_version: cache_version
+        cache_version: cache_version,
+        stored_demand: 0
       }
 
       acked_markers =
@@ -163,7 +171,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
         acked_records: [
           marker3
         ],
-        cache_version: cache_version
+        cache_version: cache_version,
+        stored_demand: 0
       }
 
       {:noreply, [], new_state} =
@@ -187,7 +196,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
         last_queried_marker: marker3,
         pulled_records: [],
         acked_records: [],
-        cache_version: cache_version
+        cache_version: cache_version,
+        stored_demand: 0
       }
 
       {:noreply, [], new_state} =
@@ -217,7 +227,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
           marker3
         ],
         acked_records: [],
-        cache_version: 1
+        cache_version: 1,
+        stored_demand: 0
       }
 
       acked_markers =
@@ -236,7 +247,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
         acked_records: [
           marker2
         ],
-        cache_version: 1
+        cache_version: 1,
+        stored_demand: 0
       }
 
       {:noreply, [], new_state} =
@@ -257,7 +269,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
         last_queried_marker: marker3,
         pulled_records: [],
         acked_records: [],
-        cache_version: 1
+        cache_version: 1,
+        stored_demand: 0
       }
 
       acked_markers =
@@ -270,7 +283,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
         last_queried_marker: marker3,
         pulled_records: [],
         acked_records: [],
-        cache_version: 1
+        cache_version: 1,
+        stored_demand: 0
       }
 
       {:noreply, [], new_state} =
@@ -296,7 +310,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
         acked_records: [
           marker2
         ],
-        cache_version: 1
+        cache_version: 1,
+        stored_demand: 0
       }
 
       acked_markers =
@@ -314,7 +329,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
         acked_records: [
           marker2
         ],
-        cache_version: 1
+        cache_version: 1,
+        stored_demand: 0
       }
 
       {:noreply, [], new_state} =
@@ -341,7 +357,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
           marker2
         ],
         acked_records: [],
-        cache_version: 1
+        cache_version: 1,
+        stored_demand: 0
       }
 
       first_ack =
@@ -355,7 +372,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
           marker2
         ],
         acked_records: [],
-        cache_version: 1
+        cache_version: 1,
+        stored_demand: 0
       }
 
       {:noreply, [], new_state} =
@@ -373,7 +391,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
         last_queried_marker: marker2,
         pulled_records: [],
         acked_records: [],
-        cache_version: 1
+        cache_version: 1,
+        stored_demand: 0
       }
 
       {:noreply, [], new_state} =
@@ -385,6 +404,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
         IndexingPipeline.get_processor_marker!("hydrator", 1) |> Figgy.ResourceMarker.from()
 
       assert processor_marker == marker2
+    end
+
+    test ".handle_info(:check_for_updates) with no stored demand" do
+      assert Figgy.HydrationProducer.handle_info(:check_for_updates, %{stored_demand: 0}) ==
+               {:noreply, [], %{stored_demand: 0}}
     end
   end
 end

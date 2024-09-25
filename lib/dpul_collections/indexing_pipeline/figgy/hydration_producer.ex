@@ -17,7 +17,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducer do
           last_queried_marker: Figgy.ResourceMarker.t(),
           pulled_records: [Figgy.ResourceMarker.t()],
           acked_records: [Figgy.ResourceMarker.t()],
-          cache_version: Integer
+          cache_version: Integer,
+          stored_demand: Integer
         }
   def init(cache_version) do
     last_queried_marker = IndexingPipeline.get_processor_marker!("hydrator", cache_version)
@@ -26,7 +27,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducer do
       last_queried_marker: last_queried_marker |> Figgy.ResourceMarker.from(),
       pulled_records: [],
       acked_records: [],
-      cache_version: cache_version
+      cache_version: cache_version,
+      stored_demand: 0
     }
 
     {:producer, initial_state}
@@ -38,11 +40,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducer do
         state = %{
           last_queried_marker: last_queried_marker,
           pulled_records: pulled_records,
-          acked_records: acked_records
+          acked_records: acked_records,
+          stored_demand: stored_demand
         }
-      )
-      when demand > 0 do
-    records = IndexingPipeline.get_figgy_resources_since!(last_queried_marker, demand)
+      ) do
+    total_demand = stored_demand + demand
+
+    records = IndexingPipeline.get_figgy_resources_since!(last_queried_marker, total_demand)
 
     new_state =
       state
@@ -55,8 +59,38 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducer do
         Enum.concat(pulled_records, Enum.map(records, &Figgy.ResourceMarker.from/1))
       )
       |> Map.put(:acked_records, acked_records)
+      |> Map.put(:stored_demand, calculate_stored_demand(total_demand, length(records)))
+
+    # Set a timer to try fulfilling demand again later
+    if new_state.stored_demand > 0 do
+      Process.send_after(
+        self(),
+        :check_for_updates,
+        Application.get_env(:dpul_collections, :figgy_hydrator)[:poll_interval]
+      )
+    end
 
     {:noreply, Enum.map(records, &wrap_record/1), new_state}
+  end
+
+  defp calculate_stored_demand(total_demand, fulfilled_demand)
+       when total_demand == fulfilled_demand do
+    0
+  end
+
+  defp calculate_stored_demand(total_demand, fulfilled_demand)
+       when total_demand > fulfilled_demand do
+    total_demand - fulfilled_demand
+  end
+
+  def handle_info(:check_for_updates, state = %{stored_demand: demand})
+      when demand > 0 do
+    new_demand = 0
+    handle_demand(new_demand, state)
+  end
+
+  def handle_info(:check_for_updates, state) do
+    {:noreply, [], state}
   end
 
   @impl GenStage
