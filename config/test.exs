@@ -36,6 +36,9 @@ config :dpul_collections, DpulCollectionsWeb.Endpoint,
 # In test we don't send emails.
 config :dpul_collections, DpulCollections.Mailer, adapter: Swoosh.Adapters.Test
 
+# Set environment
+config :dpul_collections, :current_env, :test
+
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
 
