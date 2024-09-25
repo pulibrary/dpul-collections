@@ -44,10 +44,38 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   end
 
   defp write_to_hydration_cache(
+         message = %Broadway.Message{
+           data: %{
+             internal_resource: internal_resource,
+             metadata: %{"state" => state, "visibility" => visibility}
+           }
+         },
+         cache_version
+       )
+       when internal_resource in ["EphemeraFolder"] and state == ["complete"] and
+              visibility == ["open"] do
+    # store in HydrationCache:
+    # - data (blob) - this is the record
+    # - cache_order (datetime) - this is our own new timestamp for this table
+    # - cache_version (this only changes manually, we have to hold onto it as state)
+    # - record_id (varchar) - the figgy UUID
+    # - source_cache_order (datetime) - the figgy updated_at
+    {:ok, response} =
+      IndexingPipeline.write_hydration_cache_entry(%{
+        cache_version: cache_version,
+        record_id: message.data.id,
+        source_cache_order: message.data.updated_at,
+        data: message.data |> Map.from_struct() |> Map.delete(:__meta__)
+      })
+
+    {:ok, response}
+  end
+
+  defp write_to_hydration_cache(
          message = %Broadway.Message{data: %{internal_resource: internal_resource}},
          cache_version
        )
-       when internal_resource in ["EphemeraFolder", "EphemeraTerm"] do
+       when internal_resource in ["EphemeraTerm"] do
     # store in HydrationCache:
     # - data (blob) - this is the record
     # - cache_order (datetime) - this is our own new timestamp for this table
