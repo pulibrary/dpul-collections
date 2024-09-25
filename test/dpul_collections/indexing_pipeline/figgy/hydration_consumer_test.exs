@@ -4,13 +4,43 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
   alias DpulCollections.IndexingPipeline.Figgy
 
   describe "Figgy.HydrationConsumer" do
-    test "handle_message/3 only writes EphemeraFolders and EphemeraTerms to the Figgy.HydrationCache" do
+    test "handle_message/3 only writes open and complete EphemeraFolders and EphemeraTerms to the Figgy.HydrationCache" do
       ephemera_folder_message = %Broadway.Message{
         acknowledger: nil,
         data: %Figgy.Resource{
           id: "47276197-e223-471c-99d7-405c5f6c5285",
           updated_at: ~U[2018-03-09 20:19:34.486004Z],
-          internal_resource: "EphemeraFolder"
+          internal_resource: "EphemeraFolder",
+          metadata: %{
+            "state" => ["complete"],
+            "visibility" => ["open"]
+          }
+        }
+      }
+
+      pending_ephemera_folder_message = %Broadway.Message{
+        acknowledger: nil,
+        data: %Figgy.Resource{
+          id: "47276197-e223-471c-99d7-405c5f6c5285",
+          updated_at: ~U[2018-03-09 20:19:34.486004Z],
+          internal_resource: "EphemeraFolder",
+          metadata: %{
+            "state" => ["pending"],
+            "visibility" => ["open"]
+          }
+        }
+      }
+
+      restricted_ephemera_folder_message = %Broadway.Message{
+        acknowledger: nil,
+        data: %Figgy.Resource{
+          id: "47276197-e223-471c-99d7-405c5f6c5285",
+          updated_at: ~U[2018-03-09 20:19:34.486004Z],
+          internal_resource: "EphemeraFolder",
+          metadata: %{
+            "state" => ["complete"],
+            "visibility" => ["restricted"]
+          }
         }
       }
 
@@ -34,7 +64,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
 
       Figgy.HydrationConsumer.handle_batch(
         nil,
-        [ephemera_folder_message, ephemera_term_message, scanned_resource_message],
+        [
+          ephemera_folder_message,
+          pending_ephemera_folder_message,
+          restricted_ephemera_folder_message,
+          ephemera_term_message,
+          scanned_resource_message
+        ],
         nil,
         %{cache_version: 0}
       )
