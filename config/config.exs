@@ -8,7 +8,7 @@
 import Config
 
 config :dpul_collections,
-  ecto_repos: [DpulCollections.Repo, DpulCollections.FiggyRepo],
+  ecto_repos: [DpulCollections.Repo],
   generators: [timestamp_type: :utc_datetime]
 
 # Configures the endpoint
