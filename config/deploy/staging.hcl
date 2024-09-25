@@ -11,7 +11,7 @@ job "dpulc-staging" {
     auto_revert       = true
   }
   group "web" {
-    count = 2
+    count = 1
     network {
       port "http" { to = 4000 }
     }
@@ -45,6 +45,8 @@ job "dpulc-staging" {
         data = <<EOF
         {{- with nomadVar "nomad/jobs/dpulc-staging" -}}
         DATABASE_URL = ecto://{{ .DB_USER }}:{{ .DB_PASSWORD }}@{{ .POSTGRES_HOST }}/{{ .DB_NAME }}
+        FIGGY_DATABASE_URL = {{ .FIGGY_DATABASE_URL }}
+        SOLR_URL = {{ .SOLR_URL }}
         SECRET_KEY_BASE = {{ .SECRET_KEY_BASE }}
         {{- end -}}
         EOF
@@ -64,6 +66,8 @@ job "dpulc-staging" {
         data = <<EOF
         {{- with nomadVar "nomad/jobs/dpulc-staging" -}}
         DATABASE_URL = ecto://{{ .DB_USER }}:{{ .DB_PASSWORD }}@{{ .POSTGRES_HOST }}/{{ .DB_NAME }}
+        FIGGY_DATABASE_URL = {{ .FIGGY_DATABASE_URL }}
+        SOLR_URL = {{ .SOLR_URL }}
         SECRET_KEY_BASE = {{ .SECRET_KEY_BASE }}
         {{- end -}}
         EOF
