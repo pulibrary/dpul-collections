@@ -4,7 +4,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HyrdationIntegrationTest do
   alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline
 
-  def start_producer(batch_size \\ 1) do
+  def start_producer(cache_version \\ 0) do
     pid = self()
 
     :telemetry.attach(
@@ -16,10 +16,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HyrdationIntegrationTest do
 
     {:ok, hydrator} =
       Figgy.HydrationConsumer.start_link(
-        cache_version: 0,
+        cache_version: cache_version,
         producer_module: MockFiggyHydrationProducer,
         producer_options: {self()},
-        batch_size: batch_size
+        batch_size: 1
       )
 
     hydrator
@@ -42,6 +42,29 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HyrdationIntegrationTest do
              "id" => ^marker_1_id,
              "internal_resource" => "EphemeraTerm"
            } = cache_entry.data
+
+    hydrator |> Broadway.stop(:normal)
+  end
+
+  test "hydration cache entry creation with cache_version > 0" do
+    {marker1, _marker2, _marker3} = FiggyTestFixtures.markers()
+    hydrator = start_producer(1)
+
+    MockFiggyHydrationProducer.process(1)
+    assert_receive {:ack_done}
+
+    cache_entry = IndexingPipeline.list_hydration_cache_entries() |> hd
+    assert cache_entry.record_id == marker1.id
+    assert cache_entry.cache_version == 1
+    assert cache_entry.source_cache_order == marker1.timestamp
+    marker_1_id = marker1.id
+    assert %{
+             "id" => ^marker_1_id,
+             "internal_resource" => "EphemeraTerm"
+           } = cache_entry.data
+
+    processor_marker = IndexingPipeline.get_processor_marker!("hydrator", 1)
+    assert processor_marker.cache_version == 1     
 
     hydrator |> Broadway.stop(:normal)
   end
