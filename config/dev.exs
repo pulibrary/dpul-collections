@@ -77,6 +77,8 @@ config :dpul_collections, DpulCollectionsWeb.Endpoint,
 # Set environment
 config :dpul_collections, :current_env, :dev
 
+config :dpul_collections, :cache_version, 1
+
 # Enable dev routes for dashboard and mailbox
 config :dpul_collections, dev_routes: true
 
