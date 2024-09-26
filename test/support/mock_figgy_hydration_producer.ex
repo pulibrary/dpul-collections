@@ -13,9 +13,9 @@ defmodule MockFiggyHydrationProducer do
 
   @impl GenStage
   @type state :: %{consumer_pid: pid(), test_runner_pid: pid(), figgy_producer_pid: pid()}
-  @spec init({pid()}) :: {:producer, state()}
-  def init({test_runner_pid}) do
-    {:ok, figgy_producer_pid} = Figgy.HydrationProducer.start_link()
+  @spec init({pid(), Integer}) :: {:producer, state()}
+  def init({test_runner_pid, cache_version}) do
+    {:ok, figgy_producer_pid} = Figgy.HydrationProducer.start_link(cache_version)
     {:ok, consumer_pid} = MockConsumer.start_link(figgy_producer_pid)
 
     {:producer,

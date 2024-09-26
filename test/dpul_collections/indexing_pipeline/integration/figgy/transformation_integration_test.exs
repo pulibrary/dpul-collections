@@ -4,7 +4,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
   alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline
 
-  def start_transformer_producer(batch_size \\ 1) do
+  def start_transformer_producer(cache_version \\ 0) do
     pid = self()
 
     :telemetry.attach(
@@ -16,10 +16,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
 
     {:ok, transformer} =
       Figgy.TransformationConsumer.start_link(
-        cache_version: 0,
+        cache_version: cache_version,
         producer_module: MockFiggyTransformationProducer,
-        producer_options: {self()},
-        batch_size: batch_size
+        producer_options: {self(), cache_version},
+        batch_size: 1
       )
 
     transformer
@@ -43,6 +43,31 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
              "id" => ^marker_1_id,
              "title_ss" => ["test title 1"]
            } = cache_entry.data
+
+    transformer |> Broadway.stop(:normal)
+  end
+
+  test "transformation cache entry creation with cache version > 0" do
+    {marker1, _marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers()
+
+    transformer = start_transformer_producer(1)
+
+    MockFiggyTransformationProducer.process(1)
+    assert_receive {:ack_done}
+
+    cache_entry = IndexingPipeline.list_transformation_cache_entries() |> hd
+    assert cache_entry.record_id == marker1.id
+    assert cache_entry.cache_version == 1
+    assert cache_entry.source_cache_order == marker1.timestamp
+    marker_1_id = marker1.id
+
+    assert %{
+             "id" => ^marker_1_id,
+             "title_ss" => ["test title 1"]
+           } = cache_entry.data
+
+    processor_marker = IndexingPipeline.get_processor_marker!("figgy_transformer", 1)
+    assert processor_marker.cache_version == 1
 
     transformer |> Broadway.stop(:normal)
   end

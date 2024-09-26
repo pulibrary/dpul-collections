@@ -18,7 +18,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HyrdationIntegrationTest do
       Figgy.HydrationConsumer.start_link(
         cache_version: cache_version,
         producer_module: MockFiggyHydrationProducer,
-        producer_options: {self()},
+        producer_options: {self(), cache_version},
         batch_size: 1
       )
 
@@ -58,13 +58,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HyrdationIntegrationTest do
     assert cache_entry.cache_version == 1
     assert cache_entry.source_cache_order == marker1.timestamp
     marker_1_id = marker1.id
+
     assert %{
              "id" => ^marker_1_id,
              "internal_resource" => "EphemeraTerm"
            } = cache_entry.data
 
     processor_marker = IndexingPipeline.get_processor_marker!("hydrator", 1)
-    assert processor_marker.cache_version == 1     
+    assert processor_marker.cache_version == 1
 
     hydrator |> Broadway.stop(:normal)
   end
