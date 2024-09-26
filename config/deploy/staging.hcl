@@ -2,6 +2,10 @@ variable "branch_or_sha" {
   type = string
   default = "main"
 }
+variable "cache_version" {
+  type = string
+  default = "1"
+}
 job "dpulc-staging" {
   region = "global"
   datacenters = ["dc1"]
@@ -48,6 +52,7 @@ job "dpulc-staging" {
         FIGGY_DATABASE_URL = {{ .FIGGY_DATABASE_URL }}
         SOLR_URL = {{ .SOLR_URL }}
         SECRET_KEY_BASE = {{ .SECRET_KEY_BASE }}
+        CACHE_VERSION = ${var.cache_version}
         {{- end -}}
         EOF
       }
@@ -69,6 +74,7 @@ job "dpulc-staging" {
         FIGGY_DATABASE_URL = {{ .FIGGY_DATABASE_URL }}
         SOLR_URL = {{ .SOLR_URL }}
         SECRET_KEY_BASE = {{ .SECRET_KEY_BASE }}
+        CACHE_VERSION = ${var.cache_version}
         {{- end -}}
         EOF
       }
