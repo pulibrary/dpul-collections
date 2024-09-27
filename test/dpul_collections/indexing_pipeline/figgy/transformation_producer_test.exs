@@ -1,4 +1,4 @@
-defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
+defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
   use DpulCollections.DataCase
 
   alias DpulCollections.IndexingPipeline.Figgy
@@ -151,7 +151,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
 
       {:noreply, [], new_state} =
         Figgy.TransformationProducer.handle_info(
-          {:ack, :transformer_producer_ack, acked_hydration_cache_markers},
+          {:ack, :transformation_producer_ack, acked_hydration_cache_markers},
           initial_state
         )
 
@@ -178,7 +178,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
 
       {:noreply, [], new_state} =
         Figgy.TransformationProducer.handle_info(
-          {:ack, :transformer_producer_ack, acked_hydration_cache_markers},
+          {:ack, :transformation_producer_ack, acked_hydration_cache_markers},
           initial_state
         )
 
@@ -230,7 +230,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
 
       {:noreply, [], new_state} =
         Figgy.TransformationProducer.handle_info(
-          {:ack, :transformer_producer_ack, acked_hydration_cache_markers},
+          {:ack, :transformation_producer_ack, acked_hydration_cache_markers},
           initial_state
         )
 
@@ -266,7 +266,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
 
       {:noreply, [], new_state} =
         Figgy.TransformationProducer.handle_info(
-          {:ack, :transformer_producer_ack, acked_hydration_cache_markers},
+          {:ack, :transformation_producer_ack, acked_hydration_cache_markers},
           initial_state
         )
 
@@ -312,7 +312,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
 
       {:noreply, [], new_state} =
         Figgy.TransformationProducer.handle_info(
-          {:ack, :transformer_producer_ack, acked_hydration_cache_markers},
+          {:ack, :transformation_producer_ack, acked_hydration_cache_markers},
           initial_state
         )
 
@@ -355,7 +355,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
 
       {:noreply, [], new_state} =
         Figgy.TransformationProducer.handle_info(
-          {:ack, :transformer_producer_ack, first_ack},
+          {:ack, :transformation_producer_ack, first_ack},
           initial_state
         )
 
@@ -377,7 +377,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformerProducerTest do
 
       {:noreply, [], new_state} =
         Figgy.TransformationProducer.handle_info(
-          {:ack, :transformer_producer_ack, second_ack},
+          {:ack, :transformation_producer_ack, second_ack},
           new_state
         )
 

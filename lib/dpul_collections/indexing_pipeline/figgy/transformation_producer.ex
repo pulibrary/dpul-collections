@@ -101,7 +101,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducer do
   @impl GenStage
   @spec handle_info({atom(), atom(), list(%Figgy.HydrationCacheEntryMarker{})}, state()) ::
           {:noreply, list(Broadway.Message.t()), state()}
-  def handle_info({:ack, :transformer_producer_ack, pending_markers}, state) do
+  def handle_info({:ack, :transformation_producer_ack, pending_markers}, state) do
     messages = []
 
     sorted_markers =
@@ -182,10 +182,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducer do
 
   @impl Broadway.Acknowledger
   @spec ack({pid(), atom()}, list(Broadway.Message.t()), list(Broadway.Message.t())) :: any()
-  def ack({transformer_producer_pid, :transformer_producer_ack}, successful, failed) do
+  def ack({transformation_producer_pid, :transformation_producer_ack}, successful, failed) do
     # TODO: Do some error handling
     acked_markers = (successful ++ failed) |> Enum.map(&Figgy.HydrationCacheEntryMarker.from/1)
-    send(transformer_producer_pid, {:ack, :transformer_producer_ack, acked_markers})
+    send(transformation_producer_pid, {:ack, :transformation_producer_ack, acked_markers})
   end
 
   # This happens when ack is finished, we listen to this telemetry event in
@@ -193,17 +193,17 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducer do
   @spec notify_ack(integer()) :: any()
   defp notify_ack(acked_message_count) do
     :telemetry.execute(
-      [:transformer_producer, :ack, :done],
+      [:transformation_producer, :ack, :done],
       %{},
       %{acked_count: acked_message_count}
     )
   end
 
-  @spec wrap_record(record :: HydratorCacheEntry) :: Broadway.Message.t()
+  @spec wrap_record(record :: HydrationCacheEntry) :: Broadway.Message.t()
   defp wrap_record(record) do
     %Broadway.Message{
       data: record,
-      acknowledger: {__MODULE__, {self(), :transformer_producer_ack}, nil}
+      acknowledger: {__MODULE__, {self(), :transformation_producer_ack}, nil}
     }
   end
 end

@@ -64,7 +64,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HyrdationIntegrationTest do
              "internal_resource" => "EphemeraTerm"
            } = cache_entry.data
 
-    processor_marker = IndexingPipeline.get_processor_marker!("hydrator", 1)
+    processor_marker = IndexingPipeline.get_processor_marker!("figgy_hydrator", 1)
     assert processor_marker.cache_version == 1
 
     hydrator |> Broadway.stop(:normal)
@@ -121,7 +121,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HyrdationIntegrationTest do
     {marker1, marker2, _marker3} = FiggyTestFixtures.markers()
     # Create a marker
     IndexingPipeline.write_processor_marker(%{
-      type: "hydrator",
+      type: "figgy_hydrator",
       cache_version: 0,
       cache_location: marker1.timestamp,
       cache_record_id: marker1.id

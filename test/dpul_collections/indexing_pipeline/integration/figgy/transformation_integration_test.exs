@@ -4,12 +4,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
   alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline
 
-  def start_transformer_producer(cache_version \\ 0) do
+  def start_transformation_producer(cache_version \\ 0) do
     pid = self()
 
     :telemetry.attach(
       "ack-handler-#{pid |> :erlang.pid_to_list()}",
-      [:transformer_producer, :ack, :done],
+      [:transformation_producer, :ack, :done],
       fn _event, _, _, _ -> send(pid, {:ack_done}) end,
       nil
     )
@@ -28,7 +28,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
   test "transformation cache entry creation" do
     {marker1, _marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers()
 
-    transformer = start_transformer_producer()
+    transformer = start_transformation_producer()
 
     MockFiggyTransformationProducer.process(1)
     assert_receive {:ack_done}
@@ -50,7 +50,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
   test "transformation cache entry creation with cache version > 0" do
     {marker1, _marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers()
 
-    transformer = start_transformer_producer(1)
+    transformer = start_transformation_producer(1)
 
     MockFiggyTransformationProducer.process(1)
     assert_receive {:ack_done}
@@ -88,7 +88,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
     })
 
     # Process that past record.
-    transformer = start_transformer_producer()
+    transformer = start_transformation_producer()
     MockFiggyTransformationProducer.process(1)
     assert_receive {:ack_done}
     transformer |> Broadway.stop(:normal)
@@ -116,7 +116,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
     })
 
     # Process that past record.
-    transformer = start_transformer_producer()
+    transformer = start_transformation_producer()
     MockFiggyTransformationProducer.process(1)
     assert_receive {:ack_done}
     transformer |> Broadway.stop(:normal)
@@ -140,7 +140,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
     })
 
     # Start the producer
-    transformer = start_transformer_producer()
+    transformer = start_transformation_producer()
     MockFiggyTransformationProducer.process(1)
     assert_receive {:ack_done}
     # Make sure the first record that comes back is what we expect
@@ -162,7 +162,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
     })
 
     # Process that past record.
-    transformer = start_transformer_producer()
+    transformer = start_transformation_producer()
     MockFiggyTransformationProducer.process(1)
     assert_receive {:ack_done}
     transformer |> Broadway.stop(:normal)
