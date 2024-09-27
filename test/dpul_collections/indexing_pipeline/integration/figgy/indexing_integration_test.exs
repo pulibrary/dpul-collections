@@ -10,7 +10,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
     :ok
   end
 
-  def start_indexing_producer(batch_size \\ 1) do
+  def start_indexing_producer(cache_version \\ 0) do
     pid = self()
 
     :telemetry.attach(
@@ -22,10 +22,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
 
     {:ok, indexer} =
       Figgy.IndexingConsumer.start_link(
-        cache_version: 0,
+        cache_version: cache_version,
         producer_module: MockFiggyIndexingProducer,
-        producer_options: {self()},
-        batch_size: batch_size
+        producer_options: {self(), cache_version},
+        batch_size: 1
       )
 
     indexer
@@ -41,6 +41,20 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
 
     Solr.commit()
     assert Solr.document_count() == 1
+
+    indexer |> Broadway.stop(:normal)
+  end
+
+  test "when cache version > 0, processor marker cache version is correct" do
+    FiggyTestFixtures.transformation_cache_markers()
+
+    indexer = start_indexing_producer(1)
+
+    MockFiggyIndexingProducer.process(1)
+    assert_receive {:ack_done}
+
+    processor_marker = IndexingPipeline.get_processor_marker!("figgy_indexer", 1)
+    assert processor_marker.cache_version == 1
 
     indexer |> Broadway.stop(:normal)
   end

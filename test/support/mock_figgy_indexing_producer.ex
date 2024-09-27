@@ -14,9 +14,9 @@ defmodule MockFiggyIndexingProducer do
 
   @impl GenStage
   @type state :: %{consumer_pid: pid(), test_runner_pid: pid(), indexing_producer_pid: pid()}
-  @spec init({pid()}) :: {:producer, state()}
-  def init({test_runner_pid}) do
-    {:ok, indexing_producer_pid} = Figgy.IndexingProducer.start_link()
+  @spec init({pid(), Integer}) :: {:producer, state()}
+  def init({test_runner_pid, cache_version}) do
+    {:ok, indexing_producer_pid} = Figgy.IndexingProducer.start_link(cache_version)
     {:ok, consumer_pid} = MockConsumer.start_link(indexing_producer_pid)
 
     {:producer,

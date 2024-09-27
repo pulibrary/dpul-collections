@@ -29,9 +29,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
   test "a full hydrator and transformer run" do
     # Start the figgy producer
-    {:ok, indexer} = Figgy.IndexingConsumer.start_link(batch_size: 50)
-    {:ok, transformer} = Figgy.TransformationConsumer.start_link(batch_size: 50)
-    {:ok, hydrator} = Figgy.HydrationConsumer.start_link(batch_size: 50)
+    {:ok, indexer} = Figgy.IndexingConsumer.start_link(cache_version: 1, batch_size: 50)
+    {:ok, transformer} = Figgy.TransformationConsumer.start_link(cache_version: 1, batch_size: 50)
+    {:ok, hydrator} = Figgy.HydrationConsumer.start_link(cache_version: 1, batch_size: 50)
 
     task =
       Task.async(fn -> wait_for_index_completion() end)
@@ -48,6 +48,14 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     # indexed all the documents
     assert Solr.document_count() == transformation_cache_entry_count
+
+    # Ensure that the processor markers have the correct cache version
+    hydrator_processor_marker = IndexingPipeline.get_processor_marker!("hydrator", 1)
+    transformer_processor_marker = IndexingPipeline.get_processor_marker!("figgy_transformer", 1)
+    indexing_processor_marker = IndexingPipeline.get_processor_marker!("figgy_indexer", 1)
+    assert hydrator_processor_marker.cache_version == 1
+    assert transformer_processor_marker.cache_version == 1
+    assert indexing_processor_marker.cache_version == 1
 
     hydrator |> Broadway.stop(:normal)
     transformer |> Broadway.stop(:normal)
