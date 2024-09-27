@@ -9,7 +9,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
 
     :telemetry.attach(
       "ack-handler-#{pid |> :erlang.pid_to_list()}",
-      [:transformation_producer, :ack, :done],
+      [:database_producer, :ack, :done],
       fn _event, _, _, _ -> send(pid, {:ack_done}) end,
       nil
     )

@@ -1,17 +1,17 @@
-defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
+defmodule DpulCollections.IndexingPipeline.Figgy.DatabaseProducerTest do
   use DpulCollections.DataCase
 
   alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline
 
-  describe "Figgy.TransformationProducer" do
+  describe "Figgy.DatabaseProducer" do
     test "handle_demand/2 with initial state and demand > 1 returns hydration cache entries" do
       {marker1, marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers()
 
-      {:producer, initial_state} = Figgy.TransformationProducer.init(0)
+      {:producer, initial_state} = Figgy.DatabaseProducer.init({Figgy.TransformationProducer, 0})
 
       {:noreply, messages, new_state} =
-        Figgy.TransformationProducer.handle_demand(2, initial_state)
+        Figgy.DatabaseProducer.handle_demand(2, initial_state)
 
       ids =
         Enum.map(messages, fn %Broadway.Message{data: %Figgy.HydrationCacheEntry{record_id: id}} ->
@@ -35,7 +35,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
     test "handle_demand/2 with consecutive state returns a new record" do
       {marker1, marker2, marker3} = FiggyTestFixtures.hydration_cache_markers()
 
-      {:producer, initial_state} = Figgy.TransformationProducer.init(0)
+      {:producer, initial_state} = Figgy.DatabaseProducer.init({Figgy.TransformationProducer, 0})
 
       initial_state =
         initial_state
@@ -51,7 +51,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
         })
 
       {:noreply, messages, new_state} =
-        Figgy.TransformationProducer.handle_demand(1, initial_state)
+        Figgy.DatabaseProducer.handle_demand(1, initial_state)
 
       ids =
         Enum.map(messages, fn %Broadway.Message{data: %Figgy.HydrationCacheEntry{record_id: id}} ->
@@ -84,7 +84,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
         id: marker3.id
       }
 
-      {:producer, initial_state} = Figgy.TransformationProducer.init(0)
+      {:producer, initial_state} = Figgy.DatabaseProducer.init({Figgy.TransformationProducer, 0})
 
       initial_state =
         initial_state
@@ -97,7 +97,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
         })
 
       {:noreply, messages, new_state} =
-        Figgy.TransformationProducer.handle_demand(1, initial_state)
+        Figgy.DatabaseProducer.handle_demand(1, initial_state)
 
       assert messages == []
 
@@ -110,11 +110,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
              } = new_state
     end
 
-    test "handle_info/2 with transformer producer ack, acknowledging first and third record" do
+    test "handle_info/2 with database producer ack, acknowledging first and third record" do
       cache_version = 1
       {marker1, marker2, marker3} = FiggyTestFixtures.hydration_cache_markers(cache_version)
 
-      {:producer, initial_state} = Figgy.TransformationProducer.init(0)
+      {:producer, initial_state} = Figgy.DatabaseProducer.init({Figgy.TransformationProducer, 0})
 
       initial_state =
         initial_state
@@ -138,8 +138,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
         |> Enum.sort()
 
       {:noreply, [], new_state} =
-        Figgy.TransformationProducer.handle_info(
-          {:ack, :transformation_producer_ack, acked_hydration_cache_markers},
+        Figgy.DatabaseProducer.handle_info(
+          {:ack, :database_producer_ack, acked_hydration_cache_markers},
           initial_state
         )
 
@@ -168,8 +168,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
       acked_hydration_cache_markers = [marker2]
 
       {:noreply, [], new_state} =
-        Figgy.TransformationProducer.handle_info(
-          {:ack, :transformation_producer_ack, acked_hydration_cache_markers},
+        Figgy.DatabaseProducer.handle_info(
+          {:ack, :database_producer_ack, acked_hydration_cache_markers},
           initial_state
         )
 
@@ -190,10 +190,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
              }
     end
 
-    test "handle_info/2 with transformer producer ack, nothing to acknowledge" do
+    test "handle_info/2 with database producer ack, nothing to acknowledge" do
       {marker1, marker2, marker3} = FiggyTestFixtures.hydration_cache_markers(1)
 
-      {:producer, initial_state} = Figgy.TransformationProducer.init(0)
+      {:producer, initial_state} = Figgy.DatabaseProducer.init({Figgy.TransformationProducer, 0})
 
       initial_state =
         initial_state
@@ -216,8 +216,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
         |> Enum.sort()
 
       {:noreply, [], new_state} =
-        Figgy.TransformationProducer.handle_info(
-          {:ack, :transformation_producer_ack, acked_hydration_cache_markers},
+        Figgy.DatabaseProducer.handle_info(
+          {:ack, :database_producer_ack, acked_hydration_cache_markers},
           initial_state
         )
 
@@ -239,10 +239,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
       assert processor_marker == nil
     end
 
-    test "handle_info/2 with transformer producer ack, empty pulled_records" do
+    test "handle_info/2 with database producer ack, empty pulled_records" do
       {marker1, _marker2, marker3} = FiggyTestFixtures.hydration_cache_markers(1)
 
-      {:producer, initial_state} = Figgy.TransformationProducer.init(0)
+      {:producer, initial_state} = Figgy.DatabaseProducer.init({Figgy.TransformationProducer, 0})
 
       initial_state =
         initial_state
@@ -261,8 +261,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
         |> Enum.sort()
 
       {:noreply, [], new_state} =
-        Figgy.TransformationProducer.handle_info(
-          {:ack, :transformation_producer_ack, acked_hydration_cache_markers},
+        Figgy.DatabaseProducer.handle_info(
+          {:ack, :database_producer_ack, acked_hydration_cache_markers},
           initial_state
         )
 
@@ -278,10 +278,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
       assert processor_marker == nil
     end
 
-    test "handle_info/2 with transformer producer ack, duplicate ack records" do
+    test "handle_info/2 with database producer ack, duplicate ack records" do
       {marker1, marker2, marker3} = FiggyTestFixtures.hydration_cache_markers(1)
 
-      {:producer, initial_state} = Figgy.TransformationProducer.init(0)
+      {:producer, initial_state} = Figgy.DatabaseProducer.init({Figgy.TransformationProducer, 0})
 
       initial_state =
         initial_state
@@ -305,8 +305,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
         |> Enum.sort()
 
       {:noreply, [], new_state} =
-        Figgy.TransformationProducer.handle_info(
-          {:ack, :transformation_producer_ack, acked_hydration_cache_markers},
+        Figgy.DatabaseProducer.handle_info(
+          {:ack, :database_producer_ack, acked_hydration_cache_markers},
           initial_state
         )
 
@@ -327,13 +327,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
       assert processor_marker == nil
     end
 
-    test "handle_info/2 with transformer producer ack, acking after crash and respawn" do
+    test "handle_info/2 with database producer ack, acking after crash and respawn" do
       {marker1, marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers(1)
 
       # Producer sent out marker1 then crashed, started again, then sent out
       # marker1 and marker2.
       # The consumer has marker1, marker1, and marker2 to process.
-      {:producer, initial_state} = Figgy.TransformationProducer.init(0)
+      {:producer, initial_state} = Figgy.DatabaseProducer.init({Figgy.TransformationProducer, 0})
 
       initial_state =
         initial_state
@@ -354,8 +354,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
         ]
 
       {:noreply, [], new_state} =
-        Figgy.TransformationProducer.handle_info(
-          {:ack, :transformation_producer_ack, first_ack},
+        Figgy.DatabaseProducer.handle_info(
+          {:ack, :database_producer_ack, first_ack},
           initial_state
         )
 
@@ -376,8 +376,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
         ]
 
       {:noreply, [], new_state} =
-        Figgy.TransformationProducer.handle_info(
-          {:ack, :transformation_producer_ack, second_ack},
+        Figgy.DatabaseProducer.handle_info(
+          {:ack, :database_producer_ack, second_ack},
           new_state
         )
 
@@ -397,7 +397,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
     end
 
     test ".handle_info(:check_for_updates) with no stored demand" do
-      assert Figgy.TransformationProducer.handle_info(:check_for_updates, %{stored_demand: 0}) ==
+      assert Figgy.DatabaseProducer.handle_info(:check_for_updates, %{stored_demand: 0}) ==
                {:noreply, [], %{stored_demand: 0}}
     end
   end

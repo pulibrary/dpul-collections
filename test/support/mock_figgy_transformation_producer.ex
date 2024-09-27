@@ -20,7 +20,9 @@ defmodule MockFiggyTransformationProducer do
         }
   @spec init({pid(), Integer}) :: {:producer, state()}
   def init({test_runner_pid, cache_version}) do
-    {:ok, transformation_producer_pid} = Figgy.TransformationProducer.start_link(cache_version)
+    {:ok, transformation_producer_pid} =
+      Figgy.DatabaseProducer.start_link({Figgy.TransformationProducer, cache_version})
+
     {:ok, consumer_pid} = MockConsumer.start_link(transformation_producer_pid)
 
     {:producer,
