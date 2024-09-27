@@ -51,7 +51,10 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     # Ensure that the processor markers have the correct cache version
     hydration_processor_marker = IndexingPipeline.get_processor_marker!("figgy_hydrator", 1)
-    transformation_processor_marker = IndexingPipeline.get_processor_marker!("figgy_transformer", 1)
+
+    transformation_processor_marker =
+      IndexingPipeline.get_processor_marker!("figgy_transformer", 1)
+
     indexing_processor_marker = IndexingPipeline.get_processor_marker!("figgy_indexer", 1)
     assert hydration_processor_marker.cache_version == 1
     assert transformation_processor_marker.cache_version == 1

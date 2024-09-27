@@ -13,7 +13,11 @@ defmodule MockFiggyTransformationProducer do
   use GenStage
 
   @impl GenStage
-  @type state :: %{consumer_pid: pid(), test_runner_pid: pid(), transformation_producer_pid: pid()}
+  @type state :: %{
+          consumer_pid: pid(),
+          test_runner_pid: pid(),
+          transformation_producer_pid: pid()
+        }
   @spec init({pid(), Integer}) :: {:producer, state()}
   def init({test_runner_pid, cache_version}) do
     {:ok, transformation_producer_pid} = Figgy.TransformationProducer.start_link(cache_version)
