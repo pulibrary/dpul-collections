@@ -81,11 +81,11 @@ defmodule DpulCollections.IndexingPipeline do
   end
 
   @spec get_hydration_cache_entries_since!(
-          marker :: Figgy.HydrationCacheEntryMarker.t(),
+          marker :: Figgy.CacheEntryMarker.t(),
           count :: integer
         ) :: list(Figgy.HydrationCacheEntry)
   def get_hydration_cache_entries_since!(
-        %Figgy.HydrationCacheEntryMarker{timestamp: cache_order, id: id},
+        %Figgy.CacheEntryMarker{timestamp: cache_order, id: id},
         count
       ) do
     query =

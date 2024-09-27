@@ -82,7 +82,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
       # Move last_queried marker to a marker 200 years in the future.
       marker3_cache_entry = IndexingPipeline.list_hydration_cache_entries() |> hd
 
-      fabricated_marker = %Figgy.HydrationCacheEntryMarker{
+      fabricated_marker = %Figgy.CacheEntryMarker{
         timestamp: DateTime.add(marker3_cache_entry.cache_order, 356 * 10, :day),
         id: marker3.id
       }
@@ -160,7 +160,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
       processor_marker =
         IndexingPipeline.get_processor_marker!("figgy_transformer", cache_version)
 
-      assert marker1 == %Figgy.HydrationCacheEntryMarker{
+      assert marker1 == %Figgy.CacheEntryMarker{
                timestamp: processor_marker.cache_location,
                id: processor_marker.cache_record_id
              }
@@ -187,7 +187,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
       processor_marker =
         IndexingPipeline.get_processor_marker!("figgy_transformer", cache_version)
 
-      assert marker3 == %Figgy.HydrationCacheEntryMarker{
+      assert marker3 == %Figgy.CacheEntryMarker{
                timestamp: processor_marker.cache_location,
                id: processor_marker.cache_record_id
              }
@@ -385,7 +385,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
 
       processor_marker =
         IndexingPipeline.get_processor_marker!("figgy_transformer", 1)
-        |> Figgy.HydrationCacheEntryMarker.from()
+        |> Figgy.CacheEntryMarker.from()
 
       assert processor_marker == marker2
     end
