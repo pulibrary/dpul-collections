@@ -35,10 +35,15 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducer do
       pulled_records: [],
       acked_records: [],
       cache_version: cache_version,
-      stored_demand: 0
+      stored_demand: 0,
+      module: __MODULE__
     }
 
     {:producer, initial_state}
+  end
+
+  def get_cache_entries_since!(last_queried_marker, total_demand) do
+    IndexingPipeline.get_hydration_cache_entries_since!(last_queried_marker, total_demand)
   end
 
   @impl GenStage
@@ -49,13 +54,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducer do
           last_queried_marker: last_queried_marker,
           pulled_records: pulled_records,
           acked_records: acked_records,
-          stored_demand: stored_demand
+          stored_demand: stored_demand,
+          module: module
         }
       ) do
     total_demand = stored_demand + demand
 
     records =
-      IndexingPipeline.get_hydration_cache_entries_since!(last_queried_marker, total_demand)
+      module.get_cache_entries_since!(last_queried_marker, total_demand)
 
     new_state =
       state
@@ -65,7 +71,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducer do
       )
       |> Map.put(
         :pulled_records,
-        Enum.concat(pulled_records, Enum.map(records, &Figgy.CacheEntryMarker.from/1))
+        Enum.concat(
+          pulled_records,
+          Enum.map(records, &Figgy.CacheEntryMarker.from/1)
+        )
       )
       |> Map.put(:acked_records, acked_records)
       |> Map.put(:stored_demand, calculate_stored_demand(total_demand, length(records)))
@@ -88,8 +97,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducer do
     total_demand - fulfilled_demand
   end
 
-  def handle_info(:check_for_updates, state = %{stored_demand: demand})
-      when demand > 0 do
+  def handle_info(:check_for_updates, state = %{stored_demand: demand}) when demand > 0 do
     new_demand = 0
     handle_demand(new_demand, state)
   end
@@ -169,7 +177,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducer do
          },
          last_removed_marker
        ) do
-    if Figgy.CacheEntryMarker.compare(first_acked_record, first_pulled_record) == :lt do
+    if Figgy.CacheEntryMarker.compare(first_acked_record, first_pulled_record) ==
+         :lt do
       state
       |> Map.put(:acked_records, tail_acked_records)
       |> process_markers(last_removed_marker)

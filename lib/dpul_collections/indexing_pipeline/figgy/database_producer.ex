@@ -1,0 +1,2 @@
+defmodule DpulCollections.IndexingPipeline.Figgy.DatabaseProducer do
+end

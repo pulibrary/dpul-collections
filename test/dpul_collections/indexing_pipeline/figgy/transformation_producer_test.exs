@@ -20,26 +20,26 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
 
       assert ids == [marker1.id, marker2.id]
 
-      expected_state =
-        %{
-          last_queried_marker: marker2,
-          pulled_records: [
-            marker1,
-            marker2
-          ],
-          acked_records: [],
-          cache_version: 0,
-          stored_demand: 0
-        }
-
-      assert new_state == expected_state
+      assert %{
+               last_queried_marker: ^marker2,
+               pulled_records: [
+                 ^marker1,
+                 ^marker2
+               ],
+               acked_records: [],
+               cache_version: 0,
+               stored_demand: 0
+             } = new_state
     end
 
     test "handle_demand/2 with consecutive state returns a new record" do
       {marker1, marker2, marker3} = FiggyTestFixtures.hydration_cache_markers()
 
+      {:producer, initial_state} = Figgy.TransformationProducer.init(0)
+
       initial_state =
-        %{
+        initial_state
+        |> Map.merge(%{
           last_queried_marker: marker2,
           pulled_records: [
             marker1,
@@ -48,7 +48,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
           acked_records: [],
           cache_version: 0,
           stored_demand: 0
-        }
+        })
 
       {:noreply, messages, new_state} =
         Figgy.TransformationProducer.handle_demand(1, initial_state)
@@ -60,20 +60,17 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
 
       assert ids == [marker3.id]
 
-      expected_state =
-        %{
-          last_queried_marker: marker3,
-          pulled_records: [
-            marker1,
-            marker2,
-            marker3
-          ],
-          acked_records: [],
-          cache_version: 0,
-          stored_demand: 0
-        }
-
-      assert new_state == expected_state
+      assert %{
+               last_queried_marker: ^marker3,
+               pulled_records: [
+                 ^marker1,
+                 ^marker2,
+                 ^marker3
+               ],
+               acked_records: [],
+               cache_version: 0,
+               stored_demand: 0
+             } = new_state
     end
 
     test "handle_demand/2 when the query returns no records" do
@@ -87,47 +84,51 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
         id: marker3.id
       }
 
+      {:producer, initial_state} = Figgy.TransformationProducer.init(0)
+
       initial_state =
-        %{
+        initial_state
+        |> Map.merge(%{
           last_queried_marker: fabricated_marker,
           pulled_records: [],
           acked_records: [],
           cache_version: 0,
           stored_demand: 0
-        }
+        })
 
       {:noreply, messages, new_state} =
         Figgy.TransformationProducer.handle_demand(1, initial_state)
 
       assert messages == []
 
-      expected_state =
-        %{
-          last_queried_marker: fabricated_marker,
-          pulled_records: [],
-          acked_records: [],
-          cache_version: 0,
-          stored_demand: 1
-        }
-
-      assert new_state == expected_state
+      assert %{
+               last_queried_marker: ^fabricated_marker,
+               pulled_records: [],
+               acked_records: [],
+               cache_version: 0,
+               stored_demand: 1
+             } = new_state
     end
 
     test "handle_info/2 with transformer producer ack, acknowledging first and third record" do
       cache_version = 1
       {marker1, marker2, marker3} = FiggyTestFixtures.hydration_cache_markers(cache_version)
 
-      initial_state = %{
-        last_queried_marker: marker3,
-        pulled_records: [
-          marker1,
-          marker2,
-          marker3
-        ],
-        acked_records: [],
-        cache_version: cache_version,
-        stored_demand: 0
-      }
+      {:producer, initial_state} = Figgy.TransformationProducer.init(0)
+
+      initial_state =
+        initial_state
+        |> Map.merge(%{
+          last_queried_marker: marker3,
+          pulled_records: [
+            marker1,
+            marker2,
+            marker3
+          ],
+          acked_records: [],
+          cache_version: cache_version,
+          stored_demand: 0
+        })
 
       acked_hydration_cache_markers =
         [
@@ -136,26 +137,24 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
         ]
         |> Enum.sort()
 
-      expected_state = %{
-        last_queried_marker: marker3,
-        pulled_records: [
-          marker2,
-          marker3
-        ],
-        acked_records: [
-          marker3
-        ],
-        cache_version: cache_version,
-        stored_demand: 0
-      }
-
       {:noreply, [], new_state} =
         Figgy.TransformationProducer.handle_info(
           {:ack, :transformation_producer_ack, acked_hydration_cache_markers},
           initial_state
         )
 
-      assert new_state == expected_state
+      assert %{
+               last_queried_marker: ^marker3,
+               pulled_records: [
+                 ^marker2,
+                 ^marker3
+               ],
+               acked_records: [
+                 ^marker3
+               ],
+               cache_version: ^cache_version,
+               stored_demand: 0
+             } = new_state
 
       processor_marker =
         IndexingPipeline.get_processor_marker!("figgy_transformer", cache_version)
@@ -168,21 +167,19 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
       initial_state = new_state
       acked_hydration_cache_markers = [marker2]
 
-      expected_state = %{
-        last_queried_marker: marker3,
-        pulled_records: [],
-        acked_records: [],
-        cache_version: cache_version,
-        stored_demand: 0
-      }
-
       {:noreply, [], new_state} =
         Figgy.TransformationProducer.handle_info(
           {:ack, :transformation_producer_ack, acked_hydration_cache_markers},
           initial_state
         )
 
-      assert new_state == expected_state
+      assert %{
+               last_queried_marker: ^marker3,
+               pulled_records: [],
+               acked_records: [],
+               cache_version: ^cache_version,
+               stored_demand: 0
+             } = new_state
 
       processor_marker =
         IndexingPipeline.get_processor_marker!("figgy_transformer", cache_version)
@@ -196,17 +193,21 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
     test "handle_info/2 with transformer producer ack, nothing to acknowledge" do
       {marker1, marker2, marker3} = FiggyTestFixtures.hydration_cache_markers(1)
 
-      initial_state = %{
-        last_queried_marker: marker3,
-        pulled_records: [
-          marker1,
-          marker2,
-          marker3
-        ],
-        acked_records: [],
-        cache_version: 1,
-        stored_demand: 0
-      }
+      {:producer, initial_state} = Figgy.TransformationProducer.init(0)
+
+      initial_state =
+        initial_state
+        |> Map.merge(%{
+          last_queried_marker: marker3,
+          pulled_records: [
+            marker1,
+            marker2,
+            marker3
+          ],
+          acked_records: [],
+          cache_version: 1,
+          stored_demand: 0
+        })
 
       acked_hydration_cache_markers =
         [
@@ -214,27 +215,26 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
         ]
         |> Enum.sort()
 
-      expected_state = %{
-        last_queried_marker: marker3,
-        pulled_records: [
-          marker1,
-          marker2,
-          marker3
-        ],
-        acked_records: [
-          marker2
-        ],
-        cache_version: 1,
-        stored_demand: 0
-      }
-
       {:noreply, [], new_state} =
         Figgy.TransformationProducer.handle_info(
           {:ack, :transformation_producer_ack, acked_hydration_cache_markers},
           initial_state
         )
 
-      assert new_state == expected_state
+      assert %{
+               last_queried_marker: ^marker3,
+               pulled_records: [
+                 ^marker1,
+                 ^marker2,
+                 ^marker3
+               ],
+               acked_records: [
+                 ^marker2
+               ],
+               cache_version: 1,
+               stored_demand: 0
+             } = new_state
+
       processor_marker = IndexingPipeline.get_processor_marker!("figgy_transformer", 1)
       assert processor_marker == nil
     end
@@ -242,13 +242,17 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
     test "handle_info/2 with transformer producer ack, empty pulled_records" do
       {marker1, _marker2, marker3} = FiggyTestFixtures.hydration_cache_markers(1)
 
-      initial_state = %{
-        last_queried_marker: marker3,
-        pulled_records: [],
-        acked_records: [],
-        cache_version: 1,
-        stored_demand: 0
-      }
+      {:producer, initial_state} = Figgy.TransformationProducer.init(0)
+
+      initial_state =
+        initial_state
+        |> Map.merge(%{
+          last_queried_marker: marker3,
+          pulled_records: [],
+          acked_records: [],
+          cache_version: 1,
+          stored_demand: 0
+        })
 
       acked_hydration_cache_markers =
         [
@@ -256,21 +260,20 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
         ]
         |> Enum.sort()
 
-      expected_state = %{
-        last_queried_marker: marker3,
-        pulled_records: [],
-        acked_records: [],
-        cache_version: 1,
-        stored_demand: 0
-      }
-
       {:noreply, [], new_state} =
         Figgy.TransformationProducer.handle_info(
           {:ack, :transformation_producer_ack, acked_hydration_cache_markers},
           initial_state
         )
 
-      assert new_state == expected_state
+      assert %{
+               last_queried_marker: ^marker3,
+               pulled_records: [],
+               acked_records: [],
+               cache_version: 1,
+               stored_demand: 0
+             } = new_state
+
       processor_marker = IndexingPipeline.get_processor_marker!("figgy_transformer", 1)
       assert processor_marker == nil
     end
@@ -278,18 +281,22 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
     test "handle_info/2 with transformer producer ack, duplicate ack records" do
       {marker1, marker2, marker3} = FiggyTestFixtures.hydration_cache_markers(1)
 
-      initial_state = %{
-        last_queried_marker: marker3,
-        pulled_records: [
-          marker1,
-          marker2
-        ],
-        acked_records: [
-          marker2
-        ],
-        cache_version: 1,
-        stored_demand: 0
-      }
+      {:producer, initial_state} = Figgy.TransformationProducer.init(0)
+
+      initial_state =
+        initial_state
+        |> Map.merge(%{
+          last_queried_marker: marker3,
+          pulled_records: [
+            marker1,
+            marker2
+          ],
+          acked_records: [
+            marker2
+          ],
+          cache_version: 1,
+          stored_demand: 0
+        })
 
       acked_hydration_cache_markers =
         [
@@ -297,26 +304,25 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
         ]
         |> Enum.sort()
 
-      expected_state = %{
-        last_queried_marker: marker3,
-        pulled_records: [
-          marker1,
-          marker2
-        ],
-        acked_records: [
-          marker2
-        ],
-        cache_version: 1,
-        stored_demand: 0
-      }
-
       {:noreply, [], new_state} =
         Figgy.TransformationProducer.handle_info(
           {:ack, :transformation_producer_ack, acked_hydration_cache_markers},
           initial_state
         )
 
-      assert new_state == expected_state
+      assert %{
+               last_queried_marker: ^marker3,
+               pulled_records: [
+                 ^marker1,
+                 ^marker2
+               ],
+               acked_records: [
+                 ^marker2
+               ],
+               cache_version: 1,
+               stored_demand: 0
+             } = new_state
+
       processor_marker = IndexingPipeline.get_processor_marker!("figgy_transformer", 1)
       assert processor_marker == nil
     end
@@ -327,31 +333,25 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
       # Producer sent out marker1 then crashed, started again, then sent out
       # marker1 and marker2.
       # The consumer has marker1, marker1, and marker2 to process.
-      initial_state = %{
-        last_queried_marker: marker2,
-        pulled_records: [
-          marker1,
-          marker2
-        ],
-        acked_records: [],
-        cache_version: 1,
-        stored_demand: 0
-      }
+      {:producer, initial_state} = Figgy.TransformationProducer.init(0)
+
+      initial_state =
+        initial_state
+        |> Map.merge(%{
+          last_queried_marker: marker2,
+          pulled_records: [
+            marker1,
+            marker2
+          ],
+          acked_records: [],
+          cache_version: 1,
+          stored_demand: 0
+        })
 
       first_ack =
         [
           marker1
         ]
-
-      expected_state = %{
-        last_queried_marker: marker2,
-        pulled_records: [
-          marker2
-        ],
-        acked_records: [],
-        cache_version: 1,
-        stored_demand: 0
-      }
 
       {:noreply, [], new_state} =
         Figgy.TransformationProducer.handle_info(
@@ -359,7 +359,15 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
           initial_state
         )
 
-      assert new_state == expected_state
+      assert %{
+               last_queried_marker: ^marker2,
+               pulled_records: [
+                 ^marker2
+               ],
+               acked_records: [],
+               cache_version: 1,
+               stored_demand: 0
+             } = new_state
 
       second_ack =
         [
@@ -367,21 +375,19 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerTest do
           marker2
         ]
 
-      expected_state = %{
-        last_queried_marker: marker2,
-        pulled_records: [],
-        acked_records: [],
-        cache_version: 1,
-        stored_demand: 0
-      }
-
       {:noreply, [], new_state} =
         Figgy.TransformationProducer.handle_info(
           {:ack, :transformation_producer_ack, second_ack},
           new_state
         )
 
-      assert new_state == expected_state
+      assert %{
+               last_queried_marker: ^marker2,
+               pulled_records: [],
+               acked_records: [],
+               cache_version: 1,
+               stored_demand: 0
+             } = new_state
 
       processor_marker =
         IndexingPipeline.get_processor_marker!("figgy_transformer", 1)
