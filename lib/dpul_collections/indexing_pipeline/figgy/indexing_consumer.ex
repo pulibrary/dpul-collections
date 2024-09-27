@@ -14,10 +14,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
           | {:batch_size, Integer}
   @spec start_link([start_opts()]) :: Broadway.on_start()
   def start_link(options \\ []) do
+    # Need to set cache version here so that the correct cache version is set and to
+    # allow very different producer options for the Mock Producer.
+    cache_version = options[:cache_version] || 0
+
     default = [
-      cache_version: 0,
+      cache_version: cache_version,
       producer_module: Figgy.IndexingProducer,
-      producer_options: 0,
+      producer_options: cache_version,
       batch_size: 10
     ]
 
