@@ -304,11 +304,11 @@ defmodule DpulCollections.IndexingPipeline do
   def get_transformation_cache_entry!(id), do: Repo.get!(Figgy.TransformationCacheEntry, id)
 
   @spec get_transformation_cache_entries_since!(
-          marker :: Figgy.TransformationCacheEntryMarker.t(),
+          marker :: Figgy.CacheEntryMarker.t(),
           count :: integer
         ) :: list(Figgy.TransformationCacheEntry)
   def get_transformation_cache_entries_since!(
-        %Figgy.TransformationCacheEntryMarker{timestamp: cache_order, id: id},
+        %Figgy.CacheEntryMarker{timestamp: cache_order, id: id},
         count
       ) do
     query =
