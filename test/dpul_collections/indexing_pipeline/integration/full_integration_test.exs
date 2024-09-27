@@ -50,7 +50,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     assert Solr.document_count() == transformation_cache_entry_count
 
     # Ensure that the processor markers have the correct cache version
-    hydrator_processor_marker = IndexingPipeline.get_processor_marker!("hydrator", 1)
+    hydrator_processor_marker = IndexingPipeline.get_processor_marker!("figgy_hydrator", 1)
     transformer_processor_marker = IndexingPipeline.get_processor_marker!("figgy_transformer", 1)
     indexing_processor_marker = IndexingPipeline.get_processor_marker!("figgy_indexer", 1)
     assert hydrator_processor_marker.cache_version == 1

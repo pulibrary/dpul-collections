@@ -182,7 +182,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
         )
 
       assert new_state == expected_state
-      processor_marker = IndexingPipeline.get_processor_marker!("hydrator", cache_version)
+      processor_marker = IndexingPipeline.get_processor_marker!("figgy_hydrator", cache_version)
 
       assert marker1 == %Figgy.ResourceMarker{
                timestamp: processor_marker.cache_location,
@@ -208,7 +208,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
 
       assert new_state == expected_state
 
-      processor_marker = IndexingPipeline.get_processor_marker!("hydrator", cache_version)
+      processor_marker = IndexingPipeline.get_processor_marker!("figgy_hydrator", cache_version)
 
       assert marker3 == %Figgy.ResourceMarker{
                timestamp: processor_marker.cache_location,
@@ -258,7 +258,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
         )
 
       assert new_state == expected_state
-      processor_marker = IndexingPipeline.get_processor_marker!("hydrator", 1)
+      processor_marker = IndexingPipeline.get_processor_marker!("figgy_hydrator", 1)
       assert processor_marker == nil
     end
 
@@ -294,7 +294,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
         )
 
       assert new_state == expected_state
-      processor_marker = IndexingPipeline.get_processor_marker!("hydrator", 1)
+      processor_marker = IndexingPipeline.get_processor_marker!("figgy_hydrator", 1)
       assert processor_marker == nil
     end
 
@@ -340,7 +340,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
         )
 
       assert new_state == expected_state
-      processor_marker = IndexingPipeline.get_processor_marker!("hydrator", 1)
+      processor_marker = IndexingPipeline.get_processor_marker!("figgy_hydrator", 1)
       assert processor_marker == nil
     end
 
@@ -401,7 +401,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerTest do
       assert new_state == expected_state
 
       processor_marker =
-        IndexingPipeline.get_processor_marker!("hydrator", 1) |> Figgy.ResourceMarker.from()
+        IndexingPipeline.get_processor_marker!("figgy_hydrator", 1) |> Figgy.ResourceMarker.from()
 
       assert processor_marker == marker2
     end
