@@ -44,6 +44,8 @@ Remember to check formatting before pushing commits.
 1. Connect to VPN
 1. `BRANCH=<branch> ./bin/deploy staging`
 
+For more details about an individual deployment, and to view logs, go to the `jobs` section of our [nomad UI](nomad.lib.princeton.edu).
+
 ### Connecting to Staging Shell or IEX Console
 
 1. Connect to VPN
