@@ -12,14 +12,14 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
   end
 
   def wait_for_index_completion() do
-    transformer_cache_entries = IndexingPipeline.list_transformation_cache_entries() |> length
+    transformation_cache_entries = IndexingPipeline.list_transformation_cache_entries() |> length
     ephemera_folder_count = FiggyTestSupport.ephemera_folder_count()
 
     continue =
-      if transformer_cache_entries == ephemera_folder_count do
+      if transformation_cache_entries == ephemera_folder_count do
         DpulCollections.Solr.commit()
 
-        if DpulCollections.Solr.document_count() == transformer_cache_entries do
+        if DpulCollections.Solr.document_count() == transformation_cache_entries do
           true
         end
       end
@@ -50,11 +50,11 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     assert Solr.document_count() == transformation_cache_entry_count
 
     # Ensure that the processor markers have the correct cache version
-    hydrator_processor_marker = IndexingPipeline.get_processor_marker!("figgy_hydrator", 1)
-    transformer_processor_marker = IndexingPipeline.get_processor_marker!("figgy_transformer", 1)
+    hydration_processor_marker = IndexingPipeline.get_processor_marker!("figgy_hydrator", 1)
+    transformation_processor_marker = IndexingPipeline.get_processor_marker!("figgy_transformer", 1)
     indexing_processor_marker = IndexingPipeline.get_processor_marker!("figgy_indexer", 1)
-    assert hydrator_processor_marker.cache_version == 1
-    assert transformer_processor_marker.cache_version == 1
+    assert hydration_processor_marker.cache_version == 1
+    assert transformation_processor_marker.cache_version == 1
     assert indexing_processor_marker.cache_version == 1
 
     hydrator |> Broadway.stop(:normal)
