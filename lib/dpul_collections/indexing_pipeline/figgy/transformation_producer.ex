@@ -1,9 +1,7 @@
 defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducer do
   alias DpulCollections.IndexingPipeline
+  @behaviour IndexingPipeline.DatabaseProducer.Source
 
-  @moduledoc """
-  GenStage Producer that pulls records from the Hyrdation Cache.
-  """
   def processor_marker_key() do
     "figgy_transformer"
   end

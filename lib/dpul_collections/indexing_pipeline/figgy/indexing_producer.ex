@@ -1,8 +1,6 @@
 defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducer do
-  @moduledoc """
-  GenStage Producer that pulls records from the Transformation Cache.
-  """
   alias DpulCollections.IndexingPipeline
+  @behaviour IndexingPipeline.DatabaseProducer.Source
 
   def processor_marker_key() do
     "figgy_indexer"
