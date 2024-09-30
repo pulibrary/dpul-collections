@@ -5,7 +5,7 @@ defmodule MockFiggyTransformationProducer do
 
   Figgy.TransformationConsumer demands from MockFiggyTransformationProducer, which never returns
   records until asked by .process/1. When .process/1 is called, MockConsumer
-  requests <demand> records from Figgy.TransformationProducer, and when it gets them it
+  requests <demand> records from Figgy.TransformationProducerSource, and when it gets them it
   sends a message to MockFiggyTransformationProducer, which then sends those records
   to Figgy.TransformationConsumer.
   """
@@ -22,7 +22,7 @@ defmodule MockFiggyTransformationProducer do
   @spec init({pid(), Integer}) :: {:producer, state()}
   def init({test_runner_pid, cache_version}) do
     {:ok, transformation_producer_pid} =
-      DatabaseProducer.start_link({Figgy.TransformationProducer, cache_version})
+      DatabaseProducer.start_link({Figgy.TransformationProducerSource, cache_version})
 
     {:ok, consumer_pid} = MockConsumer.start_link(transformation_producer_pid)
 

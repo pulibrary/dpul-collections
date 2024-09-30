@@ -17,7 +17,7 @@ defmodule MockFiggyHydrationProducer do
   @spec init({pid(), Integer}) :: {:producer, state()}
   def init({test_runner_pid, cache_version}) do
     {:ok, figgy_producer_pid} =
-      DatabaseProducer.start_link({Figgy.HydrationProducer, cache_version})
+      DatabaseProducer.start_link({Figgy.HydrationProducerSource, cache_version})
 
     {:ok, consumer_pid} = MockConsumer.start_link(figgy_producer_pid)
 

@@ -1,11 +1,12 @@
-defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducer do
+defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerSource do
   alias DpulCollections.IndexingPipeline
   @behaviour IndexingPipeline.DatabaseProducer.Source
+
   def processor_marker_key() do
-    "figgy_hydrator"
+    "figgy_transformer"
   end
 
   def get_cache_entries_since!(last_queried_marker, total_demand) do
-    IndexingPipeline.get_figgy_resources_since!(last_queried_marker, total_demand)
+    IndexingPipeline.get_hydration_cache_entries_since!(last_queried_marker, total_demand)
   end
 end

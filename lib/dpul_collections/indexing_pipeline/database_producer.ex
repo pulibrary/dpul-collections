@@ -4,15 +4,13 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
   """
 
   alias DpulCollections.IndexingPipeline
-  alias DpulCollections.IndexingPipeline.Figgy
-  alias DpulCollections.IndexingPipeline.DatabaseProducer
   alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
   use GenStage
   @behaviour Broadway.Acknowledger
 
-  @spec start_link(integer()) :: Broadway.on_start()
-  def start_link({module, cache_version}) do
-    GenStage.start_link(__MODULE__, {module, cache_version})
+  @spec start_link({source_module :: module(), cache_version :: integer()}) :: Broadway.on_start()
+  def start_link({source_module, cache_version}) do
+    GenStage.start_link(__MODULE__, {source_module, cache_version})
   end
 
   @impl GenStage
@@ -24,13 +22,13 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
           stored_demand: Integer
         }
   @spec init(integer()) :: {:producer, state()}
-  def init({module, cache_version}) do
+  def init({source_module, cache_version}) do
     # trap the exit so we can stop gracefully
     # see https://www.erlang.org/doc/apps/erts/erlang.html#process_flag/2
     Process.flag(:trap_exit, true)
 
     last_queried_marker =
-      IndexingPipeline.get_processor_marker!(module.processor_marker_key(), cache_version)
+      IndexingPipeline.get_processor_marker!(source_module.processor_marker_key(), cache_version)
 
     initial_state = %{
       last_queried_marker: last_queried_marker |> CacheEntryMarker.from(),
@@ -38,7 +36,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
       acked_records: [],
       cache_version: cache_version,
       stored_demand: 0,
-      module: module
+      source_module: source_module
     }
 
     {:producer, initial_state}
@@ -53,13 +51,13 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
           pulled_records: pulled_records,
           acked_records: acked_records,
           stored_demand: stored_demand,
-          module: module
+          source_module: source_module
         }
       ) do
     total_demand = stored_demand + demand
 
     records =
-      module.get_cache_entries_since!(last_queried_marker, total_demand)
+      source_module.get_cache_entries_since!(last_queried_marker, total_demand)
 
     new_state =
       state
@@ -126,7 +124,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
         last_removed_marker
 
       IndexingPipeline.write_processor_marker(%{
-        type: state.module.processor_marker_key(),
+        type: state.source_module.processor_marker_key(),
         cache_version: state.cache_version,
         cache_location: cache_location,
         cache_record_id: cache_record_id
@@ -142,7 +140,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
   # If the transformer element of pulled_records is the first element of
   # acked_records, remove it from both and process again.
   @spec process_markers(state(), CacheEntryMarker.t()) ::
-          {state, CacheEntryMarker.t()}
+          {state, CacheEntryMarker.t() | nil}
   defp process_markers(
          state = %{
            pulled_records: [first_record | pulled_records],
@@ -196,7 +194,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
   end
 
   # This happens when ack is finished, we listen to this telemetry event in
-  # tests so we know when the Hydrator's done processing a message.
+  # tests so we know when the Producer's done processing a message.
   @spec notify_ack(integer()) :: any()
   defp notify_ack(acked_message_count) do
     :telemetry.execute(

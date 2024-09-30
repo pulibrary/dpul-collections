@@ -37,7 +37,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
         cache_version: 1,
         batch_size: 50,
         producer_module: IndexingPipeline.DatabaseProducer,
-        producer_options: {Figgy.HydrationProducer, 1}
+        producer_options: {Figgy.HydrationProducerSource, 1}
       )
 
     task =

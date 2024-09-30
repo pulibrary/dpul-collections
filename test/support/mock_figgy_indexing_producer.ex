@@ -5,7 +5,7 @@ defmodule MockFiggyIndexingProducer do
 
   Figgy.IndexingConsumer demands from MockFiggyIndexingProducer, which never returns
   records until asked by .process/1. When .process/1 is called, MockConsumer
-  requests <demand> records from Figgy.IndexingProducer, and when it gets them it
+  requests <demand> records from Figgy.IndexingProducerSource, and when it gets them it
   sends a message to MockFiggyIndexingProducer, which then sends those records
   to Figgy.IndexingConsumer.
   """
@@ -15,10 +15,10 @@ defmodule MockFiggyIndexingProducer do
 
   @impl GenStage
   @type state :: %{consumer_pid: pid(), test_runner_pid: pid(), indexing_producer_pid: pid()}
-  @spec init({pid(), Integer}) :: {:producer, state()}
+  @spec init({pid(), integer}) :: {:producer, state()}
   def init({test_runner_pid, cache_version}) do
     {:ok, indexing_producer_pid} =
-      DatabaseProducer.start_link({Figgy.IndexingProducer, cache_version})
+      DatabaseProducer.start_link({Figgy.IndexingProducerSource, cache_version})
 
     {:ok, consumer_pid} = MockConsumer.start_link(indexing_producer_pid)
 

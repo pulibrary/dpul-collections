@@ -22,7 +22,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
     default = [
       cache_version: cache_version,
       producer_module: DatabaseProducer,
-      producer_options: {Figgy.IndexingProducer, cache_version},
+      producer_options: {Figgy.IndexingProducerSource, cache_version},
       batch_size: 10
     ]
 
