@@ -247,10 +247,10 @@ defmodule DpulCollections.IndexingPipeline do
   """
 
   @spec get_figgy_resources_since!(
-          marker :: Figgy.ResourceMarker.t(),
+          marker :: CacheEntryMarker.t(),
           count :: integer
         ) :: list(Figgy.Resource)
-  def get_figgy_resources_since!(%Figgy.ResourceMarker{timestamp: updated_at, id: id}, count) do
+  def get_figgy_resources_since!(%CacheEntryMarker{timestamp: updated_at, id: id}, count) do
     query =
       from r in Figgy.Resource,
         where: (r.updated_at == ^updated_at and r.id > ^id) or r.updated_at > ^updated_at,

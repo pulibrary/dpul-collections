@@ -3,7 +3,13 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker do
   defstruct [:id, :timestamp]
 
   alias DpulCollections.IndexingPipeline.ProcessorMarker
-  alias DpulCollections.IndexingPipeline.Figgy.{TransformationCacheEntry, HydrationCacheEntry}
+
+  alias DpulCollections.IndexingPipeline.Figgy.{
+    TransformationCacheEntry,
+    HydrationCacheEntry,
+    Resource
+  }
+
   @spec from(%ProcessorMarker{}) :: t()
   @doc """
   Converts ProcessorMarker struct to a marker tuple.
@@ -20,6 +26,11 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker do
   @spec from(%TransformationCacheEntry{}) :: t()
   def from(%TransformationCacheEntry{cache_order: timestamp, record_id: id}) do
     %__MODULE__{timestamp: timestamp, id: id}
+  end
+
+  @spec from(%Resource{}) :: t()
+  def from(%Resource{updated_at: updated_at, id: id}) do
+    %__MODULE__{timestamp: updated_at, id: id}
   end
 
   @spec from(%HydrationCacheEntry{}) :: t()

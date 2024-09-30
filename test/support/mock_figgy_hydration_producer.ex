@@ -9,13 +9,16 @@ defmodule MockFiggyHydrationProducer do
   MockFiggyHydrationProducer, which then sends those records to Figgy.HydrationConsumer.
   """
   alias DpulCollections.IndexingPipeline.Figgy
+  alias DpulCollections.IndexingPipeline.DatabaseProducer
   use GenStage
 
   @impl GenStage
   @type state :: %{consumer_pid: pid(), test_runner_pid: pid(), figgy_producer_pid: pid()}
   @spec init({pid(), Integer}) :: {:producer, state()}
   def init({test_runner_pid, cache_version}) do
-    {:ok, figgy_producer_pid} = Figgy.HydrationProducer.start_link(cache_version)
+    {:ok, figgy_producer_pid} =
+      DatabaseProducer.start_link({Figgy.HydrationProducer, cache_version})
+
     {:ok, consumer_pid} = MockConsumer.start_link(figgy_producer_pid)
 
     {:producer,
