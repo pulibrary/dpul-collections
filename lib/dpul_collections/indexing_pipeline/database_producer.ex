@@ -1,10 +1,11 @@
-defmodule DpulCollections.IndexingPipeline.Figgy.DatabaseProducer do
+defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
   @moduledoc """
   GenStage Producer that pulls records from a database.
   """
 
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy
+  alias DpulCollections.IndexingPipeline.DatabaseProducer
   use GenStage
   @behaviour Broadway.Acknowledger
 

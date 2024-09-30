@@ -5,6 +5,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
   """
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy
+  alias DpulCollections.IndexingPipeline.DatabaseProducer
   use Broadway
 
   @type start_opts ::
@@ -20,7 +21,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
 
     default = [
       cache_version: cache_version,
-      producer_module: Figgy.DatabaseProducer,
+      producer_module: DatabaseProducer,
       producer_options: {Figgy.TransformationProducer, cache_version},
       batch_size: 10
     ]

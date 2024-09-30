@@ -10,6 +10,7 @@ defmodule MockFiggyIndexingProducer do
   to Figgy.IndexingConsumer.
   """
   alias DpulCollections.IndexingPipeline.Figgy
+  alias DpulCollections.IndexingPipeline.DatabaseProducer
   use GenStage
 
   @impl GenStage
@@ -17,7 +18,7 @@ defmodule MockFiggyIndexingProducer do
   @spec init({pid(), Integer}) :: {:producer, state()}
   def init({test_runner_pid, cache_version}) do
     {:ok, indexing_producer_pid} =
-      Figgy.DatabaseProducer.start_link({Figgy.IndexingProducer, cache_version})
+      DatabaseProducer.start_link({Figgy.IndexingProducer, cache_version})
 
     {:ok, consumer_pid} = MockConsumer.start_link(indexing_producer_pid)
 

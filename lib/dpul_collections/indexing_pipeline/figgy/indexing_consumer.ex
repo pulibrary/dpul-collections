@@ -4,6 +4,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
   them into Solr.
   """
   alias DpulCollections.IndexingPipeline.Figgy
+  alias DpulCollections.IndexingPipeline.DatabaseProducer
   alias DpulCollections.Solr
   use Broadway
 
@@ -20,7 +21,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
 
     default = [
       cache_version: cache_version,
-      producer_module: Figgy.DatabaseProducer,
+      producer_module: DatabaseProducer,
       producer_options: {Figgy.IndexingProducer, cache_version},
       batch_size: 10
     ]
