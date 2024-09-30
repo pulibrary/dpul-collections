@@ -1,4 +1,4 @@
-defmodule DpulCollections.IndexingPipeline.Figgy.CacheEntryMarker do
+defmodule DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker do
   @type t :: %__MODULE__{id: String.t(), timestamp: UTCDateTime}
   defstruct [:id, :timestamp]
 

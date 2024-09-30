@@ -1,7 +1,7 @@
-defmodule DpulCollections.IndexingPipeline.Figgy.CacheEntryMarkerTest do
+defmodule DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarkerTest do
   use DpulCollections.DataCase
 
-  alias DpulCollections.IndexingPipeline.Figgy.CacheEntryMarker
+  alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
 
   describe "marker comparison" do
     test "sorts markers appropriately" do

@@ -1,5 +1,6 @@
 defmodule FiggyTestFixtures do
   alias DpulCollections.IndexingPipeline.Figgy
+  alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
   alias DpulCollections.IndexingPipeline
 
   # These are the first three known resource markers in the test database.
@@ -68,17 +69,17 @@ defmodule FiggyTestFixtures do
         }
       })
 
-    marker1 = %Figgy.CacheEntryMarker{
+    marker1 = %CacheEntryMarker{
       timestamp: entry1.cache_order,
       id: entry1.record_id
     }
 
-    marker2 = %Figgy.CacheEntryMarker{
+    marker2 = %CacheEntryMarker{
       timestamp: entry2.cache_order,
       id: entry2.record_id
     }
 
-    marker3 = %Figgy.CacheEntryMarker{
+    marker3 = %CacheEntryMarker{
       timestamp: entry3.cache_order,
       id: entry3.record_id
     }
@@ -120,17 +121,17 @@ defmodule FiggyTestFixtures do
         }
       })
 
-    marker1 = %Figgy.CacheEntryMarker{
+    marker1 = %CacheEntryMarker{
       timestamp: entry1.cache_order,
       id: entry1.record_id
     }
 
-    marker2 = %Figgy.CacheEntryMarker{
+    marker2 = %CacheEntryMarker{
       timestamp: entry2.cache_order,
       id: entry2.record_id
     }
 
-    marker3 = %Figgy.CacheEntryMarker{
+    marker3 = %CacheEntryMarker{
       timestamp: entry3.cache_order,
       id: entry3.record_id
     }
