@@ -7,6 +7,7 @@ defmodule DpulCollections.IndexingPipeline do
   alias DpulCollections.{Repo, FiggyRepo}
 
   alias DpulCollections.IndexingPipeline.Figgy
+  alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
 
   @doc """
   Returns the list of hydration_cache_entries.
@@ -81,11 +82,11 @@ defmodule DpulCollections.IndexingPipeline do
   end
 
   @spec get_hydration_cache_entries_since!(
-          marker :: Figgy.HydrationCacheEntryMarker.t(),
+          marker :: CacheEntryMarker.t(),
           count :: integer
         ) :: list(Figgy.HydrationCacheEntry)
   def get_hydration_cache_entries_since!(
-        %Figgy.HydrationCacheEntryMarker{timestamp: cache_order, id: id},
+        %CacheEntryMarker{timestamp: cache_order, id: id},
         count
       ) do
     query =
@@ -246,10 +247,10 @@ defmodule DpulCollections.IndexingPipeline do
   """
 
   @spec get_figgy_resources_since!(
-          marker :: Figgy.ResourceMarker.t(),
+          marker :: CacheEntryMarker.t(),
           count :: integer
         ) :: list(Figgy.Resource)
-  def get_figgy_resources_since!(%Figgy.ResourceMarker{timestamp: updated_at, id: id}, count) do
+  def get_figgy_resources_since!(%CacheEntryMarker{timestamp: updated_at, id: id}, count) do
     query =
       from r in Figgy.Resource,
         where: (r.updated_at == ^updated_at and r.id > ^id) or r.updated_at > ^updated_at,
@@ -304,11 +305,11 @@ defmodule DpulCollections.IndexingPipeline do
   def get_transformation_cache_entry!(id), do: Repo.get!(Figgy.TransformationCacheEntry, id)
 
   @spec get_transformation_cache_entries_since!(
-          marker :: Figgy.TransformationCacheEntryMarker.t(),
+          marker :: CacheEntryMarker.t(),
           count :: integer
         ) :: list(Figgy.TransformationCacheEntry)
   def get_transformation_cache_entries_since!(
-        %Figgy.TransformationCacheEntryMarker{timestamp: cache_order, id: id},
+        %CacheEntryMarker{timestamp: cache_order, id: id},
         count
       ) do
     query =

@@ -1,9 +1,14 @@
-defmodule DpulCollections.IndexingPipeline.Figgy.ResourceMarker do
+defmodule DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker do
   @type t :: %__MODULE__{id: String.t(), timestamp: UTCDateTime}
   defstruct [:id, :timestamp]
 
-  alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline.ProcessorMarker
+
+  alias DpulCollections.IndexingPipeline.Figgy.{
+    TransformationCacheEntry,
+    HydrationCacheEntry,
+    Resource
+  }
 
   @spec from(%ProcessorMarker{}) :: t()
   @doc """
@@ -18,9 +23,19 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ResourceMarker do
 
   def from(nil), do: nil
 
-  @spec from(%Figgy.Resource{}) :: t()
-  def from(%Figgy.Resource{updated_at: updated_at, id: id}) do
+  @spec from(%TransformationCacheEntry{}) :: t()
+  def from(%TransformationCacheEntry{cache_order: timestamp, record_id: id}) do
+    %__MODULE__{timestamp: timestamp, id: id}
+  end
+
+  @spec from(%Resource{}) :: t()
+  def from(%Resource{updated_at: updated_at, id: id}) do
     %__MODULE__{timestamp: updated_at, id: id}
+  end
+
+  @spec from(%HydrationCacheEntry{}) :: t()
+  def from(%HydrationCacheEntry{cache_order: timestamp, record_id: id}) do
+    %__MODULE__{timestamp: timestamp, id: id}
   end
 
   @spec from(%Broadway.Message{}) :: t()

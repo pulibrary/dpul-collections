@@ -1,5 +1,6 @@
 defmodule FiggyTestFixtures do
   alias DpulCollections.IndexingPipeline.Figgy
+  alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
   alias DpulCollections.IndexingPipeline
 
   # These are the first three known resource markers in the test database.
@@ -7,17 +8,17 @@ defmodule FiggyTestFixtures do
   # whole test suite.
   @spec markers :: {ProcessorMarker.marker(), ProcessorMarker.marker(), ProcessorMarker.marker()}
   def markers do
-    marker1 = %Figgy.ResourceMarker{
+    marker1 = %CacheEntryMarker{
       timestamp: ~U[2018-03-09 20:19:33.414040Z],
       id: "3cb7627b-defc-401b-9959-42ebc4488f74"
     }
 
-    marker2 = %Figgy.ResourceMarker{
+    marker2 = %CacheEntryMarker{
       timestamp: ~U[2018-03-09 20:19:34.465203Z],
       id: "69990556-434c-476a-9043-bbf9a1bda5a4"
     }
 
-    marker3 = %Figgy.ResourceMarker{
+    marker3 = %CacheEntryMarker{
       timestamp: ~U[2018-03-09 20:19:34.486004Z],
       id: "47276197-e223-471c-99d7-405c5f6c5285"
     }
@@ -68,17 +69,17 @@ defmodule FiggyTestFixtures do
         }
       })
 
-    marker1 = %Figgy.HydrationCacheEntryMarker{
+    marker1 = %CacheEntryMarker{
       timestamp: entry1.cache_order,
       id: entry1.record_id
     }
 
-    marker2 = %Figgy.HydrationCacheEntryMarker{
+    marker2 = %CacheEntryMarker{
       timestamp: entry2.cache_order,
       id: entry2.record_id
     }
 
-    marker3 = %Figgy.HydrationCacheEntryMarker{
+    marker3 = %CacheEntryMarker{
       timestamp: entry3.cache_order,
       id: entry3.record_id
     }
@@ -120,17 +121,17 @@ defmodule FiggyTestFixtures do
         }
       })
 
-    marker1 = %Figgy.TransformationCacheEntryMarker{
+    marker1 = %CacheEntryMarker{
       timestamp: entry1.cache_order,
       id: entry1.record_id
     }
 
-    marker2 = %Figgy.TransformationCacheEntryMarker{
+    marker2 = %CacheEntryMarker{
       timestamp: entry2.cache_order,
       id: entry2.record_id
     }
 
-    marker3 = %Figgy.TransformationCacheEntryMarker{
+    marker3 = %CacheEntryMarker{
       timestamp: entry3.cache_order,
       id: entry3.record_id
     }

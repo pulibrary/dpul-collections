@@ -2,6 +2,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HyrdationIntegrationTest do
   use DpulCollections.DataCase
 
   alias DpulCollections.IndexingPipeline.Figgy
+  alias DpulCollections.IndexingPipeline.DatabaseProducer
   alias DpulCollections.IndexingPipeline
 
   def start_producer(cache_version \\ 0) do
@@ -9,7 +10,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HyrdationIntegrationTest do
 
     :telemetry.attach(
       "ack-handler-#{pid |> :erlang.pid_to_list()}",
-      [:figgy_producer, :ack, :done],
+      [:database_producer, :ack, :done],
       fn _event, _, _, _ -> send(pid, {:ack_done}) end,
       nil
     )
