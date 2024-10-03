@@ -29,12 +29,14 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
   def wait_for_indexed_count(count) do
     DpulCollections.Solr.commit()
+
     continue =
-        if DpulCollections.Solr.document_count() == count do
-          true
-        else
-          false
-        end
+      if DpulCollections.Solr.document_count() == count do
+        true
+      else
+        false
+      end
+
     continue || (:timer.sleep(100) && wait_for_indexed_count(count))
   end
 
@@ -81,13 +83,18 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     record = IndexingPipeline.get_figgy_resource!(id)
     # Write a current hydration marker right before that marker.
     marker = IndexingPipeline.DatabaseProducer.CacheEntryMarker.from(record)
-    earlier_marker = %IndexingPipeline.DatabaseProducer.CacheEntryMarker{id: marker.id, timestamp: DateTime.add(marker.timestamp, -1, :microsecond)}
-      IndexingPipeline.write_processor_marker(%{
-        type: IndexingPipeline.Figgy.HydrationProducerSource.processor_marker_key(),
-        cache_version: 1,
-        cache_location: earlier_marker.timestamp,
-        cache_record_id: earlier_marker.id
-      })
+
+    earlier_marker = %IndexingPipeline.DatabaseProducer.CacheEntryMarker{
+      id: marker.id,
+      timestamp: DateTime.add(marker.timestamp, -1, :microsecond)
+    }
+
+    IndexingPipeline.write_processor_marker(%{
+      type: IndexingPipeline.Figgy.HydrationProducerSource.processor_marker_key(),
+      cache_version: 1,
+      cache_location: earlier_marker.timestamp,
+      cache_record_id: earlier_marker.id
+    })
 
     # Start the figgy producer
     {:ok, indexer} = Figgy.IndexingConsumer.start_link(cache_version: 1, batch_size: 50)
@@ -99,26 +106,31 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
         cache_version: 1,
         batch_size: 50,
         producer_module: MockFiggyHydrationProducer,
-        producer_options: {self(), 1},
+        producer_options: {self(), 1}
       )
 
     # Index one.
     MockFiggyHydrationProducer.process(1)
+
     task =
       Task.async(fn -> wait_for_indexed_count(1) end)
 
     Task.await(task, 15000)
     document = Solr.find_by_id(id)
-    IO.inspect(Solr.document_count())
-    { hydrator, transformer, indexer, document }
+    {hydrator, transformer, indexer, document}
   end
 
   test "indexes description" do
-    { hydrator, transformer, indexer, document } = index_record_id("26713a31-d615-49fd-adfc-93770b4f66b3")
+    {hydrator, transformer, indexer, document} =
+      index_record_id("26713a31-d615-49fd-adfc-93770b4f66b3")
 
-    assert %{"description_txt" => [first_description | _tail]} = document
+    assert %{"description_txtm" => [first_description | _tail]} = document
     assert first_description |> String.starts_with?("Asra-Panahi") == true
-    IO.inspect(document)
+    # Language detection
+    assert %{"description_txtm_en" => [first_description | _tail]} = document
+    assert first_description |> String.starts_with?("Asra-Panahi") == true
+    assert %{"language_ss" => ["en"]} = document
+
     hydrator |> Broadway.stop(:normal)
     transformer |> Broadway.stop(:normal)
     indexer |> Broadway.stop(:normal)
