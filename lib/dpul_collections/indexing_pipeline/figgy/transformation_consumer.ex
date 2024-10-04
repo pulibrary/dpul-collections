@@ -88,11 +88,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
   @spec transform_to_solr_document(%Figgy.HydrationCacheEntry{}) :: %{}
   defp transform_to_solr_document(hydration_cache_entry) do
     %{record_id: id} = hydration_cache_entry
-    %{data: %{"metadata" => %{"title" => title}}} = hydration_cache_entry
+    %{data: %{"metadata" => metadata = %{"title" => title}}} = hydration_cache_entry
+    description = get_in(metadata, ["description"])
 
     %{
       id: id,
-      title_ss: title
+      title_ss: title,
+      description_txtm: description
     }
   end
 end
