@@ -4,6 +4,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   """
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy
+  alias DpulCollections.IndexingPipeline.DatabaseProducer
   use Broadway
 
   @type start_opts ::
