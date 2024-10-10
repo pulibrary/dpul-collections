@@ -31,14 +31,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # Start the figgy producer
     {:ok, indexer} = Figgy.IndexingConsumer.start_link(cache_version: 1, batch_size: 50)
     {:ok, transformer} = Figgy.TransformationConsumer.start_link(cache_version: 1, batch_size: 50)
-
-    {:ok, hydrator} =
-      Figgy.HydrationConsumer.start_link(
-        cache_version: 1,
-        batch_size: 50,
-        producer_module: IndexingPipeline.DatabaseProducer,
-        producer_options: {Figgy.HydrationProducerSource, 1}
-      )
+    {:ok, hydrator} = Figgy.HydrationConsumer.start_link(cache_version: 1, batch_size: 50)
 
     task =
       Task.async(fn -> wait_for_index_completion() end)
