@@ -77,6 +77,10 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     assert indexing_processor_marker.cache_version == 1
 
     # test reindexing
+    # In normal use we wouldn't delete everything - how can we tell that a
+    # reindex happened. How can we wait for it to be done?
+    # We could get the version, then have a function that keeps trying to get it and see if the version changed.
+    # TODO: The above.
     Repo.truncate(Figgy.TransformationCacheEntry)
     Repo.truncate(Figgy.HydrationCacheEntry)
     Solr.delete_all()
