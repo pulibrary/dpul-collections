@@ -25,7 +25,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
   def init({source_module, cache_version}) do
     # trap the exit so we can stop gracefully
     # see https://www.erlang.org/doc/apps/erts/erlang.html#process_flag/2
-    Process.flag(:trap_exit, true)
+    # Process.flag(:trap_exit, true)
 
     last_queried_marker =
       IndexingPipeline.get_processor_marker!(source_module.processor_marker_key(), cache_version)
@@ -133,6 +133,21 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
 
     notify_ack(pending_markers |> length())
     {:noreply, messages, new_state}
+  end
+
+  @impl GenStage
+  def handle_cast(:start_over, state = %{source_module: source_module, cache_version: cache_version}) do
+    # Delete the process marker from the db
+    indexing_processor_marker = IndexingPipeline.get_processor_marker!(source_module.processor_marker_key(), cache_version)
+    IndexingPipeline.delete_processor_marker(indexing_processor_marker)
+    new_state =
+      state
+      |> Map.merge(%{
+        last_queried_marker: nil,
+        pulled_records: [],
+        acked_records: [],
+        })
+    { :noreply, [], new_state }
   end
 
   # Updates state, removing any acked_records from pulled_records and returns the
