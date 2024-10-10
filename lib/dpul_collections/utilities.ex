@@ -22,7 +22,7 @@ defmodule DpulCollections.Utilities do
 
   def reindex_hydration_cache(cache_version) do
     hydration_processor_marker =
-      IndexingPipeline.get_processor_marker!("hydrator", cache_version)
+      IndexingPipeline.get_processor_marker!("figgy_hydrator", cache_version)
 
     IndexingPipeline.delete_processor_marker(hydration_processor_marker)
     GenServer.stop(Figgy.HydrationConsumer)
