@@ -85,7 +85,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     Repo.truncate(Figgy.HydrationCacheEntry)
     Solr.delete_all()
     assert Solr.document_count() == 0
-    Utilities.reindex_all(1)
+    Figgy.IndexingConsumer.start_over!()
 
     task =
       Task.async(fn -> wait_for_index_completion() end)
