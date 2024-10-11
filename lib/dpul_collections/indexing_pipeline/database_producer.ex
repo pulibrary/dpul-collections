@@ -25,7 +25,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
   def init({source_module, cache_version}) do
     # trap the exit so we can stop gracefully
     # see https://www.erlang.org/doc/apps/erts/erlang.html#process_flag/2
-    # Process.flag(:trap_exit, true)
+    Process.flag(:trap_exit, true)
 
     last_queried_marker =
       IndexingPipeline.get_processor_marker!(source_module.processor_marker_key(), cache_version)
@@ -146,7 +146,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
         last_queried_marker: nil,
         pulled_records: [],
         acked_records: [],
-        })
+      })
     { :noreply, [], new_state }
   end
 
