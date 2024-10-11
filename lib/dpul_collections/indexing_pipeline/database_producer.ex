@@ -140,14 +140,8 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
     # Delete the process marker from the db
     indexing_processor_marker = IndexingPipeline.get_processor_marker!(source_module.processor_marker_key(), cache_version)
     IndexingPipeline.delete_processor_marker(indexing_processor_marker)
-    new_state =
-      state
-      |> Map.merge(%{
-        last_queried_marker: nil,
-        pulled_records: [],
-        acked_records: [],
-      })
-    { :noreply, [], new_state }
+    # stop it to clear out state, supervisor will spin it back up
+    { :stop, :normal, state }
   end
 
   # Updates state, removing any acked_records from pulled_records and returns the
