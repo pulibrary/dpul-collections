@@ -46,6 +46,12 @@ Remember to check formatting before pushing commits.
 
 For more details about an individual deployment, and to view logs, go to the `jobs` section of our [nomad UI](nomad.lib.princeton.edu).
 
+### Restart Indexing Pipeline
+
+If you only need to reindex (no transformation or hydration), in a shell do: `Figgy.IndexingConsumer.start_over!()`
+
+Note: This will use the same cache_version, overwriting the current solr documents.
+
 ### Connecting to Staging Shell or IEX Console
 
 1. Connect to VPN
