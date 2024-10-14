@@ -27,6 +27,19 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     continue || (:timer.sleep(100) && wait_for_index_completion())
   end
 
+  def wait_for_indexed_count(count) do
+    DpulCollections.Solr.commit()
+
+    continue =
+      if DpulCollections.Solr.document_count() == count do
+        true
+      else
+        false
+      end
+
+    continue || (:timer.sleep(100) && wait_for_indexed_count(count))
+  end
+
   test "a full hydrator and transformer run" do
     # Start the figgy producer
     {:ok, indexer} = Figgy.IndexingConsumer.start_link(cache_version: 1, batch_size: 50)
@@ -59,6 +72,22 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     assert hydration_processor_marker.cache_version == 1
     assert transformation_processor_marker.cache_version == 1
     assert indexing_processor_marker.cache_version == 1
+
+    hydrator |> Broadway.stop(:normal)
+    transformer |> Broadway.stop(:normal)
+    indexer |> Broadway.stop(:normal)
+  end
+
+  test "indexes description" do
+    {hydrator, transformer, indexer, document} =
+      FiggyTestSupport.index_record_id("26713a31-d615-49fd-adfc-93770b4f66b3")
+
+    assert %{"description_txtm" => [first_description | _tail]} = document
+    assert first_description |> String.starts_with?("Asra-Panahi") == true
+    # Language detection
+    assert %{"description_txtm_en" => [first_description | _tail]} = document
+    assert first_description |> String.starts_with?("Asra-Panahi") == true
+    assert %{"detectlang_ss" => ["en"]} = document
 
     hydrator |> Broadway.stop(:normal)
     transformer |> Broadway.stop(:normal)
