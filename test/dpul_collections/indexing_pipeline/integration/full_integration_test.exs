@@ -26,17 +26,15 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     continue || (:timer.sleep(100) && wait_for_index_completion())
   end
 
-  def wait_for_indexed_count(count) do
-    DpulCollections.Solr.commit()
+  def wait_for_solr_version_change(doc = %{"_version_" => version, "id" => id}) do
+    Solr.commit()
+    %{"_version_" => new_version} = Solr.find_by_id(id)
 
-    continue =
-      if DpulCollections.Solr.document_count() == count do
-        true
-      else
-        false
-      end
-
-    continue || (:timer.sleep(100) && wait_for_indexed_count(count))
+    if new_version == version do
+      :timer.sleep(100) && wait_for_solr_version_change(doc)
+    else
+      true
+    end
   end
 
   test "a full hydrator and transformer run" do
@@ -76,20 +74,22 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     assert transformation_processor_marker.cache_version == 1
     assert indexing_processor_marker.cache_version == 1
 
-    # test reindexing
-    # In normal use we wouldn't delete everything - how can we tell that a
-    # reindex happened. How can we wait for it to be done?
-    # We could get the version, then have a function that keeps trying to get it and see if the version changed.
-    # TODO: The above.
-    Solr.delete_all()
-    assert Solr.document_count() == 0
+    latest_document = Solr.latest_document()
     Figgy.IndexingConsumer.start_over!()
 
     task =
-      Task.async(fn -> wait_for_index_completion() end)
+      Task.async(fn -> wait_for_solr_version_change(latest_document) end)
 
     Task.await(task, 15000)
+    latest_document_again = Solr.latest_document()
+    # Make sure it got reindexed
+    assert latest_document["_version_"] != latest_document_again["_version_"]
+    # Make sure we didn't add another one
     assert Solr.document_count() == transformation_cache_entry_count
+
+    ## TODO List:
+    # Add TransformationConsumer.start_over! & test
+    # Add HydrationConsumer.start_over! & test
 
     Supervisor.stop(DpulCollections.TestSupervisor, :normal)
   end
