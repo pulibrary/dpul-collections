@@ -20,7 +20,6 @@ defmodule DpulCollections.Solr do
     case response.body["response"]["docs"] do
       [] -> nil
       [doc | _tail] -> doc
-      [doc] -> doc
     end
   end
 
