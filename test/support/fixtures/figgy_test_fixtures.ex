@@ -9,18 +9,18 @@ defmodule FiggyTestFixtures do
   @spec markers :: {ProcessorMarker.marker(), ProcessorMarker.marker(), ProcessorMarker.marker()}
   def markers do
     marker1 = %CacheEntryMarker{
-      timestamp: ~U[2018-03-09 20:19:33.414040Z],
-      id: "3cb7627b-defc-401b-9959-42ebc4488f74"
+      id: "8b0631b7-e1e4-49c2-904f-cd3141167a80",
+      timestamp: ~U[2024-01-11 16:41:04.285033Z]
     }
 
     marker2 = %CacheEntryMarker{
-      timestamp: ~U[2018-03-09 20:19:34.465203Z],
-      id: "69990556-434c-476a-9043-bbf9a1bda5a4"
+      id: "2ebc1872-eb41-4bc6-a523-5069108bf504",
+      timestamp: ~U[2024-01-11 16:41:04.305983Z]
     }
 
     marker3 = %CacheEntryMarker{
-      timestamp: ~U[2018-03-09 20:19:34.486004Z],
-      id: "47276197-e223-471c-99d7-405c5f6c5285"
+      id: "f204600d-9a3c-405d-ab39-df5d3441123b",
+      timestamp: ~U[2024-01-11 16:41:04.329624Z]
     }
 
     {marker1, marker2, marker3}

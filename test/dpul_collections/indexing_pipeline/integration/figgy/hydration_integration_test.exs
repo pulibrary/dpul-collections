@@ -5,6 +5,23 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HyrdationIntegrationTest do
   alias DpulCollections.IndexingPipeline.DatabaseProducer
   alias DpulCollections.IndexingPipeline
 
+  def jump_processor_to_ephemera_folder(cache_version \\ 0) do
+    {marker1, _, _} = FiggyTestFixtures.markers()
+    # Write the hydrator right behind an EphemeraFolder, since there are
+    # DeletionMarkers in front of EphemeraFolders.
+    earlier_marker = %DatabaseProducer.CacheEntryMarker{
+      id: marker1.id,
+      timestamp: DateTime.add(marker1.timestamp, -1, :microsecond)
+    }
+
+    IndexingPipeline.write_processor_marker(%{
+      type: Figgy.HydrationProducerSource.processor_marker_key(),
+      cache_version: cache_version,
+      cache_location: earlier_marker.timestamp,
+      cache_record_id: earlier_marker.id
+    })
+  end
+
   def start_producer(cache_version \\ 0) do
     pid = self()
 
@@ -28,6 +45,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HyrdationIntegrationTest do
 
   test "hydration cache entry creation" do
     {marker1, _marker2, _marker3} = FiggyTestFixtures.markers()
+    jump_processor_to_ephemera_folder()
     hydrator = start_producer()
 
     MockFiggyHydrationProducer.process(1)
@@ -41,7 +59,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HyrdationIntegrationTest do
 
     assert %{
              "id" => ^marker_1_id,
-             "internal_resource" => "EphemeraTerm"
+             "internal_resource" => "EphemeraFolder"
            } = cache_entry.data
 
     hydrator |> Broadway.stop(:normal)
@@ -49,6 +67,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HyrdationIntegrationTest do
 
   test "hydration cache entry creation with cache_version > 0" do
     {marker1, _marker2, _marker3} = FiggyTestFixtures.markers()
+    jump_processor_to_ephemera_folder(1)
     hydrator = start_producer(1)
 
     MockFiggyHydrationProducer.process(1)
@@ -62,7 +81,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HyrdationIntegrationTest do
 
     assert %{
              "id" => ^marker_1_id,
-             "internal_resource" => "EphemeraTerm"
+             "internal_resource" => "EphemeraFolder"
            } = cache_entry.data
 
     processor_marker = IndexingPipeline.get_processor_marker!("figgy_hydrator", 1)
@@ -72,16 +91,18 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HyrdationIntegrationTest do
   end
 
   test "doesn't override newer hydration cache entries" do
+    {marker1, _marker2, _marker3} = FiggyTestFixtures.markers()
     # Create a hydration cache entry for a record that has a source_cache_order
     # in the future.
     IndexingPipeline.write_hydration_cache_entry(%{
       cache_version: 0,
-      record_id: "3cb7627b-defc-401b-9959-42ebc4488f74",
+      record_id: marker1.id,
       source_cache_order: ~U[2200-03-09 20:19:33.414040Z],
       data: %{}
     })
 
     # Process that past record.
+    jump_processor_to_ephemera_folder()
     hydrator = start_producer()
     MockFiggyHydrationProducer.process(1)
     assert_receive {:ack_done}
@@ -100,12 +121,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HyrdationIntegrationTest do
     # in the future.
     IndexingPipeline.write_hydration_cache_entry(%{
       cache_version: 0,
-      record_id: "3cb7627b-defc-401b-9959-42ebc4488f74",
+      record_id: marker1.id,
       source_cache_order: ~U[1900-03-09 20:19:33.414040Z],
       data: %{}
     })
 
     # Process that past record.
+    jump_processor_to_ephemera_folder()
     hydrator = start_producer()
     MockFiggyHydrationProducer.process(1)
     assert_receive {:ack_done}
