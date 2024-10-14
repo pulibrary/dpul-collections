@@ -87,7 +87,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # Language detection
     assert %{"description_txtm_en" => [first_description | _tail]} = document
     assert first_description |> String.starts_with?("Asra-Panahi") == true
-    assert %{"language_ss" => ["en"]} = document
+    assert %{"detectlang_ss" => ["en"]} = document
 
     hydrator |> Broadway.stop(:normal)
     transformer |> Broadway.stop(:normal)
