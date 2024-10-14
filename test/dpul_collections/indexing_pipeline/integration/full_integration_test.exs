@@ -1,4 +1,5 @@
 defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
+  alias ElixirLS.LanguageServer.Providers.CodeLens.Test
   use DpulCollections.DataCase
 
   alias DpulCollections.Repo
@@ -74,6 +75,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     assert transformation_processor_marker.cache_version == 1
     assert indexing_processor_marker.cache_version == 1
 
+    # Reindex Test
     latest_document = Solr.latest_document()
     Figgy.IndexingConsumer.start_over!()
 
@@ -87,9 +89,33 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # Make sure we didn't add another one
     assert Solr.document_count() == transformation_cache_entry_count
 
-    ## TODO List:
-    # Add TransformationConsumer.start_over! & test
-    # Add HydrationConsumer.start_over! & test
+    # Retransformation Test
+    latest_document = Solr.latest_document()
+    Figgy.TransformationConsumer.start_over!()
+
+    task =
+      Task.async(fn -> wait_for_solr_version_change(latest_document) end)
+
+    Task.await(task, 15000)
+    latest_document_again = Solr.latest_document()
+    # Make sure it got reindexed
+    assert latest_document["_version_"] != latest_document_again["_version_"]
+    # Make sure we didn't add another one
+    assert Solr.document_count() == transformation_cache_entry_count
+
+    # Rehydration Test
+    latest_document = Solr.latest_document()
+    Figgy.HydrationConsumer.start_over!()
+
+    task =
+      Task.async(fn -> wait_for_solr_version_change(latest_document) end)
+
+    Task.await(task, 15000)
+    latest_document_again = Solr.latest_document()
+    # Make sure it got reindexed
+    assert latest_document["_version_"] != latest_document_again["_version_"]
+    # Make sure we didn't add another one
+    assert Solr.document_count() == transformation_cache_entry_count
 
     Supervisor.stop(DpulCollections.TestSupervisor, :normal)
   end

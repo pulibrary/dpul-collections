@@ -105,4 +105,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     Enum.each(messages, &write_to_hydration_cache(&1, cache_version))
     messages
   end
+
+  def start_over! do
+    __MODULE__
+    |> Broadway.producer_names()
+    |> Enum.each(&GenServer.cast(&1, :start_over))
+  end
 end
