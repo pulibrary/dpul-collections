@@ -77,6 +77,10 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     # Reindex Test
     latest_document = Solr.latest_document()
+
+    transformation_entry =
+      Repo.get_by(Figgy.TransformationCacheEntry, record_id: latest_document["id"])
+
     Figgy.IndexingConsumer.start_over!()
 
     task =
@@ -88,34 +92,54 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     assert latest_document["_version_"] != latest_document_again["_version_"]
     # Make sure we didn't add another one
     assert Solr.document_count() == transformation_cache_entry_count
+    # transformation entries weren't updated
+    transformation_entry_again =
+      Repo.get_by(Figgy.TransformationCacheEntry, record_id: latest_document["id"])
+
+    assert transformation_entry.cache_order == transformation_entry_again.cache_order
 
     # Retransformation Test
     latest_document = Solr.latest_document()
+
+    transformation_entry =
+      Repo.get_by(Figgy.TransformationCacheEntry, record_id: latest_document["id"])
+
+    hydration_entry = Repo.get_by(Figgy.HydrationCacheEntry, record_id: latest_document["id"])
+
     Figgy.TransformationConsumer.start_over!()
 
     task =
       Task.async(fn -> wait_for_solr_version_change(latest_document) end)
 
     Task.await(task, 15000)
-    latest_document_again = Solr.latest_document()
-    # Make sure it got reindexed
-    assert latest_document["_version_"] != latest_document_again["_version_"]
-    # Make sure we didn't add another one
-    assert Solr.document_count() == transformation_cache_entry_count
+
+    # transformation entries were updated
+    transformation_entry_again =
+      Repo.get_by(Figgy.TransformationCacheEntry, record_id: latest_document["id"])
+
+    assert transformation_entry.cache_order != transformation_entry_again.cache_order
+
+    # hydration entries weren't updated
+    hydration_entry_again =
+      Repo.get_by(Figgy.HydrationCacheEntry, record_id: latest_document["id"])
+
+    assert hydration_entry.cache_order == hydration_entry_again.cache_order
 
     # Rehydration Test
     latest_document = Solr.latest_document()
+    hydration_entry = Repo.get_by(Figgy.HydrationCacheEntry, record_id: latest_document["id"])
+
     Figgy.HydrationConsumer.start_over!()
 
     task =
       Task.async(fn -> wait_for_solr_version_change(latest_document) end)
 
     Task.await(task, 15000)
-    latest_document_again = Solr.latest_document()
-    # Make sure it got reindexed
-    assert latest_document["_version_"] != latest_document_again["_version_"]
-    # Make sure we didn't add another one
-    assert Solr.document_count() == transformation_cache_entry_count
+
+    hydration_entry_again =
+      Repo.get_by(Figgy.HydrationCacheEntry, record_id: latest_document["id"])
+
+    assert hydration_entry.cache_order != hydration_entry_again.cache_order
 
     Supervisor.stop(DpulCollections.TestSupervisor, :normal)
   end

@@ -35,7 +35,7 @@ We copy fixtures from Figgy's production database into a Docker container so tha
 Remember to check formatting before pushing commits.
 
 - `mix format` will format your code
-- `mix format --check-formatting` will tell you formatting that must be done.
+- `mix format --check-formatted` will tell you formatting that must be done.
 
 ## Production tasks
 
