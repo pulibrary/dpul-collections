@@ -1,5 +1,4 @@
 defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
-  alias ElixirLS.LanguageServer.Providers.CodeLens.Test
   use DpulCollections.DataCase
 
   alias DpulCollections.Repo
