@@ -254,6 +254,7 @@ defmodule DpulCollections.IndexingPipeline do
     query =
       from r in Figgy.Resource,
         where: (r.updated_at == ^updated_at and r.id > ^id) or r.updated_at > ^updated_at,
+        where: r.internal_resource == "EphemeraFolder" or r.internal_resource == "DeletionMarker",
         limit: ^count,
         order_by: [asc: r.updated_at, asc: r.id]
 
@@ -268,6 +269,7 @@ defmodule DpulCollections.IndexingPipeline do
     query =
       from r in Figgy.Resource,
         limit: ^count,
+        where: r.internal_resource == "EphemeraFolder" or r.internal_resource == "DeletionMarker",
         order_by: [asc: r.updated_at, asc: r.id]
 
     FiggyRepo.all(query)

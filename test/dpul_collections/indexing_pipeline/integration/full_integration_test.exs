@@ -38,9 +38,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     Task.await(task, 15000)
 
-    # the hydrator pulled all ephemera folders and terms
+    # the hydrator pulled all ephemera folders
     entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
-    assert FiggyTestSupport.total_resource_count() == entry_count
+    assert FiggyTestSupport.ephemera_folder_count() == entry_count
 
     # the transformer only processes ephemera folders
     transformation_cache_entry_count = Repo.aggregate(Figgy.TransformationCacheEntry, :count)
