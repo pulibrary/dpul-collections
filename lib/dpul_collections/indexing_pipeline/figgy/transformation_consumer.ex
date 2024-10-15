@@ -85,6 +85,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
 
   defp write_to_transformation_cache(_, _), do: {:ok, nil}
 
+  def start_over! do
+    __MODULE__
+    |> Broadway.producer_names()
+    |> Enum.each(&GenServer.cast(&1, :start_over))
+  end
+
   @spec transform_to_solr_document(%Figgy.HydrationCacheEntry{}) :: %{}
   defp transform_to_solr_document(hydration_cache_entry) do
     %{record_id: id} = hydration_cache_entry

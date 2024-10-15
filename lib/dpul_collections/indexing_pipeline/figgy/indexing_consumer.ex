@@ -62,6 +62,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
     messages
   end
 
+  def start_over! do
+    __MODULE__
+    |> Broadway.producer_names()
+    |> Enum.each(&GenServer.cast(&1, :start_over))
+  end
+
   defp unwrap(%Broadway.Message{data: %Figgy.TransformationCacheEntry{data: data}}) do
     data
   end

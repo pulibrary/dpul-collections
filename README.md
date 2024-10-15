@@ -35,7 +35,7 @@ We copy fixtures from Figgy's production database into a Docker container so tha
 Remember to check formatting before pushing commits.
 
 - `mix format` will format your code
-- `mix format --check-formatting` will tell you formatting that must be done.
+- `mix format --check-formatted` will tell you formatting that must be done.
 
 ## Production tasks
 
@@ -45,6 +45,16 @@ Remember to check formatting before pushing commits.
 1. `BRANCH=<branch> ./bin/deploy staging`
 
 For more details about an individual deployment, and to view logs, go to the `jobs` section of our [nomad UI](nomad.lib.princeton.edu).
+
+### Restart Indexing Pipeline
+
+The following commands should be run in the shell:
+
+1. Rehydration (full pipeline re-run): `DpulCollections.IndexingPipeline.Figgy.HydrationConsumer.start_over!()`
+1. Retransformation (Transform & Index): `DpulCollections.IndexingPipeline.Figgy.TransformationConsumer.start_over!`
+1. Reindex (Index Only): `DpulCollections.IndexingPipeline.Figgy.IndexingConsumer.start_over!`
+
+Note: This will use the same cache_version, overwriting the current solr documents and cached records.
 
 ### Connecting to Staging Shell or IEX Console
 

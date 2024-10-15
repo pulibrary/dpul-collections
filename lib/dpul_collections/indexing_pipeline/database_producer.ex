@@ -135,6 +135,20 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
     {:noreply, messages, new_state}
   end
 
+  @impl GenStage
+  def handle_cast(
+        :start_over,
+        state = %{source_module: source_module, cache_version: cache_version}
+      ) do
+    # Delete the process marker from the db
+    indexing_processor_marker =
+      IndexingPipeline.get_processor_marker!(source_module.processor_marker_key(), cache_version)
+
+    IndexingPipeline.delete_processor_marker(indexing_processor_marker)
+    # stop it to clear out state, supervisor will spin it back up
+    {:stop, :normal, state}
+  end
+
   # Updates state, removing any acked_records from pulled_records and returns the
   # last removed marker so it can be saved to the database.
   # If the transformer element of pulled_records is the first element of

@@ -38,6 +38,30 @@ defmodule DpulCollections.SolrTest do
     assert Solr.document_count() == 1
   end
 
+  test ".latest_document" do
+    doc = %{
+      "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
+      "title_ss" => ["test title 1"]
+    }
+
+    assert Solr.latest_document() == nil
+
+    Solr.add([doc])
+    Solr.commit()
+
+    assert Solr.latest_document()["id"] == doc["id"]
+
+    doc_2 = %{
+      "id" => "3cb7627b-defc-401b-9959-42ebc4488f75",
+      "title_ss" => ["test title 1"]
+    }
+
+    Solr.add([doc_2])
+    Solr.commit()
+
+    assert Solr.latest_document()["id"] == doc_2["id"]
+  end
+
   test ".delete_all/0" do
     doc = %{
       "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",

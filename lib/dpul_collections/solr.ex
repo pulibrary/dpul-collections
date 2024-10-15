@@ -10,6 +10,19 @@ defmodule DpulCollections.Solr do
     response.body["response"]["numFound"]
   end
 
+  def latest_document() do
+    {:ok, response} =
+      Req.get(
+        select_url(),
+        params: [q: "*:*", sort: "_version_ desc"]
+      )
+
+    case response.body["response"]["docs"] do
+      [] -> nil
+      [doc | _tail] -> doc
+    end
+  end
+
   def find_by_id(id) do
     {:ok, response} =
       Req.get(
