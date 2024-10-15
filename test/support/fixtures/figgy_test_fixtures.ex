@@ -1,5 +1,4 @@
 defmodule FiggyTestFixtures do
-  alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
   alias DpulCollections.IndexingPipeline
 

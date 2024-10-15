@@ -3,7 +3,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
   alias DpulCollections.Repo
   alias DpulCollections.IndexingPipeline.Figgy
-  alias DpulCollections.{IndexingPipeline, Solr, Utilities}
+  alias DpulCollections.{IndexingPipeline, Solr}
 
   setup do
     Solr.delete_all()
