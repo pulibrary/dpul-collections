@@ -17,4 +17,17 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
     |> cast(attrs, [:data, :cache_version, :record_id, :source_cache_order])
     |> validate_required([:data, :cache_version, :record_id, :source_cache_order])
   end
+
+  @spec to_solr_document(%__MODULE__{}) :: %{}
+  def to_solr_document(hydration_cache_entry) do
+    %{record_id: id} = hydration_cache_entry
+    %{data: %{"metadata" => metadata = %{"title" => title}}} = hydration_cache_entry
+    description = get_in(metadata, ["description"])
+
+    %{
+      id: id,
+      title_ss: title,
+      description_txtm: description
+    }
+  end
 end
