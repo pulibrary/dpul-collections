@@ -8,10 +8,25 @@
       <%= assigns[:page_title] || "DpulCollections" %>
     </.live_title>
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
+    <link rel="stylesheet" href="https://unpkg.com/lux-design-system@5.6.3/dist/style.css" />
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js">
+    </script>
+    <script src="https://unpkg.com/lux-design-system@5.6.3/dist/lux-styleguidist.iife.js">
+    </script>
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function(){
+        const { createApp } = Vue
+        createApp().use(Lux.default).mount('#app')
+      });
     </script>
   </head>
   <body class="bg-white antialiased">
-    <%= @inner_content %>
+    <div id="app">
+      <%= raw(DpulCollectionsWeb.LuxComponents.header()) %>
+      <%= @inner_content %>
+      <%= raw(DpulCollectionsWeb.LuxComponents.footer()) %>
+    </div>
   </body>
 </html>
