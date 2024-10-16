@@ -143,16 +143,21 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     Supervisor.stop(DpulCollections.TestSupervisor, :normal)
   end
 
-  test "indexes description" do
+  test "indexes expected fields" do
     {hydrator, transformer, indexer, document} =
       FiggyTestSupport.index_record_id("26713a31-d615-49fd-adfc-93770b4f66b3")
 
+    # Description
     assert %{"description_txtm" => [first_description | _tail]} = document
     assert first_description |> String.starts_with?("Asra-Panahi") == true
     # Language detection
     assert %{"description_txtm_en" => [first_description | _tail]} = document
     assert first_description |> String.starts_with?("Asra-Panahi") == true
     assert %{"detectlang_ss" => ["en"]} = document
+
+    # Date fields
+    assert document["years_is"] == [2022]
+    assert document["display_date_ss"] == ["2022"]
 
     hydrator |> Broadway.stop(:normal)
     transformer |> Broadway.stop(:normal)
