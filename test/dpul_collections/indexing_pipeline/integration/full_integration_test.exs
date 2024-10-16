@@ -157,7 +157,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     # Date fields
     assert document["years_is"] == [2022]
-    assert document["display_date_ss"] == ["2022"]
+    assert document["display_date_s"] == "2022"
 
     hydrator |> Broadway.stop(:normal)
     transformer |> Broadway.stop(:normal)

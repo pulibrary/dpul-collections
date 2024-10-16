@@ -31,7 +31,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
       title_ss: title,
       description_txtm: description,
       years_is: years,
-      display_date_ss: display_date
+      display_date_s: display_date
     }
   end
 

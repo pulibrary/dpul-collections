@@ -57,10 +57,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
       assert doc3[:years_is] == nil
       assert doc4[:years_is] == [2011, 2012, 2013]
 
-      assert doc1[:display_date_ss] == "2022"
-      assert doc2[:display_date_ss] == "1995 - 2005"
-      assert doc3[:display_date_ss] == nil
-      assert doc4[:display_date_ss] == "2011 - 2013 (approximate)"
+      assert doc1[:display_date_s] == "2022"
+      assert doc2[:display_date_s] == "1995 - 2005"
+      assert doc3[:display_date_s] == nil
+      assert doc4[:display_date_s] == "2011 - 2013 (approximate)"
     end
   end
 end
