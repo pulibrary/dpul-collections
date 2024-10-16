@@ -37,7 +37,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     end
   end
 
-  test "a full hydrator and transformer run" do
+  test "a full pipeline run of all 3 stages, then re-run of each stage" do
     # Start the figgy pipeline in a way that mimics how it is started in test and prod
     children = [
       {Figgy.IndexingConsumer, cache_version: 1, batch_size: 50},
