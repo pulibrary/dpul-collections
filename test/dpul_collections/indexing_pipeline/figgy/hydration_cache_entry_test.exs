@@ -24,6 +24,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
       [doc1, doc2, doc3] = Enum.map(entries, &HydrationCacheEntry.to_solr_document/1)
 
+      # Add one more to exercise the "approximate" scenario
       {:ok, entry4} =
         IndexingPipeline.write_hydration_cache_entry(%{
           cache_version: 0,
