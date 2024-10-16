@@ -24,12 +24,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
     %{data: %{"metadata" => metadata = %{"title" => title}}} = hydration_cache_entry
     description = get_in(metadata, ["description"])
     years = extract_years(metadata)
+    display_date = format_date(metadata)
 
     %{
       id: id,
       title_ss: title,
       description_txtm: description,
-      years_is: years
+      years_is: years,
+      display_date_ss: display_date
     }
   end
 
@@ -50,4 +52,24 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
     nil
   end
 
+  defp format_date(%{"date_range" => [%{"start" => [start_year], "end" => [end_year], "approximate" => "1"}]}) do
+    "#{start_year} - #{end_year} (approximate)"
+  end
+
+  defp format_date(%{"date_range" => [%{"start" => [start_year], "end" => [end_year]}]}) do
+    "#{start_year} - #{end_year}"
+  end
+
+  defp format_date(%{"date_created" => [date]}) do
+    date
+  end
+
+  defp format_date(%{"date_created" => []}) do
+    nil
+  end
+
+  defp format_date(%{}) do
+    # there's no date_created value
+    nil
+  end
 end
