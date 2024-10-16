@@ -33,7 +33,7 @@ defmodule DpulCollectionsWeb.HomeLive do
 
   def handle_event("search", %{"q" => q}, socket) do
     params = %{q: q}
-    socket = push_navigate(socket, to: ~p"/?#{params}")
+    socket = push_navigate(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
   end
 end

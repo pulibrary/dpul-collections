@@ -14,6 +14,7 @@ defmodule DpulCollectionsWeb.Router do
     pipe_through :browser
 
     live "/", HomeLive, :live
+    live "/search", SearchLive, :live
   end
 
   # Other scopes may use custom stacks.
