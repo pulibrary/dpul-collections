@@ -8,7 +8,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
     test "includes descriptions if found" do
       entries =
         FiggyTestFixtures.hydration_cache_entries()
-        |> Tuple.to_list
+        |> Tuple.to_list()
+
       [doc1, doc2, doc3] = Enum.map(entries, &HydrationCacheEntry.to_solr_document/1)
 
       assert doc1[:description_txtm] == ["Asra-Panahi", "Berlin-Protest", "Elnaz-Rekabi"]
@@ -19,7 +20,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
     test "includes date range if found, date if not" do
       entries =
         FiggyTestFixtures.hydration_cache_entries()
-        |> Tuple.to_list
+        |> Tuple.to_list()
+
       [doc1, doc2, doc3] = Enum.map(entries, &HydrationCacheEntry.to_solr_document/1)
 
       {:ok, entry4} =
@@ -47,6 +49,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
             }
           }
         })
+
       doc4 = HydrationCacheEntry.to_solr_document(entry4)
 
       assert doc1[:years_is] == [2022]

@@ -52,7 +52,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
     nil
   end
 
-  defp format_date(%{"date_range" => [%{"start" => [start_year], "end" => [end_year], "approximate" => "1"}]}) do
+  defp format_date(%{
+         "date_range" => [%{"start" => [start_year], "end" => [end_year], "approximate" => "1"}]
+       }) do
     "#{start_year} - #{end_year} (approximate)"
   end
 
