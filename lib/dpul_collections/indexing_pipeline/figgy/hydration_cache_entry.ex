@@ -23,11 +23,31 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
     %{record_id: id} = hydration_cache_entry
     %{data: %{"metadata" => metadata = %{"title" => title}}} = hydration_cache_entry
     description = get_in(metadata, ["description"])
+    years = extract_years(metadata)
 
     %{
       id: id,
       title_ss: title,
-      description_txtm: description
+      description_txtm: description,
+      years_is: years
     }
   end
+
+  defp extract_years(%{"date_range" => [%{"start" => [start_year], "end" => [end_year]}]}) do
+    Enum.to_list(String.to_integer(start_year)..String.to_integer(end_year))
+  end
+
+  defp extract_years(%{"date_created" => []}) do
+    nil
+  end
+
+  defp extract_years(%{"date_created" => date}) do
+    Enum.map(date, &String.to_integer/1)
+  end
+
+  defp extract_years(%{}) do
+    # there's no date_created value
+    nil
+  end
+
 end
