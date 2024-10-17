@@ -23,11 +23,11 @@
     </script>
   </head>
   <body class="bg-white antialiased">
-    <div id="app">
+    <div class="flex flex-col min-h-screen" id="app">
       <%= raw(DpulCollectionsWeb.LuxComponents.header()) %>
-      <main>
+      <div class="flex-1">
         <%= @inner_content %>
-      </main>
+      </div>
       <%= raw(DpulCollectionsWeb.LuxComponents.footer()) %>
     </div>
   </body>
