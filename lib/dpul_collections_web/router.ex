@@ -13,7 +13,7 @@ defmodule DpulCollectionsWeb.Router do
   scope "/", DpulCollectionsWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", HomeLive, :live
   end
 
   # Other scopes may use custom stacks.

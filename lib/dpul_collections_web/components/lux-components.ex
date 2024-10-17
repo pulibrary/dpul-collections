@@ -17,7 +17,7 @@ defmodule DpulCollectionsWeb.LuxComponents do
 
   def footer() do
     ~S"""
-    <lux-library-footer></lux-library-footer>
+    <lux-library-footer class="text-center" type="footer"></lux-library-footer>
     """
   end
 end
