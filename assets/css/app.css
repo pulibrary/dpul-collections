@@ -3,3 +3,18 @@
 @import "tailwindcss/utilities";
 
 /* This file is for your main application CSS */
+
+#app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
+
+footer {
+    padding: 20px;
+    text-align: center;
+}

@@ -25,7 +25,9 @@
   <body class="bg-white antialiased">
     <div id="app">
       <%= raw(DpulCollectionsWeb.LuxComponents.header()) %>
-      <%= @inner_content %>
+      <main>
+        <%= @inner_content %>
+      </main>
       <%= raw(DpulCollectionsWeb.LuxComponents.footer()) %>
     </div>
   </body>
