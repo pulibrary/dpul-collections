@@ -25,9 +25,10 @@ defmodule FiggyTestFixtures do
     {marker1, marker2, marker3}
   end
 
-  # TODO: These should be EphemeraFolders and EphemeraTerms where the terms are
-  # associtated with the folder.
-  def hydration_cache_markers(cache_version \\ 0) do
+  def hydration_cache_entries(cache_version \\ 0) do
+    # This id actually corresponds to an EphemeraTerm
+    # description, date_created and date range taken from
+    #   26713a31-d615-49fd-adfc-93770b4f66b3
     {:ok, entry1} =
       IndexingPipeline.write_hydration_cache_entry(%{
         cache_version: cache_version,
@@ -36,12 +37,30 @@ defmodule FiggyTestFixtures do
         data: %{
           "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
           "internal_resource" => "EphemeraFolder",
-          "metadata" => %{"title" => ["test title 1"]}
+          "metadata" => %{
+            "title" => ["test title 1"],
+            "description" => ["Asra-Panahi", "Berlin-Protest", "Elnaz-Rekabi"],
+            "date_created" => ["2022"],
+            "date_range" => [
+              %{
+                "approximate" => "0",
+                "created_at" => nil,
+                "end" => [],
+                "id" => nil,
+                "internal_resource" => "DateRange",
+                "new_record" => true,
+                "optimistic_lock_token" => [],
+                "start" => [],
+                "updated_at" => nil
+              }
+            ]
+          }
         }
       })
 
     :timer.sleep(1)
 
+    # date range data taken from 4c8cf820-69f1-4b0e-bf76-41b339af7c50
     {:ok, entry2} =
       IndexingPipeline.write_hydration_cache_entry(%{
         cache_version: cache_version,
@@ -50,7 +69,23 @@ defmodule FiggyTestFixtures do
         data: %{
           "id" => "69990556-434c-476a-9043-bbf9a1bda5a4",
           "internal_resource" => "EphemeraFolder",
-          "metadata" => %{"title" => ["test title 2"]}
+          "metadata" => %{
+            "title" => ["test title 2"],
+            "description" => [],
+            "date_created" => [],
+            "date_range" => [
+              %{
+                "approximate" => nil,
+                "created_at" => nil,
+                "end" => ["2005"],
+                "id" => nil,
+                "internal_resource" => "DateRange",
+                "new_record" => true,
+                "start" => ["1995"],
+                "updated_at" => nil
+              }
+            ]
+          }
         }
       })
 
@@ -67,6 +102,12 @@ defmodule FiggyTestFixtures do
           "metadata" => %{"title" => ["test title"]}
         }
       })
+
+    {entry1, entry2, entry3}
+  end
+
+  def hydration_cache_markers(cache_version \\ 0) do
+    {entry1, entry2, entry3} = hydration_cache_entries(cache_version)
 
     marker1 = %CacheEntryMarker{
       timestamp: entry1.cache_order,
