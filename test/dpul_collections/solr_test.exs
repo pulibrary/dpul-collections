@@ -4,7 +4,7 @@ defmodule DpulCollections.SolrTest do
 
   setup do
     Solr.delete_all()
-    :ok
+    on_exit(fn -> Solr.delete_all() end)
   end
 
   test ".document_count/0" do

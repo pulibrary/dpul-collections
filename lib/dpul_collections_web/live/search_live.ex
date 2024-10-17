@@ -21,8 +21,6 @@ defmodule DpulCollectionsWeb.SearchLive do
         %Item{id: item["id"], title: item["title_ss"]}
       end)
 
-    IO.inspect(Solr.query(filter), label: "ITEMS")
-
     socket =
       assign(socket,
         filter: filter,
