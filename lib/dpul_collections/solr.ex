@@ -10,6 +10,22 @@ defmodule DpulCollections.Solr do
     response.body["response"]["numFound"]
   end
 
+  def query(%{q: q}) do
+    params = [
+      q: q || "*:*",
+      defType: "edismax",
+      qf: "title_ss id"
+    ]
+
+    {:ok, response} =
+      Req.get(
+        select_url(),
+        params: params
+      )
+
+    response.body["response"]["docs"]
+  end
+
   def latest_document() do
     {:ok, response} =
       Req.get(
