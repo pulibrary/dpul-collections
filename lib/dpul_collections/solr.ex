@@ -10,10 +10,15 @@ defmodule DpulCollections.Solr do
     response.body["response"]["numFound"]
   end
 
-  def query(%{q: q, sort_by: sort_by}) do
+  def query(%{q: q, sort_by: sort_by, page: page, per_page: per_page}) do
+    offset = max(page - 1, 0) * per_page
+
     params = [
       q: q,
-      sort: sort_param(sort_by)
+      sort: sort_param(sort_by),
+      sort: sort_param(sort_by),
+      rows: per_page,
+      start: offset
     ]
 
     {:ok, response} =
@@ -22,7 +27,7 @@ defmodule DpulCollections.Solr do
         params: params
       )
 
-    response.body["response"]["docs"]
+    response.body["response"]
   end
 
   defp sort_param(sort_by_value) do
