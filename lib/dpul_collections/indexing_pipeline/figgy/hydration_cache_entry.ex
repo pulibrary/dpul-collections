@@ -40,9 +40,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
     nil
   end
 
-  # This will be single value from figgy, stored as an array
+  # This will be single value from figgy, stored as an array.
+  # If somehow we get more than 1 value, just take the first
   # It goes into a multi-valued index field, so keep it looking that way
-  defp extract_years(%{"date_created" => [date]}) do
+  defp extract_years(%{"date_created" => [date | _tail]}) do
     [String.to_integer(date)]
   end
 
@@ -61,7 +62,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
     "#{start_year} - #{end_year}"
   end
 
-  defp format_date(%{"date_created" => [date]}) do
+  defp format_date(%{"date_created" => [date | _tail]}) do
     date
   end
 
