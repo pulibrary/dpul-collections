@@ -19,10 +19,10 @@ services:
     portforward: 8984
     core: dpulc-test
     config:
-      dir: solr/config
+      dir: solr/conf
   development_solr:
     type: solr:8
     portforward: 8985
     core: dpulc-dev
     config:
-      dir: solr/config
+      dir: solr/conf
