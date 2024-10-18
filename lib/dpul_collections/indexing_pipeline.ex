@@ -189,7 +189,7 @@ defmodule DpulCollections.IndexingPipeline do
   ## Examples
 
       iex> get_figgy_resource!(123)
-      %Figgy.HydrationCacheEntry{}
+      %Figgy.Resource{}
 
       iex> get_figgy_resource!(456)
       ** (Ecto.NoResultsError)

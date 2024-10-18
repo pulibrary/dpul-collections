@@ -66,7 +66,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
        )
        when internal_resource in ["EphemeraFolder"] do
     hydration_cache_entry = message.data
-    solr_doc = transform_to_solr_document(hydration_cache_entry)
+    solr_doc = Figgy.HydrationCacheEntry.to_solr_document(hydration_cache_entry)
 
     # store in TransformationCache:
     # - data (map) - this is the transformed solr document map
@@ -89,18 +89,5 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
     __MODULE__
     |> Broadway.producer_names()
     |> Enum.each(&GenServer.cast(&1, :start_over))
-  end
-
-  @spec transform_to_solr_document(%Figgy.HydrationCacheEntry{}) :: %{}
-  defp transform_to_solr_document(hydration_cache_entry) do
-    %{record_id: id} = hydration_cache_entry
-    %{data: %{"metadata" => metadata = %{"title" => title}}} = hydration_cache_entry
-    description = get_in(metadata, ["description"])
-
-    %{
-      id: id,
-      title_ss: title,
-      description_txtm: description
-    }
   end
 end
