@@ -21,17 +21,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   @spec to_solr_document(%__MODULE__{}) :: %{}
   def to_solr_document(hydration_cache_entry) do
     %{record_id: id} = hydration_cache_entry
-    %{data: %{"metadata" => metadata = %{"title" => title}}} = hydration_cache_entry
-    description = get_in(metadata, ["description"])
-    years = extract_years(metadata)
-    display_date = format_date(metadata)
+    %{data: %{"metadata" => metadata}} = hydration_cache_entry
 
     %{
       id: id,
-      title_ss: title,
-      description_txtm: description,
-      years_is: years,
-      display_date_s: display_date
+      title_ss: get_in(metadata, ["title"]),
+      description_txtm: get_in(metadata, ["description"]),
+      years_is: extract_years(metadata),
+      display_date_s: format_date(metadata)
     }
   end
 
