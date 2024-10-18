@@ -7,7 +7,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
   setup do
     Solr.delete_all()
-    :ok
+    on_exit(fn -> Solr.delete_all() end)
   end
 
   def wait_for_index_completion() do
