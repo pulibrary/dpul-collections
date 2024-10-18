@@ -10,9 +10,10 @@ defmodule DpulCollections.Solr do
     response.body["response"]["numFound"]
   end
 
-  def query(%{q: q}) do
+  def query(%{q: q, sort_by: sort_by}) do
     params = [
-      q: q
+      q: q,
+      sort: sort_param(sort_by)
     ]
 
     {:ok, response} =
@@ -22,6 +23,13 @@ defmodule DpulCollections.Solr do
       )
 
     response.body["response"]["docs"]
+  end
+
+  defp sort_param(sort_by_value) do
+    case sort_by_value do
+      :relevance -> "score desc"
+      :id -> "id desc"
+    end
   end
 
   def latest_document() do
