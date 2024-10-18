@@ -12,9 +12,7 @@ defmodule DpulCollections.Solr do
 
   def query(%{q: q}) do
     params = [
-      q: q || "*:*",
-      defType: "edismax",
-      qf: "title_ss id"
+      q: q
     ]
 
     {:ok, response} =
