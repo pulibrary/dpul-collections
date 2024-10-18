@@ -12,7 +12,8 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def handle_params(params, _uri, socket) do
     filter = %{
-      q: valid_query(params)
+      q: params["q"],
+      sort_by: valid_sort_by(params)
     }
 
     items =
@@ -32,18 +33,27 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def render(assigns) do
     ~H"""
-    <div class="grid grid-flow-row auto-rows-max gap-10">
-      <form phx-submit="search">
+    <form phx-submit="search" phx-change="filter">
+      <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
         <div class="grid grid-cols-4">
           <input class="col-span-3" type="text" name="q" value={@filter.q} />
-          <button class="col-span-1" type="submit">
+          <button class="col-span-1 font-bold uppercase" type="submit">
             Search
           </button>
         </div>
-      </form>
-      <div class="grid grid-flow-row auto-rows-max gap-8">
-        <.search_item :for={item <- @items} item={item} />
+        <div class="grid grid-cols-8">
+          <label class="flex items-center font-bold uppercase" for="sort-by">sort by:</label>
+          <select class="col-span-2" name="sort-by">
+            <%= Phoenix.HTML.Form.options_for_select(
+              ["relevance", "id"],
+              @filter.sort_by
+            ) %>
+          </select>
+        </div>
       </div>
+    </form>
+    <div class="grid grid-flow-row auto-rows-max gap-8">
+      <.search_item :for={item <- @items} item={item} />
     </div>
     """
   end
@@ -53,19 +63,36 @@ defmodule DpulCollectionsWeb.SearchLive do
   def search_item(assigns) do
     ~H"""
     <div class="item">
-      <div class="font-bold text-lg"><%= @item.title %></div>
+      <div class="underline text-lg"><%= @item.title %></div>
       <div><%= @item.id %></div>
     </div>
     """
   end
 
   def handle_event("search", %{"q" => q}, socket) do
-    params = %{q: q}
+    params = %{socket.assigns.filter | q: q} |> clean_params()
     socket = push_patch(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
   end
 
-  defp valid_query(%{"q" => ""}), do: nil
-  defp valid_query(%{"q" => q}), do: q
-  defp valid_query(_), do: nil
+  def handle_event("filter", %{"sort-by" => sort_by}, socket) do
+    params = %{socket.assigns.filter | sort_by: sort_by} |> clean_params()
+    socket = push_patch(socket, to: ~p"/search?#{params}")
+    {:noreply, socket}
+  end
+
+  defp valid_sort_by(%{"sort_by" => sort_by})
+       when sort_by in ~w(relevance id) do
+    String.to_existing_atom(sort_by)
+  end
+
+  defp valid_sort_by(_), do: :relevance
+
+  # Remove KV pairs with nil or empty string values
+  defp clean_params(params) do
+    params
+    |> Enum.filter(fn {_, v} -> v != "" end)
+    |> Enum.filter(fn {_, v} -> v != nil end)
+    |> Enum.into(%{})
+  end
 end
