@@ -11,20 +11,26 @@ defmodule DpulCollectionsWeb.SearchLive do
   end
 
   def handle_params(params, _uri, socket) do
-    filter = %{
-      q: valid_query(params)
+    filters = %{
+      q: params["q"],
+      sort_by: valid_sort_by(params),
+      page: (params["page"] || "1") |> String.to_integer(),
+      per_page: (params["per_page"] || "10") |> String.to_integer()
     }
 
+    solr_response = Solr.query(filters)
+
     items =
-      Solr.query(filter)
+      solr_response["docs"]
       |> Enum.map(fn item ->
         %Item{id: item["id"], title: item["title_ss"]}
       end)
 
     socket =
       assign(socket,
-        filter: filter,
-        items: items
+        filters: filters,
+        items: items,
+        total_items: solr_response["numFound"]
       )
 
     {:noreply, socket}
@@ -32,18 +38,30 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def render(assigns) do
     ~H"""
-    <div class="grid grid-flow-row auto-rows-max gap-10">
-      <form phx-submit="search">
+    <form phx-submit="search" phx-change="filter">
+      <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
         <div class="grid grid-cols-4">
-          <input class="col-span-3" type="text" name="q" value={@filter.q} />
-          <button class="col-span-1" type="submit">
+          <input class="col-span-3" type="text" name="q" value={@filters.q} />
+          <button class="col-span-1 font-bold uppercase" type="submit">
             Search
           </button>
         </div>
-      </form>
-      <div class="grid grid-flow-row auto-rows-max gap-8">
-        <.search_item :for={item <- @items} item={item} />
+        <div class="grid grid-cols-8">
+          <label class="flex items-center font-bold uppercase" for="sort-by">sort by:</label>
+          <select class="col-span-2" name="sort-by">
+            <%= Phoenix.HTML.Form.options_for_select(
+              ["relevance", "id"],
+              @filters.sort_by
+            ) %>
+          </select>
+        </div>
       </div>
+    </form>
+    <div class="grid grid-flow-row auto-rows-max gap-8">
+      <.search_item :for={item <- @items} item={item} />
+    </div>
+    <div class="text-center bg-white max-w-5xl mx-auto text-lg py-8">
+      <.paginator page={@filters.page} per_page={@filters.per_page} total_items={@total_items} />
     </div>
     """
   end
@@ -53,19 +71,103 @@ defmodule DpulCollectionsWeb.SearchLive do
   def search_item(assigns) do
     ~H"""
     <div class="item">
-      <div class="font-bold text-lg"><%= @item.title %></div>
+      <div class="underline text-lg"><%= @item.title %></div>
       <div><%= @item.id %></div>
     </div>
     """
   end
 
-  def handle_event("search", %{"q" => q}, socket) do
-    params = %{q: q}
+  def paginator(assigns) do
+    ~H"""
+    <div class="paginator">
+      <.link :if={@page > 1} phx-click="paginate" phx-value-page={@page - 1}>
+        Previous
+      </.link>
+      <.link
+        :for={{page_number, current_page?} <- pages(@page, @per_page, @total_items)}
+        class={if current_page?, do: "active"}
+        phx-click="paginate"
+        phx-value-page={page_number}
+      >
+        <%= page_number %>
+      </.link>
+      <.link
+        :if={more_pages?(@page, @per_page, @total_items)}
+        phx-click="paginate"
+        phx-value-page={@page + 1}
+      >
+        Next
+      </.link>
+    </div>
+    """
+  end
+
+  def handle_event("search", params, socket) do
+    params = %{q: params["q"], sort_by: params["sort-by"]} |> clean_params()
     socket = push_patch(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
   end
 
-  defp valid_query(%{"q" => ""}), do: nil
-  defp valid_query(%{"q" => q}), do: q
-  defp valid_query(_), do: nil
+  def handle_event("filter", params, socket) do
+    params = %{socket.assigns.filters | sort_by: params["sort-by"]} |> clean_params()
+    socket = push_patch(socket, to: ~p"/search?#{params}")
+    {:noreply, socket}
+  end
+
+  def handle_event("paginate", %{"page" => page}, socket) when page != "..." do
+    params = %{socket.assigns.filters | page: page} |> clean_params()
+    socket = push_patch(socket, to: ~p"/search?#{params}")
+    {:noreply, socket}
+  end
+
+  def handle_event("paginate", _, socket) do
+    {:noreply, socket}
+  end
+
+  defp valid_sort_by(%{"sort_by" => sort_by})
+       when sort_by in ~w(relevance id) do
+    String.to_existing_atom(sort_by)
+  end
+
+  defp valid_sort_by(_), do: :relevance
+
+  # Remove KV pairs with nil or empty string values
+  defp clean_params(params) do
+    params
+    |> Enum.filter(fn {_, v} -> v != "" end)
+    |> Enum.filter(fn {_, v} -> v != nil end)
+    |> Enum.into(%{})
+  end
+
+  defp more_pages?(page, per_page, total_items) do
+    page * per_page < total_items
+  end
+
+  defp pages(page, per_page, total_items) do
+    page_count = ceil(total_items / per_page)
+    page_range = (page - 2)..(page + 2)
+
+    pages =
+      for page_number <- page_range,
+          page_number > 0 do
+        if page_number <= page_count do
+          current_page? = page_number == page
+          {page_number, current_page?}
+        end
+      end
+
+    # Add the prefix (1...) and postfix (...last_page)
+    # tail element to the paginator.
+    paginator_tail(:pre, 1, page_range) ++
+      pages ++
+      paginator_tail(:post, page_count, page_range)
+  end
+
+  defp paginator_tail(type, page, page_range) do
+    cond do
+      Enum.member?(page_range |> Enum.to_list(), page) -> []
+      type == :pre -> [{page, false}, {"...", false}]
+      type == :post -> [{"...", false}, {page, false}]
+    end
+  end
 end
