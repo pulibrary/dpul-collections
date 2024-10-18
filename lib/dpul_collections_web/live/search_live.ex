@@ -61,26 +61,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       <.search_item :for={item <- @items} item={item} />
     </div>
     <div class="text-center bg-white max-w-5xl mx-auto text-lg py-8">
-      <div class="">
-        <.link :if={@filters.page > 1} phx-click="paginate" phx-value-page={@filters.page - 1}>
-          Previous
-        </.link>
-        <.link
-          :for={{page_number, current_page?} <- pages(@filters, @total_items)}
-          class={if current_page?, do: "active"}
-          phx-click="paginate"
-          phx-value-page={page_number}
-        >
-          <%= page_number %>
-        </.link>
-        <.link
-          :if={more_pages?(@filters, @total_items)}
-          phx-click="paginate"
-          phx-value-page={@filters.page + 1}
-        >
-          Next
-        </.link>
-      </div>
+      <.paginator page={@filters.page} per_page={@filters.per_page} total_items={@total_items} />
     </div>
     """
   end
@@ -92,6 +73,31 @@ defmodule DpulCollectionsWeb.SearchLive do
     <div class="item">
       <div class="underline text-lg"><%= @item.title %></div>
       <div><%= @item.id %></div>
+    </div>
+    """
+  end
+
+  def paginator(assigns) do
+    ~H"""
+    <div class="paginator">
+      <.link :if={@page > 1} phx-click="paginate" phx-value-page={@page - 1}>
+        Previous
+      </.link>
+      <.link
+        :for={{page_number, current_page?} <- pages(@page, @per_page, @total_items)}
+        class={if current_page?, do: "active"}
+        phx-click="paginate"
+        phx-value-page={page_number}
+      >
+        <%= page_number %>
+      </.link>
+      <.link
+        :if={more_pages?(@page, @per_page, @total_items)}
+        phx-click="paginate"
+        phx-value-page={@page + 1}
+      >
+        Next
+      </.link>
     </div>
     """
   end
@@ -133,23 +139,25 @@ defmodule DpulCollectionsWeb.SearchLive do
     |> Enum.into(%{})
   end
 
-  defp more_pages?(filters, total_items) do
-    filters.page * filters.per_page < total_items
+  defp more_pages?(page, per_page, total_items) do
+    page * per_page < total_items
   end
 
-  defp pages(filters, total_items) do
-    page_count = ceil(total_items / filters.per_page)
-    page_range = (filters.page - 2)..(filters.page + 2)
+  defp pages(page, per_page, total_items) do
+    page_count = ceil(total_items / per_page)
+    page_range = (page - 2)..(page + 2)
 
     pages =
       for page_number <- page_range,
           page_number > 0 do
         if page_number <= page_count do
-          current_page? = page_number == filters.page
+          current_page? = page_number == page
           {page_number, current_page?}
         end
       end
 
+    # Add the prefix (1...) and postfix (...last_page)
+    # tail element to the paginator.
     paginator_tail(:pre, 1, page_range) ++
       pages ++
       paginator_tail(:post, page_count, page_range)

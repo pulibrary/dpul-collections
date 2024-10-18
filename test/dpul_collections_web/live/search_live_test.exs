@@ -28,15 +28,15 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   test "GET /search", %{conn: conn} do
     conn = get(conn, ~p"/search")
     response = html_response(conn, 200)
-    assert response =~ "<div class=\"font-bold text-lg\">Masih</div>"
-    assert response =~ "<div class=\"font-bold text-lg\">Mehrdad</div>"
+    assert response =~ "<div class=\"underline text-lg\">Masih</div>"
+    assert response =~ "<div class=\"underline text-lg\">Mehrdad</div>"
   end
 
   test "GET /search with blank q parameter", %{conn: conn} do
     conn = get(conn, ~p"/search?q=")
     response = html_response(conn, 200)
-    assert response =~ "<div class=\"font-bold text-lg\">Masih</div>"
-    assert response =~ "<div class=\"font-bold text-lg\">Mehrdad</div>"
+    assert response =~ "<div class=\"underline text-lg\">Masih</div>"
+    assert response =~ "<div class=\"underline text-lg\">Mehrdad</div>"
   end
 
   test "searching filters results", %{conn: conn} do
