@@ -43,8 +43,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
     nil
   end
 
-  defp extract_years(%{"date_created" => date}) do
-    Enum.map(date, &String.to_integer/1)
+  # This will be single value from figgy, stored as an array
+  # It goes into a multi-valued index field, so keep it looking that way
+  defp extract_years(%{"date_created" => [date]}) do
+    [String.to_integer(date)]
   end
 
   defp extract_years(%{}) do
