@@ -6,6 +6,7 @@ import Config
 # which you should run after static files are built and
 # before starting your production server.
 config :dpul_collections, DpulCollectionsWeb.Endpoint,
+  check_origin: ["https://dpul-collections-staging.lib.princeton.edu"],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Set environment
