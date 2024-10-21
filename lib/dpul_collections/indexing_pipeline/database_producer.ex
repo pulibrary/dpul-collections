@@ -59,6 +59,9 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
           source_module: source_module
         }
       ) do
+    if last_queried_marker == nil do
+      DpulCollections.IndexMetricsTracker.register_fresh_index(source_module)
+    end
     total_demand = stored_demand + demand
 
     records =
@@ -82,6 +85,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
 
     # Set a timer to try fulfilling demand again later
     if new_state.stored_demand > 0 do
+      DpulCollections.IndexMetricsTracker.register_polling_started(source_module)
       Process.send_after(self(), :check_for_updates, 50)
     end
 
