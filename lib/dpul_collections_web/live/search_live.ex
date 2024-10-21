@@ -40,40 +40,48 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def render(assigns) do
     ~H"""
-    <form phx-submit="search" phx-change="filter">
-      <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
+    <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
+      <form id="search-form" phx-submit="search">
         <div class="grid grid-cols-4">
           <input class="col-span-3" type="text" name="q" value={@filters.q} />
           <button class="col-span-1 font-bold uppercase" type="submit">
             Search
           </button>
         </div>
-        <div class="grid grid-cols-8 gap-4">
-          <label class="flex items-center font-bold uppercase" for="sort-by">filter by date: </label>
-          <input
-            class="col-span-1"
-            type="text"
-            placeholder="From"
-            name="date-from"
-            value={@filters.date_from}
-          />
-          <input
-            class="col-span-1"
-            type="text"
-            placeholder="To"
-            name="date-to"
-            value={@filters.date_to}
-          />
-          <label class="flex items-center font-bold uppercase" for="sort-by">sort by:</label>
-          <select class="col-span-2" name="sort-by">
+      </form>
+      <div id="date-filter" class="grid grid-cols-8 gap-4">
+        <label class="flex items-center font-bold uppercase" for="sort-by">filter by date: </label>
+        <input
+          class="col-span-1"
+          type="text"
+          placeholder="From"
+          form="search-form"
+          name="date-from"
+          value={@filters.date_from}
+        />
+        <input
+          class="col-span-1"
+          type="text"
+          placeholder="To"
+          form="search-form"
+          name="date-to"
+          value={@filters.date_to}
+        />
+      </div>
+      <form id="sort-form" phx-change="sort">
+        <div class="grid grid-cols-8">
+          <label class="col-span-1 flex items-center font-bold uppercase" for="sort-by">
+            sort by:
+          </label>
+          <select class="col-span-1" name="sort-by">
             <%= Phoenix.HTML.Form.options_for_select(
               ["relevance", "date desc": "date_desc", "date asc": "date_asc"],
               @filters.sort_by
             ) %>
           </select>
         </div>
-      </div>
-    </form>
+      </form>
+    </div>
     <div class="grid grid-flow-row auto-rows-max gap-8">
       <.search_item :for={item <- @items} item={item} />
     </div>
@@ -124,10 +132,10 @@ defmodule DpulCollectionsWeb.SearchLive do
   def handle_event("search", params, socket) do
     params =
       %{
-        q: params["q"],
-        sort_by: params["sort-by"],
-        date_to: params["date-to"],
-        date_from: params["date-from"]
+        socket.assigns.filters
+        | q: params["q"],
+          date_to: params["date-to"],
+          date_from: params["date-from"]
       }
       |> clean_params()
 
@@ -135,8 +143,11 @@ defmodule DpulCollectionsWeb.SearchLive do
     {:noreply, socket}
   end
 
-  def handle_event("filter", params, socket) do
-    params = %{socket.assigns.filters | sort_by: params["sort-by"]} |> clean_params()
+  def handle_event("sort", params, socket) do
+    params =
+      %{socket.assigns.filters | sort_by: params["sort-by"]}
+      |> clean_params()
+
     socket = push_patch(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
   end

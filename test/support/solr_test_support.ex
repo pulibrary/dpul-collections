@@ -5,7 +5,7 @@ defmodule SolrTestSupport do
 
       %{
         id: n,
-        title_ss: "Document: #{n}",
+        title_txtm: "Document-#{n}",
         display_date_s: date |> Integer.to_string(),
         years_is: [date]
       }

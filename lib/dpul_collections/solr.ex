@@ -50,13 +50,9 @@ defmodule DpulCollections.Solr do
     end
   end
 
-  defp sort_param(_), do: nil
-
   defp pagination_offset(%{page: page, per_page: per_page}) when page != nil do
     max(page - 1, 0) * per_page
   end
-
-  defp pagination_offset(_), do: nil
 
   def latest_document() do
     {:ok, response} =

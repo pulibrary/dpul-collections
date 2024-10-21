@@ -13,39 +13,52 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   test "GET /search", %{conn: conn} do
     conn = get(conn, ~p"/search")
     response = html_response(conn, 200)
-    assert response =~ "<div class=\"underline text-lg\">Document: 1</div>"
-    assert response =~ "<div class=\"underline text-lg\">Document: 2</div>"
+    assert response =~ "<div class=\"underline text-lg\">Document-1</div>"
+    assert response =~ "<div class=\"underline text-lg\">Document-2</div>"
   end
 
   test "GET /search with blank q parameter", %{conn: conn} do
     conn = get(conn, ~p"/search?q=")
     response = html_response(conn, 200)
-    assert response =~ "<div class=\"underline text-lg\">Document: 1</div>"
-    assert response =~ "<div class=\"underline text-lg\">Document: 2</div>"
+    assert response =~ "<div class=\"underline text-lg\">Document-1</div>"
+    assert response =~ "<div class=\"underline text-lg\">Document-2</div>"
   end
 
   test "searching filters results", %{conn: conn} do
-    {:ok, view, _html} = live(conn, "/search")
+    {:ok, view, _html} = live(conn, "/search?")
 
     response =
       view
-      |> element("form")
-      |> render_submit(%{"q" => "Document: 2"})
+      |> element("#search-form")
+      |> render_submit(%{"q" => "Document-2"})
 
-    assert response =~ "<div class=\"underline text-lg\">Document: 2</div>"
-    assert !(response =~ "<div class=\"underline text-lg\">Document: 1</div>")
+    assert response =~ "<div class=\"underline text-lg\">Document-2</div>"
+    assert !(response =~ "<div class=\"underline text-lg\">Document-1</div>")
   end
 
   test "items can be sorted by date, ascending and descending", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/search")
 
-    response = render_click(view, "filter", %{"sort-by" => "date_asc"})
-    assert response =~ "<div class=\"underline text-lg\">Document: 100</div>"
-    assert !(response =~ "<div class=\"underline text-lg\">Document: 1</div>")
+    response = render_click(view, "sort", %{"sort-by" => "date_asc"})
+    assert response =~ "<div class=\"underline text-lg\">Document-100</div>"
+    assert !(response =~ "<div class=\"underline text-lg\">Document-1</div>")
 
-    response = render_click(view, "filter", %{"sort-by" => "date_desc"})
-    assert response =~ "<div class=\"underline text-lg\">Document: 1</div>"
-    assert !(response =~ "<div class=\"underline text-lg\">Document: 100</div>")
+    response = render_click(view, "sort", %{"sort-by" => "date_desc"})
+    assert response =~ "<div class=\"underline text-lg\">Document-1</div>"
+    assert !(response =~ "<div class=\"underline text-lg\">Document-100</div>")
+  end
+
+  test "items can be filtered by date range", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/search")
+
+    response =
+      view
+      |> element("#search-form")
+      |> render_submit(%{"date-from" => "1925", "date-to" => "1926"})
+
+    assert !(response =~ "<div class=\"underline text-lg\">Document-98</div>")
+    assert response =~ "<div class=\"underline text-lg\">Document-99</div>"
+    assert response =~ "<div class=\"underline text-lg\">Document-100</div>"
   end
 
   test "paginator works as expected", %{conn: conn} do
@@ -60,13 +73,11 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     assert view
            |> element("#paginator-previous")
-           |> render_click() =~ "<div class=\"underline text-lg\">Document: 40</div>"
+           |> render_click() =~ "<div class=\"underline text-lg\">Document-40</div>"
 
-    assert(
-      view
-      |> element("#paginator-next")
-      |> render_click() =~ "<div class=\"underline text-lg\">Document: 50</div>"
-    )
+    assert view
+           |> element("#paginator-next")
+           |> render_click() =~ "<div class=\"underline text-lg\">Document-50</div>"
 
     # Check that the next link is hidden on the last page
     {:ok, view, _html} = live(conn, ~p"/search?page=10")
@@ -75,10 +86,8 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     # Check that clicking the "..." paginator link
     # does not change the rendered page
-    assert(
-      view
-      |> element("a", "...")
-      |> render_click() =~ "<div class=\"underline text-lg\">Document: 100</div>"
-    )
+    assert view
+           |> element("a", "...")
+           |> render_click() =~ "<div class=\"underline text-lg\">Document-100</div>"
   end
 end
