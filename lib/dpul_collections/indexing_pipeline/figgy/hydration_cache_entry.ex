@@ -28,8 +28,17 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
       title_ss: get_in(metadata, ["title"]),
       description_txtm: get_in(metadata, ["description"]),
       years_is: extract_years(metadata),
-      display_date_s: format_date(metadata)
+      display_date_s: format_date(metadata),
+      page_count_i: page_count(metadata)
     }
+  end
+
+  defp page_count(%{"member_ids" => member_ids}) when is_list(member_ids) do
+    member_ids |> length
+  end
+
+  defp page_count(_) do
+    0
   end
 
   defp extract_years(%{"date_range" => [%{"start" => [start_year], "end" => [end_year]}]}) do
