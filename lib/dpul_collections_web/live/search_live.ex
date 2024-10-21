@@ -3,7 +3,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   alias DpulCollections.Solr
 
   defmodule Item do
-    defstruct [:id, :title]
+    defstruct [:id, :title, :date]
   end
 
   def mount(_params, _session, socket) do
@@ -23,7 +23,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     items =
       solr_response["docs"]
       |> Enum.map(fn item ->
-        %Item{id: item["id"], title: item["title_ss"]}
+        %Item{id: item["id"], title: item["title_ss"], date: item["display_date_s"]}
       end)
 
     socket =
@@ -50,7 +50,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           <label class="flex items-center font-bold uppercase" for="sort-by">sort by:</label>
           <select class="col-span-2" name="sort-by">
             <%= Phoenix.HTML.Form.options_for_select(
-              ["relevance", "id"],
+              ["relevance", "date desc": "date_desc", "date asc": "date_asc"],
               @filters.sort_by
             ) %>
           </select>
@@ -73,6 +73,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     <div class="item">
       <div class="underline text-lg"><%= @item.title %></div>
       <div><%= @item.id %></div>
+      <div><%= @item.date %></div>
     </div>
     """
   end
@@ -80,7 +81,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   def paginator(assigns) do
     ~H"""
     <div class="paginator">
-      <.link :if={@page > 1} phx-click="paginate" phx-value-page={@page - 1}>
+      <.link :if={@page > 1} id="paginator-previous" phx-click="paginate" phx-value-page={@page - 1}>
         Previous
       </.link>
       <.link
@@ -93,6 +94,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       </.link>
       <.link
         :if={more_pages?(@page, @per_page, @total_items)}
+        id="paginator-next"
         phx-click="paginate"
         phx-value-page={@page + 1}
       >
@@ -125,7 +127,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   end
 
   defp valid_sort_by(%{"sort_by" => sort_by})
-       when sort_by in ~w(relevance id) do
+       when sort_by in ["relevance", "date_desc", "date_asc"] do
     String.to_existing_atom(sort_by)
   end
 

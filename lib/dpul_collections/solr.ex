@@ -33,7 +33,8 @@ defmodule DpulCollections.Solr do
   defp sort_param(sort_by_value) do
     case sort_by_value do
       :relevance -> "score desc"
-      :id -> "id desc"
+      :date_desc -> "years_is desc"
+      :date_asc -> "years_is asc"
     end
   end
 
