@@ -41,7 +41,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
 
     assert %{
              "id" => ^marker_1_id,
-             "title_ss" => ["test title 1"]
+             "title_txtm" => ["test title 1"]
            } = cache_entry.data
 
     transformer |> Broadway.stop(:normal)
@@ -63,7 +63,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
 
     assert %{
              "id" => ^marker_1_id,
-             "title_ss" => ["test title 1"]
+             "title_txtm" => ["test title 1"]
            } = cache_entry.data
 
     processor_marker = IndexingPipeline.get_processor_marker!("figgy_transformer", 1)

@@ -7,15 +7,20 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   setup do
     doc1 = %{
       "id" => "ce6aa6c7-623f-4398-ba04-ba542a858e4f",
-      "title_ss" => ["Mehrdad"]
+      "title_txtm" => ["Mehrdad"]
     }
 
     doc2 = %{
       "id" => "6c3367b1-344c-4dde-868e-c71192757c4a",
-      "title_ss" => ["Masih"]
+      "title_txtm" => ["Masih"]
     }
 
-    Solr.add([doc1, doc2])
+    doc3 = %{
+      "id" => "097263fb-5beb-407b-ab36-b468e0489792",
+      "title_txtm" => ["Hamed Javadzadeh"]
+    }
+
+    Solr.add([doc1, doc2, doc3])
     Solr.commit()
     on_exit(fn -> Solr.delete_all() end)
   end
@@ -40,9 +45,8 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     response =
       view
       |> element("form")
-      |> render_submit(%{"q" => "Masih"})
+      |> render_submit(%{"q" => "Hamed"})
 
-    assert response =~ "<div class=\"font-bold text-lg\">Masih</div>"
-    assert !(response =~ "<div class=\"font-bold text-lg\">Mehrdad</div>")
+    assert response =~ "<div class=\"font-bold text-lg\">Hamed Javadzadeh</div>"
   end
 end
