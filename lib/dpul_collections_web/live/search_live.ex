@@ -15,7 +15,9 @@ defmodule DpulCollectionsWeb.SearchLive do
       q: params["q"],
       sort_by: valid_sort_by(params),
       page: (params["page"] || "1") |> String.to_integer(),
-      per_page: (params["per_page"] || "10") |> String.to_integer()
+      per_page: (params["per_page"] || "10") |> String.to_integer(),
+      date_from: params["date_from"] || nil,
+      date_to: params["date_to"] || nil
     }
 
     solr_response = Solr.query(filters)
@@ -46,7 +48,22 @@ defmodule DpulCollectionsWeb.SearchLive do
             Search
           </button>
         </div>
-        <div class="grid grid-cols-8">
+        <div class="grid grid-cols-8 gap-4">
+          <label class="flex items-center font-bold uppercase" for="sort-by">filter by date: </label>
+          <input
+            class="col-span-1"
+            type="text"
+            placeholder="From"
+            name="date-from"
+            value={@filters.date_from}
+          />
+          <input
+            class="col-span-1"
+            type="text"
+            placeholder="To"
+            name="date-to"
+            value={@filters.date_to}
+          />
           <label class="flex items-center font-bold uppercase" for="sort-by">sort by:</label>
           <select class="col-span-2" name="sort-by">
             <%= Phoenix.HTML.Form.options_for_select(
@@ -105,7 +122,15 @@ defmodule DpulCollectionsWeb.SearchLive do
   end
 
   def handle_event("search", params, socket) do
-    params = %{q: params["q"], sort_by: params["sort-by"]} |> clean_params()
+    params =
+      %{
+        q: params["q"],
+        sort_by: params["sort-by"],
+        date_to: params["date-to"],
+        date_from: params["date-from"]
+      }
+      |> clean_params()
+
     socket = push_patch(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
   end

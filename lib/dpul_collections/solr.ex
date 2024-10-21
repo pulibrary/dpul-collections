@@ -10,33 +10,53 @@ defmodule DpulCollections.Solr do
     response.body["response"]["numFound"]
   end
 
-  def query(%{q: q, sort_by: sort_by, page: page, per_page: per_page}) do
-    offset = max(page - 1, 0) * per_page
-
-    params = [
-      q: q,
-      sort: sort_param(sort_by),
-      sort: sort_param(sort_by),
-      rows: per_page,
-      start: offset
+  @spec query(map()) :: map()
+  def query(params) do
+    solr_params = [
+      q: query_param(params),
+      "q.op": "AND",
+      sort: sort_param(params),
+      rows: params[:per_page],
+      start: pagination_offset(params)
     ]
 
     {:ok, response} =
       Req.get(
         select_url(),
-        params: params
+        params: solr_params
       )
 
     response.body["response"]
   end
 
-  defp sort_param(sort_by_value) do
-    case sort_by_value do
+  defp query_param(params) do
+    Enum.filter([params[:q], date_query(params)], &(!is_nil(&1)))
+    |> Enum.join(" ")
+  end
+
+  defp date_query(%{date_from: nil, date_to: nil}), do: nil
+
+  defp date_query(%{date_from: date_from, date_to: date_to}) do
+    from = date_from || "*"
+    to = date_to || "*"
+    "years_is:[#{from} TO #{to}]"
+  end
+
+  defp sort_param(%{sort_by: sort_by}) do
+    case sort_by do
       :relevance -> "score desc"
       :date_desc -> "years_is desc"
       :date_asc -> "years_is asc"
     end
   end
+
+  defp sort_param(_), do: nil
+
+  defp pagination_offset(%{page: page, per_page: per_page}) when page != nil do
+    max(page - 1, 0) * per_page
+  end
+
+  defp pagination_offset(_), do: nil
 
   def latest_document() do
     {:ok, response} =
