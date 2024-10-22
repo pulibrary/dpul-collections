@@ -15,9 +15,14 @@ job "dpulc-staging" {
     auto_revert       = true
   }
   group "web" {
-    count = 1
+    count = 2
     network {
       port "http" { to = 4000 }
+      port "epmd" { static = 6789 }
+      # Add the consul DNS loopback, so we can use consul queries.
+      dns {
+        servers = ["10.88.0.1", "128.112.129.209", "8.8.8.8", "8.8.4.4"]
+      }
     }
     service {
       port = "http"
@@ -61,9 +66,18 @@ job "dpulc-staging" {
       driver = "podman"
       config {
         image = "ghcr.io/pulibrary/dpul-collections:${ var.branch_or_sha }"
-        ports = ["http"]
+        ports = ["http", "epmd"]
         force_pull = true
       }
+      resources {
+        cpu    = 2000
+        memory = 1000
+      }
+      env {
+        RELEASE_IP = "${NOMAD_IP_http}"
+        ERL_DIST_PORT = 6789
+      }
+
       template {
         destination = "${NOMAD_SECRETS_DIR}/env.vars"
         env = true
@@ -75,6 +89,7 @@ job "dpulc-staging" {
         SOLR_URL = {{ .SOLR_URL }}
         SECRET_KEY_BASE = {{ .SECRET_KEY_BASE }}
         CACHE_VERSION = ${var.cache_version}
+        DNS_CLUSTER_QUERY = "dpulc-staging-web.service.consul"
         {{- end -}}
         EOF
       }
