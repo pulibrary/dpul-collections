@@ -253,7 +253,9 @@ defmodule DpulCollections.IndexingPipeline do
   def get_figgy_resources_since!(%CacheEntryMarker{timestamp: updated_at, id: id}, count) do
     query =
       from r in Figgy.Resource,
-        where: (r.updated_at == ^updated_at and r.id > ^id) or r.updated_at > ^updated_at,
+        where:
+          r.internal_resource != "Event" and r.internal_resource != "PreservationObject" and
+            ((r.updated_at == ^updated_at and r.id > ^id) or r.updated_at > ^updated_at),
         limit: ^count,
         order_by: [asc: r.updated_at, asc: r.id]
 
@@ -267,6 +269,7 @@ defmodule DpulCollections.IndexingPipeline do
   def get_figgy_resources_since!(nil, count) do
     query =
       from r in Figgy.Resource,
+        where: r.internal_resource != "Event" and r.internal_resource != "PreservationObject",
         limit: ^count,
         order_by: [asc: r.updated_at, asc: r.id]
 

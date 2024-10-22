@@ -91,9 +91,43 @@ defmodule DpulCollections.IndexingPipelineTest do
   end
 
   describe "figgy database" do
+    alias DpulCollections.FiggyRepo
+    alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
+
     test "get_figgy_resource!/1 returns a resource from the figgy db" do
       ephemera_folder_id = "8b0631b7-e1e4-49c2-904f-cd3141167a80"
       assert IndexingPipeline.get_figgy_resource!(ephemera_folder_id).id == ephemera_folder_id
+    end
+
+    test "get_figgy_resources_since!/2 does not return Events or PreservationObjects" do
+      total_records = FiggyRepo.aggregate(IndexingPipeline.Figgy.Resource, :count)
+
+      # Calling the function with a marker
+      fabricated_marker = %CacheEntryMarker{
+        timestamp: ~U[1018-03-09 20:19:33.414040Z],
+        id: "00000000-0000-0000-0000-000000000000"
+      }
+
+      records = IndexingPipeline.get_figgy_resources_since!(fabricated_marker, total_records)
+
+      assert records
+             |> Enum.filter(fn x -> x.internal_resource == "PreservationObject" end)
+             |> Enum.count() == 0
+
+      assert records
+             |> Enum.filter(fn x -> x.internal_resource == "Event" end)
+             |> Enum.count() == 0
+
+      # Call the function without marker
+      records = IndexingPipeline.get_figgy_resources_since!(nil, total_records)
+
+      assert records
+             |> Enum.filter(fn x -> x.internal_resource == "PreservationObject" end)
+             |> Enum.count() == 0
+
+      assert records
+             |> Enum.filter(fn x -> x.internal_resource == "Event" end)
+             |> Enum.count() == 0
     end
   end
 
