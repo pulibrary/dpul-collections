@@ -1,5 +1,4 @@
 defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
-  alias Phoenix.LiveDashboard.TitleBarComponent
   use DpulCollections.DataCase
 
   alias DpulCollections.Repo
