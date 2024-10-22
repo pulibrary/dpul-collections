@@ -50,8 +50,18 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       {Figgy.HydrationConsumer, cache_version: cache_version, batch_size: 50},
       {IndexMetricsTracker, []}
     ]
+
     test_pid = self()
-    :ok = :telemetry.attach("hydration-full-run", [:dpulc, :indexing_pipeline, :hydrator, :time_to_poll], fn _,measurements,_,_ -> send(test_pid, {:hydrator_time_to_poll_hit, measurements}) end, nil)
+
+    :ok =
+      :telemetry.attach(
+        "hydration-full-run",
+        [:dpulc, :indexing_pipeline, :hydrator, :time_to_poll],
+        fn _, measurements, _, _ ->
+          send(test_pid, {:hydrator_time_to_poll_hit, measurements})
+        end,
+        nil
+      )
 
     Supervisor.start_link(children, strategy: :one_for_one, name: DpulCollections.TestSupervisor)
 

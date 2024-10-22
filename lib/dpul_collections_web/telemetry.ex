@@ -111,7 +111,7 @@ defmodule DpulCollectionsWeb.Telemetry do
         reporter_options: [
           nav: "Indexing Pipeline"
         ]
-      ),
+      )
     ]
   end
 

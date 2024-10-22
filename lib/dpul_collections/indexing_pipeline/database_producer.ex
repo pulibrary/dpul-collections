@@ -62,6 +62,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
     if last_queried_marker == nil do
       DpulCollections.IndexMetricsTracker.register_fresh_index(source_module)
     end
+
     total_demand = stored_demand + demand
 
     records =
