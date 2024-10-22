@@ -6,6 +6,10 @@ variable "cache_version" {
   type = string
   default = "1"
 }
+variable "host" {
+  type = string
+  default = "dpul-collections-staging.lib.princeton.edu"
+}
 job "dpulc-staging" {
   region = "global"
   datacenters = ["dc1"]
@@ -53,6 +57,7 @@ job "dpulc-staging" {
         SOLR_URL = {{ .SOLR_URL }}
         SECRET_KEY_BASE = {{ .SECRET_KEY_BASE }}
         CACHE_VERSION = ${var.cache_version}
+        PHX_HOST = ${var.host}
         {{- end -}}
         EOF
       }
@@ -75,6 +80,7 @@ job "dpulc-staging" {
         SOLR_URL = {{ .SOLR_URL }}
         SECRET_KEY_BASE = {{ .SECRET_KEY_BASE }}
         CACHE_VERSION = ${var.cache_version}
+        PHX_HOST = ${var.host}
         {{- end -}}
         EOF
       }
