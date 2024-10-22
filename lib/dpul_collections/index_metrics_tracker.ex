@@ -1,5 +1,6 @@
 defmodule DpulCollections.IndexMetricsTracker do
   use GenServer
+  alias DpulCollections.IndexingPipeline.Figgy
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
@@ -28,10 +29,20 @@ defmodule DpulCollections.IndexMetricsTracker do
     if get_in(state, [source, :start_time]) != nil && get_in(state, [source, :end_time]) == nil do
       state = put_in(state, [source, :end_time], :erlang.monotonic_time())
       duration = state[source][:end_time] - state[source][:start_time]
-      IO.inspect("Duration (ms)(#{source}): #{System.convert_time_unit(duration, :native, :millisecond)}")
+      :telemetry.execute([:dpulc, :indexing_pipeline, event(source), :time_to_poll], %{duration: duration}, %{source: source})
       {:noreply, state}
     else
       {:noreply, state}
     end
+  end
+
+  def event(Figgy.HydrationProducerSource) do
+    :hydrator
+  end
+  def event(Figgy.TransformationProducerSource) do
+    :transformer
+  end
+  def event(Figgy.IndexingProducerSource) do
+    :indexer
   end
 end
