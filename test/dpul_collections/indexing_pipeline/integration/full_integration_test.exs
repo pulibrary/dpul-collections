@@ -147,13 +147,18 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     {hydrator, transformer, indexer, document} =
       FiggyTestSupport.index_record_id("26713a31-d615-49fd-adfc-93770b4f66b3")
 
+    assert document["title_txtm"] == ["Ali Bagheri"]
+    # Language Detection
+    assert document["title_txtm_de"] == ["Ali Bagheri"]
+    # Copy Field
+    assert document["title_ss"] == ["Ali Bagheri"]
     # Description
     assert %{"description_txtm" => [first_description | _tail]} = document
     assert first_description |> String.starts_with?("Asra-Panahi") == true
     # Language detection
     assert %{"description_txtm_en" => [first_description | _tail]} = document
     assert first_description |> String.starts_with?("Asra-Panahi") == true
-    assert %{"detectlang_ss" => ["en"]} = document
+    assert %{"detectlang_ss" => ["de", "en"]} = document
 
     # Date fields
     assert document["years_is"] == [2022]

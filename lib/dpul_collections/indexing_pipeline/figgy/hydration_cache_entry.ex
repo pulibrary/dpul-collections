@@ -25,7 +25,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
 
     %{
       id: id,
-      title_ss: get_in(metadata, ["title"]),
+      title_txtm: get_in(metadata, ["title"]),
       description_txtm: get_in(metadata, ["description"]),
       years_is: extract_years(metadata),
       display_date_s: format_date(metadata),

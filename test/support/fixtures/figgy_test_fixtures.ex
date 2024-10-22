@@ -161,7 +161,7 @@ defmodule FiggyTestFixtures do
         source_cache_order: ~U[2018-03-09 20:19:33.414040Z],
         data: %{
           "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
-          "title_ss" => ["test title 1"]
+          "title_txtm" => ["test title 1"]
         }
       })
 
@@ -172,7 +172,7 @@ defmodule FiggyTestFixtures do
         source_cache_order: ~U[2018-03-09 20:19:34.465203Z],
         data: %{
           "id" => "69990556-434c-476a-9043-bbf9a1bda5a4",
-          "title_ss" => ["test title 2"]
+          "title_txtm" => ["test title 2"]
         }
       })
 
@@ -183,7 +183,7 @@ defmodule FiggyTestFixtures do
         source_cache_order: ~U[2018-03-09 20:19:34.486004Z],
         data: %{
           "id" => "47276197-e223-471c-99d7-405c5f6c5285",
-          "title_ss" => ["test title 3"]
+          "title_txtm" => ["test title 3"]
         }
       })
 
