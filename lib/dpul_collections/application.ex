@@ -54,13 +54,14 @@ defmodule DpulCollections.Application do
 
   def indexing_pipeline_children() do
     cache_version = Application.fetch_env!(:dpul_collections, :cache_version)
+
     [
       {DpulCollections.IndexingPipeline.Figgy.IndexingConsumer,
-        cache_version: cache_version, batch_size: 50},
+       cache_version: cache_version, batch_size: 50},
       {DpulCollections.IndexingPipeline.Figgy.TransformationConsumer,
-        cache_version: cache_version, batch_size: 50},
+       cache_version: cache_version, batch_size: 50},
       {DpulCollections.IndexingPipeline.Figgy.HydrationConsumer,
-        cache_version: cache_version, batch_size: 50}
+       cache_version: cache_version, batch_size: 50}
     ]
   end
 

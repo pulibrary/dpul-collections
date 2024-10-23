@@ -85,11 +85,11 @@ if config_env() == :prod do
 
   config :dpul_collections, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
-if System.get_env("INDEXER") do
-  config :dpul_collections, :start_indexing_pipeline, true
-else
-  config :dpul_collections, :start_indexing_pipeline, false
-end
+  if System.get_env("INDEXER") do
+    config :dpul_collections, :start_indexing_pipeline, true
+  else
+    config :dpul_collections, :start_indexing_pipeline, false
+  end
 
   config :dpul_collections, DpulCollectionsWeb.Endpoint,
     url: [host: host, port: 443, scheme: "https"],
