@@ -100,7 +100,6 @@ defmodule DpulCollections.IndexingPipeline do
     Repo.all(query)
   end
 
-
   @spec get_hydration_cache_entries_since!(
           nil,
           count :: integer
