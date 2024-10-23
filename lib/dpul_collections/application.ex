@@ -34,21 +34,34 @@ defmodule DpulCollections.Application do
   end
 
   # coveralls-ignore-start
-  def environment_children(_) do
+  # In development, start the indexing pipeline when the phoenix server starts.
+  def environment_children(:dev) do
     if Phoenix.Endpoint.server?(:dpul_collections, DpulCollectionsWeb.Endpoint) do
-      cache_version = Application.fetch_env!(:dpul_collections, :cache_version)
-
-      [
-        {DpulCollections.IndexingPipeline.Figgy.IndexingConsumer,
-         cache_version: cache_version, batch_size: 50},
-        {DpulCollections.IndexingPipeline.Figgy.TransformationConsumer,
-         cache_version: cache_version, batch_size: 50},
-        {DpulCollections.IndexingPipeline.Figgy.HydrationConsumer,
-         cache_version: cache_version, batch_size: 50}
-      ]
+      indexing_pipeline_children()
     else
       []
     end
+  end
+
+  # In production, start the indexing pipeline if it's configured to be started
+  def environment_children(:prod) do
+    if Application.fetch_env!(:dpul_collections, :start_indexing_pipeline) == true do
+      indexing_pipeline_children()
+    else
+      []
+    end
+  end
+
+  def indexing_pipeline_children() do
+    cache_version = Application.fetch_env!(:dpul_collections, :cache_version)
+    [
+      {DpulCollections.IndexingPipeline.Figgy.IndexingConsumer,
+        cache_version: cache_version, batch_size: 50},
+      {DpulCollections.IndexingPipeline.Figgy.TransformationConsumer,
+        cache_version: cache_version, batch_size: 50},
+      {DpulCollections.IndexingPipeline.Figgy.HydrationConsumer,
+        cache_version: cache_version, batch_size: 50}
+    ]
   end
 
   # coveralls-ignore-end
