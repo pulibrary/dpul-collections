@@ -100,6 +100,7 @@ defmodule DpulCollections.IndexingPipeline do
     Repo.all(query)
   end
 
+
   @spec get_hydration_cache_entries_since!(
           nil,
           count :: integer
@@ -255,7 +256,7 @@ defmodule DpulCollections.IndexingPipeline do
       from r in Figgy.Resource,
         where:
           r.internal_resource != "Event" and r.internal_resource != "PreservationObject" and
-            ((r.updated_at == ^updated_at and r.id > ^id) or r.updated_at > ^updated_at),
+            (r.updated_at >= ^updated_at and (r.updated_at > ^updated_at or r.id > ^id)),
         limit: ^count,
         order_by: [asc: r.updated_at, asc: r.id]
 
