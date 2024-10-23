@@ -3,7 +3,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
   alias DpulCollections.Repo
   alias DpulCollections.IndexingPipeline.Figgy
-  alias DpulCollections.{IndexingPipeline, Solr}
+  alias DpulCollections.{IndexingPipeline, Solr, IndexMetricsTracker}
 
   setup do
     Solr.delete_all()
@@ -42,8 +42,21 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     children = [
       {Figgy.IndexingConsumer, cache_version: 1, batch_size: 50},
       {Figgy.TransformationConsumer, cache_version: 1, batch_size: 50},
-      {Figgy.HydrationConsumer, cache_version: 1, batch_size: 50}
+      {Figgy.HydrationConsumer, cache_version: 1, batch_size: 50},
+      {IndexMetricsTracker, []}
     ]
+
+    test_pid = self()
+
+    :ok =
+      :telemetry.attach(
+        "hydration-full-run",
+        [:dpulc, :indexing_pipeline, :hydrator, :time_to_poll],
+        fn _, measurements, _, _ ->
+          send(test_pid, {:hydrator_time_to_poll_hit, measurements})
+        end,
+        nil
+      )
 
     Supervisor.start_link(children, strategy: :one_for_one, name: DpulCollections.TestSupervisor)
 
@@ -141,6 +154,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     assert hydration_entry.cache_order != hydration_entry_again.cache_order
 
     Supervisor.stop(DpulCollections.TestSupervisor, :normal)
+
+    # Ensure metrics are being sent.
+    assert_receive {:hydrator_time_to_poll_hit, %{duration: _}}
   end
 
   test "indexes expected fields" do

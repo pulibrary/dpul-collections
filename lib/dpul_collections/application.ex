@@ -44,7 +44,8 @@ defmodule DpulCollections.Application do
         {DpulCollections.IndexingPipeline.Figgy.TransformationConsumer,
          cache_version: cache_version, batch_size: 50},
         {DpulCollections.IndexingPipeline.Figgy.HydrationConsumer,
-         cache_version: cache_version, batch_size: 50}
+         cache_version: cache_version, batch_size: 50},
+        {DpulCollections.IndexMetricsTracker, []}
       ]
     else
       []
