@@ -1,6 +1,7 @@
 defmodule DpulCollectionsWeb.SearchLive do
   use DpulCollectionsWeb, :live_view
   alias DpulCollections.Solr
+  alias DpulCollectionsWeb.Live.Helpers
 
   defmodule Item do
     defstruct [:id, :title, :date]
@@ -137,7 +138,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           date_to: params["date-to"],
           date_from: params["date-from"]
       }
-      |> clean_params()
+      |> Helpers.clean_params()
 
     socket = push_patch(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
@@ -146,14 +147,14 @@ defmodule DpulCollectionsWeb.SearchLive do
   def handle_event("sort", params, socket) do
     params =
       %{socket.assigns.filters | sort_by: params["sort-by"]}
-      |> clean_params()
+      |> Helpers.clean_params()
 
     socket = push_patch(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
   end
 
   def handle_event("paginate", %{"page" => page}, socket) when page != "..." do
-    params = %{socket.assigns.filters | page: page} |> clean_params()
+    params = %{socket.assigns.filters | page: page} |> Helpers.clean_params()
     socket = push_patch(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
   end
@@ -168,14 +169,6 @@ defmodule DpulCollectionsWeb.SearchLive do
   end
 
   defp valid_sort_by(_), do: :relevance
-
-  # Remove KV pairs with nil or empty string values
-  defp clean_params(params) do
-    params
-    |> Enum.filter(fn {_, v} -> v != "" end)
-    |> Enum.filter(fn {_, v} -> v != nil end)
-    |> Enum.into(%{})
-  end
 
   defp more_pages?(page, per_page, total_items) do
     page * per_page < total_items

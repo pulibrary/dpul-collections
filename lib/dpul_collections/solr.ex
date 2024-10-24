@@ -30,7 +30,7 @@ defmodule DpulCollections.Solr do
   end
 
   defp query_param(params) do
-    Enum.filter([params[:q], date_query(params)], &(!is_nil(&1)))
+    Enum.reject([params[:q], date_query(params)], &is_nil(&1))
     |> Enum.join(" ")
   end
 

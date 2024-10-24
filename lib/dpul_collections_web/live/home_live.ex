@@ -1,6 +1,7 @@
 defmodule DpulCollectionsWeb.HomeLive do
   use DpulCollectionsWeb, :live_view
   alias DpulCollections.Solr
+  alias DpulCollectionsWeb.Live.Helpers
 
   def mount(_params, _session, socket) do
     socket =
@@ -32,16 +33,8 @@ defmodule DpulCollectionsWeb.HomeLive do
   end
 
   def handle_event("search", %{"q" => q}, socket) do
-    params = %{q: q} |> clean_params()
+    params = %{q: q} |> Helpers.clean_params()
     socket = push_navigate(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
-  end
-
-  # Remove KV pairs with nil or empty string values
-  defp clean_params(params) do
-    params
-    |> Enum.filter(fn {_, v} -> v != "" end)
-    |> Enum.filter(fn {_, v} -> v != nil end)
-    |> Enum.into(%{})
   end
 end
