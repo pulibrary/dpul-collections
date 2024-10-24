@@ -7,21 +7,33 @@ defmodule DpulCollectionsWeb.SearchLive do
     defstruct [:id, :title, :date]
   end
 
+  defmodule SearchState do
+    def from_params(params) do
+      %{
+        q: params["q"],
+        sort_by: valid_sort_by(params),
+        page: (params["page"] || "1") |> String.to_integer(),
+        per_page: (params["per_page"] || "10") |> String.to_integer(),
+        date_from: params["date_from"] || nil,
+        date_to: params["date_to"] || nil
+      }
+    end
+
+    defp valid_sort_by(%{"sort_by" => sort_by})
+         when sort_by in ["relevance", "date_desc", "date_asc"] do
+      String.to_existing_atom(sort_by)
+    end
+
+    defp valid_sort_by(_), do: :relevance
+  end
+
   def mount(_params, _session, socket) do
     {:ok, socket}
   end
 
   def handle_params(params, _uri, socket) do
-    filters = %{
-      q: params["q"],
-      sort_by: valid_sort_by(params),
-      page: (params["page"] || "1") |> String.to_integer(),
-      per_page: (params["per_page"] || "10") |> String.to_integer(),
-      date_from: params["date_from"] || nil,
-      date_to: params["date_to"] || nil
-    }
-
-    solr_response = Solr.query(filters)
+    search_state = SearchState.from_params(params)
+    solr_response = Solr.query(search_state)
 
     items =
       solr_response["docs"]
@@ -31,7 +43,7 @@ defmodule DpulCollectionsWeb.SearchLive do
 
     socket =
       assign(socket,
-        filters: filters,
+        search_state: search_state,
         items: items,
         total_items: solr_response["numFound"]
       )
@@ -44,7 +56,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
       <form id="search-form" phx-submit="search">
         <div class="grid grid-cols-4">
-          <input class="col-span-3" type="text" name="q" value={@filters.q} />
+          <input class="col-span-3" type="text" name="q" value={@search_state.q} />
           <button class="col-span-1 font-bold uppercase" type="submit">
             Search
           </button>
@@ -58,7 +70,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           placeholder="From"
           form="search-form"
           name="date-from"
-          value={@filters.date_from}
+          value={@search_state.date_from}
         />
         <input
           class="col-span-1"
@@ -66,7 +78,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           placeholder="To"
           form="search-form"
           name="date-to"
-          value={@filters.date_to}
+          value={@search_state.date_to}
         />
       </div>
       <form id="sort-form" phx-change="sort">
@@ -77,7 +89,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           <select class="col-span-1" name="sort-by">
             <%= Phoenix.HTML.Form.options_for_select(
               ["relevance", "date desc": "date_desc", "date asc": "date_asc"],
-              @filters.sort_by
+              @search_state.sort_by
             ) %>
           </select>
         </div>
@@ -87,7 +99,11 @@ defmodule DpulCollectionsWeb.SearchLive do
       <.search_item :for={item <- @items} item={item} />
     </div>
     <div class="text-center bg-white max-w-5xl mx-auto text-lg py-8">
-      <.paginator page={@filters.page} per_page={@filters.per_page} total_items={@total_items} />
+      <.paginator
+        page={@search_state.page}
+        per_page={@search_state.per_page}
+        total_items={@total_items}
+      />
     </div>
     """
   end
@@ -133,7 +149,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   def handle_event("search", params, socket) do
     params =
       %{
-        socket.assigns.filters
+        socket.assigns.search_state
         | q: params["q"],
           date_to: params["date-to"],
           date_from: params["date-from"]
@@ -146,7 +162,7 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def handle_event("sort", params, socket) do
     params =
-      %{socket.assigns.filters | sort_by: params["sort-by"]}
+      %{socket.assigns.search_state | sort_by: params["sort-by"]}
       |> Helpers.clean_params()
 
     socket = push_patch(socket, to: ~p"/search?#{params}")
@@ -154,7 +170,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   end
 
   def handle_event("paginate", %{"page" => page}, socket) when page != "..." do
-    params = %{socket.assigns.filters | page: page} |> Helpers.clean_params()
+    params = %{socket.assigns.search_state | page: page} |> Helpers.clean_params()
     socket = push_patch(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
   end
@@ -162,13 +178,6 @@ defmodule DpulCollectionsWeb.SearchLive do
   def handle_event("paginate", _, socket) do
     {:noreply, socket}
   end
-
-  defp valid_sort_by(%{"sort_by" => sort_by})
-       when sort_by in ["relevance", "date_desc", "date_asc"] do
-    String.to_existing_atom(sort_by)
-  end
-
-  defp valid_sort_by(_), do: :relevance
 
   defp more_pages?(page, per_page, total_items) do
     page * per_page < total_items

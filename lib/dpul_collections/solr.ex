@@ -11,13 +11,13 @@ defmodule DpulCollections.Solr do
   end
 
   @spec query(map()) :: map()
-  def query(params) do
+  def query(search_state) do
     solr_params = [
-      q: query_param(params),
+      q: query_param(search_state),
       "q.op": "AND",
-      sort: sort_param(params),
-      rows: params[:per_page],
-      start: pagination_offset(params)
+      sort: sort_param(search_state),
+      rows: search_state[:per_page],
+      start: pagination_offset(search_state)
     ]
 
     {:ok, response} =
@@ -29,8 +29,8 @@ defmodule DpulCollections.Solr do
     response.body["response"]
   end
 
-  defp query_param(params) do
-    Enum.reject([params[:q], date_query(params)], &is_nil(&1))
+  defp query_param(search_state) do
+    Enum.reject([search_state[:q], date_query(search_state)], &is_nil(&1))
     |> Enum.join(" ")
   end
 
