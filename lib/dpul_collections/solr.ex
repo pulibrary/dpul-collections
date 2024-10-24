@@ -10,18 +10,48 @@ defmodule DpulCollections.Solr do
     response.body["response"]["numFound"]
   end
 
-  def query(%{q: q}) do
-    params = [
-      q: q
+  @spec query(map()) :: map()
+  def query(search_state) do
+    solr_params = [
+      q: query_param(search_state),
+      "q.op": "AND",
+      sort: sort_param(search_state),
+      rows: search_state[:per_page],
+      start: pagination_offset(search_state)
     ]
 
     {:ok, response} =
       Req.get(
         select_url(),
-        params: params
+        params: solr_params
       )
 
-    response.body["response"]["docs"]
+    response.body["response"]
+  end
+
+  defp query_param(search_state) do
+    Enum.reject([search_state[:q], date_query(search_state)], &is_nil(&1))
+    |> Enum.join(" ")
+  end
+
+  defp date_query(%{date_from: nil, date_to: nil}), do: nil
+
+  defp date_query(%{date_from: date_from, date_to: date_to}) do
+    from = date_from || "*"
+    to = date_to || "*"
+    "years_is:[#{from} TO #{to}]"
+  end
+
+  defp sort_param(%{sort_by: sort_by}) do
+    case sort_by do
+      :relevance -> "score desc"
+      :date_desc -> "years_is desc"
+      :date_asc -> "years_is asc"
+    end
+  end
+
+  defp pagination_offset(%{page: page, per_page: per_page}) do
+    max(page - 1, 0) * per_page
   end
 
   def latest_document() do

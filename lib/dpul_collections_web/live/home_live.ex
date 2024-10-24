@@ -1,6 +1,7 @@
 defmodule DpulCollectionsWeb.HomeLive do
   use DpulCollectionsWeb, :live_view
   alias DpulCollections.Solr
+  alias DpulCollectionsWeb.Live.Helpers
 
   def mount(_params, _session, socket) do
     socket =
@@ -32,7 +33,7 @@ defmodule DpulCollectionsWeb.HomeLive do
   end
 
   def handle_event("search", %{"q" => q}, socket) do
-    params = %{q: q}
+    params = %{q: q} |> Helpers.clean_params()
     socket = push_navigate(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
   end
