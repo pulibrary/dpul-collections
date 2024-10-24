@@ -50,7 +50,7 @@ defmodule DpulCollections.Solr do
     end
   end
 
-  defp pagination_offset(%{page: page, per_page: per_page}) when page != nil do
+  defp pagination_offset(%{page: page, per_page: per_page}) do
     max(page - 1, 0) * per_page
   end
 
