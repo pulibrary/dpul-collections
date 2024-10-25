@@ -22,6 +22,11 @@ job "loki" {
         static = 3100
       }
     }
+    volume "loki" {
+      type      = "host"
+      read_only = false
+      source    = "loki"
+    }
     service {
       name = "loki"
         port = "loki"
@@ -38,20 +43,10 @@ job "loki" {
                 ignore_warnings = false
             }
         }
-      tags = [
-        "traefik.enable=true",
-        "traefik.http.routers.loki.tls=true",
-# the middleware has to be declared somewhere else, we only attach it here
-        "traefik.http.routers.loki.middlewares=loki-basicauth@file", 
-      ]
     }
-# volume "loki" {
-    #   type      = "host"
-    #   read_only = false
-    #   source    = "loki"
-    # }
     task "loki" {
       driver = "podman"
+      user = "root"
       config {
         image = "grafana/loki:3.2.1"
         args = [
@@ -60,11 +55,11 @@ job "loki" {
         ]
         ports = ["loki"]
       }
-      # volume_mount {
-      #   volume      = "loki"
-      #   destination = "/loki"
-      #   read_only   = false
-      # }
+      volume_mount {
+        volume      = "loki"
+        destination = "/loki"
+        read_only   = false
+      }
       template {
         data = <<EOH
 auth_enabled: false
@@ -77,23 +72,36 @@ server:
 
 common:
   instance_addr: 127.0.0.1
-  path_prefix: /tmp/loki
+  path_prefix: /loki
   storage:
     filesystem:
-      chunks_directory: /tmp/loki/chunks
-      rules_directory: /tmp/loki/rules
+      chunks_directory: /loki/chunks
+      rules_directory: /loki/rules
   replication_factor: 1
   ring:
     kvstore:
       store: inmemory
-
 query_range:
   results_cache:
     cache:
       embedded_cache:
         enabled: true
         max_size_mb: 100
-
+storage_config:
+  filesystem:
+    directory: /loki/chunks
+  tsdb_shipper: 
+    active_index_directory: /loki/tsdb-index
+    cache_location: /loki/tsdb-cache
+compactor:
+  working_directory: /loki/retention
+  compaction_interval: 10m
+  retention_enabled: true
+  retention_delete_delay: 2h
+  retention_delete_worker_count: 150
+  delete_request_store: filesystem
+limits_config:
+  retention_period: 360h
 schema_config:
   configs:
     - from: 2020-10-24

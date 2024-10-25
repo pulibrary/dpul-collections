@@ -26,6 +26,12 @@ job "grafana" {
       }
     }
 
+    volume "grafana" {
+      type = "host"
+      read_only = false
+      source = "grafana"
+    }
+
     task "grafana" {
       driver = "podman"
 
@@ -39,7 +45,11 @@ job "grafana" {
       config {
         image = "docker.io/grafana/grafana:11.3.0"
         ports = ["grafana"]
-        # volumes = ["/grafana_volume:/var/lib/grafana"]
+      }
+      volume_mount {
+        volume = "grafana"
+        destination = "/var/lib/grafana"
+        read_only = false
       }
       resources {
         cpu    = 2000
