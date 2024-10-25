@@ -1,6 +1,6 @@
 ---
 title: Container Vulnerability Scanner Failed
-labels: work-cycle, security
+labels: dls-work-cycle, security
 ---
 Trivy Vulnerability Scan failed.
 
