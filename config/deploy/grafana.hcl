@@ -39,6 +39,28 @@ job "grafana" {
         GF_LOG_LEVEL          = "ERROR"
         GF_LOG_MODE           = "console"
         GF_PATHS_DATA         = "/var/lib/grafana"
+        GF_SERVER_DOMAIN      = "grafana-nomad.lib.princeton.edu"
+        GF_SERVER_ROOT_URL    = "https://grafana-nomad.lib.princeton.edu"
+        GF_AUTH_GITHUB_ENABLED = true
+        GF_AUTH_GITHUB_ALLOW_SIGN_UP = true
+        GF_AUTH_GITHUB_AUTO_LOGIN = false
+        # The team ID below is the systems developers team in pulibrary.
+        GF_AUTH_GITHUB_TEAM_IDS = "195225"
+        GF_AUTH_GITHUB_ALLOWED_ORGANIZATIONS = "pulibrary"
+        GF_AUTH_GITHUB_ROLE_ATTRIBUTE_PATH = "[login=='tpend'][0] &&'GrafanaAdmin' || 'Editor'"
+        GF_AUTH_GITHUB_ALLOW_ASSIGN_GRAFANA_ADMIN = true
+      }
+
+      template {
+        destination = "${NOMAD_SECRETS_DIR}/env.vars"
+        env = true
+        change_mode = "restart"
+        data = <<EOF
+        {{- with nomadVar "nomad/jobs/grafana" -}}
+        GF_AUTH_GITHUB_CLIENT_ID = {{ .GH_CLIENT_ID }}
+        GF_AUTH_GITHUB_CLIENT_SECRET = {{ .GH_SECRET }}
+        {{- end -}}
+        EOF
       }
       user = "root"
 
