@@ -47,7 +47,7 @@ job "grafana" {
         # The team ID below is the systems developers team in pulibrary.
         GF_AUTH_GITHUB_TEAM_IDS = "195225"
         GF_AUTH_GITHUB_ALLOWED_ORGANIZATIONS = "pulibrary"
-        GF_AUTH_GITHUB_ROLE_ATTRIBUTE_PATH = "[login=='tpend'][0] &&'GrafanaAdmin' || 'Editor'"
+        GF_AUTH_GITHUB_ROLE_ATTRIBUTE_PATH = "[login=='tpendragon'][0] && 'GrafanaAdmin' || 'Editor'"
         GF_AUTH_GITHUB_ALLOW_ASSIGN_GRAFANA_ADMIN = true
       }
 
