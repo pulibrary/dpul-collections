@@ -121,4 +121,18 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert response =~ "phx-value-page=\"2\""
     assert !(response =~ "phx-value-page=\"9\"")
   end
+
+  test "item counter element", %{conn: conn} do
+    {:ok, view, _html} = live(conn, ~p"/search?page=1&per_page=7")
+    assert view |> has_element?("#item-counter", "1 - 7 of 100")
+
+    {:ok, view, _html} = live(conn, ~p"/search?page=5&per_page=7")
+    assert view |> has_element?("#item-counter", "29 - 35 of 100")
+
+    {:ok, view, _html} = live(conn, ~p"/search?page=15&per_page=7")
+    assert view |> has_element?("#item-counter", "99 - 100 of 100")
+
+    {:ok, view, _html} = live(conn, ~p"/search?q=notavalidsearch")
+    assert view |> has_element?("#item-counter", "No items found")
+  end
 end
