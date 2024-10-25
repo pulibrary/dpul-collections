@@ -3,7 +3,7 @@ defmodule DpulCollectionsWeb.LuxComponents do
 
   def header() do
     ~S"""
-    <lux-library-header app-name="Digital Collections" abbr-name="Collections" app-url="https://library.princeton.edu/" theme="shade">
+    <lux-library-header app-name="Digital Collections" abbr-name="Collections" app-url="/" theme="shade">
       <lux-menu-bar type="main-menu" :menu-items="[
         {name: 'Language', component: 'Language', children: [
           {name: 'English', component: 'English', href: '?locale=en'},
