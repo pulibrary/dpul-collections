@@ -154,7 +154,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           date_to: params["date-to"],
           date_from: params["date-from"]
       }
-      |> Helpers.clean_params()
+      |> Helpers.clean_params([:page, :per_page])
 
     socket = push_patch(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
@@ -163,7 +163,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   def handle_event("sort", params, socket) do
     params =
       %{socket.assigns.search_state | sort_by: params["sort-by"]}
-      |> Helpers.clean_params()
+      |> Helpers.clean_params([:page, :per_page])
 
     socket = push_patch(socket, to: ~p"/search?#{params}")
     {:noreply, socket}

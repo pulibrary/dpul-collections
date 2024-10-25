@@ -89,5 +89,36 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert view
            |> element("a", "...")
            |> render_click() =~ "<div class=\"underline text-lg\">Document-100</div>"
+
+    # Check that changing the sort order resets the paginator
+    {:ok, view, _html} = live(conn, ~p"/search?page=10")
+    assert view |> element("a[phx-value-page=9]") |> has_element?()
+    assert !(view |> element("a[phx-value-page=2]") |> has_element?())
+
+    response = render_click(view, "sort", %{"sort-by" => "date_asc"})
+    assert response =~ "phx-value-page=\"2\""
+    assert !(response =~ "phx-value-page=\"9\"")
+
+    # Check that changing search query resets the paginator
+    {:ok, view, _html} = live(conn, ~p"/search?page=10")
+
+    response =
+      view
+      |> element("#search-form")
+      |> render_submit(%{"q" => "Document*"})
+
+    assert response =~ "phx-value-page=\"2\""
+    assert !(response =~ "phx-value-page=\"9\"")
+
+    # Check that updating the date query resets the paginator
+    {:ok, view, _html} = live(conn, ~p"/search?page=10")
+
+    response =
+      view
+      |> element("#search-form")
+      |> render_submit(%{"date-from" => "1900", "date-to" => "2025"})
+
+    assert response =~ "phx-value-page=\"2\""
+    assert !(response =~ "phx-value-page=\"9\"")
   end
 end
