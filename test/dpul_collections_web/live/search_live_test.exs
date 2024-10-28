@@ -1,13 +1,14 @@
 defmodule DpulCollectionsWeb.SearchLiveTest do
   use DpulCollectionsWeb.ConnCase
   import Phoenix.LiveViewTest
+  import SolrTestSupport
   alias DpulCollections.Solr
   @endpoint DpulCollectionsWeb.Endpoint
 
   setup_all do
-    Solr.add(SolrTestSupport.mock_solr_documents())
-    Solr.commit()
-    on_exit(fn -> Solr.delete_all() end)
+    Solr.add(SolrTestSupport.mock_solr_documents(), active_collection())
+    Solr.commit(active_collection())
+    on_exit(fn -> Solr.delete_all(active_collection()) end)
   end
 
   test "GET /search", %{conn: conn} do

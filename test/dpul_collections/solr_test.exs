@@ -1,10 +1,11 @@
 defmodule DpulCollections.SolrTest do
   use DpulCollections.DataCase
   alias DpulCollections.Solr
+  import SolrTestSupport
 
   setup do
-    Solr.delete_all()
-    on_exit(fn -> Solr.delete_all() end)
+    Solr.delete_all(active_collection())
+    on_exit(fn -> Solr.delete_all(active_collection()) end)
   end
 
   test ".document_count/0" do
@@ -19,8 +20,8 @@ defmodule DpulCollections.SolrTest do
       "title_ss" => ["test title 1"]
     }
 
-    Solr.add([doc])
-    Solr.commit()
+    Solr.add([doc], active_collection())
+    Solr.commit(active_collection())
     assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["title_ss"] == doc["title_ss"]
   end
 
@@ -32,8 +33,8 @@ defmodule DpulCollections.SolrTest do
 
     assert Solr.document_count() == 0
 
-    Solr.add([doc])
-    Solr.commit()
+    Solr.add([doc], active_collection())
+    Solr.commit(active_collection())
 
     assert Solr.document_count() == 1
   end
@@ -46,8 +47,8 @@ defmodule DpulCollections.SolrTest do
 
     assert Solr.latest_document() == nil
 
-    Solr.add([doc])
-    Solr.commit()
+    Solr.add([doc], active_collection())
+    Solr.commit(active_collection())
 
     assert Solr.latest_document()["id"] == doc["id"]
 
@@ -56,8 +57,8 @@ defmodule DpulCollections.SolrTest do
       "title_ss" => ["test title 1"]
     }
 
-    Solr.add([doc_2])
-    Solr.commit()
+    Solr.add([doc_2], active_collection())
+    Solr.commit(active_collection())
 
     assert Solr.latest_document()["id"] == doc_2["id"]
   end
@@ -68,11 +69,11 @@ defmodule DpulCollections.SolrTest do
       "title_ss" => ["test title 1"]
     }
 
-    Solr.add([doc])
-    Solr.commit()
+    Solr.add([doc], active_collection())
+    Solr.commit(active_collection())
     assert Solr.document_count() == 1
 
-    Solr.delete_all()
+    Solr.delete_all(active_collection())
     assert Solr.document_count() == 0
   end
 
@@ -86,16 +87,21 @@ defmodule DpulCollections.SolrTest do
     :ok
   end
 
-  @tag solr_settings: %{url: "http://localhost:8983/solr/bla", username: "test", password: "test"}
+  @tag solr_settings: %{
+         url: "http://localhost:8983/solr",
+         read_collection: "bla",
+         username: "test",
+         password: "test"
+       }
   test ".client/0 setting auth works" do
-    client = Solr.client()
+    client = Solr.client(:read)
     assert client.options.base_url == "http://localhost:8983/solr/bla"
     assert client.options.auth == {:basic, "test:test"}
   end
 
-  @tag solr_settings: %{url: "http://localhost:8983/solr/bla", username: ""}
+  @tag solr_settings: %{url: "http://localhost:8983/solr", read_collection: "bla", username: ""}
   test ".client/0 with no auth works" do
-    client = Solr.client()
+    client = Solr.client(:read)
     assert client.options.base_url == "http://localhost:8983/solr/bla"
     assert client.options.auth == nil
   end

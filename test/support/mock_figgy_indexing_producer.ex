@@ -63,10 +63,10 @@ defmodule MockFiggyIndexingProducer do
   Request Figgy.IndexingConsumer to process <demand> records.
   """
   @spec process(Integer) :: :ok
-  def process(demand) do
+  def process(demand, cache_version \\ 0) do
     # Get the PID for TestFiggyProducer GenServer,
     # then cast fulfill message to itself
-    Broadway.producer_names(Figgy.IndexingConsumer)
+    Broadway.producer_names(String.to_existing_atom("#{Figgy.IndexingConsumer}_#{cache_version}"))
     |> hd
     |> GenServer.cast({:fulfill_messages, demand})
   end

@@ -48,9 +48,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HyrdationIntegrationTest do
 
   test "hydration cache entry creation with cache_version > 0" do
     {marker1, _marker2, _marker3} = FiggyTestFixtures.markers()
-    hydrator = start_producer(1)
+    cache_version = 1
+    hydrator = start_producer(cache_version)
 
-    MockFiggyHydrationProducer.process(1)
+    MockFiggyHydrationProducer.process(1, cache_version)
     assert_receive {:ack_done}
 
     cache_entry = IndexingPipeline.list_hydration_cache_entries() |> hd

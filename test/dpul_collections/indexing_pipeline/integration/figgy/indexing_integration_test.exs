@@ -5,8 +5,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.Solr
 
+  import SolrTestSupport
+
   setup do
-    Solr.delete_all()
+    Solr.delete_all(active_collection())
     :ok
   end
 
@@ -25,7 +27,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
         cache_version: cache_version,
         producer_module: MockFiggyIndexingProducer,
         producer_options: {self(), cache_version},
-        batch_size: 1
+        batch_size: 1,
+        write_collection: active_collection()
       )
 
     indexer
@@ -39,7 +42,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
     MockFiggyIndexingProducer.process(1)
     assert_receive {:ack_done}
 
-    Solr.commit()
+    Solr.commit(active_collection())
     assert Solr.document_count() == 1
 
     indexer |> Broadway.stop(:normal)
@@ -48,13 +51,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
   test "when cache version > 0, processor marker cache version is correct" do
     FiggyTestFixtures.transformation_cache_markers()
 
-    indexer = start_indexing_producer(1)
+    cache_version = 1
+    indexer = start_indexing_producer(cache_version)
 
-    MockFiggyIndexingProducer.process(1)
+    MockFiggyIndexingProducer.process(1, cache_version)
     assert_receive {:ack_done}
 
-    processor_marker = IndexingPipeline.get_processor_marker!("figgy_indexer", 1)
-    assert processor_marker.cache_version == 1
+    processor_marker = IndexingPipeline.get_processor_marker!("figgy_indexer", cache_version)
+    assert processor_marker.cache_version == cache_version
 
     indexer |> Broadway.stop(:normal)
   end
@@ -66,10 +70,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
   test "updates existing solr document versions" do
     {marker1, _marker2, _marker3} = FiggyTestFixtures.transformation_cache_markers()
 
-    Solr.add(%{
-      "id" => marker1.id,
-      "title" => ["old title"]
-    })
+    Solr.add(
+      %{
+        "id" => marker1.id,
+        "title" => ["old title"]
+      },
+      active_collection()
+    )
 
     # Process that past record.
     indexer = start_indexing_producer()
@@ -77,7 +84,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
     assert_receive {:ack_done}
     indexer |> Broadway.stop(:normal)
     # Ensure there's only one solr document
-    Solr.commit()
+    Solr.commit(active_collection())
     assert Solr.document_count() == 1
     # Ensure that entry has the new title
     doc = Solr.find_by_id(marker1.id)
@@ -99,7 +106,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
     indexer = start_indexing_producer()
     MockFiggyIndexingProducer.process(1)
     assert_receive {:ack_done}
-    Solr.commit()
+    Solr.commit(active_collection())
     # Make sure the first record that comes back is what we expect
     doc = Solr.find_by_id(marker2.id)
     assert doc["title_ss"] == ["test title 2"]

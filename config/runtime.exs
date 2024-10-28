@@ -53,7 +53,7 @@ if config_env() == :prod do
     System.get_env("SOLR_URL") ||
       raise """
       environment variable SOLR_URL is missing.
-      For example: http://localhost:8985/solr/dpulc-dev
+      For example: http://localhost:8985/solr
       """
 
   # Configure Solr connection

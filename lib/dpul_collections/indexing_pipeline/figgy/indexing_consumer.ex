@@ -13,6 +13,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
           | {:producer_module, Module}
           | {:producer_options, any()}
           | {:batch_size, Integer}
+          | {:write_collection, String.t()}
   @spec start_link([start_opts()]) :: Broadway.on_start()
   def start_link(options \\ []) do
     # Need to set cache version here so that the correct cache version is set and to
@@ -29,7 +30,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
     options = Keyword.merge(default, options)
 
     Broadway.start_link(__MODULE__,
-      name: __MODULE__,
+      name: String.to_atom("#{__MODULE__}_#{cache_version}"),
       producer: [
         module: {options[:producer_module], options[:producer_options]}
       ],
@@ -39,7 +40,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
       batchers: [
         default: [batch_size: options[:batch_size]]
       ],
-      context: %{cache_version: options[:cache_version]}
+      context: %{
+        cache_version: options[:cache_version],
+        write_collection: options[:write_collection]
+      }
     )
   end
 
@@ -54,16 +58,16 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
   @impl Broadway
   @spec handle_batch(any(), list(Broadway.Message.t()), any(), any()) ::
           list(Broadway.Message.t())
-  def handle_batch(_batcher, messages, _batch_info, _context) do
+  def handle_batch(_batcher, messages, _batch_info, context) do
     messages
     |> Enum.map(&unwrap/1)
-    |> Solr.add()
+    |> Solr.add(context[:write_collection])
 
     messages
   end
 
-  def start_over! do
-    __MODULE__
+  def start_over!(cache_version) do
+    String.to_atom("#{__MODULE__}_#{cache_version}")
     |> Broadway.producer_names()
     |> Enum.each(&GenServer.cast(&1, :start_over))
   end

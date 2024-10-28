@@ -28,7 +28,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     options = Keyword.merge(default, options)
 
     Broadway.start_link(__MODULE__,
-      name: __MODULE__,
+      name: String.to_atom("#{__MODULE__}_#{cache_version}"),
       producer: [
         module: {options[:producer_module], options[:producer_options]}
       ],
@@ -106,8 +106,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     messages
   end
 
-  def start_over! do
-    __MODULE__
+  def start_over!(cache_version) do
+    String.to_atom("#{__MODULE__}_#{cache_version}")
     |> Broadway.producer_names()
     |> Enum.each(&GenServer.cast(&1, :start_over))
   end

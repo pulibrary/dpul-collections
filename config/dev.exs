@@ -77,8 +77,6 @@ config :dpul_collections, DpulCollectionsWeb.Endpoint,
 # Set environment
 config :dpul_collections, :current_env, :dev
 
-config :dpul_collections, :cache_version, 1
-
 config :dpul_collections, :basic_auth_username, "admin"
 config :dpul_collections, :basic_auth_password, "admin"
 
@@ -107,7 +105,20 @@ config :swoosh, :api_client, false
 
 # Configure Solr connection
 config :dpul_collections, :solr, %{
-  url: System.get_env("SOLR_URL") || "http://localhost:8985/solr/dpulc",
+  url: System.get_env("SOLR_URL") || "http://localhost:8985/solr",
+  read_collection: "dpulc",
   username: System.get_env("SOLR_USERNAME") || "user",
   password: System.get_env("SOLR_PASSWORD") || "pass"
 }
+
+# Configure indexing pipeline writes
+config :dpul_collections, DpulCollections.IndexingPipeline, [
+  [
+    cache_version: 1,
+    write_collection: "dpulc1"
+  ],
+  [
+    cache_version: 2,
+    write_collection: "dpulc2"
+  ]
+]

@@ -4,10 +4,11 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
   alias DpulCollections.Repo
   alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.{IndexingPipeline, Solr}
+  import SolrTestSupport
 
   setup do
-    Solr.delete_all()
-    on_exit(fn -> Solr.delete_all() end)
+    Solr.delete_all(active_collection())
+    on_exit(fn -> Solr.delete_all(active_collection()) end)
   end
 
   def wait_for_index_completion() do
@@ -16,7 +17,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     continue =
       if transformation_cache_entries == ephemera_folder_count do
-        DpulCollections.Solr.commit()
+        DpulCollections.Solr.commit(active_collection())
 
         if DpulCollections.Solr.document_count() == transformation_cache_entries do
           true
@@ -27,7 +28,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
   end
 
   def wait_for_solr_version_change(doc = %{"_version_" => version, "id" => id}) do
-    Solr.commit()
+    Solr.commit(active_collection())
     %{"_version_" => new_version} = Solr.find_by_id(id)
 
     if new_version == version do
@@ -38,11 +39,15 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
   end
 
   test "a full pipeline run of all 3 stages, then re-run of each stage" do
-    # Start the figgy pipeline in a way that mimics how it is started in test and prod
+    # Start the figgy pipeline in a way that mimics how it is started in
+    # dev and prod (slightly simplified)
+    cache_version = 1
+
     children = [
-      {Figgy.IndexingConsumer, cache_version: 1, batch_size: 50},
-      {Figgy.TransformationConsumer, cache_version: 1, batch_size: 50},
-      {Figgy.HydrationConsumer, cache_version: 1, batch_size: 50}
+      {Figgy.IndexingConsumer,
+       cache_version: cache_version, batch_size: 50, write_collection: active_collection()},
+      {Figgy.TransformationConsumer, cache_version: cache_version, batch_size: 50},
+      {Figgy.HydrationConsumer, cache_version: cache_version, batch_size: 50}
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: DpulCollections.TestSupervisor)
@@ -80,7 +85,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     transformation_entry =
       Repo.get_by(Figgy.TransformationCacheEntry, record_id: latest_document["id"])
 
-    Figgy.IndexingConsumer.start_over!()
+    Figgy.IndexingConsumer.start_over!(cache_version)
 
     task =
       Task.async(fn -> wait_for_solr_version_change(latest_document) end)
@@ -105,7 +110,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     hydration_entry = Repo.get_by(Figgy.HydrationCacheEntry, record_id: latest_document["id"])
 
-    Figgy.TransformationConsumer.start_over!()
+    Figgy.TransformationConsumer.start_over!(cache_version)
 
     task =
       Task.async(fn -> wait_for_solr_version_change(latest_document) end)
@@ -128,7 +133,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     latest_document = Solr.latest_document()
     hydration_entry = Repo.get_by(Figgy.HydrationCacheEntry, record_id: latest_document["id"])
 
-    Figgy.HydrationConsumer.start_over!()
+    Figgy.HydrationConsumer.start_over!(cache_version)
 
     task =
       Task.async(fn -> wait_for_solr_version_change(latest_document) end)
