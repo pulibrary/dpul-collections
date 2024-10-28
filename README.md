@@ -30,6 +30,10 @@ We copy fixtures from Figgy's production database into a Docker container so tha
 - `brew install lastpass-cli`
 - `cd figgy-fixture-container && ./build-and-push.sh`
 
+### Solr credentials
+
+Solr cloud doesn't allow use of uploaded config sets without some kind of auth in place. Since we upload config sets to our solr containers in dev and test, they are configured to use basic auth. To log into the UI for either instance you can use the credentials configured on the box (solr:SolrRocks) or the convenience account set up by our lando scripts (user:pass).
+
 ## Solr configs
 
 We have to keep our solr configuration synchronized with the files that get deployed to the centralized infrastructure in pulibrary/pul_solr. There's a rake task in that repo you can use to copy over all the solr configs from this one. The intended workflow is: make changes here, go to a local checkout of pul_solr, run the task, and create a PR. The task looks like:
