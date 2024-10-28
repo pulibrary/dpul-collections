@@ -29,7 +29,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
     options = Keyword.merge(default, options)
 
     Broadway.start_link(__MODULE__,
-      name: __MODULE__,
+      name: String.to_atom("#{__MODULE__}-#{cache_version}"),
       producer: [
         module: {options[:producer_module], options[:producer_options]}
       ],

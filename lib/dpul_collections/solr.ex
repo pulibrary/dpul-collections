@@ -80,39 +80,30 @@ defmodule DpulCollections.Solr do
     end
   end
 
-  @spec add(list(map())) :: {:ok, Req.Response.t()} | {:error, Exception.t()}
-  def add(docs) do
+  @spec add(list(map()), String.t()) :: {:ok, Req.Response.t()} | {:error, Exception.t()}
+  def add(docs, collection) do
     Req.post(
-      update_url(),
+      update_url(collection),
       json: docs
     )
   end
 
-  @spec commit() :: {:ok, Req.Response.t()} | {:error, Exception.t()}
-  def commit() do
+  @spec commit(String.t()) :: {:ok, Req.Response.t()} | {:error, Exception.t()}
+  def commit(collection) do
     Req.get(
-      update_url(),
+      update_url(collection),
       params: [commit: true]
     )
   end
 
-  @spec delete_all() :: {:ok, Req.Response.t()} | {:error, Exception.t()} | Exception.t()
-  def delete_all() do
+  @spec delete_all(String.t()) :: {:ok, Req.Response.t()} | {:error, Exception.t()} | Exception.t()
+  def delete_all(collection) do
     Req.post!(
-      update_url(),
+      update_url(collection),
       json: %{delete: %{query: "*:*"}}
     )
 
-    commit()
-  end
-
-  def client() do
-    url_hash = Application.fetch_env!(:dpul_collections, :solr)
-
-    Req.new(
-      base_url: url_hash[:url],
-      auth: auth(url_hash)
-    )
+    commit(collection)
   end
 
   defp auth(%{username: ""}), do: nil
@@ -122,12 +113,34 @@ defmodule DpulCollections.Solr do
   end
 
   defp select_url do
-    client()
+    client(:read)
     |> Req.merge(url: "/select")
   end
 
-  defp update_url do
-    client()
+  defp update_url(collection) do
+    client(:write, collection)
     |> Req.merge(url: "/update")
+  end
+
+  def client(:read) do
+    url_hash = Application.fetch_env!(:dpul_collections, :solr)
+    url = url_hash[:url]
+          |> Path.join(url_hash[:read_collection])
+
+    Req.new(
+      base_url: url,
+      auth: auth(url_hash)
+    )
+  end
+
+  def client(:write, collection) do
+    url_hash = Application.fetch_env!(:dpul_collections, :solr)
+    url = url_hash[:url]
+          |> Path.join(collection)
+
+    Req.new(
+      base_url: url,
+      auth: auth(url_hash)
+    )
   end
 end

@@ -53,16 +53,29 @@ defmodule DpulCollections.Application do
   end
 
   def indexing_pipeline_children() do
-    cache_version = Application.fetch_env!(:dpul_collections, :cache_version)
-
-    [
-      {DpulCollections.IndexingPipeline.Figgy.IndexingConsumer,
-       cache_version: cache_version, batch_size: 50},
-      {DpulCollections.IndexingPipeline.Figgy.TransformationConsumer,
-       cache_version: cache_version, batch_size: 50},
-      {DpulCollections.IndexingPipeline.Figgy.HydrationConsumer,
-       cache_version: cache_version, batch_size: 50}
-    ]
+    for pipeline <- Application.fetch_env!(:dpul_collections, DpulCollections.IndexingPipeline) do
+      cache_version = pipeline[:cache_version]
+      write_collection = pipeline[:write_collection]
+      [
+        Supervisor.child_spec(
+          {DpulCollections.IndexingPipeline.Figgy.IndexingConsumer,
+            cache_version: cache_version, batch_size: 50, write_collection: write_collection},
+          id: String.to_atom("figgy_indexer_#{cache_version}")
+        ),
+        Supervisor.child_spec(
+          {DpulCollections.IndexingPipeline.Figgy.TransformationConsumer,
+            cache_version: cache_version, batch_size: 50},
+          id: String.to_atom("figgy_transformer_#{cache_version}")
+        ),
+        Supervisor.child_spec(
+          {DpulCollections.IndexingPipeline.Figgy.HydrationConsumer,
+            cache_version: cache_version, batch_size: 50},
+          id: String.to_atom("figgy_hydrator_#{cache_version}")
+        )
+      ]
+    end
+    |> List.flatten()
+    |> IO.inspect
   end
 
   # coveralls-ignore-end

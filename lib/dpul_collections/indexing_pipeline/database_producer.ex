@@ -10,7 +10,11 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
 
   @spec start_link({source_module :: module(), cache_version :: integer()}) :: Broadway.on_start()
   def start_link({source_module, cache_version}) do
-    GenStage.start_link(__MODULE__, {source_module, cache_version})
+    GenStage.start_link(
+      __MODULE__,
+      {source_module, cache_version},
+      [name: String.to_atom("#{__MODULE__}-#{cache_version}")]
+    )
   end
 
   @impl GenStage
