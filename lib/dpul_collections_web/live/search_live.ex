@@ -41,14 +41,32 @@ defmodule DpulCollectionsWeb.SearchLive do
         %Item{id: item["id"], title: item["title_ss"], date: item["display_date_s"]}
       end)
 
+    total_items = solr_response["numFound"]
+
     socket =
       assign(socket,
         search_state: search_state,
+        item_counter: item_counter(search_state, total_items),
         items: items,
-        total_items: solr_response["numFound"]
+        total_items: total_items
       )
 
     {:noreply, socket}
+  end
+
+  defp item_counter(_, 0), do: "No items found"
+
+  defp item_counter(%{page: page, per_page: per_page}, total_items) do
+    first_item = max(page - 1, 0) * per_page + 1
+    last_page? = page * per_page >= total_items
+
+    last_item =
+      cond do
+        last_page? -> total_items
+        true -> first_item + per_page - 1
+      end
+
+    "#{first_item} - #{last_item} of #{total_items}"
   end
 
   def render(assigns) do
@@ -94,6 +112,9 @@ defmodule DpulCollectionsWeb.SearchLive do
           </select>
         </div>
       </form>
+      <div id="item-counter">
+        <span><%= @item_counter %></span>
+      </div>
     </div>
     <div class="grid grid-flow-row auto-rows-max gap-8">
       <.search_item :for={item <- @items} item={item} />
