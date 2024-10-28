@@ -68,13 +68,13 @@ defmodule DpulCollectionsWeb.SearchLive do
     <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
       <form id="search-form" phx-submit="search">
         <div class="grid grid-cols-4">
-          <input class="col-span-3" type="text" name="q" value={@search_state.q} />
-          <button class="col-span-1 font-bold uppercase" type="submit">
+          <input class="col-span-4 md:col-span-3" type="text" name="q" value={@search_state.q} />
+          <button class="col-span-4 md:col-span-1 btn-primary" type="submit">
             Search
           </button>
         </div>
       </form>
-      <div id="date-filter" class="grid grid-cols-8 gap-4">
+      <div id="date-filter" class="grid grid-cols-3 gap-4 md:grid-cols-8 md:gap-4">
         <label class="flex items-center font-bold uppercase" for="sort-by">filter by date: </label>
         <input
           class="col-span-1"
@@ -94,7 +94,8 @@ defmodule DpulCollectionsWeb.SearchLive do
         />
       </div>
       <form id="sort-form" phx-change="sort">
-        <div class="grid grid-cols-8">
+        <div class="grid grid-cols-2 gap-4 md:grid-cols-8 md:gap-4
+        ">
           <label class="col-span-1 flex items-center font-bold uppercase" for="sort-by">
             sort by:
           </label>

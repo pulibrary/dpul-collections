@@ -3,3 +3,8 @@
 @import "tailwindcss/utilities";
 
 /* This file is for your main application CSS */
+@layer components {
+    .btn-primary {
+      @apply font-bold uppercase rounded border bg-slate-700 text-white h-12;
+    }
+  }
