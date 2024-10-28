@@ -54,9 +54,9 @@ config :phoenix_live_view,
 
 # Configure Solr connection
 config :dpul_collections, :solr, %{
-  url: System.get_env("SOLR_URL") || "http://localhost:8984/solr/dpulc-test",
-  username: System.get_env("SOLR_USERNAME"),
-  password: System.get_env("SOLR_PASSWORD")
+  url: System.get_env("SOLR_URL") || "http://localhost:8984/solr/dpulc",
+  username: "solr",
+  password: "SolrRocks"
 }
 
 # Set this poll interval really small so it triggers in test.

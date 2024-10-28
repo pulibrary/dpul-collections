@@ -36,3 +36,4 @@ npm-debug.log
 /assets/node_modules/
 figgy-fixture-container/fixture-exports/*.binary
 figgy-fixture-container/fixture-exports/*.sql
+solr/conf/solr_config.zip

@@ -15,14 +15,26 @@ services:
       # This comes from the base image ENTRYPOINT + CMD
       command: "docker-entrypoint.sh postgres"
   test_solr:
-    type: solr:8
-    portforward: 8984
-    core: dpulc-test
-    config:
-      dir: solr/conf
+    type: lando
+    build_as_root:
+      - apt-get update -y && apt-get install -y zip
+    healthcheck: "curl http://solr:SolrRocks@localhost:8983/solr/admin/info/health"
+    run:
+      - /app/bin/setup_solr.sh
+    services:
+      image: pulibrary/ci-solr:8.4-v1.0.0
+      ports:
+        - "8984:8983"
+      command: bin/solr -cloud -noprompt -f -p 8983
   development_solr:
-    type: solr:8
-    portforward: 8985
-    core: dpulc-dev
-    config:
-      dir: solr/conf
+    type: lando
+    build_as_root:
+      - apt-get update -y && apt-get install -y zip
+    healthcheck: "curl http://solr:SolrRocks@localhost:8983/solr/admin/info/health"
+    run:
+      - /app/bin/setup_solr.sh
+    services:
+      image: pulibrary/ci-solr:8.4-v1.0.0
+      ports:
+        - "8985:8983"
+      command: bin/solr -cloud -noprompt -f -p 8983
