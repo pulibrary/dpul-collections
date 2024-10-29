@@ -128,7 +128,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   def search_item(assigns) do
     ~H"""
     <div class="item">
-      <div class="flex flex-wrap gap-5 max-h-60 overflow-hidden">
+      <div class="flex flex-wrap gap-5 max-h-60 overflow-hidden justify-center md:justify-start">
         <img src="https://picsum.photos/225/225/?random" />
         <img src="https://picsum.photos/225/225/?random" />
         <img src="https://picsum.photos/225/225/?random" />
