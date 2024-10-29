@@ -136,7 +136,7 @@ job "dpulc-staging" {
       driver = "podman"
       config {
         image = "ghcr.io/pulibrary/dpul-collections:${ var.branch_or_sha }"
-        ports = ["http"]
+        ports = ["http", "epmd"]
         force_pull = true
       }
       env {
