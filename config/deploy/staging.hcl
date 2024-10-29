@@ -26,7 +26,7 @@ job "dpulc-staging" {
     service {
       port = "http"
       name = "dpulc-staging-web"
-      tags = ["frontend"]
+      tags = ["frontend", "logging"]
       check {
         type = "http"
         port = "http"
@@ -100,7 +100,7 @@ job "dpulc-staging" {
     }
     service {
       name = "dpulc-staging-web"
-      tags = ["indexer"]
+      tags = ["indexer", "logging"]
       port = "http"
       check {
         type = "http"
