@@ -5,6 +5,8 @@ defmodule DpulCollectionsWeb.DashboardHtmlTest do
     test "requires basic auth", %{conn: conn} do
       no_auth_conn = get(conn, ~p"/dev/dashboard")
       assert no_auth_conn.status == 401
+      no_auth_conn = get(conn, ~p"/dev/mailbox")
+      assert no_auth_conn.status == 401
 
       bad_auth_conn =
         conn
