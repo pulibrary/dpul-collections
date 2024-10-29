@@ -40,6 +40,11 @@ job "dpulc-staging" {
         timeout = "1s"
       }
     }
+    affinity {
+      attribute = "${meta.node_type}"
+      value = "default"
+      weight = 100
+    }
     task "release-migrate" {
       # The dbmigrate task will run BEFORE the puma task in this group.
       lifecycle {
@@ -109,6 +114,11 @@ job "dpulc-staging" {
     network {
       port "http" { to = 4000 }
       port "epmd" { static = 6789 }
+    }
+    affinity {
+      attribute = "${meta.node_type}"
+      value = "worker"
+      weight = 100
     }
     service {
       name = "dpulc-staging-web"
