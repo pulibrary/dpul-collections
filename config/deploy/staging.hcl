@@ -126,6 +126,10 @@ job "dpulc-staging" {
         ports = ["http"]
         force_pull = true
       }
+      env {
+        RELEASE_IP = "${NOMAD_IP_http}"
+        ERL_DIST_PORT = 6789
+      }
       # Save a bunch of CPU and RAM to run indexing.
       resources {
         cores = 6
