@@ -65,6 +65,7 @@ job "dpulc-staging" {
         SECRET_KEY_BASE = {{ .SECRET_KEY_BASE }}
         CACHE_VERSION = ${var.cache_version}
         PHX_HOST = ${var.host}
+        DNS_CLUSTER_QUERY = "dpulc-staging-web.service.consul"
         {{- end -}}
         EOF
       }
@@ -107,6 +108,7 @@ job "dpulc-staging" {
     count = 1
     network {
       port "http" { to = 4000 }
+      port "epmd" { static = 6789 }
     }
     service {
       name = "dpulc-staging-web"
