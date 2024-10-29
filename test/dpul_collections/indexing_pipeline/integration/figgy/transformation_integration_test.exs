@@ -50,9 +50,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
   test "transformation cache entry creation with cache version > 0" do
     {marker1, _marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers()
 
-    transformer = start_transformation_producer(1)
+    cache_version = 1
+    transformer = start_transformation_producer(cache_version)
 
-    MockFiggyTransformationProducer.process(1)
+    MockFiggyTransformationProducer.process(1, cache_version)
     assert_receive {:ack_done}
 
     cache_entry = IndexingPipeline.list_transformation_cache_entries() |> hd

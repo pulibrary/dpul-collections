@@ -11,4 +11,10 @@ defmodule SolrTestSupport do
       }
     end
   end
+
+  # In most tests we can read and write to the same collection,
+  # we'll call it the active collection
+  def active_collection do
+    Application.fetch_env!(:dpul_collections, :solr)[:read_collection]
+  end
 end
