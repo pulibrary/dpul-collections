@@ -13,7 +13,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
     GenStage.start_link(
       __MODULE__,
       {source_module, cache_version},
-      [name: String.to_atom("#{__MODULE__}_#{cache_version}")]
+      name: String.to_atom("#{__MODULE__}_#{cache_version}")
     )
   end
 

@@ -70,10 +70,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
   test "updates existing solr document versions" do
     {marker1, _marker2, _marker3} = FiggyTestFixtures.transformation_cache_markers()
 
-    Solr.add(%{
-      "id" => marker1.id,
-      "title" => ["old title"]
-    },
+    Solr.add(
+      %{
+        "id" => marker1.id,
+        "title" => ["old title"]
+      },
       active_collection()
     )
 

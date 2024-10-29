@@ -42,8 +42,15 @@ defmodule FiggyTestSupport do
     })
 
     # Start the figgy producer
-    {:ok, indexer} = Figgy.IndexingConsumer.start_link(cache_version: cache_version, batch_size: 50, write_collection: SolrTestSupport.active_collection())
-    {:ok, transformer} = Figgy.TransformationConsumer.start_link(cache_version: cache_version, batch_size: 50)
+    {:ok, indexer} =
+      Figgy.IndexingConsumer.start_link(
+        cache_version: cache_version,
+        batch_size: 50,
+        write_collection: SolrTestSupport.active_collection()
+      )
+
+    {:ok, transformer} =
+      Figgy.TransformationConsumer.start_link(cache_version: cache_version, batch_size: 50)
 
     # Control hydration indexing.
     {:ok, hydrator} =

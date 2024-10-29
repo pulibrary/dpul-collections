@@ -42,8 +42,10 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # Start the figgy pipeline in a way that mimics how it is started in
     # dev and prod (slightly simplified)
     cache_version = 1
+
     children = [
-      {Figgy.IndexingConsumer, cache_version: cache_version, batch_size: 50, write_collection: active_collection()},
+      {Figgy.IndexingConsumer,
+       cache_version: cache_version, batch_size: 50, write_collection: active_collection()},
       {Figgy.TransformationConsumer, cache_version: cache_version, batch_size: 50},
       {Figgy.HydrationConsumer, cache_version: cache_version, batch_size: 50}
     ]

@@ -96,7 +96,8 @@ defmodule DpulCollections.Solr do
     )
   end
 
-  @spec delete_all(String.t()) :: {:ok, Req.Response.t()} | {:error, Exception.t()} | Exception.t()
+  @spec delete_all(String.t()) ::
+          {:ok, Req.Response.t()} | {:error, Exception.t()} | Exception.t()
   def delete_all(collection) do
     Req.post!(
       update_url(collection),
@@ -124,8 +125,10 @@ defmodule DpulCollections.Solr do
 
   def client(:read) do
     url_hash = Application.fetch_env!(:dpul_collections, :solr)
-    url = url_hash[:url]
-          |> Path.join(url_hash[:read_collection])
+
+    url =
+      url_hash[:url]
+      |> Path.join(url_hash[:read_collection])
 
     Req.new(
       base_url: url,
@@ -135,8 +138,10 @@ defmodule DpulCollections.Solr do
 
   def client(:write, collection) do
     url_hash = Application.fetch_env!(:dpul_collections, :solr)
-    url = url_hash[:url]
-          |> Path.join(collection)
+
+    url =
+      url_hash[:url]
+      |> Path.join(collection)
 
     Req.new(
       base_url: url,

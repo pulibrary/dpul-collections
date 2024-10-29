@@ -70,7 +70,9 @@ defmodule MockFiggyTransformationProducer do
   def process(demand, cache_version \\ 0) do
     # Get the PID for TestFiggyProducer GenServer,
     # then cast fulfill message to itself
-    Broadway.producer_names(String.to_existing_atom("#{Figgy.TransformationConsumer}_#{cache_version}"))
+    Broadway.producer_names(
+      String.to_existing_atom("#{Figgy.TransformationConsumer}_#{cache_version}")
+    )
     |> hd
     |> GenServer.cast({:fulfill_messages, demand})
   end

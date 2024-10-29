@@ -13,7 +13,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
           | {:producer_module, Module}
           | {:producer_options, any()}
           | {:batch_size, Integer}
-          | {:write_collection, String.t{}}
+          | {:write_collection, String.t()}
   @spec start_link([start_opts()]) :: Broadway.on_start()
   def start_link(options \\ []) do
     # Need to set cache version here so that the correct cache version is set and to
