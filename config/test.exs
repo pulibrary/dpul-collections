@@ -39,6 +39,12 @@ config :dpul_collections, DpulCollections.Mailer, adapter: Swoosh.Adapters.Test
 # Set environment
 config :dpul_collections, :current_env, :test
 
+# Set basic auth
+config :dpul_collections, :basic_auth_username, "admin"
+config :dpul_collections, :basic_auth_password, "test"
+# Enable dev routes for dashboard and mailbox
+config :dpul_collections, dev_routes: true
+
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
 

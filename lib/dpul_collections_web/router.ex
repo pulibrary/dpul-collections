@@ -49,6 +49,7 @@ defmodule DpulCollectionsWeb.Router do
         additional_pages: [
           broadway: BroadwayDashboard
         ]
+
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
   end
