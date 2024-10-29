@@ -74,29 +74,28 @@ defmodule DpulCollectionsWeb.SearchLive do
           </button>
         </div>
       </form>
-      <div id="date-filter" class="grid grid-cols-3 gap-4 md:grid-cols-8 md:gap-4">
-        <label class="flex items-center font-bold uppercase" for="sort-by">filter by date: </label>
-        <input
-          class="col-span-1"
-          type="text"
-          placeholder="From"
-          form="search-form"
-          name="date-from"
-          value={@search_state.date_from}
-        />
-        <input
-          class="col-span-1"
-          type="text"
-          placeholder="To"
-          form="search-form"
-          name="date-to"
-          value={@search_state.date_to}
-        />
-      </div>
-      <form id="sort-form" phx-change="sort">
-        <div class="grid grid-cols-2 gap-4 md:grid-cols-8 md:gap-4
-        ">
-          <label class="col-span-1 flex items-center font-bold uppercase" for="sort-by">
+      <div id="filters" class="grid md:grid-cols-[auto_300px] gap-2">
+        <form id="date-filter" class="grid md:grid-cols-[150px_200px_200px] gap-2">
+          <label class="col-span-1 self-center font-bold uppercase" for="sort-by">filter by date: </label>
+          <input
+            class="col-span-1"
+            type="text"
+            placeholder="From"
+            form="search-form"
+            name="date-from"
+            value={@search_state.date_from}
+          />
+          <input
+            class="col-span-1"
+            type="text"
+            placeholder="To"
+            form="search-form"
+            name="date-to"
+            value={@search_state.date_to}
+          />
+          </form>
+        <form id="sort-form" class="grid md:grid-cols-[auto_200px] gap-2" phx-change="sort">
+          <label class="col-span-1 self-center font-bold uppercase md:text-right" for="sort-by">
             sort by:
           </label>
           <select class="col-span-1" name="sort-by">
@@ -105,8 +104,8 @@ defmodule DpulCollectionsWeb.SearchLive do
               @search_state.sort_by
             ) %>
           </select>
-        </div>
-      </form>
+        </form>
+      </div>
       <div id="item-counter">
         <span><%= @item_counter %></span>
       </div>
