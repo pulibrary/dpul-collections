@@ -91,6 +91,10 @@ if config_env() == :prod do
     config :dpul_collections, :start_indexing_pipeline, false
   end
 
+  # Configure basic auth
+  config :dpul_collections, :basic_auth_username, System.get_env("BASIC_AUTH_USERNAME")
+  config :dpul_collections, :basic_auth_password, System.get_env("BASIC_AUTH_PASSWORD")
+
   config :dpul_collections, DpulCollectionsWeb.Endpoint,
     url: [host: host, port: 443, scheme: "https"],
     http: [
