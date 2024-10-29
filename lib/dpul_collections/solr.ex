@@ -10,11 +10,21 @@ defmodule DpulCollections.Solr do
     response.body["response"]["numFound"]
   end
 
+  @query_field_list [
+    "id",
+    "title_ss",
+    "display_date_s",
+    "page_count_i"
+  ]
+
   @spec query(map()) :: map()
   def query(search_state) do
+    fl = Enum.join(@query_field_list, ",")
+
     solr_params = [
       q: query_param(search_state),
       "q.op": "AND",
+      fl: fl,
       sort: sort_param(search_state),
       rows: search_state[:per_page],
       start: pagination_offset(search_state)
