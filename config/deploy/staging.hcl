@@ -25,7 +25,7 @@ job "dpulc-staging" {
       port "epmd" { static = 6789 }
       # Add the consul DNS loopback, so we can use consul queries.
       dns {
-        servers = ["10.88.0.1", "128.112.129.209", "8.8.8.8", "8.8.4.4"]
+        servers = ["10.88.0.1", "128.112.129.209"]
       }
     }
     service {
