@@ -105,4 +105,9 @@ defmodule DpulCollections.SolrTest do
     assert client.options.base_url == "http://localhost:8983/solr/bla"
     assert client.options.auth == nil
   end
+
+  test "write operations use a default collection if none specified" do
+    {:ok, response} = Solr.commit()
+    assert response.body["responseHeader"]["status"] == 0
+  end
 end

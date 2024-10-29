@@ -81,7 +81,7 @@ defmodule DpulCollections.Solr do
   end
 
   @spec add(list(map()), String.t()) :: {:ok, Req.Response.t()} | {:error, Exception.t()}
-  def add(docs, collection) do
+  def add(docs, collection \\ nil) do
     Req.post(
       update_url(collection),
       json: docs
@@ -89,7 +89,7 @@ defmodule DpulCollections.Solr do
   end
 
   @spec commit(String.t()) :: {:ok, Req.Response.t()} | {:error, Exception.t()}
-  def commit(collection) do
+  def commit(collection \\ nil) do
     Req.get(
       update_url(collection),
       params: [commit: true]
@@ -98,7 +98,7 @@ defmodule DpulCollections.Solr do
 
   @spec delete_all(String.t()) ::
           {:ok, Req.Response.t()} | {:error, Exception.t()} | Exception.t()
-  def delete_all(collection) do
+  def delete_all(collection \\ nil) do
     Req.post!(
       update_url(collection),
       json: %{delete: %{query: "*:*"}}
@@ -116,6 +116,11 @@ defmodule DpulCollections.Solr do
   defp select_url do
     client(:read)
     |> Req.merge(url: "/select")
+  end
+
+  defp update_url(nil) do
+    url_hash = Application.fetch_env!(:dpul_collections, :solr)
+    update_url(url_hash[:read_collection])
   end
 
   defp update_url(collection) do
