@@ -128,7 +128,14 @@ defmodule DpulCollectionsWeb.SearchLive do
   def search_item(assigns) do
     ~H"""
     <div class="item">
-      <.link navigate={@item.url} class="underline text-lg"><%= @item.title %></.link>
+      <div class="flex flex-wrap gap-5 max-h-60 overflow-hidden">
+        <img src="https://picsum.photos/225/225/?random" />
+        <img src="https://picsum.photos/225/225/?random" />
+        <img src="https://picsum.photos/225/225/?random" />
+        <img src="https://picsum.photos/225/225/?random" />
+        <img src="https://picsum.photos/225/225/?random" />
+      </div>
+      <div class="underline text-lg"><%= @item.title %></div>
       <div><%= @item.id %></div>
       <div><%= @item.date %></div>
     </div>
