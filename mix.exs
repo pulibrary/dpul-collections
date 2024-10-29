@@ -72,7 +72,8 @@ defmodule DpulCollections.MixProject do
       {:excoveralls, "~> 0.18", only: :test},
       {:broadway, "~> 1.0"},
       {:ex_doc, "~> 0.21", only: :dev, runtime: false},
-      {:req, "~> 0.5.0"}
+      {:req, "~> 0.5.0"},
+      {:broadway_dashboard, "~> 0.4.0"}
     ]
   end
 
