@@ -129,12 +129,12 @@ defmodule DpulCollectionsWeb.SearchLive do
     ~H"""
     <hr/>
     <div class="item">
-      <div class="flex flex-wrap gap-5 max-h-60 overflow-hidden justify-center md:justify-start">
-        <img src="https://picsum.photos/225/225/?random" />
-        <img src="https://picsum.photos/225/225/?random" />
-        <img src="https://picsum.photos/225/225/?random" />
-        <img src="https://picsum.photos/225/225/?random" />
-        <img src="https://picsum.photos/225/225/?random" />
+      <div class="flex flex-wrap gap-5 md:max-h-60 max-h-[20rem] overflow-hidden justify-center md:justify-start">
+        <img class="h-[350px] w-[350px] md:h-[225px] md:w-[225px]" src="https://picsum.photos/350/350/?random" />
+        <img class="h-[350px] w-[350px] md:h-[225px] md:w-[225px]" src="https://picsum.photos/350/350/?random" />
+        <img class="h-[350px] w-[350px] md:h-[225px] md:w-[225px]" src="https://picsum.photos/350/350/?random" />
+        <img class="h-[350px] w-[350px] md:h-[225px] md:w-[225px]" src="https://picsum.photos/350/350/?random" />
+        <img class="h-[350px] w-[350px] md:h-[225px] md:w-[225px]" src="https://picsum.photos/350/350/?random" />
       </div>
       <div class="underline text-lg"><%= @item.title %></div>
       <div><%= @item.id %></div>
