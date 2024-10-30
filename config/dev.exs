@@ -112,8 +112,7 @@ config :dpul_collections, :solr, %{
 }
 
 # Configure indexing pipeline writes
-config :dpul_collections, DpulCollections.IndexingPipeline,
-[
+config :dpul_collections, DpulCollections.IndexingPipeline, [
   [
     cache_version: 1,
     write_collection: "dpulc1"

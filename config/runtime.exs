@@ -77,7 +77,9 @@ if config_env() == :prod do
          System.get_env("CACHE_VERSION") |> String.to_integer() || 0
 
   index_cache_collections =
-    System.get_env("INDEX_CACHE_COLLECTIONS") |> Jason.decode!(keys: :atoms) |> Enum.map(&Enum.into(&1, [])) ||
+    System.get_env("INDEX_CACHE_COLLECTIONS")
+    |> Jason.decode!(keys: :atoms)
+    |> Enum.map(&Enum.into(&1, [])) ||
       raise """
       environment variable INDEX_CACHE_COLLECTIONS is missing.
       This value must be passed as a json string
