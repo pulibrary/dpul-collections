@@ -78,13 +78,18 @@ if config_env() == :prod do
 
   index_cache_collections =
     System.get_env("INDEX_CACHE_COLLECTIONS")
-    |> Jason.decode!(keys: :atoms)
-    |> Enum.map(&Enum.into(&1, [])) ||
+    |> String.split(";")
+    |> Enum.map(&String.split(&1, ","))
+    |> Enum.map(fn list -> Enum.map(list, &String.split(&1, ":")) end)
+    |> Enum.map(fn list -> Enum.map(list, &List.to_tuple/1) end)
+    |> Enum.map(fn list ->
+      Enum.map(list, fn tuple -> {String.to_atom(elem(tuple, 0)), elem(tuple, 1)} end)
+    end) ||
       raise """
       environment variable INDEX_CACHE_COLLECTIONS is missing.
       This value must be passed as a json string
-      For example: "[{\"cache_version\": 1, \"write_collection\": \"dpulc-staging1\"}]"
-      For example: "[{\"cache_version\": 1, \"write_collection\": \"dpulc-staging1\"}, {\"cache_version\": 2, \"write_collection\": \"dpulc-staging2\"}]"
+      For example: "cache_version:1,write_collection:dpulc-staging"
+      For example: "cache_version:1,write_collection:dpulc-staging1;cache_version:2,write_collection:dpulc-staging2"
       Note: up to 2 collections can be specified. Code is untested beyond 2.
       Note: never add a cache version that's lower in value than the current active cache version
       """
