@@ -49,16 +49,25 @@ if config_env() == :prod do
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
     socket_options: maybe_ipv6
 
-  solr_url =
-    System.get_env("SOLR_URL") ||
+  solr_base_url =
+    System.get_env("SOLR_BASE_URL") ||
       raise """
-      environment variable SOLR_URL is missing.
-      For example: http://localhost:8985/solr
+      environment variable SOLR_BASE_URL is missing.
+      For example: http://localhost:8985
+      """
+
+  solr_read_collection =
+    System.get_env("SOLR_READ_COLLECTION") ||
+      raise """
+      environment variable SOLR_READ_COLLECTION is missing.
+      For example: dpul-collections-prod
+      Note: This must be implemented as an alias
       """
 
   # Configure Solr connection
   config :dpul_collections, :solr, %{
-    url: solr_url,
+    base_url: solr_base_url,
+    read_collection: solr_read_collection,
     username: "",
     password: ""
   }
@@ -66,6 +75,20 @@ if config_env() == :prod do
   config :dpul_collections,
          :cache_version,
          System.get_env("CACHE_VERSION") |> String.to_integer() || 0
+
+  index_cache_collections =
+    System.get_env("INDEX_CACHE_COLLECTIONS") |> Jason.decode!(keys: :atoms) |> Enum.map(&Enum.into(&1, [])) ||
+      raise """
+      environment variable INDEX_CACHE_COLLECTIONS is missing.
+      This value must be passed as a json string
+      For example: "[{\"cache_version\": 1, \"write_collection\": \"dpulc-staging1\"}]"
+      For example: "[{\"cache_version\": 1, \"write_collection\": \"dpulc-staging1\"}, {\"cache_version\": 2, \"write_collection\": \"dpulc-staging2\"}]"
+      Note: up to 2 collections can be specified. Code is untested beyond 2.
+      Note: never add a cache version that's lower in value than the current active cache version
+      """
+
+  # Configure indexing pipeline writes
+  config :dpul_collections, DpulCollections.IndexingPipeline, index_cache_collections
 
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you

@@ -105,14 +105,15 @@ config :swoosh, :api_client, false
 
 # Configure Solr connection
 config :dpul_collections, :solr, %{
-  url: System.get_env("SOLR_URL") || "http://localhost:8985/solr",
+  base_url: System.get_env("SOLR_BASE_URL") || "http://localhost:8985",
   read_collection: "dpulc",
   username: System.get_env("SOLR_USERNAME") || "user",
   password: System.get_env("SOLR_PASSWORD") || "pass"
 }
 
 # Configure indexing pipeline writes
-config :dpul_collections, DpulCollections.IndexingPipeline, [
+config :dpul_collections, DpulCollections.IndexingPipeline,
+[
   [
     cache_version: 1,
     write_collection: "dpulc1"

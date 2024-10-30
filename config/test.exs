@@ -60,8 +60,9 @@ config :phoenix_live_view,
 
 # Configure Solr connection
 config :dpul_collections, :solr, %{
-  url: System.get_env("SOLR_URL") || "http://localhost:8985/solr",
+  base_url: System.get_env("SOLR_BASE_URL") || "http://localhost:8985",
   read_collection: "dpulc",
+
   username: "solr",
   password: "SolrRocks"
 }
