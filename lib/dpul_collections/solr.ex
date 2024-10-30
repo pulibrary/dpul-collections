@@ -132,8 +132,8 @@ defmodule DpulCollections.Solr do
     url_hash = Application.fetch_env!(:dpul_collections, :solr)
 
     url =
-      url_hash[:url]
-      |> Path.join(url_hash[:read_collection])
+      url_hash[:base_url]
+      |> Path.join("solr/#{url_hash[:read_collection]}")
 
     Req.new(
       base_url: url,
@@ -145,8 +145,8 @@ defmodule DpulCollections.Solr do
     url_hash = Application.fetch_env!(:dpul_collections, :solr)
 
     url =
-      url_hash[:url]
-      |> Path.join(collection)
+      url_hash[:base_url]
+      |> Path.join("solr/#{collection}")
 
     Req.new(
       base_url: url,

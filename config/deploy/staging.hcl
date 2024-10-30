@@ -10,6 +10,15 @@ variable "host" {
   type = string
   default = "dpul-collections-staging.lib.princeton.edu"
 }
+variable "solr_read_collection" {
+  type = string
+  default = "dpulc-staging"
+}
+variable "index_cache_collections" {
+  type = string
+  default = "[{\"cache_version\": 1, \"write_collection\": \"dpulc-staging\"}]"
+}
+
 job "dpulc-staging" {
   region = "global"
   datacenters = ["dc1"]
@@ -66,7 +75,9 @@ job "dpulc-staging" {
         {{- with nomadVar "nomad/jobs/dpulc-staging" -}}
         DATABASE_URL = ecto://{{ .DB_USER }}:{{ .DB_PASSWORD }}@{{ .POSTGRES_HOST }}/{{ .DB_NAME }}
         FIGGY_DATABASE_URL = {{ .FIGGY_DATABASE_URL }}
-        SOLR_URL = {{ .SOLR_URL }}
+        SOLR_BASE_URL = {{ .SOLR_BASE_URL }}
+        SOLR_READ_COLLECTION = ${ var.solr_read_collection }
+        INDEX_CACHE_COLLECTIONS = ${var.index_cache_collections}
         SECRET_KEY_BASE = {{ .SECRET_KEY_BASE }}
         CACHE_VERSION = ${var.cache_version}
         PHX_HOST = ${var.host}
@@ -101,7 +112,9 @@ job "dpulc-staging" {
         {{- with nomadVar "nomad/jobs/dpulc-staging" -}}
         DATABASE_URL = ecto://{{ .DB_USER }}:{{ .DB_PASSWORD }}@{{ .POSTGRES_HOST }}/{{ .DB_NAME }}
         FIGGY_DATABASE_URL = {{ .FIGGY_DATABASE_URL }}
-        SOLR_URL = {{ .SOLR_URL }}
+        SOLR_BASE_URL = {{ .SOLR_BASE_URL }}
+        SOLR_READ_COLLECTION = ${ var.solr_read_collection }
+        INDEX_CACHE_COLLECTIONS = ${var.index_cache_collections}
         SECRET_KEY_BASE = {{ .SECRET_KEY_BASE }}
         CACHE_VERSION = ${var.cache_version}
         PHX_HOST = ${var.host}
@@ -160,7 +173,9 @@ job "dpulc-staging" {
         {{- with nomadVar "nomad/jobs/dpulc-staging" -}}
         DATABASE_URL = ecto://{{ .DB_USER }}:{{ .DB_PASSWORD }}@{{ .POSTGRES_HOST }}/{{ .DB_NAME }}
         FIGGY_DATABASE_URL = {{ .FIGGY_DATABASE_URL }}
-        SOLR_URL = {{ .SOLR_URL }}
+        SOLR_BASE_URL = {{ .SOLR_BASE_URL }}
+        SOLR_READ_COLLECTION = ${ var.solr_read_collection }
+        INDEX_CACHE_COLLECTIONS = ${var.index_cache_collections}
         SECRET_KEY_BASE = {{ .SECRET_KEY_BASE }}
         CACHE_VERSION = ${var.cache_version}
         PHX_HOST = ${var.host}
