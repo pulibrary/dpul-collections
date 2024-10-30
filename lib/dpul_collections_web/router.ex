@@ -10,6 +10,16 @@ defmodule DpulCollectionsWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :dashboard_auth do
+    plug :basic_auth
+  end
+
+  defp basic_auth(conn, _opts) do
+    username = Application.fetch_env!(:dpul_collections, :basic_auth_username)
+    password = Application.fetch_env!(:dpul_collections, :basic_auth_password)
+    Plug.BasicAuth.basic_auth(conn, username: username, password: password)
+  end
+
   scope "/", DpulCollectionsWeb do
     pipe_through :browser
 
@@ -32,9 +42,14 @@ defmodule DpulCollectionsWeb.Router do
     import Phoenix.LiveDashboard.Router
 
     scope "/dev" do
-      pipe_through :browser
+      pipe_through [:dashboard_auth, :browser]
 
-      live_dashboard "/dashboard", metrics: DpulCollectionsWeb.Telemetry
+      live_dashboard "/dashboard",
+        metrics: DpulCollectionsWeb.Telemetry,
+        additional_pages: [
+          broadway: BroadwayDashboard
+        ]
+
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
   end

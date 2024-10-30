@@ -11,6 +11,9 @@ config :dpul_collections, DpulCollectionsWeb.Endpoint,
 # Set environment
 config :dpul_collections, :current_env, :prod
 
+# Enable dev routes - including mailbox preview and the dashboard.
+config :dpul_collections, dev_routes: true
+
 # Configures Swoosh API Client
 config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: DpulCollections.Finch
 

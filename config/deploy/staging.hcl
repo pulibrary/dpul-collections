@@ -70,6 +70,8 @@ job "dpulc-staging" {
         SECRET_KEY_BASE = {{ .SECRET_KEY_BASE }}
         CACHE_VERSION = ${var.cache_version}
         PHX_HOST = ${var.host}
+        BASIC_AUTH_USERNAME = {{ .BASIC_AUTH_USERNAME }}
+        BASIC_AUTH_PASSWORD = {{ .BASIC_AUTH_PASSWORD }}
         DNS_CLUSTER_QUERY = "dpulc-staging-web.service.consul"
         {{- end -}}
         EOF
@@ -103,6 +105,8 @@ job "dpulc-staging" {
         SECRET_KEY_BASE = {{ .SECRET_KEY_BASE }}
         CACHE_VERSION = ${var.cache_version}
         PHX_HOST = ${var.host}
+        BASIC_AUTH_USERNAME = {{ .BASIC_AUTH_USERNAME }}
+        BASIC_AUTH_PASSWORD = {{ .BASIC_AUTH_PASSWORD }}
         DNS_CLUSTER_QUERY = "dpulc-staging-web.service.consul"
         {{- end -}}
         EOF
@@ -161,6 +165,8 @@ job "dpulc-staging" {
         CACHE_VERSION = ${var.cache_version}
         PHX_HOST = ${var.host}
         INDEXER = true
+        BASIC_AUTH_USERNAME = {{ .BASIC_AUTH_USERNAME }}
+        BASIC_AUTH_PASSWORD = {{ .BASIC_AUTH_PASSWORD }}
         DNS_CLUSTER_QUERY = "dpulc-staging-web.service.consul"
         {{- end -}}
         EOF
