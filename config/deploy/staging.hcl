@@ -22,6 +22,11 @@ job "dpulc-staging" {
     count = 2
     network {
       port "http" { to = 4000 }
+      port "epmd" { static = 6789 }
+      # Add the consul DNS loopback, so we can use consul queries.
+      dns {
+        servers = ["10.88.0.1", "128.112.129.209"]
+      }
     }
     service {
       port = "http"
@@ -34,6 +39,11 @@ job "dpulc-staging" {
         interval = "10s"
         timeout = "1s"
       }
+    }
+    affinity {
+      attribute = "${meta.node_type}"
+      value = "default"
+      weight = 100
     }
     task "release-migrate" {
       # The dbmigrate task will run BEFORE the puma task in this group.
@@ -60,6 +70,7 @@ job "dpulc-staging" {
         SECRET_KEY_BASE = {{ .SECRET_KEY_BASE }}
         CACHE_VERSION = ${var.cache_version}
         PHX_HOST = ${var.host}
+        DNS_CLUSTER_QUERY = "dpulc-staging-web.service.consul"
         {{- end -}}
         EOF
       }
@@ -68,14 +79,18 @@ job "dpulc-staging" {
       driver = "podman"
       config {
         image = "ghcr.io/pulibrary/dpul-collections:${ var.branch_or_sha }"
-        ports = ["http"]
+        ports = ["http", "epmd"]
         force_pull = true
       }
-      # Doesn't take much just to run a webserver.
       resources {
         cpu    = 2000
         memory = 1000
       }
+      env {
+        RELEASE_IP = "${NOMAD_IP_http}"
+        ERL_DIST_PORT = 6789
+      }
+
       template {
         destination = "${NOMAD_SECRETS_DIR}/env.vars"
         env = true
@@ -88,6 +103,7 @@ job "dpulc-staging" {
         SECRET_KEY_BASE = {{ .SECRET_KEY_BASE }}
         CACHE_VERSION = ${var.cache_version}
         PHX_HOST = ${var.host}
+        DNS_CLUSTER_QUERY = "dpulc-staging-web.service.consul"
         {{- end -}}
         EOF
       }
@@ -97,6 +113,12 @@ job "dpulc-staging" {
     count = 1
     network {
       port "http" { to = 4000 }
+      port "epmd" { static = 6789 }
+    }
+    affinity {
+      attribute = "${meta.node_type}"
+      value = "worker"
+      weight = 100
     }
     service {
       name = "dpulc-staging-web"
@@ -114,8 +136,12 @@ job "dpulc-staging" {
       driver = "podman"
       config {
         image = "ghcr.io/pulibrary/dpul-collections:${ var.branch_or_sha }"
-        ports = ["http"]
+        ports = ["http", "epmd"]
         force_pull = true
+      }
+      env {
+        RELEASE_IP = "${NOMAD_IP_http}"
+        ERL_DIST_PORT = 6789
       }
       # Save a bunch of CPU and RAM to run indexing.
       resources {
@@ -135,6 +161,7 @@ job "dpulc-staging" {
         CACHE_VERSION = ${var.cache_version}
         PHX_HOST = ${var.host}
         INDEXER = true
+        DNS_CLUSTER_QUERY = "dpulc-staging-web.service.consul"
         {{- end -}}
         EOF
       }
