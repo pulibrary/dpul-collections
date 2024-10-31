@@ -136,7 +136,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         <img class="h-[350px] w-[350px] md:h-[225px] md:w-[225px]" src="https://picsum.photos/350/350/?random" />
         <img class="h-[350px] w-[350px] md:h-[225px] md:w-[225px]" src="https://picsum.photos/350/350/?random" />
       </div>
-      <div class="underline text-lg"><%= @item.title %></div>
+      <h2 class="underline text-xl font-bold pt-4"><%= @item.title %></h2>
       <div><%= @item.id %></div>
       <div><%= @item.date %></div>
     </div>
