@@ -60,11 +60,11 @@ For more details about an individual deployment, and to view logs, go to the `jo
 
 ### Restart Indexing Pipeline
 
-The following commands should be run in the shell:
+You need to know the cache version (referenced below as `n`) for the pipeline you're restarting. Cache versions are configured in the dev and test config files, and for staging / prod in the hcl file. The following commands should be run in the shell:
 
-1. Rehydration (full pipeline re-run): `DpulCollections.IndexingPipeline.Figgy.HydrationConsumer.start_over!()`
-1. Retransformation (Transform & Index): `DpulCollections.IndexingPipeline.Figgy.TransformationConsumer.start_over!`
-1. Reindex (Index Only): `DpulCollections.IndexingPipeline.Figgy.IndexingConsumer.start_over!`
+1. Rehydration (full pipeline re-run): `DpulCollections.IndexingPipeline.Figgy.HydrationConsumer.start_over!(n)`
+1. Retransformation (Transform & Index): `DpulCollections.IndexingPipeline.Figgy.TransformationConsumer.start_over!(n)`
+1. Reindex (Index Only): `DpulCollections.IndexingPipeline.Figgy.IndexingConsumer.start_over!(n)`
 
 Note: This will use the same cache_version, overwriting the current solr documents and cached records.
 
