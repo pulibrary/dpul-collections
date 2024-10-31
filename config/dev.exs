@@ -107,6 +107,7 @@ config :swoosh, :api_client, false
 config :dpul_collections, :solr, %{
   base_url: System.get_env("SOLR_BASE_URL") || "http://localhost:8985",
   read_collection: "dpulc",
+  config_set: "dpul-collections",
   username: System.get_env("SOLR_USERNAME") || "user",
   password: System.get_env("SOLR_PASSWORD") || "pass"
 }

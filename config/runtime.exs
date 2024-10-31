@@ -64,10 +64,19 @@ if config_env() == :prod do
       Note: This must be implemented as an alias
       """
 
+  solr_config_set =
+    System.get_env("SOLR_CONFIG_SET") ||
+      raise """
+      environment variable SOLR_CONFIG_SET is missing.
+      For example: dpulc-staging
+      Note: This must be deployed to the solr server via pul_solr
+      """
+
   # Configure Solr connection
   config :dpul_collections, :solr, %{
     base_url: solr_base_url,
     read_collection: solr_read_collection,
+    config_set: solr_config_set,
     username: "",
     password: ""
   }

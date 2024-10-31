@@ -153,4 +153,98 @@ defmodule DpulCollections.Solr do
       auth: auth(url_hash)
     )
   end
+
+  def list_collections do
+    url_hash = Application.fetch_env!(:dpul_collections, :solr)
+
+    url =
+      url_hash[:base_url]
+      |> Path.join("api/collections")
+
+    {:ok, response} =
+      Req.new(
+        base_url: url,
+        auth: auth(url_hash)
+      )
+      |> Req.get()
+
+    response.body["collections"]
+  end
+
+  def collection_exists?(collection) do
+    collection in list_collections()
+  end
+
+  def create_collection(collection) do
+    url_hash = Application.fetch_env!(:dpul_collections, :solr)
+
+    url =
+      url_hash[:base_url]
+      |> Path.join("api/collections")
+
+    Req.new(
+      base_url: url,
+      auth: auth(url_hash)
+    )
+    |> Req.Request.put_header("content-type", "application/json")
+    |> Req.post!(
+      json: %{
+        create: %{
+          name: collection,
+          config: url_hash[:config_set],
+          numShards: 1,
+          waitForFinalState: true
+        }
+      }
+    )
+  end
+
+  def delete_collection(collection) do
+    url_hash = Application.fetch_env!(:dpul_collections, :solr)
+
+    url =
+      url_hash[:base_url]
+      |> Path.join("api/collections/#{collection}")
+
+    Req.new(
+      base_url: url,
+      auth: auth(url_hash)
+    )
+    |> Req.delete!()
+  end
+
+  def get_alias do
+    url_hash = Application.fetch_env!(:dpul_collections, :solr)
+
+    url =
+      url_hash[:base_url]
+      |> Path.join("solr/admin/collections")
+
+    {:ok, response} =
+      Req.new(
+        base_url: url,
+        auth: auth(url_hash),
+        params: [action: "LISTALIASES"]
+      )
+      |> Req.get()
+
+    response.body["aliases"][url_hash[:read_collection]]
+  end
+
+  def set_alias(collection) do
+    url_hash = Application.fetch_env!(:dpul_collections, :solr)
+
+    url =
+      url_hash[:base_url]
+      |> Path.join("api/c")
+
+    Req.new(
+      base_url: url,
+      auth: auth(url_hash)
+    )
+    |> Req.Request.put_header("content-type", "application/json")
+    |> Req.post!(
+      json: %{"create-alias": %{name: url_hash[:read_collection], collections: [collection]}}
+    )
+  end
 end
