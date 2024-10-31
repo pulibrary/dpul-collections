@@ -14,6 +14,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   test "GET /search", %{conn: conn} do
     conn = get(conn, ~p"/search")
     response = html_response(conn, 200)
+    assert response |> has_element?("div")
     assert response =~ "<div class=\"underline text-lg\">Document-1</div>"
     assert response =~ "<div class=\"underline text-lg\">Document-2</div>"
   end
@@ -135,5 +136,10 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     {:ok, view, _html} = live(conn, ~p"/search?q=notavalidsearch")
     assert view |> has_element?("#item-counter", "No items found")
+  end
+
+  test "item link", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/search?q=Document-2")
+    assert view |> has_element?(~s{a[href="/i/document-2/item/2"]})
   end
 end

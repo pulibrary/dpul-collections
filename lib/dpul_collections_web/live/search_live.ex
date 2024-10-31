@@ -33,7 +33,7 @@ defmodule DpulCollectionsWeb.SearchLive do
 
     items =
       solr_response["docs"]
-      |> Enum.map(&Item.from_solr(&1, :search_page))
+      |> Enum.map(&Item.from_solr(&1))
 
     total_items = solr_response["numFound"]
 
@@ -128,7 +128,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   def search_item(assigns) do
     ~H"""
     <div class="item">
-      <.link navigate={~p"/item/#{@item.id}"} class="underline text-lg"><%= @item.title %></.link>
+      <.link navigate={@item.url} class="underline text-lg"><%= @item.title %></.link>
       <div><%= @item.id %></div>
       <div><%= @item.date %></div>
     </div>

@@ -7,33 +7,22 @@ defmodule DpulCollections.Item do
     :date,
     :page_count,
     :language,
-    :slug
+    :url
   ]
 
-  def from_solr(nil, _), do: nil
+  def from_solr(nil), do: nil
 
-  def from_solr(doc, :item_page) do
+  def from_solr(doc) do
     language = doc["detectlang_ss"] |> Enum.at(0)
     title = doc["title_ss"] |> Enum.at(0)
+    id = doc["id"]
 
     %__MODULE__{
-      id: doc["id"],
+      id: id,
       title: title,
       date: doc["display_date_s"],
       page_count: doc["page_count_i"],
-      language: language,
-      slug: generate_slug(title, language)
-    }
-  end
-
-  def from_solr(doc, :search_page) do
-    title = doc["title_ss"] |> Enum.at(0)
-
-    %__MODULE__{
-      id: doc["id"],
-      title: title,
-      date: doc["display_date_s"],
-      page_count: doc["page_count_i"]
+      url: generate_url(id, title, language)
     }
   end
 
@@ -62,7 +51,15 @@ defmodule DpulCollections.Item do
     "tr"
   ]
 
-  defp generate_slug(title, language) when language in @latin_scripts do
+  defp generate_url(id, title, language) when language in @latin_scripts do
+    "/i/#{generate_slug(title)}/item/#{id}"
+  end
+
+  defp generate_url(id, _, _) do
+    "/item/#{id}"
+  end
+
+  defp generate_slug(title) do
     punctuation = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
     regex = "[" <> Regex.escape("-") <> Regex.escape(punctuation) <> "[:space:]]"
     separator = "-"
@@ -75,6 +72,4 @@ defmodule DpulCollections.Item do
     |> Enum.join(separator)
     |> String.downcase()
   end
-
-  defp generate_slug(_, _), do: nil
 end

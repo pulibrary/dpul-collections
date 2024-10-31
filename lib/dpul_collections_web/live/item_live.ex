@@ -3,46 +3,21 @@ defmodule DpulCollectionsWeb.ItemLive do
   alias DpulCollections.{Item, Solr}
 
   def mount(_params, _session, socket) do
-    socket =
-      assign(socket,
-        item: nil
-      )
-
     {:ok, socket}
   end
 
-  def handle_params(%{"slug" => slug, "id" => id}, _uri, socket) do
-    item = Solr.find_by_id(id) |> Item.from_solr(:item_page)
-
-    socket =
-      cond do
-        is_nil(item) ->
-          assign(socket, item: nil)
-
-        is_nil(item.slug) ->
-          push_patch(socket, to: ~p"/item/#{item.id}", replace: true)
-
-        slug != item.slug ->
-          push_patch(socket, to: ~p"/i/#{item.slug}/item/#{item.id}", replace: true)
-
-        true ->
-          assign(socket, item: item)
-      end
-
-    {:noreply, socket}
+  def handle_params(%{"id" => id}, uri, socket) do
+    item = Solr.find_by_id(id) |> Item.from_solr()
+    path = URI.parse(uri).path
+    {:noreply, build_socket(socket, item, path)}
   end
 
-  def handle_params(%{"id" => id}, _uri, socket) do
-    item = Solr.find_by_id(id) |> Item.from_solr(:item_page)
+  defp build_socket(socket, item, path) when item.url != path do
+    push_patch(socket, to: item.url, replace: true)
+  end
 
-    socket =
-      cond do
-        is_nil(item) -> assign(socket, item: nil)
-        is_nil(item.slug) -> assign(socket, item: item)
-        true -> push_patch(socket, to: ~p"/i/#{item.slug}/item/#{item.id}", replace: true)
-      end
-
-    {:noreply, socket}
+  defp build_socket(socket, item, _) do
+    assign(socket, item: item)
   end
 
   # Render a message if no item was found in Solr.
