@@ -133,7 +133,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     <hr />
     <div class="item">
       <div class="flex flex-wrap gap-5 md:max-h-60 max-h-[20rem] overflow-hidden justify-center md:justify-start relative">
-        <.thumbs :if={@item.page_count} :for={_thumb <- 1..@item.page_count} />
+        <.thumbs :for={_thumb <- 1..@item.page_count} :if={@item.page_count} />
         <div :if={@item.page_count > 1} class="absolute right-0 top-0 bg-white px-4 py-2">
           <%= @item.page_count %> Pages
         </div>
