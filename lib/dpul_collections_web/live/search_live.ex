@@ -30,6 +30,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   def handle_params(params, _uri, socket) do
     search_state = SearchState.from_params(params)
     solr_response = Solr.query(search_state)
+
     items =
       solr_response["docs"]
       |> Enum.map(&Item.from_solr(&1))
@@ -132,8 +133,10 @@ defmodule DpulCollectionsWeb.SearchLive do
     <hr />
     <div class="item">
       <div class="flex flex-wrap gap-5 md:max-h-60 max-h-[20rem] overflow-hidden justify-center md:justify-start relative">
-        <.thumbs :for={thumb <- 1..@item.page_count} />
-        <div :if={@item.page_count > 1} class="absolute right-0 top-0 bg-white px-4 py-2"><%= @item.page_count %> Pages</div>
+        <.thumbs :if={@item.page_count} :for={_thumb <- 1..@item.page_count} />
+        <div :if={@item.page_count > 1} class="absolute right-0 top-0 bg-white px-4 py-2">
+          <%= @item.page_count %> Pages
+        </div>
       </div>
       <h2 class="underline text-xl font-bold pt-4"><%= @item.title %></h2>
       <div><%= @item.id %></div>
@@ -142,14 +145,14 @@ defmodule DpulCollectionsWeb.SearchLive do
     """
   end
 
-  def thumbs(assigns) do 
+  def thumbs(assigns) do
     ~H"""
-        <img
-          class="h-[350px] w-[350px] md:h-[225px] md:w-[225px]"
-          src="https://picsum.photos/350/350/?random"
-        />
+    <img
+      class="h-[350px] w-[350px] md:h-[225px] md:w-[225px]"
+      src="https://picsum.photos/350/350/?random"
+    />
     """
-  end 
+  end
 
   def paginator(assigns) do
     ~H"""
