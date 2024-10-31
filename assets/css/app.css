@@ -7,4 +7,8 @@
     .btn-primary {
       @apply font-bold uppercase rounded border bg-slate-700 text-white h-12;
     }
+
+    .active {
+      @apply text-blue-600 border bg-blue-50 hover:bg-blue-100 hover:text-blue-700;
+    }
   }

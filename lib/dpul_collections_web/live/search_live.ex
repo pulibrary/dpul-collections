@@ -162,13 +162,48 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def paginator(assigns) do
     ~H"""
-    <div class="paginator">
-      <.link :if={@page > 1} id="paginator-previous" phx-click="paginate" phx-value-page={@page - 1}>
-        Previous
+    <nav aria-label="Search Results Page Navigation" class="paginator inline-flex -space-x-px text-sm">
+      <.link
+        :if={@page > 1}
+        id="paginator-previous"
+        class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+        phx-click="paginate"
+        phx-value-page={@page - 1}
+      >
+        <span class="sr-only">Previous</span>
+        <svg
+          class="w-2.5 h-2.5 rtl:rotate-180"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 6 10"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M5 1 1 5l4 4"
+          />
+        </svg>
       </.link>
       <.link
         :for={{page_number, current_page?} <- pages(@page, @per_page, @total_items)}
-        class={if current_page?, do: "active"}
+        class={"
+          flex 
+          items-center 
+          justify-center 
+          px-3 
+          h-8 
+          leading-tight 
+          #{if current_page?, do: "active", else: "
+              border-gray-300 
+              text-gray-500 
+              bg-white border 
+              hover:bg-gray-100 
+              hover:text-gray-700 
+            "}
+        "}
         phx-click="paginate"
         phx-value-page={page_number}
       >
@@ -177,12 +212,28 @@ defmodule DpulCollectionsWeb.SearchLive do
       <.link
         :if={more_pages?(@page, @per_page, @total_items)}
         id="paginator-next"
+        class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
         phx-click="paginate"
         phx-value-page={@page + 1}
       >
-        Next
+        <span class="sr-only">Next</span>
+        <svg
+          class="w-2.5 h-2.5 rtl:rotate-180"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 6 10"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="m1 9 4-4-4-4"
+          />
+        </svg>
       </.link>
-    </div>
+    </nav>
     """
   end
 

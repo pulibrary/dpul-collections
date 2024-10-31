@@ -13,6 +13,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
   test "GET /search", %{conn: conn} do
     conn = get(conn, ~p"/search")
+<<<<<<< HEAD
 
     document =
       html_response(conn, 200)
@@ -26,10 +27,16 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert document
            |> Floki.find(~s{a[href="/i/document-2/item/2"]})
            |> Enum.any?()
+=======
+    response = html_response(conn, 200)
+    assert response =~ "<h2 class=\"underline text-xl font-bold pt-4\">Document-1</h2>"
+    assert response =~ "<h2 class=\"underline text-xl font-bold pt-4\">Document-2</h2>"
+>>>>>>> 7d6c37c (fixes pagination styles and test failures)
   end
 
   test "GET /search with blank q parameter", %{conn: conn} do
     conn = get(conn, ~p"/search?q=")
+<<<<<<< HEAD
 
     document =
       html_response(conn, 200) |> Floki.parse_document() |> elem(1)
@@ -41,6 +48,11 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert document
            |> Floki.find(~s{a[href="/i/document-2/item/2"]})
            |> Enum.any?()
+=======
+    response = html_response(conn, 200)
+    assert response =~ "<h2 class=\"underline text-xl font-bold pt-4\">Document-1</h2>"
+    assert response =~ "<h2 class=\"underline text-xl font-bold pt-4\">Document-2</h2>"
+>>>>>>> 7d6c37c (fixes pagination styles and test failures)
   end
 
   test "searching filters results", %{conn: conn} do
@@ -53,6 +65,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       |> Floki.parse_document()
       |> elem(1)
 
+<<<<<<< HEAD
     assert document
            |> Floki.find(~s{a[href="/i/document-2/item/2"]})
            |> Enum.any?()
@@ -60,11 +73,16 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert document
            |> Floki.find(~s{a[href="/i/document-1/item/1"]})
            |> Enum.empty?()
+=======
+    assert response =~ "<h2 class=\"underline text-xl font-bold pt-4\">Document-2</h2>"
+    assert !(response =~ "<h2 class=\"underline text-xl font-bold pt-4\">Document-1</h2>")
+>>>>>>> 7d6c37c (fixes pagination styles and test failures)
   end
 
   test "items can be sorted by date, ascending and descending", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/search")
 
+<<<<<<< HEAD
     document =
       view
       |> render_click("sort", %{"sort-by" => "date_asc"})
@@ -92,6 +110,15 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert document
            |> Floki.find(~s{a[href="/i/document-100/item/100"]})
            |> Enum.empty?()
+=======
+    response = render_click(view, "sort", %{"sort-by" => "date_asc"})
+    assert response =~ "<h2 class=\"underline text-xl font-bold pt-4\">Document-100</h2>"
+    assert !(response =~ "<h2 class=\"underline text-xl font-bold pt-4\">Document-1</h2>")
+
+    response = render_click(view, "sort", %{"sort-by" => "date_desc"})
+    assert response =~ "<h2 class=\"underline text-xl font-bold pt-4\">Document-1</h2>"
+    assert !(response =~ "<h2 class=\"underline text-xl font-bold pt-4\">Document-100</h2>")
+>>>>>>> 7d6c37c (fixes pagination styles and test failures)
   end
 
   test "items can be filtered by date range", %{conn: conn} do
@@ -104,6 +131,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       |> Floki.parse_document()
       |> elem(1)
 
+<<<<<<< HEAD
     assert document
            |> Floki.find(~s{a[href="/i/document-99/item/99"]})
            |> Enum.any?()
@@ -115,6 +143,11 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert document
            |> Floki.find(~s{a[href="/i/document-98/item/98"]})
            |> Enum.empty?()
+=======
+    assert !(response =~ "<h2 class=\"underline text-xl font-bold pt-4\">Document-98</h2>")
+    assert response =~ "<h2 class=\"underline text-xl font-bold pt-4\">Document-99</h2>"
+    assert response =~ "<h2 class=\"underline text-xl font-bold pt-4\">Document-100</h2>"
+>>>>>>> 7d6c37c (fixes pagination styles and test failures)
   end
 
   test "paginator works as expected", %{conn: conn} do
@@ -129,6 +162,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     assert view
            |> element("#paginator-previous")
+<<<<<<< HEAD
            |> render_click()
            |> Floki.parse_document()
            |> elem(1)
@@ -142,6 +176,13 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> elem(1)
            |> Floki.find(~s{a[href="/i/document-50/item/50"]})
            |> Enum.any?()
+=======
+           |> render_click() =~ "<h2 class=\"underline text-xl font-bold pt-4\">Document-40</h2>"
+
+    assert view
+           |> element("#paginator-next")
+           |> render_click() =~ "<h2 class=\"underline text-xl font-bold pt-4\">Document-50</h2>"
+>>>>>>> 7d6c37c (fixes pagination styles and test failures)
 
     # Check that the next link is hidden on the last page
     {:ok, view, _html} = live(conn, ~p"/search?page=10")
@@ -152,11 +193,15 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     # does not change the rendered page
     assert view
            |> element("a", "...")
+<<<<<<< HEAD
            |> render_click()
            |> Floki.parse_document()
            |> elem(1)
            |> Floki.find(~s{a[href="/i/document-100/item/100"]})
            |> Enum.any?()
+=======
+           |> render_click() =~ "<h2 class=\"underline text-xl font-bold pt-4\">Document-100</h2>"
+>>>>>>> 7d6c37c (fixes pagination styles and test failures)
 
     # Check that changing the sort order resets the paginator
     {:ok, view, _html} = live(conn, ~p"/search?page=10")
