@@ -77,7 +77,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       <div id="filters" class="grid md:grid-cols-[auto_300px] gap-2">
         <form id="date-filter" class="grid md:grid-cols-[150px_200px_200px] gap-2">
           <label class="col-span-1 self-center font-bold uppercase" for="sort-by">
-            filter by date: 
+            filter by date:
           </label>
           <input
             class="col-span-1"
