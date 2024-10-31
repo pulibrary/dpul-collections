@@ -76,7 +76,9 @@ defmodule DpulCollectionsWeb.SearchLive do
       </form>
       <div id="filters" class="grid md:grid-cols-[auto_300px] gap-2">
         <form id="date-filter" class="grid md:grid-cols-[150px_200px_200px] gap-2">
-          <label class="col-span-1 self-center font-bold uppercase" for="sort-by">filter by date: </label>
+          <label class="col-span-1 self-center font-bold uppercase" for="sort-by">
+            filter by date: 
+          </label>
           <input
             class="col-span-1"
             type="text"
@@ -93,7 +95,7 @@ defmodule DpulCollectionsWeb.SearchLive do
             name="date-to"
             value={@search_state.date_to}
           />
-          </form>
+        </form>
         <form id="sort-form" class="grid md:grid-cols-[auto_200px] gap-2" phx-change="sort">
           <label class="col-span-1 self-center font-bold uppercase md:text-right" for="sort-by">
             sort by:
@@ -127,14 +129,29 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def search_item(assigns) do
     ~H"""
-    <hr/>
+    <hr />
     <div class="item">
       <div class="flex flex-wrap gap-5 md:max-h-60 max-h-[20rem] overflow-hidden justify-center md:justify-start">
-        <img class="h-[350px] w-[350px] md:h-[225px] md:w-[225px]" src="https://picsum.photos/350/350/?random" />
-        <img class="h-[350px] w-[350px] md:h-[225px] md:w-[225px]" src="https://picsum.photos/350/350/?random" />
-        <img class="h-[350px] w-[350px] md:h-[225px] md:w-[225px]" src="https://picsum.photos/350/350/?random" />
-        <img class="h-[350px] w-[350px] md:h-[225px] md:w-[225px]" src="https://picsum.photos/350/350/?random" />
-        <img class="h-[350px] w-[350px] md:h-[225px] md:w-[225px]" src="https://picsum.photos/350/350/?random" />
+        <img
+          class="h-[350px] w-[350px] md:h-[225px] md:w-[225px]"
+          src="https://picsum.photos/350/350/?random"
+        />
+        <img
+          class="h-[350px] w-[350px] md:h-[225px] md:w-[225px]"
+          src="https://picsum.photos/350/350/?random"
+        />
+        <img
+          class="h-[350px] w-[350px] md:h-[225px] md:w-[225px]"
+          src="https://picsum.photos/350/350/?random"
+        />
+        <img
+          class="h-[350px] w-[350px] md:h-[225px] md:w-[225px]"
+          src="https://picsum.photos/350/350/?random"
+        />
+        <img
+          class="h-[350px] w-[350px] md:h-[225px] md:w-[225px]"
+          src="https://picsum.photos/350/350/?random"
+        />
       </div>
       <h2 class="underline text-xl font-bold pt-4"><%= @item.title %></h2>
       <div><%= @item.id %></div>
