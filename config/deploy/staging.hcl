@@ -82,6 +82,7 @@ job "dpulc-staging" {
         SOLR_BASE_URL = {{ .SOLR_BASE_URL }}
         SOLR_READ_COLLECTION = ${ var.solr_read_collection }
         INDEX_CACHE_COLLECTIONS = ${var.index_cache_collections}
+        SOLR_CONFIG_SET = ${ var.solr_config_set }
         SECRET_KEY_BASE = {{ .SECRET_KEY_BASE }}
         CACHE_VERSION = ${var.cache_version}
         PHX_HOST = ${var.host}
@@ -119,6 +120,7 @@ job "dpulc-staging" {
         SOLR_BASE_URL = {{ .SOLR_BASE_URL }}
         SOLR_READ_COLLECTION = ${ var.solr_read_collection }
         INDEX_CACHE_COLLECTIONS = ${var.index_cache_collections}
+        SOLR_CONFIG_SET = ${ var.solr_config_set }
         SECRET_KEY_BASE = {{ .SECRET_KEY_BASE }}
         CACHE_VERSION = ${var.cache_version}
         PHX_HOST = ${var.host}
@@ -180,6 +182,7 @@ job "dpulc-staging" {
         SOLR_BASE_URL = {{ .SOLR_BASE_URL }}
         SOLR_READ_COLLECTION = ${ var.solr_read_collection }
         INDEX_CACHE_COLLECTIONS = ${var.index_cache_collections}
+        SOLR_CONFIG_SET = ${ var.solr_config_set }
         SECRET_KEY_BASE = {{ .SECRET_KEY_BASE }}
         CACHE_VERSION = ${var.cache_version}
         PHX_HOST = ${var.host}
