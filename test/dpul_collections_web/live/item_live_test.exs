@@ -12,7 +12,8 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       [
         %{
           id: 1,
-          title_txtm: "Învăţămîntul trebuie să urmărească dezvoltarea deplină a personalităţii"
+          title_txtm: "Învăţămîntul trebuie să urmărească dezvoltarea deplină a personalităţii",
+          page_count_i: 1
         },
         %{
           id: 2,
