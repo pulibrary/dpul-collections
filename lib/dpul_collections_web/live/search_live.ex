@@ -1,11 +1,7 @@
 defmodule DpulCollectionsWeb.SearchLive do
   use DpulCollectionsWeb, :live_view
-  alias DpulCollections.Solr
+  alias DpulCollections.{Item, Solr}
   alias DpulCollectionsWeb.Live.Helpers
-
-  defmodule Item do
-    defstruct [:id, :title, :date]
-  end
 
   defmodule SearchState do
     def from_params(params) do
@@ -37,9 +33,7 @@ defmodule DpulCollectionsWeb.SearchLive do
 
     items =
       solr_response["docs"]
-      |> Enum.map(fn item ->
-        %Item{id: item["id"], title: item["title_ss"], date: item["display_date_s"]}
-      end)
+      |> Enum.map(&Item.from_solr(&1))
 
     total_items = solr_response["numFound"]
 
@@ -134,7 +128,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   def search_item(assigns) do
     ~H"""
     <div class="item">
-      <div class="underline text-lg"><%= @item.title %></div>
+      <.link navigate={@item.url} class="underline text-lg"><%= @item.title %></.link>
       <div><%= @item.id %></div>
       <div><%= @item.date %></div>
     </div>

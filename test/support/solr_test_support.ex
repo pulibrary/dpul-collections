@@ -2,12 +2,14 @@ defmodule SolrTestSupport do
   def mock_solr_documents(count \\ 100) do
     for n <- 1..count do
       date = 2025 - n
+      page_count = Enum.random(1..10)
 
       %{
         id: n,
         title_txtm: "Document-#{n}",
         display_date_s: date |> Integer.to_string(),
-        years_is: [date]
+        years_is: [date],
+        page_count_i: page_count
       }
     end
   end
