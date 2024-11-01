@@ -18,8 +18,8 @@ defmodule DpulCollectionsWeb.HomeLive do
     <div class="grid grid-flow-row auto-rows-max gap-10">
       <form phx-submit="search">
         <div class="grid grid-cols-4">
-          <input class="col-span-3" type="text" name="q" value={@q} />
-          <button class="col-span-1" type="submit">
+          <input class="col-span-4 md:col-span-3" type="text" name="q" value={@q} />
+          <button class="col-span-4 md:col-span-1 btn-primary" type="submit">
             Search
           </button>
         </div>

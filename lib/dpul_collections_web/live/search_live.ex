@@ -65,37 +65,40 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def render(assigns) do
     ~H"""
+    <h2 class="sr-only">Search Results</h2>
     <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
       <form id="search-form" phx-submit="search">
         <div class="grid grid-cols-4">
-          <input class="col-span-3" type="text" name="q" value={@search_state.q} />
-          <button class="col-span-1 font-bold uppercase" type="submit">
+          <input class="col-span-4 md:col-span-3" type="text" name="q" value={@search_state.q} />
+          <button class="col-span-4 md:col-span-1 btn-primary" type="submit">
             Search
           </button>
         </div>
       </form>
-      <div id="date-filter" class="grid grid-cols-8 gap-4">
-        <label class="flex items-center font-bold uppercase" for="sort-by">filter by date: </label>
-        <input
-          class="col-span-1"
-          type="text"
-          placeholder="From"
-          form="search-form"
-          name="date-from"
-          value={@search_state.date_from}
-        />
-        <input
-          class="col-span-1"
-          type="text"
-          placeholder="To"
-          form="search-form"
-          name="date-to"
-          value={@search_state.date_to}
-        />
-      </div>
-      <form id="sort-form" phx-change="sort">
-        <div class="grid grid-cols-8">
-          <label class="col-span-1 flex items-center font-bold uppercase" for="sort-by">
+      <div id="filters" class="grid md:grid-cols-[auto_300px] gap-2">
+        <form id="date-filter" class="grid md:grid-cols-[150px_200px_200px] gap-2">
+          <label class="col-span-1 self-center font-bold uppercase" for="sort-by">
+            filter by date:
+          </label>
+          <input
+            class="col-span-1"
+            type="text"
+            placeholder="From"
+            form="search-form"
+            name="date-from"
+            value={@search_state.date_from}
+          />
+          <input
+            class="col-span-1"
+            type="text"
+            placeholder="To"
+            form="search-form"
+            name="date-to"
+            value={@search_state.date_to}
+          />
+        </form>
+        <form id="sort-form" class="grid md:grid-cols-[auto_200px] gap-2" phx-change="sort">
+          <label class="col-span-1 self-center font-bold uppercase md:text-right" for="sort-by">
             sort by:
           </label>
           <select class="col-span-1" name="sort-by">
@@ -104,8 +107,8 @@ defmodule DpulCollectionsWeb.SearchLive do
               @search_state.sort_by
             ) %>
           </select>
-        </div>
-      </form>
+        </form>
+      </div>
       <div id="item-counter">
         <span><%= @item_counter %></span>
       </div>
@@ -127,23 +130,76 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def search_item(assigns) do
     ~H"""
+    <hr />
     <div class="item">
-      <.link navigate={@item.url} class="underline text-lg"><%= @item.title %></.link>
+      <div class="flex flex-wrap gap-5 md:max-h-60 max-h-[20rem] overflow-hidden justify-center md:justify-start relative">
+        <.thumbs :for={_thumb <- 1..@item.page_count} :if={@item.page_count} />
+        <div :if={@item.page_count > 1} class="absolute right-0 top-0 bg-white px-4 py-2">
+          <%= @item.page_count %> Pages
+        </div>
+      </div>
+      <h2 class="underline text-xl font-bold pt-4">
+        <.link navigate={@item.url} class="underline text-lg"><%= @item.title %></.link>
+      </h2>
       <div><%= @item.id %></div>
       <div><%= @item.date %></div>
     </div>
     """
   end
 
+  def thumbs(assigns) do
+    ~H"""
+    <img
+      class="h-[350px] w-[350px] md:h-[225px] md:w-[225px]"
+      src="https://picsum.photos/350/350/?random"
+    />
+    """
+  end
+
   def paginator(assigns) do
     ~H"""
-    <div class="paginator">
-      <.link :if={@page > 1} id="paginator-previous" phx-click="paginate" phx-value-page={@page - 1}>
-        Previous
+    <nav aria-label="Search Results Page Navigation" class="paginator inline-flex -space-x-px text-sm">
+      <.link
+        :if={@page > 1}
+        id="paginator-previous"
+        class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+        phx-click="paginate"
+        phx-value-page={@page - 1}
+      >
+        <span class="sr-only">Previous</span>
+        <svg
+          class="w-2.5 h-2.5 rtl:rotate-180"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 6 10"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M5 1 1 5l4 4"
+          />
+        </svg>
       </.link>
       <.link
         :for={{page_number, current_page?} <- pages(@page, @per_page, @total_items)}
-        class={if current_page?, do: "active"}
+        class={"
+          flex 
+          items-center 
+          justify-center 
+          px-3 
+          h-8 
+          leading-tight 
+          #{if current_page?, do: "active", else: "
+              border-gray-300 
+              text-gray-500 
+              bg-white border 
+              hover:bg-gray-100 
+              hover:text-gray-700 
+            "}
+        "}
         phx-click="paginate"
         phx-value-page={page_number}
       >
@@ -152,12 +208,28 @@ defmodule DpulCollectionsWeb.SearchLive do
       <.link
         :if={more_pages?(@page, @per_page, @total_items)}
         id="paginator-next"
+        class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
         phx-click="paginate"
         phx-value-page={@page + 1}
       >
-        Next
+        <span class="sr-only">Next</span>
+        <svg
+          class="w-2.5 h-2.5 rtl:rotate-180"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 6 10"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="m1 9 4-4-4-4"
+          />
+        </svg>
       </.link>
-    </div>
+    </nav>
     """
   end
 
