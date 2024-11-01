@@ -117,9 +117,5 @@ config :dpul_collections, DpulCollections.IndexingPipeline, [
   [
     cache_version: 1,
     write_collection: "dpulc1"
-  ],
-  [
-    cache_version: 2,
-    write_collection: "dpulc2"
   ]
 ]
