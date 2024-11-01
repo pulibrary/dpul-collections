@@ -2,6 +2,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   @moduledoc """
   Broadway consumer that demands Figgy records and caches them in the database.
   """
+  alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline.DatabaseProducer
@@ -36,7 +37,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         default: []
       ],
       batchers: [
-        default: [batch_size: options[:batch_size]]
+        default: [batch_size: options[:batch_size]],
+        noop: [batch_size: options[:batch_size]]
       ],
       context: %{cache_version: options[:cache_version]}
     )
@@ -44,21 +46,58 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
   @impl Broadway
   # pass through messages and write to cache in batcher to avoid race condition
-  def handle_message(_processor, message, %{cache_version: _cache_version}) do
+  def handle_message(
+        _processor,
+        message = %Broadway.Message{
+          data: %{
+            internal_resource: internal_resource,
+            metadata: %{"state" => state, "visibility" => visibility}
+          }
+        },
+        %{cache_version: _cache_version}
+      )
+      when internal_resource in ["EphemeraFolder"] and state == ["complete"] and
+             visibility == ["open"] do
+    marker = CacheEntryMarker.from(message)
+
     message
+    |> Broadway.Message.put_data(%{
+      marker: marker,
+      incoming_message_data: message.data,
+      handled_data: message.data |> Map.from_struct() |> Map.delete(:__meta__)
+    })
+  end
+
+  def handle_message(
+        _processor,
+        message = %Broadway.Message{
+          data: %{
+            internal_resource: internal_resource
+          }
+        },
+        %{cache_version: _cache_version}
+      )
+      when internal_resource in ["EphemeraTerm"] do
+    marker = CacheEntryMarker.from(message)
+
+    message
+    |> Broadway.Message.put_data(%{
+      marker: marker,
+      incoming_message_data: message.data,
+      handled_data: message.data |> Map.from_struct() |> Map.delete(:__meta__)
+    })
+  end
+
+  # If it's not selected above, ack the message but don't do anything with it.
+  def handle_message(_processor, message, _state) do
+    message
+    |> Broadway.Message.put_batcher(:noop)
   end
 
   defp write_to_hydration_cache(
-         message = %Broadway.Message{
-           data: %{
-             internal_resource: internal_resource,
-             metadata: %{"state" => state, "visibility" => visibility}
-           }
-         },
+         %Broadway.Message{data: %{marker: marker, handled_data: data}},
          cache_version
-       )
-       when internal_resource in ["EphemeraFolder"] and state == ["complete"] and
-              visibility == ["open"] do
+       ) do
     # store in HydrationCache:
     # - data (blob) - this is the record
     # - cache_order (datetime) - this is our own new timestamp for this table
@@ -68,41 +107,21 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     {:ok, response} =
       IndexingPipeline.write_hydration_cache_entry(%{
         cache_version: cache_version,
-        record_id: message.data.id,
-        source_cache_order: message.data.updated_at,
-        data: message.data |> Map.from_struct() |> Map.delete(:__meta__)
+        record_id: marker.id,
+        source_cache_order: marker.timestamp,
+        data: data
       })
 
     {:ok, response}
   end
-
-  defp write_to_hydration_cache(
-         message = %Broadway.Message{data: %{internal_resource: internal_resource}},
-         cache_version
-       )
-       when internal_resource in ["EphemeraTerm"] do
-    # store in HydrationCache:
-    # - data (blob) - this is the record
-    # - cache_order (datetime) - this is our own new timestamp for this table
-    # - cache_version (this only changes manually, we have to hold onto it as state)
-    # - record_id (varchar) - the figgy UUID
-    # - source_cache_order (datetime) - the figgy updated_at
-    {:ok, response} =
-      IndexingPipeline.write_hydration_cache_entry(%{
-        cache_version: cache_version,
-        record_id: message.data.id,
-        source_cache_order: message.data.updated_at,
-        data: message.data |> Map.from_struct() |> Map.delete(:__meta__)
-      })
-
-    {:ok, response}
-  end
-
-  defp write_to_hydration_cache(_, _), do: {:ok, nil}
 
   @impl Broadway
-  def handle_batch(_batcher, messages, _batch_info, %{cache_version: cache_version}) do
+  def handle_batch(:default, messages, _batch_info, %{cache_version: cache_version}) do
     Enum.each(messages, &write_to_hydration_cache(&1, cache_version))
+    messages
+  end
+
+  def handle_batch(:noop, messages, _batch_info, _state) do
     messages
   end
 

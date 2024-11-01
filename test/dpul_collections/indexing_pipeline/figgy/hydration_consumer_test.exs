@@ -62,21 +62,18 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         }
       }
 
-      Figgy.HydrationConsumer.handle_batch(
-        nil,
+      transformed_messages =
         [
           ephemera_folder_message,
           pending_ephemera_folder_message,
           restricted_ephemera_folder_message,
           ephemera_term_message,
           scanned_resource_message
-        ],
-        nil,
-        %{cache_version: 0}
-      )
+        ]
+        |> Enum.map(&Figgy.HydrationConsumer.handle_message(nil, &1, %{cache_version: 1}))
+        |> Enum.map(&Map.get(&1, :batcher))
 
-      entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
-      assert entry_count == 2
+      assert transformed_messages == [:default, :noop, :noop, :default, :noop]
     end
   end
 end
