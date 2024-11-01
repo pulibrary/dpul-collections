@@ -39,9 +39,15 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker do
   end
 
   @spec from(%Broadway.Message{}) :: t()
+  def from(%Broadway.Message{data: %{marker: marker}}) do
+    marker
+  end
+
   def from(%Broadway.Message{data: data}) do
     from(data)
   end
+
+  def from(marker = %__MODULE__{}), do: marker
 
   @spec compare(marker1 :: t(), marker2 :: t()) :: :gt | :lt | :eq
   def compare(marker1, marker1), do: :eq
