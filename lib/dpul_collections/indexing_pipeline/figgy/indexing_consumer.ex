@@ -16,6 +16,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
           | {:write_collection, String.t()}
   @spec start_link([start_opts()]) :: Broadway.on_start()
   def start_link(options \\ []) do
+    if !Solr.collection_exists?(options[:write_collection]) do
+      Solr.create_collection(options[:write_collection])
+    end
+
     # Need to set cache version here so that the correct cache version is set and to
     # allow very different producer options for the Mock Producer.
     cache_version = options[:cache_version] || 0

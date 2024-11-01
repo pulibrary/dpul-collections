@@ -110,4 +110,29 @@ defmodule DpulCollections.SolrTest do
     {:ok, response} = Solr.commit()
     assert response.body["responseHeader"]["status"] == 0
   end
+
+  test "create a new collection, set alias, delete a collection" do
+    new_collection = "new_index1"
+    assert Solr.collection_exists?(new_collection) == false
+
+    Solr.create_collection(new_collection)
+    assert Solr.collection_exists?(new_collection) == true
+
+    # alias is pointing to the collection created during setup
+    original_collection = Solr.get_alias()
+    assert original_collection == "dpulc1"
+    Solr.set_alias(new_collection)
+    assert Solr.get_alias() == new_collection
+    Solr.set_alias(original_collection)
+
+    Solr.delete_collection(new_collection)
+    assert Solr.collection_exists?(new_collection) == false
+  end
+
+  test "creating an existing collection is a no-op" do
+    response = Solr.create_collection("dpulc1")
+    # Most importantly, it doesn't error, but here's an assertion as a coherence
+    # check
+    assert response.body["exception"]["msg"] == "collection already exists: dpulc1"
+  end
 end

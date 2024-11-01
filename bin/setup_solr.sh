@@ -12,5 +12,4 @@ curl --user solr:SolrRocks http://localhost:8983/solr/admin/authentication -H 'C
 # these use solr api v2 which is not stable and changes between solr8 and solr 9
 curl -X POST "http://solr:SolrRocks@localhost:8983/solr/admin/configs?action=UPLOAD&name=dpul-collections" -H "Content-type:application/octet-stream" --data-binary @solr_config.zip
 curl -X POST http://solr:SolrRocks@localhost:8983/api/collections/ -H 'Content-type: application/json' -d '{create: {name: dpulc1, config: dpul-collections, numShards: 1}}'
-curl -X POST http://solr:SolrRocks@localhost:8983/api/collections/ -H 'Content-type: application/json' -d '{create: {name: dpulc2, config: dpul-collections, numShards: 1}}'
 curl -X POST http://solr:SolrRocks@localhost:8983/api/c -H 'Content-Type: application/json' -d '{create-alias: {name: dpulc, collections:[dpulc1]}}'

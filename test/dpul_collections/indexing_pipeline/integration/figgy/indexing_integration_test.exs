@@ -112,4 +112,24 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
     assert doc["title_ss"] == ["test title 2"]
     indexer |> Broadway.stop(:normal)
   end
+
+  test "solr collection creation" do
+    cache_version = 0
+    new_collection = "new_index1"
+    assert Solr.collection_exists?(new_collection) == false
+
+    {:ok, indexer} =
+      Figgy.IndexingConsumer.start_link(
+        cache_version: cache_version,
+        producer_module: MockFiggyIndexingProducer,
+        producer_options: {self(), cache_version},
+        batch_size: 1,
+        write_collection: new_collection
+      )
+
+    assert Solr.collection_exists?(new_collection) == true
+
+    indexer |> Broadway.stop(:normal)
+    Solr.delete_collection(new_collection)
+  end
 end
