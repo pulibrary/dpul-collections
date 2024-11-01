@@ -77,6 +77,8 @@ jobs:
         uses: aquasecurity/trivy-action@0.20.0
         id: runscanner
         continue-on-error: true
+        env:
+          TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db:2
         with:
           image-ref: 'ghcr.io/pulibrary/dpul-collections:${{ steps.meta.outputs.version }}'
           format: 'table'
