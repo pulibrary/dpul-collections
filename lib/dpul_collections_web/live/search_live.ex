@@ -138,7 +138,9 @@ defmodule DpulCollectionsWeb.SearchLive do
           <%= @item.page_count %> Pages
         </div>
       </div>
-      <h2 class="underline text-xl font-bold pt-4"><%= @item.title %></h2>
+      <h2 class="underline text-xl font-bold pt-4">
+        <.link navigate={@item.url} class="underline text-lg"><%= @item.title %></.link>
+      </h2>
       <div><%= @item.id %></div>
       <div><%= @item.date %></div>
     </div>
