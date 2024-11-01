@@ -26,4 +26,18 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarkerTest
       assert CacheEntryMarker.compare(marker1, fabricated_marker) == :gt
     end
   end
+
+  describe ".from/1" do
+    test "it can take a broadway message that has a marker and a handled_data key" do
+      {marker1, _, _} = FiggyTestFixtures.hydration_cache_markers()
+      message = %Broadway.Message{acknowledger: nil, data: %{marker: marker1, handled_data: %{}}}
+
+      assert CacheEntryMarker.from(message) == marker1
+    end
+
+    test "it returns a marker if given one" do
+      {marker1, _, _} = FiggyTestFixtures.hydration_cache_markers()
+      assert CacheEntryMarker.from(marker1) == marker1
+    end
+  end
 end
