@@ -175,4 +175,17 @@ defmodule DpulCollections.SolrTest do
     assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["slug_s"] ==
              "玉機微義-五十卷-徐用誠輯-劉純續輯"
   end
+
+  test "slug generation with rtl langauge" do
+    doc = %{
+      "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
+      "title_txtm" => ["ديوان القاضي ناصح الدين ابي بكر احمد بن محمد بن الحسين الارجاني."]
+    }
+
+    Solr.add([doc], active_collection())
+    Solr.commit(active_collection())
+
+    assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["slug_s"] ==
+             "بن-محمد-بن-الحسين-الارجاني"
+  end
 end

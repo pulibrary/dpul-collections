@@ -5,44 +5,42 @@ function processAdd(cmd) {
   var maxWords = 5;
   var maxCharacters = 35;
 
-  if(languages_no_words.indexOf(lang) == -1) {
-    // If languages are not in no_words list, remove
-    // punctuation, and split into words
-    var words = title
-                .replace(/[.,\/#!$%\^&\*'";:{},<=>\-_@`~\[\]()]/g,'')
-                .replace(/  +/g, ' ')
-                .toLowerCase()
-                .split(' ')
+  // Remove punctuation, and split into words
+  var words = title
+              .replace(/[.,\/#!$%\^&\*'";:{},<=>\-_@`~\[\]()]/g,'')
+              .replace(/  +/g, ' ')
+              .toLowerCase()
+              .split(' ')
 
-    // Filter out stopwords
-    if (lang in stopwords) {
-      filtered_words = words
-                      .filter(function(el) { return stopwords[lang].indexOf(el) == -1 })
-                      .filter(function(el) { return el != null; });
+  // Filter out stopwords
+  if (lang in stopwords) {
+    filtered_words = words
+                    .filter(function(word) { return stopwords[lang].indexOf(word) == -1 })
+                    .filter(function(word) { return word != null; });
 
-      // If number of filtered words is less than three, we won't have a good
-      // slug. Use the unfiltered word list instead.
-      if (filtered_words.length >= 3) {
-        words = filtered_words;
-      }
+    // If number of filtered words is less than three, we won't have a good
+    // slug. Use the unfiltered word list instead.
+    if (filtered_words.length >= 3) {
+      words = filtered_words;
     }
+  }
 
-    // Truncate slug to a maximum of maxWords words and join and then ensure
-    // that the total slug length does not exceed maxCharacters
+  // Truncate slug to a maximum of maxWords words and join and then ensure
+  // that the total slug length does not exceed maxCharacters
+  if (rtlLangauges.indexOf(lang) == -1) {
+    // LTR Languages
     var slug = words
               .slice(0, maxWords)
               .join('-')
               .slice(0, maxCharacters)
   } else {
-    // If languages are in no_words list, remove
-    // punctuation, split into words, and limit by maxCharacters
-    var slug = title
-              .replace(/[.,\/#!$%\^&\*'";:{},<=>\-_@`~\[\]()]/g,'')
-              .replace(/ +/g, '-')
-              .toLowerCase()
-              .slice(0, maxCharacters)
+    // RTL Languages
+    var slug = words
+              .slice(-maxWords)
+              .join('-')
+              .slice(-maxCharacters)
   }
-  doc.setField("slug_s", slug);
+    doc.setField("slug_s", slug);
 }
 
 // no-op update request processor methods
@@ -52,8 +50,7 @@ function processCommit(cmd) { }
 function processRollback(cmd) { }
 function finish() { }
 
-// List of languages that should not be split into words for processing.
-var languages_no_words = ['bo', 'cjk', 'jv', 'km', 'lo', 'my', 'th']
+var rtlLangauges = ["ar", "fa"]
 
 // Object with stopwords by langauge code. Copied from solr stopwords files.
 var stopwords = {
@@ -78,6 +75,7 @@ var stopwords = {
   "hy":["այդ","այլ","այն","այս","դու","դուք","եմ","են","ենք","ես","եք","է","էի","էին","էինք","էիր","էիք","էր","ըստ","թ","ի","ին","իսկ","իր","կամ","համար","հետ","հետո","մենք","մեջ","մի","ն","նա","նաև","նրա","նրանք","որ","որը","որոնք","որպես","ու","ում","պիտի","վրա","և"],
   "id":["ada","adanya","adalah","adapun","agak","agaknya","agar","akan","akankah","akhirnya","aku","akulah","amat","amatlah","anda","andalah","antar","diantaranya","antara","antaranya","diantara","apa","apaan","mengapa","apabila","apakah","apalagi","apatah","atau","ataukah","ataupun","bagai","bagaikan","sebagai","sebagainya","bagaimana","bagaimanapun","sebagaimana","bagaimanakah","bagi","bahkan","bahwa","bahwasanya","sebaliknya","banyak","sebanyak","beberapa","seberapa","begini","beginian","beginikah","beginilah","sebegini","begitu","begitukah","begitulah","begitupun","sebegitu","belum","belumlah","sebelum","sebelumnya","sebenarnya","berapa","berapakah","berapalah","berapapun","betulkah","sebetulnya","biasa","biasanya","bila","bilakah","bisa","bisakah","sebisanya","boleh","bolehkah","bolehlah","buat","bukan","bukankah","bukanlah","bukannya","cuma","percuma","dahulu","dalam","dan","dapat","dari","daripada","dekat","demi","demikian","demikianlah","sedemikian","dengan","depan","di","dia","dialah","dini","diri","dirinya","terdiri","dong","dulu","enggak","enggaknya","entah","entahlah","terhadap","terhadapnya","hal","hampir","hanya","hanyalah","harus","haruslah","harusnya","seharusnya","hendak","hendaklah","hendaknya","hingga","sehingga","ia","ialah","ibarat","ingin","inginkah","inginkan","ini","inikah","inilah","itu","itukah","itulah","jangan","jangankan","janganlah","jika","jikalau","juga","justru","kala","kalau","kalaulah","kalaupun","kalian","kami","kamilah","kamu","kamulah","kan","kapan","kapankah","kapanpun","dikarenakan","karena","karenanya","ke","kecil","kemudian","kenapa","kepada","kepadanya","ketika","seketika","khususnya","kini","kinilah","kiranya","sekiranya","kita","kitalah","kok","lagi","lagian","selagi","lah","lain","lainnya","melainkan","selaku","lalu","melalui","terlalu","lama","lamanya","selama","selama","selamanya","lebih","terlebih","bermacam","macam","semacam","maka","makanya","makin","malah","malahan","mampu","mampukah","mana","manakala","manalagi","masih","masihkah","semasih","masing","mau","maupun","semaunya","memang","mereka","merekalah","meski","meskipun","semula","mungkin","mungkinkah","nah","namun","nanti","nantinya","nyaris","oleh","olehnya","seorang","seseorang","pada","padanya","padahal","paling","sepanjang","pantas","sepantasnya","sepantasnyalah","para","pasti","pastilah","per","pernah","pula","pun","merupakan","rupanya","serupa","saat","saatnya","sesaat","saja","sajalah","saling","bersama","sama","sesama","sambil","sampai","sana","sangat","sangatlah","saya","sayalah","se","sebab","sebabnya","sebuah","tersebut","tersebutlah","sedang","sedangkan","sedikit","sedikitnya","segala","segalanya","segera","sesegera","sejak","sejenak","sekali","sekalian","sekalipun","sesekali","sekaligus","sekarang","sekarang","sekitar","sekitarnya","sela","selain","selalu","seluruh","seluruhnya","semakin","sementara","sempat","semua","semuanya","sendiri","sendirinya","seolah","seperti","sepertinya","sering","seringnya","serta","siapa","siapakah","siapapun","disini","disinilah","sini","sinilah","sesuatu","sesuatunya","suatu","sesudah","sesudahnya","sudah","sudahkah","sudahlah","supaya","tadi","tadinya","tak","tanpa","setelah","telah","tentang","tentu","tentulah","tentunya","tertentu","seterusnya","tapi","tetapi","setiap","tiap","setidaknya","tidak","tidakkah","tidaklah","toh","waduh","wah","wahai","sewaktu","walau","walaupun","wong","yaitu","yakni","yang"],
   "it":["ad","al","allo","ai","agli","all","agl","alla","alle","con","col","coi","da","dal","dallo","dai","dagli","dall","dagl","dalla","dalle","di","del","dello","dei","degli","dell","degl","della","delle","in","nel","nello","nei","negli","nell","negl","nella","nelle","su","sul","sullo","sui","sugli","sull","sugl","sulla","sulle","per","tra","contro","io","tu","lui","lei","noi","voi","loro","mio","mia","miei","mie","tuo","tua","tuoi","tue","suo","sua","suoi","sue","nostro","nostra","nostri","nostre","vostro","vostra","vostri","vostre","mi","ti","ci","vi","lo","la","li","le","gli","ne","il","un","uno","una","ma","ed","se","perché","anche","come","dov","dove","che","chi","cui","non","più","quale","quanto","quanti","quanta","quante","quello","quelli","quella","quelle","questo","questi","questa","queste","si","tutto","tutti","a","c","e","i","l","o","ho","hai","ha","abbiamo","avete","hanno","abbia","abbiate","abbiano","avrò","avrai","avrà","avremo","avrete","avranno","avrei","avresti","avrebbe","avremmo","avreste","avrebbero","avevo","avevi","aveva","avevamo","avevate","avevano","ebbi","avesti","ebbe","avemmo","aveste","ebbero","avessi","avesse","avessimo","avessero","avendo","avuto","avuta","avuti","avute","sono","sei","è","siamo","siete","sia","siate","siano","sarò","sarai","sarà","saremo","sarete","saranno","sarei","saresti","sarebbe","saremmo","sareste","sarebbero","ero","eri","era","eravamo","eravate","erano","fui","fosti","fu","fummo","foste","furono","fossi","fosse","fossimo","fossero","essendo","faccio","fai","facciamo","fanno","faccia","facciate","facciano","farò","farai","farà","faremo","farete","faranno","farei","faresti","farebbe","faremmo","fareste","farebbero","facevo","facevi","faceva","facevamo","facevate","facevano","feci","facesti","fece","facemmo","faceste","fecero","facessi","facesse","facessimo","facessero","facendo","sto","stai","sta","stiamo","stanno","stia","stiate","stiano","starò","starai","starà","staremo","starete","staranno","starei","staresti","starebbe","staremmo","stareste","starebbero","stavo","stavi","stava","stavamo","stavate","stavano","stetti","stesti","stette","stemmo","steste","stettero","stessi","stesse","stessimo","stessero","stando"],
+  "ja":["の","に","は","を","た","が","で","て","と","し","れ","さ","ある","いる","も","する","から","な","こと","として","い","や","れる","など","なっ","ない","この","ため","その","あっ","よう","また","もの","という","あり","まで","られ","なる","へ","か","だ","これ","によって","により","おり","より","による","ず","なり","られる","において","ば","なかっ","なく","しかし","について","せ","だっ","その後","できる","それ","う","ので","なお","のみ","でき","き","つ","における","および","いう","さらに","でも","ら","たり","その他","に関する","たち","ます","ん","なら","に対して","特に","せる","及び","これら","とき","では","にて","ほか","ながら","うち","そして","とともに","ただし","かつて","それぞれ","または","お","ほど","ものの","に対する","ほとんど","と共に","といった","です","とも","ところ","ここ"],
   "lv":["aiz","ap","ar","apakš","ārpus","augšpus","bez","caur","dēļ","gar","iekš","iz","kopš","labad","lejpus","līdz","no","otrpus","pa","par","pār","pēc","pie","pirms","pret","priekš","starp","šaipus","uz","viņpus","virs","virspus","zem","apakšpus","un","bet","jo","ja","ka","lai","tomēr","tikko","turpretī","arī","kaut","gan","tādēļ","tā","ne","tikvien","vien","kā","ir","te","vai","kamēr","ar","diezin","droši","diemžēl","nebūt","ik","it","taču","nu","pat","tiklab","iekšpus","nedz","tik","nevis","turpretim","jeb","iekam","iekām","iekāms","kolīdz","līdzko","tiklīdz","jebšu","tālab","tāpēc","nekā","itin","jā","jau","jel","nē","nezin","tad","tikai","vis","tak","iekams","vien","būt","biju","biji","bija","bijām","bijāt","esmu","esi","esam","esat","būšu","būsi","būs","būsim","būsiet","tikt","tiku","tiki","tika","tikām","tikāt","tieku","tiec","tiek","tiekam","tiekat","tikšu","tiks","tiksim","tiksiet","tapt","tapi","tapāt","topat","tapšu","tapsi","taps","tapsim","tapsiet","kļūt","kļuvu","kļuvi","kļuva","kļuvām","kļuvāt","kļūstu","kļūsti","kļūst","kļūstam","kļūstat","kļūšu","kļūsi","kļūs","kļūsim","kļūsiet","varēt","varēju","varējām","varēšu","varēsim","var","varēji","varējāt","varēsi","varēsiet","varat","varēja","varēs"],
   "nl":["de","en","van","ik","te","dat","die","in","een","hij","het","niet","zijn","is","was","op","aan","met","als","voor","had","er","maar","om","hem","dan","zou","of","wat","mijn","men","dit","zo","door","over","ze","zich","bij","ook","tot","je","mij","uit","der","daar","haar","naar","heb","hoe","heeft","hebben","deze","u","want","nog","zal","me","zij","nu","ge","geen","omdat","iets","worden","toch","al","waren","veel","meer","doen","toen","moet","ben","zonder","kan","hun","dus","alles","onder","ja","eens","hier","wie","werd","altijd","doch","wordt","wezen","kunnen","ons","zelf","tegen","na","reeds","wil","kon","niets","uw","iemand","geweest","andere"],
   "no":["og","i","jeg","det","at","en","et","den","til","er","som","på","de","med","han","av","ikke","ikkje","der","så","var","meg","seg","men","ett","har","om","vi","min","mitt","ha","hadde","hun","nå","over","da","ved","fra","du","ut","sin","dem","oss","opp","man","kan","hans","hvor","eller","hva","skal","selv","sjøl","her","alle","vil","bli","ble","blei","blitt","kunne","inn","når","være","kom","noen","noe","ville","dere","som","deres","kun","ja","etter","ned","skulle","denne","for","deg","si","sine","sitt","mot","å","meget","hvorfor","dette","disse","uten","hvordan","ingen","din","ditt","blir","samme","hvilken","hvilke","sånn","inni","mellom","vår","hver","hvem","vors","hvis","både","bare","enn","fordi","før","mange","også","slik","vært","være","båe","begge","siden","dykk","dykkar","dei","deira","deires","deim","di","då","eg","ein","eit","eitt","elles","honom","hjå","ho","hoe","henne","hennar","hennes","hoss","hossen","ikkje","ingi","inkje","korleis","korso","kva","kvar","kvarhelst","kven","kvi","kvifor","me","medan","mi","mine","mykje","no","nokon","noka","nokor","noko","nokre","si","sia","sidan","so","somt","somme","um","upp","vere","vore","verte","vort","varte","vart"],
@@ -85,5 +83,6 @@ var stopwords = {
   "ro":["acea","aceasta","această","aceea","acei","aceia","acel","acela","acele","acelea","acest","acesta","aceste","acestea","aceşti","aceştia","acolo","acum","ai","aia","aibă","aici","al","ăla","ale","alea","ălea","altceva","altcineva","am","ar","are","aş","aşadar","asemenea","asta","ăsta","astăzi","astea","ăstea","ăştia","asupra","aţi","au","avea","avem","aveţi","azi","bine","bucur","bună","ca","că","căci","când","care","cărei","căror","cărui","cât","câte","câţi","către","câtva","ce","cel","ceva","chiar","cînd","cine","cineva","cît","cîte","cîţi","cîtva","contra","cu","cum","cumva","curând","curînd","da","dă","dacă","dar","datorită","de","deci","deja","deoarece","departe","deşi","din","dinaintea","dintr","dintre","drept","după","ea","ei","el","ele","eram","este","eşti","eu","face","fără","fi","fie","fiecare","fii","fim","fiţi","iar","ieri","îi","îl","îmi","împotriva","în ","înainte","înaintea","încât","încît","încotro","între","întrucât","întrucît","îţi","la","lângă","le","li","lîngă","lor","lui","mă","mâine","mea","mei","mele","mereu","meu","mi","mine","mult","multă","mulţi","ne","nicăieri","nici","nimeni","nişte","noastră","noastre","noi","noştri","nostru","nu","ori","oricând","oricare","oricât","orice","oricînd","oricine","oricît","oricum","oriunde","până","pe","pentru","peste","pînă","poate","pot","prea","prima","primul","prin","printr","sa","să","săi","sale","sau","său","se","şi","sînt","sîntem","sînteţi","spre","sub","sunt","suntem","sunteţi","ta","tăi","tale","tău","te","ţi","ţie","tine","toată","toate","tot","toţi","totuşi","tu","un","una","unde","undeva","unei","unele","uneori","unor","vă","vi","voastră","voastre","voi","voştri","vostru","vouă","vreo","vreun"],
   "ru":["и","в","во","не","что","он","на","я","с","со","как","а","то","все","она","так","его","но","да","ты","к","у","же","вы","за","бы","по","только","ее","мне","было","вот","от","меня","еще","нет","о","из","ему","теперь","когда","даже","ну","вдруг","ли","если","уже","или","ни","быть","был","него","до","вас","нибудь","опять","уж","вам","сказал","ведь","там","потом","себя","ничего","ей","может","они","тут","где","есть","надо","ней","для","мы","тебя","их","чем","была","сам","чтоб","без","будто","человек","чего","раз","тоже","себе","под","жизнь","будет","ж","тогда","кто","этот","говорил","того","потому","этого","какой","совсем","ним","здесь","этом","один","почти","мой","тем","чтобы","нее","кажется","сейчас","были","куда","зачем","сказать","всех","никогда","сегодня","можно","при","наконец","два","об","другой","хоть","после","над","больше","тот","через","эти","нас","про","всего","них","какая","много","разве","сказала","три","эту","моя","впрочем","хорошо","свою","этой","перед","иногда","лучше","чуть","том","нельзя","такой","им","более","всегда","конечно","всю","между"],
   "sv":["och","det","att","i","en","jag","hon","som","han","på","den","med","var","sig","för","så","till","är","men","ett","om","hade","de","av","icke","mig","du","henne","då","sin","nu","har","inte","hans","honom","skulle","hennes","där","min","man","ej","vid","kunde","något","från","ut","när","efter","upp","vi","dem","vara","vad","över","än","dig","kan","sina","här","ha","mot","alla","under","någon","eller","allt","mycket","sedan","ju","denna","själv","detta","åt","utan","varit","hur","ingen","mitt","ni","bli","blev","oss","din","dessa","några","deras","blir","mina","samma","vilken","er","sådan","vår","blivit","dess","inom","mellan","sådant","varför","varje","vilka","ditt","vem","vilket","sitta","sådana","vart","dina","vars","vårt","våra","ert","era","vilkas"],
+  "th":["ไว้","ไม่","ไป","ได้","ให้","ใน","โดย","แห่ง","แล้ว","และ","แรก","แบบ","แต่","เอง","เห็น","เลย","เริ่ม","เรา","เมื่อ","เพื่อ","เพราะ","เป็นการ","เป็น","เปิดเผย","เปิด","เนื่องจาก","เดียวกัน","เดียว","เช่น","เฉพาะ","เคย","เข้า","เขา","อีก","อาจ","อะไร","ออก","อย่าง","อยู่","อยาก","หาก","หลาย","หลังจาก","หลัง","หรือ","หนึ่ง","ส่วน","ส่ง","สุด","สําหรับ","ว่า","วัน","ลง","ร่วม","ราย","รับ","ระหว่าง","รวม","ยัง","มี","มาก","มา","พร้อม","พบ","ผ่าน","ผล","บาง","น่า","นี้","นํา","นั้น","นัก","นอกจาก","ทุก","ที่สุด","ที่","ทําให้","ทํา","ทาง","ทั้งนี้","ทั้ง","ถ้า","ถูก","ถึง","ต้อง","ต่างๆ","ต่าง","ต่อ","ตาม","ตั้งแต่","ตั้ง","ด้าน","ด้วย","ดัง","ซึ่ง","ช่วง","จึง","จาก","จัด","จะ","คือ","ความ","ครั้ง","คง","ขึ้น","ของ","ขอ","ขณะ","ก่อน","ก็","การ","กับ","กัน","กว่า","กล่าว"],
   "tr":["acaba","altmış","altı","ama","ancak","arada","aslında","ayrıca","bana","bazı","belki","ben","benden","beni","benim","beri","beş","bile","bin","bir","birçok","biri","birkaç","birkez","birşey","birşeyi","biz","bize","bizden","bizi","bizim","böyle","böylece","bu","buna","bunda","bundan","bunlar","bunları","bunların","bunu","bunun","burada","çok","çünkü","da","daha","dahi","de","defa","değil","diğer","diye","doksan","dokuz","dolayı","dolayısıyla","dört","edecek","eden","ederek","edilecek","ediliyor","edilmesi","ediyor","eğer","elli","en","etmesi","etti","ettiği","ettiğini","gibi","göre","halen","hangi","hatta","hem","henüz","hep","hepsi","her","herhangi","herkesin","hiç","hiçbir","için","iki","ile","ilgili","ise","işte","itibaren","itibariyle","kadar","karşın","katrilyon","kendi","kendilerine","kendini","kendisi","kendisine","kendisini","kez","ki","kim","kimden","kime","kimi","kimse","kırk","milyar","milyon","mu","mü","mı","nasıl","ne","neden","nedenle","nerde","nerede","nereye","niye","niçin","o","olan","olarak","oldu","olduğu","olduğunu","olduklarını","olmadı","olmadığı","olmak","olması","olmayan","olmaz","olsa","olsun","olup","olur","olursa","oluyor","on","ona","ondan","onlar","onlardan","onları","onların","onu","onun","otuz","oysa","öyle","pek","rağmen","sadece","sanki","sekiz","seksen","sen","senden","seni","senin","siz","sizden","sizi","sizin","şey","şeyden","şeyi","şeyler","şöyle","şu","şuna","şunda","şundan","şunları","şunu","tarafından","trilyon","tüm","üç","üzere","var","vardı","ve","veya","ya","yani","yapacak","yapılan","yapılması","yapıyor","yapmak","yaptı","yaptığı","yaptığını","yaptıkları","yedi","yerine","yetmiş","yine","yirmi","yoksa","yüz","zaten"]
 }
