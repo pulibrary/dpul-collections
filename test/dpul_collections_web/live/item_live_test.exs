@@ -13,7 +13,8 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
         %{
           id: 1,
           title_txtm: "Învăţămîntul trebuie să urmărească dezvoltarea deplină a personalităţii",
-          page_count_i: 1
+          display_date_s: "2022",
+          page_count_i: 17
         },
         %{
           id: 2,
@@ -31,12 +32,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
 
   test "/item/{:id} redirects when title is recognized latin script", %{conn: conn} do
     conn = get(conn, "/item/1")
-    assert redirected_to(conn, 302) == "/i/învăţămîntul-trebuie-să-urmărească/item/1"
-  end
-
-  test "/item/{:id} does not redirect when title is not recognized latin script", %{conn: conn} do
-    conn = get(conn, "/item/2")
-    assert conn.status == 200
+    assert redirected_to(conn, 302) == "/i/învăţămîntul-trebuie-urmărească-dez/item/1"
   end
 
   test "/item/{:id} does not redirect with a bad id", %{conn: conn} do
@@ -47,26 +43,21 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
   test "/i/{:slug}/item/{:id} redirects when title is recognized latin script and slug is incorrect",
        %{conn: conn} do
     conn = get(conn, "/i/not-a-real-slug/item/1")
-    assert redirected_to(conn, 302) == "/i/învăţămîntul-trebuie-să-urmărească/item/1"
-  end
-
-  test "/i/{:slug}/item/{:id} redirects when title is unrecognized latin script", %{conn: conn} do
-    conn = get(conn, "/i/not-a-real-slug/item/2")
-    assert redirected_to(conn, 302) == "/item/2"
+    assert redirected_to(conn, 302) == "/i/învăţămîntul-trebuie-urmărească-dez/item/1"
   end
 
   test "/i/{:slug}/item/{:id} does not redirect when title is recognized latin script and slug is correct",
        %{conn: conn} do
-    conn = get(conn, "/i/învăţămîntul-trebuie-să-urmărească/item/1")
+    conn = get(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
     assert conn.status == 200
   end
 
-  test "GET /item/{:id} response", %{conn: conn} do
-    {:ok, view, _html} = live(conn, "/item/2")
+  test "GET /i/{:slug}/item/{:id} response", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
     response = render(view)
-    assert response =~ "زلزلہ"
-    assert response =~ "2024"
-    assert response =~ "14"
+    assert response =~ "Învăţămîntul trebuie să urmărească dezvoltarea deplină a personalităţii"
+    assert response =~ "2022"
+    assert response =~ "17"
   end
 
   test "/i/{:slug}/item/{:id} does not redirect with a bad id", %{conn: conn} do

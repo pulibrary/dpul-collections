@@ -3,7 +3,7 @@ function processAdd(cmd) {
   var lang = doc.getFieldValue("detectlang_s");
   var title = doc.getFieldValue("title_txtm");
   var maxWords = 5;
-  var maxCharacters = 40;
+  var maxCharacters = 35;
 
   if(languages_no_words.indexOf(lang) == -1) {
     // If languages are not in no_words list, remove

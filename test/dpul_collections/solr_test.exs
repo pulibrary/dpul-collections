@@ -22,7 +22,9 @@ defmodule DpulCollections.SolrTest do
 
     Solr.add([doc], active_collection())
     Solr.commit(active_collection())
-    assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["title_txtm"] == doc["title_txtm"]
+
+    assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["title_txtm"] ==
+             doc["title_txtm"]
   end
 
   test ".add/1" do
@@ -145,7 +147,8 @@ defmodule DpulCollections.SolrTest do
     Solr.add([doc], active_collection())
     Solr.commit(active_collection())
 
-    assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["slug_s"] == "zilele-vor-mai-niciodată"
+    assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["slug_s"] ==
+             "zilele-vor-mai-niciodată"
   end
 
   test "slug generation whith a short title" do
@@ -169,7 +172,7 @@ defmodule DpulCollections.SolrTest do
     Solr.add([doc], active_collection())
     Solr.commit(active_collection())
 
-    assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["slug_s"] == "玉機微義-五十卷-徐用誠輯-劉純續輯"
+    assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["slug_s"] ==
+             "玉機微義-五十卷-徐用誠輯-劉純續輯"
   end
-
 end

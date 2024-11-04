@@ -20,11 +20,11 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       |> elem(1)
 
     assert document
-           |> Floki.find(~s{a[href="/i/document-1/item/1"]})
+           |> Floki.find(~s{a[href="/i/document1/item/1"]})
            |> Enum.any?()
 
     assert document
-           |> Floki.find(~s{a[href="/i/document-2/item/2"]})
+           |> Floki.find(~s{a[href="/i/document2/item/2"]})
            |> Enum.any?()
   end
 
@@ -35,11 +35,11 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       html_response(conn, 200) |> Floki.parse_document() |> elem(1)
 
     assert document
-           |> Floki.find(~s{a[href="/i/document-1/item/1"]})
+           |> Floki.find(~s{a[href="/i/document1/item/1"]})
            |> Enum.any?()
 
     assert document
-           |> Floki.find(~s{a[href="/i/document-2/item/2"]})
+           |> Floki.find(~s{a[href="/i/document2/item/2"]})
            |> Enum.any?()
   end
 
@@ -54,11 +54,11 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       |> elem(1)
 
     assert document
-           |> Floki.find(~s{a[href="/i/document-2/item/2"]})
+           |> Floki.find(~s{a[href="/i/document2/item/2"]})
            |> Enum.any?()
 
     assert document
-           |> Floki.find(~s{a[href="/i/document-1/item/1"]})
+           |> Floki.find(~s{a[href="/i/document1/item/1"]})
            |> Enum.empty?()
   end
 
@@ -72,11 +72,11 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       |> elem(1)
 
     assert document
-           |> Floki.find(~s{a[href="/i/document-100/item/100"]})
+           |> Floki.find(~s{a[href="/i/document100/item/100"]})
            |> Enum.any?()
 
     assert document
-           |> Floki.find(~s{a[href="/i/document-1/item/1"]})
+           |> Floki.find(~s{a[href="/i/document1/item/1"]})
            |> Enum.empty?()
 
     document =
@@ -86,11 +86,11 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       |> elem(1)
 
     assert document
-           |> Floki.find(~s{a[href="/i/document-1/item/1"]})
+           |> Floki.find(~s{a[href="/i/document1/item/1"]})
            |> Enum.any?()
 
     assert document
-           |> Floki.find(~s{a[href="/i/document-100/item/100"]})
+           |> Floki.find(~s{a[href="/i/document100/item/100"]})
            |> Enum.empty?()
   end
 
@@ -105,15 +105,15 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       |> elem(1)
 
     assert document
-           |> Floki.find(~s{a[href="/i/document-99/item/99"]})
+           |> Floki.find(~s{a[href="/i/document99/item/99"]})
            |> Enum.any?()
 
     assert document
-           |> Floki.find(~s{a[href="/i/document-100/item/100"]})
+           |> Floki.find(~s{a[href="/i/document100/item/100"]})
            |> Enum.any?()
 
     assert document
-           |> Floki.find(~s{a[href="/i/document-98/item/98"]})
+           |> Floki.find(~s{a[href="/i/document98/item/98"]})
            |> Enum.empty?()
   end
 
@@ -132,7 +132,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> render_click()
            |> Floki.parse_document()
            |> elem(1)
-           |> Floki.find(~s{a[href="/i/document-40/item/40"]})
+           |> Floki.find(~s{a[href="/i/document40/item/40"]})
            |> Enum.any?()
 
     assert view
@@ -140,7 +140,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> render_click()
            |> Floki.parse_document()
            |> elem(1)
-           |> Floki.find(~s{a[href="/i/document-50/item/50"]})
+           |> Floki.find(~s{a[href="/i/document50/item/50"]})
            |> Enum.any?()
 
     # Check that the next link is hidden on the last page
@@ -155,7 +155,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> render_click()
            |> Floki.parse_document()
            |> elem(1)
-           |> Floki.find(~s{a[href="/i/document-100/item/100"]})
+           |> Floki.find(~s{a[href="/i/document100/item/100"]})
            |> Enum.any?()
 
     # Check that changing the sort order resets the paginator

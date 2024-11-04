@@ -15,7 +15,8 @@ defmodule DpulCollections.Solr do
     "title_ss",
     "display_date_s",
     "page_count_i",
-    "detectlang_ss"
+    "detectlang_ss",
+    "slug_s"
   ]
 
   @spec query(map()) :: map()
