@@ -10,6 +10,17 @@ defmodule DpulCollections.Solr do
     response.body["response"]["numFound"]
   end
 
+  # @spec document_count() :: integer()
+  def document_count(collection) do
+    {:ok, response} =
+      Req.get(
+        select_url(collection),
+        params: [q: "*:*"]
+      )
+
+    response.body["response"]["numFound"]
+  end
+
   @query_field_list [
     "id",
     "title_ss",
@@ -130,6 +141,11 @@ defmodule DpulCollections.Solr do
     |> Req.merge(url: "/select")
   end
 
+  defp select_url(collection) do
+    client(:read, collection)
+    |> Req.merge(url: "/select")
+  end
+
   defp update_url(nil) do
     url_hash = Application.fetch_env!(:dpul_collections, :solr)
     update_url(url_hash[:read_collection])
@@ -146,6 +162,19 @@ defmodule DpulCollections.Solr do
     url =
       url_hash[:base_url]
       |> Path.join("solr/#{url_hash[:read_collection]}")
+
+    Req.new(
+      base_url: url,
+      auth: auth(url_hash)
+    )
+  end
+
+  def client(:read, collection) do
+    url_hash = Application.fetch_env!(:dpul_collections, :solr)
+
+    url =
+      url_hash[:base_url]
+      |> Path.join("solr/#{collection}")
 
     Req.new(
       base_url: url,
@@ -258,5 +287,15 @@ defmodule DpulCollections.Solr do
     |> Req.post!(
       json: %{"create-alias": %{name: url_hash[:read_collection], collections: [collection]}}
     )
+  end
+
+  # @spec document_count_report()
+  def document_count_report do
+    Application.fetch_env!(:dpul_collections, DpulCollections.IndexingPipeline)
+    |> Enum.map(fn kwl -> %{
+      cache_version: kwl[:cache_version],
+      collection: kwl[:write_collection],
+      document_count: document_count(kwl[:write_collection])
+    } end )
   end
 end
