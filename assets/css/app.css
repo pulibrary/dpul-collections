@@ -11,4 +11,13 @@
     .active {
       @apply text-blue-600 border bg-blue-50 hover:bg-blue-100 hover:text-blue-700;
     }
+
+    .fade-transition {
+      opacity: 0;
+      transition: opacity 0.5s ease-in;
+    }
+    
+    .fade-transition-active {
+      opacity: 1;
+    }
   }
