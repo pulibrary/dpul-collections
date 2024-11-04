@@ -70,14 +70,14 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
   end
 
   test "/i/{:slug}/item/{:id} does not redirect with a bad id", %{conn: conn} do
-    conn = get(conn, "/i/not-a-real-slug/item/badid1")
-    response = html_response(conn, 200)
-    assert response =~ "Item not found"
+    assert_error_sent 404, fn ->
+      get(conn, "/i/not-a-real-slug/item/badid1")
+    end
   end
 
-  test "GET /item/{:id} response whith a bad id", %{conn: conn} do
-    conn = get(conn, "/item/badid1")
-    response = html_response(conn, 200)
-    assert response =~ "Item not found"
+  test "GET /item/{:id} response whith a bad id retuns a 404", %{conn: conn} do
+    assert_error_sent 404, fn ->
+      get(conn, "/item/badid1")
+    end
   end
 end

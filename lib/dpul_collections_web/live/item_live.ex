@@ -8,8 +8,13 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def handle_params(%{"id" => id}, uri, socket) do
     item = Solr.find_by_id(id) |> Item.from_solr()
-    path = URI.parse(uri).path
-    {:noreply, build_socket(socket, item, path)}
+
+    if item do
+      path = URI.parse(uri).path
+      {:noreply, build_socket(socket, item, path)}
+    else
+      raise DpulCollectionsWeb.Fallback
+    end
   end
 
   defp build_socket(socket, item, path) when item.url != path do
@@ -18,15 +23,6 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   defp build_socket(socket, item, _) do
     assign(socket, item: item)
-  end
-
-  # Render a message if no item was found in Solr.
-  def render(assigns) when is_nil(assigns.item) do
-    ~H"""
-    <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
-      <span>Item not found</span>
-    </div>
-    """
   end
 
   def render(assigns) do
