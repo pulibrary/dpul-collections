@@ -6,14 +6,13 @@ defmodule DpulCollections.Item do
     :title,
     :date,
     :page_count,
-    :language,
     :url
   ]
 
   def from_solr(nil), do: nil
 
   def from_solr(doc) do
-    language = doc["detectlang_ss"] |> Enum.at(0)
+    slug = doc["slug_s"]
     title = doc["title_ss"] |> Enum.at(0)
     id = doc["id"]
 
@@ -22,54 +21,11 @@ defmodule DpulCollections.Item do
       title: title,
       date: doc["display_date_s"],
       page_count: doc["page_count_i"],
-      url: generate_url(id, title, language)
+      url: generate_url(id, slug)
     }
   end
 
-  @latin_scripts [
-    "ca",
-    "cz",
-    "da",
-    "de",
-    "en",
-    "es",
-    "et",
-    "eu",
-    "fi",
-    "fr",
-    "ga",
-    "gl",
-    "hu",
-    "id",
-    "it",
-    "lv",
-    "nl",
-    "no",
-    "pt",
-    "ro",
-    "sv",
-    "tr"
-  ]
-
-  defp generate_url(id, title, language) when language in @latin_scripts do
-    "/i/#{generate_slug(title)}/item/#{id}"
-  end
-
-  defp generate_url(id, _, _) do
-    "/item/#{id}"
-  end
-
-  defp generate_slug(title) do
-    punctuation = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
-    regex = "[" <> Regex.escape("-") <> Regex.escape(punctuation) <> "[:space:]]"
-    separator = "-"
-    max_words = 4
-
-    title
-    |> String.split(Regex.compile!(regex), trim: true)
-    |> Enum.filter(&(&1 != ""))
-    |> Enum.take(max_words)
-    |> Enum.join(separator)
-    |> String.downcase()
+  defp generate_url(id, slug) do
+    "/i/#{slug}/item/#{id}"
   end
 end

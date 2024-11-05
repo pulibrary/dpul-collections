@@ -17,18 +17,20 @@ defmodule DpulCollections.SolrTest do
 
     doc = %{
       "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
-      "title_ss" => ["test title 1"]
+      "title_txtm" => ["test title 1"]
     }
 
     Solr.add([doc], active_collection())
     Solr.commit(active_collection())
-    assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["title_ss"] == doc["title_ss"]
+
+    assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["title_txtm"] ==
+             doc["title_txtm"]
   end
 
   test ".add/1" do
     doc = %{
       "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
-      "title_ss" => ["test title 1"]
+      "title_txtm" => ["test title 1"]
     }
 
     assert Solr.document_count() == 0
@@ -42,7 +44,7 @@ defmodule DpulCollections.SolrTest do
   test ".latest_document" do
     doc = %{
       "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
-      "title_ss" => ["test title 1"]
+      "title_txtm" => ["test title 1"]
     }
 
     assert Solr.latest_document() == nil
@@ -54,7 +56,7 @@ defmodule DpulCollections.SolrTest do
 
     doc_2 = %{
       "id" => "3cb7627b-defc-401b-9959-42ebc4488f75",
-      "title_ss" => ["test title 1"]
+      "title_txtm" => ["test title 1"]
     }
 
     Solr.add([doc_2], active_collection())
@@ -66,7 +68,7 @@ defmodule DpulCollections.SolrTest do
   test ".delete_all/0" do
     doc = %{
       "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
-      "title_ss" => ["test title 1"]
+      "title_txtm" => ["test title 1"]
     }
 
     Solr.add([doc], active_collection())
@@ -134,5 +136,56 @@ defmodule DpulCollections.SolrTest do
     # Most importantly, it doesn't error, but here's an assertion as a coherence
     # check
     assert response.body["exception"]["msg"] == "collection already exists: dpulc1"
+  end
+
+  test "slug generation" do
+    doc = %{
+      "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
+      "title_txtm" => ["Zilele noastre care nu vor mai fi niciodată"]
+    }
+
+    Solr.add([doc], active_collection())
+    Solr.commit(active_collection())
+
+    assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["slug_s"] ==
+             "zilele-vor-mai-niciodată"
+  end
+
+  test "slug generation whith a short title" do
+    doc = %{
+      "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
+      "title_txtm" => ["This is a title"]
+    }
+
+    Solr.add([doc], active_collection())
+    Solr.commit(active_collection())
+
+    assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["slug_s"] == "this-is-a-title"
+  end
+
+  test "slug generation with non-stopword-filtered language" do
+    doc = %{
+      "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
+      "title_txtm" => ["玉機微義 : 五十卷 / 徐用誠輯 ; 劉純續輯."]
+    }
+
+    Solr.add([doc], active_collection())
+    Solr.commit(active_collection())
+
+    assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["slug_s"] ==
+             "玉機微義-五十卷-徐用誠輯-劉純續輯"
+  end
+
+  test "slug generation with rtl langauge" do
+    doc = %{
+      "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
+      "title_txtm" => ["ديوان القاضي ناصح الدين ابي بكر احمد بن محمد بن الحسين الارجاني."]
+    }
+
+    Solr.add([doc], active_collection())
+    Solr.commit(active_collection())
+
+    assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["slug_s"] ==
+             "بن-محمد-بن-الحسين-الارجاني"
   end
 end
