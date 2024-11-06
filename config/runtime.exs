@@ -81,10 +81,6 @@ if config_env() == :prod do
     password: ""
   }
 
-  config :dpul_collections,
-         :cache_version,
-         System.get_env("CACHE_VERSION") |> String.to_integer() || 0
-
   index_cache_collections =
     System.get_env("INDEX_CACHE_COLLECTIONS")
     |> String.split(";")
