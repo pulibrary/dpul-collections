@@ -1,6 +1,8 @@
-<main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 
-  transition-all duration-500 opacity-0 phx-page-loading:opacity-0" 
-  phx-mounted={JS.remove_class("opacity-0")}>
+<main
+  class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 
+  transition-all duration-500 opacity-0 phx-page-loading:opacity-0"
+  phx-mounted={JS.remove_class("opacity-0")}
+>
   <.flash_group flash={@flash} />
   <%= @inner_content %>
 </main>
