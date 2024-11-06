@@ -25,4 +25,4 @@ if [ "$TYPE" = "repl" ]
 then
   COMMAND=$CONSOLE_COMMAND
 fi
-ssh -t deploy@nomad-host-prod1.lib.princeton.edu "nomad alloc exec -task ${JOB_TASK} -job ${JOB_NAME}-${ENV} ${COMMAND}"
+ssh -t deploy@nomad-host-prod1.lib.princeton.edu "nomad alloc exec -task ${JOB_TASK} \$(nomad job allocs -json ${JOB_NAME}-${ENV} | jq -r -c '[.[] | select(.TaskStates | keys | contains([\"${JOB_TASK}\"]))][0].ID') ${COMMAND}"
