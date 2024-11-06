@@ -8,7 +8,7 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def handle_params(%{"id" => id}, uri, socket) do
     item = Solr.find_by_id(id) |> Item.from_solr()
-    path = URI.parse(uri).path
+    path = URI.parse(uri).path |> URI.decode()
     {:noreply, build_socket(socket, item, path)}
   end
 

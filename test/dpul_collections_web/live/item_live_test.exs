@@ -21,6 +21,12 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           title_txtm: "زلزلہ",
           display_date_s: "2024",
           page_count_i: 14
+        },
+        %{
+          id: 3,
+          title_txtm: "اب كوئى جنگ نه هوگى نه كبهى رات گئے، خون كى آگ كو اشكوں سے بجهانا هوگا",
+          display_date_s: "2022",
+          page_count_i: 1
         }
       ],
       active_collection()
@@ -40,15 +46,26 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     assert conn.status == 200
   end
 
-  test "/i/{:slug}/item/{:id} redirects when title is recognized latin script and slug is incorrect",
+  test "/i/{:slug}/item/{:id} redirects when slug is incorrect",
        %{conn: conn} do
     conn = get(conn, "/i/not-a-real-slug/item/1")
     assert redirected_to(conn, 302) == "/i/învăţămîntul-trebuie-urmărească-dez/item/1"
   end
 
-  test "/i/{:slug}/item/{:id} does not redirect when title is recognized latin script and slug is correct",
+  test "/i/{:slug}/item/{:id} does not redirect when slug is correct",
        %{conn: conn} do
     conn = get(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
+    assert conn.status == 200
+  end
+
+  test "/i/{:slug}/item/{:id} does not redirect with url encoded arabic slug",
+       %{conn: conn} do
+    conn =
+      get(
+        conn,
+        "/i/%D9%83%D9%88-%D8%A7%D8%B4%D9%83%D9%88%DA%BA-%D8%B3%DB%92-%D8%A8%D8%AC%D9%87%D8%A7%D9%86%D8%A7-%D9%87%D9%88%DA%AF%D8%A7/item/3"
+      )
+
     assert conn.status == 200
   end
 
