@@ -6,7 +6,8 @@ defmodule DpulCollections.Item do
     :title,
     :date,
     :page_count,
-    :url
+    :url,
+    :image_service_urls
   ]
 
   def from_solr(nil), do: nil
@@ -21,7 +22,8 @@ defmodule DpulCollections.Item do
       title: title,
       date: doc["display_date_s"],
       page_count: doc["page_count_i"],
-      url: generate_url(id, slug)
+      url: generate_url(id, slug),
+      image_service_urls: doc["image_service_urls_ss"]
     }
   end
 

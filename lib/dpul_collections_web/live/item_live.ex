@@ -39,7 +39,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       <div class="md:col-span-2 md:order-first">
         <img
           class="w-full"
-          src="https://picsum.photos/525/800/?random"
+          src={"#{Enum.at(@item.image_service_urls, 0)}/full/525,800/0/default.jpg"}
           alt="main image display"
           style="
           background-color: lightgray;"
@@ -54,8 +54,9 @@ defmodule DpulCollectionsWeb.ItemLive do
         <h2 class="text-l font-bold py-4">Pages (<%= @item.page_count %>)</h2>
         <div class="flex flex-wrap gap-5 justify-center md:justify-start">
           <.thumbs
-            :for={thumb_num <- 1..@item.page_count}
+            :for={{thumb_num, thumb} <- Enum.with_index(@item.image_service_urls)}
             :if={@item.page_count}
+            thumb={thumb}
             thumb_num={thumb_num}
           />
         </div>
@@ -69,7 +70,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     <div>
       <img
         class="h-[465px] w-[350px] md:h-[300px] md:w-[225px]"
-        src="https://picsum.photos/350/350/?random"
+        src={"#{@thumb}/full/350,465/0/default.jpg"}
         alt={"image #{@thumb_num}"}
         style="
           background-color: lightgray;"
@@ -77,7 +78,9 @@ defmodule DpulCollectionsWeb.ItemLive do
         height="465"
       />
       <button class="w-[350px] md:w-[225px] btn-primary">
-        Download
+        <a href={"#{@thumb}/full/full/0/default.jpg"} target="_blank">
+          Download
+        </a>
       </button>
     </div>
     """
