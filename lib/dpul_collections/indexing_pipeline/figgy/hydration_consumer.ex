@@ -90,6 +90,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     })
   end
 
+  # If it's not selected above, ack the message but don't do anything with it.
+  def handle_message(_processor, message, _state) do
+    message
+    |> Broadway.Message.put_batcher(:noop)
+  end
+
   def extract_related_data(resource) do
     %{
       "member_ids" => extract_members(resource)
@@ -97,22 +103,25 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   end
 
   defp extract_members(%{:metadata => %{"member_ids" => member_ids}}) do
-    %{
-      "stuff" => "stuff"
-    }
+    Enum.reduce(member_ids, %{}, &append_related_resource/2)
   end
+
   defp extract_members(_resource) do
     %{}
   end
 
-  # If it's not selected above, ack the message but don't do anything with it.
-  def handle_message(_processor, message, _state) do
-    message
-    |> Broadway.Message.put_batcher(:noop)
+  defp append_related_resource(%{"id" => id}, acc) do
+    acc
+    |> Map.put(
+      id,
+      IndexingPipeline.get_figgy_resource!(id) |> Map.from_struct() |> Map.delete(:__meta__)
+    )
   end
 
   defp write_to_hydration_cache(
-         %Broadway.Message{data: %{marker: marker, handled_data: data, related_data: related_data}},
+         %Broadway.Message{
+           data: %{marker: marker, handled_data: data, related_data: related_data}
+         },
          cache_version
        ) do
     # store in HydrationCache:

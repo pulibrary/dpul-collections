@@ -68,12 +68,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
            } = cache_entry.data
 
     assert %{
-      "member_ids" => %{
-        "06838583-59a4-4ab8-ac65-2b5ea9ee6425" => %{
-          "internal_resource" => "FileSet"
-        }
-      }
-    } = cache_entry.related_data
+             "member_ids" => %{
+               "06838583-59a4-4ab8-ac65-2b5ea9ee6425" => %{
+                 "internal_resource" => "FileSet"
+               }
+             }
+           } = cache_entry.related_data
 
     hydrator |> Broadway.stop(:normal)
   end

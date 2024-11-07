@@ -58,6 +58,8 @@ defmodule DpulCollections.IndexingPipeline do
   Writes or updates hydration cache entries.
   """
   def write_hydration_cache_entry(attrs \\ %{}) do
+    attrs = Map.merge(%{related_data: %{}}, attrs)
+
     conflict_query =
       Figgy.HydrationCacheEntry
       |> update(
