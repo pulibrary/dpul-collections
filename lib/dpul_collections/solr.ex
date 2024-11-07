@@ -208,15 +208,4 @@ defmodule DpulCollections.Solr do
     |> Req.Request.put_header("content-type", "application/json")
     |> Req.post!(json: %{"create-alias": %{name: read_collection(), collections: [collection]}})
   end
-
-  def document_count_report do
-    Application.fetch_env!(:dpul_collections, DpulCollections.IndexingPipeline)
-    |> Enum.map(fn kwl ->
-      %{
-        cache_version: kwl[:cache_version],
-        collection: kwl[:write_collection],
-        document_count: document_count(kwl[:write_collection])
-      }
-    end)
-  end
 end
