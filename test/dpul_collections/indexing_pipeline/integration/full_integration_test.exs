@@ -152,6 +152,10 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     {hydrator, transformer, indexer, document} =
       FiggyTestSupport.index_record_id("26713a31-d615-49fd-adfc-93770b4f66b3")
 
+    hydrator |> Broadway.stop(:normal)
+    transformer |> Broadway.stop(:normal)
+    indexer |> Broadway.stop(:normal)
+
     assert document["title_txtm"] == ["Ali Bagheri"]
     # Language Detection
     assert document["title_txtm_de"] == ["Ali Bagheri"]
@@ -169,8 +173,10 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     assert document["years_is"] == [2022]
     assert document["display_date_s"] == "2022"
 
-    hydrator |> Broadway.stop(:normal)
-    transformer |> Broadway.stop(:normal)
-    indexer |> Broadway.stop(:normal)
+    # Image URLs
+    assert [
+             "https://iiif-cloud.princeton.edu/iiif/2/5e%2F24%2Faf%2F5e24aff45b2e4c9aaba3f05321d1c797%2Fintermediate_file"
+             | _rest
+           ] = document["image_service_urls_ss"]
   end
 end
