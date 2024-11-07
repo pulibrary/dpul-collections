@@ -63,6 +63,7 @@ defmodule DpulCollections.IndexingPipeline do
       |> update(
         set: [
           data: ^attrs.data,
+          related_data: ^attrs.related_data,
           source_cache_order: ^attrs.source_cache_order,
           cache_order: ^DateTime.utc_now()
         ]

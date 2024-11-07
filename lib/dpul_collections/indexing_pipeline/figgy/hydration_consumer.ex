@@ -64,7 +64,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     |> Broadway.Message.put_data(%{
       marker: marker,
       incoming_message_data: message.data,
-      handled_data: message.data |> Map.from_struct() |> Map.delete(:__meta__)
+      handled_data: message.data |> Map.from_struct() |> Map.delete(:__meta__),
+      related_data: extract_related_data(message.data)
     })
   end
 
@@ -84,8 +85,24 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     |> Broadway.Message.put_data(%{
       marker: marker,
       incoming_message_data: message.data,
-      handled_data: message.data |> Map.from_struct() |> Map.delete(:__meta__)
+      handled_data: message.data |> Map.from_struct() |> Map.delete(:__meta__),
+      related_data: %{}
     })
+  end
+
+  def extract_related_data(resource) do
+    %{
+      "member_ids" => extract_members(resource)
+    }
+  end
+
+  defp extract_members(%{:metadata => %{"member_ids" => member_ids}}) do
+    %{
+      "stuff" => "stuff"
+    }
+  end
+  defp extract_members(_resource) do
+    %{}
   end
 
   # If it's not selected above, ack the message but don't do anything with it.
@@ -95,7 +112,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   end
 
   defp write_to_hydration_cache(
-         %Broadway.Message{data: %{marker: marker, handled_data: data}},
+         %Broadway.Message{data: %{marker: marker, handled_data: data, related_data: related_data}},
          cache_version
        ) do
     # store in HydrationCache:
@@ -109,7 +126,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         cache_version: cache_version,
         record_id: marker.id,
         source_cache_order: marker.timestamp,
-        data: data
+        data: data,
+        related_data: related_data
       })
 
     {:ok, response}

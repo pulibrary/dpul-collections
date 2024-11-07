@@ -15,7 +15,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   @doc false
   def changeset(hydration_cache_entry, attrs) do
     hydration_cache_entry
-    |> cast(attrs, [:data, :cache_version, :record_id, :source_cache_order])
+    |> cast(attrs, [:data, :related_data, :cache_version, :record_id, :source_cache_order])
     |> validate_required([:data, :cache_version, :record_id, :source_cache_order])
   end
 
