@@ -22,35 +22,10 @@ import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 
-let Hooks = {}
-
-Hooks.Fade = {
-  mounted() {
-    this.startTransition();
-  },
-  updated() {
-    this.startTransition();
-  },
-  startTransition() {
-    this.el.classList.add("fade-transition"); // Set initial hidden state
-
-    // Wait for the next animation frame, then add the active class to start the transition
-    requestAnimationFrame(() => {
-      this.el.classList.add("fade-transition-active");
-    });
-
-    // Clean up classes after the transition completes
-    this.el.addEventListener("transitionend", () => {
-      this.el.classList.remove("fade-transition", "fade-transition-active");
-    }, { once: true });
-  }
-}
-
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
-  params: {_csrf_token: csrfToken},
-  hooks: Hooks
+  params: {_csrf_token: csrfToken}
 })
 
 // Show progress bar on live navigation and form submits
@@ -70,6 +45,27 @@ window.addEventListener("phx:page-loading-stop", info => {
   const main = document.querySelector("main");
   main.classList.remove("phx-page-loading")
 })
+
+// window.addEventListener("phx:navigate", info => {
+//   const items = document.querySelectorAll(".item");
+//   // console.log(items)
+//   // main.classList.add("phx-page-loading")
+//   items.forEach(function (currentValue, currentIndex, listObj) {
+//     currentValue.classList.add("fade-transition"); // Set initial hidden state
+
+//     // Wait for the next animation frame, then add the active class to start the transition
+//     requestAnimationFrame(() => {
+//       currentValue.classList.add("fade-transition-active");
+//     });
+
+//     // Clean up classes after the transition completes
+//     currentValue.addEventListener("transitionend", () => {
+//       currentValue.classList.remove("fade-transition", "fade-transition-active");
+//     }, { once: false });
+
+//     console.log(`${currentValue}, ${currentIndex}, ${this}`);
+//   }, "myThisArg");
+// })
 
 // connect if there are any LiveViews on the page
 liveSocket.connect()

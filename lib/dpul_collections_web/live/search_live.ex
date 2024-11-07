@@ -131,7 +131,11 @@ defmodule DpulCollectionsWeb.SearchLive do
   def search_item(assigns) do
     ~H"""
     <hr />
-    <div id={"item-#{@item.id}"} class="item">
+    <div
+      id={"item-#{@item.id}"}
+      class="item"
+      phx-mounted={JS.transition({"ease-in duration-700", "opacity-0", "opacity-100"}, time: 700)}
+    >
       <div class="flex flex-wrap gap-5 md:max-h-60 max-h-[20rem] overflow-hidden justify-center md:justify-start relative">
         <.thumbs
           :for={{thumb, thumb_num} <- Enum.with_index(@item.image_service_urls)}
@@ -262,13 +266,17 @@ defmodule DpulCollectionsWeb.SearchLive do
       %{socket.assigns.search_state | sort_by: params["sort-by"]}
       |> Helpers.clean_params([:page, :per_page])
 
-    socket = push_patch(socket, to: ~p"/search?#{params}")
+    socket = push_navigate(socket, to: ~p"/search?#{params}", replace: true)
     {:noreply, socket}
   end
 
   def handle_event("paginate", %{"page" => page}, socket) when page != "..." do
     params = %{socket.assigns.search_state | page: page} |> Helpers.clean_params()
+<<<<<<< HEAD
     socket = push_redirect(socket, to: ~p"/search?#{params}", replace: true)
+=======
+    socket = push_navigate(socket, to: ~p"/search?#{params}", replace: true)
+>>>>>>> ea02d09 (adds transitions to item elements upon mount)
     {:noreply, socket}
   end
 
