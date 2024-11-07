@@ -58,8 +58,22 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
 
     assert %{
              "id" => ^marker_1_id,
-             "internal_resource" => "EphemeraFolder"
+             "internal_resource" => "EphemeraFolder",
+             "metadata" => %{
+               "member_ids" => [
+                 %{"id" => "06838583-59a4-4ab8-ac65-2b5ea9ee6425"}
+                 | _rest
+               ]
+             }
            } = cache_entry.data
+
+    assert %{
+      "member_ids" => %{
+        "06838583-59a4-4ab8-ac65-2b5ea9ee6425" => %{
+          "internal_resource" => "FileSet"
+        }
+      }
+    } = cache_entry.related_data
 
     hydrator |> Broadway.stop(:normal)
   end

@@ -4,6 +4,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
 
   schema "figgy_hydration_cache_entries" do
     field :data, :map
+    field :related_data, :map
     field :cache_version, :integer
     field :record_id, :string
     field :source_cache_order, :utc_datetime_usec
