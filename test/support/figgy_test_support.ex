@@ -14,6 +14,15 @@ defmodule FiggyTestSupport do
     FiggyRepo.aggregate(query, :count)
   end
 
+  def first_ephemera_folder do
+    query =
+      from r in Figgy.Resource,
+        where: r.internal_resource == "EphemeraFolder",
+        limit: 1
+
+    FiggyRepo.one(query)
+  end
+
   def ephemera_folder_count do
     query =
       from r in Figgy.Resource,
