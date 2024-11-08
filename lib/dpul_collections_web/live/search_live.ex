@@ -133,7 +133,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     <hr />
     <div class="item">
       <div class="flex flex-wrap gap-5 md:max-h-60 max-h-[20rem] overflow-hidden justify-center md:justify-start relative">
-        <.thumbs :for={_thumb <- 1..@item.page_count} :if={@item.page_count} />
+        <.thumbs :for={thumb_num <- 1..@item.page_count} :if={@item.page_count} thumb_num={thumb_num} />
         <div :if={@item.page_count > 1} class="absolute right-0 top-0 bg-white px-4 py-2">
           <%= @item.page_count %> Pages
         </div>
@@ -152,6 +152,11 @@ defmodule DpulCollectionsWeb.SearchLive do
     <img
       class="h-[350px] w-[350px] md:h-[225px] md:w-[225px]"
       src="https://picsum.photos/350/350/?random"
+      alt={"image #{@thumb_num}"}
+      style="
+        background-color: lightgray;"
+      width="350"
+      height="350"
     />
     """
   end
@@ -186,18 +191,18 @@ defmodule DpulCollectionsWeb.SearchLive do
       <.link
         :for={{page_number, current_page?} <- pages(@page, @per_page, @total_items)}
         class={"
-          flex 
-          items-center 
-          justify-center 
-          px-3 
-          h-8 
-          leading-tight 
+          flex
+          items-center
+          justify-center
+          px-3
+          h-8
+          leading-tight
           #{if current_page?, do: "active", else: "
-              border-gray-300 
-              text-gray-500 
-              bg-white border 
-              hover:bg-gray-100 
-              hover:text-gray-700 
+              border-gray-300
+              text-gray-500
+              bg-white border
+              hover:bg-gray-100
+              hover:text-gray-700
             "}
         "}
         phx-click="paginate"

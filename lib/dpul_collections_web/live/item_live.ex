@@ -37,7 +37,15 @@ defmodule DpulCollectionsWeb.ItemLive do
         <div class="pb-4"><%= @item.date %></div>
       </div>
       <div class="md:col-span-2 md:order-first">
-        <img class="w-full" src="https://picsum.photos/525/800/?random" />
+        <img
+          class="w-full"
+          src="https://picsum.photos/525/800/?random"
+          alt="main image display"
+          style="
+          background-color: lightgray;"
+          width="525"
+          height="800"
+        />
         <button class="w-full btn-primary">
           Download
         </button>
@@ -45,7 +53,11 @@ defmodule DpulCollectionsWeb.ItemLive do
       <section class="md:col-span-5 m:order-last py-4">
         <h2 class="text-l font-bold py-4">Pages (<%= @item.page_count %>)</h2>
         <div class="flex flex-wrap gap-5 justify-center md:justify-start">
-          <.thumbs :for={_thumb <- 1..@item.page_count} :if={@item.page_count} />
+          <.thumbs
+            :for={thumb_num <- 1..@item.page_count}
+            :if={@item.page_count}
+            thumb_num={thumb_num}
+          />
         </div>
       </section>
     </div>
@@ -58,6 +70,11 @@ defmodule DpulCollectionsWeb.ItemLive do
       <img
         class="h-[465px] w-[350px] md:h-[300px] md:w-[225px]"
         src="https://picsum.photos/350/350/?random"
+        alt={"image #{@thumb_num}"}
+        style="
+          background-color: lightgray;"
+        width="350"
+        height="465"
       />
       <button class="w-[350px] md:w-[225px] btn-primary">
         Download
