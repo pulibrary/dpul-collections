@@ -60,13 +60,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
              visibility == ["open"] do
     marker = CacheEntryMarker.from(message)
 
+    message_map =
+      %{marker: marker, incoming_message_data: message.data}
+      |> Map.merge(Figgy.Resource.to_hydration_cache_attrs(message.data))
+
     message
-    |> Broadway.Message.put_data(%{
-      marker: marker,
-      incoming_message_data: message.data,
-      handled_data: message.data |> Map.from_struct() |> Map.delete(:__meta__),
-      related_data: extract_related_data(message.data)
-    })
+    |> Broadway.Message.put_data(message_map)
   end
 
   def handle_message(
@@ -81,41 +80,18 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
       when internal_resource in ["EphemeraTerm"] do
     marker = CacheEntryMarker.from(message)
 
+    message_map =
+      %{marker: marker, incoming_message_data: message.data}
+      |> Map.merge(Figgy.Resource.to_hydration_cache_attrs(message.data))
+
     message
-    |> Broadway.Message.put_data(%{
-      marker: marker,
-      incoming_message_data: message.data,
-      handled_data: message.data |> Map.from_struct() |> Map.delete(:__meta__),
-      related_data: %{}
-    })
+    |> Broadway.Message.put_data(message_map)
   end
 
   # If it's not selected above, ack the message but don't do anything with it.
   def handle_message(_processor, message, _state) do
     message
     |> Broadway.Message.put_batcher(:noop)
-  end
-
-  def extract_related_data(resource) do
-    %{
-      "member_ids" => extract_members(resource)
-    }
-  end
-
-  defp extract_members(%{:metadata => %{"member_ids" => member_ids}}) do
-    Enum.reduce(member_ids, %{}, &append_related_resource/2)
-  end
-
-  defp extract_members(_resource) do
-    %{}
-  end
-
-  defp append_related_resource(%{"id" => id}, acc) do
-    acc
-    |> Map.put(
-      id,
-      IndexingPipeline.get_figgy_resource!(id) |> Map.from_struct() |> Map.delete(:__meta__)
-    )
   end
 
   defp write_to_hydration_cache(
