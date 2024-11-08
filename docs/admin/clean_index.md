@@ -21,7 +21,7 @@ You should also add the new collection to the [collections config file](https://
 
 How to tell when it's time to swap to the new solr index! I think you want 2 things:
 
-1. the last record processed in the new cache version indexing consumer is equal to or later than the last record processed in the old cache version indexing consumer
+1. the last record processed in the new cache version indexing consumer is equal to or later than the last record processed in the old cache version indexing consumer. To check this look for `DpulCollections.IndexingPipeline.Coherence.index_parity?()` to return `true`.
 1. the number of records in the new solr collection is about the same as the number of records in the old solr collection. The index size may be slightly larger if for whatever reason the new collection is getting updates faster than the old one. The index size may be smaller if the old index has records that needed to be deleted for some reason. To see the compartive size of the two indexes do `DpulCollections.IndexingPipeline.Coherence.document_count_report()`
 
 When you're ready to use the new index, connect to a iex console on the indexer (see the README under "Connecting to Staging Shell or IEX Console") and run `DpulCollections.Solr.set_alias/1`, passing the new collection name.

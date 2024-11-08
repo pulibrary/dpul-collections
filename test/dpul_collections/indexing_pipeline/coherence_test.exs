@@ -1,34 +1,86 @@
 defmodule DpulCollections.IndexingPipeline.CoherenceTest do
   use DpulCollections.DataCase
   alias DpulCollections.Solr
+  alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Coherence
+
   import SolrTestSupport
 
   setup do
     Solr.delete_all(active_collection())
-    on_exit(fn -> Solr.delete_all(active_collection()) end)
+
+    Application.put_env(:dpul_collections, DpulCollections.IndexingPipeline, [
+      [cache_version: 1, write_collection: "dpulc1"],
+      [cache_version: 2, write_collection: "dpulc2"]
+    ])
+
+    on_exit(fn ->
+      Solr.delete_all(active_collection())
+      Application.delete_env(:dpul_collections, DpulCollections.IndexingPipeline)
+    end)
   end
 
-  setup context do
-    if cache_settings = context[:cache_settings] do
-      Application.put_env(:dpul_collections, DpulCollections.IndexingPipeline, cache_settings)
+  test "index_parity?/0 is false when the old index is fresher than the new index" do
+    {marker1, marker2, _marker3} = FiggyTestFixtures.transformation_cache_markers()
 
-      on_exit(fn ->
-        Application.delete_env(:dpul_collections, DpulCollections.IndexingPipeline)
-      end)
-    end
+    IndexingPipeline.write_processor_marker(%{
+      type: "figgy_indexer",
+      cache_version: 1,
+      cache_location: marker2.timestamp,
+      cache_record_id: marker2.id
+    })
 
-    :ok
+    IndexingPipeline.write_processor_marker(%{
+      type: "figgy_indexer",
+      cache_version: 2,
+      cache_location: marker1.timestamp,
+      cache_record_id: marker1.id
+    })
+
+    refute Coherence.index_parity?()
   end
 
-  @tag cache_settings: [
-         [cache_version: 1, write_collection: "dpulc1"],
-         [
-           cache_version: 2,
-           write_collection: "dpulc2"
-         ]
-       ]
-  test "document_count_report" do
+  test "index_parity?/0 is true when the new index is fresher than the old index" do
+    {marker1, marker2, _marker3} = FiggyTestFixtures.transformation_cache_markers()
+
+    IndexingPipeline.write_processor_marker(%{
+      type: "figgy_indexer",
+      cache_version: 1,
+      cache_location: marker1.timestamp,
+      cache_record_id: marker1.id
+    })
+
+    IndexingPipeline.write_processor_marker(%{
+      type: "figgy_indexer",
+      cache_version: 2,
+      cache_location: marker2.timestamp,
+      cache_record_id: marker2.id
+    })
+
+    assert Coherence.index_parity?()
+  end
+
+  test "index_parity?/0 is true when the new index and the old index have equal freshness" do
+    {marker1, _marker2, _marker3} = FiggyTestFixtures.transformation_cache_markers()
+
+    IndexingPipeline.write_processor_marker(%{
+      type: "figgy_indexer",
+      cache_version: 1,
+      cache_location: marker1.timestamp,
+      cache_record_id: marker1.id
+    })
+
+    IndexingPipeline.write_processor_marker(%{
+      type: "figgy_indexer",
+      cache_version: 2,
+      cache_location: marker1.timestamp,
+      cache_record_id: marker1.id
+    })
+
+    assert Coherence.index_parity?()
+  end
+
+  test "document_count_report/0" do
     new_collection = "dpulc2"
     Solr.create_collection(new_collection)
 
