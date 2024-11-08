@@ -1,9 +1,9 @@
 defmodule DpulCollections.Solr do
-  @spec document_count() :: integer()
-  def document_count do
+  # @spec document_count() :: integer()
+  def document_count(collection \\ read_collection()) do
     {:ok, response} =
       Req.get(
-        select_url(),
+        select_url(collection),
         params: [q: "*:*"]
       )
 
@@ -20,7 +20,7 @@ defmodule DpulCollections.Solr do
   ]
 
   @spec query(map()) :: map()
-  def query(search_state) do
+  def query(search_state, collection \\ read_collection()) do
     fl = Enum.join(@query_field_list, ",")
 
     solr_params = [
@@ -34,7 +34,7 @@ defmodule DpulCollections.Solr do
 
     {:ok, response} =
       Req.get(
-        select_url(),
+        select_url(collection),
         params: solr_params
       )
 
@@ -66,10 +66,10 @@ defmodule DpulCollections.Solr do
     max(page - 1, 0) * per_page
   end
 
-  def latest_document() do
+  def latest_document(collection \\ read_collection()) do
     {:ok, response} =
       Req.get(
-        select_url(),
+        select_url(collection),
         params: [q: "*:*", sort: "_version_ desc"]
       )
 
@@ -79,10 +79,10 @@ defmodule DpulCollections.Solr do
     end
   end
 
-  def find_by_id(id) do
+  def find_by_id(id, collection \\ read_collection()) do
     {:ok, response} =
       Req.get(
-        select_url(),
+        select_url(collection),
         params: [q: "id:#{id}"]
       )
 
@@ -93,7 +93,7 @@ defmodule DpulCollections.Solr do
   end
 
   @spec add(list(map()), String.t()) :: {:ok, Req.Response.t()} | {:error, Exception.t()}
-  def add(docs, collection \\ nil) do
+  def add(docs, collection \\ read_collection()) do
     Req.post(
       update_url(collection),
       json: docs
@@ -101,7 +101,7 @@ defmodule DpulCollections.Solr do
   end
 
   @spec commit(String.t()) :: {:ok, Req.Response.t()} | {:error, Exception.t()}
-  def commit(collection \\ nil) do
+  def commit(collection \\ read_collection()) do
     Req.get(
       update_url(collection),
       params: [commit: true]
@@ -110,7 +110,7 @@ defmodule DpulCollections.Solr do
 
   @spec delete_all(String.t()) ::
           {:ok, Req.Response.t()} | {:error, Exception.t()} | Exception.t()
-  def delete_all(collection \\ nil) do
+  def delete_all(collection \\ read_collection()) do
     Req.post!(
       update_url(collection),
       json: %{delete: %{query: "*:*"}}
@@ -119,65 +119,46 @@ defmodule DpulCollections.Solr do
     commit(collection)
   end
 
+  defp select_url(collection) do
+    client()
+    |> Req.merge(url: "/solr/#{collection}/select")
+  end
+
+  defp update_url(collection) do
+    client()
+    |> Req.merge(url: "/solr/#{collection}/update")
+  end
+
+  def client() do
+    url_hash = Application.fetch_env!(:dpul_collections, :solr)
+
+    Req.new(
+      base_url: url_hash[:base_url],
+      auth: auth(url_hash)
+    )
+  end
+
   defp auth(%{username: ""}), do: nil
 
   defp auth(%{username: username, password: password}) do
     {:basic, "#{username}:#{password}"}
   end
 
-  defp select_url do
-    client(:read)
-    |> Req.merge(url: "/select")
+  def read_collection() do
+    Application.fetch_env!(:dpul_collections, :solr)[:read_collection]
   end
 
-  defp update_url(nil) do
-    url_hash = Application.fetch_env!(:dpul_collections, :solr)
-    update_url(url_hash[:read_collection])
+  def config_set() do
+    Application.fetch_env!(:dpul_collections, :solr)[:config_set]
   end
 
-  defp update_url(collection) do
-    client(:write, collection)
-    |> Req.merge(url: "/update")
-  end
-
-  def client(:read) do
-    url_hash = Application.fetch_env!(:dpul_collections, :solr)
-
-    url =
-      url_hash[:base_url]
-      |> Path.join("solr/#{url_hash[:read_collection]}")
-
-    Req.new(
-      base_url: url,
-      auth: auth(url_hash)
-    )
-  end
-
-  def client(:write, collection) do
-    url_hash = Application.fetch_env!(:dpul_collections, :solr)
-
-    url =
-      url_hash[:base_url]
-      |> Path.join("solr/#{collection}")
-
-    Req.new(
-      base_url: url,
-      auth: auth(url_hash)
-    )
-  end
-
+  ####
+  # Solr management api wrappers
+  ####
   def list_collections do
-    url_hash = Application.fetch_env!(:dpul_collections, :solr)
-
-    url =
-      url_hash[:base_url]
-      |> Path.join("api/collections")
-
     {:ok, response} =
-      Req.new(
-        base_url: url,
-        auth: auth(url_hash)
-      )
+      client()
+      |> Req.merge(url: "/api/collections")
       |> Req.get()
 
     response.body["collections"]
@@ -188,22 +169,14 @@ defmodule DpulCollections.Solr do
   end
 
   def create_collection(collection) do
-    url_hash = Application.fetch_env!(:dpul_collections, :solr)
-
-    url =
-      url_hash[:base_url]
-      |> Path.join("api/collections")
-
-    Req.new(
-      base_url: url,
-      auth: auth(url_hash)
-    )
+    client()
+    |> Req.merge(url: "/api/collections")
     |> Req.Request.put_header("content-type", "application/json")
     |> Req.post!(
       json: %{
         create: %{
           name: collection,
-          config: url_hash[:config_set],
+          config: config_set(),
           numShards: 1,
           waitForFinalState: true
         }
@@ -212,51 +185,27 @@ defmodule DpulCollections.Solr do
   end
 
   def delete_collection(collection) do
-    url_hash = Application.fetch_env!(:dpul_collections, :solr)
-
-    url =
-      url_hash[:base_url]
-      |> Path.join("api/collections/#{collection}")
-
-    Req.new(
-      base_url: url,
-      auth: auth(url_hash)
-    )
+    client()
+    |> Req.merge(url: "api/collections/#{collection}")
     |> Req.delete!()
   end
 
   def get_alias do
-    url_hash = Application.fetch_env!(:dpul_collections, :solr)
-
-    url =
-      url_hash[:base_url]
-      |> Path.join("solr/admin/collections")
-
     {:ok, response} =
-      Req.new(
-        base_url: url,
-        auth: auth(url_hash),
+      client()
+      |> Req.merge(
+        url: "solr/admin/collections",
         params: [action: "LISTALIASES"]
       )
       |> Req.get()
 
-    response.body["aliases"][url_hash[:read_collection]]
+    response.body["aliases"][read_collection()]
   end
 
   def set_alias(collection) do
-    url_hash = Application.fetch_env!(:dpul_collections, :solr)
-
-    url =
-      url_hash[:base_url]
-      |> Path.join("api/c")
-
-    Req.new(
-      base_url: url,
-      auth: auth(url_hash)
-    )
+    client()
+    |> Req.merge(url: "api/c")
     |> Req.Request.put_header("content-type", "application/json")
-    |> Req.post!(
-      json: %{"create-alias": %{name: url_hash[:read_collection], collections: [collection]}}
-    )
+    |> Req.post!(json: %{"create-alias": %{name: read_collection(), collections: [collection]}})
   end
 end

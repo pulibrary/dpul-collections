@@ -96,15 +96,15 @@ defmodule DpulCollections.SolrTest do
          password: "test"
        }
   test ".client/0 setting auth works" do
-    client = Solr.client(:read)
-    assert client.options.base_url == "http://localhost:8983/solr/bla"
+    client = Solr.client()
+    assert client.options.base_url == "http://localhost:8983"
     assert client.options.auth == {:basic, "test:test"}
   end
 
   @tag solr_settings: %{base_url: "http://localhost:8983", read_collection: "bla", username: ""}
   test ".client/0 with no auth works" do
-    client = Solr.client(:read)
-    assert client.options.base_url == "http://localhost:8983/solr/bla"
+    client = Solr.client()
+    assert client.options.base_url == "http://localhost:8983"
     assert client.options.auth == nil
   end
 

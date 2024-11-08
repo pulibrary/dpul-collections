@@ -74,28 +74,20 @@ Note: This will use the same cache_version, overwriting the current Solr documen
 
 ### Create a clean Solr index
 
-To write a second index while the current index continues to receive updates and serve reads, update the `index_cache_collections` variable in the relevant `.hcl` deployment file. for example, if the current value is:
-
-```
-default = "cache_version:1,write_collection:dpulc-staging1"
-```
-
-The new value might be:
-```
-default = "cache_version:1,write_collection:dpulc-staging1;cache_version:2,write_collection:dpulc-staging2"
-```
-
-Note that each write index must be associated with a cache_version, and the two configurations must be separated by a semicolon. The new cache version must always be higher than the existing cache version.
-
-In development this configuration is formatted as a list of keyword lists in the `config :dpul_collections, DpulCollections.IndexingPipeline` block.
-
-With the new write index specified in configuration, deploy the application (or restart your development processes). A full indexing pipeline will start up for each configured cache_version / write_collection pair. The Indexing code will create the new collection and start writing to it.
-
+See instructions for creating new clean solr index in [/docs/admin/clean_index.md](/docs/admin/clean_index.md)
 
 ### Connecting to Staging Shell or IEX Console
 
 1. Connect to VPN
 1. `./bin/console staging [bash/repl]`
+
+By default this will connect you to a web node (Issues #193). To connect to an indexer node use the `JOBTASK` env variable:
+
+`JOBTASK=indexer ./bin/console staging repl`
+
+You will know you're connected to an indexer node if `Broadway.all_running()` returns a populated list.
+
+Another way to connect to a shell or iex console is via the [nomad UI](nomad.lib.princeton.edu). Log in and go to jobs > dpulc-staging > exec. select "indexer" then enter the default command `/bin/bash`. To run the iex console do `./bin/dpul_collections remote`.
 
 ### Build & Run Production Docker Image Locally
 
