@@ -92,6 +92,8 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     document =
       view
       |> render_click("sort", %{"sort-by" => "date_asc"})
+      |> follow_redirect(conn)
+      |> elem(2)
       |> Floki.parse_document()
       |> elem(1)
 
@@ -103,9 +105,13 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Floki.find(~s{a[href="/i/document1/item/1"]})
            |> Enum.empty?()
 
+    {:ok, view, _html} = live(conn, "/search")
+
     document =
       view
       |> render_click("sort", %{"sort-by" => "date_desc"})
+      |> follow_redirect(conn)
+      |> elem(2)
       |> Floki.parse_document()
       |> elem(1)
 
@@ -205,6 +211,8 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     document =
       view
       |> render_click("sort", %{"sort-by" => "date_asc"})
+      |> follow_redirect(conn)
+      |> elem(2)
       |> Floki.parse_document()
       |> elem(1)
 
