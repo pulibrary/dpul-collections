@@ -37,7 +37,13 @@ defmodule DpulCollectionsWeb.ItemLive do
         <div class="pb-4"><%= @item.date %></div>
       </div>
       <div class="md:col-span-2 md:order-first">
-        <img class="w-full" src="https://picsum.photos/525/800/?random" />
+        <img class="w-full" src="https://picsum.photos/525/800/?random"
+        alt="gray_image_placeholder"
+        style="
+          background-color: lightgray;"
+        width="525"
+        height="800"
+        />
         <button class="w-full btn-primary">
           Download
         </button>
