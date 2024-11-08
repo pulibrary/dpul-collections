@@ -22,7 +22,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   @spec to_solr_document(%__MODULE__{}) :: %{}
   def to_solr_document(hydration_cache_entry) do
     %{record_id: id} = hydration_cache_entry
-    %{data: %{"metadata" => metadata}} = hydration_cache_entry
+    %{data: %{"metadata" => metadata}, related_data: related_data} = hydration_cache_entry
 
     %{
       id: id,
@@ -30,9 +30,61 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
       description_txtm: get_in(metadata, ["description"]),
       years_is: extract_years(metadata),
       display_date_s: format_date(metadata),
-      page_count_i: page_count(metadata)
+      page_count_i: page_count(metadata),
+      image_service_urls_ss: image_service_urls(metadata, related_data)
     }
   end
+
+  defp image_service_urls(%{"member_ids" => member_ids}, related_data) do
+    member_ids
+    |> Enum.map(&extract_service_url(&1, related_data))
+    |> Enum.filter(fn url -> url end)
+  end
+
+  defp image_service_urls(_, _), do: []
+
+  # Find the given member ID in the related data.
+  defp extract_service_url(%{"id" => id}, %{"member_ids" => member_data}) do
+    extract_service_url(member_data[id])
+  end
+
+  defp extract_service_url(_id, _) do
+    nil
+  end
+
+  # Find the derivative FileMetadata
+  defp extract_service_url(%{
+         "internal_resource" => "FileSet",
+         "metadata" => %{"file_metadata" => metadata}
+       }) do
+    derivative_file_metadata = metadata |> Enum.find(&is_derivative/1)
+    extract_service_url(derivative_file_metadata)
+  end
+
+  # Extract the FileMetadata ID
+  defp extract_service_url(%{
+         "internal_resource" => "FileMetadata",
+         "id" => %{"id" => file_metadata_id}
+       }) do
+    extract_service_url(file_metadata_id)
+  end
+
+  # Convert FileMetadata ID to to a URL using binary pattern matching, which is
+  # very fast.
+  defp extract_service_url(
+         full_id =
+           <<first_two::binary-size(2), second_two::binary-size(2), third_two::binary-size(2),
+             _rest::binary>>
+       ) do
+    uuid_path =
+      [first_two, second_two, third_two, String.replace(full_id, "-", ""), "intermediate_file"]
+      |> Enum.join("%2F")
+
+    "https://iiif-cloud.princeton.edu/iiif/2/#{uuid_path}"
+  end
+
+  defp is_derivative(%{"use" => [%{"@id" => "http://pcdm.org/use#ServiceFile"}]}), do: true
+  defp is_derivative(_), do: false
 
   defp page_count(%{"member_ids" => member_ids}) when is_list(member_ids) do
     member_ids |> length

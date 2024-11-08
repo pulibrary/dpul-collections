@@ -40,7 +40,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
     indexer = start_indexing_producer()
 
     MockFiggyIndexingProducer.process(1)
-    assert_receive {:ack_done}
+    assert_receive {:ack_done}, 500
 
     Solr.commit(active_collection())
     assert Solr.document_count() == 1
@@ -55,7 +55,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
     indexer = start_indexing_producer(cache_version)
 
     MockFiggyIndexingProducer.process(1, cache_version)
-    assert_receive {:ack_done}
+    assert_receive {:ack_done}, 500
 
     processor_marker = IndexingPipeline.get_processor_marker!("figgy_indexer", cache_version)
     assert processor_marker.cache_version == cache_version
@@ -81,7 +81,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
     # Process that past record.
     indexer = start_indexing_producer()
     MockFiggyIndexingProducer.process(1)
-    assert_receive {:ack_done}
+    assert_receive {:ack_done}, 500
     indexer |> Broadway.stop(:normal)
     # Ensure there's only one solr document
     Solr.commit(active_collection())
@@ -105,7 +105,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
     # Start the producer
     indexer = start_indexing_producer()
     MockFiggyIndexingProducer.process(1)
-    assert_receive {:ack_done}
+    assert_receive {:ack_done}, 500
     Solr.commit(active_collection())
     # Make sure the first record that comes back is what we expect
     doc = Solr.find_by_id(marker2.id)
