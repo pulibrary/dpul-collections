@@ -9,7 +9,11 @@ defmodule SolrTestSupport do
         title_txtm: "Document-#{n}",
         display_date_s: date |> Integer.to_string(),
         years_is: [date],
-        page_count_i: page_count
+        page_count_i: page_count,
+        image_service_urls_ss: [
+          "https://example.com/iiif/2/image1",
+          "https://example.com/iiif/2/image2"
+        ]
       }
     end
   end

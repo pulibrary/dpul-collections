@@ -54,7 +54,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         <h2 class="text-l font-bold py-4">Pages (<%= @item.page_count %>)</h2>
         <div class="flex flex-wrap gap-5 justify-center md:justify-start">
           <.thumbs
-            :for={{thumb_num, thumb} <- Enum.with_index(@item.image_service_urls)}
+            :for={{thumb, thumb_num} <- Enum.with_index(@item.image_service_urls)}
             :if={@item.page_count}
             thumb={thumb}
             thumb_num={thumb_num}

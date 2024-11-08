@@ -131,9 +131,14 @@ defmodule DpulCollectionsWeb.SearchLive do
   def search_item(assigns) do
     ~H"""
     <hr />
-    <div class="item">
+    <div id={"item-#{@item.id}"} class="item">
       <div class="flex flex-wrap gap-5 md:max-h-60 max-h-[20rem] overflow-hidden justify-center md:justify-start relative">
-        <.thumbs :for={{thumb_num, thumb} <- Enum.with_index(@item.image_service_urls)} thumb={thumb} thumb_num={thumb_num} :if={@item.page_count} />
+        <.thumbs
+          :for={{thumb, thumb_num} <- Enum.with_index(@item.image_service_urls)}
+          :if={@item.page_count}
+          thumb={thumb}
+          thumb_num={thumb_num}
+        />
         <div :if={@item.page_count > 1} class="absolute right-0 top-0 bg-white px-4 py-2">
           <%= @item.page_count %> Pages
         </div>
@@ -248,7 +253,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       }
       |> Helpers.clean_params([:page, :per_page])
 
-    socket = push_redirect(socket, to: ~p"/search?#{params}", replace: true)
+    socket = push_patch(socket, to: ~p"/search?#{params}", replace: true)
     {:noreply, socket}
   end
 

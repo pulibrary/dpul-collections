@@ -14,19 +14,31 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           id: 1,
           title_txtm: "Învăţămîntul trebuie să urmărească dezvoltarea deplină a personalităţii",
           display_date_s: "2022",
-          page_count_i: 17
+          page_count_i: 17,
+          image_service_urls_ss: [
+            "https://example.com/iiif/2/image1",
+            "https://example.com/iiif/2/image2"
+          ]
         },
         %{
           id: 2,
           title_txtm: "زلزلہ",
           display_date_s: "2024",
-          page_count_i: 14
+          page_count_i: 14,
+          image_service_urls_ss: [
+            "https://example.com/iiif/2/image1",
+            "https://example.com/iiif/2/image2"
+          ]
         },
         %{
           id: 3,
           title_txtm: "اب كوئى جنگ نه هوگى نه كبهى رات گئے، خون كى آگ كو اشكوں سے بجهانا هوگا",
           display_date_s: "2022",
-          page_count_i: 1
+          page_count_i: 1,
+          image_service_urls_ss: [
+            "https://example.com/iiif/2/image1",
+            "https://example.com/iiif/2/image2"
+          ]
         }
       ],
       active_collection()
@@ -75,6 +87,35 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     assert response =~ "Învăţămîntul trebuie să urmărească dezvoltarea deplină a personalităţii"
     assert response =~ "2022"
     assert response =~ "17"
+    # Thumbnails render.
+    assert view
+           |> has_element?(
+             "img[src='https://example.com/iiif/2/image1/full/350,465/0/default.jpg']"
+           )
+
+    assert view
+           |> has_element?(
+             "img[src='https://example.com/iiif/2/image2/full/350,465/0/default.jpg']"
+           )
+
+    # Download links for each thumbnail
+    assert view
+           |> has_element?(
+             "a[href='https://example.com/iiif/2/image1/full/full/0/default.jpg']",
+             "Download"
+           )
+
+    assert view
+           |> has_element?(
+             "a[href='https://example.com/iiif/2/image2/full/full/0/default.jpg']",
+             "Download"
+           )
+
+    # Large thumbnail renders
+    assert view
+           |> has_element?(
+             "img[src='https://example.com/iiif/2/image2/full/350,465/0/default.jpg']"
+           )
   end
 
   test "/i/{:slug}/item/{:id} does not redirect with a bad id", %{conn: conn} do
