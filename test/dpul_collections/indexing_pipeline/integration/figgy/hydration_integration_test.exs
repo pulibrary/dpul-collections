@@ -1,4 +1,4 @@
-defmodule DpulCollections.IndexingPipeline.Figgy.HyrdationIntegrationTest do
+defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
   use DpulCollections.DataCase
 
   alias DpulCollections.IndexingPipeline.Figgy
@@ -23,6 +23,59 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HyrdationIntegrationTest do
       )
 
     hydrator
+  end
+
+  def jump_processor_to_ephemera_folder(cache_version \\ 0) do
+    marker1 = FiggyTestFixtures.ephemera_folder_marker()
+    # Write the hydrator right behind an EphemeraFolder, since there are
+    # DeletionMarkers in front of EphemeraFolders.
+    earlier_marker = %IndexingPipeline.DatabaseProducer.CacheEntryMarker{
+      id: marker1.id,
+      timestamp: DateTime.add(marker1.timestamp, -1, :microsecond)
+    }
+
+    IndexingPipeline.write_processor_marker(%{
+      type: Figgy.HydrationProducerSource.processor_marker_key(),
+      cache_version: cache_version,
+      cache_location: earlier_marker.timestamp,
+      cache_record_id: earlier_marker.id
+    })
+  end
+
+  test "ephemera folder cache entry creation" do
+    jump_processor_to_ephemera_folder()
+    marker1 = FiggyTestFixtures.ephemera_folder_marker()
+    hydrator = start_producer()
+
+    MockFiggyHydrationProducer.process(1)
+    assert_receive {:ack_done}
+
+    cache_entry = IndexingPipeline.list_hydration_cache_entries() |> hd
+    assert cache_entry.record_id == marker1.id
+    assert cache_entry.cache_version == 0
+    assert cache_entry.source_cache_order == marker1.timestamp
+    marker_1_id = marker1.id
+
+    assert %{
+             "id" => ^marker_1_id,
+             "internal_resource" => "EphemeraFolder",
+             "metadata" => %{
+               "member_ids" => [
+                 %{"id" => "06838583-59a4-4ab8-ac65-2b5ea9ee6425"}
+                 | _rest
+               ]
+             }
+           } = cache_entry.data
+
+    assert %{
+             "member_ids" => %{
+               "06838583-59a4-4ab8-ac65-2b5ea9ee6425" => %{
+                 "internal_resource" => "FileSet"
+               }
+             }
+           } = cache_entry.related_data
+
+    hydrator |> Broadway.stop(:normal)
   end
 
   test "hydration cache entry creation" do

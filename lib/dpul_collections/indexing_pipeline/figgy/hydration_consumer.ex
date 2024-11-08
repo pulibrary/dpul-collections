@@ -60,12 +60,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
              visibility == ["open"] do
     marker = CacheEntryMarker.from(message)
 
+    message_map =
+      %{marker: marker, incoming_message_data: message.data}
+      |> Map.merge(Figgy.Resource.to_hydration_cache_attrs(message.data))
+
     message
-    |> Broadway.Message.put_data(%{
-      marker: marker,
-      incoming_message_data: message.data,
-      handled_data: message.data |> Map.from_struct() |> Map.delete(:__meta__)
-    })
+    |> Broadway.Message.put_data(message_map)
   end
 
   def handle_message(
@@ -80,12 +80,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
       when internal_resource in ["EphemeraTerm"] do
     marker = CacheEntryMarker.from(message)
 
+    message_map =
+      %{marker: marker, incoming_message_data: message.data}
+      |> Map.merge(Figgy.Resource.to_hydration_cache_attrs(message.data))
+
     message
-    |> Broadway.Message.put_data(%{
-      marker: marker,
-      incoming_message_data: message.data,
-      handled_data: message.data |> Map.from_struct() |> Map.delete(:__meta__)
-    })
+    |> Broadway.Message.put_data(message_map)
   end
 
   # If it's not selected above, ack the message but don't do anything with it.
@@ -95,7 +95,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   end
 
   defp write_to_hydration_cache(
-         %Broadway.Message{data: %{marker: marker, handled_data: data}},
+         %Broadway.Message{
+           data: %{marker: marker, handled_data: data, related_data: related_data}
+         },
          cache_version
        ) do
     # store in HydrationCache:
@@ -109,7 +111,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         cache_version: cache_version,
         record_id: marker.id,
         source_cache_order: marker.timestamp,
-        data: data
+        data: data,
+        related_data: related_data
       })
 
     {:ok, response}

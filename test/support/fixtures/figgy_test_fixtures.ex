@@ -25,6 +25,11 @@ defmodule FiggyTestFixtures do
     {marker1, marker2, marker3}
   end
 
+  def ephemera_folder_marker do
+    FiggyTestSupport.first_ephemera_folder()
+    |> CacheEntryMarker.from()
+  end
+
   def hydration_cache_entries(cache_version \\ 0) do
     # This id actually corresponds to an EphemeraTerm
     # description, date_created and date range taken from
