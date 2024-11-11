@@ -253,7 +253,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       }
       |> Helpers.clean_params([:page, :per_page])
 
-    socket = push_patch(socket, to: ~p"/search?#{params}", replace: true)
+    socket = push_patch(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
   end
 
@@ -268,7 +268,7 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def handle_event("paginate", %{"page" => page}, socket) when page != "..." do
     params = %{socket.assigns.search_state | page: page} |> Helpers.clean_params()
-    socket = push_redirect(socket, to: ~p"/search?#{params}", replace: true)
+    socket = push_redirect(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
   end
 
