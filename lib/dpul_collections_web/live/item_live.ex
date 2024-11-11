@@ -38,7 +38,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def render(assigns) do
     ~H"""
     <div class="my-5 grid grid-flow-row auto-rows-max md:grid-cols-5 gap-4">
-      <div class="item md:col-span-3 md:pl-6">
+      <div class="item md:col-span-3 md:pl-8">
         <h1 class="text-4xl font-bold pb-2"><%= @item.title %></h1>
         <div class="pb-6 text-xl"><%= @item.date %></div>
         <div class="md:block hidden">
