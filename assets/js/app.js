@@ -46,27 +46,6 @@ window.addEventListener("phx:page-loading-stop", info => {
   main.classList.remove("phx-page-loading")
 })
 
-// window.addEventListener("phx:navigate", info => {
-//   const items = document.querySelectorAll(".item");
-//   // console.log(items)
-//   // main.classList.add("phx-page-loading")
-//   items.forEach(function (currentValue, currentIndex, listObj) {
-//     currentValue.classList.add("fade-transition"); // Set initial hidden state
-
-//     // Wait for the next animation frame, then add the active class to start the transition
-//     requestAnimationFrame(() => {
-//       currentValue.classList.add("fade-transition-active");
-//     });
-
-//     // Clean up classes after the transition completes
-//     currentValue.addEventListener("transitionend", () => {
-//       currentValue.classList.remove("fade-transition", "fade-transition-active");
-//     }, { once: false });
-
-//     console.log(`${currentValue}, ${currentIndex}, ${this}`);
-//   }, "myThisArg");
-// })
-
 // connect if there are any LiveViews on the page
 liveSocket.connect()
 
