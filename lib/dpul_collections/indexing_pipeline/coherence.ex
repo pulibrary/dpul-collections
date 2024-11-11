@@ -2,6 +2,7 @@ defmodule DpulCollections.IndexingPipeline.Coherence do
   alias DpulCollections.Solr
   alias DpulCollections.IndexingPipeline
 
+  @spec index_parity?() :: boolean()
   def index_parity?() do
     pms =
       Application.fetch_env!(:dpul_collections, DpulCollections.IndexingPipeline)
@@ -14,6 +15,7 @@ defmodule DpulCollections.IndexingPipeline.Coherence do
     version_sorted == date_sorted
   end
 
+  @spec document_count_report() :: map()
   def document_count_report() do
     Application.fetch_env!(:dpul_collections, DpulCollections.IndexingPipeline)
     |> Enum.map(fn pipeline ->
