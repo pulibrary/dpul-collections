@@ -42,12 +42,12 @@ defmodule DpulCollections.Solr do
     response.body["response"]
   end
 
-  def random(count, collection \\ read_collection()) do
+  def random(count, seed, collection \\ read_collection()) do
     fl = Enum.join(@query_field_list, ",")
     solr_params = [
       fl: fl,
       rows: count,
-      sort: "random_#{Enum.random(0..255)} desc"
+      sort: "random_#{seed} desc"
     ]
 
     {:ok, response} =

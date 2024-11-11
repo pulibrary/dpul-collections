@@ -7,11 +7,28 @@ defmodule DpulCollectionsWeb.HomeLive do
     socket =
       assign(socket,
         item_count: Solr.document_count(),
-        q: nil,
-        items: Solr.random(20)["docs"] |> Enum.map(&Item.from_solr(&1))
+        q: nil
       )
 
     {:ok, socket, temporary_assigns: [item_count: nil]}
+  end
+
+  def handle_params(params, _uri, socket) do
+    given_seed = params["r"]
+    if given_seed do
+      socket =
+        socket
+        |> assign(
+          items: Solr.random(20, given_seed)["docs"] |> Enum.map(&Item.from_solr(&1))
+        )
+      {:noreply, socket}
+    else
+      {:noreply, push_patch(socket, to: "/?r=#{Enum.random(1..3000)}", replace: true)}
+    end
+  end
+
+  def handle_event("randomize", _map, socket) do
+    {:noreply, push_patch(socket, to: "/?r=#{Enum.random(1..3000)}")}
   end
 
   def render(assigns) do
@@ -30,7 +47,12 @@ defmodule DpulCollectionsWeb.HomeLive do
         We invite you to be inspired by our globally diverse collections of <%= @item_count %> Ephemera items. We can't wait to see how you use these materials to support your unique research.
       </p>
 
-      <h3 class="text-4xl">Random Selections</h3>
+      <div class="grid grid-cols-4">
+        <h3 class="text-4xl col-span-4 mb-4">Random Selections</h3>
+        <button class="col-span-1 btn-primary" phx-click="randomize">
+          Randomize
+        </button>
+      </div>
       <DpulCollectionsWeb.SearchLive.items items={@items} />
     </div>
     """
