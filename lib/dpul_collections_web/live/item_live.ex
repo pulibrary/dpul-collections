@@ -31,16 +31,16 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def description(assigns) do
     ~H"""
-    <div class="pb-4"><%= @description %></div>
+    <div class="pb-4 leading-relaxed text-lg"><%= @description %></div>
     """
   end
 
   def render(assigns) do
     ~H"""
     <div class="my-5 grid grid-flow-row auto-rows-max md:grid-cols-5 gap-4">
-      <div class="item md:col-span-3">
+      <div class="item md:col-span-3 md:pl-6">
         <h1 class="text-4xl font-bold pb-2"><%= @item.title %></h1>
-        <div class="pb-6"><%= @item.date %></div>
+        <div class="pb-6 text-xl"><%= @item.date %></div>
         <div class="md:block hidden">
           <.description :for={description <- @item.description} description={description} />
         </div>
