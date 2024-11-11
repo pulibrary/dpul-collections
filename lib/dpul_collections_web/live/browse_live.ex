@@ -5,23 +5,39 @@ defmodule DpulCollectionsWeb.BrowseLive do
   alias DpulCollectionsWeb.Live.Helpers
 
   def mount(_params, _session, socket) do
-    solr_response = Solr.query(%{page: 0, per_page: 500})
-
-    items =
-      solr_response["docs"]
-      |> Enum.map(&Item.from_solr(&1))
-
-    socket =
-      assign(socket,
-        items: items
-      )
-
     {:ok, socket}
+  end
+
+  def handle_params(params, _uri, socket) do
+    given_seed = params["r"]
+
+    if given_seed do
+      socket =
+        socket
+        |> assign(
+          items:
+            Solr.random(500, given_seed)["docs"]
+            |> Enum.map(&Item.from_solr(&1))
+        )
+
+      {:noreply, socket}
+    else
+      {:noreply, push_patch(socket, to: "/browse?r=#{Enum.random(1..3000)}", replace: true)}
+    end
+  end
+
+  def handle_event("randomize", _map, socket) do
+    {:noreply, push_patch(socket, to: "/browse?r=#{Enum.random(1..3000)}")}
   end
 
   def render(assigns) do
     ~H"""
-    <h1><%= gettext("Browse") %></h1>
+    <div class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-4">
+      <h1 class="text-2xl col-span-3"><%= gettext("Browse") %></h1>
+      <button class="col-span-1 btn-primary" phx-click="randomize">
+        <%= gettext("Randomize") %>
+      </button>
+    </div>
     <div class="grid grid-cols-5 gap-3">
       <.browse_item :for={item <- @items} item={item} />
     </div>

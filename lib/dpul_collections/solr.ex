@@ -45,6 +45,24 @@ defmodule DpulCollections.Solr do
     response.body["response"]
   end
 
+  def random(count, seed, collection \\ read_collection()) do
+    fl = Enum.join(@query_field_list, ",")
+
+    solr_params = [
+      fl: fl,
+      rows: count,
+      sort: "random_#{seed} desc"
+    ]
+
+    {:ok, response} =
+      Req.get(
+        select_url(collection),
+        params: solr_params
+      )
+
+    response.body["response"]
+  end
+
   defp query_param(search_state) do
     Enum.reject([search_state[:q], date_query(search_state)], &is_nil(&1))
     |> Enum.join(" ")
