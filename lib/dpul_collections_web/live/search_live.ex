@@ -76,7 +76,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         </div>
       </form>
       <div id="filters" class="grid md:grid-cols-[auto_300px] gap-2">
-        <form id="date-filter" class="grid md:grid-cols-[150px_200px_200px] gap-2">
+        <form id="date-filter" class="grid md:grid-cols-[150px_200px_200px_200px] gap-2">
           <label class="col-span-1 self-center font-bold uppercase" for="sort-by">
             filter by date:
           </label>
@@ -96,6 +96,9 @@ defmodule DpulCollectionsWeb.SearchLive do
             name="date-to"
             value={@search_state.date_to}
           />
+          <button class="col-span-1 md:col-span-1 btn-primary" type="submit">
+            Apply
+          </button>
         </form>
         <form id="sort-form" class="grid md:grid-cols-[auto_200px] gap-2" phx-change="sort">
           <label class="col-span-1 self-center font-bold uppercase md:text-right" for="sort-by">
@@ -132,7 +135,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     ~H"""
     <hr />
     <div id={"item-#{@item.id}"} class="item">
-      <div class="flex flex-wrap gap-5 md:max-h-60 max-h-[20rem] overflow-hidden justify-center md:justify-start relative">
+      <div class="flex flex-wrap gap-5 md:max-h-60 max-h-[22rem] overflow-hidden justify-center md:justify-start relative">
         <.thumbs
           :for={{thumb, thumb_num} <- Enum.with_index(@item.image_service_urls)}
           :if={@item.page_count}
@@ -143,11 +146,10 @@ defmodule DpulCollectionsWeb.SearchLive do
           <%= @item.page_count %> Pages
         </div>
       </div>
-      <h2 class="underline text-xl font-bold pt-4">
-        <.link navigate={@item.url} class="underline text-lg"><%= @item.title %></.link>
+      <h2 class="underline text-2xl font-bold pt-4">
+        <.link navigate={@item.url}><%= @item.title %></.link>
       </h2>
-      <div><%= @item.id %></div>
-      <div><%= @item.date %></div>
+      <div class="text-xl"><%= @item.date %></div>
     </div>
     """
   end
@@ -155,7 +157,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   def thumbs(assigns) do
     ~H"""
     <img
-      class="h-[350px] w-[350px] md:h-[225px] md:w-[225px]"
+      class="h-[350px] w-[350px] md:h-[225px] md:w-[225px] border border-solid border-gray-400"
       src={"#{@thumb}/square/350,350/0/default.jpg"}
       alt={"image #{@thumb_num}"}
       style="
