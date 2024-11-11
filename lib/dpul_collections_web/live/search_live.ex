@@ -272,11 +272,7 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def handle_event("paginate", %{"page" => page}, socket) when page != "..." do
     params = %{socket.assigns.search_state | page: page} |> Helpers.clean_params()
-<<<<<<< HEAD
-    socket = push_redirect(socket, to: ~p"/search?#{params}", replace: true)
-=======
     socket = push_navigate(socket, to: ~p"/search?#{params}", replace: true)
->>>>>>> ea02d09 (adds transitions to item elements upon mount)
     {:noreply, socket}
   end
 
