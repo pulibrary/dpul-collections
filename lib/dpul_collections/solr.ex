@@ -1,5 +1,5 @@
 defmodule DpulCollections.Solr do
-  # @spec document_count() :: integer()
+  @spec document_count(String.t()) :: integer()
   def document_count(collection \\ read_collection()) do
     {:ok, response} =
       Req.get(
@@ -19,7 +19,7 @@ defmodule DpulCollections.Solr do
     "slug_s"
   ]
 
-  @spec query(map()) :: map()
+  @spec query(map(), String.t()) :: map()
   def query(search_state, collection \\ read_collection()) do
     fl = Enum.join(@query_field_list, ",")
 
@@ -66,6 +66,7 @@ defmodule DpulCollections.Solr do
     max(page - 1, 0) * per_page
   end
 
+  @spec latest_document(String.t()) :: map()
   def latest_document(collection \\ read_collection()) do
     {:ok, response} =
       Req.get(
@@ -79,6 +80,7 @@ defmodule DpulCollections.Solr do
     end
   end
 
+  @spec find_by_id(String.t(), String.t()) :: map()
   def find_by_id(id, collection \\ read_collection()) do
     {:ok, response} =
       Req.get(
@@ -129,6 +131,7 @@ defmodule DpulCollections.Solr do
     |> Req.merge(url: "/solr/#{collection}/update")
   end
 
+  @spec client() :: Req.Request.t()
   def client() do
     url_hash = Application.fetch_env!(:dpul_collections, :solr)
 
@@ -144,10 +147,12 @@ defmodule DpulCollections.Solr do
     {:basic, "#{username}:#{password}"}
   end
 
+  @spec read_collection() :: String.t()
   def read_collection() do
     Application.fetch_env!(:dpul_collections, :solr)[:read_collection]
   end
 
+  @spec config_set() :: String.t()
   def config_set() do
     Application.fetch_env!(:dpul_collections, :solr)[:config_set]
   end
@@ -155,7 +160,8 @@ defmodule DpulCollections.Solr do
   ####
   # Solr management api wrappers
   ####
-  def list_collections do
+  @spec list_collections() :: list(String.t())
+  def list_collections() do
     {:ok, response} =
       client()
       |> Req.merge(url: "/api/collections")
@@ -164,10 +170,12 @@ defmodule DpulCollections.Solr do
     response.body["collections"]
   end
 
+  @spec collection_exists?(String.t()) :: boolean()
   def collection_exists?(collection) do
     collection in list_collections()
   end
 
+  @spec create_collection(String.t()) :: Req.Response.t()
   def create_collection(collection) do
     client()
     |> Req.merge(url: "/api/collections")
@@ -184,12 +192,14 @@ defmodule DpulCollections.Solr do
     )
   end
 
+  @spec delete_collection(String.t()) :: Req.Response.t()
   def delete_collection(collection) do
     client()
     |> Req.merge(url: "api/collections/#{collection}")
     |> Req.delete!()
   end
 
+  @spec get_alias() :: String.t()
   def get_alias do
     {:ok, response} =
       client()
@@ -202,6 +212,7 @@ defmodule DpulCollections.Solr do
     response.body["aliases"][read_collection()]
   end
 
+  @spec set_alias(String.t()) :: Req.Response.t()
   def set_alias(collection) do
     client()
     |> Req.merge(url: "api/c")
