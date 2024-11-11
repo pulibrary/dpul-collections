@@ -113,9 +113,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         <span><%= @item_counter %></span>
       </div>
     </div>
-    <div class="grid grid-flow-row auto-rows-max gap-8">
-      <.search_item :for={item <- @items} item={item} />
-    </div>
+    <.items items={@items} />
     <div class="text-center bg-white max-w-5xl mx-auto text-lg py-8">
       <.paginator
         page={@search_state.page}
@@ -126,7 +124,13 @@ defmodule DpulCollectionsWeb.SearchLive do
     """
   end
 
-  attr :item, Item, required: true
+  def items(assigns) do
+    ~H"""
+    <div class="grid grid-flow-row auto-rows-max gap-8">
+      <.search_item :for={item <- @items} item={item} />
+    </div>
+    """
+  end
 
   def search_item(assigns) do
     ~H"""

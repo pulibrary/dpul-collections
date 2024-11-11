@@ -1,13 +1,14 @@
 defmodule DpulCollectionsWeb.HomeLive do
   use DpulCollectionsWeb, :live_view
-  alias DpulCollections.Solr
+  alias DpulCollections.{ Solr, Item }
   alias DpulCollectionsWeb.Live.Helpers
 
   def mount(_params, _session, socket) do
     socket =
       assign(socket,
         item_count: Solr.document_count(),
-        q: nil
+        q: nil,
+        items: Solr.random(20)["docs"] |> Enum.map(&Item.from_solr(&1))
       )
 
     {:ok, socket, temporary_assigns: [item_count: nil]}
@@ -28,6 +29,9 @@ defmodule DpulCollectionsWeb.HomeLive do
       <p class="text-lg">
         We invite you to be inspired by our globally diverse collections of <%= @item_count %> Ephemera items. We can't wait to see how you use these materials to support your unique research.
       </p>
+
+      <h3 class="text-4xl">Random Selections</h3>
+      <DpulCollectionsWeb.SearchLive.items items={@items} />
     </div>
     """
   end
