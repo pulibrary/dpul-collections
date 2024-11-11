@@ -131,9 +131,14 @@ defmodule DpulCollectionsWeb.SearchLive do
   def search_item(assigns) do
     ~H"""
     <hr />
-    <div class="item">
+    <div id={"item-#{@item.id}"} class="item">
       <div class="flex flex-wrap gap-5 md:max-h-60 max-h-[20rem] overflow-hidden justify-center md:justify-start relative">
-        <.thumbs :for={thumb_num <- 1..@item.page_count} :if={@item.page_count} thumb_num={thumb_num} />
+        <.thumbs
+          :for={{thumb, thumb_num} <- Enum.with_index(@item.image_service_urls)}
+          :if={@item.page_count}
+          thumb={thumb}
+          thumb_num={thumb_num}
+        />
         <div :if={@item.page_count > 1} class="absolute right-0 top-0 bg-white px-4 py-2">
           <%= @item.page_count %> Pages
         </div>
@@ -151,7 +156,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     ~H"""
     <img
       class="h-[350px] w-[350px] md:h-[225px] md:w-[225px]"
-      src="https://picsum.photos/350/350/?random"
+      src={"#{@thumb}/square/350,350/0/default.jpg"}
       alt={"image #{@thumb_num}"}
       style="
         background-color: lightgray;"
@@ -248,7 +253,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       }
       |> Helpers.clean_params([:page, :per_page])
 
-    socket = push_patch(socket, to: ~p"/search?#{params}")
+    socket = push_patch(socket, to: ~p"/search?#{params}", replace: true)
     {:noreply, socket}
   end
 
@@ -263,7 +268,7 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def handle_event("paginate", %{"page" => page}, socket) when page != "..." do
     params = %{socket.assigns.search_state | page: page} |> Helpers.clean_params()
-    socket = push_patch(socket, to: ~p"/search?#{params}")
+    socket = push_redirect(socket, to: ~p"/search?#{params}", replace: true)
     {:noreply, socket}
   end
 

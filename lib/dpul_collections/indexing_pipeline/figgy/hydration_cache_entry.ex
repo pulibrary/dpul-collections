@@ -83,7 +83,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
     "https://iiif-cloud.princeton.edu/iiif/2/#{uuid_path}"
   end
 
-  defp is_derivative(%{"use" => [%{"@id" => "http://pcdm.org/use#ServiceFile"}]}), do: true
+  defp is_derivative(%{
+         "mime_type" => ["image/tiff"],
+         "use" => [%{"@id" => "http://pcdm.org/use#ServiceFile"}]
+       }),
+       do: true
+
   defp is_derivative(_), do: false
 
   defp page_count(%{"member_ids" => member_ids}) when is_list(member_ids) do

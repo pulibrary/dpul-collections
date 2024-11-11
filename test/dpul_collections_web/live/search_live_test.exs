@@ -43,6 +43,30 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Enum.any?()
   end
 
+  test "GET /search renders thumbnails for each resource", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/search?")
+
+    assert view
+           |> has_element?(
+             "#item-1 img[src='https://example.com/iiif/2/image1/square/350,350/0/default.jpg']"
+           )
+
+    assert view
+           |> has_element?(
+             "#item-1 img[src='https://example.com/iiif/2/image2/square/350,350/0/default.jpg']"
+           )
+
+    assert view
+           |> has_element?(
+             "#item-2 img[src='https://example.com/iiif/2/image1/square/350,350/0/default.jpg']"
+           )
+
+    assert view
+           |> has_element?(
+             "#item-2 img[src='https://example.com/iiif/2/image2/square/350,350/0/default.jpg']"
+           )
+  end
+
   test "searching filters results", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/search?")
 
@@ -130,14 +154,20 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert view
            |> element("#paginator-previous")
            |> render_click()
+           |> follow_redirect(conn)
+           |> elem(2)
            |> Floki.parse_document()
            |> elem(1)
            |> Floki.find(~s{a[href="/i/document40/item/40"]})
            |> Enum.any?()
 
+    {:ok, view, _html} = live(conn, ~p"/search?page=4")
+
     assert view
            |> element("#paginator-next")
            |> render_click()
+           |> follow_redirect(conn)
+           |> elem(2)
            |> Floki.parse_document()
            |> elem(1)
            |> Floki.find(~s{a[href="/i/document50/item/50"]})
