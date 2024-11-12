@@ -65,7 +65,7 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def render(assigns) do
     ~H"""
-    <h2 class="sr-only">Search Results</h2>
+    <h1 class="sr-only">Search Results</h1>
     <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
       <form id="search-form" phx-submit="search">
         <div class="grid grid-cols-4">
@@ -76,7 +76,11 @@ defmodule DpulCollectionsWeb.SearchLive do
         </div>
       </form>
       <div id="filters" class="grid md:grid-cols-[auto_300px] gap-2">
-        <form id="date-filter" phx-submit="filter-date" class="grid md:grid-cols-[150px_200px_200px_200px] gap-2">
+        <form
+          id="date-filter"
+          phx-submit="filter-date"
+          class="grid md:grid-cols-[150px_200px_200px_200px] gap-2"
+        >
           <label class="col-span-1 self-center font-bold uppercase" for="date-filter">
             filter by date:
           </label>
