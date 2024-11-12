@@ -123,7 +123,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     document =
       view
-      |> element("#search-form")
+      |> element("#date-filter")
       |> render_submit(%{"date-from" => "1925", "date-to" => "1926"})
       |> Floki.parse_document()
       |> elem(1)

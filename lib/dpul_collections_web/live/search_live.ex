@@ -65,7 +65,7 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def render(assigns) do
     ~H"""
-    <h2 class="sr-only">Search Results</h2>
+    <h1 class="sr-only">Search Results</h1>
     <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
       <form id="search-form" phx-submit="search">
         <div class="grid grid-cols-4">
@@ -76,15 +76,19 @@ defmodule DpulCollectionsWeb.SearchLive do
         </div>
       </form>
       <div id="filters" class="grid md:grid-cols-[auto_300px] gap-2">
-        <form id="date-filter" class="grid md:grid-cols-[150px_200px_200px] gap-2">
-          <label class="col-span-1 self-center font-bold uppercase" for="sort-by">
+        <form
+          id="date-filter"
+          phx-submit="filter-date"
+          class="grid md:grid-cols-[150px_200px_200px_200px] gap-2"
+        >
+          <label class="col-span-1 self-center font-bold uppercase" for="date-filter">
             filter by date:
           </label>
           <input
             class="col-span-1"
             type="text"
             placeholder="From"
-            form="search-form"
+            form="date-filter"
             name="date-from"
             value={@search_state.date_from}
           />
@@ -92,10 +96,13 @@ defmodule DpulCollectionsWeb.SearchLive do
             class="col-span-1"
             type="text"
             placeholder="To"
-            form="search-form"
+            form="date-filter"
             name="date-to"
             value={@search_state.date_to}
           />
+          <button class="col-span-1 md:col-span-1 btn-primary" type="submit">
+            Apply
+          </button>
         </form>
         <form id="sort-form" class="grid md:grid-cols-[auto_200px] gap-2" phx-change="sort">
           <label class="col-span-1 self-center font-bold uppercase md:text-right" for="sort-by">
@@ -132,7 +139,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     ~H"""
     <hr />
     <div id={"item-#{@item.id}"} class="item">
-      <div class="flex flex-wrap gap-5 md:max-h-60 max-h-[20rem] overflow-hidden justify-center md:justify-start relative">
+      <div class="flex flex-wrap gap-5 md:max-h-60 max-h-[22rem] overflow-hidden justify-center md:justify-start relative">
         <.thumbs
           :for={{thumb, thumb_num} <- Enum.with_index(@item.image_service_urls)}
           :if={@item.page_count}
@@ -143,11 +150,10 @@ defmodule DpulCollectionsWeb.SearchLive do
           <%= @item.page_count %> Pages
         </div>
       </div>
-      <h2 class="underline text-xl font-bold pt-4">
-        <.link navigate={@item.url} class="underline text-lg"><%= @item.title %></.link>
+      <h2 class="underline text-2xl font-bold pt-4">
+        <.link navigate={@item.url}><%= @item.title %></.link>
       </h2>
-      <div><%= @item.id %></div>
-      <div><%= @item.date %></div>
+      <div class="text-xl"><%= @item.date %></div>
     </div>
     """
   end
@@ -155,7 +161,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   def thumbs(assigns) do
     ~H"""
     <img
-      class="h-[350px] w-[350px] md:h-[225px] md:w-[225px]"
+      class="h-[350px] w-[350px] md:h-[225px] md:w-[225px] border border-solid border-gray-400"
       src={"#{@thumb}/square/350,350/0/default.jpg"}
       alt={"image #{@thumb_num}"}
       style="
@@ -249,6 +255,19 @@ defmodule DpulCollectionsWeb.SearchLive do
         socket.assigns.search_state
         | q: params["q"],
           date_to: params["date-to"],
+          date_from: params["date-from"]
+      }
+      |> Helpers.clean_params([:page, :per_page])
+
+    socket = push_patch(socket, to: ~p"/search?#{params}")
+    {:noreply, socket}
+  end
+
+  def handle_event("filter-date", params, socket) do
+    params =
+      %{
+        socket.assigns.search_state
+        | date_to: params["date-to"],
           date_from: params["date-from"]
       }
       |> Helpers.clean_params([:page, :per_page])
