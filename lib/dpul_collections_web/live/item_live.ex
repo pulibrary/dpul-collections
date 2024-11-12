@@ -29,12 +29,21 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
+  def description(assigns) do
+    ~H"""
+    <div class="pb-4 leading-relaxed text-lg"><%= @description %></div>
+    """
+  end
+
   def render(assigns) do
     ~H"""
     <div class="my-5 grid grid-flow-row auto-rows-max md:grid-cols-5 gap-4">
-      <div class="item md:col-span-3">
-        <h1 class="text-xl font-bold py-2"><%= @item.title %></h1>
-        <div class="pb-4"><%= @item.date %></div>
+      <div class="item md:col-span-3 md:pl-8">
+        <h1 class="text-4xl font-bold pb-2"><%= @item.title %></h1>
+        <div class="pb-6 text-xl"><%= @item.date %></div>
+        <div class="md:block hidden">
+          <.description :for={description <- @item.description} description={description} />
+        </div>
       </div>
       <div class="md:col-span-2 md:order-first">
         <img
@@ -50,8 +59,11 @@ defmodule DpulCollectionsWeb.ItemLive do
           Download
         </button>
       </div>
+      <div class="md:hidden block">
+        <.description :for={description <- @item.description} description={description} />
+      </div>
       <section class="md:col-span-5 m:order-last py-4">
-        <h2 class="text-l font-bold py-4">Pages (<%= @item.page_count %>)</h2>
+        <h2 class="text-xl font-bold py-4">Pages (<%= @item.page_count %>)</h2>
         <div class="flex flex-wrap gap-5 justify-center md:justify-start">
           <.thumbs
             :for={{thumb, thumb_num} <- Enum.with_index(@item.image_service_urls)}

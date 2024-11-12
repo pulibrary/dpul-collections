@@ -18,7 +18,8 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           image_service_urls_ss: [
             "https://example.com/iiif/2/image1",
             "https://example.com/iiif/2/image2"
-          ]
+          ],
+          description_txtm: ["This is a test description"]
         },
         %{
           id: 2,
@@ -87,6 +88,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     assert response =~ "Învăţămîntul trebuie să urmărească dezvoltarea deplină a personalităţii"
     assert response =~ "2022"
     assert response =~ "17"
+    assert response =~ "This is a test description"
     # Thumbnails render.
     assert view
            |> has_element?(
@@ -116,6 +118,11 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
            |> has_element?(
              "img[src='https://example.com/iiif/2/image2/full/350,465/0/default.jpg']"
            )
+
+    # Renders when there's no description
+    {:ok, view, _html} = live(conn, "/i/زلزلہ/item/2")
+    response = render(view)
+    assert response =~ "زلزلہ"
   end
 
   test "/i/{:slug}/item/{:id} does not redirect with a bad id", %{conn: conn} do
