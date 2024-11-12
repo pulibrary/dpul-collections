@@ -15,19 +15,23 @@ defmodule DpulCollectionsWeb.HomeLive do
 
   def render(assigns) do
     ~H"""
-    <div class="grid grid-flow-row auto-rows-max gap-10">
-      <form phx-submit="search">
-        <div class="grid grid-cols-4">
-          <input class="col-span-4 md:col-span-3" type="text" name="q" value={@q} />
-          <button class="col-span-4 md:col-span-1 btn-primary" type="submit">
-            Search
-          </button>
-        </div>
-      </form>
-      <h3 class="text-5xl">Explore Our Digital Collections</h3>
-      <p class="text-lg">
-        We invite you to be inspired by our globally diverse collections of <%= @item_count %> Ephemera items. We can't wait to see how you use these materials to support your unique research.
-      </p>
+    <div class="grid grid-flow-row auto-rows-max gap-20">
+      <div>
+        <form phx-submit="search">
+          <div class="grid grid-cols-4">
+            <input class="col-span-4 md:col-span-3" type="text" name="q" value={@q} />
+            <button class="col-span-4 md:col-span-1 btn-primary" type="submit">
+              Search
+            </button>
+          </div>
+        </form>
+      </div>
+      <div id="welcome" class="grid place-self-center gap-10 max-w-prose">
+        <h3 class="text-5xl text-center">Explore Our Digital Collections</h3>
+        <p class="text-lg text-center">
+          We invite you to be inspired by our globally diverse collections of <%= @item_count %> Ephemera items. We can't wait to see how you use these materials to support your unique research.
+        </p>
+      </div>
     </div>
     """
   end
