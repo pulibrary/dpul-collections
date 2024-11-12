@@ -28,7 +28,7 @@ defmodule DpulCollectionsWeb.HomeLive do
       </div>
       <div id="welcome" class="grid place-self-center gap-10 max-w-prose">
         <h3 class="text-5xl text-center">Explore Our Digital Collections</h3>
-        <p class="text-lg text-center">
+        <p class="text-xl text-center">
           We invite you to be inspired by our globally diverse collections of <%= @item_count %> Ephemera items. We can't wait to see how you use these materials to support your unique research.
         </p>
       </div>
