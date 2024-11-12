@@ -76,15 +76,15 @@ defmodule DpulCollectionsWeb.SearchLive do
         </div>
       </form>
       <div id="filters" class="grid md:grid-cols-[auto_300px] gap-2">
-        <form id="date-filter" class="grid md:grid-cols-[150px_200px_200px_200px] gap-2">
-          <label class="col-span-1 self-center font-bold uppercase" for="sort-by">
+        <form id="date-filter" phx-submit="filter-date" class="grid md:grid-cols-[150px_200px_200px_200px] gap-2">
+          <label class="col-span-1 self-center font-bold uppercase" for="date-filter">
             filter by date:
           </label>
           <input
             class="col-span-1"
             type="text"
             placeholder="From"
-            form="search-form"
+            form="date-filter"
             name="date-from"
             value={@search_state.date_from}
           />
@@ -92,7 +92,7 @@ defmodule DpulCollectionsWeb.SearchLive do
             class="col-span-1"
             type="text"
             placeholder="To"
-            form="search-form"
+            form="date-filter"
             name="date-to"
             value={@search_state.date_to}
           />
@@ -251,6 +251,19 @@ defmodule DpulCollectionsWeb.SearchLive do
         socket.assigns.search_state
         | q: params["q"],
           date_to: params["date-to"],
+          date_from: params["date-from"]
+      }
+      |> Helpers.clean_params([:page, :per_page])
+
+    socket = push_patch(socket, to: ~p"/search?#{params}")
+    {:noreply, socket}
+  end
+
+  def handle_event("filter-date", params, socket) do
+    params =
+      %{
+        socket.assigns.search_state
+        | date_to: params["date-to"],
           date_from: params["date-from"]
       }
       |> Helpers.clean_params([:page, :per_page])
