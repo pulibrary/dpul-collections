@@ -17,7 +17,8 @@ defmodule DpulCollections.Solr do
     "page_count_i",
     "detectlang_ss",
     "slug_s",
-    "image_service_urls_ss"
+    "image_service_urls_ss",
+    "min_year_i"
   ]
 
   @spec query(map(), String.t()) :: map()
@@ -40,6 +41,32 @@ defmodule DpulCollections.Solr do
       )
 
     response.body["response"]
+  end
+
+  def grouped_query(search_state, random_seed \\ Enum.random(1..3000), collection \\ read_collection()) do
+    fl = Enum.join(@query_field_list, ",")
+
+    solr_params = [
+      q: query_param(search_state),
+      "q.op": "AND",
+      fl: fl,
+      sort: sort_param(search_state),
+      rows: search_state[:per_page],
+      start: pagination_offset(search_state),
+      group: true,
+      "group.field": "min_year_i",
+      "group.limit": 12,
+      sort: "years_is desc",
+      "group.sort": "random_#{random_seed} desc"
+    ]
+
+    {:ok, response} =
+      Req.get(
+        select_url(collection),
+        params: solr_params
+      )
+
+    response.body
   end
 
   defp query_param(search_state) do

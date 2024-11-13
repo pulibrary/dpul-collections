@@ -23,12 +23,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   def to_solr_document(hydration_cache_entry) do
     %{record_id: id} = hydration_cache_entry
     %{data: %{"metadata" => metadata}, related_data: related_data} = hydration_cache_entry
-
+    years = extract_years(metadata)
     %{
       id: id,
       title_txtm: get_in(metadata, ["title"]),
       description_txtm: get_in(metadata, ["description"]),
-      years_is: extract_years(metadata),
+      years_is: years,
+      min_year_i: Enum.min(years),
       display_date_s: format_date(metadata),
       page_count_i: page_count(metadata),
       image_service_urls_ss: image_service_urls(metadata, related_data)

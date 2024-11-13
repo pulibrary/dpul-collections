@@ -8,7 +8,8 @@ defmodule DpulCollections.Item do
     :page_count,
     :url,
     :image_service_urls,
-    :description
+    :description,
+    :min_year
   ]
 
   def from_solr(nil), do: nil
@@ -25,7 +26,8 @@ defmodule DpulCollections.Item do
       page_count: doc["page_count_i"],
       url: generate_url(id, slug),
       image_service_urls: doc["image_service_urls_ss"] || [],
-      description: doc["description_txtm"] || []
+      description: doc["description_txtm"] || [],
+      min_year: doc["min_year_i"] || []
     }
   end
 
