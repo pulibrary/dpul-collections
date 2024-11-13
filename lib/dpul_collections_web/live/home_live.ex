@@ -39,7 +39,6 @@ defmodule DpulCollectionsWeb.HomeLive do
     search_state =
       DpulCollectionsWeb.SearchLive.SearchState.from_params(params)
       |> Map.put(:per_page, 60)
-      |> Map.put(:sort_by, :date_desc)
     solr_response = Solr.grouped_query(search_state)
 
     items = solr_response["grouped"]["max_year_i"]["groups"]

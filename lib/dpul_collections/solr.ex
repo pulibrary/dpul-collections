@@ -50,7 +50,7 @@ defmodule DpulCollections.Solr do
       q: query_param(search_state),
       "q.op": "AND",
       fl: fl,
-      sort: sort_param(search_state),
+      sort: "max_year_i desc",
       rows: search_state[:per_page],
       start: pagination_offset(search_state),
       group: true,
