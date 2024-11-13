@@ -44,15 +44,9 @@ defmodule DpulCollectionsWeb.SearchLive do
   end
 
   def mount(params, _session, socket) do
-    # default to English if locale is not provided
     locale = Map.get(params, "locale", "en")
-    set_locale(locale)
 
     {:ok, socket}
-  end
-
-  defp set_locale(locale) do
-    Gettext.put_locale(DpulCollectionsWeb.Gettext, locale)
   end
 
   def handle_params(params, _uri, socket) do
