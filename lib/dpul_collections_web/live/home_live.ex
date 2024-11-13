@@ -42,7 +42,7 @@ defmodule DpulCollectionsWeb.HomeLive do
     solr_response = Solr.grouped_query(search_state)
 
     items = solr_response["grouped"]["max_year_i"]["groups"]
-            |> Enum.reduce(%{}, &groups_to_map/2)
+            |> Enum.reduce([], &groups_to_map/2)
 
     total_items = solr_response["numFound"]
 
@@ -58,8 +58,7 @@ defmodule DpulCollectionsWeb.HomeLive do
   end
 
   defp groups_to_map(%{"groupValue" => year, "doclist" => %{"docs" => docs}}, acc) do
-    acc
-    |> Map.put(year, docs |> Enum.map(&Item.from_solr/1))
+    acc ++ [{year, docs |> Enum.map(&Item.from_solr/1)}]
   end
 
   def render(assigns) do
