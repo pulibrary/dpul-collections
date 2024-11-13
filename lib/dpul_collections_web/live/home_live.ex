@@ -42,7 +42,7 @@ defmodule DpulCollectionsWeb.HomeLive do
       |> Map.put(:sort_by, :date_desc)
     solr_response = Solr.grouped_query(search_state)
 
-    items = solr_response["grouped"]["min_year_i"]["groups"]
+    items = solr_response["grouped"]["max_year_i"]["groups"]
             |> Enum.reduce(%{}, &groups_to_map/2)
 
     total_items = solr_response["numFound"]

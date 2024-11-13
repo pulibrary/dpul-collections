@@ -9,7 +9,7 @@ defmodule DpulCollections.Item do
     :url,
     :image_service_urls,
     :description,
-    :min_year
+    :max_year
   ]
 
   def from_solr(nil), do: nil
@@ -27,7 +27,7 @@ defmodule DpulCollections.Item do
       url: generate_url(id, slug),
       image_service_urls: doc["image_service_urls_ss"] || [],
       description: doc["description_txtm"] || [],
-      min_year: doc["min_year_i"] || []
+      max_year: doc["max_year_i"] || []
     }
   end
 

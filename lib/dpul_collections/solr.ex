@@ -18,7 +18,7 @@ defmodule DpulCollections.Solr do
     "detectlang_ss",
     "slug_s",
     "image_service_urls_ss",
-    "min_year_i"
+    "max_year_i"
   ]
 
   @spec query(map(), String.t()) :: map()
@@ -54,7 +54,7 @@ defmodule DpulCollections.Solr do
       rows: search_state[:per_page],
       start: pagination_offset(search_state),
       group: true,
-      "group.field": "min_year_i",
+      "group.field": "max_year_i",
       "group.limit": 12,
       sort: "years_is desc",
       "group.sort": "random_#{random_seed} desc"

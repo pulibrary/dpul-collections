@@ -29,7 +29,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
       title_txtm: get_in(metadata, ["title"]),
       description_txtm: get_in(metadata, ["description"]),
       years_is: years,
-      min_year_i: Enum.min(years),
+      max_year_i: Enum.max(years),
       display_date_s: format_date(metadata),
       page_count_i: page_count(metadata),
       image_service_urls_ss: image_service_urls(metadata, related_data)
