@@ -63,6 +63,10 @@ config :phoenix, :json_library, Jason
 
 config :dpul_collections, :figgy_hydrator, poll_interval: 60000
 
+config :dpul_collections, DpulCollectionsWeb.Gettext,
+  default_locale: "en",
+  locales: ~w(en es)
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

@@ -19,6 +19,7 @@ end
 defmodule DpulCollectionsWeb.SearchLive do
   use DpulCollectionsWeb, :live_view
   import DpulCollectionsWeb.SearchComponents
+  import DpulCollectionsWeb.Gettext
   alias DpulCollections.{Item, Solr}
   alias DpulCollectionsWeb.Live.Helpers
 
@@ -42,8 +43,16 @@ defmodule DpulCollectionsWeb.SearchLive do
     defp valid_sort_by(_), do: :relevance
   end
 
-  def mount(_params, _session, socket) do
+  def mount(params, _session, socket) do
+    # default to English if locale is not provided
+    locale = Map.get(params, "locale", "en")
+    set_locale(locale)
+
     {:ok, socket}
+  end
+
+  defp set_locale(locale) do
+    Gettext.put_locale(DpulCollectionsWeb.Gettext, locale)
   end
 
   def handle_params(params, _uri, socket) do
@@ -90,7 +99,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         <div class="grid grid-cols-4">
           <input class="col-span-4 md:col-span-3" type="text" name="q" value={@search_state.q} />
           <button class="col-span-4 md:col-span-1 btn-primary" type="submit">
-            Search
+            <%= gettext("Search") %>
           </button>
         </div>
       </form>

@@ -1,9 +1,18 @@
 defmodule DpulCollectionsWeb.ItemLive do
   use DpulCollectionsWeb, :live_view
+  import DpulCollectionsWeb.Gettext
   alias DpulCollections.{Item, Solr}
 
-  def mount(_params, _session, socket) do
+  def mount(params, _session, socket) do
+    # default to English if locale is not provided
+    locale = Map.get(params, "locale", "en")
+    set_locale(locale)
+
     {:ok, socket}
+  end
+
+  defp set_locale(locale) do
+    Gettext.put_locale(DpulCollectionsWeb.Gettext, locale)
   end
 
   def handle_params(%{"id" => id}, uri, socket) do
@@ -56,7 +65,7 @@ defmodule DpulCollectionsWeb.ItemLive do
           height="800"
         />
         <button class="w-full btn-primary">
-          Download
+          <%= gettext("Download") %>
         </button>
       </div>
       <div class="md:hidden block">
