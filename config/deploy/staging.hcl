@@ -12,7 +12,7 @@ variable "solr_read_collection" {
 }
 variable "index_cache_collections" {
   type = string
-  default = "cache_version:1,write_collection:dpulc-staging1"
+  default = "cache_version:1,write_collection:dpulc-staging1;cache_version:2,write_collection:dpulc-staging2"
 }
 variable "solr_config_set" {
   type = string

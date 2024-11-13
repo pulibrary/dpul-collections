@@ -1,6 +1,6 @@
 # Create a clean Solr index
 
-To write a second index while the current index continues to receive updates and serve reads, update the `index_cache_collections` variable in the relevant `.hcl` deployment file. for example, if the current value is:
+To write a second index while the current index continues to receive updates and serve reads, update the `index_cache_collections` variable in the relevant `.hcl` deployment file. For example, if the current value is:
 
 ```
 default = "cache_version:1,write_collection:dpulc-staging1"
