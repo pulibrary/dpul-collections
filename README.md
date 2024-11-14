@@ -76,6 +76,10 @@ Note: This will use the same cache_version, overwriting the current Solr documen
 
 See instructions for creating new clean solr index in [/docs/admin/clean_index.md](/docs/admin/clean_index.md)
 
+### Explore logs
+
+To view staging logs go to https://grafana-nomad.lib.princeton.edu and log in with github. Navigate to the explore tab.
+
 ### Connecting to Staging Shell or IEX Console
 
 1. Connect to VPN
