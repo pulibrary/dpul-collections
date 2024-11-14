@@ -161,5 +161,56 @@ defmodule DpulCollections.IndexingPipelineTest do
         IndexingPipeline.get_transformation_cache_entry!(transformation_cache_entry.id)
       end
     end
+
+    test "delete_cache_version/1 deletes entries for that cache version from each table" do
+      for cache_version <- [0, 1] do
+        {marker1, _marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers(cache_version)
+
+        {marker1, _marker2, _marker3} =
+          FiggyTestFixtures.transformation_cache_markers(cache_version)
+
+        IndexingPipeline.write_processor_marker(%{
+          type: IndexingPipeline.Figgy.HydrationProducerSource.processor_marker_key(),
+          cache_version: cache_version,
+          cache_location: marker1.timestamp,
+          cache_record_id: marker1.id
+        })
+
+        IndexingPipeline.write_processor_marker(%{
+          type: IndexingPipeline.Figgy.TransformationProducerSource.processor_marker_key(),
+          cache_version: cache_version,
+          cache_location: marker1.timestamp,
+          cache_record_id: marker1.id
+        })
+
+        IndexingPipeline.write_processor_marker(%{
+          type: IndexingPipeline.Figgy.IndexingProducerSource.processor_marker_key(),
+          cache_version: cache_version,
+          cache_location: marker1.timestamp,
+          cache_record_id: marker1.id
+        })
+      end
+
+      assert Enum.count(IndexingPipeline.list_hydration_cache_entries()) == 6
+      assert Enum.count(IndexingPipeline.list_transformation_cache_entries()) == 6
+      assert Enum.count(IndexingPipeline.list_processor_markers()) == 6
+
+      IndexingPipeline.delete_cache_version(0)
+
+      assert Enum.map(
+               IndexingPipeline.list_hydration_cache_entries(),
+               fn e -> e.cache_version end
+             ) == [1, 1, 1]
+
+      assert Enum.map(
+               IndexingPipeline.list_transformation_cache_entries(),
+               fn e -> e.cache_version end
+             ) == [1, 1, 1]
+
+      assert Enum.map(
+               IndexingPipeline.list_processor_markers(),
+               fn e -> e.cache_version end
+             ) == [1, 1, 1]
+    end
   end
 end
