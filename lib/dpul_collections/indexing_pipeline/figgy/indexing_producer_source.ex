@@ -6,7 +6,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerSource do
     "figgy_indexer"
   end
 
-  def get_cache_entries_since!(last_queried_marker, total_demand) do
-    IndexingPipeline.get_transformation_cache_entries_since!(last_queried_marker, total_demand)
+  def get_cache_entries_since!(last_queried_marker, total_demand, cache_version) do
+    IndexingPipeline.get_transformation_cache_entries_since!(
+      last_queried_marker,
+      total_demand,
+      cache_version
+    )
   end
 end

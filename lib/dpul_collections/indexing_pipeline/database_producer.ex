@@ -54,6 +54,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
           last_queried_marker: last_queried_marker,
           pulled_records: pulled_records,
           acked_records: acked_records,
+          cache_version: cache_version,
           stored_demand: stored_demand,
           source_module: source_module
         }
@@ -61,7 +62,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
     total_demand = stored_demand + demand
 
     records =
-      source_module.get_cache_entries_since!(last_queried_marker, total_demand)
+      source_module.get_cache_entries_since!(last_queried_marker, total_demand, cache_version)
 
     new_state =
       state
