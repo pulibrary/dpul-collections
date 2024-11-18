@@ -14,6 +14,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer.Source do
   """
   @callback get_cache_entries_since!(
               last_queried_marker :: CacheEntryMarker.t(),
-              total_demand :: integer
+              total_demand :: integer,
+              cache_version :: integer
             ) :: list(struct)
 end

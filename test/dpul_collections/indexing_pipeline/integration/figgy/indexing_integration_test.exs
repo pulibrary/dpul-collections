@@ -49,7 +49,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
   end
 
   test "when cache version > 0, processor marker cache version is correct" do
-    FiggyTestFixtures.transformation_cache_markers()
+    FiggyTestFixtures.transformation_cache_markers(1)
 
     cache_version = 1
     indexer = start_indexing_producer(cache_version)

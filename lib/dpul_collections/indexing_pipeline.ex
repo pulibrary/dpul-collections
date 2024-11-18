@@ -84,17 +84,20 @@ defmodule DpulCollections.IndexingPipeline do
 
   @spec get_hydration_cache_entries_since!(
           marker :: CacheEntryMarker.t(),
-          count :: integer
+          count :: integer,
+          cache_version :: integer
         ) :: list(Figgy.HydrationCacheEntry)
   def get_hydration_cache_entries_since!(
         %CacheEntryMarker{timestamp: cache_order, id: id},
-        count
+        count,
+        cache_version
       ) do
     query =
       from r in Figgy.HydrationCacheEntry,
         where:
-          (r.cache_order == ^cache_order and r.record_id > ^id) or
-            r.cache_order > ^cache_order,
+          r.cache_version == ^cache_version and
+            ((r.cache_order == ^cache_order and r.record_id > ^id) or
+               r.cache_order > ^cache_order),
         limit: ^count,
         order_by: [asc: r.cache_order, asc: r.record_id]
 
@@ -103,11 +106,13 @@ defmodule DpulCollections.IndexingPipeline do
 
   @spec get_hydration_cache_entries_since!(
           nil,
-          count :: integer
+          count :: integer,
+          cache_version :: integer
         ) :: list(Figgy.HydrationCacheEntry)
-  def get_hydration_cache_entries_since!(nil, count) do
+  def get_hydration_cache_entries_since!(nil, count, cache_version) do
     query =
       from r in Figgy.HydrationCacheEntry,
+        where: r.cache_version == ^cache_version,
         limit: ^count,
         order_by: [asc: r.source_cache_order, asc: r.record_id]
 
@@ -310,17 +315,20 @@ defmodule DpulCollections.IndexingPipeline do
 
   @spec get_transformation_cache_entries_since!(
           marker :: CacheEntryMarker.t(),
-          count :: integer
+          count :: integer,
+          cache_version :: integer
         ) :: list(Figgy.TransformationCacheEntry)
   def get_transformation_cache_entries_since!(
         %CacheEntryMarker{timestamp: cache_order, id: id},
-        count
+        count,
+        cache_version
       ) do
     query =
       from r in Figgy.TransformationCacheEntry,
         where:
-          (r.cache_order == ^cache_order and r.record_id > ^id) or
-            r.cache_order > ^cache_order,
+          r.cache_version == ^cache_version and
+            ((r.cache_order == ^cache_order and r.record_id > ^id) or
+               r.cache_order > ^cache_order),
         limit: ^count,
         order_by: [asc: r.cache_order, asc: r.record_id]
 
@@ -329,11 +337,13 @@ defmodule DpulCollections.IndexingPipeline do
 
   @spec get_transformation_cache_entries_since!(
           nil,
-          count :: integer
+          count :: integer,
+          cache_version :: integer
         ) :: list(Figgy.TransformationCacheEntry)
-  def get_transformation_cache_entries_since!(nil, count) do
+  def get_transformation_cache_entries_since!(nil, count, cache_version) do
     query =
       from r in Figgy.TransformationCacheEntry,
+        where: r.cache_version == ^cache_version,
         limit: ^count,
         order_by: [asc: r.cache_order, asc: r.record_id]
 
