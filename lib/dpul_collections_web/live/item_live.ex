@@ -4,8 +4,6 @@ defmodule DpulCollectionsWeb.ItemLive do
   alias DpulCollections.{Item, Solr}
 
   def mount(params, _session, socket) do
-    locale = Map.get(params, "locale", "en")
-
     {:ok, socket}
   end
 

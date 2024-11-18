@@ -4,14 +4,15 @@ defmodule DpulCollectionsWeb.HomeLive do
   alias DpulCollections.Solr
   alias DpulCollectionsWeb.Live.Helpers
 
+  # on_mount SetLocaleHook
+
   def mount(params, _session, socket) do
-    locale = Map.get(params, "locale", "en")
+    # locale = Map.get(params, "locale", "en")
 
     socket =
       assign(socket,
         item_count: Solr.document_count(),
-        q: nil,
-        locale: locale
+        q: nil
       )
 
     {:ok, socket, temporary_assigns: [item_count: nil]}

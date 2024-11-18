@@ -44,8 +44,6 @@ defmodule DpulCollectionsWeb.SearchLive do
   end
 
   def mount(params, _session, socket) do
-    locale = Map.get(params, "locale", "en")
-
     {:ok, socket}
   end
 
