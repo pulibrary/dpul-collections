@@ -26,4 +26,4 @@ How to tell when it's time to swap to the new solr index! I think you want 2 thi
 
 When you're ready to use the new index, connect to a iex console on the indexer (see the README under "Connecting to Staging Shell or IEX Console") and run `DpulCollections.Solr.set_alias/1`, passing the new collection name.
 
-When you're ready to delete the old index, remove its configuration from the `index_cache_collections` variable and deploy. Then you can connect to the indexer node and run `DpulCollections.Solr.delete_collection/1` with the old collection name. Note that the cache entries will still be in each database cache.
+When you're ready to delete the old index, remove its configuration from the `index_cache_collections` variable and deploy. Then you can connect to the indexer node and run `DpulCollections.Solr.delete_collection/1` with the old collection name. To delete all the database entries for that cache version use `IndexingPipeline.delete_cache_version/1`.

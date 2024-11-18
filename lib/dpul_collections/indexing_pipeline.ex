@@ -384,4 +384,17 @@ defmodule DpulCollections.IndexingPipeline do
       Ecto.StaleEntryError -> {:ok, nil}
     end
   end
+
+  @doc """
+  Deletes all HydrationCacheEntry, TransformationCacheEntry, and ProcessorMarker with the given cache version
+  """
+  def delete_cache_version(cache_version) do
+    from(h in Figgy.HydrationCacheEntry, where: h.cache_version == ^cache_version)
+    |> Repo.delete_all()
+
+    from(t in Figgy.TransformationCacheEntry, where: t.cache_version == ^cache_version)
+    |> Repo.delete_all()
+
+    from(p in ProcessorMarker, where: p.cache_version == ^cache_version) |> Repo.delete_all()
+  end
 end
