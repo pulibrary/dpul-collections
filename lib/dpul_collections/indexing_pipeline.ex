@@ -38,6 +38,10 @@ defmodule DpulCollections.IndexingPipeline do
   """
   def get_hydration_cache_entry!(id), do: Repo.get!(Figgy.HydrationCacheEntry, id)
 
+  def get_hydration_cache_entry!(record_id, cache_version) do
+    Repo.get_by(Figgy.HydrationCacheEntry, record_id: record_id, cache_version: cache_version)
+  end
+
   @doc """
   Deletes a hydration_cache_entry.
 
