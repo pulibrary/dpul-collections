@@ -30,4 +30,4 @@ When you're ready to use the new index, connect to a iex console on the indexer 
 
 ## Step 3: stop and clean up the old index
 
-When you're ready to delete the old index, remove its configuration from the `index_cache_collections` variable and deploy. Then you can connect to the indexer node and run `DpulCollections.Solr.delete_collection/1` with the old collection name. To delete all the database entries for that cache version use `IndexingPipeline.delete_cache_version/1`.
+When you're ready to delete the old index, remove its configuration from the `index_cache_collections` variable and deploy. Then you can connect to the indexer node and run `DpulCollections.Solr.delete_collection/1` with the old collection name. To delete all the database entries for that cache version use `DpulCollections.IndexingPipeline.delete_cache_version/1`.

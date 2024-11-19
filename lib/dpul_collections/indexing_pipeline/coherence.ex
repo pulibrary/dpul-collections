@@ -10,8 +10,17 @@ defmodule DpulCollections.IndexingPipeline.Coherence do
         IndexingPipeline.get_processor_marker!("figgy_indexer", pipeline[:cache_version])
       end)
 
-    version_sorted = Enum.sort_by(pms, & &1.cache_version)
-    date_sorted = Enum.sort_by(pms, & &1.cache_location, DateTime)
+    # the cache_location in a processor marker isn't consistent between
+    # cache versions -- it's just a timestamp. So we pull the hydration
+    # cache entries and compare them based on the figgy timestamp itself
+    hydration_entries =
+      pms
+      |> Enum.map(fn marker ->
+        IndexingPipeline.get_hydration_cache_entry!(marker.cache_record_id, marker.cache_version)
+      end)
+
+    version_sorted = Enum.sort_by(hydration_entries, & &1.cache_version)
+    date_sorted = Enum.sort_by(hydration_entries, & &1.source_cache_order, DateTime)
     version_sorted == date_sorted
   end
 
