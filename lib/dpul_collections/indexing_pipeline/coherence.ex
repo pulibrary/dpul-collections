@@ -4,10 +4,9 @@ defmodule DpulCollections.IndexingPipeline.Coherence do
 
   @spec index_parity?() :: boolean()
   def index_parity?() do
-    index_progress_summaries =
-      Application.fetch_env!(:dpul_collections, DpulCollections.IndexingPipeline)
-      |> Enum.map(&index_progress_summary/1)
-      |> is_new_cache_caught_up?()
+    Application.fetch_env!(:dpul_collections, DpulCollections.IndexingPipeline)
+    |> Enum.map(&index_progress_summary/1)
+    |> is_new_cache_caught_up?()
   end
 
   @spec document_count_report() :: map()
