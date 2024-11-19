@@ -76,7 +76,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     conn =
       get(
         conn,
-        "/i/%D9%83%D9%88-%D8%A7%D8%B4%D9%83%D9%88%DA%BA-%D8%B3%DB%92-%D8%A8%D8%AC%D9%87%D8%A7%D9%86%D8%A7-%D9%87%D9%88%DA%AF%D8%A7/item/3"
+        "/i/%D8%A7%D8%A8-%D9%83%D9%88%D8%A6%D9%89-%D8%AC%D9%86%DA%AF-%D9%86%D9%87-%D9%87%D9%88%DA%AF%D9%89/item/3"
       )
 
     assert conn.status == 200
