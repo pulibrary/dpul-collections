@@ -42,7 +42,7 @@ defmodule DpulCollectionsWeb.HomeLive do
   end
 
   def handle_event("search", %{"q" => q}, socket) do
-    params = %{locale: socket.assigns.locale, q: q} |> Helpers.clean_params()
+    params = %{q: q} |> Helpers.clean_params()
     socket = push_navigate(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
   end
