@@ -186,6 +186,6 @@ defmodule DpulCollections.SolrTest do
     Solr.commit(active_collection())
 
     assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["slug_s"] ==
-             "بن-محمد-بن-الحسين-الارجاني"
+             "ديوان-القاضي-ناصح-الدين-ابي"
   end
 end
