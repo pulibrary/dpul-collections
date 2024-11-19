@@ -1,5 +1,7 @@
 # Create a clean Solr index
 
+## Step 1: start the new index
+
 To write a second index while the current index continues to receive updates and serve reads, update the `index_cache_collections` variable in the relevant `.hcl` deployment file. For example, if the current value is:
 
 ```
@@ -17,7 +19,7 @@ In development this configuration is formatted as a list of keyword lists in the
 
 With the new write index specified in configuration, deploy the application (or restart your development processes). A full indexing pipeline will start up for each configured cache_version / write_collection pair. The Indexing code will create the new collection and start writing to it.
 
-You should also add the new collection to the [collections config file](https://github.com/pulibrary/pul_solr/blob/main/config/collections.yml) in pul_solr. This ensures that the collection is reloaded when config sets are deployed, and that collections are backed up.
+## Step 2: swap in the new index
 
 How to tell when it's time to swap to the new solr index! I think you want 2 things:
 
@@ -25,5 +27,7 @@ How to tell when it's time to swap to the new solr index! I think you want 2 thi
 1. the number of records in the new solr collection is about the same as the number of records in the old solr collection. The index size may be slightly larger if for whatever reason the new collection is getting updates faster than the old one. The index size may be smaller if the old index has records that needed to be deleted for some reason. To see the compartive size of the two indexes do `DpulCollections.IndexingPipeline.Coherence.document_count_report()`
 
 When you're ready to use the new index, connect to a iex console on the indexer (see the README under "Connecting to Staging Shell or IEX Console") and run `DpulCollections.Solr.set_alias/1`, passing the new collection name.
+
+## Step 3: stop and clean up the old index
 
 When you're ready to delete the old index, remove its configuration from the `index_cache_collections` variable and deploy. Then you can connect to the indexer node and run `DpulCollections.Solr.delete_collection/1` with the old collection name. To delete all the database entries for that cache version use `IndexingPipeline.delete_cache_version/1`.
