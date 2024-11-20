@@ -199,8 +199,10 @@ defmodule DpulCollectionsWeb.SearchLive do
           />
         </svg>
       </.link>
-      <.link
-        :for={{page_number, current_page?} <- pages(@page, @per_page, @total_items)}
+      <.dynamic_tag
+        :for={{element, page_number, current_page?} <- pages(@page, @per_page, @total_items)}
+        name={element}
+        href={if "a" == element, do: "#"}
         class={"
           flex
           items-center
@@ -220,7 +222,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         phx-value-page={page_number}
       >
         <%= page_number %>
-      </.link>
+      </.dynamic_tag>
       <.link
         :if={more_pages?(@page, @per_page, @total_items)}
         id="paginator-next"
@@ -308,7 +310,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           page_number > 0 do
         if page_number <= page_count do
           current_page? = page_number == page
-          {page_number, current_page?}
+          {"a", page_number, current_page?}
         end
       end
 
@@ -322,8 +324,8 @@ defmodule DpulCollectionsWeb.SearchLive do
   defp paginator_tail(type, page, page_range) do
     cond do
       Enum.member?(page_range |> Enum.to_list(), page) -> []
-      type == :pre -> [{page, false}, {"...", false}]
-      type == :post -> [{"...", false}, {page, false}]
+      type == :pre -> [{"a", page, false}, {"span", "...", false}]
+      type == :post -> [{"span", "...", false}, {"a", page, false}]
     end
   end
 end
