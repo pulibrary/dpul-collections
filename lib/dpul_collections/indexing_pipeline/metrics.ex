@@ -21,7 +21,8 @@ defmodule DpulCollections.IndexingPipeline.Metrics do
   def index_metrics(type, measurement_type) do
     query =
       from r in IndexMetric,
-        where: r.type == ^type and r.measurement_type == ^measurement_type
+        where: r.type == ^type and r.measurement_type == ^measurement_type,
+        order_by: [desc: r.inserted_at]
 
     Repo.all(query)
   end
