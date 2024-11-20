@@ -7,6 +7,7 @@ defmodule DpulCollections.IndexingPipeline.IndexMetric do
     field :measurement_type, :string
     # Duration in seconds
     field :duration, :integer
+    field :records_acked, :integer
 
     timestamps(type: :utc_datetime_usec)
   end
