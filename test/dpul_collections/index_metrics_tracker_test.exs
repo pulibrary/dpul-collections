@@ -13,7 +13,8 @@ defmodule DpulCollections.IndexMetricsTrackerTest do
       [metric = %IndexMetric{}] = IndexMetricsTracker.index_times(HydrationProducerSource)
 
       # Assert
-      assert metric.duration != 0
+      # This is 0 because it takes less than a second to run.
+      assert metric.duration == 0
     end
   end
 end

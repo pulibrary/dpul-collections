@@ -44,7 +44,7 @@ defmodule DpulCollections.IndexMetricsTracker do
       Metrics.create_index_metric(%{
         type: source.processor_marker_key(),
         measurement_type: "full_index",
-        duration: System.convert_time_unit(duration, :native, :millisecond)
+        duration: System.convert_time_unit(duration, :native, :second)
       })
 
       {:reply, nil, state}

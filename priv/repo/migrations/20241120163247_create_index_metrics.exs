@@ -5,7 +5,7 @@ defmodule DpulCollections.Repo.Migrations.CreateIndexMetrics do
     create table(:index_metrics) do
       add :type, :string
       add :measurement_type, :string
-      add :duration, :decimal
+      add :duration, :integer
 
       timestamps(type: :utc_datetime_usec)
     end

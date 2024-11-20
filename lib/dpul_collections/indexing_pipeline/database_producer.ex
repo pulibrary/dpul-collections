@@ -59,14 +59,14 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
           source_module: source_module
         }
       ) do
-    if last_queried_marker == nil do
-      DpulCollections.IndexMetricsTracker.register_fresh_index(source_module)
-    end
-
     total_demand = stored_demand + demand
 
     records =
       source_module.get_cache_entries_since!(last_queried_marker, total_demand, cache_version)
+
+    if last_queried_marker == nil && length(records) > 0 do
+      DpulCollections.IndexMetricsTracker.register_fresh_index(source_module)
+    end
 
     new_state =
       state
