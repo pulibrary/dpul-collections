@@ -8,6 +8,18 @@ defmodule DpulCollections.IndexMetricsTrackerTest do
   describe "index_times/1" do
     test "registers index times" do
       # Act
+      # Send an ack done with acked_count 1, before anything - this should be
+      # ignored
+      :telemetry.execute(
+        [:database_producer, :ack, :done],
+        %{},
+        %{
+          acked_count: 1,
+          unacked_count: 0,
+          processor_marker_key: HydrationProducerSource.processor_marker_key()
+        }
+      )
+
       IndexMetricsTracker.register_fresh_index(HydrationProducerSource)
       # Send an ack done with acked_count 1
       :telemetry.execute(
