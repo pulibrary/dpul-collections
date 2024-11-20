@@ -130,24 +130,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      doc4 = HydrationCacheEntry.to_solr_document(entry4)
-      doc5 = HydrationCacheEntry.to_solr_document(entry5)
-
-      assert doc1[:years_is] == [2022]
-      assert doc2[:years_is] == [1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005]
-      assert doc3[:years_is] == nil
-      assert doc4[:years_is] == [2011, 2012, 2013]
-      assert doc5[:years_is] == nil
-
-      assert doc1[:display_date_s] == "2022"
-      assert doc2[:display_date_s] == "1995 - 2005"
-      assert doc3[:display_date_s] == nil
-      assert doc4[:display_date_s] == "2011 - 2013 (approximate)"
-      assert doc5[:display_date_s] == nil
-    end
-
-    test "logs dates it can't parse" do
-      # date created has a bad date
+      # Add one to exercise date_created with format `.*yyyy`
       {:ok, entry6} =
         IndexingPipeline.write_hydration_cache_entry(%{
           cache_version: 0,
@@ -157,14 +140,105 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
             "id" => "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
             "internal_resource" => "EphemeraFolder",
             "metadata" => %{
-              "title" => ["test title 5"],
-              "date_created" => ["not a date, no numbers even"]
+              "title" => ["test title 6"],
+              "date_created" => ["January 26, 1952"]
             }
           }
         })
 
-      # doc6 = HydrationCacheEntry.to_solr_document(entry6)
-      assert capture_log(fn -> HydrationCacheEntry.to_solr_document(entry6) end) =~
+      # Add one to exercise date_created with format `.*[.*yyyy]`
+      {:ok, entry7} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          cache_version: 0,
+          record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
+          source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
+          data: %{
+            "id" => "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
+            "internal_resource" => "EphemeraFolder",
+            "metadata" => %{
+              "title" => ["test title 7"],
+              "date_created" => ["29 Raḥab al-Marjab 1342- رحب المرجب 1342 - [July 1923]"]
+            }
+          }
+        })
+
+      # Add one to exercise date_created with format `[yyyy]`
+      {:ok, entry8} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          cache_version: 0,
+          record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
+          source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
+          data: %{
+            "id" => "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
+            "internal_resource" => "EphemeraFolder",
+            "metadata" => %{
+              "title" => ["test title 8"],
+              "date_created" => ["[2010]"]
+            }
+          }
+        })
+
+      {:ok, entry9} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          cache_version: 0,
+          record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
+          source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
+          data: %{
+            "id" => "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
+            "internal_resource" => "EphemeraFolder",
+            "metadata" => %{
+              "title" => ["test title 9"],
+              "date_created" => ["September [1954]"]
+            }
+          }
+        })
+
+      doc4 = HydrationCacheEntry.to_solr_document(entry4)
+      doc5 = HydrationCacheEntry.to_solr_document(entry5)
+      doc6 = HydrationCacheEntry.to_solr_document(entry6)
+      doc7 = HydrationCacheEntry.to_solr_document(entry7)
+      doc8 = HydrationCacheEntry.to_solr_document(entry8)
+      doc9 = HydrationCacheEntry.to_solr_document(entry9)
+
+      assert doc1[:years_is] == [2022]
+      assert doc2[:years_is] == [1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005]
+      assert doc3[:years_is] == nil
+      assert doc4[:years_is] == [2011, 2012, 2013]
+      assert doc5[:years_is] == nil
+      assert doc6[:years_is] == [1952]
+      assert doc7[:years_is] == [1923]
+      assert doc8[:years_is] == [2010]
+      assert doc9[:years_is] == [1954]
+
+      assert doc1[:display_date_s] == "2022"
+      assert doc2[:display_date_s] == "1995 - 2005"
+      assert doc3[:display_date_s] == nil
+      assert doc4[:display_date_s] == "2011 - 2013 (approximate)"
+      assert doc5[:display_date_s] == nil
+      assert doc6[:display_date_s] == "1952"
+      assert doc7[:display_date_s] == "1923"
+      assert doc8[:display_date_s] == "2010"
+      assert doc9[:display_date_s] == "1954"
+    end
+
+    test "logs dates it can't parse" do
+      # date created has a bad date
+      {:ok, entry} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          cache_version: 0,
+          record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
+          source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
+          data: %{
+            "id" => "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
+            "internal_resource" => "EphemeraFolder",
+            "metadata" => %{
+              "title" => ["test title 5"],
+              "date_created" => ["un-parsable date [192?]"]
+            }
+          }
+        })
+
+      assert capture_log(fn -> HydrationCacheEntry.to_solr_document(entry) end) =~
                "couldn't parse date"
     end
   end
