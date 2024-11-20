@@ -1,6 +1,7 @@
 defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   use Ecto.Schema
   import Ecto.Changeset
+  require Logger
 
   schema "figgy_hydration_cache_entries" do
     field :data, :map
@@ -22,13 +23,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   @spec to_solr_document(%__MODULE__{}) :: %{}
   def to_solr_document(hydration_cache_entry) do
     %{record_id: id} = hydration_cache_entry
-    %{data: %{"metadata" => metadata}, related_data: related_data} = hydration_cache_entry
+    %{data: data = %{"metadata" => metadata}, related_data: related_data} = hydration_cache_entry
 
     %{
       id: id,
       title_txtm: get_in(metadata, ["title"]),
       description_txtm: get_in(metadata, ["description"]),
-      years_is: extract_years(metadata),
+      years_is: extract_years(data),
       display_date_s: format_date(metadata),
       page_count_i: page_count(metadata),
       image_service_urls_ss: image_service_urls(metadata, related_data)
@@ -99,19 +100,30 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
     0
   end
 
-  defp extract_years(%{"date_range" => [%{"start" => [start_year], "end" => [end_year]}]}) do
+  defp extract_years(%{
+         "metadata" => %{"date_range" => [%{"start" => [start_year], "end" => [end_year]}]}
+       }) do
     Enum.to_list(String.to_integer(start_year)..String.to_integer(end_year))
   end
 
-  defp extract_years(%{"date_created" => []}) do
+  defp extract_years(%{"metadata" => %{"date_created" => []}}) do
     nil
   end
 
   # This will be single value from figgy, stored as an array.
   # If somehow we get more than 1 value, just take the first
   # It goes into a multi-valued index field, so keep it looking that way
-  defp extract_years(%{"date_created" => [date | _tail]}) do
-    [String.to_integer(date)]
+  defp extract_years(%{"metadata" => %{"date_created" => [date | _tail]}, "id" => id}) do
+    result = Integer.parse(date)
+
+    case result do
+      :error ->
+        Logger.warning("couldn't parse date \"#{date}\" for record #{id}")
+        nil
+
+      {extracted_date, _rest} ->
+        [extracted_date]
+    end
   end
 
   defp extract_years(%{}) do
