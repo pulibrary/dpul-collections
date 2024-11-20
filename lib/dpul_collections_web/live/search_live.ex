@@ -43,7 +43,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     defp valid_sort_by(_), do: :relevance
   end
 
-  def mount(params, _session, socket) do
+  def mount(_params, _session, socket) do
     {:ok, socket}
   end
 
@@ -304,7 +304,7 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def handle_event("paginate", %{"page" => page}, socket) do
     params = %{socket.assigns.search_state | page: page} |> Helpers.clean_params()
-    socket = push_redirect(socket, to: ~p"/search?#{params}")
+    socket = push_navigate(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
   end
 

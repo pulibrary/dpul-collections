@@ -3,6 +3,7 @@ defmodule DpulCollectionsWeb.LocalePlug do
   Fetch locale and set it for the specified Gettext backend.
 
   Detect locale in following order: params > cookies > accept-language header
+  Credit: https://github.com/goofansu/locale_plug
   """
 
   import Plug.Conn

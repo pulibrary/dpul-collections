@@ -6,9 +6,7 @@ defmodule DpulCollectionsWeb.HomeLive do
 
   # on_mount SetLocaleHook
 
-  def mount(params, _session, socket) do
-    # locale = Map.get(params, "locale", "en")
-
+  def mount(_params, _session, socket) do
     socket =
       assign(socket,
         item_count: Solr.document_count(),

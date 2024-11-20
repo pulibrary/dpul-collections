@@ -3,7 +3,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   import DpulCollectionsWeb.Gettext
   alias DpulCollections.{Item, Solr}
 
-  def mount(params, _session, socket) do
+  def mount(_params, _session, socket) do
     {:ok, socket}
   end
 
@@ -27,12 +27,6 @@ defmodule DpulCollectionsWeb.ItemLive do
     <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
       <span>Item not found</span>
     </div>
-    """
-  end
-
-  def description(assigns) do
-    ~H"""
-    <div class="pb-4 leading-relaxed text-lg"><%= @description %></div>
     """
   end
 
@@ -75,6 +69,12 @@ defmodule DpulCollectionsWeb.ItemLive do
         </div>
       </section>
     </div>
+    """
+  end
+
+  def description(assigns) do
+    ~H"""
+    <div class="pb-4 leading-relaxed text-lg"><%= @description %></div>
     """
   end
 
