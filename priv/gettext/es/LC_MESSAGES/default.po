@@ -68,7 +68,7 @@ msgstr "Aplicar"
 msgid "Item not found"
 msgstr "Artículo no encontrado"
 
-#: lib/dpul_collections_web/components/lux-components.ex:9
+#: lib/dpul_collections_web/components/lux-components.ex:16
 #, elixir-autogen, elixir-format
 msgid "Language"
 msgstr "Idioma"
@@ -118,3 +118,13 @@ msgstr "De"
 #, elixir-autogen, elixir-format
 msgid "To"
 msgstr "A"
+
+#: lib/dpul_collections_web/live/home_live.ex:36
+#, elixir-autogen, elixir-format
+msgid "Ephemera items. We can't wait to see how you use these materials to support your unique research."
+msgstr "Artículos efímeros. Estamos ansiosos por ver cómo utilizas estos materiales para respaldar tu investigación única."
+
+#: lib/dpul_collections_web/live/home_live.ex:35
+#, elixir-autogen, elixir-format
+msgid "We invite you to be inspired by our globally diverse collections of"
+msgstr "Te invitamos a inspirarte con nuestras colecciones globalmente diversas de"
