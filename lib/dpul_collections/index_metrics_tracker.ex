@@ -1,5 +1,6 @@
 defmodule DpulCollections.IndexMetricsTracker do
   use GenServer
+  alias DpulCollections.IndexingPipeline.Metrics
   alias DpulCollections.IndexingPipeline.Figgy
 
   def start_link(_) do
@@ -7,11 +8,15 @@ defmodule DpulCollections.IndexMetricsTracker do
   end
 
   def register_fresh_index(source) do
-    GenServer.cast(__MODULE__, {:fresh_index, source})
+    GenServer.call(__MODULE__, {:fresh_index, source})
   end
 
   def register_polling_started(source) do
-    GenServer.cast(__MODULE__, {:poll_started, source})
+    GenServer.call(__MODULE__, {:poll_started, source})
+  end
+
+  def index_times(source) do
+    Metrics.index_metrics(source.processor_marker_key(), "full_index")
   end
 
   @impl true
@@ -20,12 +25,12 @@ defmodule DpulCollections.IndexMetricsTracker do
   end
 
   @impl true
-  def handle_cast({:fresh_index, source}, state) do
+  def handle_call({:fresh_index, source}, _, state) do
     new_state = put_in(state, [source], %{start_time: :erlang.monotonic_time()})
-    {:noreply, new_state}
+    {:reply, nil, new_state}
   end
 
-  def handle_cast({:poll_started, source}, state) do
+  def handle_call({:poll_started, source}, _, state) do
     if get_in(state, [source, :start_time]) != nil && get_in(state, [source, :end_time]) == nil do
       state = put_in(state, [source, :end_time], :erlang.monotonic_time())
       duration = state[source][:end_time] - state[source][:start_time]
@@ -36,9 +41,15 @@ defmodule DpulCollections.IndexMetricsTracker do
         %{source: source}
       )
 
-      {:noreply, state}
+      Metrics.create_index_metric(%{
+        type: source.processor_marker_key(),
+        measurement_type: "full_index",
+        duration: System.convert_time_unit(duration, :native, :millisecond)
+      })
+
+      {:reply, nil, state}
     else
-      {:noreply, state}
+      {:reply, nil, state}
     end
   end
 

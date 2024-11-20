@@ -20,7 +20,8 @@ defmodule DpulCollections.Application do
         # Start a worker by calling: DpulCollections.Worker.start_link(arg)
         # {DpulCollections.Worker, arg},
         # Start to serve requests, typically the last entry
-        DpulCollectionsWeb.Endpoint
+        DpulCollectionsWeb.Endpoint,
+        DpulCollections.IndexMetricsTracker
       ] ++ environment_children(Application.fetch_env!(:dpul_collections, :current_env))
 
     # See https://hexdocs.pm/elixir/Supervisor.html
