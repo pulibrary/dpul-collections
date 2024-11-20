@@ -26,8 +26,8 @@ msgstr ""
 msgid "Hang in there while we get back on track"
 msgstr ""
 
-#: lib/dpul_collections_web/live/home_live.ex:33
-#: lib/dpul_collections_web/live/search_live.ex:82
+#: lib/dpul_collections_web/live/home_live.ex:27
+#: lib/dpul_collections_web/live/search_live.ex:75
 #, elixir-autogen, elixir-format
 msgid "Search"
 msgstr "Search"
@@ -52,7 +52,69 @@ msgstr ""
 msgid "close"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:59
+#: lib/dpul_collections_web/live/item_live.ex:54
+#: lib/dpul_collections_web/live/item_live.ex:95
 #, elixir-autogen, elixir-format
 msgid "Download"
+msgstr ""
+
+#: lib/dpul_collections_web/live/search_live.ex:105
+#, elixir-autogen, elixir-format
+msgid "Apply"
+msgstr ""
+
+#: lib/dpul_collections_web/live/item_live.ex:28
+#, elixir-autogen, elixir-format
+msgid "Item not found"
+msgstr ""
+
+#: lib/dpul_collections_web/components/lux-components.ex:9
+#, elixir-autogen, elixir-format
+msgid "Language"
+msgstr ""
+
+#: lib/dpul_collections_web/live/search_live.ex:232
+#, elixir-autogen, elixir-format
+msgid "Next"
+msgstr ""
+
+#: lib/dpul_collections_web/live/item_live.ex:61
+#: lib/dpul_collections_web/live/search_live.ex:151
+#, elixir-autogen, elixir-format
+msgid "Pages"
+msgstr ""
+
+#: lib/dpul_collections_web/live/search_live.ex:186
+#, elixir-autogen, elixir-format
+msgid "Previous"
+msgstr ""
+
+#: lib/dpul_collections_web/live/search_live.ex:69
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Search Results"
+msgstr "Search"
+
+#: lib/dpul_collections_web/live/search_live.ex:86
+#, elixir-autogen, elixir-format
+msgid "filter by date"
+msgstr ""
+
+#: lib/dpul_collections_web/live/search_live.ex:110
+#, elixir-autogen, elixir-format
+msgid "sort by"
+msgstr ""
+
+#: lib/dpul_collections_web/live/home_live.ex:33
+#, elixir-autogen, elixir-format
+msgid "Explore Our Digital Collections"
+msgstr ""
+
+#: lib/dpul_collections_web/live/search_live.ex:91
+#, elixir-autogen, elixir-format
+msgid "From"
+msgstr ""
+
+#: lib/dpul_collections_web/live/search_live.ex:99
+#, elixir-autogen, elixir-format
+msgid "To"
 msgstr ""

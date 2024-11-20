@@ -1,16 +1,26 @@
 defmodule DpulCollectionsWeb.LuxComponents do
   use Phoenix.Component
+  import DpulCollectionsWeb.Gettext
 
-  def header() do
-    ~S"""
-    <lux-library-header app-name="Digital Collections" abbr-name="Collections" app-url="/" theme="shade">
-      <lux-menu-bar type="main-menu" :menu-items="[
-        {name: 'Language', component: 'Language', children: [
+  def header(assigns) do
+    ~H"""
+    <lux-library-header
+      app-name="Digital Collections"
+      abbr-name="Collections"
+      app-url="/"
+      theme="shade"
+    >
+      <lux-menu-bar
+        type="main-menu"
+        v-bind:menu-items={"[
+        {name: '#{gettext("Language")}', component: 'Language', children: [
           {name: 'English', component: 'English', href: '?locale=en'},
           {name: 'Español', component: 'Español', href: '?locale=es'},
           {name: 'Português do Brasil', component: 'Português do Brasil', href: '?locale=pt-BR'}
         ]}
-      ]" theme="shade"/>
+      ]"}
+        theme="shade"
+      />
     </lux-library-header>
     """
   end
