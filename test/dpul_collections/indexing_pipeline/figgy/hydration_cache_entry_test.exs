@@ -1,5 +1,7 @@
 defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
   use DpulCollections.DataCase
+  import ExUnit.CaptureLog
+  require Logger
 
   alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry
   alias DpulCollections.IndexingPipeline
@@ -85,7 +87,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
       [doc1, doc2, doc3] = Enum.map(entries, &HydrationCacheEntry.to_solr_document/1)
 
-      # Add one to exercise the "approximate" scenario
+      # date marked "approximate"
       {:ok, entry4} =
         IndexingPipeline.write_hydration_cache_entry(%{
           cache_version: 0,
@@ -112,7 +114,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      # Add one to exercise empty date_created
+      # empty date_created
       {:ok, entry5} =
         IndexingPipeline.write_hydration_cache_entry(%{
           cache_version: 0,
@@ -142,6 +144,28 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
       assert doc3[:display_date_s] == nil
       assert doc4[:display_date_s] == "2011 - 2013 (approximate)"
       assert doc5[:display_date_s] == nil
+    end
+
+    test "logs dates it can't parse" do
+      # date created has a bad date
+      {:ok, entry6} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          cache_version: 0,
+          record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
+          source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
+          data: %{
+            "id" => "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
+            "internal_resource" => "EphemeraFolder",
+            "metadata" => %{
+              "title" => ["test title 5"],
+              "date_created" => ["not a date, no numbers even"]
+            }
+          }
+        })
+
+      # doc6 = HydrationCacheEntry.to_solr_document(entry6)
+      assert capture_log(fn -> HydrationCacheEntry.to_solr_document(entry6) end) =~
+               "couldn't parse date"
     end
   end
 end
