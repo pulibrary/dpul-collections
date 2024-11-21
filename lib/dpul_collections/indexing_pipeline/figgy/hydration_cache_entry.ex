@@ -114,7 +114,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   # If somehow we get more than 1 value, just take the first
   # It goes into a multi-valued index field, so keep it looking that way
   defp extract_years(%{"metadata" => %{"date_created" => [date | _tail]}, "id" => id}) do
-    result = Integer.parse(date)
+    result = extract_year(date) |> year_string_to_integer()
 
     case result do
       :error ->
@@ -131,6 +131,22 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
     nil
   end
 
+  # Apply regexes to date string and return the first
+  # year value that matches. If none match, return nil.
+  defp extract_year(date) do
+    [
+      # "29 Raḥab al-Marjab 1321- [July 1923]"
+      # "[1931]"
+      # "September [1931]"
+      ~r/(\d+)(?=\])/,
+      # "November 1952" or "1943"
+      ~r/\d{4}/
+    ]
+    |> Enum.map(fn regex -> Regex.run(regex, date, capture: :first) end)
+    |> Enum.find([nil], fn year -> year != nil end)
+    |> hd
+  end
+
   defp format_date(%{
          "date_range" => [%{"start" => [start_year], "end" => [end_year], "approximate" => "1"}]
        }) do
@@ -142,7 +158,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   end
 
   defp format_date(%{"date_created" => [date | _tail]}) do
-    date
+    extract_year(date) || date
   end
 
   defp format_date(%{"date_created" => []}) do
@@ -152,5 +168,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   defp format_date(%{}) do
     # there's no date_created value
     nil
+  end
+
+  defp year_string_to_integer(nil), do: :error
+
+  defp year_string_to_integer(year) do
+    Integer.parse(year)
   end
 end
