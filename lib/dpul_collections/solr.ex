@@ -1,4 +1,5 @@
 defmodule DpulCollections.Solr do
+  require Logger
   @spec document_count(String.t()) :: integer()
   def document_count(collection \\ read_collection()) do
     {:ok, response} =
@@ -97,10 +98,14 @@ defmodule DpulCollections.Solr do
 
   @spec add(list(map()), String.t()) :: {:ok, Req.Response.t()} | {:error, Exception.t()}
   def add(docs, collection \\ read_collection()) do
-    Req.post!(
+    response = Req.post!(
       update_url(collection),
       json: docs
     )
+
+    if response.status == 400 do
+      Logger.warning("solr error: #{response.body}")
+    end
   end
 
   @spec commit(String.t()) :: {:ok, Req.Response.t()} | {:error, Exception.t()}

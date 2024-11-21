@@ -68,12 +68,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
       messages
       |> Enum.map(&unwrap/1)
 
-    # filtered =
-    #   unwrapped
-    #   |> Enum.filter(fn m -> m != nil end)
-    #
-    # Logger.warning("indexed batch m: #{messages |> Enum.count()} f: #{filtered |> Enum.count()}")
-
     unwrapped
     |> Solr.add(context[:write_collection])
 
