@@ -158,7 +158,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   end
 
   defp format_date(%{"date_created" => [date | _tail]}) do
-    extract_year(date) || date
+    date
   end
 
   defp format_date(%{"date_created" => []}) do

@@ -256,10 +256,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
       assert doc3[:display_date_s] == nil
       assert doc4[:display_date_s] == "2011 - 2013 (approximate)"
       assert doc5[:display_date_s] == nil
-      assert doc6[:display_date_s] == "1952"
-      assert doc7[:display_date_s] == "1923"
-      assert doc8[:display_date_s] == "2010"
-      assert doc9[:display_date_s] == "1954"
+      assert doc6[:display_date_s] == "January 26, 1952"
+      assert doc7[:display_date_s] == "29 Raḥab al-Marjab 1342- رحب المرجب 1342 - [July 1923]"
+      assert doc8[:display_date_s] == "[2010]"
+      assert doc9[:display_date_s] == "September [1954]"
     end
 
     test "logs dates it can't parse" do
