@@ -4,8 +4,6 @@ defmodule DpulCollectionsWeb.HomeLive do
   alias DpulCollections.Solr
   alias DpulCollectionsWeb.Live.Helpers
 
-  # on_mount SetLocaleHook
-
   def mount(_params, _session, socket) do
     socket =
       assign(socket,
@@ -32,8 +30,7 @@ defmodule DpulCollectionsWeb.HomeLive do
       <div id="welcome" class="grid place-self-center gap-10 max-w-prose">
         <h3 class="text-5xl text-center"><%= gettext("Explore Our Digital Collections") %></h3>
         <p class="text-xl text-center">
-          <%= gettext("We invite you to be inspired by our globally diverse collections of") %> <%= @item_count %>
-          <%= gettext(
+          <%= gettext("We invite you to be inspired by our globally diverse collections of") %> <%= @item_count %> <%= gettext(
             "Ephemera items. We can't wait to see how you use these materials to support your unique research."
           ) %>
         </p>

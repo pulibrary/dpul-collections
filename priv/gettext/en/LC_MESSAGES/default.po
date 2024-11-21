@@ -30,7 +30,7 @@ msgstr ""
 #: lib/dpul_collections_web/live/search_live.ex:75
 #, elixir-autogen, elixir-format
 msgid "Search"
-msgstr "Search"
+msgstr ""
 
 #: lib/dpul_collections_web/components/core_components.ex:97
 #, elixir-autogen, elixir-format
@@ -92,7 +92,7 @@ msgstr ""
 #: lib/dpul_collections_web/live/search_live.ex:69
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Search Results"
-msgstr "Search"
+msgstr ""
 
 #: lib/dpul_collections_web/live/search_live.ex:86
 #, elixir-autogen, elixir-format

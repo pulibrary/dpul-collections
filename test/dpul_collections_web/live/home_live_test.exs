@@ -6,7 +6,7 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
   test "GET /", %{conn: conn} do
     count = DpulCollections.Solr.document_count()
     conn = get(conn, ~p"/")
-    assert html_response(conn, 200) =~ "#{count}\n      Ephemera items"
+    assert html_response(conn, 200) =~ "#{count} Ephemera items"
   end
 
   test "search form redirect", %{conn: conn} do

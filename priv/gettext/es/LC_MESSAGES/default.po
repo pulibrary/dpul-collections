@@ -87,7 +87,7 @@ msgstr "Páginas"
 #: lib/dpul_collections_web/live/search_live.ex:186
 #, elixir-autogen, elixir-format
 msgid "Previous"
-msgstr "anterior"
+msgstr "Anterior"
 
 #: lib/dpul_collections_web/live/search_live.ex:69
 #, elixir-autogen, elixir-format, fuzzy

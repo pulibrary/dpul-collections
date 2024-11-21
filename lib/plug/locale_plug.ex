@@ -1,6 +1,6 @@
 defmodule DpulCollectionsWeb.LocalePlug do
   @moduledoc """
-  Fetch locale and set it for the specified Gettext backend.
+  Fetch locale and set it in the session for the specified Gettext backend to use.
 
   Detect locale in following order: params > cookies > accept-language header
   Credit: https://github.com/goofansu/locale_plug
