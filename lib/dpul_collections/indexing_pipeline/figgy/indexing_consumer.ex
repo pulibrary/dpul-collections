@@ -64,11 +64,18 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
   @spec handle_batch(any(), list(Broadway.Message.t()), any(), any()) ::
           list(Broadway.Message.t())
   def handle_batch(_batcher, messages, _batch_info, context) do
-    messages
-    |> Enum.map(&unwrap/1)
-    |> Solr.add(context[:write_collection])
+    unwrapped =
+      messages
+      |> Enum.map(&unwrap/1)
 
-    Logger.warning("indexed batch")
+    # filtered =
+    #   unwrapped
+    #   |> Enum.filter(fn m -> m != nil end)
+    #
+    # Logger.warning("indexed batch m: #{messages |> Enum.count()} f: #{filtered |> Enum.count()}")
+
+    unwrapped
+    |> Solr.add(context[:write_collection])
 
     messages
   end
@@ -80,8 +87,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
   end
 
   defp unwrap(%Broadway.Message{data: %Figgy.TransformationCacheEntry{data: data}}) do
-    if data == nil do
-      Logger.warning("solr record data is nil")
+    if data["id"] == nil do
+      Logger.warning("document id is nil")
     end
 
     data
