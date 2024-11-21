@@ -1,16 +1,15 @@
 defmodule DpulCollectionsWeb.SearchComponents do
   use Phoenix.Component
 
-  attr :rest, :global, doc: "the arbitrary HTML attributes to add to the flash container"
   attr :text, :string, doc: "the page number, or ellipsis"
-  attr :element, :string, doc: "'a' or 'span'"
+  attr :rest, :global, doc: "the arbitrary HTML attributes to add to the flash container"
 
   def page_link_or_span(assigns) do
     ~H"""
-    <a :if={@element == "a"} {@rest} href="#" phx-click="paginate" phx-value-page={@text}>
+    <a :if={@text != "..."} {@rest} href="#" phx-click="paginate" phx-value-page={@text}>
       <%= @text %>
     </a>
-    <span :if={@element == "span"} {@rest}>
+    <span :if={@text == "..."} {@rest}>
       <%= @text %>
     </span>
     """
@@ -220,8 +219,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         </svg>
       </.link>
       <.page_link_or_span
-        :for={{element, text, current_page?} <- pages(@page, @per_page, @total_items)}
-        element={element}
+        :for={{text, current_page?} <- pages(@page, @per_page, @total_items)}
         text={text}
         class={"
           flex
@@ -322,7 +320,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           page_number > 0 do
         if page_number <= page_count do
           current_page? = page_number == page
-          {"a", page_number, current_page?}
+          {page_number, current_page?}
         end
       end
 
@@ -336,8 +334,8 @@ defmodule DpulCollectionsWeb.SearchLive do
   defp paginator_tail(type, page, page_range) do
     cond do
       Enum.member?(page_range |> Enum.to_list(), page) -> []
-      type == :pre -> [{"a", page, false}, {"span", "...", false}]
-      type == :post -> [{"span", "...", false}, {"a", page, false}]
+      type == :pre -> [{page, false}, {"...", false}]
+      type == :post -> [{"...", false}, {page, false}]
     end
   end
 end
