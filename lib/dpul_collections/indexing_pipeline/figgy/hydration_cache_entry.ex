@@ -49,10 +49,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
     extract_service_url(member_data[id])
   end
 
-  defp extract_service_url(_id, _) do
-    nil
-  end
-
   # Find the derivative FileMetadata
   defp extract_service_url(%{
          "internal_resource" => "FileSet",
@@ -83,6 +79,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
 
     "https://iiif-cloud.princeton.edu/iiif/2/#{uuid_path}"
   end
+
+  defp extract_service_url(nil), do: nil
+
+  defp extract_service_url(_id, _), do: nil
 
   defp is_derivative(%{
          "mime_type" => ["image/tiff"],
