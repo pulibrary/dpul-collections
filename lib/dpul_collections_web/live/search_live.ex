@@ -1,5 +1,24 @@
+defmodule DpulCollectionsWeb.SearchComponents do
+  use Phoenix.Component
+
+  attr :text, :string, doc: "the page number, or ellipsis"
+  attr :rest, :global, doc: "the arbitrary HTML attributes to add to the flash container"
+
+  def page_link_or_span(assigns) do
+    ~H"""
+    <a :if={@text != "..."} {@rest} href="#" phx-click="paginate" phx-value-page={@text}>
+      <%= @text %>
+    </a>
+    <span :if={@text == "..."} {@rest}>
+      <%= @text %>
+    </span>
+    """
+  end
+end
+
 defmodule DpulCollectionsWeb.SearchLive do
   use DpulCollectionsWeb, :live_view
+  import DpulCollectionsWeb.SearchComponents
   alias DpulCollections.{Item, Solr}
   alias DpulCollectionsWeb.Live.Helpers
 
@@ -199,8 +218,9 @@ defmodule DpulCollectionsWeb.SearchLive do
           />
         </svg>
       </.link>
-      <.link
-        :for={{page_number, current_page?} <- pages(@page, @per_page, @total_items)}
+      <.page_link_or_span
+        :for={{text, current_page?} <- pages(@page, @per_page, @total_items)}
+        text={text}
         class={"
           flex
           items-center
@@ -216,11 +236,7 @@ defmodule DpulCollectionsWeb.SearchLive do
               hover:text-gray-700
             "}
         "}
-        phx-click="paginate"
-        phx-value-page={page_number}
-      >
-        <%= page_number %>
-      </.link>
+      />
       <.link
         :if={more_pages?(@page, @per_page, @total_items)}
         id="paginator-next"
@@ -285,13 +301,9 @@ defmodule DpulCollectionsWeb.SearchLive do
     {:noreply, socket}
   end
 
-  def handle_event("paginate", %{"page" => page}, socket) when page != "..." do
+  def handle_event("paginate", %{"page" => page}, socket) do
     params = %{socket.assigns.search_state | page: page} |> Helpers.clean_params()
     socket = push_redirect(socket, to: ~p"/search?#{params}")
-    {:noreply, socket}
-  end
-
-  def handle_event("paginate", _, socket) do
     {:noreply, socket}
   end
 

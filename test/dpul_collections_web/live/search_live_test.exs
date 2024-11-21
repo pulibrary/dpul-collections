@@ -178,15 +178,8 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert view |> has_element?("#paginator-previous")
     assert !(view |> has_element?("#paginator-next"))
 
-    # Check that clicking the "..." paginator link
-    # does not change the rendered page
-    assert view
-           |> element("a", "...")
-           |> render_click()
-           |> Floki.parse_document()
-           |> elem(1)
-           |> Floki.find(~s{a[href="/i/document100/item/100"]})
-           |> Enum.any?()
+    # Check that the ellipses appears
+    assert view |> has_element?("span", "...")
 
     # Check that changing the sort order resets the paginator
     {:ok, view, _html} = live(conn, ~p"/search?page=10")
