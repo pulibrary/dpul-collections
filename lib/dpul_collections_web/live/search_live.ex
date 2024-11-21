@@ -287,13 +287,9 @@ defmodule DpulCollectionsWeb.SearchLive do
     {:noreply, socket}
   end
 
-  def handle_event("paginate", %{"page" => page}, socket) when page != "..." do
+  def handle_event("paginate", %{"page" => page}, socket) do
     params = %{socket.assigns.search_state | page: page} |> Helpers.clean_params()
     socket = push_redirect(socket, to: ~p"/search?#{params}")
-    {:noreply, socket}
-  end
-
-  def handle_event("paginate", _, socket) do
     {:noreply, socket}
   end
 
