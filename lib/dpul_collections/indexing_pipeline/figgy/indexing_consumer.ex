@@ -7,6 +7,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
   alias DpulCollections.IndexingPipeline.DatabaseProducer
   alias DpulCollections.Solr
   use Broadway
+  require Logger
 
   @type start_opts ::
           {:cache_version, Integer}
@@ -67,6 +68,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
     |> Enum.map(&unwrap/1)
     |> Solr.add(context[:write_collection])
 
+    Logger.warning("indexed batch")
+
     messages
   end
 
@@ -77,6 +80,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
   end
 
   defp unwrap(%Broadway.Message{data: %Figgy.TransformationCacheEntry{data: data}}) do
+    if data == nil do
+      Logger.warning("solr record data is nil")
+    end
+
     data
   end
 end
