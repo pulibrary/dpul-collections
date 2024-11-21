@@ -1,5 +1,25 @@
+defmodule DpulCollectionsWeb.SearchComponents do
+  use Phoenix.Component
+
+  attr :rest, :global, doc: "the arbitrary HTML attributes to add to the flash container"
+  attr :text, :string, doc: "the page number, or ellipsis"
+  attr :element, :string, doc: "'a' or 'span'"
+
+  def page_link_or_span(assigns) do
+    ~H"""
+    <a :if={@element == "a"} {@rest} href="#" phx-click="paginate" phx-value-page={@text}>
+      <%= @text %>
+    </a>
+    <span :if={@element == "span"} {@rest}>
+      <%= @text %>
+    </span>
+    """
+  end
+end
+
 defmodule DpulCollectionsWeb.SearchLive do
   use DpulCollectionsWeb, :live_view
+  import DpulCollectionsWeb.SearchComponents
   alias DpulCollections.{Item, Solr}
   alias DpulCollectionsWeb.Live.Helpers
 
@@ -199,10 +219,10 @@ defmodule DpulCollectionsWeb.SearchLive do
           />
         </svg>
       </.link>
-      <.dynamic_tag
-        :for={{element, page_number, current_page?} <- pages(@page, @per_page, @total_items)}
-        name={element}
-        href={if "a" == element, do: "#"}
+      <.page_link_or_span
+        :for={{element, text, current_page?} <- pages(@page, @per_page, @total_items)}
+        element={element}
+        text={text}
         class={"
           flex
           items-center
@@ -218,11 +238,7 @@ defmodule DpulCollectionsWeb.SearchLive do
               hover:text-gray-700
             "}
         "}
-        phx-click="paginate"
-        phx-value-page={page_number}
-      >
-        <%= page_number %>
-      </.dynamic_tag>
+      />
       <.link
         :if={more_pages?(@page, @per_page, @total_items)}
         id="paginator-next"
