@@ -1,0 +1,130 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: lib/dpul_collections_web/components/core_components.ex:90
+#, elixir-autogen, elixir-format
+msgid "Attempting to reconnect"
+msgstr "Intentando reconectarse"
+
+#: lib/dpul_collections_web/components/core_components.ex:81
+#, elixir-autogen, elixir-format
+msgid "Error!"
+msgstr "¡Error!"
+
+#: lib/dpul_collections_web/components/core_components.ex:102
+#, elixir-autogen, elixir-format
+msgid "Hang in there while we get back on track"
+msgstr "Aguanta mientras volvemos al buen camino"
+
+#: lib/dpul_collections_web/live/home_live.ex:27
+#: lib/dpul_collections_web/live/search_live.ex:75
+#, elixir-autogen, elixir-format
+msgid "Search"
+msgstr "Buscar"
+
+#: lib/dpul_collections_web/components/core_components.ex:97
+#, elixir-autogen, elixir-format
+msgid "Something went wrong!"
+msgstr "¡Algo salió mal!"
+
+#: lib/dpul_collections_web/components/core_components.ex:80
+#, elixir-autogen, elixir-format
+msgid "Success!"
+msgstr "¡Éxito!"
+
+#: lib/dpul_collections_web/components/core_components.ex:85
+#, elixir-autogen, elixir-format
+msgid "We can't find the internet"
+msgstr "Nosotros no podemos encontrar internet"
+
+#: lib/dpul_collections_web/components/core_components.ex:60
+#, elixir-autogen, elixir-format
+msgid "close"
+msgstr "cerrar"
+
+#: lib/dpul_collections_web/live/item_live.ex:54
+#: lib/dpul_collections_web/live/item_live.ex:95
+#, elixir-autogen, elixir-format
+msgid "Download"
+msgstr "Descargar"
+
+#: lib/dpul_collections_web/live/search_live.ex:105
+#, elixir-autogen, elixir-format
+msgid "Apply"
+msgstr "Aplicar"
+
+#: lib/dpul_collections_web/live/item_live.ex:28
+#, elixir-autogen, elixir-format
+msgid "Item not found"
+msgstr "Artículo no encontrado"
+
+#: lib/dpul_collections_web/components/lux-components.ex:16
+#, elixir-autogen, elixir-format
+msgid "Language"
+msgstr "Idioma"
+
+#: lib/dpul_collections_web/live/search_live.ex:232
+#, elixir-autogen, elixir-format
+msgid "Next"
+msgstr "Proxima"
+
+#: lib/dpul_collections_web/live/item_live.ex:61
+#: lib/dpul_collections_web/live/search_live.ex:151
+#, elixir-autogen, elixir-format
+msgid "Pages"
+msgstr "Páginas"
+
+#: lib/dpul_collections_web/live/search_live.ex:186
+#, elixir-autogen, elixir-format
+msgid "Previous"
+msgstr "Anterior"
+
+#: lib/dpul_collections_web/live/search_live.ex:69
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Search Results"
+msgstr "Buscar"
+
+#: lib/dpul_collections_web/live/search_live.ex:86
+#, elixir-autogen, elixir-format
+msgid "filter by date"
+msgstr "filtrar por fecha"
+
+#: lib/dpul_collections_web/live/search_live.ex:110
+#, elixir-autogen, elixir-format
+msgid "sort by"
+msgstr "Ordenar por"
+
+#: lib/dpul_collections_web/live/home_live.ex:33
+#, elixir-autogen, elixir-format
+msgid "Explore Our Digital Collections"
+msgstr "Explora nuestras colecciones"
+
+#: lib/dpul_collections_web/live/search_live.ex:91
+#, elixir-autogen, elixir-format
+msgid "From"
+msgstr "De"
+
+#: lib/dpul_collections_web/live/search_live.ex:99
+#, elixir-autogen, elixir-format
+msgid "To"
+msgstr "A"
+
+#: lib/dpul_collections_web/live/home_live.ex:36
+#, elixir-autogen, elixir-format
+msgid "Ephemera items. We can't wait to see how you use these materials to support your unique research."
+msgstr "Artículos efímeros. Estamos ansiosos por ver cómo utilizas estos materiales para respaldar tu investigación única."
+
+#: lib/dpul_collections_web/live/home_live.ex:35
+#, elixir-autogen, elixir-format
+msgid "We invite you to be inspired by our globally diverse collections of"
+msgstr "Te invitamos a inspirarte con nuestras colecciones globalmente diversas de"

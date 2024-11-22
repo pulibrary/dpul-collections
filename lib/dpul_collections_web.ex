@@ -54,6 +54,9 @@ defmodule DpulCollectionsWeb do
       use Phoenix.LiveView,
         layout: {DpulCollectionsWeb.Layouts, :app}
 
+      alias DpulCollectionsWeb.SetLocaleHook
+
+      on_mount SetLocaleHook
       unquote(html_helpers())
     end
   end

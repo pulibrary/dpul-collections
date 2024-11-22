@@ -1,5 +1,6 @@
 defmodule DpulCollectionsWeb.ItemLive do
   use DpulCollectionsWeb, :live_view
+  import DpulCollectionsWeb.Gettext
   alias DpulCollections.{Item, Solr}
 
   def mount(_params, _session, socket) do
@@ -24,14 +25,8 @@ defmodule DpulCollectionsWeb.ItemLive do
   def render(assigns) when is_nil(assigns.item) do
     ~H"""
     <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
-      <span>Item not found</span>
+      <span><%= gettext("Item not found") %></span>
     </div>
-    """
-  end
-
-  def description(assigns) do
-    ~H"""
-    <div class="pb-4 leading-relaxed text-lg"><%= @description %></div>
     """
   end
 
@@ -56,14 +51,14 @@ defmodule DpulCollectionsWeb.ItemLive do
           height="800"
         />
         <button class="w-full btn-primary">
-          Download
+          <%= gettext("Download") %>
         </button>
       </div>
       <div class="md:hidden block">
         <.description :for={description <- @item.description} description={description} />
       </div>
       <section class="md:col-span-5 m:order-last py-4">
-        <h2 class="text-xl font-bold py-4">Pages (<%= @item.page_count %>)</h2>
+        <h2 class="text-xl font-bold py-4"><%= gettext("Pages") %> (<%= @item.page_count %>)</h2>
         <div class="flex flex-wrap gap-5 justify-center md:justify-start">
           <.thumbs
             :for={{thumb, thumb_num} <- Enum.with_index(@item.image_service_urls)}
@@ -74,6 +69,12 @@ defmodule DpulCollectionsWeb.ItemLive do
         </div>
       </section>
     </div>
+    """
+  end
+
+  def description(assigns) do
+    ~H"""
+    <div class="pb-4 leading-relaxed text-lg"><%= @description %></div>
     """
   end
 
@@ -91,7 +92,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       />
       <button class="w-[350px] md:w-[225px] btn-primary">
         <a href={"#{@thumb}/full/full/0/default.jpg"} target="_blank">
-          Download
+          <%= gettext("Download") %>
         </a>
       </button>
     </div>
