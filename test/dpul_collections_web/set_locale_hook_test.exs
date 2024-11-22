@@ -1,6 +1,5 @@
 defmodule DpulCollectionsWeb.SetLocaleHookTest do
   use ExUnit.Case, async: true
-  # import Phoenix.LiveView
 
   alias DpulCollectionsWeb.SetLocaleHook
 
