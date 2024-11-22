@@ -43,6 +43,22 @@ defmodule DpulCollections.Solr do
     response.body["response"]
   end
 
+  def all_ids(limit \\ 60_000, collection \\ read_collection()) do
+    solr_params = [
+      q: "*:*",
+      fl: "id",
+      rows: limit,
+    ]
+
+    {:ok, response} =
+      Req.get(
+        select_url(collection),
+        params: solr_params
+      )
+
+    response.body["response"]
+  end
+
   defp query_param(search_state) do
     Enum.reject([search_state[:q], date_query(search_state)], &is_nil(&1))
     |> Enum.join(" ")
@@ -102,8 +118,8 @@ defmodule DpulCollections.Solr do
       update_url(collection),
       json: docs
     )
-
-    if response.status == 400 do
+    body = Jason.decode!(response.body)
+    if body["error"] do
       Logger.warning("solr error: #{response.body}")
     end
   end
