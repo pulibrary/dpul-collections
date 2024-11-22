@@ -2,6 +2,7 @@ defmodule DpulCollections.SolrTest do
   use DpulCollections.DataCase
   alias DpulCollections.Solr
   import SolrTestSupport
+  import ExUnit.CaptureLog
 
   setup do
     Solr.delete_all(active_collection())
@@ -200,5 +201,35 @@ defmodule DpulCollections.SolrTest do
 
     assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["slug_s"] ==
              "él-no-responde-mis-mensajes"
+  end
+
+  test "an exception is logged when indexing a document raises a solr error" do
+    doc = %{
+      # No title
+      "id" => "3cb7627b-defc-401b-9959-42ebc4488f74"
+    }
+
+    # Solr.commit(active_collection())
+
+    assert capture_log(fn -> Solr.add([doc], active_collection()) end) =~
+             "error indexing solr document"
+  end
+
+  test "a valid solr document is indexed when in the same batch as an invalid solr document" do
+    valid_doc = %{
+      "id" => "e0602353-4429-4405-b080-064952f9b267",
+      "title_txtm" => ["test title 1"]
+    }
+
+    invalid_doc = %{
+      # No title
+      "id" => "3cb7627b-defc-401b-9959-42ebc4488f74"
+    }
+
+    assert capture_log(fn -> Solr.add([valid_doc, invalid_doc], active_collection()) end) =~
+             "error indexing solr document"
+
+    Solr.commit(active_collection())
+    assert Solr.find_by_id(valid_doc["id"])["id"] == valid_doc["id"]
   end
 end

@@ -1,4 +1,6 @@
 defmodule DpulCollections.Solr do
+  require Logger
+
   @spec document_count(String.t()) :: integer()
   def document_count(collection \\ read_collection()) do
     {:ok, response} =
@@ -96,11 +98,29 @@ defmodule DpulCollections.Solr do
   end
 
   @spec add(list(map()), String.t()) :: {:ok, Req.Response.t()} | {:error, Exception.t()}
-  def add(docs, collection \\ read_collection()) do
-    Req.post(
-      update_url(collection),
-      json: docs
-    )
+  def add(docs, collection \\ read_collection()) when length(docs) > 1 do
+    response =
+      Req.post!(
+        update_url(collection),
+        json: docs
+      )
+
+    if response.status != 200 do
+      Enum.each(docs, fn doc -> add([doc]) end)
+    end
+  end
+
+  def add(docs, collection) when length(docs) when length(docs) == 1 do
+    response =
+      Req.post!(
+        update_url(collection),
+        json: docs
+      )
+
+    if response.status != 200 do
+      doc = docs |> Enum.at(0)
+      Logger.warning("error indexing solr document with id: #{doc["id"]} #{response.body}")
+    end
   end
 
   @spec commit(String.t()) :: {:ok, Req.Response.t()} | {:error, Exception.t()}
