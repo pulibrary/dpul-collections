@@ -27,7 +27,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
 
     %{
       id: id,
-      title_txtm: get_in(metadata, ["title"]),
+      title_txtm: extract_title(metadata),
       description_txtm: get_in(metadata, ["description"]),
       years_is: extract_years(data),
       display_date_s: format_date(metadata),
@@ -48,6 +48,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   defp extract_service_url(%{"id" => id}, %{"member_ids" => member_data}) do
     extract_service_url(member_data[id])
   end
+
+  defp extract_service_url(_id, _), do: nil
 
   # Find the derivative FileMetadata
   defp extract_service_url(%{
@@ -82,7 +84,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
 
   defp extract_service_url(nil), do: nil
 
-  defp extract_service_url(_id, _), do: nil
+  def extract_title(%{"title" => []}) do
+    ["[Missing Title]"]
+  end
+
+  def extract_title(%{"title" => title}), do: title
 
   defp is_derivative(%{
          "mime_type" => ["image/tiff"],

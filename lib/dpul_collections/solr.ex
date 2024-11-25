@@ -111,6 +111,8 @@ defmodule DpulCollections.Solr do
     if response.status != 200 do
       docs |> Enum.each(&add/1)
     end
+
+    response
   end
 
   def add(doc, collection) when not is_list(doc) do
@@ -123,6 +125,8 @@ defmodule DpulCollections.Solr do
     if response.status != 200 do
       Logger.warning("error indexing solr document with id: #{doc["id"]} #{response.body}")
     end
+
+    response
   end
 
   @spec commit(String.t()) :: {:ok, Req.Response.t()} | {:error, Exception.t()}

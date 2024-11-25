@@ -209,8 +209,6 @@ defmodule DpulCollections.SolrTest do
       "id" => "3cb7627b-defc-401b-9959-42ebc4488f74"
     }
 
-    # Solr.commit(active_collection())
-
     assert capture_log(fn -> Solr.add([doc], active_collection()) end) =~
              "error indexing solr document"
   end
