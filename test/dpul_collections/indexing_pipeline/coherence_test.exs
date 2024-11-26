@@ -63,7 +63,7 @@ defmodule DpulCollections.IndexingPipeline.CoherenceTest do
   end
 
   test "index_parity?/0 is true when the new index and the old index have equal freshness" do
-    {marker1, marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers(1)
+    {marker1, _marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers(1)
     FiggyTestFixtures.hydration_cache_markers(2)
 
     IndexingPipeline.write_processor_marker(%{

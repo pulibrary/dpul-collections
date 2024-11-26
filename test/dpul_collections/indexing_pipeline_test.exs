@@ -164,7 +164,7 @@ defmodule DpulCollections.IndexingPipelineTest do
 
     test "delete_cache_version/1 deletes entries for that cache version from each table" do
       for cache_version <- [0, 1] do
-        {marker1, _marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers(cache_version)
+        FiggyTestFixtures.hydration_cache_markers(cache_version)
 
         {marker1, _marker2, _marker3} =
           FiggyTestFixtures.transformation_cache_markers(cache_version)

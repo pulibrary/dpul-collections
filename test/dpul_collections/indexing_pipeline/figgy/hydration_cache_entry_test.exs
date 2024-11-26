@@ -282,5 +282,24 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
       assert capture_log(fn -> HydrationCacheEntry.to_solr_document(entry) end) =~
                "couldn't parse date"
     end
+
+    test "an empty solr document is returned with a empty title field" do
+      {:ok, entry} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          cache_version: 0,
+          record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
+          source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
+          data: %{
+            "id" => "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
+            "internal_resource" => "EphemeraFolder",
+            "metadata" => %{
+              "title" => [],
+              "date_created" => ["2022"]
+            }
+          }
+        })
+
+      assert %{title_txtm: ["[Missing Title]"]} = HydrationCacheEntry.to_solr_document(entry)
+    end
   end
 end
