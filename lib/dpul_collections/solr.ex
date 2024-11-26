@@ -97,8 +97,11 @@ defmodule DpulCollections.Solr do
     end
   end
 
-  @spec add(list(map()), String.t()) :: {:ok, Req.Response.t()} | {:error, Exception.t()}
-  def add(docs, collection \\ read_collection()) when length(docs) > 1 do
+  @spec add(list(map()) | String.t(), String.t()) ::
+          {:ok, Req.Response.t()} | {:error, Exception.t()}
+  def add(docs, collection \\ read_collection())
+
+  def add(docs, collection) when is_list(docs) do
     response =
       Req.post!(
         update_url(collection),
@@ -106,19 +109,18 @@ defmodule DpulCollections.Solr do
       )
 
     if response.status != 200 do
-      Enum.each(docs, fn doc -> add([doc]) end)
+      docs |> Enum.each(&add/1)
     end
   end
 
-  def add(docs, collection) when length(docs) when length(docs) == 1 do
+  def add(doc, collection) when not is_list(doc) do
     response =
       Req.post!(
         update_url(collection),
-        json: docs
+        json: [doc]
       )
 
     if response.status != 200 do
-      doc = docs |> Enum.at(0)
       Logger.warning("error indexing solr document with id: #{doc["id"]} #{response.body}")
     end
   end
