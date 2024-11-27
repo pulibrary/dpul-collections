@@ -5,7 +5,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   alias DpulCollections.Solr
   @endpoint DpulCollectionsWeb.Endpoint
 
-  setup_all do
+  setup do
     Solr.add(SolrTestSupport.mock_solr_documents(), active_collection())
     Solr.commit(active_collection())
     on_exit(fn -> Solr.delete_all(active_collection()) end)
