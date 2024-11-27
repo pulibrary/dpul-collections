@@ -114,6 +114,41 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Enum.empty?()
   end
 
+  test "when sorting by date, a nil date always sorts last", %{conn: conn} do
+    Solr.add(
+      [
+        %{
+          id: "nildate",
+          title_txtm: "Document-nildate"
+        },
+        %{
+          id: "emptydate",
+          title_txtm: "Document-emptydate",
+          years_is: []
+        }
+      ],
+      active_collection()
+    )
+
+    Solr.commit()
+
+    {:ok, view, _html} = live(conn, "/search?sort_by=date_desc&page=11")
+
+    assert view
+           |> has_element?(~s{a[href="/i/documentnildate/item/nildate"]})
+
+    assert view
+           |> has_element?(~s{a[href="/i/documentemptydate/item/emptydate"]})
+
+    {:ok, view, _document} = live(conn, "/search?sort_by=date_asc&page=11")
+
+    assert view
+           |> has_element?(~s{a[href="/i/documentnildate/item/nildate"]})
+
+    assert view
+           |> has_element?(~s{a[href="/i/documentemptydate/item/emptydate"]})
+  end
+
   test "items can be filtered by date range", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/search")
 
