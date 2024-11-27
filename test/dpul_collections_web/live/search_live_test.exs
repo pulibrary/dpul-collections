@@ -14,10 +14,9 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   test "GET /search", %{conn: conn} do
     conn = get(conn, ~p"/search")
 
-    document =
+    {:ok, document} =
       html_response(conn, 200)
       |> Floki.parse_document()
-      |> elem(1)
 
     assert document
            |> Floki.find(~s{a[href="/i/document1/item/1"]})
@@ -31,8 +30,8 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   test "GET /search with blank q parameter", %{conn: conn} do
     conn = get(conn, ~p"/search?q=")
 
-    document =
-      html_response(conn, 200) |> Floki.parse_document() |> elem(1)
+    {:ok, document} =
+      html_response(conn, 200) |> Floki.parse_document()
 
     assert document
            |> Floki.find(~s{a[href="/i/document1/item/1"]})
@@ -70,12 +69,11 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   test "searching filters results", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/search?")
 
-    document =
+    {:ok, document} =
       view
       |> element("#search-form")
       |> render_submit(%{"q" => "Document-2"})
       |> Floki.parse_document()
-      |> elem(1)
 
     assert document
            |> Floki.find(~s{a[href="/i/document2/item/2"]})
@@ -89,11 +87,10 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   test "items can be sorted by date, ascending and descending", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/search")
 
-    document =
+    {:ok, document} =
       view
       |> render_click("sort", %{"sort-by" => "date_asc"})
       |> Floki.parse_document()
-      |> elem(1)
 
     assert document
            |> Floki.find(~s{a[href="/i/document100/item/100"]})
@@ -103,11 +100,10 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Floki.find(~s{a[href="/i/document1/item/1"]})
            |> Enum.empty?()
 
-    document =
+    {:ok, document} =
       view
       |> render_click("sort", %{"sort-by" => "date_desc"})
       |> Floki.parse_document()
-      |> elem(1)
 
     assert document
            |> Floki.find(~s{a[href="/i/document1/item/1"]})
@@ -121,12 +117,11 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   test "items can be filtered by date range", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/search")
 
-    document =
+    {:ok, document} =
       view
       |> element("#date-filter")
       |> render_submit(%{"date-from" => "1925", "date-to" => "1926"})
       |> Floki.parse_document()
-      |> elem(1)
 
     assert document
            |> Floki.find(~s{a[href="/i/document99/item/99"]})
@@ -151,25 +146,29 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     {:ok, view, _html} = live(conn, ~p"/search?page=5")
     assert(view |> element(".paginator > a.active", ~r(5)) |> has_element?())
 
-    assert view
-           |> element("#paginator-previous")
-           |> render_click()
-           |> follow_redirect(conn)
-           |> elem(2)
-           |> Floki.parse_document()
-           |> elem(1)
+    {:ok, document} =
+      view
+      |> element("#paginator-previous")
+      |> render_click()
+      |> follow_redirect(conn)
+      |> elem(2)
+      |> Floki.parse_document()
+
+    assert document
            |> Floki.find(~s{a[href="/i/document40/item/40"]})
            |> Enum.any?()
 
     {:ok, view, _html} = live(conn, ~p"/search?page=4")
 
-    assert view
-           |> element("#paginator-next")
-           |> render_click()
-           |> follow_redirect(conn)
-           |> elem(2)
-           |> Floki.parse_document()
-           |> elem(1)
+    {:ok, document} =
+      view
+      |> element("#paginator-next")
+      |> render_click()
+      |> follow_redirect(conn)
+      |> elem(2)
+      |> Floki.parse_document()
+
+    assert document
            |> Floki.find(~s{a[href="/i/document50/item/50"]})
            |> Enum.any?()
 
@@ -184,8 +183,8 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     # Check that changing the sort order resets the paginator
     {:ok, view, _html} = live(conn, ~p"/search?page=10")
 
-    document =
-      view |> render() |> Floki.parse_document() |> elem(1)
+    {:ok, document} =
+      view |> render() |> Floki.parse_document()
 
     assert document
            |> Floki.find("a[phx-value-page=9]")
@@ -195,11 +194,10 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Floki.find("a[phx-value-page=2]")
            |> Enum.empty?()
 
-    document =
+    {:ok, document} =
       view
       |> render_click("sort", %{"sort-by" => "date_asc"})
       |> Floki.parse_document()
-      |> elem(1)
 
     assert document
            |> Floki.find("a[phx-value-page=2]")
@@ -212,12 +210,11 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     # Check that changing search query resets the paginator
     {:ok, view, _html} = live(conn, ~p"/search?page=10")
 
-    document =
+    {:ok, document} =
       view
       |> element("#search-form")
       |> render_submit(%{"q" => "Document*"})
       |> Floki.parse_document()
-      |> elem(1)
 
     assert document
            |> Floki.find("a[phx-value-page=2]")
@@ -230,12 +227,11 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     # Check that updating the date query resets the paginator
     {:ok, view, _html} = live(conn, ~p"/search?page=10")
 
-    document =
+    {:ok, document} =
       view
       |> element("#search-form")
       |> render_submit(%{"date-from" => "1900", "date-to" => "2025"})
       |> Floki.parse_document()
-      |> elem(1)
 
     assert document
            |> Floki.find("a[phx-value-page=2]")
