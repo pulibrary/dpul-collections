@@ -153,6 +153,10 @@ defmodule DpulCollections.IndexMetricsTracker do
     |> put_in([:acked_count], old_acked_count + new_acked_count)
   end
 
+  defp handle_ack_received([:database_producer, :ack, :done], _measurements, metadata, _config) do
+    GenServer.call(__MODULE__, {:ack_received, metadata})
+  end
+
   def event("figgy_hydrator") do
     :hydrator
   end
@@ -163,9 +167,5 @@ defmodule DpulCollections.IndexMetricsTracker do
 
   def event("figgy_indexer") do
     :indexer
-  end
-
-  defp handle_ack_received([:database_producer, :ack, :done], _measurements, metadata, _config) do
-    GenServer.call(__MODULE__, {:ack_received, metadata})
   end
 end
