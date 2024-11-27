@@ -225,6 +225,11 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
   # This happens when ack is finished, we listen to this telemetry event in
   # tests so we know when the Producer's done processing a message.
   @spec notify_ack(integer(), integer(), String.t()) :: any()
+  @type ack_event_metadata :: %{
+          acked_count: integer(),
+          unacked_count: integer(),
+          processor_marker_key: String.t()
+        }
   defp notify_ack(acked_message_count, unacked_count, processor_marker_key) do
     :telemetry.execute(
       [:database_producer, :ack, :done],
