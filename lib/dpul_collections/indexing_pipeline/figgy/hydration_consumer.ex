@@ -128,7 +128,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   def handle_batch(:noop, messages, _batch_info, _state) do
     ids = messages |> Enum.map(fn m -> m.data.id end) |> Enum.join(",")
 
-    Logger.warning("Hydration Cache Batch IDs: #{ids}")
+    Logger.info("Hydration Cache Batch IDs: #{ids}")
     messages
   end
 
