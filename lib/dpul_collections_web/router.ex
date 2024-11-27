@@ -51,7 +51,7 @@ defmodule DpulCollectionsWeb.Router do
         metrics: DpulCollectionsWeb.Telemetry,
         additional_pages: [
           broadway: BroadwayDashboard,
-          index_metrics: DpulCollections.IndexingPipeline.DashboardPage
+          index_metrics: DpulCollectionsWeb.IndexingPipeline.DashboardPage
         ]
 
       forward "/mailbox", Plug.Swoosh.MailboxPreview
