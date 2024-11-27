@@ -38,8 +38,8 @@ defmodule DpulCollections.IndexMetricsTracker do
     GenServer.call(__MODULE__, {:poll_started, source})
   end
 
-  @spec index_times(source :: module()) :: term()
-  def index_times(source) do
+  @spec index_durations(source :: module()) :: term()
+  def index_durations(source) do
     Metrics.index_metrics(source.processor_marker_key(), "full_index")
   end
 
@@ -68,7 +68,7 @@ defmodule DpulCollections.IndexMetricsTracker do
   @spec handle_call(term(), term(), state()) :: term()
   def handle_call({:poll_started, source}, _, state) do
     # Record that polling has started if we've recorded a start time but not an
-    # end time for a source. Then the next the source finishes acknowledgements
+    # end time for a source. Then the next time the source finishes acknowledgements
     # we'll record an end time.
     if get_in(state, [source.processor_marker_key(), :start_time]) != nil &&
          get_in(state, [source.processor_marker_key(), :end_time]) == nil do
