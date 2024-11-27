@@ -32,6 +32,15 @@ defmodule DpulCollections.IndexMetricsTracker do
     Metrics.index_metrics(source.processor_marker_key(), "full_index")
   end
 
+  def reset() do
+    GenServer.call(__MODULE__, {:reset})
+  end
+
+  @impl true
+  def handle_call({:reset}, _, _state) do
+    {:reply, nil, %{}}
+  end
+
   @impl true
   def handle_call({:fresh_index, source}, _, state) do
     new_state =

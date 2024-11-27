@@ -6,6 +6,11 @@ defmodule DpulCollections.IndexMetricsTrackerTest do
   use DpulCollections.DataCase
 
   describe "index_times/1" do
+    setup do
+      IndexMetricsTracker.reset()
+      :ok
+    end
+
     test "registers index times" do
       # Act
       # Send an ack done with acked_count 1, before anything - this should be
