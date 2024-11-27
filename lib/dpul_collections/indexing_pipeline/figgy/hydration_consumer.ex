@@ -7,6 +7,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline.DatabaseProducer
   use Broadway
+  require Logger
 
   @type start_opts ::
           {:cache_version, Integer}
@@ -125,6 +126,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   end
 
   def handle_batch(:noop, messages, _batch_info, _state) do
+    ids = messages |> Enum.map(fn m -> m.data.id end) |> Enum.join(",")
+
+    Logger.warning("Hydration Cache Batch IDs: #{ids}")
     messages
   end
 
