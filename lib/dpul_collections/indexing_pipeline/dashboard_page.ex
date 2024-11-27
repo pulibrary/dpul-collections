@@ -58,7 +58,9 @@ defmodule DpulCollections.IndexingPipeline.DashboardPage do
       rows_name="metrics"
     >
       <:col field={:updated_at} sortable={:desc} />
-      <:col field={:duration} header="Duration (s)" />
+      <:col :let={record} field={:duration} header="Duration (hh:mm:ss)">
+        <%= to_hh_mm_ss(record.duration) %>
+      </:col>
       <:col field={:records_acked} header="Record Count" />
       <:col :let={record} field={:per_second} header="Records per Second">
         <%= per_second(record) %>
@@ -73,7 +75,9 @@ defmodule DpulCollections.IndexingPipeline.DashboardPage do
       rows_name="metrics"
     >
       <:col field={:updated_at} sortable={:desc} />
-      <:col field={:duration} header="Duration (s)" />
+      <:col :let={record} field={:duration} header="Duration (hh:mm:ss)">
+        <%= to_hh_mm_ss(record.duration) %>
+      </:col>
       <:col field={:records_acked} header="Record Count" />
       <:col :let={record} field={:per_second} header="Records per Second">
         <%= per_second(record) %>
@@ -88,7 +92,9 @@ defmodule DpulCollections.IndexingPipeline.DashboardPage do
       rows_name="metrics"
     >
       <:col field={:updated_at} sortable={:desc} />
-      <:col field={:duration} header="Duration (s)" />
+      <:col :let={record} field={:duration} header="Duration (hh:mm:ss)">
+        <%= to_hh_mm_ss(record.duration) %>
+      </:col>
       <:col field={:records_acked} header="Record Count" />
       <:col :let={record} field={:per_second} header="Records per Second">
         <%= per_second(record) %>
@@ -103,5 +109,21 @@ defmodule DpulCollections.IndexingPipeline.DashboardPage do
 
   defp per_second(%{duration: duration, records_acked: records_acked}) do
     records_acked / duration
+  end
+
+  # Pulled from
+  # https://nickjanetakis.com/blog/formatting-seconds-into-hh-mm-ss-with-elixir-and-python
+  # and modified to be consistently hh:mm:ss
+  defp to_hh_mm_ss(0), do: "00:00:00"
+
+  defp to_hh_mm_ss(seconds) do
+    units = [3600, 60, 1]
+    # Returns a list of how many hours, minutes, and seconds there are, reducing
+    # the total seconds by that amount if it's greater than 1.
+    t =
+      Enum.map_reduce(units, seconds, fn unit, val -> {div(val, unit), rem(val, unit)} end)
+      |> elem(0)
+
+    Enum.map_join(t, ":", fn x -> x |> Integer.to_string() |> String.pad_leading(2, "0") end)
   end
 end
