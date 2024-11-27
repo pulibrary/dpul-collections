@@ -1,7 +1,6 @@
 defmodule DpulCollectionsWeb.Telemetry do
   use Supervisor
   import Telemetry.Metrics
-  alias DpulCollections.IndexingPipeline.Figgy
 
   def start_link(arg) do
     Supervisor.start_link(__MODULE__, arg, name: __MODULE__)
@@ -80,38 +79,6 @@ defmodule DpulCollectionsWeb.Telemetry do
       summary("vm.total_run_queue_lengths.total"),
       summary("vm.total_run_queue_lengths.cpu"),
       summary("vm.total_run_queue_lengths.io"),
-
-      # Indexing Metrics
-      last_value(
-        "Hydrator Full Run",
-        event_name: "dpulc.indexing_pipeline.hydrator.time_to_poll",
-        measurement: :duration,
-        unit: {:native, :second},
-        description: "Time from fresh index to poll for the Hydrator",
-        reporter_options: [
-          nav: "Indexing Pipeline"
-        ]
-      ),
-      last_value(
-        "Transformer Full Run",
-        event_name: "dpulc.indexing_pipeline.transformer.time_to_poll",
-        measurement: :duration,
-        unit: {:native, :second},
-        description: "Time from fresh index to poll for the Transformer",
-        reporter_options: [
-          nav: "Indexing Pipeline"
-        ]
-      ),
-      last_value(
-        "Indexer Full Run",
-        event_name: "dpulc.indexing_pipeline.indexer.time_to_poll",
-        measurement: :duration,
-        unit: {:native, :second},
-        description: "Time from fresh index to poll for the Indexer",
-        reporter_options: [
-          nav: "Indexing Pipeline"
-        ]
-      )
     ]
   end
 
