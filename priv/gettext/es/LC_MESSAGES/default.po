@@ -26,8 +26,8 @@ msgstr "¡Error!"
 msgid "Hang in there while we get back on track"
 msgstr "Aguanta mientras volvemos al buen camino"
 
-#: lib/dpul_collections_web/live/home_live.ex:27
-#: lib/dpul_collections_web/live/search_live.ex:75
+#: lib/dpul_collections_web/live/home_live.ex:25
+#: lib/dpul_collections_web/live/search_live.ex:94
 #, elixir-autogen, elixir-format
 msgid "Search"
 msgstr "Buscar"
@@ -58,7 +58,7 @@ msgstr "cerrar"
 msgid "Download"
 msgstr "Descargar"
 
-#: lib/dpul_collections_web/live/search_live.ex:105
+#: lib/dpul_collections_web/live/search_live.ex:124
 #, elixir-autogen, elixir-format
 msgid "Apply"
 msgstr "Aplicar"
@@ -73,58 +73,73 @@ msgstr "Artículo no encontrado"
 msgid "Language"
 msgstr "Idioma"
 
-#: lib/dpul_collections_web/live/search_live.ex:232
+#: lib/dpul_collections_web/live/search_live.ex:248
 #, elixir-autogen, elixir-format
 msgid "Next"
 msgstr "Proxima"
 
 #: lib/dpul_collections_web/live/item_live.ex:61
-#: lib/dpul_collections_web/live/search_live.ex:151
+#: lib/dpul_collections_web/live/search_live.ex:170
 #, elixir-autogen, elixir-format
 msgid "Pages"
 msgstr "Páginas"
 
-#: lib/dpul_collections_web/live/search_live.ex:186
+#: lib/dpul_collections_web/live/search_live.ex:205
 #, elixir-autogen, elixir-format
 msgid "Previous"
 msgstr "Anterior"
 
-#: lib/dpul_collections_web/live/search_live.ex:69
+#: lib/dpul_collections_web/live/search_live.ex:88
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Search Results"
 msgstr "Buscar"
 
-#: lib/dpul_collections_web/live/search_live.ex:86
+#: lib/dpul_collections_web/live/search_live.ex:105
 #, elixir-autogen, elixir-format
 msgid "filter by date"
 msgstr "filtrar por fecha"
 
-#: lib/dpul_collections_web/live/search_live.ex:110
+#: lib/dpul_collections_web/live/search_live.ex:129
 #, elixir-autogen, elixir-format
 msgid "sort by"
 msgstr "Ordenar por"
 
-#: lib/dpul_collections_web/live/home_live.ex:33
+#: lib/dpul_collections_web/live/home_live.ex:31
 #, elixir-autogen, elixir-format
 msgid "Explore Our Digital Collections"
 msgstr "Explora nuestras colecciones"
 
-#: lib/dpul_collections_web/live/search_live.ex:91
+#: lib/dpul_collections_web/live/search_live.ex:110
 #, elixir-autogen, elixir-format
 msgid "From"
 msgstr "De"
 
-#: lib/dpul_collections_web/live/search_live.ex:99
+#: lib/dpul_collections_web/live/search_live.ex:118
 #, elixir-autogen, elixir-format
 msgid "To"
 msgstr "A"
 
-#: lib/dpul_collections_web/live/home_live.ex:36
+#: lib/dpul_collections_web/live/home_live.ex:33
 #, elixir-autogen, elixir-format
 msgid "Ephemera items. We can't wait to see how you use these materials to support your unique research."
 msgstr "Artículos efímeros. Estamos ansiosos por ver cómo utilizas estos materiales para respaldar tu investigación única."
 
-#: lib/dpul_collections_web/live/home_live.ex:35
+#: lib/dpul_collections_web/live/home_live.ex:33
 #, elixir-autogen, elixir-format
 msgid "We invite you to be inspired by our globally diverse collections of"
 msgstr "Te invitamos a inspirarte con nuestras colecciones globalmente diversas de"
+
+#: lib/dpul_collections_web/components/lux-components.ex:33
+#, elixir-autogen, elixir-format
+msgid "Accessibility Help"
+msgstr "Ayuda de accesibilidad"
+
+#: lib/dpul_collections_web/components/lux-components.ex:31
+#, elixir-autogen, elixir-format
+msgid "Copyright Policy"
+msgstr "Política de derechos de autor"
+
+#: lib/dpul_collections_web/components/lux-components.ex:32
+#, elixir-autogen, elixir-format
+msgid "Privacy Notice"
+msgstr "Aviso de privacidad"
