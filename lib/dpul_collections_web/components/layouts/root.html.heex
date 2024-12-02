@@ -8,10 +8,10 @@
       <%= assigns[:page_title] || "DpulCollections" %>
     </.live_title>
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
-    <link rel="stylesheet" href="https://unpkg.com/lux-design-system@5.8.1/dist/style.css" />
+    <link rel="stylesheet" href="https://unpkg.com/lux-design-system@6.0.0/dist/style.css" />
     <script src="https://unpkg.com/vue@3/dist/vue.global.js">
     </script>
-    <script src="https://unpkg.com/lux-design-system@5.8.1/dist/lux-styleguidist.iife.js">
+    <script src="https://unpkg.com/lux-design-system@6.0.0/dist/lux-styleguidist.iife.js">
     </script>
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
     </script>
@@ -28,7 +28,7 @@
       <div class="flex-1">
         <%= @inner_content %>
       </div>
-      <%= raw(DpulCollectionsWeb.LuxComponents.footer()) %>
+      <%= DpulCollectionsWeb.LuxComponents.footer(assigns) %>
     </div>
   </body>
 </html>

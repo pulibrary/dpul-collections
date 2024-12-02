@@ -25,9 +25,19 @@ defmodule DpulCollectionsWeb.LuxComponents do
     """
   end
 
-  def footer() do
-    ~S"""
-    <lux-university-footer class="text-center" type="footer" theme="shade"></lux-university-footer>
+  def footer(assigns) do
+    ~H"""
+    <lux-university-footer
+      class="text-center"
+      type="footer"
+      theme="shade"
+      v-bind:links={"[
+      {text: '#{gettext("Copyright Policy")}', href: 'https://library.princeton.edu/about/policies/copyright-and-permissions-policies'}, 
+      {text: '#{gettext("Privacy Notice")}', href: 'https://www.princeton.edu/privacy-notice'}, 
+      {text: '#{gettext("Accessibility Help")}', href: 'https://accessibility.princeton.edu/help'}
+    ]"}
+    >
+    </lux-university-footer>
     """
   end
 end
