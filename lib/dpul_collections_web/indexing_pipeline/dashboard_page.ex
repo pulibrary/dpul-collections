@@ -10,7 +10,8 @@ defmodule DpulCollectionsWeb.IndexingPipeline.DashboardPage do
     socket =
       assign(socket,
         hydration_times: IndexMetricsTracker.processor_durations(HydrationProducerSource),
-        transformation_times: IndexMetricsTracker.processor_durations(TransformationProducerSource),
+        transformation_times:
+          IndexMetricsTracker.processor_durations(TransformationProducerSource),
         indexing_times: IndexMetricsTracker.processor_durations(IndexingProducerSource)
       )
 
