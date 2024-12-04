@@ -5,7 +5,7 @@ defmodule DpulCollections.IndexMetricsTrackerTest do
   alias Phoenix.ActionClauseError
   use DpulCollections.DataCase
 
-  describe "index_durations/1" do
+  describe "processor_durations/1" do
     setup do
       IndexMetricsTracker.reset()
       :ok
@@ -62,7 +62,7 @@ defmodule DpulCollections.IndexMetricsTrackerTest do
         }
       )
 
-      [metric = %IndexMetric{}] = IndexMetricsTracker.index_durations(HydrationProducerSource)
+      [metric = %IndexMetric{}] = IndexMetricsTracker.processor_durations(HydrationProducerSource)
 
       # Assert
       # This is 0 because it takes less than a second to run.

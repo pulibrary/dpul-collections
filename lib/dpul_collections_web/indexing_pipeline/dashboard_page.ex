@@ -9,9 +9,9 @@ defmodule DpulCollectionsWeb.IndexingPipeline.DashboardPage do
   def mount(_params, _session, socket) do
     socket =
       assign(socket,
-        hydration_times: IndexMetricsTracker.index_durations(HydrationProducerSource),
-        transformation_times: IndexMetricsTracker.index_durations(TransformationProducerSource),
-        indexing_times: IndexMetricsTracker.index_durations(IndexingProducerSource)
+        hydration_times: IndexMetricsTracker.processor_durations(HydrationProducerSource),
+        transformation_times: IndexMetricsTracker.processor_durations(TransformationProducerSource),
+        indexing_times: IndexMetricsTracker.processor_durations(IndexingProducerSource)
       )
 
     {:ok, socket, temporary_assigns: [item_count: nil]}
@@ -24,7 +24,7 @@ defmodule DpulCollectionsWeb.IndexingPipeline.DashboardPage do
 
   defp hydration_times(_params, _node) do
     hydration_times =
-      IndexMetricsTracker.index_durations(HydrationProducerSource)
+      IndexMetricsTracker.processor_durations(HydrationProducerSource)
       |> Enum.map(&Map.from_struct/1)
 
     {hydration_times, length(hydration_times)}
@@ -32,7 +32,7 @@ defmodule DpulCollectionsWeb.IndexingPipeline.DashboardPage do
 
   defp transformation_times(_params, _node) do
     transformation_times =
-      IndexMetricsTracker.index_durations(TransformationProducerSource)
+      IndexMetricsTracker.processor_durations(TransformationProducerSource)
       |> Enum.map(&Map.from_struct/1)
 
     {transformation_times, length(transformation_times)}
@@ -40,7 +40,7 @@ defmodule DpulCollectionsWeb.IndexingPipeline.DashboardPage do
 
   defp indexing_times(_params, _node) do
     indexing_times =
-      IndexMetricsTracker.index_durations(IndexingProducerSource)
+      IndexMetricsTracker.processor_durations(IndexingProducerSource)
       |> Enum.map(&Map.from_struct/1)
 
     {indexing_times, length(indexing_times)}

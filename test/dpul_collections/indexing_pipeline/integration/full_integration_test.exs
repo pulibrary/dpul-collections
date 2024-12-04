@@ -162,7 +162,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     # Ensure metrics are being sent.
     assert_receive {:hydrator_time_to_poll_hit, %{duration: _}}
-    [hydration_metric_1 | _] = IndexMetricsTracker.index_durations(HydrationProducerSource)
+    [hydration_metric_1 | _] = IndexMetricsTracker.processor_durations(HydrationProducerSource)
     assert hydration_metric_1.duration > 0
   end
 

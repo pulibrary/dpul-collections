@@ -38,8 +38,8 @@ defmodule DpulCollections.IndexMetricsTracker do
     GenServer.call(__MODULE__, {:poll_started, source})
   end
 
-  @spec index_durations(source :: module()) :: term()
-  def index_durations(source) do
+  @spec processor_durations(source :: module()) :: term()
+  def processor_durations(source) do
     Metrics.index_metrics(source.processor_marker_key(), "full_index")
   end
 
