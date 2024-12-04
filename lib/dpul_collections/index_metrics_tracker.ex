@@ -21,7 +21,7 @@ defmodule DpulCollections.IndexMetricsTracker do
       :telemetry.attach(
         "metrics-ack-tracker",
         [:database_producer, :ack, :done],
-        &handle_ack_received/4,
+        &ack_telemetry_callback/4,
         nil
       )
 
@@ -153,7 +153,7 @@ defmodule DpulCollections.IndexMetricsTracker do
     |> put_in([:acked_count], old_acked_count + new_acked_count)
   end
 
-  defp handle_ack_received([:database_producer, :ack, :done], _measurements, metadata, _config) do
+  defp ack_telemetry_callback([:database_producer, :ack, :done], _measurements, metadata, _config) do
     GenServer.call(__MODULE__, {:ack_received, metadata})
   end
 
