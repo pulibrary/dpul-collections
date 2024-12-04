@@ -28,8 +28,8 @@ defmodule DpulCollections.IndexMetricsTracker do
     {:ok, %{}}
   end
 
-  @spec register_fresh_index(source :: module()) :: term()
-  def register_fresh_index(source) do
+  @spec register_fresh_start(source :: module()) :: term()
+  def register_fresh_start(source) do
     GenServer.call(__MODULE__, {:fresh_index, source})
   end
 

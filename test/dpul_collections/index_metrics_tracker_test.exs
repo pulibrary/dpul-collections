@@ -25,7 +25,7 @@ defmodule DpulCollections.IndexMetricsTrackerTest do
         }
       )
 
-      IndexMetricsTracker.register_fresh_index(HydrationProducerSource)
+      IndexMetricsTracker.register_fresh_start(HydrationProducerSource)
       # Send an ack done with acked_count 1
       :telemetry.execute(
         [:database_producer, :ack, :done],
