@@ -64,6 +64,10 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
     records =
       source_module.get_cache_entries_since!(last_queried_marker, total_demand, cache_version)
 
+    if last_queried_marker == nil && length(records) > 0 do
+      DpulCollections.IndexMetricsTracker.register_fresh_start(source_module)
+    end
+
     new_state =
       state
       |> Map.put(
@@ -82,6 +86,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
 
     # Set a timer to try fulfilling demand again later
     if new_state.stored_demand > 0 do
+      DpulCollections.IndexMetricsTracker.register_polling_started(source_module)
       Process.send_after(self(), :check_for_updates, 50)
     end
 
@@ -136,7 +141,12 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
       })
     end
 
-    notify_ack(pending_markers |> length())
+    notify_ack(
+      pending_markers |> length(),
+      new_state.pulled_records |> length(),
+      state.source_module.processor_marker_key()
+    )
+
     {:noreply, messages, new_state}
   end
 
@@ -214,12 +224,21 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
 
   # This happens when ack is finished, we listen to this telemetry event in
   # tests so we know when the Producer's done processing a message.
-  @spec notify_ack(integer()) :: any()
-  defp notify_ack(acked_message_count) do
+  @spec notify_ack(integer(), integer(), String.t()) :: any()
+  @type ack_event_metadata :: %{
+          acked_count: integer(),
+          unacked_count: integer(),
+          processor_marker_key: String.t()
+        }
+  defp notify_ack(acked_message_count, unacked_count, processor_marker_key) do
     :telemetry.execute(
       [:database_producer, :ack, :done],
       %{},
-      %{acked_count: acked_message_count}
+      %{
+        acked_count: acked_message_count,
+        unacked_count: unacked_count,
+        processor_marker_key: processor_marker_key
+      }
     )
   end
 
