@@ -3,10 +3,12 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
   use DpulCollections.DataCase
 
   alias DpulCollections.Repo
+  alias DpulCollections.FiggyRepo
   alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline.AckTracker
   alias DpulCollections.{IndexingPipeline, Solr, IndexMetricsTracker}
   import SolrTestSupport
+  import Mock
 
   setup do
     Solr.delete_all(active_collection())
@@ -474,6 +476,74 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       # Tagline
       assert %{"tagline_txtm" => [first_tagline | _tail]} = document
       assert first_tagline |> String.starts_with?("Manuscripts of the Islamic World") == true
+    end
+  end
+
+  test "a full pipeline run there are database errors" do
+    with_mocks [
+      {FiggyRepo, [:passthrough],
+       all: [
+         in_series([:_], [
+           fn _ -> raise(DBConnection.ConnectionError, "closed") end,
+           fn query -> passthrough([query]) end
+         ])
+       ]},
+      {Repo, [:passthrough],
+       all: [
+         in_series([:_], [
+           fn _ -> raise(DBConnection.ConnectionError, "closed") end,
+           fn query -> passthrough([query]) end
+         ])
+       ],
+       insert: [
+         in_series([:_, :_], [
+           fn _ -> raise(DBConnection.ConnectionError, "closed") end,
+           fn changeset, ops -> passthrough([changeset, ops]) end
+         ])
+       ]}
+    ] do
+      # Start the figgy pipeline in a way that mimics how it is started in
+      # dev and prod (slightly simplified)
+      cache_version = 1
+
+      {:ok, tracker_pid} = GenServer.start_link(AckTracker, self())
+
+      children = [
+        {Figgy.IndexingConsumer,
+         cache_version: cache_version, batch_size: 50, solr_index: active_collection()},
+        {Figgy.TransformationConsumer, cache_version: cache_version, batch_size: 50},
+        {Figgy.HydrationConsumer, cache_version: cache_version, batch_size: 50}
+      ]
+
+      Enum.each(children, fn child ->
+        start_supervised(child)
+      end)
+
+      AckTracker.wait_for_pipeline_finished(tracker_pid)
+
+      # the hydrator pulled all ephemera folders and terms
+      entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
+      assert FiggyTestSupport.total_resource_count() == entry_count
+
+      # the transformer only processes ephemera folders
+      transformation_cache_entry_count = Repo.aggregate(Figgy.TransformationCacheEntry, :count)
+      assert FiggyTestSupport.ephemera_folder_count() == transformation_cache_entry_count
+
+      # indexed all the documents
+      assert Solr.document_count() == transformation_cache_entry_count
+
+      # Ensure that the processor markers have the correct cache version
+      hydration_processor_marker = IndexingPipeline.get_processor_marker!("figgy_hydrator", 1)
+
+      transformation_processor_marker =
+        IndexingPipeline.get_processor_marker!("figgy_transformer", 1)
+
+      indexing_processor_marker = IndexingPipeline.get_processor_marker!("figgy_indexer", 1)
+      assert hydration_processor_marker.cache_version == 1
+      assert transformation_processor_marker.cache_version == 1
+      assert indexing_processor_marker.cache_version == 1
+
+      Supervisor.stop(DpulCollections.TestSupervisor, :normal)
     end
   end
 end
