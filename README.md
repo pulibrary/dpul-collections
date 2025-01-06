@@ -62,9 +62,28 @@ Remember to check formatting before pushing commits.
 
 For more details about an individual deployment, and to view logs, go to the `jobs` section of our [nomad UI](nomad.lib.princeton.edu).
 
+### Connecting to Staging Shell or IEX Console
+
+1. Connect to VPN
+1. `./bin/console staging [bash/repl]`
+
+By default this will connect you to a web node (Issues #193). To connect to an indexer node use the `JOBTASK` env variable:
+
+`JOBTASK=indexer ./bin/console staging repl`
+
+You will know you're connected to an indexer node if `Broadway.all_running()` returns a populated list.
+
+Another way to connect to a shell or iex console is via the [nomad UI](nomad.lib.princeton.edu). Log in and go to jobs > dpulc-staging > exec. select "indexer" then enter the default command `/bin/bash`. To run the iex console do `./bin/dpul_collections remote`.
+
+### Determine active cache version
+
+Connect to the repl console (see above), then run:
+
+`Application.fetch_env!(:dpul_collections, DpulCollections.IndexingPipeline)`
+
 ### Restart Indexing Pipeline
 
-You need to know the cache version (referenced below as `n`) for the pipeline you're restarting. Cache versions are configured in the dev and test config files, and for staging / prod in the hcl file. The following commands should be run in the shell on the indexer container:
+You need to know the cache version (referenced below as `n`) for the pipeline you're restarting -- see above. The following commands should be run in the repl console on the indexer container:
 
 1. Rehydration (full pipeline re-run): `DpulCollections.IndexingPipeline.Figgy.HydrationConsumer.start_over!(n)`
 1. Retransformation (Transform & Index): `DpulCollections.IndexingPipeline.Figgy.TransformationConsumer.start_over!(n)`
@@ -79,19 +98,6 @@ See instructions for creating new clean solr index in [/docs/admin/clean_index.m
 ### Explore logs
 
 To view staging logs go to https://grafana-nomad.lib.princeton.edu and log in with github. Navigate to the explore tab.
-
-### Connecting to Staging Shell or IEX Console
-
-1. Connect to VPN
-1. `./bin/console staging [bash/repl]`
-
-By default this will connect you to a web node (Issues #193). To connect to an indexer node use the `JOBTASK` env variable:
-
-`JOBTASK=indexer ./bin/console staging repl`
-
-You will know you're connected to an indexer node if `Broadway.all_running()` returns a populated list.
-
-Another way to connect to a shell or iex console is via the [nomad UI](nomad.lib.princeton.edu). Log in and go to jobs > dpulc-staging > exec. select "indexer" then enter the default command `/bin/bash`. To run the iex console do `./bin/dpul_collections remote`.
 
 ### Build & Run Production Docker Image Locally
 
