@@ -17,17 +17,12 @@ defmodule DpulCollectionsWeb.ItemLive do
     push_patch(socket, to: item.url, replace: true)
   end
 
-  defp build_socket(socket, item, _) do
-    assign(socket, item: item)
+  defp build_socket(_, nil, _) do
+    raise DpulCollectionsWeb.ItemLive.NotFoundError
   end
 
-  # Render a message if no item was found in Solr.
-  def render(assigns) when is_nil(assigns.item) do
-    ~H"""
-    <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
-      <span><%= gettext("Item not found") %></span>
-    </div>
-    """
+  defp build_socket(socket, item, _) do
+    assign(socket, item: item)
   end
 
   def render(assigns) do
