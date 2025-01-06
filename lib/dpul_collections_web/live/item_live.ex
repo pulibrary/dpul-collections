@@ -40,7 +40,7 @@ defmodule DpulCollectionsWeb.ItemLive do
           <.description :for={description <- @item.description} description={description} />
         </div>
       </div>
-      <div class="md:col-span-2 md:order-first">
+      <div class="primary-thumbnail md:col-span-2 md:order-first">
         <img
           class="w-full"
           src={"#{Enum.at(@item.image_service_urls, 0)}/full/525,800/0/default.jpg"}
@@ -51,7 +51,12 @@ defmodule DpulCollectionsWeb.ItemLive do
           height="800"
         />
         <button class="w-full btn-primary">
-          <%= gettext("Download") %>
+          <a
+            href={"#{Application.fetch_env!(:dpul_collections, :web_connections)[:figgy_url]}/catalog/#{@item.id}/pdf"}
+            target="_blank"
+          >
+            <%= gettext("Download PDF") %>
+          </a>
         </button>
       </div>
       <div class="md:hidden block">

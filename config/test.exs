@@ -69,3 +69,5 @@ config :dpul_collections, :solr, %{
 
 # Set this poll interval really small so it triggers in test.
 config :dpul_collections, :figgy_hydrator, poll_interval: 50
+
+config :dpul_collections, :web_connections, figgy_url: "https://figgy.example.com"
