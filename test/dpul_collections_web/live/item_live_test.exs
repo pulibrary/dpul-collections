@@ -119,6 +119,12 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
              ".primary-thumbnail img[src='https://example.com/iiif/2/image1/full/525,800/0/default.jpg']"
            )
 
+    assert view
+           |> has_element?(
+             ".primary-thumbnail a[href='https://figgy.example.com/catalog/1/pdf']",
+             "Download PDF"
+           )
+
     # Renders when there's no description
     {:ok, view, _html} = live(conn, "/i/زلزلہ/item/2")
     response = render(view)

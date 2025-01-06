@@ -67,6 +67,8 @@ config :dpul_collections, DpulCollectionsWeb.Gettext,
   default_locale: "en",
   locales: ~w(en es)
 
+config :dpul_collections, :web_connections, figgy_url: "https://figgy.princeton.edu"
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

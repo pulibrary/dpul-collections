@@ -51,7 +51,12 @@ defmodule DpulCollectionsWeb.ItemLive do
           height="800"
         />
         <button class="w-full btn-primary">
-          <%= gettext("Download") %>
+          <a
+            href={"#{Application.fetch_env!(:dpul_collections, :web_connections)[:figgy_url]}/catalog/#{@item.id}/pdf"}
+            target="_blank"
+          >
+            <%= gettext("Download PDF") %>
+          </a>
         </button>
       </div>
       <div class="md:hidden block">
