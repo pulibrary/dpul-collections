@@ -116,7 +116,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     # Large thumbnail renders
     assert view
            |> has_element?(
-             "img[src='https://example.com/iiif/2/image2/full/350,465/0/default.jpg']"
+             ".primary-thumbnail img[src='https://example.com/iiif/2/image1/full/525,800/0/default.jpg']"
            )
 
     # Renders when there's no description

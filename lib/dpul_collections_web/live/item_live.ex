@@ -40,7 +40,7 @@ defmodule DpulCollectionsWeb.ItemLive do
           <.description :for={description <- @item.description} description={description} />
         </div>
       </div>
-      <div class="md:col-span-2 md:order-first">
+      <div class="primary-thumbnail md:col-span-2 md:order-first">
         <img
           class="w-full"
           src={"#{Enum.at(@item.image_service_urls, 0)}/full/525,800/0/default.jpg"}
