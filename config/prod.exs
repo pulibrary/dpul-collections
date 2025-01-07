@@ -8,9 +8,6 @@ import Config
 config :dpul_collections, DpulCollectionsWeb.Endpoint,
   cache_static_manifest: "priv/static/cache_manifest.json"
 
-# Set environment
-config :dpul_collections, :current_env, :prod
-
 # Enable dev routes - including mailbox preview and the dashboard.
 config :dpul_collections, dev_routes: true
 

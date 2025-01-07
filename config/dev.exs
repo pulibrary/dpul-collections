@@ -74,9 +74,6 @@ config :dpul_collections, DpulCollectionsWeb.Endpoint,
     ]
   ]
 
-# Set environment
-config :dpul_collections, :current_env, :dev
-
 config :dpul_collections, :basic_auth_username, "admin"
 config :dpul_collections, :basic_auth_password, "admin"
 
