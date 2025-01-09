@@ -42,6 +42,16 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Enum.any?()
   end
 
+  test "GET /search with a query that has no results", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/search?q=therewontbeanyresults")
+
+    assert view
+           |> has_element?(
+             "#item-counter",
+             "No items found"
+           )
+  end
+
   test "GET /search renders thumbnails for each resource", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/search?")
 
