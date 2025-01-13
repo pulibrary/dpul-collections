@@ -52,7 +52,6 @@ msgstr "Nosotros no podemos encontrar internet"
 msgid "close"
 msgstr "cerrar"
 
-#: lib/dpul_collections_web/live/item_live.ex:54
 #: lib/dpul_collections_web/live/item_live.ex:95
 #, elixir-autogen, elixir-format
 msgid "Download"
@@ -62,11 +61,6 @@ msgstr "Descargar"
 #, elixir-autogen, elixir-format
 msgid "Apply"
 msgstr "Aplicar"
-
-#: lib/dpul_collections_web/live/item_live.ex:28
-#, elixir-autogen, elixir-format
-msgid "Item not found"
-msgstr "Artículo no encontrado"
 
 #: lib/dpul_collections_web/components/lux-components.ex:16
 #, elixir-autogen, elixir-format
@@ -129,17 +123,27 @@ msgstr "Artículos efímeros. Estamos ansiosos por ver cómo utilizas estos mate
 msgid "We invite you to be inspired by our globally diverse collections of"
 msgstr "Te invitamos a inspirarte con nuestras colecciones globalmente diversas de"
 
-#: lib/dpul_collections_web/components/lux-components.ex:33
+#: lib/dpul_collections_web/components/lux-components.ex:37
 #, elixir-autogen, elixir-format
 msgid "Accessibility Help"
 msgstr "Ayuda de accesibilidad"
 
-#: lib/dpul_collections_web/components/lux-components.ex:31
+#: lib/dpul_collections_web/components/lux-components.ex:35
 #, elixir-autogen, elixir-format
 msgid "Copyright Policy"
 msgstr "Política de derechos de autor"
 
-#: lib/dpul_collections_web/components/lux-components.ex:32
+#: lib/dpul_collections_web/components/lux-components.ex:36
 #, elixir-autogen, elixir-format
 msgid "Privacy Notice"
 msgstr "Aviso de privacidad"
+
+#: lib/dpul_collections_web/live/item_live.ex:53
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Download PDF"
+msgstr "Descargar PDF"
+
+#: lib/dpul_collections_web/controllers/error_html/404.html.heex:31
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Page not found"
+msgstr "Página no encontrada"

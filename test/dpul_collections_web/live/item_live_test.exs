@@ -54,11 +54,6 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     assert redirected_to(conn, 302) == "/i/învăţămîntul-trebuie-urmărească-dez/item/1"
   end
 
-  test "/item/{:id} does not redirect with a bad id", %{conn: conn} do
-    conn = get(conn, "/item/badid1")
-    assert conn.status == 200
-  end
-
   test "/i/{:slug}/item/{:id} redirects when slug is incorrect",
        %{conn: conn} do
     conn = get(conn, "/i/not-a-real-slug/item/1")
@@ -131,15 +126,15 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     assert response =~ "زلزلہ"
   end
 
-  test "/i/{:slug}/item/{:id} does not redirect with a bad id", %{conn: conn} do
-    conn = get(conn, "/i/not-a-real-slug/item/badid1")
-    response = html_response(conn, 200)
-    assert response =~ "Item not found"
+  test "/i/{:slug}/item/{:id} 404s with a bad id", %{conn: conn} do
+    assert_error_sent 404, fn ->
+      get(conn, "/i/not-a-real-slug/item/badid1")
+    end
   end
 
-  test "GET /item/{:id} response whith a bad id", %{conn: conn} do
-    conn = get(conn, "/item/badid1")
-    response = html_response(conn, 200)
-    assert response =~ "Item not found"
+  test "GET /item/{:id} 404s with a bad id", %{conn: conn} do
+    assert_error_sent 404, fn ->
+      get(conn, "/item/badid1")
+    end
   end
 end
