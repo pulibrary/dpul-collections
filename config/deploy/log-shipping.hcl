@@ -56,7 +56,7 @@ job "log-shipping" {
     task "promtail" {
       driver = "podman"
       config {
-        image = "grafana/promtail:2.2.1"
+        image = "docker.io/grafana/promtail:2.2.1"
         args = [
           "-config.file",
           "local/config.yaml",
