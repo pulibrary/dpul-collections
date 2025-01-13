@@ -190,6 +190,19 @@ defmodule DpulCollections.SolrTest do
              "ديوان-القاضي-ناصح-الدين-ابي"
   end
 
+  test "slug generation with ellipsis character in title" do
+    doc = %{
+      "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
+      "title_txtm" => ["Паук семейства СОИ…"]
+    }
+
+    Solr.add([doc], active_collection())
+    Solr.commit(active_collection())
+
+    assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["slug_s"] ==
+             "паук-семейства-сои"
+  end
+
   test "slug generation with Spanish title" do
     doc = %{
       "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",

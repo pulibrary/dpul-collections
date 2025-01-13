@@ -7,7 +7,7 @@ function processAdd(cmd) {
 
   // Remove punctuation, and split into words
   var words = title
-              .replace(/[.,\/#!¡\?¿$%\^&\*'";:{},<=>\-_@`~\[\]()]/g,'')
+              .replace(/[.,\/#!¡\?¿$%\^&\*'";:{},<=>\-_@`~\[\]()…]/g,'')
               .replace(/  +/g, ' ')
               .toLowerCase()
               .split(' ')
