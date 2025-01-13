@@ -203,6 +203,19 @@ defmodule DpulCollections.SolrTest do
              "él-no-responde-mis-mensajes"
   end
 
+  test "slug generation when the slug is truncated with a trailing dash" do
+    doc = %{
+      "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
+      "title_txtm" => ["¿Cómo la reforma educacional beneficia a mi familia?"]
+    }
+
+    Solr.add([doc], active_collection())
+    Solr.commit(active_collection())
+
+    assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["slug_s"] ==
+             "cómo-reforma-educacional-beneficia"
+  end
+
   test "an exception is logged when indexing a document raises a solr error" do
     doc = %{
       # No title

@@ -32,6 +32,11 @@ function processAdd(cmd) {
             .join('-')
             .slice(0, maxCharacters)
 
+  // Remove any trailing dash
+  if (slug.slice(-1) == '-') {
+    slug = slug.slice(0, -1)
+  }
+
   doc.setField("slug_s", slug);
 }
 
