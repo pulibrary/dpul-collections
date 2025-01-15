@@ -68,7 +68,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     {:noreply, socket}
   end
 
-  defp item_counter(_, 0), do: "No items found"
+  defp item_counter(_, 0), do: gettext("No items found")
 
   defp item_counter(%{page: page, per_page: per_page}, total_items) do
     first_item = max(page - 1, 0) * per_page + 1
@@ -80,7 +80,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         true -> first_item + per_page - 1
       end
 
-    "#{first_item} - #{last_item} of #{total_items}"
+    "#{first_item} - #{last_item} #{gettext("of")} #{total_items}"
   end
 
   def render(assigns) do
@@ -130,7 +130,11 @@ defmodule DpulCollectionsWeb.SearchLive do
           </label>
           <select class="col-span-1" name="sort-by">
             <%= Phoenix.HTML.Form.options_for_select(
-              ["relevance", "date desc": "date_desc", "date asc": "date_asc"],
+              [
+                {gettext("Relevance"), "relevance"},
+                {gettext("Year (newest first)"), "date_desc"},
+                {gettext("Year (oldest first)"), "date_asc"}
+              ],
               @search_state.sort_by
             ) %>
           </select>

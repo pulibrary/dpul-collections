@@ -67,18 +67,18 @@ msgstr ""
 msgid "Language"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:248
+#: lib/dpul_collections_web/live/search_live.ex:252
 #, elixir-autogen, elixir-format
 msgid "Next"
 msgstr ""
 
 #: lib/dpul_collections_web/live/item_live.ex:61
-#: lib/dpul_collections_web/live/search_live.ex:170
+#: lib/dpul_collections_web/live/search_live.ex:174
 #, elixir-autogen, elixir-format
 msgid "Pages"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:205
+#: lib/dpul_collections_web/live/search_live.ex:209
 #, elixir-autogen, elixir-format
 msgid "Previous"
 msgstr ""
@@ -146,4 +146,29 @@ msgstr ""
 #: lib/dpul_collections_web/controllers/error_html/404.html.heex:31
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Page not found"
+msgstr ""
+
+#: lib/dpul_collections_web/live/search_live.ex:71
+#, elixir-autogen, elixir-format
+msgid "No items found"
+msgstr ""
+
+#: lib/dpul_collections_web/live/search_live.ex:83
+#, elixir-autogen, elixir-format
+msgid "of"
+msgstr ""
+
+#: lib/dpul_collections_web/live/search_live.ex:134
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Relevance"
+msgstr ""
+
+#: lib/dpul_collections_web/live/search_live.ex:135
+#, elixir-autogen, elixir-format
+msgid "Year (newest first)"
+msgstr ""
+
+#: lib/dpul_collections_web/live/search_live.ex:136
+#, elixir-autogen, elixir-format
+msgid "Year (oldest first)"
 msgstr ""
