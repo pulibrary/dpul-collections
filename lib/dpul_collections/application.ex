@@ -22,7 +22,7 @@ defmodule DpulCollections.Application do
         # Start to serve requests, typically the last entry
         DpulCollectionsWeb.Endpoint,
         DpulCollections.IndexMetricsTracker
-      ] ++ environment_children(Mix.env())
+      ] ++ environment_children(Application.fetch_env!(:dpul_collections, :current_env))
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
