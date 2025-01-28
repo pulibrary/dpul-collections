@@ -36,9 +36,6 @@ config :dpul_collections, DpulCollectionsWeb.Endpoint,
 # In test we don't send emails.
 config :dpul_collections, DpulCollections.Mailer, adapter: Swoosh.Adapters.Test
 
-# Set environment
-config :dpul_collections, :current_env, :test
-
 # Set basic auth
 config :dpul_collections, :basic_auth_username, "admin"
 config :dpul_collections, :basic_auth_password, "test"
@@ -66,6 +63,10 @@ config :dpul_collections, :solr, %{
   username: "solr",
   password: "SolrRocks"
 }
+
+# don't run indexing children
+# wrap this in a function b/c the dev implementation requires it
+config :dpul_collections, :start_indexing_pipeline?, fn -> false end
 
 # Set this poll interval really small so it triggers in test.
 config :dpul_collections, :figgy_hydrator, poll_interval: 50

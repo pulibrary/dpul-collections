@@ -74,9 +74,6 @@ config :dpul_collections, DpulCollectionsWeb.Endpoint,
     ]
   ]
 
-# Set environment
-config :dpul_collections, :current_env, :dev
-
 config :dpul_collections, :basic_auth_username, "admin"
 config :dpul_collections, :basic_auth_password, "admin"
 
@@ -111,6 +108,12 @@ config :dpul_collections, :solr, %{
   username: System.get_env("SOLR_USERNAME") || "user",
   password: System.get_env("SOLR_PASSWORD") || "pass"
 }
+
+# only run indexing children if the webserver is running
+# wrap this in a function b/c Phoenix.Endpoint.server? is not defined at config time
+config :dpul_collections, :start_indexing_pipeline?, fn ->
+  Phoenix.Endpoint.server?(:dpul_collections, DpulCollectionsWeb.Endpoint)
+end
 
 # Configure indexing pipeline writes
 config :dpul_collections, DpulCollections.IndexingPipeline, [
