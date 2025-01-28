@@ -64,6 +64,10 @@ config :dpul_collections, :solr, %{
   password: "SolrRocks"
 }
 
+# don't run indexing children
+# wrap this in a function b/c the dev implementation requires it
+config :dpul_collections, :start_indexing_pipeline?, fn -> false end
+
 # Set this poll interval really small so it triggers in test.
 config :dpul_collections, :figgy_hydrator, poll_interval: 50
 

@@ -120,10 +120,14 @@ if config_env() == :prod do
 
   config :dpul_collections, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
-  if System.get_env("INDEXER") do
-    config :dpul_collections, :start_indexing_pipeline, true
-  else
-    config :dpul_collections, :start_indexing_pipeline, false
+  # only run indexing children if the webserver is running
+  # wrap this in a function b/c the dev implementation requires it
+  config :dpul_collections, :start_indexing_pipeline?, fn ->
+    if System.get_env("INDEXER") do
+      true
+    else
+      false
+    end
   end
 
   # Configure basic auth

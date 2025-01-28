@@ -22,7 +22,7 @@ defmodule DpulCollections.Application do
         # Start to serve requests, typically the last entry
         DpulCollectionsWeb.Endpoint,
         DpulCollections.IndexMetricsTracker
-      ] ++ environment_children(Mix.env())
+      ] ++ filter_pipeline_children()
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
@@ -30,23 +30,11 @@ defmodule DpulCollections.Application do
     Supervisor.start_link(children, opts)
   end
 
-  def environment_children(:test) do
-    []
-  end
-
   # coveralls-ignore-start
-  # In development, start the indexing pipeline when the phoenix server starts.
-  def environment_children(:dev) do
-    if Phoenix.Endpoint.server?(:dpul_collections, DpulCollectionsWeb.Endpoint) do
-      indexing_pipeline_children()
-    else
-      []
-    end
-  end
+  def filter_pipeline_children() do
+    fun = Application.fetch_env!(:dpul_collections, :start_indexing_pipeline?)
 
-  # In production, start the indexing pipeline if it's configured to be started
-  def environment_children(:prod) do
-    if Application.fetch_env!(:dpul_collections, :start_indexing_pipeline) == true do
+    if fun.() == true do
       indexing_pipeline_children()
     else
       []
