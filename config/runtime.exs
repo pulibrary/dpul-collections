@@ -77,8 +77,8 @@ if config_env() == :prod do
     base_url: solr_base_url,
     read_collection: solr_read_collection,
     config_set: solr_config_set,
-    username: "",
-    password: ""
+    username: System.get_env("SOLR_USERNAME") || "",
+    password: System.get_env("SOLR_PASSWORD") || ""
   }
 
   index_cache_collections =
@@ -116,7 +116,7 @@ if config_env() == :prod do
 
   host = System.get_env("PHX_HOST") || "example.com"
   port = String.to_integer(System.get_env("PORT") || "4000")
-  check_origin = ["https://#{host}"]
+  check_origin = true
 
   config :dpul_collections, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
