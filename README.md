@@ -107,7 +107,7 @@ Set up database: `mix setup`
 
 The SECRET_KEY_BASE below is just a filler one for the purpose of testing locally.
 
-Run Docker Image: `docker run -t -p 4000:4000 -e INDEXER=true -e INDEX_CACHE_COLLECTIONS='cache_version:1,write_collection:dpulc' -e PHX_HOST=localhost:4000 -e SOLR_CONFIG_SET='dpul-collections' -e SOLR_USERNAME='solr' -e SOLR_PASSWORD='SolrRocks' -e SOLR_READ_COLLECTION='dpulc' -e SOLR_BASE_URL='http://host.docker.internal:8985' -e RELEASE_IP=127.0.0.1 -e FIGGY_DATABASE_URL='ecto://postgres:postgres@host.docker.internal:5435/postgres' -e DATABASE_URL='ecto://postgres:@host.docker.internal:5434/dpul_collections_dev' -e SECRET_KEY_BASE='B8rwzeX3DFLveiJ4cP28lRGc0PWdEr8ZF/hDoPRucw95Nzf2IPnu7lhEB+Yldx6Z' dpul-collections`
+Run Docker Image: `docker run -t -p 4000:4000 -e INDEXER=true -e INDEX_CACHE_COLLECTIONS='cache_version:1,write_collection:dpulc' -e PHX_HOST=localhost -e SOLR_CONFIG_SET='dpul-collections' -e SOLR_USERNAME='solr' -e SOLR_PASSWORD='SolrRocks' -e SOLR_READ_COLLECTION='dpulc' -e SOLR_BASE_URL='http://host.docker.internal:8985' -e RELEASE_IP=127.0.0.1 -e FIGGY_DATABASE_URL='ecto://postgres:postgres@host.docker.internal:5435/postgres' -e DATABASE_URL='ecto://postgres:@host.docker.internal:5434/dpul_collections_dev' -e SECRET_KEY_BASE='B8rwzeX3DFLveiJ4cP28lRGc0PWdEr8ZF/hDoPRucw95Nzf2IPnu7lhEB+Yldx6Z' dpul-collections`
 
 Commit Solr: `curl http://solr:SolrRocks@localhost:8985/solr/dpulc/update?commit=true`
 
