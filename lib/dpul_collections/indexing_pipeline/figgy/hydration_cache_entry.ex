@@ -32,8 +32,23 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
       years_is: extract_years(data),
       display_date_s: format_date(metadata),
       page_count_i: page_count(metadata),
-      image_service_urls_ss: image_service_urls(metadata, related_data)
+      image_service_urls_ss: image_service_urls(metadata, related_data),
+      thumbnail_service_url_s: thumbnail_service_url(metadata, related_data)
     }
+  end
+
+  defp thumbnail_service_url(%{"thumbnail_id" => thumbnail_id}, %{"member_ids" => member_data}) do
+    thumbnail_id
+    |> Enum.at(0)
+    |> Map.get("id")
+    |> then(fn id -> member_data[id] end)
+    |> extract_service_url
+  end
+
+  defp thumbnail_service_url(metadata, related_data) do
+    # If thumbnail id not set, use first image service url
+    image_service_urls(metadata, related_data)
+    |> Enum.at(0)
   end
 
   defp image_service_urls(%{"member_ids" => member_ids}, related_data) do
