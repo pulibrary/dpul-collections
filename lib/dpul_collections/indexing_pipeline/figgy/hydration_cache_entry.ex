@@ -40,10 +40,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   defp primary_thumbnail_service_url(
          %{"thumbnail_id" => thumbnail_id} = metadata,
          %{"member_ids" => member_data} = related_data
-       ) do
+       )
+       when is_list(thumbnail_id) do
     thumbnail_member =
       thumbnail_id
-      |> Enum.at(0)
+      |> Enum.at(0, %{})
       |> Map.get("id")
       |> then(fn id -> member_data[id] end)
 
