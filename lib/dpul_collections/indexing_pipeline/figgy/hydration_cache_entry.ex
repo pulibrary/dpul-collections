@@ -37,16 +37,28 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
     }
   end
 
-  defp thumbnail_service_url(%{"thumbnail_id" => thumbnail_id}, %{"member_ids" => member_data}) do
-    thumbnail_id
-    |> Enum.at(0)
-    |> Map.get("id")
-    |> then(fn id -> member_data[id] end)
-    |> extract_service_url
+  defp thumbnail_service_url(
+         %{"thumbnail_id" => thumbnail_id} = metadata,
+         %{"member_ids" => member_data} = related_data
+       ) do
+    thumbnail_member =
+      thumbnail_id
+      |> Enum.at(0)
+      |> Map.get("id")
+      |> then(fn id -> member_data[id] end)
+
+    if is_nil(thumbnail_member) do
+      # When thumbnail id does not correspond to a related FileSet,
+      # use the first image service url
+      image_service_urls(metadata, related_data)
+      |> Enum.at(0)
+    else
+      extract_service_url(thumbnail_member)
+    end
   end
 
   defp thumbnail_service_url(metadata, related_data) do
-    # If thumbnail id not set, use first image service url
+    # When the thumbnail id is not set, use first image service url
     image_service_urls(metadata, related_data)
     |> Enum.at(0)
   end
