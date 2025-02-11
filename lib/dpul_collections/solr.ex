@@ -19,7 +19,8 @@ defmodule DpulCollections.Solr do
     "page_count_i",
     "detectlang_ss",
     "slug_s",
-    "image_service_urls_ss"
+    "image_service_urls_ss",
+    "primary_thumbnail_service_url_s"
   ]
 
   @spec query(map(), String.t()) :: map()

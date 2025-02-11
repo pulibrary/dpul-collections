@@ -19,7 +19,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
             "https://example.com/iiif/2/image1",
             "https://example.com/iiif/2/image2"
           ],
-          thumbnail_service_url_s: "https://example.com/iiif/2/image2",
+          primary_thumbnail_service_url_s: "https://example.com/iiif/2/image2",
           description_txtm: ["This is a test description"]
         },
         %{
@@ -31,7 +31,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
             "https://example.com/iiif/2/image1",
             "https://example.com/iiif/2/image2"
           ],
-          thumbnail_service_url_s: "https://example.com/iiif/2/image1"
+          primary_thumbnail_service_url_s: "https://example.com/iiif/2/image1"
         },
         %{
           id: 3,
@@ -42,7 +42,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
             "https://example.com/iiif/2/image1",
             "https://example.com/iiif/2/image2"
           ],
-          thumbnail_service_url_s: "https://example.com/iiif/2/image1"
+          primary_thumbnail_service_url_s: "https://example.com/iiif/2/image1"
         }
       ],
       active_collection()

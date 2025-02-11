@@ -8,7 +8,7 @@ defmodule DpulCollections.Item do
     :page_count,
     :url,
     :image_service_urls,
-    :thumbnail_service_url,
+    :primary_thumbnail_service_url,
     :description
   ]
 
@@ -26,7 +26,7 @@ defmodule DpulCollections.Item do
       page_count: doc["page_count_i"],
       url: generate_url(id, slug),
       image_service_urls: doc["image_service_urls_ss"] || [],
-      thumbnail_service_url: doc["thumbnail_service_url_s"],
+      primary_thumbnail_service_url: doc["primary_thumbnail_service_url_s"],
       description: doc["description_txtm"] || []
     }
   end

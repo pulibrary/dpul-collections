@@ -82,7 +82,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
              ]
 
       # Has thumbnail url
-      assert doc[:thumbnail_service_url_s] ==
+      assert doc[:primary_thumbnail_service_url_s] ==
                "https://iiif-cloud.princeton.edu/iiif/2/0c%2Fff%2F89%2F0cff895a01ea48959c3da8c6eaab4017%2Fintermediate_file"
     end
 
@@ -122,7 +122,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
       doc = HydrationCacheEntry.to_solr_document(entry)
 
-      assert doc[:thumbnail_service_url_s] ==
+      assert doc[:primary_thumbnail_service_url_s] ==
                "https://iiif-cloud.princeton.edu/iiif/2/0c%2Fff%2F89%2F0cff895a01ea48959c3da8c6eaab4017%2Fintermediate_file"
     end
 
@@ -163,7 +163,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
       doc = HydrationCacheEntry.to_solr_document(entry)
 
-      assert doc[:thumbnail_service_url_s] ==
+      assert doc[:primary_thumbnail_service_url_s] ==
                "https://iiif-cloud.princeton.edu/iiif/2/0c%2Fff%2F89%2F0cff895a01ea48959c3da8c6eaab4017%2Fintermediate_file"
     end
 
@@ -188,7 +188,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
       doc = HydrationCacheEntry.to_solr_document(entry)
 
-      assert doc[:thumbnail_service_url_s] == nil
+      assert doc[:primary_thumbnail_service_url_s] == nil
     end
 
     test "can handle when members do not have the correct file metadata type" do

@@ -2,7 +2,14 @@ defmodule SolrTestSupport do
   def mock_solr_documents(count \\ 100) do
     for n <- 1..count do
       date = 2025 - n
-      page_count = Enum.random(1..10)
+      page_count = 7
+
+      # Assign thumbnail urls to even numbered documents
+      thumbnail_url =
+        cond do
+          rem(n, 2) == 0 -> "https://example.com/iiif/2/image2"
+          true -> nil
+        end
 
       %{
         id: n,
@@ -12,8 +19,14 @@ defmodule SolrTestSupport do
         page_count_i: page_count,
         image_service_urls_ss: [
           "https://example.com/iiif/2/image1",
-          "https://example.com/iiif/2/image2"
-        ]
+          "https://example.com/iiif/2/image2",
+          "https://example.com/iiif/2/image3",
+          "https://example.com/iiif/2/image4",
+          "https://example.com/iiif/2/image5",
+          "https://example.com/iiif/2/image6",
+          "https://example.com/iiif/2/image7"
+        ],
+        primary_thumbnail_service_url_s: thumbnail_url
       }
     end
   end

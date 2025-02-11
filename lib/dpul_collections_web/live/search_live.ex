@@ -165,7 +165,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     <div id={"item-#{@item.id}"} class="item">
       <div class="flex flex-wrap gap-5 md:max-h-60 max-h-[22rem] overflow-hidden justify-center md:justify-start relative">
         <.thumbs
-          :for={{thumb, thumb_num} <- Enum.with_index(@item.image_service_urls)}
+          :for={{thumb, thumb_num} <- thumbnail_service_urls(5, @item)}
           :if={@item.page_count}
           thumb={thumb}
           thumb_num={thumb_num}
@@ -342,5 +342,29 @@ defmodule DpulCollectionsWeb.SearchLive do
       type == :pre -> [{page, false}, {"...", false}]
       type == :post -> [{"...", false}, {page, false}]
     end
+  end
+
+  defp thumbnail_service_urls(max_thumbnails, item) do
+    thumbnail_service_urls(
+      max_thumbnails,
+      item.image_service_urls,
+      item.primary_thumbnail_service_url
+    )
+  end
+
+  defp thumbnail_service_urls(max_thumbnails, image_service_urls, nil) do
+    # Truncate image service urls to max value
+    image_service_urls
+    |> Enum.slice(0, max_thumbnails)
+    |> Enum.with_index()
+  end
+
+  defp thumbnail_service_urls(max_thumbnails, image_service_urls, primary_thumbnail_service_url) do
+    # Move thumbnail url to front of list and then truncate to max value
+    image_service_urls
+    |> Enum.filter(&(&1 != primary_thumbnail_service_url))
+    |> List.insert_at(0, primary_thumbnail_service_url)
+    |> Enum.slice(0, max_thumbnails)
+    |> Enum.with_index()
   end
 end
