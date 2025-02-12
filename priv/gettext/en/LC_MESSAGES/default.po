@@ -11,11 +11,6 @@ msgstr ""
 "Language: en\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: lib/dpul_collections_web/components/core_components.ex:90
-#, elixir-autogen, elixir-format
-msgid "Attempting to reconnect"
-msgstr ""
-
 #: lib/dpul_collections_web/components/core_components.ex:81
 #, elixir-autogen, elixir-format
 msgid "Error!"
@@ -40,11 +35,6 @@ msgstr ""
 #: lib/dpul_collections_web/components/core_components.ex:80
 #, elixir-autogen, elixir-format
 msgid "Success!"
-msgstr ""
-
-#: lib/dpul_collections_web/components/core_components.ex:85
-#, elixir-autogen, elixir-format
-msgid "We can't find the internet"
 msgstr ""
 
 #: lib/dpul_collections_web/components/core_components.ex:60
