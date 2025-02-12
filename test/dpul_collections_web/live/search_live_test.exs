@@ -62,8 +62,8 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     # There should be a maximum of 5 thumbnails on the search results page
     assert document |> Floki.find("#item-1 > div > img") |> Enum.count() == 5
 
-    # Odd numbered documents do not have a thumbnail id so the order of
-    # thumbnails should be the same as the image member order
+    # Odd numbered documents in test data do not have a thumbnail id
+    # so the order of thumbnails should be the same as the image member order
     assert document
            |> Floki.attribute("#item-1 > div > :first-child", "src") == [
              "https://example.com/iiif/2/image1/square/350,350/0/default.jpg"
@@ -74,8 +74,8 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
              "https://example.com/iiif/2/image2/square/350,350/0/default.jpg"
            ]
 
-    # Enen numbered documents have a thumbnail id so the order of
-    # thumbnails should be different from the image member order
+    # Even numbered documents in test data have a thumbnail id so the order
+    # of thumbnails should be different from the image member order
     assert document
            |> Floki.attribute("#item-2 > div > :first-child", "src") == [
              "https://example.com/iiif/2/image2/square/350,350/0/default.jpg"

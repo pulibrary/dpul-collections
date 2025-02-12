@@ -2,9 +2,12 @@ defmodule SolrTestSupport do
   def mock_solr_documents(count \\ 100) do
     for n <- 1..count do
       date = 2025 - n
+
+      # Equals the number of image service urls
       page_count = 7
 
-      # Assign thumbnail urls to even numbered documents
+      # Assign thumbnail urls to even numbered documents.
+      # Used for testing thumbnail rendering order
       thumbnail_url =
         cond do
           rem(n, 2) == 0 -> "https://example.com/iiif/2/image2"
