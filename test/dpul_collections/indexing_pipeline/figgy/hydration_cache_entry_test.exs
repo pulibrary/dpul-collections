@@ -68,7 +68,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
             "internal_resource" => "EphemeraFolder",
             "metadata" => %{
               "member_ids" => [%{"id" => "1"}],
-              "title" => ["test title 4"]
+              "title" => ["test title 4"],
+              "thumbnail_id" => [%{"id" => "1"}]
             }
           }
         })
@@ -79,6 +80,115 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
       assert doc[:image_service_urls_ss] == [
                "https://iiif-cloud.princeton.edu/iiif/2/0c%2Fff%2F89%2F0cff895a01ea48959c3da8c6eaab4017%2Fintermediate_file"
              ]
+
+      # Has thumbnail url
+      assert doc[:primary_thumbnail_service_url_s] ==
+               "https://iiif-cloud.princeton.edu/iiif/2/0c%2Fff%2F89%2F0cff895a01ea48959c3da8c6eaab4017%2Fintermediate_file"
+    end
+
+    test "uses first image service url when there is no thumbnail_id property" do
+      {:ok, entry} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          cache_version: 0,
+          record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
+          source_cache_order: ~U[2018-03-09 20:19:35.465203Z],
+          related_data: %{
+            "member_ids" => %{
+              "1" => %{
+                "internal_resource" => "FileSet",
+                "id" => "9ad621a7b-01ea-4895-9c3d-a8c6eaab4013",
+                "metadata" => %{
+                  "file_metadata" => [
+                    %{
+                      "id" => %{"id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4017"},
+                      "internal_resource" => "FileMetadata",
+                      "mime_type" => ["image/tiff"],
+                      "use" => [%{"@id" => "http://pcdm.org/use#ServiceFile"}]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          data: %{
+            "id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
+            "internal_resource" => "EphemeraFolder",
+            "metadata" => %{
+              "member_ids" => [%{"id" => "1"}],
+              "title" => ["test title 4"]
+            }
+          }
+        })
+
+      doc = HydrationCacheEntry.to_solr_document(entry)
+
+      assert doc[:primary_thumbnail_service_url_s] ==
+               "https://iiif-cloud.princeton.edu/iiif/2/0c%2Fff%2F89%2F0cff895a01ea48959c3da8c6eaab4017%2Fintermediate_file"
+    end
+
+    test "uses first image service url when thumbnail id does not point to related FileSet" do
+      {:ok, entry} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          cache_version: 0,
+          record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
+          source_cache_order: ~U[2018-03-09 20:19:35.465203Z],
+          related_data: %{
+            "member_ids" => %{
+              "1" => %{
+                "internal_resource" => "FileSet",
+                "id" => "9ad621a7b-01ea-4895-9c3d-a8c6eaab4013",
+                "metadata" => %{
+                  "file_metadata" => [
+                    %{
+                      "id" => %{"id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4017"},
+                      "internal_resource" => "FileMetadata",
+                      "mime_type" => ["image/tiff"],
+                      "use" => [%{"@id" => "http://pcdm.org/use#ServiceFile"}]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          data: %{
+            "id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
+            "internal_resource" => "EphemeraFolder",
+            "metadata" => %{
+              "member_ids" => [%{"id" => "1"}],
+              "title" => ["test title 4"],
+              "thumbnail_id" => [%{"id" => "9"}]
+            }
+          }
+        })
+
+      doc = HydrationCacheEntry.to_solr_document(entry)
+
+      assert doc[:primary_thumbnail_service_url_s] ==
+               "https://iiif-cloud.princeton.edu/iiif/2/0c%2Fff%2F89%2F0cff895a01ea48959c3da8c6eaab4017%2Fintermediate_file"
+    end
+
+    test "does not add a thumbnail service url when there are no image members" do
+      {:ok, entry} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          cache_version: 0,
+          record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
+          source_cache_order: ~U[2018-03-09 20:19:35.465203Z],
+          related_data: %{
+            "member_ids" => %{}
+          },
+          data: %{
+            "id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
+            "internal_resource" => "EphemeraFolder",
+            "metadata" => %{
+              "member_ids" => [],
+              "title" => ["test title 4"]
+            }
+          }
+        })
+
+      doc = HydrationCacheEntry.to_solr_document(entry)
+
+      assert doc[:primary_thumbnail_service_url_s] == nil
     end
 
     test "can handle when members do not have the correct file metadata type" do

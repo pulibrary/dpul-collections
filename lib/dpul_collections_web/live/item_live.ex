@@ -38,7 +38,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       <div class="primary-thumbnail md:col-span-2 md:order-first">
         <img
           class="w-full"
-          src={"#{Enum.at(@item.image_service_urls, 0)}/full/525,800/0/default.jpg"}
+          src={"#{@item.primary_thumbnail_service_url}/full/525,800/0/default.jpg"}
           alt="main image display"
           style="
           background-color: lightgray;"

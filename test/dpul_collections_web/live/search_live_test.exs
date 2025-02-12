@@ -53,27 +53,38 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   end
 
   test "GET /search renders thumbnails for each resource", %{conn: conn} do
-    {:ok, view, _html} = live(conn, "/search?")
+    {:ok, _view, html} = live(conn, "/search?")
 
-    assert view
-           |> has_element?(
-             "#item-1 img[src='https://example.com/iiif/2/image1/square/350,350/0/default.jpg']"
-           )
+    {:ok, document} =
+      html
+      |> Floki.parse_document()
 
-    assert view
-           |> has_element?(
-             "#item-1 img[src='https://example.com/iiif/2/image2/square/350,350/0/default.jpg']"
-           )
+    # There should be a maximum of 5 thumbnails on the search results page
+    assert document |> Floki.find("#item-1 > div > img") |> Enum.count() == 5
 
-    assert view
-           |> has_element?(
-             "#item-2 img[src='https://example.com/iiif/2/image1/square/350,350/0/default.jpg']"
-           )
+    # Odd numbered documents in test data do not have a thumbnail id
+    # so the order of thumbnails should be the same as the image member order
+    assert document
+           |> Floki.attribute("#item-1 > div > :first-child", "src") == [
+             "https://example.com/iiif/2/image1/square/350,350/0/default.jpg"
+           ]
 
-    assert view
-           |> has_element?(
-             "#item-2 img[src='https://example.com/iiif/2/image2/square/350,350/0/default.jpg']"
-           )
+    assert document
+           |> Floki.attribute("#item-1 > div > :nth-child(2)", "src") == [
+             "https://example.com/iiif/2/image2/square/350,350/0/default.jpg"
+           ]
+
+    # Even numbered documents in test data have a thumbnail id so the order
+    # of thumbnails should be different from the image member order
+    assert document
+           |> Floki.attribute("#item-2 > div > :first-child", "src") == [
+             "https://example.com/iiif/2/image2/square/350,350/0/default.jpg"
+           ]
+
+    assert document
+           |> Floki.attribute("#item-2 > div > :nth-child(2)", "src") == [
+             "https://example.com/iiif/2/image1/square/350,350/0/default.jpg"
+           ]
   end
 
   test "searching filters results", %{conn: conn} do

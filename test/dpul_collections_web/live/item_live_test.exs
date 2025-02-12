@@ -19,6 +19,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
             "https://example.com/iiif/2/image1",
             "https://example.com/iiif/2/image2"
           ],
+          primary_thumbnail_service_url_s: "https://example.com/iiif/2/image2",
           description_txtm: ["This is a test description"]
         },
         %{
@@ -29,7 +30,8 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           image_service_urls_ss: [
             "https://example.com/iiif/2/image1",
             "https://example.com/iiif/2/image2"
-          ]
+          ],
+          primary_thumbnail_service_url_s: "https://example.com/iiif/2/image1"
         },
         %{
           id: 3,
@@ -39,7 +41,8 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           image_service_urls_ss: [
             "https://example.com/iiif/2/image1",
             "https://example.com/iiif/2/image2"
-          ]
+          ],
+          primary_thumbnail_service_url_s: "https://example.com/iiif/2/image1"
         }
       ],
       active_collection()
@@ -108,10 +111,10 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
              "Download"
            )
 
-    # Large thumbnail renders
+    # Large thumbnail renders using thumbnail service url
     assert view
            |> has_element?(
-             ".primary-thumbnail img[src='https://example.com/iiif/2/image1/full/525,800/0/default.jpg']"
+             ".primary-thumbnail img[src='https://example.com/iiif/2/image2/full/525,800/0/default.jpg']"
            )
 
     assert view
