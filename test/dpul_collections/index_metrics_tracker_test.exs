@@ -2,7 +2,6 @@ defmodule DpulCollections.IndexMetricsTrackerTest do
   alias DpulCollections.IndexingPipeline.IndexMetric
   alias DpulCollections.IndexingPipeline.Figgy.HydrationProducerSource
   alias DpulCollections.IndexMetricsTracker
-  alias Phoenix.ActionClauseError
   use DpulCollections.DataCase
 
   describe "processor_durations/1" do
