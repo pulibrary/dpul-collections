@@ -17,4 +17,11 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
            |> render_submit(%{"q" => "cats"}) ==
              {:error, {:live_redirect, %{kind: :push, to: "/search?q=cats"}}}
   end
+
+  test "header is present",  %{conn: conn} do
+    {:ok, view, _} = live(conn, "/")
+
+    assert view
+    |> has_element?("header")
+  end 
 end
