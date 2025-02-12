@@ -276,7 +276,8 @@ defmodule DpulCollectionsWeb.SearchLive do
         socket.assigns.search_state
         | q: params["q"],
           date_to: params["date-to"],
-          date_from: params["date-from"]
+          date_from: params["date-from"],
+          sort_by: params["sort_by"]
       }
       |> Helpers.clean_params([:page, :per_page])
 
