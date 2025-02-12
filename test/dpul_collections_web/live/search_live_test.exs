@@ -124,6 +124,19 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Enum.empty?()
   end
 
+  test "changing query parameter resets sort_by to default", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/search")
+
+    view |> render_click("sort", %{"sort-by" => "date_asc"})
+    assert_patched(view, "/search?sort_by=date_asc")
+
+    view
+    |> element("#search-form")
+    |> render_submit(%{"q" => "Document"})
+
+    assert_patched(view, "/search?q=Document")
+  end
+
   test "when sorting by date, a nil date always sorts last", %{conn: conn} do
     Solr.add(
       [
