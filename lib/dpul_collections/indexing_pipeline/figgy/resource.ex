@@ -44,24 +44,18 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   end
 
   @spec extract_members(resource :: %__MODULE__{}) :: related_resource_map()
-  defp extract_members(%{:metadata => %{"member_ids" => member_ids}}) do
-    Enum.reduce(member_ids, %{}, &append_related_resource/2)
+  defp extract_members(resource = %{:metadata => %{"member_ids" => _member_ids}}) do
+    # Enum.reduce(member_ids, %{}, &append_related_resource/2)
+    # get just the list of members
+    # turn it into a map of id => FiggyResource
+    IndexingPipeline.get_figgy_members(resource.id)
+    |> Enum.map(fn m -> {m.id, to_map(m)} end)
+    |> Map.new()
   end
 
+  # there are no member_ids
   defp extract_members(_resource) do
     %{}
-  end
-
-  @spec append_related_resource(
-          %{String.t() => resource_id :: String.t()},
-          related_resource_map()
-        ) :: related_resource_map()
-  defp append_related_resource(%{"id" => id}, acc) do
-    acc
-    |> Map.put(
-      id,
-      IndexingPipeline.get_figgy_resource!(id) |> to_map()
-    )
   end
 
   @spec to_map(resource :: %__MODULE__{}) :: map()
