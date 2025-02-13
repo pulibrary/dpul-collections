@@ -208,7 +208,37 @@ defmodule DpulCollections.IndexingPipeline do
   def get_figgy_resource!(id), do: FiggyRepo.get!(Figgy.Resource, id)
 
   @doc """
-  ## Description
+  Gets all members of the given resource from the Figgy Database
+
+  ## Examples
+
+      iex> get_figgy_members(123)
+      [%Figgy.Resource{}, ...]
+
+      iex> get_figgy_members(456)
+      ** []
+
+  """
+  def get_figgy_members(id) do
+    Figgy.Resource
+    |> join(
+      :cross,
+      [resource],
+      id_position in fragment(
+        "jsonb_array_elements(?.metadata->'member_ids') WITH ORDINALITY",
+        resource
+      )
+    )
+    |> join(:left, [resource, id_position, member], member in Figgy.Resource,
+      on: fragment("(?.value->>'id')::UUID", id_position) == member.id
+    )
+    |> select([..., member], member)
+    |> order_by([resource, id_position, member], id_position.ordinality)
+    |> where([resource], resource.id == ^id)
+    |> FiggyRepo.all()
+  end
+
+  @doc """
   Query to return a limited number of figgy resources using the value of a marker tuple.
 
   1. Orders figgy records by updated_at and then id in ascending order
