@@ -22,6 +22,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
           handled_data: map(),
           related_data: related_data()
         }
+  def to_hydration_cache_attrs(resource = %__MODULE__{internal_resource: "DeletionMarker"}) do
+    %{
+      handled_data: resource |> to_map,
+      related_data: %{}
+    }
+  end
+
   def to_hydration_cache_attrs(resource = %__MODULE__{internal_resource: "EphemeraTerm"}) do
     %{
       handled_data: resource |> to_map,
@@ -65,6 +72,15 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   end
 
   @spec to_map(resource :: %__MODULE__{}) :: map()
+  defp to_map(resource = %__MODULE__{internal_resource: "DeletionMarker"}) do
+    %{"resource_id" => [%{"id" => deleted_resource_id}]} = resource.metadata
+
+    resource
+    |> Map.from_struct()
+    |> Map.delete(:__meta__)
+    |> Map.put(:id, deleted_resource_id)
+  end
+
   defp to_map(resource = %__MODULE__{}) do
     resource
     |> Map.from_struct()

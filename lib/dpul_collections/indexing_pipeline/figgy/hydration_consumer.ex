@@ -88,6 +88,26 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     |> Broadway.Message.put_data(message_map)
   end
 
+  def handle_message(
+        _processor,
+        message = %Broadway.Message{
+          data: %{
+            internal_resource: internal_resource
+          }
+        },
+        %{cache_version: _cache_version}
+      )
+      when internal_resource in ["DeletionMarker"] do
+    marker = CacheEntryMarker.from(message)
+
+    message_map =
+      %{marker: marker, incoming_message_data: message.data}
+      |> Map.merge(Figgy.Resource.to_hydration_cache_attrs(message.data))
+
+    message
+    |> Broadway.Message.put_data(message_map)
+  end
+
   # If it's not selected above, ack the message but don't do anything with it.
   def handle_message(_processor, message, _state) do
     message

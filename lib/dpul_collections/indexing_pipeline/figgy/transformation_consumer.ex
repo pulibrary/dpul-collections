@@ -68,6 +68,25 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
     })
   end
 
+  def handle_message(
+        _processor,
+        message = %Broadway.Message{
+          data: hydration_cache_entry = %{data: %{"internal_resource" => internal_resource}}
+        },
+        %{cache_version: _cache_version}
+      )
+      when internal_resource in ["DeletionMarker"] do
+    solr_doc = Figgy.HydrationCacheEntry.to_solr_document(hydration_cache_entry)
+    marker = CacheEntryMarker.from(message)
+
+    message
+    |> Message.put_data(%{
+      marker: marker,
+      incoming_message_data: hydration_cache_entry,
+      handled_data: solr_doc
+    })
+  end
+
   # If it's not matched above, put it in the no-op batcher - we want to ack it
   # but not save it.
   def handle_message(_processor, message, _) do

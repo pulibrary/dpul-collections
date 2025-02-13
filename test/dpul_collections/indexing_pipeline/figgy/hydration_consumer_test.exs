@@ -62,18 +62,32 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         }
       }
 
+      deletion_marker_message = %Broadway.Message{
+        acknowledger: nil,
+        data: %Figgy.Resource{
+          id: "f8f62bdf-9d7b-438f-9870-1793358e5fe1",
+          updated_at: ~U[2025-01-02 19:47:21.726083Z],
+          internal_resource: "DeletionMarker",
+          metadata: %{
+            "resource_id" => [%{"id" => "fc8d345b-6e87-461e-9182-41eaede1fab6"}],
+            "resource_type" => ["EphemeraFolder"]
+          }
+        }
+      }
+
       transformed_messages =
         [
           ephemera_folder_message,
           pending_ephemera_folder_message,
           restricted_ephemera_folder_message,
           ephemera_term_message,
-          scanned_resource_message
+          scanned_resource_message,
+          deletion_marker_message
         ]
         |> Enum.map(&Figgy.HydrationConsumer.handle_message(nil, &1, %{cache_version: 1}))
         |> Enum.map(&Map.get(&1, :batcher))
 
-      assert transformed_messages == [:default, :noop, :noop, :default, :noop]
+      assert transformed_messages == [:default, :noop, :noop, :default, :noop, :default]
     end
   end
 end

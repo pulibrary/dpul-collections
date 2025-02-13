@@ -12,20 +12,23 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     on_exit(fn -> Solr.delete_all(active_collection()) end)
   end
 
-  def wait_for_index_completion() do
+  def wait_for_index_completion(additional_record_count \\ 0) do
     transformation_cache_entries = IndexingPipeline.list_transformation_cache_entries() |> length
     ephemera_folder_count = FiggyTestSupport.ephemera_folder_count()
+    deletion_marker_count = FiggyTestSupport.deletion_marker_count()
+    total_records = ephemera_folder_count + deletion_marker_count + additional_record_count
 
     continue =
-      if transformation_cache_entries == ephemera_folder_count do
+      if transformation_cache_entries == total_records do
         DpulCollections.Solr.commit(active_collection())
 
-        if DpulCollections.Solr.document_count() == transformation_cache_entries do
+        if DpulCollections.Solr.document_count() ==
+             transformation_cache_entries - deletion_marker_count - additional_record_count do
           true
         end
       end
 
-    continue || (:timer.sleep(100) && wait_for_index_completion())
+    continue || (:timer.sleep(100) && wait_for_index_completion(additional_record_count))
   end
 
   def wait_for_solr_version_change(doc = %{"_version_" => version, "id" => id}) do
@@ -39,10 +42,30 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     end
   end
 
+  def index_synthetic_records_for_deletion_markers() do
+    FiggyTestSupport.deletion_markers()
+    |> Enum.map(fn marker ->
+      %{"resource_id" => [%{"id" => id}]} = marker.metadata
+      id
+    end)
+    |> Enum.map(&index_synthetic_record/1)
+  end
+
+  def index_synthetic_record(id) do
+    FiggyTestFixtures.ephemera_folder_resource(id)
+    |> FiggyTestSupport.index_record()
+  end
+
   test "a full pipeline run of all 3 stages, then re-run of each stage" do
     # Start the figgy pipeline in a way that mimics how it is started in
     # dev and prod (slightly simplified)
     cache_version = 1
+
+    # Pre-index records for testing deletes. DeletionMarkers in the test Figgy
+    # database do not have related resources. We need to add the resources so we
+    # can test that they get deleted.
+    synthetic_records = index_synthetic_records_for_deletion_markers()
+    synthetic_record_count = synthetic_records |> length
 
     children = [
       {Figgy.IndexingConsumer,
@@ -66,20 +89,25 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     Supervisor.start_link(children, strategy: :one_for_one, name: DpulCollections.TestSupervisor)
 
     task =
-      Task.async(fn -> wait_for_index_completion() end)
+      Task.async(fn -> wait_for_index_completion(synthetic_record_count) end)
 
     Task.await(task, 15000)
 
-    # the hydrator pulled all ephemera folders and terms
-    entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
+    # the hydrator pulled all ephemera folders, terms, deletion markers
+    entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count) - synthetic_record_count
     assert FiggyTestSupport.total_resource_count() == entry_count
 
-    # the transformer only processes ephemera folders
-    transformation_cache_entry_count = Repo.aggregate(Figgy.TransformationCacheEntry, :count)
-    assert FiggyTestSupport.ephemera_folder_count() == transformation_cache_entry_count
+    # the transformer processes ephemera folders and deletion markers
+    transformation_cache_entry_count =
+      Repo.aggregate(Figgy.TransformationCacheEntry, :count) - synthetic_record_count
 
-    # indexed all the documents
-    assert Solr.document_count() == transformation_cache_entry_count
+    deletion_marker_count = FiggyTestSupport.deletion_marker_count()
+    total_transformed_count = FiggyTestSupport.ephemera_folder_count() + deletion_marker_count
+
+    assert total_transformed_count == transformation_cache_entry_count
+
+    # indexed all the documents and deleted the extra record solr doc
+    assert Solr.document_count() == transformation_cache_entry_count - deletion_marker_count
 
     # Ensure that the processor markers have the correct cache version
     hydration_processor_marker = IndexingPipeline.get_processor_marker!("figgy_hydrator", 1)
@@ -108,7 +136,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # Make sure it got reindexed
     assert latest_document["_version_"] != latest_document_again["_version_"]
     # Make sure we didn't add another one
-    assert Solr.document_count() == transformation_cache_entry_count
+    assert Solr.document_count() == transformation_cache_entry_count - deletion_marker_count
     # transformation entries weren't updated
     transformation_entry_again =
       Repo.get_by(Figgy.TransformationCacheEntry, record_id: latest_document["id"])
