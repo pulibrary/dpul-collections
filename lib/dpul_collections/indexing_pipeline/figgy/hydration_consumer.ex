@@ -38,6 +38,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
       ],
       batchers: [
         default: [batch_size: options[:batch_size]],
+        delete: [batch_size: options[:batch_size]],
         noop: [batch_size: options[:batch_size]]
       ],
       context: %{cache_version: options[:cache_version]}
@@ -106,6 +107,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
     message
     |> Broadway.Message.put_data(message_map)
+    |> Broadway.Message.put_batcher(:delete)
   end
 
   # If it's not selected above, ack the message but don't do anything with it.
@@ -140,6 +142,19 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
   @impl Broadway
   def handle_batch(:default, messages, _batch_info, %{cache_version: cache_version}) do
+    Enum.each(messages, &write_to_hydration_cache(&1, cache_version))
+    messages
+  end
+
+  def handle_batch(:delete, messages, _batch_info, %{cache_version: cache_version}) do
+    # Delete the hydration cache entries for each of the resources to be deleted
+    Enum.each(messages, fn message ->
+      message.data.handled_data.id
+      |> IndexingPipeline.get_hydration_cache_entry!(cache_version)
+      |> IndexingPipeline.delete_hydration_cache_entry()
+    end)
+
+    # Write the deletion marker to the hydration cache
     Enum.each(messages, &write_to_hydration_cache(&1, cache_version))
     messages
   end

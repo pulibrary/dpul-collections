@@ -87,7 +87,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         |> Enum.map(&Figgy.HydrationConsumer.handle_message(nil, &1, %{cache_version: 1}))
         |> Enum.map(&Map.get(&1, :batcher))
 
-      assert transformed_messages == [:default, :noop, :noop, :default, :noop, :default]
+      assert transformed_messages == [:default, :noop, :noop, :default, :noop, :delete]
     end
   end
 end
