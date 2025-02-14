@@ -40,6 +40,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
       ],
       batchers: [
         default: [batch_size: options[:batch_size]],
+        delete: [batch_size: options[:batch_size]],
         noop: [concurrency: 5, batch_size: options[:batch_size]]
       ],
       context: %{cache_version: options[:cache_version]}
@@ -68,6 +69,26 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
     })
   end
 
+  def handle_message(
+        _processor,
+        message = %Broadway.Message{
+          data: hydration_cache_entry = %{data: %{"internal_resource" => internal_resource}}
+        },
+        %{cache_version: _cache_version}
+      )
+      when internal_resource in ["DeletionMarker"] do
+    solr_doc = Figgy.HydrationCacheEntry.to_solr_document(hydration_cache_entry)
+    marker = CacheEntryMarker.from(message)
+
+    message
+    |> Message.put_data(%{
+      marker: marker,
+      incoming_message_data: hydration_cache_entry,
+      handled_data: solr_doc
+    })
+    |> Broadway.Message.put_batcher(:delete)
+  end
+
   # If it's not matched above, put it in the no-op batcher - we want to ack it
   # but not save it.
   def handle_message(_processor, message, _) do
@@ -79,6 +100,19 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
   @spec handle_batch(any(), list(Broadway.Message.t()), any(), any()) ::
           list(Broadway.Message.t())
   def handle_batch(:noop, messages, _, _) do
+    messages
+  end
+
+  def handle_batch(:delete, messages, _batch_info, %{cache_version: cache_version}) do
+    # Delete the hydration cache entries for each of the resources to be deleted
+    Enum.each(messages, fn message ->
+      message.data.handled_data.id
+      |> IndexingPipeline.get_transformation_cache_entry!(cache_version)
+      |> IndexingPipeline.delete_transformation_cache_entry()
+    end)
+
+    # Write the deletion marker to the transformation cache
+    Enum.each(messages, &write_to_transformation_cache(&1, cache_version))
     messages
   end
 

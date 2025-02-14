@@ -1,6 +1,7 @@
 defmodule FiggyTestFixtures do
   alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
   alias DpulCollections.IndexingPipeline
+  alias DpulCollections.IndexingPipeline.Figgy
 
   # These are the first three known resource markers in the test database.
   # They're here so that if they change, we don't have to change them in the
@@ -28,6 +29,23 @@ defmodule FiggyTestFixtures do
   def ephemera_folder_marker do
     FiggyTestSupport.first_ephemera_folder()
     |> CacheEntryMarker.from()
+  end
+
+  def ephemera_folder_resource(id) do
+    %Figgy.Resource{
+      id: id,
+      internal_resource: "EphemeraFolder",
+      metadata: %{
+        "title" => ["Deleted Folder"],
+        "visibility" => ["open"],
+        "downloadable" => ["none"],
+        "read_groups" => ["public"],
+        "member_ids" => [],
+        "state" => ["complete"]
+      },
+      created_at: ~U[2017-03-09 20:19:33.414040Z],
+      updated_at: ~U[2017-03-09 20:19:33.414040Z]
+    }
   end
 
   def hydration_cache_entries(cache_version \\ 0) do

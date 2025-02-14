@@ -58,6 +58,8 @@ defmodule DpulCollections.IndexingPipeline do
     Repo.delete(hydration_cache_entry)
   end
 
+  def delete_hydration_cache_entry(_), do: nil
+
   @doc """
   Writes or updates hydration cache entries.
   """
@@ -347,6 +349,13 @@ defmodule DpulCollections.IndexingPipeline do
   """
   def get_transformation_cache_entry!(id), do: Repo.get!(Figgy.TransformationCacheEntry, id)
 
+  def get_transformation_cache_entry!(record_id, cache_version) do
+    Repo.get_by(Figgy.TransformationCacheEntry,
+      record_id: record_id,
+      cache_version: cache_version
+    )
+  end
+
   @spec get_transformation_cache_entries_since!(
           marker :: CacheEntryMarker.t(),
           count :: integer,
@@ -401,6 +410,8 @@ defmodule DpulCollections.IndexingPipeline do
       ) do
     Repo.delete(transformation_cache_entry)
   end
+
+  def delete_transformation_cache_entry(_), do: nil
 
   @doc """
   Writes or updates transformation cache entries.

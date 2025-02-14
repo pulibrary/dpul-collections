@@ -42,7 +42,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
         default: []
       ],
       batchers: [
-        default: [batch_size: options[:batch_size]]
+        default: [batch_size: options[:batch_size]],
+        delete: [batch_size: options[:batch_size]]
       ],
       context: %{
         cache_version: options[:cache_version],
@@ -55,8 +56,27 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
   # return the message so we can handle it in the batch
   @spec handle_message(any(), Broadway.Message.t(), %{required(:cache_version) => integer()}) ::
           Broadway.Message.t()
+  def handle_message(_processor, %{data: %{data: %{"deleted" => true}}} = message, %{
+        cache_version: _cache_version
+      }) do
+    message
+    |> Broadway.Message.put_batcher(:delete)
+  end
+
   def handle_message(_processor, message, %{cache_version: _cache_version}) do
     message
+  end
+
+  @impl Broadway
+  @spec handle_batch(any(), list(Broadway.Message.t()), any(), any()) ::
+          list(Broadway.Message.t())
+  def handle_batch(:delete, messages, _batch_info, context) do
+    messages
+    |> Enum.map(&unwrap/1)
+    |> Enum.map(& &1["id"])
+    |> Solr.delete_batch(context[:write_collection])
+
+    messages
   end
 
   @impl Broadway
