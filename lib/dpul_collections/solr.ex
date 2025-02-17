@@ -50,12 +50,18 @@ defmodule DpulCollections.Solr do
     |> Enum.join(" ")
   end
 
+  defp date_query(%{}), do: nil
+
   defp date_query(%{date_from: nil, date_to: nil}), do: nil
 
   defp date_query(%{date_from: date_from, date_to: date_to}) do
     from = date_from || "*"
     to = date_to || "*"
     "years_is:[#{from} TO #{to}]"
+  end
+
+  defp sort_param(%{}) do
+    "score desc"
   end
 
   defp sort_param(%{sort_by: sort_by}) do
