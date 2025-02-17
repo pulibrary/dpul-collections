@@ -149,7 +149,7 @@ defmodule DpulCollections.Solr do
     commit(collection)
   end
 
-  @spec delete_batch(list()) ::
+  @spec delete_batch(list(), String.t()) ::
           {:ok, Req.Response.t()} | {:error, Exception.t()} | Exception.t()
   def delete_batch(ids, collection \\ read_collection()) do
     ids

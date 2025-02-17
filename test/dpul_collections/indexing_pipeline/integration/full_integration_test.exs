@@ -42,20 +42,6 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     end
   end
 
-  def index_synthetic_records_for_deletion_markers() do
-    FiggyTestSupport.deletion_markers()
-    |> Enum.map(fn marker ->
-      %{"resource_id" => [%{"id" => id}]} = marker.metadata
-      id
-    end)
-    |> Enum.map(&index_synthetic_record/1)
-  end
-
-  def index_synthetic_record(id) do
-    FiggyTestFixtures.ephemera_folder_resource(id)
-    |> FiggyTestSupport.index_record()
-  end
-
   test "a full pipeline run of all 3 stages, then re-run of each stage" do
     # Start the figgy pipeline in a way that mimics how it is started in
     # dev and prod (slightly simplified)
@@ -64,7 +50,10 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # Pre-index records for testing deletes. DeletionMarkers in the test Figgy
     # database do not have related resources. We need to add the resources so we
     # can test that they get deleted.
-    records_to_be_deleted = index_synthetic_records_for_deletion_markers()
+    records_to_be_deleted =
+      FiggyTestSupport.deletion_markers()
+      |> FiggyTestFixtures.resources_from_deletion_markers()
+      |> Enum.map(&FiggyTestSupport.index_record/1)
 
     children = [
       {Figgy.IndexingConsumer,

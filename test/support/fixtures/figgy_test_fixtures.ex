@@ -31,21 +31,32 @@ defmodule FiggyTestFixtures do
     |> CacheEntryMarker.from()
   end
 
-  def ephemera_folder_resource(id) do
-    %Figgy.Resource{
-      id: id,
-      internal_resource: "EphemeraFolder",
-      metadata: %{
-        "title" => ["Deleted Folder"],
-        "visibility" => ["open"],
-        "downloadable" => ["none"],
-        "read_groups" => ["public"],
-        "member_ids" => [],
-        "state" => ["complete"]
-      },
-      created_at: ~U[2017-03-09 20:19:33.414040Z],
-      updated_at: ~U[2017-03-09 20:19:33.414040Z]
-    }
+  def resources_from_deletion_markers(deletion_markers) do
+    deletion_markers
+    |> Enum.map(fn marker ->
+      %{
+        "resource_id" => [%{"id" => id}],
+        "resource_type" => [resource_type],
+        "deleted_object" => [deleted_object]
+      } = marker.metadata
+
+      %{"title" => title, "created_at" => created_at, "updated_at" => updated_at} = deleted_object
+      {:ok, utc_created_at, _} = DateTime.from_iso8601(created_at)
+      {:ok, utc_updated_at, _} = DateTime.from_iso8601(updated_at)
+
+      %Figgy.Resource{
+        id: id,
+        internal_resource: resource_type,
+        metadata: %{
+          "title" => title,
+          "visibility" => ["open"],
+          "state" => ["complete"],
+          "member_ids" => []
+        },
+        created_at: utc_created_at |> DateTime.add(-365, :day),
+        updated_at: utc_updated_at |> DateTime.add(-365, :day)
+      }
+    end)
   end
 
   def hydration_cache_entries(cache_version \\ 0) do
