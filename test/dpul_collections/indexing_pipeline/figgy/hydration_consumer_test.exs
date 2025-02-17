@@ -62,7 +62,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         }
       }
 
-      deletion_marker_message = %Broadway.Message{
+      ephemera_folder_deletion_marker_message = %Broadway.Message{
         acknowledger: nil,
         data: %Figgy.Resource{
           id: "f8f62bdf-9d7b-438f-9870-1793358e5fe1",
@@ -75,6 +75,19 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         }
       }
 
+      file_set_deletion_marker_message = %Broadway.Message{
+        acknowledger: nil,
+        data: %Figgy.Resource{
+          id: "9773417d-1c36-4692-bf81-f387be688460",
+          updated_at: ~U[2025-01-02 19:47:21.726083Z],
+          internal_resource: "DeletionMarker",
+          metadata: %{
+            "resource_id" => [%{"id" => "a521113e-e77a-4000-b00a-17c09b3aa757"}],
+            "resource_type" => ["FileSet"]
+          }
+        }
+      }
+
       transformed_messages =
         [
           ephemera_folder_message,
@@ -82,12 +95,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           restricted_ephemera_folder_message,
           ephemera_term_message,
           scanned_resource_message,
-          deletion_marker_message
+          ephemera_folder_deletion_marker_message,
+          file_set_deletion_marker_message
         ]
         |> Enum.map(&Figgy.HydrationConsumer.handle_message(nil, &1, %{cache_version: 1}))
         |> Enum.map(&Map.get(&1, :batcher))
 
-      assert transformed_messages == [:default, :noop, :noop, :default, :noop, :delete]
+      assert transformed_messages == [:default, :noop, :noop, :default, :noop, :delete, :noop]
     end
   end
 end

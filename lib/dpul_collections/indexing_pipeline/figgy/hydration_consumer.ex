@@ -93,12 +93,16 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         _processor,
         message = %Broadway.Message{
           data: %{
-            internal_resource: internal_resource
+            internal_resource: internal_resource,
+            metadata: %{
+              "resource_type" => [resource_type]
+            }
           }
         },
         %{cache_version: _cache_version}
       )
-      when internal_resource in ["DeletionMarker"] do
+      when internal_resource in ["DeletionMarker"] and
+             resource_type in ["EphemeraFolder", "EphemeraTerm"] do
     marker = CacheEntryMarker.from(message)
 
     message_map =
