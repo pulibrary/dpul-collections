@@ -2,7 +2,6 @@ defmodule DpulCollectionsWeb.BrowseLive do
   use DpulCollectionsWeb, :live_view
   import DpulCollectionsWeb.Gettext
   alias DpulCollections.{Item, Solr}
-  alias DpulCollectionsWeb.Live.Helpers
 
   def mount(_params, _session, socket) do
     {:ok, socket}
@@ -53,7 +52,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
         <.thumb :if={@item.page_count} thumb={thumbnail_service_url(@item)} />
       </div>
       <h2 class="underline text-2xl font-bold pt-4">
-        <.link navigate={@item.url}><%= @item.title %></.link>
+        <.link navigate={@item.url} class="item-link"><%= @item.title %></.link>
       </h2>
       <div class="text-xl"><%= @item.date %></div>
     </div>
