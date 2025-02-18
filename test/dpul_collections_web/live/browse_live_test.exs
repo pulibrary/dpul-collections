@@ -41,7 +41,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     assert initial_order != new_order
   end
 
-  test "doesn't error when there's a page count but no thumbnail", %{conn: conn} do
+  test "renders a link when there's a page count but no thumbnail", %{conn: conn} do
     Solr.add(
       [
         %{
@@ -61,7 +61,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     |> has_element?(".item-link")
   end
 
-  test "doesn't error when page count is zero and there's no thumbnail", %{conn: conn} do
+  test "renders a link when page count is zero and there's no thumbnail", %{conn: conn} do
     Solr.add(
       [
         %{
