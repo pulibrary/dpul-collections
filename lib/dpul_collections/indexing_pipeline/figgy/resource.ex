@@ -76,6 +76,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     %{"resource_id" => [%{"id" => deleted_resource_id}], "resource_type" => [resource_type]} =
       resource.metadata
 
+    # Create attributes specifically for deletion markers.
+    # 1. Replace existing metadata with a simple deleted => true kv pair
+    # 2. Set the entry id to the deleted resource's id
+    # 3. Set the entry internal_resource type to that of the deleted resource
     resource
     |> Map.from_struct()
     |> Map.delete(:__meta__)

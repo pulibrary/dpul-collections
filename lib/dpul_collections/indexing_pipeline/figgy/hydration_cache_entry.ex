@@ -27,6 +27,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
           "metadata" => %{"deleted" => true}
         }
       }) do
+    # Generate a small json document for deleted resources that indicates that
+    # the Solr record with that id should be deleted from the index.
     %{
       id: id,
       deleted: true
