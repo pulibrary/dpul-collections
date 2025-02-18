@@ -36,10 +36,22 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     }
   end
 
-  def to_hydration_cache_attrs(resource = %__MODULE__{internal_resource: "EphemeraFolder"}) do
+  def to_hydration_cache_attrs(
+        resource = %__MODULE__{
+          internal_resource: "EphemeraFolder",
+          metadata: %{"state" => ["complete"], "visibility" => ["open"]}
+        }
+      ) do
     %{
       handled_data: resource |> to_map,
       related_data: extract_related_data(resource)
+    }
+  end
+
+  def to_hydration_cache_attrs(resource = %__MODULE__{internal_resource: "EphemeraFolder"}) do
+    %{
+      handled_data: resource |> to_deleted_map,
+      related_data: %{}
     }
   end
 
@@ -76,15 +88,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     %{"resource_id" => [%{"id" => deleted_resource_id}], "resource_type" => [resource_type]} =
       resource.metadata
 
-    # Create attributes specifically for deletion markers.
+    # Create attributes specifically for DeletionMarkers
     # 1. Replace existing metadata with a simple deleted => true kv pair
     # 2. Set the entry id to the deleted resource's id
     # 3. Set the entry internal_resource type to that of the deleted resource
     resource
-    |> Map.from_struct()
-    |> Map.delete(:__meta__)
-    |> Map.delete(:metadata)
-    |> Map.put(:metadata, %{"deleted" => true})
+    |> to_deleted_map
     |> Map.put(:id, deleted_resource_id)
     |> Map.put(:internal_resource, resource_type)
   end
@@ -93,5 +102,16 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     resource
     |> Map.from_struct()
     |> Map.delete(:__meta__)
+  end
+
+  @spec to_deleted_map(resource :: %__MODULE__{}) :: map()
+  defp to_deleted_map(resource = %__MODULE__{}) do
+    # Create attributes specifically for resources that need to be deleted
+    # 1. Replace existing metadata with a simple deleted => true kv pair
+    resource
+    |> Map.from_struct()
+    |> Map.delete(:__meta__)
+    |> Map.delete(:metadata)
+    |> Map.put(:metadata, %{"deleted" => true})
   end
 end
