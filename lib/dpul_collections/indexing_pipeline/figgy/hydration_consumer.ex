@@ -68,6 +68,40 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     |> Broadway.Message.put_data(message_map)
   end
 
+  @impl Broadway
+  # Check if EphemeraFolders records that are not complete or open have an entry
+  # in the hydration cache. If so, pass through message so the entry can be deleted.
+  # Otherwise, send the message to noop.
+  def handle_message(
+        _processor,
+        message = %Broadway.Message{
+          data: %{
+            id: id,
+            internal_resource: internal_resource
+          }
+        },
+        %{cache_version: cache_version}
+      )
+      when internal_resource in ["EphemeraFolder"] do
+    resource = IndexingPipeline.get_hydration_cache_entry!(id, cache_version)
+
+    cond do
+      resource ->
+        marker = CacheEntryMarker.from(message)
+
+        message_map =
+          %{marker: marker, incoming_message_data: message.data}
+          |> Map.merge(Figgy.Resource.to_hydration_cache_attrs(message.data))
+
+        message
+        |> Broadway.Message.put_data(message_map)
+
+      true ->
+        message
+        |> Broadway.Message.put_batcher(:noop)
+    end
+  end
+
   def handle_message(
         _processor,
         message = %Broadway.Message{

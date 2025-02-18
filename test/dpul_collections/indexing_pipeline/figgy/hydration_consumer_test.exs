@@ -187,5 +187,120 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
       assert hydration_cache_entry.data["id"] == ephemera_folder_message.data.id
       assert hydration_cache_entry.data["metadata"]["deleted"] == true
     end
+
+    # ****
+
+    test "handle_batch/3 deletes EphemeraFolders when their state or visibility change" do
+      ephemera_folder_message_1 = %Broadway.Message{
+        acknowledger: nil,
+        data: %Figgy.Resource{
+          id: "47276197-e223-471c-99d7-405c5f6c5285",
+          updated_at: ~U[2018-03-09 20:19:34.486004Z],
+          internal_resource: "EphemeraFolder",
+          metadata: %{
+            "state" => ["complete"],
+            "visibility" => ["open"]
+          }
+        }
+      }
+
+      ephemera_folder_message_2 = %Broadway.Message{
+        acknowledger: nil,
+        data: %Figgy.Resource{
+          id: "2408ec35-cc34-471a-acd8-3c2631e72754",
+          updated_at: ~U[2020-03-09 20:19:34.486004Z],
+          internal_resource: "EphemeraFolder",
+          metadata: %{
+            "state" => ["complete"],
+            "visibility" => ["open"]
+          }
+        }
+      }
+
+      updated_visibility_ephemera_folder_message = %Broadway.Message{
+        acknowledger: nil,
+        data: %Figgy.Resource{
+          id: "47276197-e223-471c-99d7-405c5f6c5285",
+          updated_at: ~U[2018-03-09 20:19:34.486004Z],
+          internal_resource: "EphemeraFolder",
+          metadata: %{
+            "state" => ["complete"],
+            "visibility" => ["private"]
+          }
+        }
+      }
+
+      updated_state_ephemera_folder_message = %Broadway.Message{
+        acknowledger: nil,
+        data: %Figgy.Resource{
+          id: "2408ec35-cc34-471a-acd8-3c2631e72754",
+          updated_at: ~U[2020-03-09 20:19:34.486004Z],
+          internal_resource: "EphemeraFolder",
+          metadata: %{
+            "state" => ["pending"],
+            "visibility" => ["open"]
+          }
+        }
+      }
+
+      new_ephemera_folder_message = %Broadway.Message{
+        acknowledger: nil,
+        data: %Figgy.Resource{
+          id: "60dfde9c-62c0-49ec-b5a4-1c8807ad03f0",
+          updated_at: ~U[2019-03-09 20:19:34.486004Z],
+          internal_resource: "EphemeraFolder",
+          metadata: %{
+            "state" => ["complete"],
+            "visibility" => ["private"]
+          }
+        }
+      }
+
+      # Create a hydration cache entry from ephemera folder messages
+      create_messages =
+        [ephemera_folder_message_1, ephemera_folder_message_2]
+        |> Enum.map(&Figgy.HydrationConsumer.handle_message(nil, &1, %{cache_version: 1}))
+
+      Figgy.HydrationConsumer.handle_batch(:default, create_messages, nil, %{cache_version: 1})
+
+      # Process updated ephemera folder messages
+      messages =
+        [
+          updated_visibility_ephemera_folder_message,
+          updated_state_ephemera_folder_message,
+          new_ephemera_folder_message
+        ]
+        |> Enum.map(&Figgy.HydrationConsumer.handle_message(nil, &1, %{cache_version: 1}))
+
+      # Only the updated ephemera folders are handled by the default batcher.
+      # The new private ephemera folder is sent to noop.
+      batchers = messages |> Enum.map(&Map.get(&1, :batcher))
+      assert batchers == [:default, :default, :noop]
+
+      # Send the two messages with corresponding resources to the default batch handler.
+      Figgy.HydrationConsumer.handle_batch(:default, messages |> Enum.take(2), nil, %{
+        cache_version: 1
+      })
+
+      # A transformed hydration cache entry is created which replaces an
+      # existing ephemera folder's hydration cache entry. It's metadata field
+      # only has the value `deleted` set to true. This signals the
+      # transformation consumer to create a transformation cache entry with a
+      # solr record that indicates it should be deleted from the index.
+      hydration_cache_entries = IndexingPipeline.list_hydration_cache_entries()
+      assert hydration_cache_entries |> length == 2
+
+      hydration_cache_entry = hydration_cache_entries |> hd
+      assert hydration_cache_entry.data["internal_resource"] == "EphemeraFolder"
+      assert hydration_cache_entry.record_id == ephemera_folder_message_1.data.id
+      assert hydration_cache_entry.data["id"] == ephemera_folder_message_1.data.id
+      assert hydration_cache_entry.data["metadata"]["deleted"] == true
+
+      hydration_cache_entry = hydration_cache_entries |> List.last()
+      assert hydration_cache_entry.data["internal_resource"] == "EphemeraFolder"
+      assert hydration_cache_entry.record_id == ephemera_folder_message_2.data.id
+      assert hydration_cache_entry.data["id"] == ephemera_folder_message_2.data.id
+      assert hydration_cache_entry.data["metadata"]["deleted"] == true
+    end
   end
 end
