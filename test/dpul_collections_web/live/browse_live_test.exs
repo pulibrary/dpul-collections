@@ -60,4 +60,24 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     view
     |> has_element?(".item-link")
   end
+
+  test "doesn't error when page count is zero and there's no thumbnail", %{conn: conn} do
+    Solr.add(
+      [
+        %{
+          id: "n",
+          title_txtm: "Document-n",
+          page_count_i: 0
+        }
+      ],
+      active_collection()
+    )
+
+    Solr.commit(active_collection())
+
+    {:ok, view, html} = live(conn, "/browse?r=0")
+
+    view
+    |> has_element?(".item-link")
+  end
 end

@@ -49,7 +49,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
     ~H"""
     <div id={"item-#{@item.id}"} class="item">
       <div class="flex flex-wrap gap-5 md:max-h-60 max-h-[22rem] overflow-hidden justify-center md:justify-start relative">
-        <.thumb :if={@item.page_count} thumb={thumbnail_service_url(@item)} />
+        <.thumb :if={@item.page_count > 0} thumb={thumbnail_service_url(@item)} />
       </div>
       <h2 class="underline text-2xl font-bold pt-4">
         <.link navigate={@item.url} class="item-link"><%= @item.title %></.link>
