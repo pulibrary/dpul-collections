@@ -18,6 +18,10 @@ executors:
       - image: pulibrary/ci-solr:8.4-v1.0.0
         command: server/scripts/ci-start.sh
     working_directory: ~/project
+  formatter:
+    docker:
+      - image: cimg/elixir:1.17.2-erlang-26.2.1-browsers
+    working_directory: ~/project
 
 commands:
   install-deps:
@@ -83,7 +87,7 @@ commands:
 
 jobs:
   check-formatting:
-    executor: builder
+    executor: formatter
     steps:
       - checkout
       - install-deps:
