@@ -94,22 +94,32 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
           data: %{
             internal_resource: internal_resource,
             metadata: %{
+              "resource_id" => [%{"id" => resource_id}],
               "resource_type" => [resource_type]
             }
           }
         },
-        %{cache_version: _cache_version}
+        %{cache_version: cache_version}
       )
       when internal_resource in ["DeletionMarker"] and
              resource_type in ["EphemeraFolder", "EphemeraTerm"] do
-    marker = CacheEntryMarker.from(message)
+    resource = IndexingPipeline.get_hydration_cache_entry!(resource_id, cache_version)
 
-    message_map =
-      %{marker: marker, incoming_message_data: message.data}
-      |> Map.merge(Figgy.Resource.to_hydration_cache_attrs(message.data))
+    cond do
+      resource ->
+        marker = CacheEntryMarker.from(message)
 
-    message
-    |> Broadway.Message.put_data(message_map)
+        message_map =
+          %{marker: marker, incoming_message_data: message.data}
+          |> Map.merge(Figgy.Resource.to_hydration_cache_attrs(message.data))
+
+        message
+        |> Broadway.Message.put_data(message_map)
+
+      true ->
+        message
+        |> Broadway.Message.put_batcher(:noop)
+    end
   end
 
   # If it's not selected above, ack the message but don't do anything with it.
