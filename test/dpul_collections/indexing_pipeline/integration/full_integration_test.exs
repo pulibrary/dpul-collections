@@ -15,15 +15,20 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
   def wait_for_index_completion() do
     transformation_cache_entries = IndexingPipeline.list_transformation_cache_entries() |> length
     ephemera_folder_count = FiggyTestSupport.ephemera_folder_count()
-    deletion_marker_count = FiggyTestSupport.deletion_marker_count()
-    total_records = ephemera_folder_count + deletion_marker_count
+
+    # Count of resources to be deleted. In this test there is one added per
+    # DeletionMarker. A transformation cache entry with the key `deleted: true`
+    # stays in the transformation cache so the total number of records must take
+    # this into account.
+    deleted_resource_count = FiggyTestSupport.deletion_marker_count()
+    total_records = ephemera_folder_count + deleted_resource_count
 
     continue =
       if transformation_cache_entries == total_records do
         DpulCollections.Solr.commit(active_collection())
 
         if DpulCollections.Solr.document_count() ==
-             transformation_cache_entries - deletion_marker_count do
+             transformation_cache_entries - deleted_resource_count do
           true
         end
       end

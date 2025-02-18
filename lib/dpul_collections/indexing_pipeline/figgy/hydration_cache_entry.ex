@@ -22,12 +22,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
 
   @spec to_solr_document(%__MODULE__{}) :: %{}
   def to_solr_document(%{
+        record_id: id,
         data: %{
-          "internal_resource" => internal_resource,
-          "metadata" => %{"resource_id" => [%{"id" => id}]}
+          "metadata" => %{"deleted" => true}
         }
-      })
-      when internal_resource in ["DeletionMarker"] do
+      }) do
     %{
       id: id,
       deleted: true
