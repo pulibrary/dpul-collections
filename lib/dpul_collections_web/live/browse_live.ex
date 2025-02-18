@@ -73,7 +73,15 @@ defmodule DpulCollectionsWeb.BrowseLive do
     """
   end
 
-  defp thumbnail_service_url(item) do
-    item.primary_thumbnail_service_url || item.image_service_urls |> hd
+  defp thumbnail_service_url(%{primary_thumbnail_service_url: thumbnail_url})
+       when is_binary(thumbnail_url) do
+    thumbnail_url
   end
+
+  defp thumbnail_service_url(%{image_service_urls: [url | _]}) do
+    url
+  end
+
+  # TODO: default image?
+  defp thumbnail_service_url(_), do: ""
 end

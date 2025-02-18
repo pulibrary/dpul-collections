@@ -40,4 +40,24 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
 
     assert initial_order != new_order
   end
+
+  test "doesn't error when there's a page count but no thumbnail", %{conn: conn} do
+    Solr.add(
+      [
+        %{
+          id: "n",
+          title_txtm: "Document-n",
+          page_count_i: 3
+        }
+      ],
+      active_collection()
+    )
+
+    Solr.commit(active_collection())
+
+    {:ok, view, html} = live(conn, "/browse?r=0")
+
+    view
+    |> has_element?(".item-link")
+  end
 end
