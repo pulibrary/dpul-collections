@@ -138,6 +138,14 @@ defmodule DpulCollections.Solr do
     )
   end
 
+  @spec soft_commit(String.t()) :: {:ok, Req.Response.t()} | {:error, Exception.t()}
+  def soft_commit(collection \\ read_collection()) do
+    Req.get(
+      update_url(collection),
+      params: [commit: true, softCommit: true]
+    )
+  end
+
   @spec delete_all(String.t()) ::
           {:ok, Req.Response.t()} | {:error, Exception.t()} | Exception.t()
   def delete_all(collection \\ read_collection()) do
@@ -160,7 +168,7 @@ defmodule DpulCollections.Solr do
       )
     end)
 
-    commit(collection)
+    soft_commit(collection)
   end
 
   defp select_url(collection) do
