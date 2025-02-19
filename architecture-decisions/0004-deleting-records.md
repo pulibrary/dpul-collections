@@ -34,8 +34,7 @@ DeletionMarker if not.
 
 #### Transformation Consumer
 
-1. Messages with the deleted => kv pair are handled separately.
-1.A special solr document is generated from the deleted object hydration cache
+1. A special solr document is generated from the deleted object hydration cache
 entry with the following structure.
   ```
     %{ id: "id", deleted: true }
@@ -47,7 +46,9 @@ entry with the following structure.
    the `delete` batcher.
 1. The delete batcher sends the deleted record ids to a the Solr.delete_batch
    function which iterates over them, deletes each record, and then commits the
-   batch of deletes.
+   batch of deletes. The additional batcher doesn't create a potential race
+   condition because there is only one entry for the resource earlier in the
+   pipeline.
 
 ## Consequences
 
@@ -56,5 +57,4 @@ restored. This means that DPUL-C will have to triage an ever increasing number
 over time.
 
 - Deleted resource hydration and transformation cache entries will stay in the 
-cache after the resource is remove from Solr until the next full reindex, or in
-the case of the transformation cache, partial reindex.
+cache after the resource is remove from Solr until the next full reindex.
