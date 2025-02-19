@@ -69,6 +69,14 @@ defmodule DpulCollectionsWeb do
     end
   end
 
+  def live_isolated_component do
+    quote do
+      use Phoenix.LiveIsolatedComponent
+
+      unquote(html_helpers())
+    end
+  end
+
   def html do
     quote do
       use Phoenix.Component

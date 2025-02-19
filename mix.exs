@@ -73,7 +73,8 @@ defmodule DpulCollections.MixProject do
       {:broadway, "~> 1.0"},
       {:ex_doc, "~> 0.21", only: :dev, runtime: false},
       {:req, "~> 0.5.0"},
-      {:broadway_dashboard, "~> 0.4.0"}
+      {:broadway_dashboard, "~> 0.4.0"},
+      {:live_isolated_component, "~> 0.8.0", only: :test}
     ]
   end
 

@@ -1,6 +1,7 @@
 defmodule DpulCollectionsWeb.HeaderComponentTest do
   use DpulCollectionsWeb.ConnCase
   import Phoenix.LiveViewTest
+  import LiveIsolatedComponent
   @endpoint DpulCollectionsWeb.Endpoint
 
 
@@ -20,18 +21,18 @@ defmodule DpulCollectionsWeb.HeaderComponentTest do
   # so the way to test this is to modify the component to use 
   # phx-click with LiveView state changes (assigns) that can be tested
 
-  # test "clicking the button toggles dropdown visibility", %{conn: conn} do
-  #   {:ok, view, _html} = live(conn, ~p"/")
+  test "clicking the button toggles dropdown visibility" do
+    {:ok, view, _html} = live_isolated_component(DpulCollectionsWeb.HeaderComponent)
 
-  #   assert has_element?(view, "#dropdownMenu[aria-hidden='true']")
+    assert has_element?(view, "#dropdownMenu[aria-hidden='true']")
 
-  #   view |> element("#dropdownButton") |> render_click()
+    view |> element("#dropdownButton") |> render_click()
 
-  #   assert has_element?(view, "#dropdownMenu[aria-hidden='false']")
+    assert has_element?(view, "#dropdownMenu[aria-hidden='false']")
 
-  #   view |> element("#dropdownButton") |> render_click()
+    view |> element("#dropdownButton") |> render_click()
 
-  #   assert has_element?(view, "#dropdownMenu[aria-hidden='true']")
-  # end
+    assert has_element?(view, "#dropdownMenu[aria-hidden='true']")
+  end
 
 end
