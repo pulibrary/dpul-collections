@@ -29,6 +29,16 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker do
   end
 
   @spec from(%Resource{}) :: t()
+  def from(%Resource{
+        updated_at: updated_at,
+        internal_resource: "DeletionMarker",
+        metadata: %{"resource_id" => [%{"id" => id}]}
+      }) do
+    # A CacheMarker for a DeletionMarker resource has a standard timestamp, but
+    # the id is set from the deleted resource id.
+    %__MODULE__{timestamp: updated_at, id: id}
+  end
+
   def from(%Resource{updated_at: updated_at, id: id}) do
     %__MODULE__{timestamp: updated_at, id: id}
   end

@@ -21,10 +21,25 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   end
 
   @spec to_solr_document(%__MODULE__{}) :: %{}
-  def to_solr_document(hydration_cache_entry) do
-    %{record_id: id} = hydration_cache_entry
-    %{data: data = %{"metadata" => metadata}, related_data: related_data} = hydration_cache_entry
+  def to_solr_document(%{
+        record_id: id,
+        data: %{
+          "metadata" => %{"deleted" => true}
+        }
+      }) do
+    # Generate a small json document for deleted resources that indicates that
+    # the Solr record with that id should be deleted from the index.
+    %{
+      id: id,
+      deleted: true
+    }
+  end
 
+  def to_solr_document(%{
+        record_id: id,
+        data: data = %{"metadata" => metadata},
+        related_data: related_data
+      }) do
     %{
       id: id,
       title_txtm: extract_title(metadata),

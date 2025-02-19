@@ -9,7 +9,9 @@ defmodule FiggyTestSupport do
   def total_resource_count do
     query =
       from r in Figgy.Resource,
-        where: r.internal_resource == "EphemeraFolder" or r.internal_resource == "EphemeraTerm"
+        where:
+          r.internal_resource == "EphemeraFolder" or r.internal_resource == "EphemeraTerm" or
+            r.internal_resource == "DeletionMarker"
 
     FiggyRepo.aggregate(query, :count)
   end
@@ -29,6 +31,51 @@ defmodule FiggyTestSupport do
         where: r.internal_resource == "EphemeraFolder"
 
     FiggyRepo.aggregate(query, :count)
+  end
+
+  def deletion_marker_count do
+    query =
+      from r in Figgy.Resource,
+        where: r.internal_resource == "DeletionMarker"
+
+    FiggyRepo.aggregate(query, :count)
+  end
+
+  def deletion_markers do
+    query =
+      from r in Figgy.Resource,
+        where: r.internal_resource == "DeletionMarker"
+
+    FiggyRepo.all(query)
+  end
+
+  def index_record(record, cache_version \\ 1) do
+    # Write a current hydration marker right before that marker.
+    marker = IndexingPipeline.DatabaseProducer.CacheEntryMarker.from(record)
+    cache_attrs = Figgy.Resource.to_hydration_cache_attrs(record)
+
+    {:ok, cache_entry} =
+      IndexingPipeline.write_hydration_cache_entry(%{
+        cache_version: cache_version,
+        record_id: marker.id,
+        source_cache_order: marker.timestamp,
+        data: cache_attrs.handled_data
+      })
+
+    hydration_cache_entry = IndexingPipeline.get_hydration_cache_entry!(cache_entry.id)
+    solr_doc = Figgy.HydrationCacheEntry.to_solr_document(hydration_cache_entry)
+
+    IndexingPipeline.write_transformation_cache_entry(%{
+      cache_version: cache_version,
+      record_id: hydration_cache_entry |> Map.get(:record_id),
+      source_cache_order: hydration_cache_entry |> Map.get(:cache_order),
+      data: solr_doc
+    })
+
+    Solr.add(solr_doc)
+    Solr.commit()
+
+    solr_doc
   end
 
   def index_record_id(id) do
