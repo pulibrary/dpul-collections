@@ -73,20 +73,19 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
 
   @spec to_map(resource :: %__MODULE__{}) :: map()
   defp to_map(resource = %__MODULE__{internal_resource: "DeletionMarker"}) do
-    %{"resource_id" => [%{"id" => deleted_resource_id}], "resource_type" => [resource_type]} =
-      resource.metadata
+    %{
+      "resource_id" => [%{"id" => deleted_resource_id}],
+      "resource_type" => [deleted_resource_type]
+    } = resource.metadata
 
-    # Create attributes specifically for deletion markers.
-    # 1. Replace existing metadata with a simple deleted => true kv pair
-    # 2. Set the entry id to the deleted resource's id
-    # 3. Set the entry internal_resource type to that of the deleted resource
-    resource
-    |> Map.from_struct()
-    |> Map.delete(:__meta__)
-    |> Map.delete(:metadata)
-    |> Map.put(:metadata, %{"deleted" => true})
-    |> Map.put(:id, deleted_resource_id)
-    |> Map.put(:internal_resource, resource_type)
+    %{
+      id: deleted_resource_id,
+      internal_resource: deleted_resource_type,
+      lock_version: resource.lock_version,
+      created_at: resource.created_at,
+      updated_at: resource.updated_at,
+      metadata: %{"deleted" => true}
+    }
   end
 
   defp to_map(resource = %__MODULE__{}) do

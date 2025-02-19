@@ -103,7 +103,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
       )
       when internal_resource in ["DeletionMarker"] and
              resource_type in ["EphemeraFolder", "EphemeraTerm"] do
-    # Only process messages where the deleted resource has an exisiting
+    # Only process messages where the deleted resource has an existing
     # hydration cache entry. If one does not exist, it means that the resource
     # has not been indexed into DPUL-C.
     resource = IndexingPipeline.get_hydration_cache_entry!(resource_id, cache_version)
