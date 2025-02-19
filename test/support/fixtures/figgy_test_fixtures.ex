@@ -1,6 +1,7 @@
 defmodule FiggyTestFixtures do
   alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
   alias DpulCollections.IndexingPipeline
+  alias DpulCollections.IndexingPipeline.Figgy
 
   # These are the first three known resource markers in the test database.
   # They're here so that if they change, we don't have to change them in the
@@ -28,6 +29,34 @@ defmodule FiggyTestFixtures do
   def ephemera_folder_marker do
     FiggyTestSupport.first_ephemera_folder()
     |> CacheEntryMarker.from()
+  end
+
+  def resources_from_deletion_markers(deletion_markers) do
+    deletion_markers
+    |> Enum.map(fn marker ->
+      %{
+        "resource_id" => [%{"id" => id}],
+        "resource_type" => [resource_type],
+        "deleted_object" => [deleted_object]
+      } = marker.metadata
+
+      %{"title" => title, "created_at" => created_at, "updated_at" => updated_at} = deleted_object
+      {:ok, utc_created_at, _} = DateTime.from_iso8601(created_at)
+      {:ok, utc_updated_at, _} = DateTime.from_iso8601(updated_at)
+
+      %Figgy.Resource{
+        id: id,
+        internal_resource: resource_type,
+        metadata: %{
+          "title" => title,
+          "visibility" => ["open"],
+          "state" => ["complete"],
+          "member_ids" => []
+        },
+        created_at: utc_created_at |> DateTime.add(-365, :day),
+        updated_at: utc_updated_at |> DateTime.add(-365, :day)
+      }
+    end)
   end
 
   def hydration_cache_entries(cache_version \\ 0) do

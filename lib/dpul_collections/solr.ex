@@ -167,6 +167,20 @@ defmodule DpulCollections.Solr do
     commit(collection)
   end
 
+  @spec delete_batch(list(), String.t()) ::
+          {:ok, Req.Response.t()} | {:error, Exception.t()} | Exception.t()
+  def delete_batch(ids, collection \\ read_collection()) do
+    ids
+    |> Enum.each(fn id ->
+      Req.post!(
+        update_url(collection),
+        json: %{delete: %{query: "id:#{id}"}}
+      )
+    end)
+
+    commit(collection)
+  end
+
   defp select_url(collection) do
     client()
     |> Req.merge(url: "/solr/#{collection}/select")

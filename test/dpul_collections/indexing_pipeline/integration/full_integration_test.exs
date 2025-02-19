@@ -16,11 +16,19 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     transformation_cache_entries = IndexingPipeline.list_transformation_cache_entries() |> length
     ephemera_folder_count = FiggyTestSupport.ephemera_folder_count()
 
+    # Count of resources to be deleted. In this test there is one added per
+    # DeletionMarker. A transformation cache entry with the key `deleted: true`
+    # stays in the transformation cache so the total number of records must take
+    # this into account.
+    deleted_resource_count = FiggyTestSupport.deletion_marker_count()
+    total_records = ephemera_folder_count + deleted_resource_count
+
     continue =
-      if transformation_cache_entries == ephemera_folder_count do
+      if transformation_cache_entries == total_records do
         DpulCollections.Solr.commit(active_collection())
 
-        if DpulCollections.Solr.document_count() == transformation_cache_entries do
+        if DpulCollections.Solr.document_count() ==
+             transformation_cache_entries - deleted_resource_count do
           true
         end
       end
@@ -43,6 +51,14 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # Start the figgy pipeline in a way that mimics how it is started in
     # dev and prod (slightly simplified)
     cache_version = 1
+
+    # Pre-index records for testing deletes. DeletionMarkers in the test Figgy
+    # database do not have related resources. We need to add the resources so we
+    # can test that they get deleted.
+    records_to_be_deleted =
+      FiggyTestSupport.deletion_markers()
+      |> FiggyTestFixtures.resources_from_deletion_markers()
+      |> Enum.map(&FiggyTestSupport.index_record/1)
 
     children = [
       {Figgy.IndexingConsumer,
@@ -70,16 +86,27 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     Task.await(task, 15000)
 
-    # the hydrator pulled all ephemera folders and terms
+    # The hydrator pulled all ephemera folders, terms, deletion markers and
+    # removed the hydration cache markers for the deletion marker deleted resource.
     entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
     assert FiggyTestSupport.total_resource_count() == entry_count
 
-    # the transformer only processes ephemera folders
+    # The transformer processed ephemera folders and deletion markers
+    # removed the transformation cache markers for the deletion marker deleted resource.
     transformation_cache_entry_count = Repo.aggregate(Figgy.TransformationCacheEntry, :count)
-    assert FiggyTestSupport.ephemera_folder_count() == transformation_cache_entry_count
 
-    # indexed all the documents
-    assert Solr.document_count() == transformation_cache_entry_count
+    deletion_marker_count = FiggyTestSupport.deletion_marker_count()
+    total_transformed_count = FiggyTestSupport.ephemera_folder_count() + deletion_marker_count
+
+    assert total_transformed_count == transformation_cache_entry_count
+
+    # indexed all the documents and deleted the extra record solr doc
+    assert Solr.document_count() == transformation_cache_entry_count - deletion_marker_count
+
+    # Ensure that deleted records from deletion markers are removed from Solr
+    Enum.each(records_to_be_deleted, fn record ->
+      assert Solr.find_by_id(record[:id]) == nil
+    end)
 
     # Ensure that the processor markers have the correct cache version
     hydration_processor_marker = IndexingPipeline.get_processor_marker!("figgy_hydrator", 1)
@@ -108,7 +135,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # Make sure it got reindexed
     assert latest_document["_version_"] != latest_document_again["_version_"]
     # Make sure we didn't add another one
-    assert Solr.document_count() == transformation_cache_entry_count
+    assert Solr.document_count() == transformation_cache_entry_count - deletion_marker_count
     # transformation entries weren't updated
     transformation_entry_again =
       Repo.get_by(Figgy.TransformationCacheEntry, record_id: latest_document["id"])
