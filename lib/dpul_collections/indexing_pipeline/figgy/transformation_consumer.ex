@@ -52,24 +52,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
   def handle_message(
         _processor,
         message = %Broadway.Message{
-          data: hydration_cache_entry = %{data: %{"metadata" => %{"deleted" => true}}}
-        },
-        %{cache_version: _cache_version}
-      ) do
-    solr_doc = Figgy.HydrationCacheEntry.to_solr_document(hydration_cache_entry)
-    marker = CacheEntryMarker.from(message)
-
-    message
-    |> Message.put_data(%{
-      marker: marker,
-      incoming_message_data: hydration_cache_entry,
-      handled_data: solr_doc
-    })
-  end
-
-  def handle_message(
-        _processor,
-        message = %Broadway.Message{
           data: hydration_cache_entry = %{data: %{"internal_resource" => internal_resource}}
         },
         %{cache_version: _cache_version}
