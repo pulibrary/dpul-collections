@@ -25,6 +25,7 @@ defmodule DpulCollectionsWeb.Router do
     pipe_through :browser
 
     live "/", HomeLive, :live
+    live "/browse", BrowseLive, :live
     live "/search", SearchLive, :live
     live "/item/:id", ItemLive, :live
     live "/i/:slug/item/:id", ItemLive, :live

@@ -42,6 +42,24 @@ defmodule DpulCollections.SolrTest do
     assert Solr.document_count() == 1
   end
 
+  test ".random/3 with two different seeds returns different results" do
+    Solr.add(SolrTestSupport.mock_solr_documents(), active_collection())
+    Solr.commit(active_collection())
+
+    set1 = Solr.random(5, "100")
+    set2 = Solr.random(5, "999")
+    assert set1 != set2
+  end
+
+  test ".random/3 with the same seed returns the same results" do
+    Solr.add(SolrTestSupport.mock_solr_documents(), active_collection())
+    Solr.commit(active_collection())
+
+    set1 = Solr.random(5, "100")
+    set2 = Solr.random(5, "100")
+    assert set1 == set2
+  end
+
   test ".latest_document" do
     doc = %{
       "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
