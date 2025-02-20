@@ -27,6 +27,7 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def render(assigns) do
     ~H"""
+    <.live_component module={ DpulCollectionsWeb.LayoutComponent } locale={@locale} live_view_pid={@live_view_pid} id="dpul-collections-header">
     <div class="my-5 grid grid-flow-row auto-rows-max md:grid-cols-5 gap-4">
       <div class="item md:col-span-3 md:pl-8">
         <h1 class="text-4xl font-bold pb-2"><%= @item.title %></h1>
@@ -50,7 +51,7 @@ defmodule DpulCollectionsWeb.ItemLive do
             href={"#{Application.fetch_env!(:dpul_collections, :web_connections)[:figgy_url]}/catalog/#{@item.id}/pdf"}
             target="_blank"
           >
-            <%= gettext("Download PDF") %>
+            <%= gettext("Download PDF", locale: @locale) %>
           </a>
         </button>
       </div>
@@ -58,17 +59,19 @@ defmodule DpulCollectionsWeb.ItemLive do
         <.description :for={description <- @item.description} description={description} />
       </div>
       <section class="md:col-span-5 m:order-last py-4">
-        <h2 class="text-xl font-bold py-4"><%= gettext("Pages") %> (<%= @item.page_count %>)</h2>
+        <h2 class="text-xl font-bold py-4"><%= gettext("Pages", locale: @locale) %> (<%= @item.page_count %>)</h2>
         <div class="flex flex-wrap gap-5 justify-center md:justify-start">
           <.thumbs
             :for={{thumb, thumb_num} <- Enum.with_index(@item.image_service_urls)}
             :if={@item.page_count}
             thumb={thumb}
             thumb_num={thumb_num}
+            locale={@locale}
           />
         </div>
       </section>
     </div>
+    </.live_component>
     """
   end
 
@@ -92,7 +95,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       />
       <button class="w-[350px] md:w-[225px] btn-primary">
         <a href={"#{@thumb}/full/full/0/default.jpg"} target="_blank">
-          <%= gettext("Download") %>
+          <%= gettext("Download", locale: @locale) %>
         </a>
       </button>
     </div>

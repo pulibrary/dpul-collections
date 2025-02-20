@@ -16,11 +16,13 @@ defmodule DpulCollectionsWeb.LocalePlug do
   end
 
   def call(conn, backend: backend) do
+    locale = get_session(conn, :locale) || fetch_locale(conn, backend)
+
     case fetch_locale(conn, backend) do
       nil ->
         conn
 
-      locale ->
+      _ ->
         Gettext.put_locale(backend, locale)
 
         conn

@@ -68,7 +68,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     {:noreply, socket}
   end
 
-  defp item_counter(_, 0), do: gettext("No items found")
+  defp item_counter(_, 0), do: gettext("No items found", locale: @locale)
 
   defp item_counter(%{page: page, per_page: per_page}, total_items) do
     first_item = max(page - 1, 0) * per_page + 1
@@ -80,18 +80,19 @@ defmodule DpulCollectionsWeb.SearchLive do
         true -> first_item + per_page - 1
       end
 
-    "#{first_item} - #{last_item} #{gettext("of")} #{total_items}"
+    "#{first_item} - #{last_item} #{gettext("of", locale: @locale)} #{total_items}"
   end
 
   def render(assigns) do
     ~H"""
-    <h1 class="sr-only"><%= gettext("Search Results") %></h1>
+    <.live_component module={ DpulCollectionsWeb.LayoutComponent } locale={@locale} live_view_pid={@live_view_pid} id="dpul-collections-header">
+    <h1 class="sr-only"><%= gettext("Search Results", locale: @locale) %></h1>
     <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
       <form id="search-form" phx-submit="search">
         <div class="grid grid-cols-4">
           <input class="col-span-4 md:col-span-3" type="text" name="q" value={@search_state.q} />
           <button class="col-span-4 md:col-span-1 btn-primary" type="submit">
-            <%= gettext("Search") %>
+            <%= gettext("Search", locale: @locale) %>
           </button>
         </div>
       </form>
@@ -102,12 +103,12 @@ defmodule DpulCollectionsWeb.SearchLive do
           class="grid md:grid-cols-[150px_200px_200px_200px] gap-2"
         >
           <label class="col-span-1 self-center font-bold uppercase" for="date-filter">
-            <%= gettext("filter by date") %>:
+            <%= gettext("filter by date", locale: @locale) %>:
           </label>
           <input
             class="col-span-1"
             type="text"
-            placeholder={gettext("From")}
+            placeholder={gettext("From", locale: @locale)}
             form="date-filter"
             name="date-from"
             value={@search_state.date_from}
@@ -115,25 +116,25 @@ defmodule DpulCollectionsWeb.SearchLive do
           <input
             class="col-span-1"
             type="text"
-            placeholder={gettext("To")}
+            placeholder={gettext("To", locale: @locale)}
             form="date-filter"
             name="date-to"
             value={@search_state.date_to}
           />
           <button class="col-span-1 md:col-span-1 btn-primary" type="submit">
-            <%= gettext("Apply") %>
+            <%= gettext("Apply", locale: @locale) %>
           </button>
         </form>
         <form id="sort-form" class="grid md:grid-cols-[auto_200px] gap-2" phx-change="sort">
           <label class="col-span-1 self-center font-bold uppercase md:text-right" for="sort-by">
-            <%= gettext("sort by") %>:
+            <%= gettext("sort by", locale: @locale) %>:
           </label>
           <select class="col-span-1" name="sort-by">
             <%= Phoenix.HTML.Form.options_for_select(
               [
-                {gettext("Relevance"), "relevance"},
-                {gettext("Year (newest first)"), "date_desc"},
-                {gettext("Year (oldest first)"), "date_asc"}
+                {gettext("Relevance", locale: @locale), "relevance"},
+                {gettext("Year (newest first)", locale: @locale), "date_desc"},
+                {gettext("Year (oldest first)", locale: @locale), "date_asc"}
               ],
               @search_state.sort_by
             ) %>
@@ -145,19 +146,22 @@ defmodule DpulCollectionsWeb.SearchLive do
       </div>
     </div>
     <div class="grid grid-flow-row auto-rows-max gap-8">
-      <.search_item :for={item <- @items} item={item} />
+      <.search_item :for={item <- @items} item={item} locale={@locale} />
     </div>
     <div class="text-center bg-white max-w-5xl mx-auto text-lg py-8">
       <.paginator
         page={@search_state.page}
         per_page={@search_state.per_page}
         total_items={@total_items}
+        locale={@locale}
       />
     </div>
+    </.live_component>
     """
   end
 
   attr :item, Item, required: true
+  attr :locale, :string, required: true 
 
   def search_item(assigns) do
     ~H"""
@@ -171,7 +175,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           thumb_num={thumb_num}
         />
         <div :if={@item.page_count > 1} class="absolute right-0 top-0 bg-white px-4 py-2">
-          <%= @item.page_count %> <%= gettext("Pages") %>
+          <%= @item.page_count %> <%= gettext("Pages", locale: @locale) %>
         </div>
       </div>
       <h2 class="underline text-2xl font-bold pt-4">
@@ -206,7 +210,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         phx-click="paginate"
         phx-value-page={@page - 1}
       >
-        <span class="sr-only"><%= gettext("Previous") %></span>
+        <span class="sr-only"><%= gettext("Previous", locale: @locale) %></span>
         <svg
           class="w-2.5 h-2.5 rtl:rotate-180"
           aria-hidden="true"
@@ -249,7 +253,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         phx-click="paginate"
         phx-value-page={@page + 1}
       >
-        <span class="sr-only"><%= gettext("Next") %></span>
+        <span class="sr-only"><%= gettext("Next", locale: @locale) %></span>
         <svg
           class="w-2.5 h-2.5 rtl:rotate-180"
           aria-hidden="true"

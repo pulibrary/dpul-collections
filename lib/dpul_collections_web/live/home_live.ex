@@ -16,26 +16,29 @@ defmodule DpulCollectionsWeb.HomeLive do
 
   def render(assigns) do
     ~H"""
-    <div class="grid grid-flow-row auto-rows-max gap-20">
-      <div>
-        <form phx-submit="search">
-          <div class="grid grid-cols-4">
-            <input class="col-span-4 md:col-span-3" type="text" name="q" value={@q} />
-            <button class="col-span-4 md:col-span-1 btn-primary" type="submit">
-              <%= gettext("Search") %>
-            </button>
-          </div>
-        </form>
+    <.live_component module={ DpulCollectionsWeb.LayoutComponent } locale={@locale} live_view_pid={@live_view_pid} id="dpul-collections-header">
+      <div class="grid grid-flow-row auto-rows-max gap-20">
+        <div>
+          <form phx-submit="search">
+            <div class="grid grid-cols-4">
+              <input class="col-span-4 md:col-span-3" type="text" name="q" value={@q} />
+              <button class="col-span-4 md:col-span-1 btn-primary" type="submit">
+                <%= gettext("Search", locale: @locale) %>
+              </button>
+            </div>
+          </form>
+        </div>
+        <div id="welcome" class="grid place-self-center gap-10 max-w-prose">
+          <h3 class="text-5xl text-center"><%= gettext("Explore Our Digital Collections", locale: @locale) %></h3>
+          <p class="text-xl text-center">
+            <%= gettext("We invite you to be inspired by our globally diverse collections of") %> <%= @item_count %> <%= gettext(
+              "Ephemera items. We can't wait to see how you use these materials to support your unique research.", 
+              locale: @locale
+            ) %>
+          </p>
+        </div>
       </div>
-      <div id="welcome" class="grid place-self-center gap-10 max-w-prose">
-        <h3 class="text-5xl text-center"><%= gettext("Explore Our Digital Collections") %></h3>
-        <p class="text-xl text-center">
-          <%= gettext("We invite you to be inspired by our globally diverse collections of") %> <%= @item_count %> <%= gettext(
-            "Ephemera items. We can't wait to see how you use these materials to support your unique research."
-          ) %>
-        </p>
-      </div>
-    </div>
+    </.live_component>
     """
   end
 

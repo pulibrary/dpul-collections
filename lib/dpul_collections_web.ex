@@ -56,7 +56,7 @@ defmodule DpulCollectionsWeb do
 
       alias DpulCollectionsWeb.SetLocaleHook
 
-      on_mount SetLocaleHook
+      # on_mount SetLocaleHook
       unquote(html_helpers())
     end
   end

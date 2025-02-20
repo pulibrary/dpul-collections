@@ -23,11 +23,12 @@ defmodule DpulCollectionsWeb.Router do
 
   scope "/", DpulCollectionsWeb do
     pipe_through :browser
-
-    live "/", HomeLive, :live
-    live "/search", SearchLive, :live
-    live "/item/:id", ItemLive, :live
-    live "/i/:slug/item/:id", ItemLive, :live
+    live_session :default, on_mount: [DpulCollectionsWeb.SetLocaleHook] do
+      live "/", HomeLive, :live
+      live "/search", SearchLive, :live
+      live "/item/:id", ItemLive, :live
+      live "/i/:slug/item/:id", ItemLive, :live
+    end
   end
 
   # Other scopes may use custom stacks.
