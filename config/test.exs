@@ -26,12 +26,11 @@ config :dpul_collections, DpulCollections.FiggyRepo,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
-# We don't run a server during test. If one is required,
-# you can enable the server option below.
+# Wallaby feature tests require the server to be running
 config :dpul_collections, DpulCollectionsWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
   secret_key_base: "fS76i6oeLWDlMP7AEe+nExNz3J4tHyaIZrELNhSmY3LUocagaphwGc8Ff7rAh6qS",
-  server: false
+  server: true
 
 # In test we don't send emails.
 config :dpul_collections, DpulCollections.Mailer, adapter: Swoosh.Adapters.Test
@@ -72,3 +71,11 @@ config :dpul_collections, :start_indexing_pipeline?, fn -> false end
 config :dpul_collections, :figgy_hydrator, poll_interval: 50
 
 config :dpul_collections, :web_connections, figgy_url: "https://figgy.example.com"
+
+config :wallaby,
+  otp_app: :dpul_collections,
+  screenshot_on_failure: true,
+  chromedriver: [
+    # change to false if you want to see the browser in action
+    headless: true
+  ]
