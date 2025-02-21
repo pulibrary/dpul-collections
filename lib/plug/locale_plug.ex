@@ -24,6 +24,7 @@ defmodule DpulCollectionsWeb.LocalePlug do
         Gettext.put_locale(backend, locale)
 
         conn
+        # |> assign(conn, :locale, locale)
         |> put_resp_header("content-language", locale_to_language(locale))
         |> put_resp_cookie("locale", locale, max_age: @max_age)
         |> put_session(:locale, locale)
