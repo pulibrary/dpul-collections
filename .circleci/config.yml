@@ -100,7 +100,7 @@ jobs:
   run-unit-tests:
     executor: builder
     steps:
-      - browser-tools/install-chrome
+      - browser-tools/install-chromedriver
       - checkout
       - install-deps:
           include-assets: false
