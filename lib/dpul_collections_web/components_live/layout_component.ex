@@ -12,7 +12,7 @@ defmodule DpulCollectionsWeb.LayoutComponent do
         <div class="flex flex-col min-h-screen" id="app">
             <header class="flex flex-row gap-10 bg-violet-100 py-10 px-8 lg:px-10">
                 <div class="logo flex-none">Logo</div>
-                <div class="app_name flex-1">DPUL Collections</div>
+                <div class="app_name flex-1"><.link navigate={~p"/"}>DPUL Collections</.link></div>
                 <div class="menu flex-none">
                     <div class="dropdown relative inline-block">
                         <button id="dropdownButton" 
