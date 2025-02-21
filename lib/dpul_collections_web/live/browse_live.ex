@@ -37,7 +37,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
         <%= gettext("Randomize") %>
       </button>
     </div>
-    <div class="grid grid-cols-5 gap-3">
+    <div class="grid grid-cols-2 gap-6">
       <.browse_item :for={item <- @items} item={item} />
     </div>
     """
@@ -48,8 +48,16 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def browse_item(assigns) do
     ~H"""
     <div id={"item-#{@item.id}"} class="item">
-      <div class="flex flex-wrap gap-5 md:max-h-60 max-h-[22rem] overflow-hidden justify-center md:justify-start relative">
-        <.thumb :if={@item.page_count} thumb={thumbnail_service_url(@item)} />
+      <div class="grid grid-cols-2 gap-3">
+        <.thumb :if={@item.page_count} thumb={thumbnail_service_url(@item)} divisor={2} />
+        <div class="grid grid-cols-2 gap-3">
+          <.thumb
+            :for={{thumb, thumb_num} <- thumbnail_service_urls(4, @item.image_service_urls)}
+            :if={@item.page_count}
+            thumb={thumb}
+            thumb_num={thumb_num}
+          />
+        </div>
       </div>
       <h2 class="underline text-2xl font-bold pt-4">
         <.link navigate={@item.url} class="item-link"><%= @item.title %></.link>
@@ -59,10 +67,22 @@ defmodule DpulCollectionsWeb.BrowseLive do
     """
   end
 
+  defp thumbnail_service_urls(max_thumbnails, image_service_urls) do
+    # Truncate image service urls to max value
+    image_service_urls
+    |> Enum.slice(1, max_thumbnails)
+    |> Enum.with_index()
+  end
+
+  def thumb(assigns = %{thumb: nil}) do
+    ~H"""
+    """
+  end
+
   def thumb(assigns) do
     ~H"""
     <img
-      class="h-[350px] w-[350px] md:h-[225px] md:w-[225px] border border-solid border-gray-400"
+      class="border border-solid border-gray-400"
       src={"#{@thumb}/square/350,350/0/default.jpg"}
       alt="thumbnail image"
       style="
