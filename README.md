@@ -6,6 +6,13 @@ This project is built in Elixir using Phoenix LiveView as a web framework and Br
 
 ## Project Setup for Development and Test environments
 
+### First time setup
+
+- `brew install asdf`
+- `asdf install`
+- `brew install --cask chromedriver`
+  - required to run feature tests
+
 ### Every time setup
 
 Do these things every time you start new work in this project in dev or test
