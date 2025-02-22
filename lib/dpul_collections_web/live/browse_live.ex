@@ -37,7 +37,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
         <%= gettext("Randomize") %>
       </button>
     </div>
-    <div class="grid grid-cols-5 gap-3">
+    <div class="grid grid-cols-3 gap-3">
       <.browse_item :for={item <- @items} item={item} />
     </div>
     """
@@ -49,13 +49,64 @@ defmodule DpulCollectionsWeb.BrowseLive do
     ~H"""
     <div id={"item-#{@item.id}"} class="item">
       <div class="flex flex-wrap gap-5 md:max-h-60 max-h-[22rem] overflow-hidden justify-center md:justify-start relative">
-        <.thumb :if={@item.page_count} thumb={thumbnail_service_url(@item)} />
+        <.thumbs
+          :for={{thumb, thumb_num} <- thumbnail_service_urls(5, @item)}
+          :if={@item.page_count}
+          thumb={thumb}
+          thumb_num={thumb_num}
+          length={thumbnail_service_urls(5, @item) |> length}
+        />
       </div>
       <h2 class="underline text-2xl font-bold pt-4">
         <.link navigate={@item.url} class="item-link"><%= @item.title %></.link>
       </h2>
       <div class="text-xl"><%= @item.date %></div>
     </div>
+    """
+  end
+
+  defp thumbnail_service_urls(max_thumbnails, item) do
+    thumbnail_service_urls(
+      max_thumbnails,
+      item.image_service_urls,
+      item.primary_thumbnail_service_url
+    )
+  end
+
+  defp thumbnail_service_urls(max_thumbnails, image_service_urls, nil) do
+    # Truncate image service urls to max value
+    image_service_urls
+    |> Enum.slice(0, max_thumbnails)
+    |> Enum.reverse()
+    |> Enum.with_index()
+  end
+
+
+  def thumbs(assigns = %{thumb_num: 0}) do
+    ~H"""
+    <img
+      class={"h-[350px] w-[350px] md:h-[225px] md:w-[225px] border border-solid border-gray-400 left-[#{(@length-@thumb_num-1)*40}px] hover:z-50 peer peer-hover:z-10"}
+      src={"#{@thumb}/square/350,350/0/default.jpg"}
+      alt={"image #{@thumb_num}"}
+      style="
+        background-color: lightgray;"
+      width="350"
+      height="350"
+    />
+    """
+  end
+
+  def thumbs(assigns) do
+    ~H"""
+    <img
+      class={"h-[350px] w-[350px] md:h-[225px] md:w-[225px] border border-solid border-gray-400 absolute top-0 left-[#{(@length-@thumb_num-1)*40}px] hover:z-50 peer peer-hover:z-#{50-(@thumb_num)*10}"}
+      src={"#{@thumb}/square/350,350/0/default.jpg"}
+      alt={"image #{@thumb_num}"}
+      style="
+        background-color: lightgray;"
+      width="350"
+      height="350"
+    />
     """
   end
 

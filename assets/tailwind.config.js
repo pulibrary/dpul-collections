@@ -18,6 +18,21 @@ module.exports = {
       }
     },
   },
+  safelist: [
+    "left-[40px]",
+    "left-[80px]",
+    "left-[120px]",
+    "left-[160px]",
+    "left-0",
+    "z-40",
+    "z-30",
+    "z-20",
+    "z-10",
+    "peer-hover:z-10",
+    "peer-hover:z-20",
+    "peer-hover:z-30",
+    "peer-hover:z-40",
+  ],
   plugins: [
     require("@tailwindcss/forms"),
     // Allows prefixing tailwind classes with LiveView classes to add rules
