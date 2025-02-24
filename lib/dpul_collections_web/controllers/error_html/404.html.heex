@@ -5,24 +5,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>DpulCollections</title>
+    <title>Digital Collections</title>
     <link rel="stylesheet" href="/assets/app.css" />
-    <link rel="stylesheet" href="https://unpkg.com/lux-design-system@6.0.0/dist/style.css" />
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js">
-    </script>
-    <script src="https://unpkg.com/lux-design-system@6.0.0/dist/lux-styleguidist.iife.js">
-    </script>
-    <script>
-      document.addEventListener("DOMContentLoaded", function(){
-        const { createApp } = Vue
-        createApp().use(Lux.default).mount('#app')
-      });
-    </script>
   </head>
 
   <body class="bg-white antialiased">
     <div class="flex flex-col min-h-screen" id="app">
-      <%= DpulCollectionsWeb.LuxComponents.header(assigns) %>
+      <%= DpulCollectionsWeb.HeaderComponent.header(assigns) %>
       <div class="flex-1">
         <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <div class="grid grid-flow-row auto-rows-max gap-20">
@@ -34,7 +23,7 @@
           </div>
         </main>
       </div>
-      <%= DpulCollectionsWeb.LuxComponents.footer(assigns) %>
+      <%= DpulCollectionsWeb.FooterComponent.footer(assigns) %>
     </div>
   </body>
 </html>

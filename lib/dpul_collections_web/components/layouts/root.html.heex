@@ -5,21 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
     <.live_title suffix=" · Phoenix Framework">
-      <%= assigns[:page_title] || "DpulCollections" %>
+      <%= assigns[:page_title] || "Digital Collections" %>
     </.live_title>
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
-    <link rel="stylesheet" href="https://unpkg.com/lux-design-system@6.0.0/dist/style.css" />
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js">
-    </script>
-    <script src="https://unpkg.com/lux-design-system@6.0.0/dist/lux-styleguidist.iife.js">
-    </script>
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
-    </script>
-    <script>
-      document.addEventListener("DOMContentLoaded", function(){
-        const { createApp } = Vue
-        createApp().use(Lux.default).mount('#app')
-      });
     </script>
   </head>
   <body class="bg-white antialiased">
