@@ -5,12 +5,12 @@ defmodule DpulCollectionsWeb.HeaderComponent do
   
     def header(assigns) do
       ~H"""
-      <header class="flex flex-row gap-10 items-center bg-gray-700 py-10 px-8 lg:px-10">
-            <div class="logo flex-none w-60">
+      <header class="flex flex-row gap-10 items-center bg-gray-700 px-6 py-6 sm:py-10 sm:px-8 lg:px-10">
+            <div class="logo flex-none w-32 sm:w-60">
                 <img src={~p"/images/pul-logo.svg"} alt="Princeton University Library Logo" />
             </div>
-            <div class="app_name flex-1 ">
-                <.link navigate={~p"/"} class="text-2xl text-white hover:underline hover:underline-offset-8 hover:decoration-orange-500 hover:decoration-2">
+            <div class="app_name flex-1">
+                <.link navigate={~p"/"} class="text-2xl hidden sm:inline-block text-white hover:underline hover:underline-offset-8 hover:decoration-orange-500 hover:decoration-2">
                     DPUL Collections
                 </.link>
             </div>
