@@ -11,7 +11,7 @@ defmodule DpulCollectionsWeb.HeaderComponent do
             </div>
             <div class="app_name flex-1">
                 <.link navigate={~p"/"} class="text-2xl hidden sm:inline-block text-white hover:underline hover:underline-offset-8 hover:decoration-orange-500 hover:decoration-2">
-                    DPUL Collections
+                    <%= gettext("Digital Collections") %>
                 </.link>
             </div>
             <div class="menu flex-none">
