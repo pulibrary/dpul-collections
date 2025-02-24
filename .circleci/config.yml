@@ -2,6 +2,9 @@ version: 2.1
 
 description: Common jobs for testing and building phoenix applications
 
+orbs:
+  browser-tools: circleci/browser-tools@1.4.6
+  node: circleci/node@5.0.2
 executors:
   builder:
     docker:
@@ -83,7 +86,7 @@ commands:
     steps:
       - run:
           name: Run tests
-          command: MIX_ENV=test mix test
+          command: MIX_ENV=test mix test-ci
 
 jobs:
   check-formatting:
@@ -97,6 +100,7 @@ jobs:
   run-unit-tests:
     executor: builder
     steps:
+      - browser-tools/install-chromedriver
       - checkout
       - install-deps:
           include-assets: false
@@ -113,6 +117,9 @@ jobs:
       - store_artifacts:
           path: cover
           destination: cover
+      - store_artifacts:
+          path: screenshots
+          destination: screenshots
 
 workflows:
   version: 2

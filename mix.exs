@@ -73,7 +73,8 @@ defmodule DpulCollections.MixProject do
       {:broadway, "~> 1.0"},
       {:ex_doc, "~> 0.21", only: :dev, runtime: false},
       {:req, "~> 0.5.0"},
-      {:broadway_dashboard, "~> 0.4.0"}
+      {:broadway_dashboard, "~> 0.4.0"},
+      {:wallaby, "~> 0.30", runtime: false, only: :test}
     ]
   end
 
@@ -88,7 +89,17 @@ defmodule DpulCollections.MixProject do
       setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "coveralls.html"],
+      test: [
+        "ecto.create --quiet",
+        "ecto.migrate --quiet",
+        "coveralls.html"
+      ],
+      "test-ci": [
+        "esbuild dpul_collections",
+        "ecto.create --quiet",
+        "ecto.migrate --quiet",
+        "coveralls.html"
+      ],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["tailwind dpul_collections", "esbuild dpul_collections"],
       "assets.deploy": [

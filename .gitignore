@@ -37,3 +37,6 @@ npm-debug.log
 figgy-fixture-container/fixture-exports/*.binary
 figgy-fixture-container/fixture-exports/*.sql
 solr/conf/solr_config.zip
+
+# wallaby screenshots
+screenshots/*
