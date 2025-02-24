@@ -23,7 +23,9 @@ defmodule DpulCollectionsWeb.HeaderComponent do
                         phx-click={JS.toggle(to: "#dropdownMenu")}>
                         <%= gettext("Language") %>
                     </button>
-                    <ul id="dropdownMenu" class="dropdown-menu aria-hidden hidden absolute list-none bg-white w-150 p-0 m-0" role="menu" aria-hidden="true">
+                    <ul id="dropdownMenu" 
+                        phx-click-away={JS.hide(to: "#dropdownMenu")}
+                        class="dropdown-menu aria-hidden hidden absolute left-auto right-0 list-none bg-white w-150 p-0 mt-2 shadow-md rounded-md" role="menu" aria-hidden="true">
                         <li role="menuitem" tabindex="-1" class="p-2 hover:bg-stone-200 focus:bg-stone-200">
                             <a href="?locale=en">English</a>
                         </li>
