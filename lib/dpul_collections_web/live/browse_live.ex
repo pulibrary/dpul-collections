@@ -73,7 +73,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
     )
   end
 
-  defp thumbnail_service_urls(max_thumbnails, image_service_urls, nil) do
+  defp thumbnail_service_urls(max_thumbnails, image_service_urls, _) do
     # Truncate image service urls to max value
     image_service_urls
     |> Enum.slice(0, max_thumbnails)
