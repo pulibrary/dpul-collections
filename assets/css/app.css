@@ -11,4 +11,14 @@
     .active {
       @apply text-blue-600 border bg-blue-50 hover:bg-blue-100 hover:text-blue-700;
     }
+
+    .skip-to-content {
+      position: absolute;
+      transform: translateY(-150%);
+      transition: transform 150ms ease-in;
+    }
+    
+    .skip-to-content:focus {
+      transform: translateY(0);
+    }
   }

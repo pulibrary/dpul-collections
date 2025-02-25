@@ -16,7 +16,7 @@ msgstr ""
 msgid "Error!"
 msgstr ""
 
-#: lib/dpul_collections_web/components/core_components.ex:102
+#: lib/dpul_collections_web/components/core_components.ex:90
 #, elixir-autogen, elixir-format
 msgid "Hang in there while we get back on track"
 msgstr ""
@@ -27,7 +27,7 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-#: lib/dpul_collections_web/components/core_components.ex:97
+#: lib/dpul_collections_web/components/core_components.ex:85
 #, elixir-autogen, elixir-format
 msgid "Something went wrong!"
 msgstr ""
@@ -52,7 +52,7 @@ msgstr ""
 msgid "Apply"
 msgstr ""
 
-#: lib/dpul_collections_web/components/lux-components.ex:16
+#: lib/dpul_collections_web/components/header_component.ex:24
 #, elixir-autogen, elixir-format
 msgid "Language"
 msgstr ""
@@ -113,17 +113,17 @@ msgstr ""
 msgid "We invite you to be inspired by our globally diverse collections of"
 msgstr ""
 
-#: lib/dpul_collections_web/components/lux-components.ex:37
+#: lib/dpul_collections_web/components/footer_component.ex:21
 #, elixir-autogen, elixir-format
 msgid "Accessibility Help"
 msgstr ""
 
-#: lib/dpul_collections_web/components/lux-components.ex:35
+#: lib/dpul_collections_web/components/footer_component.ex:13
 #, elixir-autogen, elixir-format
 msgid "Copyright Policy"
 msgstr ""
 
-#: lib/dpul_collections_web/components/lux-components.ex:36
+#: lib/dpul_collections_web/components/footer_component.ex:17
 #, elixir-autogen, elixir-format
 msgid "Privacy Notice"
 msgstr ""
@@ -161,4 +161,24 @@ msgstr ""
 #: lib/dpul_collections_web/live/search_live.ex:136
 #, elixir-autogen, elixir-format
 msgid "Year (oldest first)"
+msgstr ""
+
+#: lib/dpul_collections_web/live/browse_live.ex:35
+#, elixir-autogen, elixir-format
+msgid "Browse"
+msgstr ""
+
+#: lib/dpul_collections_web/components/header_component.ex:14
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Digital Collections"
+msgstr ""
+
+#: lib/dpul_collections_web/live/browse_live.ex:37
+#, elixir-autogen, elixir-format
+msgid "Randomize"
+msgstr ""
+
+#: lib/dpul_collections_web/components/footer_component.ex:27
+#, elixir-autogen, elixir-format
+msgid "The Trustees of Princeton University"
 msgstr ""
