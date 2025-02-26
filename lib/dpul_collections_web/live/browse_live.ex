@@ -74,15 +74,10 @@ defmodule DpulCollectionsWeb.BrowseLive do
     |> Enum.with_index()
   end
 
-  def thumb(assigns = %{thumb: nil}) do
-    ~H"""
-    """
-  end
-
   def thumb(assigns) do
     ~H"""
     <img
-      class="border border-solid border-gray-400"
+      class="thumbnail border border-solid border-gray-400"
       src={"#{@thumb}/square/350,350/0/default.jpg"}
       alt="thumbnail image"
       style="
