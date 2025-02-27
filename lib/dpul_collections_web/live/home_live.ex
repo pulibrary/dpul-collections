@@ -35,6 +35,13 @@ defmodule DpulCollectionsWeb.HomeLive do
           ) %>
         </p>
       </div>
+      <div class="grid place-self-center">
+        <div id="browse-callout" class="btn-primary p-6 h-fit">
+          <.link class="flex text-center" navigate={~p"/browse"}>
+            Browse items across all collections
+          </.link>
+        </div>
+      </div>
     </div>
     """
   end
