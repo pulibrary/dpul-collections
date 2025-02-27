@@ -17,4 +17,13 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
            |> render_submit(%{"q" => "cats"}) ==
              {:error, {:live_redirect, %{kind: :push, to: "/search?q=cats"}}}
   end
+
+  test "link to browse", %{conn: conn} do
+    {:ok, view, _} = live(conn, "/")
+
+    assert view
+           |> element("#browse-callout > a")
+           |> render_click() ==
+             {:error, {:live_redirect, %{kind: :push, to: "/browse"}}}
+  end
 end
