@@ -32,8 +32,8 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def render(assigns) do
     ~H"""
     <div class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-4">
-      <h1 class="text-2xl col-span-3"><%= gettext("Browse") %></h1>
-      <button class="col-span-1 btn-primary" phx-click="randomize">
+      <h1 class="uppercase font-bold text-4xl col-span-3"><%= gettext("Browse") %></h1>
+      <button class="col-span-1 btn-primary hover:bg-gray-800 transform active:shadow-none active:-translate-x-1 active:translate-y-1 rounded-lg border border-solid border-gray-700 shadow-lg hover:shadow-[-4px_4px_0px_0px_rgba(0,77,112,0.75)] transition duration-5 shadow-[-6px_6px_0px_0px_rgba(0,77,112,0.50)]" phx-click="randomize">
         <%= gettext("Randomize") %>
       </button>
     </div>
@@ -47,7 +47,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def browse_item(assigns) do
     ~H"""
-    <div id={"item-#{@item.id}"} class="item">
+    <div id={"item-#{@item.id}"} class="item p-4 bg-blue-100 rounded-lg">
       <div class="grid grid-cols-2 gap-3">
         <.thumb :if={@item.page_count} thumb={thumbnail_service_url(@item)} divisor={2} />
         <div class="grid grid-cols-2 gap-3">
@@ -77,7 +77,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def thumb(assigns) do
     ~H"""
     <img
-      class="thumbnail border border-solid border-gray-400"
+      class="thumbnail border border-solid border-gray-700 rounded-lg"
       src={"#{@thumb}/square/350,350/0/default.jpg"}
       alt="thumbnail image"
       style="
