@@ -1,6 +1,7 @@
 defmodule DpulCollectionsWeb.BrowseLive do
   use DpulCollectionsWeb, :live_view
   import DpulCollectionsWeb.Gettext
+  import Integer
   alias DpulCollections.{Item, Solr}
 
   def mount(_params, _session, socket) do
@@ -30,6 +31,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
   end
 
   def render(assigns) do
+    items_with_indexes = Enum.with_index(assigns.items)
     ~H"""
     <div class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-4">
       <h1 class="uppercase font-bold text-4xl col-span-3"><%= gettext("Browse") %></h1>
@@ -40,8 +42,8 @@ defmodule DpulCollectionsWeb.BrowseLive do
         <%= gettext("Randomize") %>
       </button>
     </div>
-    <div class="grid grid-cols-2 gap-6">
-      <.browse_item :for={item <- @items} item={item} />
+    <div class="browse-grid grid grid-cols-2 gap-x-[8rem] gap-y-[3rem]">
+      <.browse_item :for={item_tuple <- items_with_indexes} item={elem(item_tuple, 0)} index={elem(item_tuple, 1)} />
     </div>
     """
   end
@@ -50,10 +52,13 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def browse_item(assigns) do
     ~H"""
-    <div id={"item-#{@item.id}"} class="item p-4 bg-blue-100 rounded-lg">
+    <div id={"item-#{@item.id}"} class="item py-4 relative">
+      <%= if Integer.is_odd(@index) do %>
+        <div id="border" :if={@index} class="absolute border-l border-gray-800 top-[2rem] bottom-[2rem] -left-[4rem]"></div>
+      <% end %>
       <div class="grid grid-cols-2 gap-3">
         <.thumb :if={@item.page_count} thumb={thumbnail_service_url(@item)} divisor={2} />
-        <div class="grid grid-cols-2 gap-3">
+        <div class="thumb-grid grid grid-cols-2 gap-3">
           <.thumb
             :for={{thumb, thumb_num} <- thumbnail_service_urls(4, @item.image_service_urls)}
             :if={@item.page_count}
@@ -80,7 +85,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def thumb(assigns) do
     ~H"""
     <img
-      class="thumbnail border border-solid border-blue-200 rounded-lg bg-blue-50 text-blue-200"
+      class="thumbnail border border-solid border-gray-500 rounded-lg bg-blue-50 text-blue-200"
       src={"#{@thumb}/square/350,350/0/default.jpg"}
       alt="thumbnail image"
       width="350"
