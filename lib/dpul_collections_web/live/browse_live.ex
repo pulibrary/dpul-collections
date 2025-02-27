@@ -54,7 +54,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
     ~H"""
     <div id={"item-#{@item.id}"} class="item py-4 relative">
       <%= if Integer.is_odd(@index) do %>
-        <div id="border" :if={@index} class="absolute border-l border-gray-800 top-[2rem] bottom-[2rem] -left-[4rem]"></div>
+        <div id="border" :if={@index} class="absolute border border-l border-gray-900 top-[4rem] bottom-[4rem] -left-[4rem]"></div>
       <% end %>
       <div class="grid grid-cols-2 gap-3">
         <.thumb :if={@item.page_count} thumb={thumbnail_service_url(@item)} divisor={2} />
