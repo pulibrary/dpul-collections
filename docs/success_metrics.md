@@ -1,6 +1,6 @@
 ## Success Metrics
 
-DPUL Collections is a success if patrons are inspired to transformative use of PUL Material, whether they knew we had that material or not.
+DPUL & DPUL Collections is a success if patrons are inspired towards transformative use of PUL Material, whether they knew we had that material or not.
 
 To measure that success, we have the following metric vectors:
 
@@ -14,6 +14,8 @@ To measure that success, we have the following metric vectors:
     * Transformative use via writing and research often includes linking back to our resources, and generally sharing resources through various channels will increase the likelihood of folks using it.
 1. Bounce rate (Down is better)
     * Bounce rate measures how often users land on our site and then leave without further interaction. We're hoping for users to be engaged with material on this site and find new resources - the less often they leave immediately, the more we expect that to happen.
+
+These measures can be tracked at https://figgy.princeton.edu/reports/dpul_success_dashboard.
 
 There are a couple of metrics that we'd like to measure but have not yet found a way to do. If we find a way to do these, we think we'd be better able to measure success:
 
