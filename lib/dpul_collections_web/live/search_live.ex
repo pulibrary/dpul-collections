@@ -89,7 +89,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
       <form id="search-form" phx-submit="search">
         <div class="grid grid-cols-4">
-          <input class="col-span-4 md:col-span-3" type="text" name="q" value={@search_state.q} />
+          <input id="q" class="col-span-4 md:col-span-3" type="text" name="q" value={@search_state.q} />
           <button class="col-span-4 md:col-span-1 btn-primary" type="submit">
             <%= gettext("Search") %>
           </button>

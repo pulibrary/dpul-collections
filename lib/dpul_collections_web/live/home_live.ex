@@ -20,8 +20,8 @@ defmodule DpulCollectionsWeb.HomeLive do
       <div>
         <form phx-submit="search">
           <div class="grid grid-cols-4">
-            <input class="col-span-4 md:col-span-3" type="text" name="q" value={@q} />
-            <button class="col-span-4 md:col-span-1 btn-primary" type="submit">
+            <input id="q" class="col-span-4 md:col-span-3" type="text" name="q" value={@q} />
+            <button id="search_btn" class="col-span-4 md:col-span-1 btn-primary" type="submit">
               <%= gettext("Search") %>
             </button>
           </div>

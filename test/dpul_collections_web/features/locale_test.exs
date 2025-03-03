@@ -1,5 +1,5 @@
 defmodule DpulCollectionsWeb.Features.LocaleTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case
   use Wallaby.Feature
 
   import Wallaby.Query
@@ -14,4 +14,18 @@ defmodule DpulCollectionsWeb.Features.LocaleTest do
     |> click(button("Buscar"))
     |> assert_has(css("div#filters", text: "Relevancia"))
   end
+
+  feature "existing params are preserved when locale is changed", %{session: session} do
+    session = session
+    |> visit("/")
+    |> fill_in(text_field("q"), with: "foo")
+    |> click(button("Search"))
+    |> click(button("Language"))
+    |> click(link("Español"))
+    |> assert_has(css("div#filters", text: "Relevancia"))
+
+    field = find(session, text_field("q"))
+    assert Element.value(field) == "foo"
+  end
+
 end
