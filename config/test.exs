@@ -75,6 +75,8 @@ config :dpul_collections, :web_connections, figgy_url: "https://figgy.example.co
 config :wallaby,
   otp_app: :dpul_collections,
   screenshot_on_failure: true,
+  # Change to :stdio view javacript log output
+  js_logger: nil,
   chromedriver: [
     # change to false if you want to see the browser in action
     headless: true
