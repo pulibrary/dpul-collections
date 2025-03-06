@@ -50,22 +50,25 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def browse_item(assigns) do
     ~H"""
-    <div id={"item-#{@item.id}"} class="flex flex-col rounded-lg overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_rgba(148,163,184,0.75)]">
+    <div
+      id={"item-#{@item.id}"}
+      class="flex flex-col rounded-lg overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_rgba(148,163,184,0.75)]"
+    >
       <div class="h-[25rem]">
         <div :if={@item.page_count == 1} class="grid grid-cols-1 gap-[2px] bg-slate-400 h-[100%]">
-          <.thumb thumb={thumbnail_service_url(@item)} /> 
+          <.thumb thumb={thumbnail_service_url(@item)} />
         </div>
 
         <div :if={@item.page_count > 1} class="grid grid-cols-1 gap-[2px] bg-slate-400 h-[75%]">
-          <.thumb thumb={thumbnail_service_url(@item)} /> 
+          <.thumb thumb={thumbnail_service_url(@item)} />
         </div>
         <div class="bg-slate-400 grid grid-cols-4 gap-[2px] pt-[2px] h-[25%]">
-            <.thumb
-              :for={{thumb, thumb_num} <- thumbnail_service_urls(4, @item.image_service_urls)}
-              :if={@item.page_count}
-              thumb={thumb}
-              thumb_num={thumb_num}
-            />
+          <.thumb
+            :for={{thumb, thumb_num} <- thumbnail_service_urls(4, @item.image_service_urls)}
+            :if={@item.page_count}
+            thumb={thumb}
+            thumb_num={thumb_num}
+          />
         </div>
       </div>
       <div class="border-t-[2px] border-slate-400 flex-1 px-6 py-4 bg-white">
@@ -87,7 +90,6 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def thumb(assigns) do
     ~H"""
-    
     <img
       class="thumbnail bg-lime-50 text-blue-200 h-full w-full object-cover"
       src={"#{@thumb}/square/350,350/0/default.jpg"}
