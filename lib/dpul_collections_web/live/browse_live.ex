@@ -50,44 +50,28 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def browse_item(assigns) do
     ~H"""
-    <!-- card -->
-    <div id={"item-#{@item.id}"} class="flex flex-col rounded-lg overflow-hidden shadow-lg">
-      <!-- card cover -->
-      <div class="grid grid-cols-2 gap-[2px] bg-gray-100">
-        <.thumb :if={@item.page_count} thumb={thumbnail_service_url(@item)} divisor={2} />
-        <div class="bg-gray-100 grid grid-cols-2 gap-[2px]">
-            <.thumb
-              :for={{thumb, thumb_num} <- thumbnail_service_urls(4, @item.image_service_urls)}
-              :if={@item.page_count}
-              thumb={thumb}
-              thumb_num={thumb_num}
-            />
-        </div>
+    <div id={"item-#{@item.id}"} class="flex flex-col rounded-lg overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_rgba(148,163,184,0.75)]">
+      <div :if={@item.page_count > 1} class="grid grid-cols-1 gap-[2px] bg-slate-400 h-[450px]">
+        <.thumb thumb={thumbnail_service_url(@item)} /> 
       </div>
-      <!-- end card cover -->
-
-      <!-- card content -->
-
-      <div class="border-t border-gray-300 flex-1 px-6 py-4 bg-white">
+      <div :if={@item.page_count == 1} class="grid grid-cols-1 gap-[2px] bg-slate-400">
+        <.thumb thumb={thumbnail_service_url(@item)} /> 
+      </div>
+      <div class="bg-slate-400 grid grid-cols-4 gap-[2px] pt-[2px]">
+          <.thumb
+            :for={{thumb, thumb_num} <- thumbnail_service_urls(4, @item.image_service_urls)}
+            :if={@item.page_count}
+            thumb={thumb}
+            thumb_num={thumb_num}
+          />
+      </div>
+      <div class="border-t-[2px] border-slate-400 flex-1 px-6 py-4 bg-white">
         <h2 class="text-2xl font-bold pt-4">
           <.link navigate={@item.url} class="item-link"><%= @item.title %></.link>
         </h2>
         <p class="text-gray-700 text-base"><%= @item.date %></p>
       </div>
-
-      <!-- end card content -->
-
-      <!-- card footer -->
-
-      <div class="px-6 py-4 bg-gray-100">
-        <button type="button" class="bg-blue-600 hover:bg-blue-700 py-2 px-4 text-sm font-medium text-white border border-transparent rounded-lg focus:outline-none">
-          Pin This Item
-        </button>
-      </div>
-
-      <!-- end card footer -->
     </div>
-    <!-- end card -->
     """
   end
 
@@ -102,7 +86,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
     ~H"""
     
     <img
-      class="thumbnail bg-lime-50 text-blue-200 w-full object-cover"
+      class="thumbnail bg-lime-50 text-blue-200 h-full w-full object-cover"
       src={"#{@thumb}/square/350,350/0/default.jpg"}
       alt="thumbnail image"
       width="350"
