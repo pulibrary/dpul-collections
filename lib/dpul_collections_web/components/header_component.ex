@@ -1,6 +1,7 @@
 # lib/my_app_web/components/header_component.ex
 defmodule DpulCollectionsWeb.HeaderComponent do
   use DpulCollectionsWeb, :html
+  use Phoenix.Component
   import DpulCollectionsWeb.Gettext
 
   def header(assigns) do
@@ -36,13 +37,15 @@ defmodule DpulCollectionsWeb.HeaderComponent do
             aria-hidden="true"
           >
             <li role="menuitem" tabindex="-1" class="p-2 hover:bg-stone-200 focus:bg-stone-200">
-              <a href="?locale=en">English</a>
+              <div phx-click={JS.dispatch("setLocale", detail: %{locale: "en"})}>English</div>
             </li>
             <li role="menuitem" tabindex="-1" class="p-2 hover:bg-stone-200 focus:bg-stone-200">
-              <a href="?locale=es">Español</a>
+              <div phx-click={JS.dispatch("setLocale", detail: %{locale: "es"})}>Español</div>
             </li>
             <li role="menuitem" tabindex="-1" class="p-2 hover:bg-stone-200 focus:bg-stone-200">
-              <a href="?locale=pt-BR">Português do Brasil</a>
+              <div phx-click={JS.dispatch("setLocale", detail: %{locale: "pt-BR"})}>
+                Português do Brasil
+              </div>
             </li>
           </ul>
         </div>

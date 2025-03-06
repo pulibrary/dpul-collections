@@ -33,6 +33,15 @@ topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
 window.addEventListener("phx:page-loading-start", _info => topbar.show(300))
 window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
 
+// Event to change locale cookie from Language drop down and reload page so
+// LiveView components are remounted with new langauge setting.
+window.addEventListener("setLocale", e => {
+    const maxAge = 365 * 24 * 60 * 60
+    document.cookie = `locale=${e.detail.locale}; max-age=${maxAge}; path=/`
+    location.reload()
+  }
+)
+
 // connect if there are any LiveViews on the page
 liveSocket.connect()
 
