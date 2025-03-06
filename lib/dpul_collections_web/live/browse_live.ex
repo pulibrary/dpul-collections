@@ -40,7 +40,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
         <%= gettext("Randomize") %>
       </button>
     </div>
-    <div class="grid grid-cols-3 gap-6">
+    <div class="grid grid-cols-3 gap-6 pt-5">
       <.browse_item :for={item <- @items} item={item} />
     </div>
     """
