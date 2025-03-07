@@ -16,7 +16,8 @@ defmodule DpulCollectionsWeb.BrowseLive do
         |> assign(
           items:
             Solr.random(90, given_seed)["docs"]
-            |> Enum.map(&Item.from_solr(&1))
+            |> Enum.map(&Item.from_solr(&1)),
+          pinned_items: []
         )
 
       {:noreply, socket}
@@ -29,8 +30,25 @@ defmodule DpulCollectionsWeb.BrowseLive do
     {:noreply, push_patch(socket, to: "/browse?r=#{Enum.random(1..1_000_000)}")}
   end
 
+  def handle_event(
+        "pin",
+        %{"item_idx" => idx},
+        socket = %{assigns: %{items: items, pinned_items: pinned_items}}
+      ) do
+    {idx, _} = Integer.parse(idx)
+    doc = items |> Enum.at(idx)
+    {:noreply, socket |> assign(pinned_items: Enum.concat(pinned_items, [doc]))}
+  end
+
   def render(assigns) do
     ~H"""
+    <div id="pinned-items" class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-1">
+      <h1 class="uppercase font-bold text-4xl col-span-3">Pinned</h1>
+
+      <div class="grid grid-flow-row auto-rows-max gap-8">
+        <DpulCollectionsWeb.SearchLive.search_item :for={item <- @pinned_items} item={item} />
+      </div>
+    </div>
     <div class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-4">
       <h1 class="uppercase font-bold text-4xl col-span-3">{gettext("Browse")}</h1>
       <button
@@ -41,7 +59,11 @@ defmodule DpulCollectionsWeb.BrowseLive do
       </button>
     </div>
     <div class="grid grid-cols-3 gap-6 pt-5">
-      <.browse_item :for={item <- @items} item={item} />
+      <.browse_item
+        :for={{item, item_idx} <- @items |> Enum.with_index()}
+        item={item}
+        item_idx={item_idx}
+      />
     </div>
     """
   end
@@ -54,6 +76,14 @@ defmodule DpulCollectionsWeb.BrowseLive do
       id={"item-#{@item.id}"}
       class="flex flex-col rounded-lg overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_rgba(148,163,184,0.75)]"
     >
+      <div
+        id={"pin-#{@item_idx}"}
+        phx-click="pin"
+        phx-value-item_idx={@item_idx}
+        class="h-10 w-10 absolute right-0 top-0 cursor-pointer"
+      >
+        <.icon name="hero-archive-box-arrow-down-solid" class="h-10 w-10" />
+      </div>
       <div class="h-[25rem]">
         <div :if={@item.file_count == 1} class="grid grid-cols-1 gap-[2px] bg-slate-400 h-[100%]">
           <.thumb thumb={thumbnail_service_url(@item)} />
