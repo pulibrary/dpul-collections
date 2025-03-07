@@ -37,6 +37,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
       |> Floki.find("#pinned-items .item")
 
     assert Enum.count(new_count) == 1
+    assert document |> Floki.find("#pin-0 span.bg-white") |> length > 0
   end
 
   test "click random button", %{conn: conn} do
