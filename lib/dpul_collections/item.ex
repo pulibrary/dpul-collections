@@ -26,7 +26,8 @@ defmodule DpulCollections.Item do
     :sort_title,
     :transliterated_title,
     :url,
-    :width
+    :width,
+    :pinned
   ]
 
   def metadata_display_fields do
@@ -84,7 +85,8 @@ defmodule DpulCollections.Item do
       sort_title: doc["sort_title_txtm"] || [],
       transliterated_title: doc["transliterated_title_txtm"] || [],
       url: generate_url(id, slug),
-      width: doc["width_txtm"] || []
+      width: doc["width_txtm"] || [],
+      pinned: false
     }
   end
 
