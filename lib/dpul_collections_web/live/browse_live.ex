@@ -59,7 +59,10 @@ defmodule DpulCollectionsWeb.BrowseLive do
           <.thumb thumb={thumbnail_service_url(@item)} />
         </div>
 
-        <div :if={@item.page_count > 1} class="grid grid-cols-1 gap-[2px] bg-slate-400 h-[75%] overflow-hidden">
+        <div
+          :if={@item.page_count > 1}
+          class="grid grid-cols-1 gap-[2px] bg-slate-400 h-[75%] overflow-hidden"
+        >
           <.thumb thumb={thumbnail_service_url(@item)} />
         </div>
         <div class="bg-slate-400 grid grid-cols-4 gap-[2px] pt-[2px] h-[25%]">
