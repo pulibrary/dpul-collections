@@ -9,7 +9,8 @@ defmodule DpulCollections.Item do
     :url,
     :image_service_urls,
     :primary_thumbnail_service_url,
-    :description
+    :description,
+    :pinned
   ]
 
   def from_solr(nil), do: nil
@@ -27,7 +28,8 @@ defmodule DpulCollections.Item do
       url: generate_url(id, slug),
       image_service_urls: doc["image_service_urls_ss"] || [],
       primary_thumbnail_service_url: doc["primary_thumbnail_service_url_s"],
-      description: doc["description_txtm"] || []
+      description: doc["description_txtm"] || [],
+      pinned: false
     }
   end
 
