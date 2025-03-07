@@ -32,12 +32,15 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def render(assigns) do
     ~H"""
     <div class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-4">
-      <h1 class="text-2xl col-span-3"><%= gettext("Browse") %></h1>
-      <button class="col-span-1 btn-primary" phx-click="randomize">
+      <h1 class="uppercase font-bold text-4xl col-span-3"><%= gettext("Browse") %></h1>
+      <button
+        class="col-span-1 btn-primary shadow-[-6px_6px_0px_0px_rgba(0,77,112,0.50)] hover:shadow-[-4px_4px_0px_0px_rgba(0,77,112,0.75)] hover:bg-gray-800 transform rounded-lg border border-solid border-gray-700 transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
+        phx-click="randomize"
+      >
         <%= gettext("Randomize") %>
       </button>
     </div>
-    <div class="grid grid-cols-2 gap-6">
+    <div class="grid grid-cols-3 gap-6 pt-5">
       <.browse_item :for={item <- @items} item={item} />
     </div>
     """
@@ -47,10 +50,19 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def browse_item(assigns) do
     ~H"""
-    <div id={"item-#{@item.id}"} class="item">
-      <div class="grid grid-cols-2 gap-3">
-        <.thumb :if={@item.page_count} thumb={thumbnail_service_url(@item)} divisor={2} />
-        <div class="grid grid-cols-2 gap-3">
+    <div
+      id={"item-#{@item.id}"}
+      class="flex flex-col rounded-lg overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_rgba(148,163,184,0.75)]"
+    >
+      <div class="h-[25rem]">
+        <div :if={@item.page_count == 1} class="grid grid-cols-1 gap-[2px] bg-slate-400 h-[100%]">
+          <.thumb thumb={thumbnail_service_url(@item)} />
+        </div>
+
+        <div :if={@item.page_count > 1} class="grid grid-cols-1 gap-[2px] bg-slate-400 h-[75%]">
+          <.thumb thumb={thumbnail_service_url(@item)} />
+        </div>
+        <div class="bg-slate-400 grid grid-cols-4 gap-[2px] pt-[2px] h-[25%]">
           <.thumb
             :for={{thumb, thumb_num} <- thumbnail_service_urls(4, @item.image_service_urls)}
             :if={@item.page_count}
@@ -59,10 +71,12 @@ defmodule DpulCollectionsWeb.BrowseLive do
           />
         </div>
       </div>
-      <h2 class="underline text-2xl font-bold pt-4">
-        <.link navigate={@item.url} class="item-link"><%= @item.title %></.link>
-      </h2>
-      <div class="text-xl"><%= @item.date %></div>
+      <div class="border-t-[2px] border-slate-400 flex-1 px-6 py-4 bg-white">
+        <h2 class="text-2xl font-bold pt-4">
+          <.link navigate={@item.url} class="item-link"><%= @item.title %></.link>
+        </h2>
+        <p class="text-gray-700 text-base"><%= @item.date %></p>
+      </div>
     </div>
     """
   end
@@ -77,11 +91,9 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def thumb(assigns) do
     ~H"""
     <img
-      class="thumbnail border border-solid border-gray-400"
+      class="thumbnail bg-lime-50 text-blue-200 h-full w-full object-cover"
       src={"#{@thumb}/square/350,350/0/default.jpg"}
       alt="thumbnail image"
-      style="
-        background-color: lightgray;"
       width="350"
       height="350"
     />
