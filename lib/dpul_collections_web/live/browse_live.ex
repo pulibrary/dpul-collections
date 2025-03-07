@@ -37,7 +37,8 @@ defmodule DpulCollectionsWeb.BrowseLive do
       ) do
     {idx, _} = Integer.parse(idx)
     doc = items |> Enum.at(idx)
-    {:noreply, socket |> assign(pinned_items: Enum.concat(pinned_items, [doc]))}
+    new_items = items |> List.replace_at(idx, %{doc | pinned: true})
+    {:noreply, socket |> assign(items: new_items, pinned_items: Enum.concat(pinned_items, [doc]))}
   end
 
   def render(assigns) do
@@ -82,7 +83,10 @@ defmodule DpulCollectionsWeb.BrowseLive do
         phx-value-item_idx={@item_idx}
         class="h-10 w-10 absolute right-0 top-0 cursor-pointer"
       >
-        <.icon name="hero-archive-box-arrow-down-solid" class="h-10 w-10" />
+        <.icon
+          name={"hero-archive-box-arrow-down-solid#{if @item.pinned, do: " bg-white", else: "" }"}
+          class="h-10 w-10"
+        />
       </div>
       <div class="h-[25rem]">
         <div :if={@item.file_count == 1} class="grid grid-cols-1 gap-[2px] bg-slate-400 h-[100%]">
