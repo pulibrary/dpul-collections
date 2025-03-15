@@ -61,7 +61,7 @@ defmodule FiggyTestFixtures do
 
   def hydration_cache_entries(cache_version \\ 0) do
     # This id actually corresponds to an EphemeraTerm
-    # description, date_created and date range taken from
+    # description, date_created, date range and other metadata taken from
     #   26713a31-d615-49fd-adfc-93770b4f66b3
     {:ok, entry1} =
       IndexingPipeline.write_hydration_cache_entry(%{
@@ -71,6 +71,7 @@ defmodule FiggyTestFixtures do
         data: %{
           "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
           "internal_resource" => "EphemeraFolder",
+          "created_at" => ~U[2023-05-11 18:45:18.994187Z],
           "metadata" => %{
             "title" => ["test title 1"],
             "description" => ["Asra-Panahi", "Berlin-Protest", "Elnaz-Rekabi"],
