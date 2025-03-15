@@ -51,7 +51,8 @@ defmodule DpulCollections.Solr do
     solr_params = [
       fl: fl,
       rows: count,
-      sort: "digitized_at_dt desc"
+      sort: "digitized_at_dt desc",
+      fq: "page_count_i:[1 TO *]"
     ]
 
     {:ok, response} =
