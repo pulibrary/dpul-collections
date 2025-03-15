@@ -45,6 +45,24 @@ defmodule DpulCollections.Solr do
     response.body["response"]
   end
 
+  def recently_digitized(count, collection \\ read_collection()) do
+    fl = Enum.join(@query_field_list, ",")
+
+    solr_params = [
+      fl: fl,
+      rows: count,
+      sort: "digitized_at_dt desc"
+    ]
+
+    {:ok, response} =
+      Req.get(
+        select_url(collection),
+        params: solr_params
+      )
+
+    response.body["response"]
+  end
+
   def random(count, seed, collection \\ read_collection()) do
     fl = Enum.join(@query_field_list, ",")
 

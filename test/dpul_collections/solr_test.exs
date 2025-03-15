@@ -42,6 +42,27 @@ defmodule DpulCollections.SolrTest do
     assert Solr.document_count() == 1
   end
 
+  test ".recently_digitized/1 returns most recently digitized solr records" do
+    doc1 = %{
+      "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
+      "title_txtm" => "Doc-1",
+      "digitized_at_dt" => DateTime.utc_now() |> DateTime.add(-1, :hour) |> DateTime.to_iso8601()
+    }
+
+    doc2 = %{
+      "id" => "26713a31-d615-49fd-adfc-93770b4f66b3",
+      "digitized_at_dt" => DateTime.utc_now() |> DateTime.to_iso8601(),
+      "title_txtm" => "Doc-2"
+    }
+
+    Solr.add([doc1, doc2], active_collection())
+    Solr.commit(active_collection())
+
+    records = Solr.recently_digitized(1)
+
+    assert records = [doc2]
+  end
+
   test ".random/3 with two different seeds returns different results" do
     Solr.add(SolrTestSupport.mock_solr_documents(), active_collection())
     Solr.commit(active_collection())
