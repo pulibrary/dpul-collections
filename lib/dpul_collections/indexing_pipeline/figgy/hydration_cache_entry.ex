@@ -53,8 +53,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
     }
   end
 
-  defp digitized_date(%{"created_at" => created_at = %DateTime{}}) do
-    created_at |> DateTime.to_iso8601()
+  defp digitized_date(%{"created_at" => created_at}) when is_binary(created_at) do
+    created_at
   end
 
   defp digitized_date(_data), do: nil

@@ -71,7 +71,7 @@ defmodule FiggyTestFixtures do
         data: %{
           "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
           "internal_resource" => "EphemeraFolder",
-          "created_at" => ~U[2023-05-11 18:45:18.994187Z],
+          "created_at" => "2023-05-11T18:45:18.994187Z",
           "metadata" => %{
             "title" => ["test title 1"],
             "description" => ["Asra-Panahi", "Berlin-Protest", "Elnaz-Rekabi"],
