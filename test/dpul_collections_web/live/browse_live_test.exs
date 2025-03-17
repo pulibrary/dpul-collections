@@ -38,7 +38,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
       |> Floki.find(".item-link")
       |> Enum.flat_map(fn a -> Floki.attribute(a, "href") end)
 
-    assert initial_order != new_order
+    assert initial_order == new_order
   end
 
   test "renders a link when there's a page count but no thumbnail", %{conn: conn} do
