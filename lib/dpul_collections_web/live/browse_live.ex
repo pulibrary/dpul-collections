@@ -15,7 +15,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
         socket
         |> assign(
           items:
-            Solr.random(500, given_seed)["docs"]
+            Solr.random(50, given_seed)["docs"]
             |> Enum.map(&Item.from_solr(&1))
         )
 
