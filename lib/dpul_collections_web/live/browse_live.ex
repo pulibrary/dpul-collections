@@ -95,12 +95,18 @@ defmodule DpulCollectionsWeb.BrowseLive do
     ~H"""
     <img
       class="thumbnail bg-slate-400 text-white h-full w-full object-cover"
-      src={"#{@thumb}/square/350,350/0/default.jpg"}
+      src={thumbnail_url(assigns)}
       alt="thumbnail image"
-      width="350"
-      height="350"
     />
     """
+  end
+
+  def thumbnail_url(%{thumb: thumb, thumb_num: thumb_num}) when is_number(thumb_num) do
+    "#{thumb}/square/100,100/0/default.jpg"
+  end
+
+  def thumbnail_url(%{thumb: thumb}) do
+    "#{thumb}/square/350,350/0/default.jpg"
   end
 
   defp thumbnail_service_url(%{primary_thumbnail_service_url: thumbnail_url})
