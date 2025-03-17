@@ -80,4 +80,33 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     view
     |> has_element?(".item-link")
   end
+
+  test "renders primary thumbnail only  when there is only one image url", %{conn: conn} do
+    Solr.add(
+      [
+        %{
+          id: "n",
+          title_txtm: "Document-n",
+          page_count_i: 1,
+          image_service_urls_ss: [
+            "https://example.com/iiif/2/image1"
+          ],
+          primary_thumbnail_service_url_s: "https://example.com/iiif/2/image1"
+        }
+      ],
+      active_collection()
+    )
+
+    Solr.commit(active_collection())
+
+    {:ok, _view, html} = live(conn, "/browse?r=0")
+
+    src =
+      html
+      |> Floki.parse_document!()
+      |> Floki.find("img.thumbnail")
+      |> Floki.attribute("src")
+
+    assert src == ["https://example.com/iiif/2/image1/square/350,350/0/default.jpg"]
+  end
 end

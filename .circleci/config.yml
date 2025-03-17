@@ -86,7 +86,7 @@ commands:
     steps:
       - run:
           name: Run tests
-          command: MIX_ENV=test mix test-ci
+          command: MIX_ENV=test mix test --exclude ci:false
 
 jobs:
   check-formatting:
