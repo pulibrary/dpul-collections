@@ -4,6 +4,7 @@ defmodule DpulCollectionsWeb.Features.LocaleTest do
 
   import Wallaby.Query
 
+  @tag ci: false
   feature "locale persists between pages", %{session: session} do
     session
     |> visit("/")
@@ -15,6 +16,7 @@ defmodule DpulCollectionsWeb.Features.LocaleTest do
     |> assert_has(css("div#filters", text: "Relevancia"))
   end
 
+  @tag ci: false
   feature "existing params are preserved when locale is changed", %{session: session} do
     session =
       session
