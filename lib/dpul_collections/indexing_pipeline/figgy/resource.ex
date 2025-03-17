@@ -44,6 +44,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   end
 
   @spec extract_related_data(resource :: %__MODULE__{}) :: related_data()
+  def extract_related_data(%__MODULE__{
+        metadata: %{"state" => [state], "visibility" => [visibility]}
+      })
+      when state != "complete" or visibility != "open" do
+    %{}
+  end
+
   def extract_related_data(resource) do
     %{
       "member_ids" => extract_members(resource)
@@ -75,6 +82,21 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     %{
       id: deleted_resource_id,
       internal_resource: deleted_resource_type,
+      lock_version: resource.lock_version,
+      created_at: resource.created_at,
+      updated_at: resource.updated_at,
+      metadata: %{"deleted" => true}
+    }
+  end
+
+  @spec to_map(resource :: %__MODULE__{}) :: map()
+  defp to_map(
+         resource = %__MODULE__{metadata: %{"state" => [state], "visibility" => [visibility]}}
+       )
+       when state != "complete" or visibility != "open" do
+    %{
+      id: resource.id,
+      internal_resource: resource.internal_resource,
       lock_version: resource.lock_version,
       created_at: resource.created_at,
       updated_at: resource.updated_at,
