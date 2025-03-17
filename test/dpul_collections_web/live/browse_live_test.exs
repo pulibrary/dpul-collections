@@ -15,7 +15,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
   end
 
   test "click random button", %{conn: conn} do
-    Solr.add(SolrTestSupport.mock_solr_documents(500), active_collection())
+    Solr.add(SolrTestSupport.mock_solr_documents(50), active_collection())
     Solr.commit(active_collection())
 
     {:ok, view, html} = live(conn, "/browse?r=0")
@@ -26,7 +26,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
       |> Floki.find(".item-link")
       |> Enum.flat_map(fn a -> Floki.attribute(a, "href") end)
 
-    assert Enum.count(initial_order) == 500
+    assert Enum.count(initial_order) == 50
 
     {:ok, document} =
       view
