@@ -94,7 +94,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def thumb(assigns) do
     ~H"""
     <img
-      class="thumbnail bg-lime-50 text-blue-200 h-full w-full object-cover"
+      class="thumbnail bg-slate-400 text-white h-full w-full object-cover"
       src={"#{@thumb}/square/350,350/0/default.jpg"}
       alt="thumbnail image"
       width="350"
