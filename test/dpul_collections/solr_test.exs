@@ -42,6 +42,37 @@ defmodule DpulCollections.SolrTest do
     assert Solr.document_count() == 1
   end
 
+  test ".recently_digitized/1 returns most recently digitized solr records with images" do
+    doc1 = %{
+      "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
+      "title_txtm" => "Doc-1",
+      "page_count_i" => 1,
+      "digitized_at_dt" => DateTime.utc_now() |> DateTime.add(-1, :hour) |> DateTime.to_iso8601()
+    }
+
+    doc2 = %{
+      "id" => "26713a31-d615-49fd-adfc-93770b4f66b3",
+      "page_count_i" => 1,
+      "digitized_at_dt" =>
+        DateTime.utc_now() |> DateTime.add(-5, :minute) |> DateTime.to_iso8601(),
+      "title_txtm" => "Doc-2"
+    }
+
+    doc3 = %{
+      "id" => "26713a31-d615-49fd-adfc-93770b4f66b4",
+      "page_count_i" => 0,
+      "digitized_at_dt" => DateTime.utc_now() |> DateTime.to_iso8601(),
+      "title_txtm" => "Doc-3"
+    }
+
+    Solr.add([doc1, doc2, doc3], active_collection())
+    Solr.commit(active_collection())
+
+    records = Solr.recently_digitized(1) |> Map.get("docs")
+
+    assert Enum.at(records, 0) |> Map.get("id") == doc2["id"]
+  end
+
   test ".random/3 with two different seeds returns different results" do
     Solr.add(SolrTestSupport.mock_solr_documents(), active_collection())
     Solr.commit(active_collection())

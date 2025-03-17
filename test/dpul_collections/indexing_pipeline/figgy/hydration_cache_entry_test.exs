@@ -7,6 +7,26 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
   alias DpulCollections.IndexingPipeline
 
   describe "to_solr_document/1" do
+    test "indexes everything it needs to" do
+      entries =
+        FiggyTestFixtures.hydration_cache_entries()
+        |> Tuple.to_list()
+
+      [doc1, doc2, doc3] = Enum.map(entries, &HydrationCacheEntry.to_solr_document/1)
+
+      assert %{
+               digitized_at_dt: "2023-05-11T18:45:18.994187Z"
+             } = doc1
+
+      assert %{
+               digitized_at_dt: nil
+             } = doc2
+
+      assert %{
+               digitized_at_dt: nil
+             } = doc3
+    end
+
     test "includes descriptions if found" do
       entries =
         FiggyTestFixtures.hydration_cache_entries()

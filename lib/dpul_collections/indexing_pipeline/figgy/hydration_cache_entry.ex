@@ -49,9 +49,16 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
       display_date_s: format_date(metadata),
       page_count_i: page_count(metadata),
       image_service_urls_ss: image_service_urls(metadata, related_data),
-      primary_thumbnail_service_url_s: primary_thumbnail_service_url(metadata, related_data)
+      primary_thumbnail_service_url_s: primary_thumbnail_service_url(metadata, related_data),
+      digitized_at_dt: digitized_date(data)
     }
   end
+
+  defp digitized_date(%{"created_at" => created_at}) when is_binary(created_at) do
+    created_at
+  end
+
+  defp digitized_date(_data), do: nil
 
   defp primary_thumbnail_service_url(
          %{"thumbnail_id" => thumbnail_id} = metadata,
