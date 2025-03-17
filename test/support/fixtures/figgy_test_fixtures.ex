@@ -73,6 +73,7 @@ defmodule FiggyTestFixtures do
           "internal_resource" => "EphemeraFolder",
           "metadata" => %{
             "title" => ["test title 1"],
+            "alternative_title" => ["Zaib-un-Nisa", "Zaibunnisa"],
             "description" => ["Asra-Panahi", "Berlin-Protest", "Elnaz-Rekabi"],
             "member_ids" => [
               %{"id" => "f60ce0c9-57fc-4820-b70d-49d1f2b248f9"},
@@ -133,6 +134,7 @@ defmodule FiggyTestFixtures do
           "metadata" => %{
             "title" => ["test title 2"],
             "description" => [],
+            "alternative_title" => [],
             "date_created" => [],
             "member_ids" => [],
             "date_range" => [
