@@ -85,8 +85,11 @@ commands:
     description: Runs all tests via mix
     steps:
       - run:
+        name: Run esbuild
+        command: esbuild dpul_collections
+      - run:
           name: Run tests
-          command: MIX_ENV=test mix test-ci
+          command: MIX_ENV=test mix test
 
 jobs:
   check-formatting:

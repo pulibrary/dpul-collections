@@ -96,10 +96,6 @@ defmodule DpulCollections.MixProject do
         "ecto.migrate --quiet",
         "coveralls.html"
       ],
-      "test-ci": [
-        "esbuild dpul_collections",
-        "test"
-      ],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["tailwind dpul_collections", "esbuild dpul_collections"],
       "assets.deploy": [
