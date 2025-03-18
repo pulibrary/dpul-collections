@@ -84,6 +84,7 @@ job "dpulc-staging" {
         BASIC_AUTH_USERNAME = {{ .BASIC_AUTH_USERNAME }}
         BASIC_AUTH_PASSWORD = {{ .BASIC_AUTH_PASSWORD }}
         DNS_CLUSTER_QUERY = "dpulc-staging-web.service.consul"
+        HONEYBADGER_API_KEY = {{ .HONEYBADGER_API_KEY }}
         {{- end -}}
         EOF
       }
@@ -121,6 +122,7 @@ job "dpulc-staging" {
         BASIC_AUTH_USERNAME = {{ .BASIC_AUTH_USERNAME }}
         BASIC_AUTH_PASSWORD = {{ .BASIC_AUTH_PASSWORD }}
         DNS_CLUSTER_QUERY = "dpulc-staging-web.service.consul"
+        HONEYBADGER_API_KEY = {{ .HONEYBADGER_API_KEY }}
         {{- end -}}
         EOF
       }
@@ -183,6 +185,7 @@ job "dpulc-staging" {
         BASIC_AUTH_USERNAME = {{ .BASIC_AUTH_USERNAME }}
         BASIC_AUTH_PASSWORD = {{ .BASIC_AUTH_PASSWORD }}
         DNS_CLUSTER_QUERY = "dpulc-staging-web.service.consul"
+        HONEYBADGER_API_KEY = {{ .HONEYBADGER_API_KEY }}
         {{- end -}}
         EOF
       }
