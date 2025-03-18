@@ -122,3 +122,5 @@ config :dpul_collections, DpulCollections.IndexingPipeline, [
     write_collection: "dpulc1"
   ]
 ]
+
+config :honeybadger, api_key: ""
