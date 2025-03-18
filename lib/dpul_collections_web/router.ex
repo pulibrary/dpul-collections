@@ -1,5 +1,6 @@
 defmodule DpulCollectionsWeb.Router do
   use DpulCollectionsWeb, :router
+  use Honeybadger.Plug
 
   pipeline :browser do
     plug :accepts, ["html"]

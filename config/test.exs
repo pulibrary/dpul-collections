@@ -81,3 +81,5 @@ config :wallaby,
     # change to false if you want to see the browser in action
     headless: true
   ]
+
+config :honeybadger, api_key: ""
