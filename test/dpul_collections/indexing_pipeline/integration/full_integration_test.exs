@@ -79,7 +79,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
         nil
       )
 
-    Supervisor.start_link(children, strategy: :one_for_one, name: DpulCollections.TestSupervisor)
+    Enum.each(children, fn child ->
+      start_supervised(child)
+    end)
 
     task =
       Task.async(fn -> wait_for_index_completion() end)
@@ -184,8 +186,6 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       Repo.get_by(Figgy.HydrationCacheEntry, record_id: latest_document["id"])
 
     assert hydration_entry.cache_order != hydration_entry_again.cache_order
-
-    Supervisor.stop(DpulCollections.TestSupervisor, :normal)
 
     # Ensure metrics are being sent.
     assert_receive {:hydrator_time_to_poll_hit, %{duration: _}}
