@@ -80,6 +80,9 @@ defmodule DpulCollectionsWeb.BrowseLive do
         </h2>
         <p class="text-gray-700 text-base"><%= @item.date %></p>
       </div>
+      <div :if={@item.page_count > 1} class="absolute bg-lime-100 top-0 right-0 z-10 h-10 p-2">
+        <%= @item.page_count %> pages
+      </div>
     </div>
     """
   end
