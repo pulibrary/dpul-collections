@@ -16,17 +16,20 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
       assert %{
                alternative_title_txtm: ["Zaib-un-Nisa", "Zaibunnisa"],
-               digitized_at_dt: "2023-05-11T18:45:18.994187Z"
+               digitized_at_dt: "2023-05-11T18:45:18.994187Z",
+               description_txtm: ["Asra-Panahi", "Berlin-Protest", "Elnaz-Rekabi"]
              } = doc1
 
       assert %{
                alternative_title_txtm: [],
-               digitized_at_dt: nil
+               digitized_at_dt: nil,
+               description_txtm: []
              } = doc2
 
       assert %{
                alternative_title_txtm: nil,
-               digitized_at_dt: nil
+               digitized_at_dt: nil,
+               description_txtm: nil
              } = doc3
     end
 
