@@ -27,7 +27,7 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
     Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
     Solr.commit(active_collection())
 
-    {:ok, view, html} = live(conn, "/")
+    {:ok, _view, html} = live(conn, "/")
 
     links =
       html

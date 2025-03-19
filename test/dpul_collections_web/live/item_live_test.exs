@@ -13,6 +13,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
         %{
           id: 1,
           title_txtm: "Învăţămîntul trebuie să urmărească dezvoltarea deplină a personalităţii",
+          alternative_title_txtm: "Alternative Title",
           display_date_s: "2022",
           page_count_i: 17,
           image_service_urls_ss: [
@@ -50,6 +51,21 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
 
     Solr.commit(active_collection())
     on_exit(fn -> Solr.delete_all(active_collection()) end)
+  end
+
+  test "/item/{:id} displays metadata fields", %{conn: conn} do
+    conn = get(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
+
+    {:ok, document} =
+      html_response(conn, 200)
+      |> Floki.parse_document()
+
+    assert document |> Floki.find(~s{th:fl-contains("Date")}) |> Enum.any?()
+    assert document |> Floki.find(~s{td:fl-contains("2022")}) |> Enum.any?()
+    assert document |> Floki.find(~s{th:fl-contains("Alternative title")}) |> Enum.any?()
+    assert document |> Floki.find(~s{td:fl-contains("Alternative Title")}) |> Enum.any?()
+    assert document |> Floki.find(~s{th:fl-contains("Description")}) |> Enum.any?()
+    assert document |> Floki.find(~s{td:fl-contains("This is a test description")}) |> Enum.any?()
   end
 
   test "/item/{:id} redirects when title is recognized latin script", %{conn: conn} do

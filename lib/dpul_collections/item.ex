@@ -4,6 +4,7 @@ defmodule DpulCollections.Item do
   defstruct [
     :id,
     :title,
+    :alternative_title,
     :date,
     :page_count,
     :url,
@@ -11,6 +12,14 @@ defmodule DpulCollections.Item do
     :primary_thumbnail_service_url,
     :description
   ]
+
+  def metadata_display_fields do
+    [
+      :date,
+      :alternative_title,
+      :description
+    ]
+  end
 
   def from_solr(nil), do: nil
 
@@ -22,6 +31,7 @@ defmodule DpulCollections.Item do
     %__MODULE__{
       id: id,
       title: title,
+      alternative_title: doc["alternative_title_txtm"] || [],
       date: doc["display_date_s"],
       page_count: doc["page_count_i"],
       url: generate_url(id, slug),
