@@ -15,14 +15,17 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
       [doc1, doc2, doc3] = Enum.map(entries, &HydrationCacheEntry.to_solr_document/1)
 
       assert %{
+               alternative_title_txtm: ["Zaib-un-Nisa", "Zaibunnisa"],
                digitized_at_dt: "2023-05-11T18:45:18.994187Z"
              } = doc1
 
       assert %{
+               alternative_title_txtm: [],
                digitized_at_dt: nil
              } = doc2
 
       assert %{
+               alternative_title_txtm: nil,
                digitized_at_dt: nil
              } = doc3
     end
@@ -430,18 +433,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
         })
 
       assert %{title_txtm: ["[Missing Title]"]} = HydrationCacheEntry.to_solr_document(entry)
-    end
-
-    test "includes alternative title if found" do
-      entries =
-        FiggyTestFixtures.hydration_cache_entries()
-        |> Tuple.to_list()
-
-      [doc1, doc2, doc3] = Enum.map(entries, &HydrationCacheEntry.to_solr_document/1)
-
-      assert doc1[:alternative_title_txtm] == ["Zaib-un-Nisa", "Zaibunnisa"]
-      assert doc2[:alternative_title_txtm] == []
-      assert doc3[:alternative_title_txtm] == nil
     end
   end
 end
