@@ -44,13 +44,27 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
       id: id,
       title_txtm: extract_title(metadata),
       alternative_title_txtm: get_in(metadata, ["alternative_title"]),
+      barcode_txtm: get_in(metadata, ["barcode"]),
+      content_warning_txtm: get_in(metadata, ["content_warning"]),
+      contributor_txtm: get_in(metadata, ["contributor"]),
+      creator_txtm: get_in(metadata, ["creator"]),
       description_txtm: get_in(metadata, ["description"]),
-      years_is: extract_years(data),
+      digitized_at_dt: digitized_date(data),
       display_date_s: format_date(metadata),
-      page_count_i: page_count(metadata),
+      folder_number_txtm: get_in(metadata, ["folder_number"]),
+      height_txtm: get_in(metadata, ["height"]),
+      holding_location_txtm: get_in(metadata, ["holding_location"]),
       image_service_urls_ss: image_service_urls(metadata, related_data),
+      keywords_txtm: get_in(metadata, ["keywords"]),
+      page_count_i: page_count(metadata),
       primary_thumbnail_service_url_s: primary_thumbnail_service_url(metadata, related_data),
-      digitized_at_dt: digitized_date(data)
+      provenance_txtm: get_in(metadata, ["provenance"]),
+      publisher_txtm: get_in(metadata, ["publisher"]),
+      series_txtm: get_in(metadata, ["series"]),
+      sort_title_txtm: get_in(metadata, ["sort_title"]),
+      transliterated_title_txtm: get_in(metadata, ["transliterated_title"]),
+      width_txtm: get_in(metadata, ["width"]),
+      years_is: extract_years(data)
     }
   end
 

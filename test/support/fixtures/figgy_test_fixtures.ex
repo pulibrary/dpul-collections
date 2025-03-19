@@ -75,7 +75,36 @@ defmodule FiggyTestFixtures do
           "metadata" => %{
             "title" => ["test title 1"],
             "alternative_title" => ["Zaib-un-Nisa", "Zaibunnisa"],
+            "barcode" => ["barcode"],
+            "content_warning" => ["content warning"],
+            "contributor" => ["contributor"],
+            "creator" => ["creator"],
+            "date_created" => ["2022"],
+            "date_range" => [
+              %{
+                "approximate" => "0",
+                "created_at" => nil,
+                "end" => [],
+                "id" => nil,
+                "internal_resource" => "DateRange",
+                "new_record" => true,
+                "optimistic_lock_token" => [],
+                "start" => [],
+                "updated_at" => nil
+              }
+            ],
             "description" => ["Asra-Panahi", "Berlin-Protest", "Elnaz-Rekabi"],
+            "folder_number" => ["1"],
+            "height" => ["200"],
+            "holding_location" => ["holding location"],
+            "keywords" => ["keyword"],
+            "language" => ["language"],
+            "provenance" => ["provenance"],
+            "publisher" => ["publisher"],
+            "series" => ["series"],
+            "sort_title" => ["sort_title"],
+            "transliterated_title" => ["transliterated_title"],
+            "width" => ["200"],
             "member_ids" => [
               %{"id" => "f60ce0c9-57fc-4820-b70d-49d1f2b248f9"},
               %{"id" => "d798d940-0740-4854-8f70-60217ec8c2e4"},
@@ -104,20 +133,6 @@ defmodule FiggyTestFixtures do
               %{"id" => "9b036f96-5080-48dc-9f32-cf9659bb0764"},
               %{"id" => "b38427c2-6126-41ce-8624-b1c435378f0c"},
               %{"id" => "994ee133-c117-40c2-89b5-0f6b7a705559"}
-            ],
-            "date_created" => ["2022"],
-            "date_range" => [
-              %{
-                "approximate" => "0",
-                "created_at" => nil,
-                "end" => [],
-                "id" => nil,
-                "internal_resource" => "DateRange",
-                "new_record" => true,
-                "optimistic_lock_token" => [],
-                "start" => [],
-                "updated_at" => nil
-              }
             ]
           }
         }

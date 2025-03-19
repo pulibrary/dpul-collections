@@ -16,20 +16,34 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
       assert %{
                alternative_title_txtm: ["Zaib-un-Nisa", "Zaibunnisa"],
+               barcode_txtm: ["barcode"],
+               content_warning_txtm: ["content warning"],
+               contributor_txtm: ["contributor"],
+               creator_txtm: ["creator"],
+               description_txtm: ["Asra-Panahi", "Berlin-Protest", "Elnaz-Rekabi"],
                digitized_at_dt: "2023-05-11T18:45:18.994187Z",
-               description_txtm: ["Asra-Panahi", "Berlin-Protest", "Elnaz-Rekabi"]
+               folder_number_txtm: ["1"],
+               height_txtm: ["200"],
+               holding_location_txtm: ["holding location"],
+               keywords_txtm: ["keyword"],
+               provenance_txtm: ["provenance"],
+               publisher_txtm: ["publisher"],
+               series_txtm: ["series"],
+               sort_title_txtm: ["sort_title"],
+               transliterated_title_txtm: ["transliterated_title"],
+               width_txtm: ["200"]
              } = doc1
 
       assert %{
                alternative_title_txtm: [],
-               digitized_at_dt: nil,
-               description_txtm: []
+               description_txtm: [],
+               digitized_at_dt: nil
              } = doc2
 
       assert %{
                alternative_title_txtm: nil,
-               digitized_at_dt: nil,
-               description_txtm: nil
+               description_txtm: nil,
+               digitized_at_dt: nil
              } = doc3
     end
 
