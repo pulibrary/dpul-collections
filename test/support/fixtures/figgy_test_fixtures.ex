@@ -151,6 +151,7 @@ defmodule FiggyTestFixtures do
             "title" => ["test title 2"],
             "description" => [],
             "alternative_title" => [],
+            "content_warning" => [""],
             "date_created" => [],
             "member_ids" => [],
             "date_range" => [

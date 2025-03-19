@@ -36,6 +36,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
       assert %{
                alternative_title_txtm: [],
+               content_warning_txtm: [],
                description_txtm: [],
                digitized_at_dt: nil
              } = doc2

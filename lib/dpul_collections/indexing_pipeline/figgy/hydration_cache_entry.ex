@@ -45,7 +45,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
       title_txtm: extract_title(metadata),
       alternative_title_txtm: get_in(metadata, ["alternative_title"]),
       barcode_txtm: get_in(metadata, ["barcode"]),
-      content_warning_txtm: get_in(metadata, ["content_warning"]),
+      content_warning_txtm: get_in(metadata, ["content_warning"]) |> remove_empty_strings,
       contributor_txtm: get_in(metadata, ["contributor"]),
       creator_txtm: get_in(metadata, ["creator"]),
       description_txtm: get_in(metadata, ["description"]),
@@ -67,6 +67,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
       years_is: extract_years(data)
     }
   end
+
+  # Remove empty strings from list
+  defp remove_empty_strings(field_value) when is_list(field_value) do
+    field_value |> Enum.reject(fn v -> v == "" end)
+  end
+
+  defp remove_empty_strings(_), do: nil
 
   defp digitized_date(%{"created_at" => created_at}) when is_binary(created_at) do
     created_at
