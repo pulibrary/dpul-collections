@@ -51,12 +51,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
       description_txtm: get_in(metadata, ["description"]),
       digitized_at_dt: digitized_date(data),
       display_date_s: format_date(metadata),
+      file_count_i: file_count(metadata),
       folder_number_txtm: get_in(metadata, ["folder_number"]),
       height_txtm: get_in(metadata, ["height"]),
       holding_location_txtm: get_in(metadata, ["holding_location"]),
       image_service_urls_ss: image_service_urls(metadata, related_data),
       keywords_txtm: get_in(metadata, ["keywords"]),
-      page_count_i: page_count(metadata),
+      page_count_txtm: get_in(metadata, ["page_count"]),
       primary_thumbnail_service_url_s: primary_thumbnail_service_url(metadata, related_data),
       provenance_txtm: get_in(metadata, ["provenance"]),
       publisher_txtm: get_in(metadata, ["publisher"]),
@@ -170,11 +171,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
 
   defp is_derivative(_), do: false
 
-  defp page_count(%{"member_ids" => member_ids}) when is_list(member_ids) do
+  defp file_count(%{"member_ids" => member_ids}) when is_list(member_ids) do
     member_ids |> length
   end
 
-  defp page_count(_) do
+  defp file_count(_) do
     0
   end
 

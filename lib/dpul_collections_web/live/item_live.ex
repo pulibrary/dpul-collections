@@ -57,11 +57,11 @@ defmodule DpulCollectionsWeb.ItemLive do
         <.metadata_table item={@item} />
       </div>
       <section class="md:col-span-5 m:order-last py-4">
-        <h2 class="text-xl font-bold py-4"><%= gettext("Pages") %> (<%= @item.page_count %>)</h2>
+        <h2 class="text-xl font-bold py-4"><%= gettext("Pages") %> (<%= @item.file_count %>)</h2>
         <div class="flex flex-wrap gap-5 justify-center md:justify-start">
           <.thumbs
             :for={{thumb, thumb_num} <- Enum.with_index(@item.image_service_urls)}
-            :if={@item.page_count}
+            :if={@item.file_count}
             thumb={thumb}
             thumb_num={thumb_num}
           />

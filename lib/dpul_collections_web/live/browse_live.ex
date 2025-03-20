@@ -55,12 +55,12 @@ defmodule DpulCollectionsWeb.BrowseLive do
       class="flex flex-col rounded-lg overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_rgba(148,163,184,0.75)]"
     >
       <div class="h-[25rem]">
-        <div :if={@item.page_count == 1} class="grid grid-cols-1 gap-[2px] bg-slate-400 h-[100%]">
+        <div :if={@item.file_count == 1} class="grid grid-cols-1 gap-[2px] bg-slate-400 h-[100%]">
           <.thumb thumb={thumbnail_service_url(@item)} />
         </div>
 
         <div
-          :if={@item.page_count > 1}
+          :if={@item.file_count > 1}
           class="grid grid-cols-1 gap-[2px] bg-slate-400 h-[75%] overflow-hidden"
         >
           <.thumb thumb={thumbnail_service_url(@item)} />
@@ -68,7 +68,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
         <div class="bg-slate-400 grid grid-cols-4 gap-[2px] pt-[2px] h-[25%]">
           <.thumb
             :for={{thumb, thumb_num} <- thumbnail_service_urls(4, @item.image_service_urls)}
-            :if={@item.page_count}
+            :if={@item.file_count}
             thumb={thumb}
             thumb_num={thumb_num}
           />
@@ -80,8 +80,8 @@ defmodule DpulCollectionsWeb.BrowseLive do
         </h2>
         <p class="text-gray-700 text-base"><%= @item.date %></p>
       </div>
-      <div :if={@item.page_count > 1} class="absolute bg-lime-100 top-0 right-0 z-10 h-10 p-2">
-        <%= @item.page_count %> pages
+      <div :if={@item.file_count > 1} class="absolute bg-lime-100 top-0 right-0 z-10 h-10 p-2">
+        <%= @item.file_count %> pages
       </div>
     </div>
     """
