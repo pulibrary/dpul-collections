@@ -29,6 +29,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
                page_count_txtm: ["4"],
                provenance_txtm: ["provenance"],
                publisher_txtm: ["publisher"],
+               rights_statement_txtm: ["No Known Copyright"],
                series_txtm: ["series"],
                sort_title_txtm: ["sort_title"],
                transliterated_title_txtm: ["transliterated_title"],

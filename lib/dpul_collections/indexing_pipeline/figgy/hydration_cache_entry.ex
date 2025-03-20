@@ -61,6 +61,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
       primary_thumbnail_service_url_s: primary_thumbnail_service_url(metadata, related_data),
       provenance_txtm: get_in(metadata, ["provenance"]),
       publisher_txtm: get_in(metadata, ["publisher"]),
+      rights_statement_txtm: extract_rights_statement(metadata),
       series_txtm: get_in(metadata, ["series"]),
       sort_title_txtm: get_in(metadata, ["sort_title"]),
       transliterated_title_txtm: get_in(metadata, ["transliterated_title"]),
@@ -162,6 +163,39 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   end
 
   def extract_title(%{"title" => title}), do: title
+
+  defp extract_rights_statement(%{"rights_statement" => [%{"@id" => url}]}) when is_binary(url) do
+    %{
+      "http://rightsstatements.org/vocab/CNE/1.0/" => "Copyright Not Evaluated",
+      "http://rightsstatements.org/vocab/InC/1.0/" => "In Copyright",
+      "http://rightsstatements.org/vocab/InC-RUU/1.0/" =>
+        "In Copyright - Rights-holder(s) Unlocatable or Unidentifiable",
+      "http://rightsstatements.org/vocab/InC-EDU/1.0/" =>
+        "In Copyright - Educational Use Permitted",
+      "http://rightsstatements.org/vocab/InC-NC/1.0/" =>
+        "In Copyright - NonCommercial Use Permitted",
+      "http://rightsstatements.org/vocab/NoC-CR/1.0/" =>
+        "No Copyright - Contractual Restrictions",
+      "http://rightsstatements.org/vocab/NoC-OKLR/1.0/" =>
+        "No Copyright - Other Known Legal Restrictions",
+      "http://rightsstatements.org/vocab/NKC/1.0/" => "No Known Copyright",
+      "http://cicognara.org/microfiche_copyright" =>
+        "This title is reproduced by permission of the Vatican Library",
+      "https://www.mfa.org/collections/mfa-images/licensing/frequently-asked-questions" =>
+        "Digitized by the Museum of Fine Arts, Boston",
+      "https://creativecommons.org/licenses/by/4.0/" => "CC-BY 4.0",
+      "https://creativecommons.org/licenses/by-nc-sa/4.0/" =>
+        "CC-BY-NonCommercial-ShareAlike 4.0",
+      "https://creativecommons.org/licenses/by-nc-nd/4.0/" =>
+        "CC-BY-NonCommercial-NoDerivatives 4.0",
+      "https://creativecommons.org/publicdomain/zero/1.0/" => "CC-Zero / Public Domain",
+      "https://creativecommons.org/publicdomain/mark/1.0/" => "Public Domain Mark"
+    }
+    |> get_in([url])
+    |> List.wrap()
+  end
+
+  defp extract_rights_statement(_), do: nil
 
   defp is_derivative(%{
          "mime_type" => ["image/tiff"],

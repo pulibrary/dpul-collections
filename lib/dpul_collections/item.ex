@@ -21,6 +21,7 @@ defmodule DpulCollections.Item do
     :primary_thumbnail_service_url,
     :provenance,
     :publisher,
+    :rights_statement,
     :series,
     :sort_title,
     :transliterated_title,
@@ -44,6 +45,7 @@ defmodule DpulCollections.Item do
       :page_count,
       :provenance,
       :publisher,
+      :rights_statement,
       :series,
       :transliterated_title,
       :width
@@ -77,6 +79,7 @@ defmodule DpulCollections.Item do
       primary_thumbnail_service_url: doc["primary_thumbnail_service_url_s"],
       provenance: doc["provenance_txtm"] || [],
       publisher: doc["publisher_txtm"] || [],
+      rights_statement: doc["rights_statement_txtm"] || [],
       series: doc["series_txtm"] || [],
       sort_title: doc["sort_title_txtm"] || [],
       transliterated_title: doc["transliterated_title_txtm"] || [],

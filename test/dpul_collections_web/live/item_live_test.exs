@@ -33,6 +33,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           primary_thumbnail_service_url_s: "https://example.com/iiif/2/image2",
           provenance_txtm: ["provenance"],
           publisher_txtm: ["publisher"],
+          rights_statement_txtm: ["No Known Copyright"],
           series_txtm: ["series"],
           sort_title_txtm: ["sort title"],
           transliterated_title_txtm: ["transliterated title"],
@@ -103,6 +104,8 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     assert document |> Floki.find(~s{td:fl-contains("publisher")}) |> Enum.any?()
     assert document |> Floki.find(~s{th:fl-contains("Provenance")}) |> Enum.any?()
     assert document |> Floki.find(~s{td:fl-contains("provenance")}) |> Enum.any?()
+    assert document |> Floki.find(~s{th:fl-contains("Rights statement")}) |> Enum.any?()
+    assert document |> Floki.find(~s{td:fl-contains("No Known Copyright")}) |> Enum.any?()
     assert document |> Floki.find(~s{th:fl-contains("Series")}) |> Enum.any?()
     assert document |> Floki.find(~s{td:fl-contains("series")}) |> Enum.any?()
     assert document |> Floki.find(~s{th:fl-contains("Transliterated title")}) |> Enum.any?()

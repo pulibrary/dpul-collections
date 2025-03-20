@@ -102,6 +102,7 @@ defmodule FiggyTestFixtures do
             "page_count" => ["4"],
             "provenance" => ["provenance"],
             "publisher" => ["publisher"],
+            "rights_statement" => [%{"@id" => "http://rightsstatements.org/vocab/NKC/1.0/"}],
             "series" => ["series"],
             "sort_title" => ["sort_title"],
             "transliterated_title" => ["transliterated_title"],
