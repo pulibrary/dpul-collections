@@ -28,7 +28,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
             "https://example.com/iiif/2/image2"
           ],
           keywords_txtm: ["keyword"],
-          page_count_i: 17,
+          file_count_i: 17,
           primary_thumbnail_service_url_s: "https://example.com/iiif/2/image2",
           provenance_txtm: ["provenance"],
           publisher_txtm: ["publisher"],
@@ -41,7 +41,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           id: 2,
           title_txtm: "زلزلہ",
           display_date_s: "2024",
-          page_count_i: 14,
+          file_count_i: 14,
           image_service_urls_ss: [
             "https://example.com/iiif/2/image1",
             "https://example.com/iiif/2/image2"
@@ -52,7 +52,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           id: 3,
           title_txtm: "اب كوئى جنگ نه هوگى نه كبهى رات گئے، خون كى آگ كو اشكوں سے بجهانا هوگا",
           display_date_s: "2022",
-          page_count_i: 1,
+          file_count_i: 1,
           image_service_urls_ss: [
             "https://example.com/iiif/2/image1",
             "https://example.com/iiif/2/image2"

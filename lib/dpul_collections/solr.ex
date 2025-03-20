@@ -16,7 +16,7 @@ defmodule DpulCollections.Solr do
     "id",
     "title_ss",
     "display_date_s",
-    "page_count_i",
+    "file_count_i",
     "detectlang_ss",
     "slug_s",
     "image_service_urls_ss",
@@ -52,7 +52,7 @@ defmodule DpulCollections.Solr do
       fl: fl,
       rows: count,
       sort: "digitized_at_dt desc",
-      fq: "page_count_i:[1 TO *]"
+      fq: "file_count_i:[1 TO *]"
     ]
 
     {:ok, response} =

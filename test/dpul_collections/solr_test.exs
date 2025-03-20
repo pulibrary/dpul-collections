@@ -46,13 +46,13 @@ defmodule DpulCollections.SolrTest do
     doc1 = %{
       "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
       "title_txtm" => "Doc-1",
-      "page_count_i" => 1,
+      "file_count_i" => 1,
       "digitized_at_dt" => DateTime.utc_now() |> DateTime.add(-1, :hour) |> DateTime.to_iso8601()
     }
 
     doc2 = %{
       "id" => "26713a31-d615-49fd-adfc-93770b4f66b3",
-      "page_count_i" => 1,
+      "file_count_i" => 1,
       "digitized_at_dt" =>
         DateTime.utc_now() |> DateTime.add(-5, :minute) |> DateTime.to_iso8601(),
       "title_txtm" => "Doc-2"
@@ -60,7 +60,7 @@ defmodule DpulCollections.SolrTest do
 
     doc3 = %{
       "id" => "26713a31-d615-49fd-adfc-93770b4f66b4",
-      "page_count_i" => 0,
+      "file_count_i" => 0,
       "digitized_at_dt" => DateTime.utc_now() |> DateTime.to_iso8601(),
       "title_txtm" => "Doc-3"
     }

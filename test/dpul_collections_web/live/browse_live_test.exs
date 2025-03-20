@@ -47,7 +47,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
         %{
           id: "n",
           title_txtm: "Document-n",
-          page_count_i: 3
+          file_count_i: 3
         }
       ],
       active_collection()
@@ -67,7 +67,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
         %{
           id: "n",
           title_txtm: "Document-n",
-          page_count_i: 0
+          file_count_i: 0
         }
       ],
       active_collection()
@@ -87,7 +87,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
         %{
           id: "n",
           title_txtm: "Document-n",
-          page_count_i: 1,
+          file_count_i: 1,
           image_service_urls_ss: [
             "https://example.com/iiif/2/image1"
           ],
@@ -116,7 +116,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
         %{
           id: "n",
           title_txtm: "Document-n",
-          page_count_i: 2,
+          file_count_i: 2,
           image_service_urls_ss: [
             "https://example.com/iiif/2/image1",
             "https://example.com/iiif/2/image2"

@@ -166,12 +166,12 @@ defmodule DpulCollectionsWeb.SearchLive do
       <div class="flex flex-wrap gap-5 md:max-h-60 max-h-[22rem] overflow-hidden justify-center md:justify-start relative">
         <.thumbs
           :for={{thumb, thumb_num} <- thumbnail_service_urls(5, @item)}
-          :if={@item.page_count}
+          :if={@item.file_count}
           thumb={thumb}
           thumb_num={thumb_num}
         />
-        <div :if={@item.page_count > 1} class="absolute right-0 top-0 bg-white px-4 py-2">
-          <%= @item.page_count %> <%= gettext("Pages") %>
+        <div :if={@item.file_count > 1} class="absolute right-0 top-0 bg-white px-4 py-2">
+          <%= @item.file_count %> <%= gettext("Pages") %>
         </div>
       </div>
       <h2 class="underline text-2xl font-bold pt-4">

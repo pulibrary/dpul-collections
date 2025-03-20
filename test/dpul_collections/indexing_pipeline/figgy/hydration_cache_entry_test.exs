@@ -60,15 +60,15 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
       assert doc3[:description_txtm] == nil
     end
 
-    test "indexes page_count_i" do
+    test "indexes file_count_i" do
       entries =
         FiggyTestFixtures.hydration_cache_entries()
         |> Tuple.to_list()
 
       [doc1, doc2, _doc3] = Enum.map(entries, &HydrationCacheEntry.to_solr_document/1)
 
-      assert doc1[:page_count_i] == 27
-      assert doc2[:page_count_i] == 0
+      assert doc1[:file_count_i] == 27
+      assert doc2[:file_count_i] == 0
     end
 
     test "transforms related member image service urls" do

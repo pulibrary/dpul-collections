@@ -4,7 +4,7 @@ defmodule SolrTestSupport do
       date = 2025 - n
 
       # Equals the number of image service urls
-      page_count = 7
+      file_count = 7
 
       # Assign thumbnail urls to even numbered documents.
       # Used for testing thumbnail rendering order
@@ -19,7 +19,7 @@ defmodule SolrTestSupport do
         title_txtm: "Document-#{n}",
         display_date_s: date |> Integer.to_string(),
         years_is: [date],
-        page_count_i: page_count,
+        file_count_i: file_count,
         image_service_urls_ss: [
           "https://example.com/iiif/2/image1",
           "https://example.com/iiif/2/image2",
