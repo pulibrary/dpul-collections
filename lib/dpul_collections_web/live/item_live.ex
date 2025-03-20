@@ -74,7 +74,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def metadata_table(assigns) do
     ~H"""
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-      <table class="w-full text-sm text-left rtl:text-right dark:text-white align-top">
+      <table class="w-full text-sm text-left rtl:text-right align-top">
         <tbody>
           <.metadata_row
             :for={{field, _} <- Enum.with_index(DpulCollections.Item.metadata_display_fields())}
@@ -94,7 +94,7 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def metadata_row(assigns) do
     ~H"""
-    <tr class="even:bg-white even:dark:bg-gray-900 odd:bg-gray-50 odd:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200">
+    <tr class="even:bg-white odd:bg-gray-50 border-b border-gray-200">
       <th scope="row" class="px-6 py-4 text-gray-900 whitespace-nowrap align-top">
         <%= field_label(@field) %>
       </th>
