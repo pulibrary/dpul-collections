@@ -57,6 +57,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
       holding_location_txtm: get_in(metadata, ["holding_location"]),
       image_service_urls_ss: image_service_urls(metadata, related_data),
       keywords_txtm: get_in(metadata, ["keywords"]),
+      page_count_txtm: get_in(metadata, ["page_count"]),
       primary_thumbnail_service_url_s: primary_thumbnail_service_url(metadata, related_data),
       provenance_txtm: get_in(metadata, ["provenance"]),
       publisher_txtm: get_in(metadata, ["publisher"]),

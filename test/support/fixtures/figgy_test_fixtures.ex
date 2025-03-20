@@ -99,6 +99,7 @@ defmodule FiggyTestFixtures do
             "holding_location" => ["holding location"],
             "keywords" => ["keyword"],
             "language" => ["language"],
+            "page_count" => ["4"],
             "provenance" => ["provenance"],
             "publisher" => ["publisher"],
             "series" => ["series"],

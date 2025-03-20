@@ -26,6 +26,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
                height_txtm: ["200"],
                holding_location_txtm: ["holding location"],
                keywords_txtm: ["keyword"],
+               page_count_txtm: ["4"],
                provenance_txtm: ["provenance"],
                publisher_txtm: ["publisher"],
                series_txtm: ["series"],
