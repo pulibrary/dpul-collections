@@ -30,9 +30,8 @@ defmodule DpulCollectionsWeb.ItemLive do
     <div class="my-5 grid grid-flow-row auto-rows-max md:grid-cols-5 gap-4">
       <div class="item md:col-span-3 md:pl-8">
         <h1 class="text-4xl font-bold pb-2"><%= @item.title %></h1>
-        <div class="pb-6 text-xl"><%= @item.date %></div>
         <div class="md:block hidden">
-          <.description :for={description <- @item.description} description={description} />
+          <.metadata_table item={@item} />
         </div>
       </div>
       <div class="primary-thumbnail md:col-span-2 md:order-first">
@@ -55,7 +54,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         </button>
       </div>
       <div class="md:hidden block">
-        <.description :for={description <- @item.description} description={description} />
+        <.metadata_table item={@item} />
       </div>
       <section class="md:col-span-5 m:order-last py-4">
         <h2 class="text-xl font-bold py-4"><%= gettext("Pages") %> (<%= @item.page_count %>)</h2>
@@ -72,10 +71,51 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
-  def description(assigns) do
+  def metadata_table(assigns) do
     ~H"""
-    <div class="pb-4 leading-relaxed text-lg"><%= @description %></div>
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+      <table class="w-full text-sm text-left rtl:text-right align-top">
+        <tbody>
+          <.metadata_row
+            :for={{field, _} <- Enum.with_index(DpulCollections.Item.metadata_display_fields())}
+            field={field}
+            value={field_value(@item, field)}
+          />
+        </tbody>
+      </table>
+    </div>
     """
+  end
+
+  def metadata_row(%{value: []} = assigns) do
+    ~H"""
+    """
+  end
+
+  def metadata_row(assigns) do
+    ~H"""
+    <tr class="even:bg-white odd:bg-gray-50 border-b border-gray-200">
+      <th scope="row" class="px-6 py-4 text-gray-900 whitespace-nowrap align-top">
+        <%= field_label(@field) %>
+      </th>
+      <td class="px-6 py-4 font-medium">
+        <%= @value %>
+      </td>
+    </tr>
+    """
+  end
+
+  def field_value(item, field) do
+    item
+    |> Kernel.get_in([Access.key(field)])
+    |> List.wrap()
+  end
+
+  def field_label(field) do
+    field
+    |> Atom.to_string()
+    |> String.replace("_", " ")
+    |> String.capitalize()
   end
 
   def thumbs(assigns) do

@@ -4,30 +4,81 @@ defmodule DpulCollections.Item do
   defstruct [
     :id,
     :title,
+    :alternative_title,
+    :barcode,
+    :content_warning,
+    :contributor,
+    :creator,
+    :description,
     :date,
-    :page_count,
-    :url,
+    :folder_number,
+    :height,
+    :holding_location,
     :image_service_urls,
+    :keywords,
+    :page_count,
     :primary_thumbnail_service_url,
-    :description
+    :provenance,
+    :publisher,
+    :series,
+    :sort_title,
+    :transliterated_title,
+    :url,
+    :width
   ]
+
+  def metadata_display_fields do
+    [
+      :date,
+      :description,
+      :alternative_title,
+      :barcode,
+      :content_warning,
+      :contributor,
+      :creator,
+      :folder_number,
+      :height,
+      :holding_location,
+      :keywords,
+      :provenance,
+      :publisher,
+      :series,
+      :transliterated_title,
+      :width
+    ]
+  end
 
   def from_solr(nil), do: nil
 
   def from_solr(doc) do
     slug = doc["slug_s"]
-    title = doc["title_ss"] |> Enum.at(0)
     id = doc["id"]
+    title = doc["title_ss"] |> Enum.at(0)
 
     %__MODULE__{
       id: id,
       title: title,
+      alternative_title: doc["alternative_title_txtm"] || [],
+      barcode: doc["barcode_txtm"] || [],
+      content_warning: doc["content_warning_txtm"] || [],
+      contributor: doc["contributor_txtm"] || [],
+      creator: doc["creator_txtm"] || [],
       date: doc["display_date_s"],
-      page_count: doc["page_count_i"],
-      url: generate_url(id, slug),
+      description: doc["description_txtm"] || [],
+      folder_number: doc["folder_number_txtm"] || [],
+      height: doc["height_txtm"] || [],
+      holding_location: doc["holding_location_txtm"] || [],
       image_service_urls: doc["image_service_urls_ss"] || [],
+      keywords: doc["keywords_txtm"] || [],
+      page_count: doc["page_count_i"],
       primary_thumbnail_service_url: doc["primary_thumbnail_service_url_s"],
-      description: doc["description_txtm"] || []
+      provenance: doc["provenance_txtm"] || [],
+      publisher: doc["publisher_txtm"] || [],
+      series: doc["series_txtm"] || [],
+      sort_title: doc["sort_title_txtm"] || [],
+      transliterated_title: doc["transliterated_title_txtm"] || [],
+      url: generate_url(id, slug),
+      width: doc["width_txtm"] || []
     }
   end
 
