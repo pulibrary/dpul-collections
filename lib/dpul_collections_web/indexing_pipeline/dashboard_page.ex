@@ -60,11 +60,11 @@ defmodule DpulCollectionsWeb.IndexingPipeline.DashboardPage do
     >
       <:col field={:updated_at} sortable={:desc} />
       <:col :let={record} field={:duration} header="Duration (hh:mm:ss)">
-        <%= to_hh_mm_ss(record.duration) %>
+        {to_hh_mm_ss(record.duration)}
       </:col>
       <:col field={:records_acked} header="Record Count" />
       <:col :let={record} field={:per_second} header="Records per Second">
-        <%= per_second(record) %>
+        {per_second(record)}
       </:col>
     </.live_table>
     <.live_table
@@ -77,11 +77,11 @@ defmodule DpulCollectionsWeb.IndexingPipeline.DashboardPage do
     >
       <:col field={:updated_at} sortable={:desc} />
       <:col :let={record} field={:duration} header="Duration (hh:mm:ss)">
-        <%= to_hh_mm_ss(record.duration) %>
+        {to_hh_mm_ss(record.duration)}
       </:col>
       <:col field={:records_acked} header="Record Count" />
       <:col :let={record} field={:per_second} header="Records per Second">
-        <%= per_second(record) %>
+        {per_second(record)}
       </:col>
     </.live_table>
     <.live_table
@@ -94,11 +94,11 @@ defmodule DpulCollectionsWeb.IndexingPipeline.DashboardPage do
     >
       <:col field={:updated_at} sortable={:desc} />
       <:col :let={record} field={:duration} header="Duration (hh:mm:ss)">
-        <%= to_hh_mm_ss(record.duration) %>
+        {to_hh_mm_ss(record.duration)}
       </:col>
       <:col field={:records_acked} header="Record Count" />
       <:col :let={record} field={:per_second} header="Records per Second">
-        <%= per_second(record) %>
+        {per_second(record)}
       </:col>
     </.live_table>
     """
