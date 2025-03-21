@@ -26,7 +26,7 @@ config :dpul_collections, DpulCollections.FiggyRepo,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
-# Wallaby feature tests require the server to be running
+# Playwright feature tests require the server to be running
 config :dpul_collections, DpulCollectionsWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
   secret_key_base: "fS76i6oeLWDlMP7AEe+nExNz3J4tHyaIZrELNhSmY3LUocagaphwGc8Ff7rAh6qS",
@@ -72,14 +72,16 @@ config :dpul_collections, :figgy_hydrator, poll_interval: 50
 
 config :dpul_collections, :web_connections, figgy_url: "https://figgy.example.com"
 
-config :wallaby,
+config :phoenix_test,
   otp_app: :dpul_collections,
-  screenshot_on_failure: true,
-  # Change to :stdio view javacript log output
-  js_logger: nil,
-  chromedriver: [
-    # change to false if you want to see the browser in action
-    headless: true
+  endpoint: DpulCollectionsWeb.Endpoint,
+  playwright: [
+    browser: :chromium,
+    headless: System.get_env("PW_HEADLESS", "true") in ~w(t true),
+    js_logger: false,
+    screenshot: System.get_env("PW_SCREENSHOT", "false") in ~w(t true),
+    trace: System.get_env("PW_TRACE", "false") in ~w(t true),
+    browser_launch_timeout: 10_000
   ]
 
 config :honeybadger, api_key: ""

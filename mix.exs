@@ -74,10 +74,8 @@ defmodule DpulCollections.MixProject do
       {:ex_doc, "~> 0.37", only: :dev, runtime: false},
       {:req, "~> 0.5"},
       {:broadway_dashboard, "~> 0.4"},
-      {:wallaby, "~> 0.30", runtime: false, only: :test},
-      # Older versions of hackney raise Wallaby errors during testing
-      {:hackney, "~> 1.23.0"},
-      {:honeybadger, "~> 0.23"}
+      {:honeybadger, "~> 0.23"},
+      {:phoenix_test_playwright, "~> 0.6", only: :test, runtime: false}
     ]
   end
 
