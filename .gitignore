@@ -40,3 +40,5 @@ solr/conf/solr_config.zip
 
 # playwright screenshots
 screenshots/*
+
+package-lock.json
