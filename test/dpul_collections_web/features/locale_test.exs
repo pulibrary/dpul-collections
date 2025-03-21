@@ -1,28 +1,15 @@
 defmodule DpulCollectionsWeb.Features.LocaleTest do
   use ExUnit.Case, async: true
+  use PhoenixTest.Playwright.Case, async: true
 
-  # feature "locale persists between pages", %{session: session} do
-  #   session
-  #   |> visit("/")
-  #   |> assert_has(css("h3", text: "Explore Our Digital Collections"))
-  #   |> click(button("Language"))
-  #   |> click(Query.text("Español"))
-  #   |> assert_has(css("h3", text: "Explora nuestras colecciones"))
-  #   |> click(button("Buscar"))
-  #   |> assert_has(css("div#filters", text: "Relevancia"))
-  # end
-  #
-  # feature "existing params are preserved when locale is changed", %{session: session} do
-  #   session =
-  #     session
-  #     |> visit("/")
-  #     |> fill_in(text_field("q"), with: "foo")
-  #     |> click(button("Search"))
-  #     |> click(button("Language"))
-  #     |> click(Query.text("Español"))
-  #     |> assert_has(css("div#filters", text: "Relevancia"))
-  #
-  #   field = find(session, text_field("q"))
-  #   assert Element.value(field) == "foo"
-  # end
+  test "locale persists between pages", %{conn: conn} do
+    conn
+    |> visit("/")
+    |> assert_has("h3", text: "Explore Our Digital Collections")
+    |> click_button("Language")
+    |> click_button("div", "Español")
+    |> assert_has("h3", text: "Explora nuestras colecciones")
+    |> click_button("Buscar")
+    |> assert_has("label", text: "filtrar por fecha:")
+  end
 end
