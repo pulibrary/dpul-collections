@@ -76,6 +76,7 @@ config :phoenix_test,
   otp_app: :dpul_collections,
   endpoint: DpulCollectionsWeb.Endpoint,
   playwright: [
+    cli: "node_modules/playwright/cli.js",
     browser: :chromium,
     headless: System.get_env("PW_HEADLESS", "true") in ~w(t true),
     js_logger: false,

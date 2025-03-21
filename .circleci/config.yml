@@ -86,7 +86,7 @@ commands:
     steps:
       - run:
           name: Run tests
-          command: MIX_ENV=test mix test --exclude ci:false
+          command: MIX_ENV=test mix test
 
 jobs:
   check-formatting:
@@ -105,6 +105,11 @@ jobs:
       - install-deps:
           include-assets: false
       - run: dockerize -wait tcp://localhost:8983 -timeout 1m
+      - run:
+          name: Install playwright for feature tests
+          command: |
+            npm install
+            npm exec playwright install chromium --with-deps
       - run:
           name: Load config into solr
           command: |
