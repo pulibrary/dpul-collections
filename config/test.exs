@@ -72,14 +72,4 @@ config :dpul_collections, :figgy_hydrator, poll_interval: 50
 
 config :dpul_collections, :web_connections, figgy_url: "https://figgy.example.com"
 
-config :wallaby,
-  otp_app: :dpul_collections,
-  screenshot_on_failure: true,
-  # Change to :stdio view javacript log output
-  js_logger: nil,
-  chromedriver: [
-    # change to false if you want to see the browser in action
-    headless: true
-  ]
-
 config :honeybadger, api_key: ""
