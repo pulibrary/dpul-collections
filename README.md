@@ -10,7 +10,7 @@ This project is built in Elixir using Phoenix LiveView as a web framework and Br
 
 - `brew install asdf`
 - `asdf install`
-- `brew install --cask chromedriver`
+- `npm install && npm exec playwright install chromium --with-deps`
   - required to run feature tests
 
 ### Every time setup

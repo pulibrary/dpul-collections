@@ -15,7 +15,7 @@ defmodule DpulCollectionsWeb.HeaderComponent do
           navigate={~p"/"}
           class="text-2xl hidden sm:inline-block text-white hover:underline hover:underline-offset-8 hover:decoration-orange-500 hover:decoration-2"
         >
-          <%= gettext("Digital Collections") %>
+          {gettext("Digital Collections")}
         </.link>
       </div>
       <div class="menu flex-none">
@@ -27,7 +27,7 @@ defmodule DpulCollectionsWeb.HeaderComponent do
             aria-expanded="false"
             phx-click={JS.toggle(to: "#dropdownMenu")}
           >
-            <%= gettext("Language") %>
+            {gettext("Language")}
           </button>
           <ul
             id="dropdownMenu"

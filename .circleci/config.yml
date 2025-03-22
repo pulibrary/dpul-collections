@@ -2,13 +2,10 @@ version: 2.1
 
 description: Common jobs for testing and building phoenix applications
 
-orbs:
-  browser-tools: circleci/browser-tools@1.4.6
-  node: circleci/node@5.0.2
 executors:
   builder:
     docker:
-      - image: cimg/elixir:1.17.2-erlang-26.2.1-browsers
+      - image: cimg/elixir:1.18.2-erlang-26.2.1-browsers
         environment:
           TEST_POSTGRES_PORT: 5432
           TEST_POSTGRES_FIGGY_HOST: figgy_database
@@ -81,13 +78,6 @@ commands:
           name: Check elixir formatting
           command: mix format --check-formatted --dry-run
 
-  mix-test:
-    description: Runs all tests via mix
-    steps:
-      - run:
-          name: Run tests
-          command: MIX_ENV=test mix test --exclude ci:false
-
 jobs:
   check-formatting:
     executor: formatter
@@ -100,11 +90,15 @@ jobs:
   run-unit-tests:
     executor: builder
     steps:
-      - browser-tools/install-chromedriver
       - checkout
       - install-deps:
           include-assets: false
       - run: dockerize -wait tcp://localhost:8983 -timeout 1m
+      - run:
+          name: Install playwright for feature tests
+          command: |
+            npm --prefix assets install
+            npm --prefix assets exec playwright install chromium --with-deps
       - run:
           name: Load config into solr
           command: |
@@ -113,7 +107,9 @@ jobs:
             curl -H "Content-type:application/octet-stream" --data-binary @solr_config.zip "http://solr:SolrRocks@localhost:8983/solr/admin/configs?action=UPLOAD&name=dpul-collections"
             curl -X POST http://solr:SolrRocks@localhost:8983/api/collections/ -H 'Content-type: application/json' -d '{create: {name: dpulc1, config: dpul-collections, numShards: 1}}'
             curl -X POST http://solr:SolrRocks@localhost:8983/api/c -H 'Content-Type: application/json' -d '{create-alias: {name: dpulc, collections:[dpulc1]}}'
-      - mix-test
+      - run:
+          name: Run tests
+          command: mix test
       - store_artifacts:
           path: cover
           destination: cover
