@@ -17,7 +17,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
         socket
         |> assign(
           items:
-            Solr.random(50, given_seed)["docs"]
+            Solr.random(3, given_seed)["docs"]
             |> Enum.map(&Item.from_solr(&1))
         )
 
@@ -33,13 +33,17 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def handle_event(
         "pin",
-        %{"item_idx" => idx},
+        %{"item_id" => id},
         socket = %{assigns: %{items: items, pinned_items: pinned_items}}
       ) do
-    {idx, _} = Integer.parse(idx)
-    doc = items |> Enum.at(idx)
-    case idx = Enum.find_index(pinned_items, fn pinned_item -> doc.id == pinned_item.id end)
-    {:noreply, socket |> assign(pinned_items: Enum.concat(pinned_items, [doc]))}
+        doc = items |> Enum.find(fn item -> item.id == id end)
+    if idx = Enum.find_index(pinned_items, fn pinned_item -> doc.id == pinned_item.id end) do
+      socket = socket |> assign(pinned_items: List.delete_at(pinned_items, idx)) |> dbg
+      {:noreply, socket}
+    else
+      {:noreply, socket |> assign(pinned_items: Enum.concat(pinned_items, [doc]))}
+    end
+
   end
 
   def render(assigns) do
@@ -62,9 +66,8 @@ defmodule DpulCollectionsWeb.BrowseLive do
     </div>
     <div class="grid grid-cols-3 gap-6 pt-5">
       <.browse_item
-        :for={{item, item_idx} <- @items |> Enum.with_index()}
+        :for={item <- @items}
         item={item}
-        item_idx={item_idx}
       />
     </div>
     """
@@ -79,9 +82,9 @@ defmodule DpulCollectionsWeb.BrowseLive do
       class="flex flex-col rounded-lg overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_rgba(148,163,184,0.75)]"
     >
       <div
-        id={"pin-#{@item_idx}"}
+        id={"pin-#{@item.id}"}
         phx-click="pin"
-        phx-value-item_idx={@item_idx}
+        phx-value-item_id={@item.id}
         class="h-10 w-10 absolute left-0 top-0 cursor-pointer"
       >
         <.icon
