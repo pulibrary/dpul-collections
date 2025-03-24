@@ -54,7 +54,7 @@ commands:
           steps:
             - run:
                 name: Install npm deps
-                command: npm install --prefix=./assets
+                command: mix assets.setup
       - save_cache:
           key: v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
           paths: "deps"
@@ -92,13 +92,8 @@ jobs:
     steps:
       - checkout
       - install-deps:
-          include-assets: false
+          include-assets: true
       - run: dockerize -wait tcp://localhost:8983 -timeout 1m
-      - run:
-          name: Install playwright for feature tests
-          command: |
-            npm --prefix assets install
-            npm --prefix assets exec playwright install chromium --with-deps
       - run:
           name: Load config into solr
           command: |

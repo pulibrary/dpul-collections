@@ -96,7 +96,12 @@ defmodule DpulCollections.MixProject do
         "assets.build",
         "coveralls.html"
       ],
-      "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
+      "assets.setup": [
+        "tailwind.install --if-missing",
+        "esbuild.install --if-missing",
+        "cmd npm --prefix assets install",
+        "cmd npm --prefix assets exec playwright install chromium --with-deps"
+      ],
       "assets.build": ["tailwind dpul_collections", "esbuild dpul_collections"],
       "assets.deploy": [
         "tailwind dpul_collections --minify",
