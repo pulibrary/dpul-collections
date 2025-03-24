@@ -1,7 +1,8 @@
 version: 2.1
 
 description: Common jobs for testing and building phoenix applications
-
+orbs:
+  node: circleci/node@7.1.0
 executors:
   builder:
     docker:
@@ -52,9 +53,11 @@ commands:
       - when:
           condition: << parameters.include-assets >>
           steps:
+            - node/install:
+                node-version: '22.14.0'
             - run:
                 name: Install npm deps
-                command: npm install --prefix=./assets
+                command: mix assets.setup
       - save_cache:
           key: v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
           paths: "deps"
@@ -92,13 +95,8 @@ jobs:
     steps:
       - checkout
       - install-deps:
-          include-assets: false
+          include-assets: true
       - run: dockerize -wait tcp://localhost:8983 -timeout 1m
-      - run:
-          name: Install playwright for feature tests
-          command: |
-            npm --prefix assets install
-            npm --prefix assets exec playwright install chromium --with-deps
       - run:
           name: Load config into solr
           command: |
