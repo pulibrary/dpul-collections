@@ -5,7 +5,9 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def mount(_params, _session, socket) do
     socket = socket
-             |> assign(items: [], pinned_items: [])
+             |> stream(:items, [])
+             |> stream(:pinned_items, [])
+             |> assign(:pinned_item_ids, %{})
     {:ok, socket}
   end
 
@@ -15,10 +17,10 @@ defmodule DpulCollectionsWeb.BrowseLive do
     if given_seed do
       socket =
         socket
-        |> assign(
-          items:
-            Solr.random(50, given_seed)["docs"]
-            |> Enum.map(&Item.from_solr(&1))
+        |> stream(
+          :items,
+          Solr.random(50, given_seed)["docs"]
+          |> Enum.map(&Item.from_solr(&1))
         )
 
       {:noreply, socket}
@@ -29,6 +31,28 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def handle_event("randomize", _map, socket) do
     {:noreply, push_patch(socket, to: "/browse?r=#{Enum.random(1..3000)}")}
+  end
+
+  # It's been pinned before, unpin it.
+  def handle_event(
+    "pin",
+    %{"item_id" => id},
+    socket = %{assigns: %{pinned_item_ids: pinned_item_ids}}
+  ) do
+    item = Solr.find_by_id(id) |> Item.from_solr
+    if Map.get(pinned_item_ids, id) do
+      socket =
+        socket
+        |> stream_delete(:pinned_items, item)
+        |> assign(pinned_item_ids: Map.delete(pinned_item_ids, id))
+      {:noreply, socket}
+    else
+      socket =
+        socket
+        |> stream_insert(:pinned_items, item)
+        |> assign(pinned_item_ids: Map.put(pinned_item_ids, id, true))
+      {:noreply, socket}
+    end
   end
 
   def handle_event(
@@ -43,7 +67,6 @@ defmodule DpulCollectionsWeb.BrowseLive do
     else
       {:noreply, socket |> assign(pinned_items: Enum.concat(pinned_items, [doc]))}
     end
-
   end
 
   def render(assigns) do
@@ -52,7 +75,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
       <h1 class="uppercase font-bold text-4xl col-span-3">Pinned</h1>
 
       <div class="grid grid-flow-row auto-rows-max gap-8">
-        <DpulCollectionsWeb.SearchLive.search_item :for={item <- @pinned_items} item={item} />
+        <DpulCollectionsWeb.SearchLive.search_item :for={{id, item} <- @streams.pinned_items} item={item} />
       </div>
     </div>
     <div class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-4">
@@ -66,7 +89,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
     </div>
     <div class="grid grid-cols-3 gap-6 pt-5">
       <.browse_item
-        :for={item <- @items}
+        :for={{id, item} <- @streams.items}
         item={item}
       />
     </div>
