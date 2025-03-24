@@ -7,10 +7,10 @@ defmodule DpulCollectionsWeb.SearchComponents do
   def page_link_or_span(assigns) do
     ~H"""
     <a :if={@text != "..."} {@rest} href="#" phx-click="paginate" phx-value-page={@text}>
-      <%= @text %>
+      {@text}
     </a>
     <span :if={@text == "..."} {@rest}>
-      <%= @text %>
+      {@text}
     </span>
     """
   end
@@ -85,13 +85,13 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def render(assigns) do
     ~H"""
-    <h1 class="sr-only"><%= gettext("Search Results") %></h1>
+    <h1 class="sr-only">{gettext("Search Results")}</h1>
     <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
       <form id="search-form" phx-submit="search">
         <div class="grid grid-cols-4">
           <input class="col-span-4 md:col-span-3" type="text" name="q" value={@search_state.q} />
           <button class="col-span-4 md:col-span-1 btn-primary" type="submit">
-            <%= gettext("Search") %>
+            {gettext("Search")}
           </button>
         </div>
       </form>
@@ -102,7 +102,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           class="grid md:grid-cols-[150px_200px_200px_200px] gap-2"
         >
           <label class="col-span-1 self-center font-bold uppercase" for="date-filter">
-            <%= gettext("filter by date") %>:
+            {gettext("filter by date")}:
           </label>
           <input
             class="col-span-1"
@@ -121,27 +121,27 @@ defmodule DpulCollectionsWeb.SearchLive do
             value={@search_state.date_to}
           />
           <button class="col-span-1 md:col-span-1 btn-primary" type="submit">
-            <%= gettext("Apply") %>
+            {gettext("Apply")}
           </button>
         </form>
         <form id="sort-form" class="grid md:grid-cols-[auto_200px] gap-2" phx-change="sort">
           <label class="col-span-1 self-center font-bold uppercase md:text-right" for="sort-by">
-            <%= gettext("sort by") %>:
+            {gettext("sort by")}:
           </label>
           <select class="col-span-1" name="sort-by">
-            <%= Phoenix.HTML.Form.options_for_select(
+            {Phoenix.HTML.Form.options_for_select(
               [
                 {gettext("Relevance"), "relevance"},
                 {gettext("Year (newest first)"), "date_desc"},
                 {gettext("Year (oldest first)"), "date_asc"}
               ],
               @search_state.sort_by
-            ) %>
+            )}
           </select>
         </form>
       </div>
       <div id="item-counter">
-        <span><%= @item_counter %></span>
+        <span>{@item_counter}</span>
       </div>
     </div>
     <div class="grid grid-flow-row auto-rows-max gap-8">
@@ -171,13 +171,13 @@ defmodule DpulCollectionsWeb.SearchLive do
           thumb_num={thumb_num}
         />
         <div :if={@item.file_count > 1} class="absolute right-0 top-0 bg-white px-4 py-2">
-          <%= @item.file_count %> <%= gettext("Pages") %>
+          {@item.file_count} {gettext("Pages")}
         </div>
       </div>
       <h2 class="underline text-2xl font-bold pt-4">
-        <.link navigate={@item.url}><%= @item.title %></.link>
+        <.link navigate={@item.url}>{@item.title}</.link>
       </h2>
-      <div class="text-xl"><%= @item.date %></div>
+      <div class="text-xl">{@item.date}</div>
     </div>
     """
   end
@@ -206,7 +206,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         phx-click="paginate"
         phx-value-page={@page - 1}
       >
-        <span class="sr-only"><%= gettext("Previous") %></span>
+        <span class="sr-only">{gettext("Previous")}</span>
         <svg
           class="w-2.5 h-2.5 rtl:rotate-180"
           aria-hidden="true"
@@ -249,7 +249,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         phx-click="paginate"
         phx-value-page={@page + 1}
       >
-        <span class="sr-only"><%= gettext("Next") %></span>
+        <span class="sr-only">{gettext("Next")}</span>
         <svg
           class="w-2.5 h-2.5 rtl:rotate-180"
           aria-hidden="true"

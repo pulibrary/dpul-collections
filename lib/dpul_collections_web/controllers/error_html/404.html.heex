@@ -11,19 +11,19 @@
 
   <body class="bg-white antialiased">
     <div class="flex flex-col min-h-screen" id="app">
-      <%= DpulCollectionsWeb.HeaderComponent.header(assigns) %>
+      {DpulCollectionsWeb.HeaderComponent.header(assigns)}
       <div class="flex-1">
         <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <div class="grid grid-flow-row auto-rows-max gap-20">
             <div id="error" class="grid place-self-center gap-10 max-w-prose">
               <p class="text-xl text-center">
-                <%= gettext("Page not found") %>
+                {gettext("Page not found")}
               </p>
             </div>
           </div>
         </main>
       </div>
-      <%= DpulCollectionsWeb.FooterComponent.footer(assigns) %>
+      {DpulCollectionsWeb.FooterComponent.footer(assigns)}
     </div>
   </body>
 </html>

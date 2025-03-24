@@ -29,7 +29,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div class="my-5 grid grid-flow-row auto-rows-max md:grid-cols-5 gap-4">
       <div class="item md:col-span-3 md:pl-8">
-        <h1 class="text-4xl font-bold pb-2"><%= @item.title %></h1>
+        <h1 class="text-4xl font-bold pb-2">{@item.title}</h1>
         <div class="md:block hidden">
           <.metadata_table item={@item} />
         </div>
@@ -49,7 +49,7 @@ defmodule DpulCollectionsWeb.ItemLive do
             href={"#{Application.fetch_env!(:dpul_collections, :web_connections)[:figgy_url]}/catalog/#{@item.id}/pdf"}
             target="_blank"
           >
-            <%= gettext("Download PDF") %>
+            {gettext("Download PDF")}
           </a>
         </button>
       </div>
@@ -57,7 +57,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         <.metadata_table item={@item} />
       </div>
       <section class="md:col-span-5 m:order-last py-4">
-        <h2 class="text-xl font-bold py-4"><%= gettext("Pages") %> (<%= @item.file_count %>)</h2>
+        <h2 class="text-xl font-bold py-4">{gettext("Pages")} ({@item.file_count})</h2>
         <div class="flex flex-wrap gap-5 justify-center md:justify-start">
           <.thumbs
             :for={{thumb, thumb_num} <- Enum.with_index(@item.image_service_urls)}
@@ -96,10 +96,10 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <tr class="even:bg-white odd:bg-gray-50 border-b border-gray-200">
       <th scope="row" class="px-6 py-4 text-gray-900 whitespace-nowrap align-top">
-        <%= field_label(@field) %>
+        {field_label(@field)}
       </th>
       <td class="px-6 py-4 font-medium">
-        <%= @value %>
+        {@value}
       </td>
     </tr>
     """
@@ -132,7 +132,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       />
       <button class="w-[350px] md:w-[225px] btn-primary">
         <a href={"#{@thumb}/full/full/0/default.jpg"} target="_blank">
-          <%= gettext("Download") %>
+          {gettext("Download")}
         </a>
       </button>
     </div>
