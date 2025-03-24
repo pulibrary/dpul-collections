@@ -54,51 +54,54 @@ defmodule DpulCollectionsWeb.IndexingPipeline.DashboardPage do
       id="hydration-table"
       dom_id="hydration-table"
       page={@page}
+      limit={nil}
       title="Hydration Metric Times (1 hour .. 2 days)"
       row_fetcher={&hydration_times/2}
       rows_name="metrics"
     >
       <:col field={:updated_at} sortable={:desc} />
       <:col :let={record} field={:duration} header="Duration (hh:mm:ss)">
-        <%= to_hh_mm_ss(record.duration) %>
+        {to_hh_mm_ss(record.duration)}
       </:col>
       <:col field={:records_acked} header="Record Count" />
       <:col :let={record} field={:per_second} header="Records per Second">
-        <%= per_second(record) %>
+        {per_second(record)}
       </:col>
     </.live_table>
     <.live_table
       id="transformation-table"
       dom_id="transformation-table"
       page={@page}
+      limit={nil}
       title="Transformation Metric Times (30 minutes .. 2 hours)"
       row_fetcher={&transformation_times/2}
       rows_name="metrics"
     >
       <:col field={:updated_at} sortable={:desc} />
       <:col :let={record} field={:duration} header="Duration (hh:mm:ss)">
-        <%= to_hh_mm_ss(record.duration) %>
+        {to_hh_mm_ss(record.duration)}
       </:col>
       <:col field={:records_acked} header="Record Count" />
       <:col :let={record} field={:per_second} header="Records per Second">
-        <%= per_second(record) %>
+        {per_second(record)}
       </:col>
     </.live_table>
     <.live_table
       id="indexing-table"
       dom_id="indexing-table"
       page={@page}
+      limit={nil}
       title="Indexing Metric Times (10 minutes .. 1 hour)"
       row_fetcher={&indexing_times/2}
       rows_name="metrics"
     >
       <:col field={:updated_at} sortable={:desc} />
       <:col :let={record} field={:duration} header="Duration (hh:mm:ss)">
-        <%= to_hh_mm_ss(record.duration) %>
+        {to_hh_mm_ss(record.duration)}
       </:col>
       <:col field={:records_acked} header="Record Count" />
       <:col :let={record} field={:per_second} header="Records per Second">
-        <%= per_second(record) %>
+        {per_second(record)}
       </:col>
     </.live_table>
     """
