@@ -78,7 +78,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def browse_item(assigns) do
     ~H"""
     <div
-      id={"item-#{@item.id}"}
+      id={"browse-item-#{@item.id}"}
       class="flex flex-col rounded-lg overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_rgba(148,163,184,0.75)]"
     >
       <div
