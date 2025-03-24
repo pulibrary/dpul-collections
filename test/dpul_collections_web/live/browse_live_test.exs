@@ -27,9 +27,10 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
 
     assert length(initial_count) == 0
 
+    # Pin one
     {:ok, document} =
       view
-      |> render_click("pin", %{"item_idx" => "0"})
+      |> render_click("pin", %{"item_id" => "1"})
       |> Floki.parse_document()
 
     new_count =
@@ -37,7 +38,18 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
       |> Floki.find("#pinned-items .item")
 
     assert Enum.count(new_count) == 1
-    assert document |> Floki.find("#pin-0 span.bg-white") |> length > 0
+
+    # Unpin it
+    {:ok, document} =
+      view
+      |> render_click("pin", %{"item_id" => "1"})
+      |> Floki.parse_document()
+
+    new_count =
+      document
+      |> Floki.find("#pinned-items .item")
+
+    assert Enum.count(new_count) == 0
   end
 
   test "click random button", %{conn: conn} do

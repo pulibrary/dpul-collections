@@ -38,7 +38,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
       ) do
         doc = items |> Enum.find(fn item -> item.id == id end)
     if idx = Enum.find_index(pinned_items, fn pinned_item -> doc.id == pinned_item.id end) do
-      socket = socket |> assign(pinned_items: List.delete_at(pinned_items, idx)) |> dbg
+      socket = socket |> assign(pinned_items: List.delete_at(pinned_items, idx))
       {:noreply, socket}
     else
       {:noreply, socket |> assign(pinned_items: Enum.concat(pinned_items, [doc]))}
@@ -83,13 +83,13 @@ defmodule DpulCollectionsWeb.BrowseLive do
     >
       <div
         id={"pin-#{@item.id}"}
-        phx-click="pin"
+        phx-click={JS.push("pin") |> JS.toggle_class("bg-white", to: {:inner, ".icon"}) |> JS.toggle_class("bg-black") |> JS.toggle_class("bg-white")}
         phx-value-item_id={@item.id}
-        class="h-10 w-10 absolute left-0 top-0 cursor-pointer"
+        class="h-10 w-10 absolute left-0 top-0 cursor-pointer bg-white"
       >
         <.icon
-          name={"hero-archive-box-arrow-down-solid#{if @item.pinned, do: " bg-white", else: "" }"}
-          class="h-10 w-10"
+          name="hero-archive-box-arrow-down-solid"
+          class="h-10 w-10 icon"
         />
       </div>
       <div class="h-[25rem]">
