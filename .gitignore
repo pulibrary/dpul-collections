@@ -38,5 +38,7 @@ figgy-fixture-container/fixture-exports/*.binary
 figgy-fixture-container/fixture-exports/*.sql
 solr/conf/solr_config.zip
 
-# wallaby screenshots
+# playwright screenshots
 screenshots/*
+
+package-lock.json
