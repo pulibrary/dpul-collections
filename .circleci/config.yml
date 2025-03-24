@@ -1,7 +1,8 @@
 version: 2.1
 
 description: Common jobs for testing and building phoenix applications
-
+orbs:
+  node: circleci/node@7.1.0
 executors:
   builder:
     docker:
@@ -52,6 +53,8 @@ commands:
       - when:
           condition: << parameters.include-assets >>
           steps:
+            - node/install:
+                node-version: '22.14.0'
             - run:
                 name: Install npm deps
                 command: mix assets.setup
