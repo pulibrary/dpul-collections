@@ -4,6 +4,8 @@ defmodule DpulCollectionsWeb.BrowseLive do
   alias DpulCollections.{Item, Solr}
 
   def mount(_params, _session, socket) do
+    socket = socket
+             |> assign(items: [], pinned_items: [])
     {:ok, socket}
   end
 
@@ -16,8 +18,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
         |> assign(
           items:
             Solr.random(90, given_seed)["docs"]
-            |> Enum.map(&Item.from_solr(&1)),
-          pinned_items: []
+            |> Enum.map(&Item.from_solr(&1))
         )
 
       {:noreply, socket}
@@ -37,8 +38,8 @@ defmodule DpulCollectionsWeb.BrowseLive do
       ) do
     {idx, _} = Integer.parse(idx)
     doc = items |> Enum.at(idx)
-    new_items = items |> List.replace_at(idx, %{doc | pinned: true})
-    {:noreply, socket |> assign(items: new_items, pinned_items: Enum.concat(pinned_items, [doc]))}
+    case idx = Enum.find_index(pinned_items, fn pinned_item -> doc.id == pinned_item.id end)
+    {:noreply, socket |> assign(pinned_items: Enum.concat(pinned_items, [doc]))}
   end
 
   def render(assigns) do
@@ -81,7 +82,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
         id={"pin-#{@item_idx}"}
         phx-click="pin"
         phx-value-item_idx={@item_idx}
-        class="h-10 w-10 absolute right-0 top-0 cursor-pointer"
+        class="h-10 w-10 absolute left-0 top-0 cursor-pointer"
       >
         <.icon
           name={"hero-archive-box-arrow-down-solid#{if @item.pinned, do: " bg-white", else: "" }"}
