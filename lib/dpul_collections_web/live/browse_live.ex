@@ -4,8 +4,10 @@ defmodule DpulCollectionsWeb.BrowseLive do
   alias DpulCollections.{Item, Solr}
 
   def mount(_params, _session, socket) do
-    socket = socket
-             |> assign(items: [], pinned_items: [])
+    socket =
+      socket
+      |> assign(items: [], pinned_items: [])
+
     {:ok, socket}
   end
 
@@ -36,14 +38,14 @@ defmodule DpulCollectionsWeb.BrowseLive do
         %{"item_id" => id},
         socket = %{assigns: %{items: items, pinned_items: pinned_items}}
       ) do
-        doc = items |> Enum.find(fn item -> item.id == id end)
+    doc = items |> Enum.find(fn item -> item.id == id end)
+
     if idx = Enum.find_index(pinned_items, fn pinned_item -> doc.id == pinned_item.id end) do
       socket = socket |> assign(pinned_items: List.delete_at(pinned_items, idx))
       {:noreply, socket}
     else
       {:noreply, socket |> assign(pinned_items: Enum.concat(pinned_items, [doc]))}
     end
-
   end
 
   def render(assigns) do
@@ -65,10 +67,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
       </button>
     </div>
     <div class="grid grid-cols-3 gap-6 pt-5">
-      <.browse_item
-        :for={item <- @items}
-        item={item}
-      />
+      <.browse_item :for={item <- @items} item={item} />
     </div>
     """
   end
@@ -83,14 +82,16 @@ defmodule DpulCollectionsWeb.BrowseLive do
     >
       <div
         id={"pin-#{@item.id}"}
-        phx-click={JS.push("pin") |> JS.toggle_class("bg-white", to: {:inner, ".icon"}) |> JS.toggle_class("bg-black") |> JS.toggle_class("bg-white")}
+        phx-click={
+          JS.push("pin")
+          |> JS.toggle_class("bg-white", to: {:inner, ".icon"})
+          |> JS.toggle_class("bg-black")
+          |> JS.toggle_class("bg-white")
+        }
         phx-value-item_id={@item.id}
         class="h-10 w-10 absolute left-0 top-0 cursor-pointer bg-white"
       >
-        <.icon
-          name="hero-archive-box-arrow-down-solid"
-          class="h-10 w-10 icon"
-        />
+        <.icon name="hero-archive-box-arrow-down-solid" class="h-10 w-10 icon" />
       </div>
       <div class="h-[25rem]">
         <div :if={@item.file_count == 1} class="grid grid-cols-1 gap-[2px] bg-slate-400 h-[100%]">
