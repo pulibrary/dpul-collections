@@ -25,17 +25,17 @@ defmodule DpulCollectionsWeb.HomeLive do
           <div class="grid grid-cols-4">
             <input class="col-span-4 md:col-span-3" type="text" name="q" value={@q} />
             <button class="col-span-4 md:col-span-1 btn-primary" type="submit">
-              <%= gettext("Search") %>
+              {gettext("Search")}
             </button>
           </div>
         </form>
       </div>
       <div id="welcome" class="grid place-self-center gap-10 max-w-prose">
-        <h3 class="text-5xl text-center"><%= gettext("Explore Our Digital Collections") %></h3>
+        <h3 class="text-5xl text-center">{gettext("Explore Our Digital Collections")}</h3>
         <p class="text-xl text-center">
-          <%= gettext("We invite you to be inspired by our globally diverse collections of") %> <%= @item_count %> <%= gettext(
+          {gettext("We invite you to be inspired by our globally diverse collections of")} {@item_count} {gettext(
             "Ephemera items. We can't wait to see how you use these materials to support your unique research."
-          ) %>
+          )}
         </p>
       </div>
       <div class="grid place-self-center">
@@ -45,7 +45,7 @@ defmodule DpulCollectionsWeb.HomeLive do
           </.link>
         </div>
       </div>
-      <h2 class="uppercase font-bold text-3xl"><%= gettext("Recent Items") %></h2>
+      <h2 class="uppercase font-bold text-3xl">{gettext("Recent Items")}</h2>
       <div class="grid grid-cols-5 gap-6 pt-5">
         <DpulCollectionsWeb.BrowseLive.browse_item :for={item <- @recent_items} item={item} />
       </div>
