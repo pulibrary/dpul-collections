@@ -21,12 +21,12 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
       {:noreply, socket}
     else
-      {:noreply, push_patch(socket, to: "/browse?r=#{Enum.random(1..1000000)}", replace: true)}
+      {:noreply, push_patch(socket, to: "/browse?r=#{Enum.random(1..1_000_000)}", replace: true)}
     end
   end
 
   def handle_event("randomize", _map, socket) do
-    {:noreply, push_patch(socket, to: "/browse?r=#{Enum.random(1..1000000)}")}
+    {:noreply, push_patch(socket, to: "/browse?r=#{Enum.random(1..1_000_000)}")}
   end
 
   def render(assigns) do
