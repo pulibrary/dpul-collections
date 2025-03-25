@@ -239,21 +239,10 @@ defmodule DpulCollections.IndexingPipeline do
   end
 
   def get_figgy_parents(id) do
+    json = %{"member_ids" => [%{"id" => id}]}
+
     Figgy.Resource
-    |> join(
-      :cross,
-      [resource],
-      id_position in fragment(
-        "jsonb_array_elements(?.metadata->'cached_parent_id') WITH ORDINALITY",
-        resource
-      )
-    )
-    |> join(:left, [resource, id_position, member], member in Figgy.Resource,
-      on: fragment("(?.value->>'id')::UUID", id_position) == member.id
-    )
-    |> select([..., member], member)
-    |> order_by([resource, id_position, member], id_position.ordinality)
-    |> where([resource], resource.id == ^id)
+    |> where([resource], fragment("? @> ?", resource.metadata, ^json))
     |> FiggyRepo.all()
   end
 
