@@ -50,6 +50,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def render(assigns) do
     ~H"""
+    <.pin_tracker>{length(@pinned_items)}</.pin_tracker>
     <div id="pinned-items" class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-1">
       <h1 class="uppercase font-bold text-4xl col-span-3">Pinned</h1>
 
@@ -68,6 +69,23 @@ defmodule DpulCollectionsWeb.BrowseLive do
     </div>
     <div class="grid grid-cols-3 gap-6 pt-5">
       <.browse_item :for={item <- @items} item={item} />
+    </div>
+    """
+  end
+
+  def pin_tracker(assigns) do
+    ~H"""
+    <div id="pin-tracker" class="fixed top-50 right-10">
+      <div class="relative inline-flex w-fit">
+        <div class="absolute bottom-auto left-auto right-0 top-0 z-10 inline-block -translate-y-1/2 translate-x-2/4 rotate-0 skew-x-0 skew-y-0 scale-x-100 scale-y-100 whitespace-nowrap rounded-full bg-red-600 px-1.5 py-1 text-center align-baseline text-xs font-bold leading-none text-white">
+          {render_slot(@inner_block)}
+        </div>
+        <a href="#pinned-items">
+          <span class="cursor-pointer mb-2 flex rounded bg-[#3eb991] px-6 py-2.5 text-xs font-medium uppercase leading-normal text-white shadow-md transition duration-150 ease-in-out hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg">
+            <.icon name="hero-archive-box-solid" class="h-6 w-6 icon" />
+          </span>
+        </a>
+      </div>
     </div>
     """
   end

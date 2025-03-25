@@ -39,6 +39,12 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
 
     assert Enum.count(new_count) == 1
 
+    pin_tracker =
+      document
+      |> Floki.find("#pin-tracker")
+
+    assert pin_tracker |> Floki.text() |> String.trim("\n") |> String.trim() == "1"
+
     # Unpin it
     {:ok, document} =
       view
