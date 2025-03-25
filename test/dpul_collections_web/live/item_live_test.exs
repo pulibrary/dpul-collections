@@ -15,6 +15,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           title_txtm: "Învăţămîntul trebuie să urmărească dezvoltarea deplină a personalităţii",
           alternative_title_txtm: "Alternative Title",
           barcode_txtm: ["barcode"],
+          box_number_txtm: ["box 1"],
           content_warning_txtm: ["content warning"],
           contributor_txtm: ["contributor"],
           creator_txtm: ["creator"],
@@ -82,6 +83,8 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     assert document |> Floki.find(~s{td:fl-contains("Alternative Title")}) |> Enum.any?()
     assert document |> Floki.find(~s{th:fl-contains("Barcode")}) |> Enum.any?()
     assert document |> Floki.find(~s{td:fl-contains("barcode")}) |> Enum.any?()
+    assert document |> Floki.find(~s{th:fl-contains("Box number")}) |> Enum.any?()
+    assert document |> Floki.find(~s{td:fl-contains("box 1")}) |> Enum.any?()
     assert document |> Floki.find(~s{th:fl-contains("Content warning")}) |> Enum.any?()
     assert document |> Floki.find(~s{td:fl-contains("content warning")}) |> Enum.any?()
     assert document |> Floki.find(~s{th:fl-contains("Contributor")}) |> Enum.any?()

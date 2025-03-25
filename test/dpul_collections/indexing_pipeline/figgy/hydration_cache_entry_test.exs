@@ -129,6 +129,41 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
                "https://iiif-cloud.princeton.edu/iiif/2/0c%2Fff%2F89%2F0cff895a01ea48959c3da8c6eaab4017%2Fintermediate_file"
     end
 
+    test "extracts metadata from the parent resource" do
+      # Add FileMetadata with both a JP2/Pyramidal derivative, to ensure it
+      # picks the pyramidal
+      {:ok, entry} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          cache_version: 0,
+          record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
+          source_cache_order: ~U[2018-03-09 20:19:35.465203Z],
+          related_data: %{
+            "parent_ids" => %{
+              "82624edb-c360-4d8a-b202-f103ee639e8e" => %{
+                "id" => "82624edb-c360-4d8a-b202-f103ee639e8e",
+                "internal_resource" => "EphemeraBox",
+                "metadata" => %{
+                  "box_number" => ["box 1"]
+                }
+              }
+            }
+          },
+          data: %{
+            "id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
+            "internal_resource" => "EphemeraFolder",
+            "metadata" => %{
+              "member_ids" => [%{"id" => "1"}],
+              "cached_parent_id" => [%{"id" => "82624edb-c360-4d8a-b202-f103ee639e8e"}],
+              "title" => ["test title 4"]
+            }
+          }
+        })
+
+      doc = HydrationCacheEntry.to_solr_document(entry)
+
+      assert doc[:box_number_txtm] == ["box 1"]
+    end
+
     test "uses first image service url when there is no thumbnail_id property" do
       {:ok, entry} =
         IndexingPipeline.write_hydration_cache_entry(%{
