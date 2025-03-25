@@ -247,6 +247,27 @@ defmodule DpulCollections.IndexingPipeline do
   end
 
   @doc """
+  Gets multiple resources with specific types by id from the Figgy Database
+
+  ## Examples
+
+      iex> get_figgy_resources(["123", "abc"], ["EphemeraBox", "FileSet"])
+      [%Figgy.Resource{}, ...]
+
+      iex> get_figgy_resources(["456"], ["EphemeraBox", "FileSet"])
+      ** []
+
+  """
+  @spec get_figgy_resources(
+          ids :: [String.t()],
+          types :: [String.t()]
+        ) :: list(Figgy.Resource)
+  def get_figgy_resources(ids, types) do
+    from(r in Figgy.Resource, where: r.id in ^ids and r.internal_resource in ^types)
+    |> FiggyRepo.all()
+  end
+
+  @doc """
   Query to return a limited number of figgy resources using the value of a marker tuple.
 
   1. Orders figgy records by updated_at and then id in ascending order
