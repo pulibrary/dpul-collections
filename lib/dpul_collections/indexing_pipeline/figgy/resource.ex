@@ -105,9 +105,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
 
   @spec to_map(resource :: %__MODULE__{}) :: map()
   defp to_map(
-         resource = %__MODULE__{metadata: %{"state" => [state], "visibility" => [visibility]}}
+         resource = %__MODULE__{
+           internal_resource: "EphemeraFolder",
+           metadata: %{"state" => [state], "visibility" => [visibility]}
+         }
        )
-       when state not in ["complete", "all_in_production"] or visibility != "open" do
+       when state != "complete" or visibility != "open" do
     %{
       id: resource.id,
       internal_resource: resource.internal_resource,

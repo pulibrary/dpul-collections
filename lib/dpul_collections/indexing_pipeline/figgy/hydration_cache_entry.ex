@@ -173,13 +173,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
     %{}
   end
 
-  defp box_number(%{"cached_parent_id" => [%{"id" => cached_parent_id}]}, related_data) do
-    %{"metadata" => %{"box_number" => box_number}} = get_in(related_data, [cached_parent_id])
-    box_number
-  end
-
-  defp box_number(_, _), do: nil
-
   def extract_title(%{"title" => []}) do
     ["[Missing Title]"]
   end
