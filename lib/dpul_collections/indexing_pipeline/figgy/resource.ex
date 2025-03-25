@@ -53,7 +53,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
 
   def extract_related_data(resource) do
     %{
-      "member_ids" => extract_members(resource)
+      "member_ids" => extract_members(resource),
+      "parent_ids" => extract_parents(resource)
     }
   end
 
@@ -69,6 +70,19 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
 
   # there are no member_ids
   defp extract_members(_resource) do
+    %{}
+  end
+
+  @spec extract_parents(resource :: %__MODULE__{}) :: related_resource_map()
+  defp extract_parents(resource = %{:metadata => %{"cached_parent_id" => _cached_parent_id}}) do
+    # turn it into a map of id => FiggyResource
+    IndexingPipeline.get_figgy_parents(resource.id)
+    |> Enum.map(fn m -> {m.id, to_map(m)} end)
+    |> Map.new()
+  end
+
+  # there isn't a parent
+  defp extract_parents(_resource) do
     %{}
   end
 
@@ -91,7 +105,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
 
   @spec to_map(resource :: %__MODULE__{}) :: map()
   defp to_map(
-         resource = %__MODULE__{metadata: %{"state" => [state], "visibility" => [visibility]}}
+         resource = %__MODULE__{
+           internal_resource: "EphemeraFolder",
+           metadata: %{"state" => [state], "visibility" => [visibility]}
+         }
        )
        when state != "complete" or visibility != "open" do
     %{

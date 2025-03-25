@@ -238,6 +238,14 @@ defmodule DpulCollections.IndexingPipeline do
     |> FiggyRepo.all()
   end
 
+  def get_figgy_parents(id) do
+    json = %{"member_ids" => [%{"id" => id}]}
+
+    Figgy.Resource
+    |> where([resource], fragment("? @> ?", resource.metadata, ^json))
+    |> FiggyRepo.all()
+  end
+
   @doc """
   Query to return a limited number of figgy resources using the value of a marker tuple.
 

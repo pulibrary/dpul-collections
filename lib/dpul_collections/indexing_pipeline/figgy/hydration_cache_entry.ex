@@ -40,11 +40,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
         data: data = %{"metadata" => metadata},
         related_data: related_data
       }) do
+    parent_metadata = extract_parent_metadata(metadata, related_data)
+
     %{
       id: id,
       title_txtm: extract_title(metadata),
       alternative_title_txtm: get_in(metadata, ["alternative_title"]),
       barcode_txtm: get_in(metadata, ["barcode"]),
+      box_number_txtm: get_in(parent_metadata, ["box_number"]),
       content_warning_txtm: get_in(metadata, ["content_warning"]) |> remove_empty_strings,
       contributor_txtm: get_in(metadata, ["contributor"]),
       creator_txtm: get_in(metadata, ["creator"]),
@@ -157,6 +160,18 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   end
 
   defp extract_service_url(nil), do: nil
+
+  defp extract_parent_metadata(%{"cached_parent_id" => [%{"id" => cached_parent_id}]}, %{
+         "parent_ids" => parent_data
+       }) do
+    parent_data
+    |> get_in([cached_parent_id])
+    |> get_in(["metadata"])
+  end
+
+  defp extract_parent_metadata(_, _) do
+    %{}
+  end
 
   def extract_title(%{"title" => []}) do
     ["[Missing Title]"]
