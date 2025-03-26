@@ -40,11 +40,13 @@ defmodule DpulCollectionsWeb.BrowseLive do
       ) do
     doc = items |> Enum.find(fn item -> item.id == id end)
 
-    if idx = Enum.find_index(pinned_items, fn pinned_item -> doc.id == pinned_item.id end) do
-      socket = socket |> assign(pinned_items: List.delete_at(pinned_items, idx))
-      {:noreply, socket}
-    else
-      {:noreply, socket |> assign(pinned_items: Enum.concat(pinned_items, [doc]))}
+    case Enum.find_index(pinned_items, fn pinned_item -> doc.id == pinned_item.id end) do
+      nil ->
+        {:noreply, socket |> assign(pinned_items: Enum.concat(pinned_items, [doc]))}
+
+      idx ->
+        socket = socket |> assign(pinned_items: List.delete_at(pinned_items, idx))
+        {:noreply, socket}
     end
   end
 
