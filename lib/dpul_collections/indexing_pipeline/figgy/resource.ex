@@ -54,9 +54,29 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   def extract_related_data(resource) do
     %{
       "member_ids" => extract_members(resource),
-      "parent_ids" => extract_parents(resource)
+      "parent_ids" => extract_parents(resource),
+      "resources" => fetch_related(resource)
     }
   end
+
+  defp fetch_related(%__MODULE__{metadata: metadata}) do
+    metadata
+    |> Map.keys()
+    |> Enum.map(fn key -> metadata[key] end)
+    |> Enum.concat()
+    |> Enum.map(&extract_ids_from_value/1)
+    |> Enum.filter(fn id -> id end)
+    |> IndexingPipeline.get_figgy_resources()
+    |> Enum.map(fn m -> {m.id, to_map(m)} end)
+    |> Map.new()
+  end
+
+  # Extract an id string from a value map.
+  # Exclude values that have more than one key. These are field like
+  # pending_upload which should not be extracted a related resources.
+  defp extract_ids_from_value(value = %{"id" => id}) when map_size(value) == 1, do: id
+
+  defp extract_ids_from_value(_), do: nil
 
   @spec extract_members(resource :: %__MODULE__{}) :: related_resource_map()
   defp extract_members(resource = %{:metadata => %{"member_ids" => _member_ids}}) do

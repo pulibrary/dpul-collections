@@ -247,23 +247,20 @@ defmodule DpulCollections.IndexingPipeline do
   end
 
   @doc """
-  Gets multiple resources with specific types by id from the Figgy Database
+  Gets multiple resources by id from the Figgy Database
 
   ## Examples
 
-      iex> get_figgy_resources(["123", "abc"], ["EphemeraBox", "FileSet"])
+      iex> get_figgy_resources(["123", "abc"])
       [%Figgy.Resource{}, ...]
 
-      iex> get_figgy_resources(["456"], ["EphemeraBox", "FileSet"])
+      iex> get_figgy_resources(["456"])
       ** []
 
   """
-  @spec get_figgy_resources(
-          ids :: [String.t()],
-          types :: [String.t()]
-        ) :: list(Figgy.Resource)
-  def get_figgy_resources(ids, types) do
-    from(r in Figgy.Resource, where: r.id in ^ids and r.internal_resource in ^types)
+  @spec get_figgy_resources(ids :: [String.t()]) :: list(Figgy.Resource)
+  def get_figgy_resources(ids) do
+    from(r in Figgy.Resource, where: r.id in ^ids)
     |> FiggyRepo.all()
   end
 

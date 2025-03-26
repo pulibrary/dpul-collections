@@ -98,7 +98,6 @@ defmodule FiggyTestFixtures do
             "height" => ["200"],
             "holding_location" => ["holding location"],
             "keywords" => ["keyword"],
-            "language" => ["language"],
             "page_count" => ["4"],
             "provenance" => ["provenance"],
             "publisher" => ["publisher"],
