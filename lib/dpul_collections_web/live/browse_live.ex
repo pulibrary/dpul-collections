@@ -4,6 +4,10 @@ defmodule DpulCollectionsWeb.BrowseLive do
   alias DpulCollections.{Item, Solr}
 
   def mount(_params, _session, socket) do
+    socket =
+      socket
+      |> assign(items: [], pinned_items: [])
+
     {:ok, socket}
   end
 
@@ -29,8 +33,33 @@ defmodule DpulCollectionsWeb.BrowseLive do
     {:noreply, push_patch(socket, to: "/browse?r=#{Enum.random(1..1_000_000)}")}
   end
 
+  def handle_event(
+        "pin",
+        %{"item_id" => id},
+        socket = %{assigns: %{items: items, pinned_items: pinned_items}}
+      ) do
+    doc = items |> Enum.find(fn item -> item.id == id end)
+
+    case Enum.find_index(pinned_items, fn pinned_item -> doc.id == pinned_item.id end) do
+      nil ->
+        {:noreply, socket |> assign(pinned_items: Enum.concat(pinned_items, [doc]))}
+
+      idx ->
+        socket = socket |> assign(pinned_items: List.delete_at(pinned_items, idx))
+        {:noreply, socket}
+    end
+  end
+
   def render(assigns) do
     ~H"""
+    <.pin_tracker>{length(@pinned_items)}</.pin_tracker>
+    <div id="pinned-items" class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-1">
+      <h1 class="uppercase font-bold text-4xl col-span-3">Pinned</h1>
+
+      <div class="grid grid-flow-row auto-rows-max gap-8">
+        <DpulCollectionsWeb.SearchLive.search_item :for={item <- @pinned_items} item={item} />
+      </div>
+    </div>
     <div class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-4">
       <h1 class="uppercase font-bold text-4xl col-span-3">{gettext("Browse")}</h1>
       <button
@@ -46,14 +75,44 @@ defmodule DpulCollectionsWeb.BrowseLive do
     """
   end
 
+  def pin_tracker(assigns) do
+    ~H"""
+    <div id="pin-tracker" class="fixed top-50 right-10">
+      <div class="relative inline-flex w-fit">
+        <div class="absolute bottom-auto left-auto right-0 top-0 z-10 inline-block -translate-y-1/2 translate-x-2/4 rotate-0 skew-x-0 skew-y-0 scale-x-100 scale-y-100 whitespace-nowrap rounded-full bg-red-600 px-1.5 py-1 text-center align-baseline text-xs font-bold leading-none text-white">
+          {render_slot(@inner_block)}
+        </div>
+        <a href="#pinned-items">
+          <span class="cursor-pointer mb-2 flex rounded bg-[#3eb991] px-6 py-2.5 text-xs font-medium uppercase leading-normal text-white shadow-md transition duration-150 ease-in-out hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg">
+            <.icon name="hero-archive-box-solid" class="h-6 w-6 icon" />
+          </span>
+        </a>
+      </div>
+    </div>
+    """
+  end
+
   attr :item, Item, required: true
 
   def browse_item(assigns) do
     ~H"""
     <div
-      id={"item-#{@item.id}"}
+      id={"browse-item-#{@item.id}"}
       class="flex flex-col rounded-lg overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_rgba(148,163,184,0.75)]"
     >
+      <div
+        id={"pin-#{@item.id}"}
+        phx-click={
+          JS.push("pin")
+          |> JS.toggle_class("bg-white", to: {:inner, ".icon"})
+          |> JS.toggle_class("bg-black")
+          |> JS.toggle_class("bg-white")
+        }
+        phx-value-item_id={@item.id}
+        class="h-10 w-10 absolute left-0 top-0 cursor-pointer bg-white"
+      >
+        <.icon name="hero-archive-box-arrow-down-solid" class="h-10 w-10 icon" />
+      </div>
       <div class="h-[25rem]">
         <div :if={@item.file_count == 1} class="grid grid-cols-1 gap-[2px] bg-slate-400 h-[100%]">
           <.thumb thumb={thumbnail_service_url(@item)} />

@@ -14,6 +14,50 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     assert redirected_to(conn, 302) =~ "/browse?r="
   end
 
+  test "click pin", %{conn: conn} do
+    Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+    Solr.commit(active_collection())
+
+    {:ok, view, html} = live(conn, "/browse?r=0")
+
+    initial_count =
+      html
+      |> Floki.parse_document!()
+      |> Floki.find("#pinned-items .item")
+
+    assert length(initial_count) == 0
+
+    # Pin one
+    {:ok, document} =
+      view
+      |> render_click("pin", %{"item_id" => "1"})
+      |> Floki.parse_document()
+
+    new_count =
+      document
+      |> Floki.find("#pinned-items .item")
+
+    assert Enum.count(new_count) == 1
+
+    pin_tracker =
+      document
+      |> Floki.find("#pin-tracker")
+
+    assert pin_tracker |> Floki.text() |> String.trim("\n") |> String.trim() == "1"
+
+    # Unpin it
+    {:ok, document} =
+      view
+      |> render_click("pin", %{"item_id" => "1"})
+      |> Floki.parse_document()
+
+    new_count =
+      document
+      |> Floki.find("#pinned-items .item")
+
+    assert Enum.count(new_count) == 0
+  end
+
   test "click random button", %{conn: conn} do
     Solr.add(SolrTestSupport.mock_solr_documents(90), active_collection())
     Solr.commit(active_collection())
