@@ -53,7 +53,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
 
   def extract_related_data(resource) do
     %{
-      "parent_ids" => extract_parents(resource),
       "resources" => fetch_related(resource)
     }
   end
@@ -76,19 +75,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   defp extract_ids_from_value(value = %{"id" => id}) when map_size(value) == 1, do: id
 
   defp extract_ids_from_value(_), do: nil
-
-  @spec extract_parents(resource :: %__MODULE__{}) :: related_resource_map()
-  defp extract_parents(resource = %{:metadata => %{"cached_parent_id" => _cached_parent_id}}) do
-    # turn it into a map of id => FiggyResource
-    IndexingPipeline.get_figgy_parents(resource.id)
-    |> Enum.map(fn m -> {m.id, to_map(m)} end)
-    |> Map.new()
-  end
-
-  # there isn't a parent
-  defp extract_parents(_resource) do
-    %{}
-  end
 
   @spec to_map(resource :: %__MODULE__{}) :: map()
   defp to_map(resource = %__MODULE__{internal_resource: "DeletionMarker"}) do

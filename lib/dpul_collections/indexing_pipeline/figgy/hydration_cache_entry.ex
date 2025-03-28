@@ -167,9 +167,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   defp extract_service_url(nil), do: nil
 
   defp extract_parent_metadata(%{"cached_parent_id" => [%{"id" => cached_parent_id}]}, %{
-         "parent_ids" => parent_data
+         "resources" => resources
        }) do
-    parent_data
+    resources
     |> get_in([cached_parent_id])
     |> get_in(["metadata"])
   end
