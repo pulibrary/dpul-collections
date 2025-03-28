@@ -217,6 +217,8 @@ defmodule DpulCollections.IndexingPipeline do
 
   @doc """
   Gets multiple resources by id from the Figgy Database
+  Note: Postgress IN() clause allows a maximum of 32,767 parameters. Items with
+  this many members are unlikely, but this could be an issue at some point.
 
   ## Examples
 
