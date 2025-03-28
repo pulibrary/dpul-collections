@@ -82,7 +82,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           source_cache_order: ~U[2018-03-09 20:19:35.465203Z],
           related_data: %{
-            "member_ids" => %{
+            "resources" => %{
               "1" => %{
                 "internal_resource" => "FileSet",
                 "id" => "9ad621a7b-01ea-4895-9c3d-a8c6eaab4013",
@@ -210,7 +210,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           source_cache_order: ~U[2018-03-09 20:19:35.465203Z],
           related_data: %{
-            "member_ids" => %{
+            "resources" => %{
               "1" => %{
                 "internal_resource" => "FileSet",
                 "id" => "9ad621a7b-01ea-4895-9c3d-a8c6eaab4013",
@@ -250,7 +250,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           source_cache_order: ~U[2018-03-09 20:19:35.465203Z],
           related_data: %{
-            "member_ids" => %{
+            "resources" => %{
               "1" => %{
                 "internal_resource" => "FileSet",
                 "id" => "9ad621a7b-01ea-4895-9c3d-a8c6eaab4013",
@@ -291,7 +291,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           source_cache_order: ~U[2018-03-09 20:19:35.465203Z],
           related_data: %{
-            "member_ids" => %{}
+            "resources" => %{}
           },
           data: %{
             "id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
@@ -315,7 +315,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           source_cache_order: ~U[2018-03-09 20:19:35.465203Z],
           related_data: %{
-            "member_ids" => %{
+            "resources" => %{
               "1" => %{
                 "internal_resource" => "FileSet",
                 "id" => "9ad621a7b-01ea-4895-9c3d-a8c6eaab4013",

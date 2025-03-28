@@ -93,14 +93,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
 
   defp primary_thumbnail_service_url(
          %{"thumbnail_id" => thumbnail_id} = metadata,
-         %{"member_ids" => member_data} = related_data
+         %{"resources" => resources} = related_data
        )
        when is_list(thumbnail_id) do
     thumbnail_member =
       thumbnail_id
       |> Enum.at(0, %{})
       |> Map.get("id")
-      |> then(fn id -> member_data[id] end)
+      |> then(fn id -> resources[id] end)
 
     if is_nil(thumbnail_member) do
       # When thumbnail id does not correspond to a related FileSet,
@@ -127,8 +127,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   defp image_service_urls(_, _), do: []
 
   # Find the given member ID in the related data.
-  defp extract_service_url(%{"id" => id}, %{"member_ids" => member_data}) do
-    extract_service_url(member_data[id])
+  defp extract_service_url(%{"id" => id}, %{"resources" => resources}) do
+    extract_service_url(resources[id])
   end
 
   defp extract_service_url(_id, _), do: nil

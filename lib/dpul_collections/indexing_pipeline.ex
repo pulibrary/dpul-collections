@@ -207,37 +207,6 @@ defmodule DpulCollections.IndexingPipeline do
   """
   def get_figgy_resource!(id), do: FiggyRepo.get!(Figgy.Resource, id)
 
-  @doc """
-  Gets all members of the given resource from the Figgy Database
-
-  ## Examples
-
-      iex> get_figgy_members(123)
-      [%Figgy.Resource{}, ...]
-
-      iex> get_figgy_members(456)
-      ** []
-
-  """
-  def get_figgy_members(id) do
-    Figgy.Resource
-    |> join(
-      :cross,
-      [resource],
-      id_position in fragment(
-        "jsonb_array_elements(?.metadata->'member_ids') WITH ORDINALITY",
-        resource
-      )
-    )
-    |> join(:left, [resource, id_position, member], member in Figgy.Resource,
-      on: fragment("(?.value->>'id')::UUID", id_position) == member.id
-    )
-    |> select([..., member], member)
-    |> order_by([resource, id_position, member], id_position.ordinality)
-    |> where([resource], resource.id == ^id)
-    |> FiggyRepo.all()
-  end
-
   def get_figgy_parents(id) do
     json = %{"member_ids" => [%{"id" => id}]}
 
