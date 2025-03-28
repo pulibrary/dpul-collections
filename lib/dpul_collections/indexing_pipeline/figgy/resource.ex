@@ -58,15 +58,69 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     }
   end
 
+  @doc """
+  Finds all metadata properties which contain references to related resources
+  (those with the form `[%{"id" => id}]` and then fetches those resources from Figgy
+  in a single query.
+
+  ## Example
+
+  ```
+  r = %Figgy.Resource{
+        id: "097263fb-5beb-407b-ab36-b468e0489792",
+        internal_resource: "EphemeraFolder",
+        metadata: %{
+          "genre": [%{"id" => "668a21d7-750d-477d-b569-54ad511f13d7"}],
+          "member_ids": [%{"id" => "557cc7c1-9852-471b-ae4d-f1c14be3890b"}]
+        }
+      }
+
+  fetch_related(r)
+
+  Returns:
+  %{
+    "668a21d7-750d-477d-b569-54ad511f13d7" => %{
+      "id" => "668a21d7-750d-477d-b569-54ad511f13d7",
+      "internal_resource" => "EphemeraTerm",
+      "metadata" => %{
+        "label" => ["a genre"]
+      }
+    },
+    "557cc7c1-9852-471b-ae4d-f1c14be3890b" => %{
+      "id" => "557cc7c1-9852-471b-ae4d-f1c14be3890b",
+      "internal_resource: "FileSet",
+      "metadata" => %{
+        "file_metadata" => [
+          %{
+            "id" => %{"id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4017"},
+            "internal_resource" => "FileMetadata",
+            "mime_type" => ["image/tiff"],
+            "use" => [%{"@id" => "http://pcdm.org/use#ServiceFile"}]
+          }
+        ]
+      }
+    }
+  """
+  @spec fetch_related(%__MODULE__{}) :: related_data()
   defp fetch_related(%__MODULE__{metadata: metadata}) do
     metadata
+    # Get the metadata property names
     |> Map.keys()
+    # Map the values of each property into a list
     |> Enum.map(fn key -> metadata[key] end)
+    # Flatten nested lists into a single list
     |> Enum.concat()
+    # If the value has the form `%{"id" => id}`, then extract the id string from map
     |> Enum.map(&extract_ids_from_value/1)
+    # Remove nil values
     |> Enum.filter(fn id -> id end)
+    # Query figgy using the resulting list of ids
     |> IndexingPipeline.get_figgy_resources()
+    # Map the returned Figgy.Resources into tuples of this form:
+    # `{resource_id, %{"name" => value, ..}}`
     |> Enum.map(fn m -> {m.id, to_map(m)} end)
+    # Convert the list of tuples into a map with the form:
+    # `%{"id-1" => %{ "name" => "value", ..}, %{"id-2" => {"name" => "value", ..}}, ..}`
     |> Map.new()
   end
 
