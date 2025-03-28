@@ -207,14 +207,6 @@ defmodule DpulCollections.IndexingPipeline do
   """
   def get_figgy_resource!(id), do: FiggyRepo.get!(Figgy.Resource, id)
 
-  def get_figgy_parents(id) do
-    json = %{"member_ids" => [%{"id" => id}]}
-
-    Figgy.Resource
-    |> where([resource], fragment("? @> ?", resource.metadata, ^json))
-    |> FiggyRepo.all()
-  end
-
   @doc """
   Gets multiple resources by id from the Figgy Database
   Note: Postgress IN() clause allows a maximum of 32,767 parameters. Items with
