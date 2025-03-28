@@ -23,6 +23,9 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           display_date_s: "2022",
           file_count_i: 17,
           folder_number_txtm: ["1"],
+          genre_txtm: ["genre"],
+          geo_subject_txtm: ["geo subject"],
+          geographic_origin_txtm: ["geographic origin"],
           height_txtm: ["200"],
           holding_location_txtm: ["holding location"],
           image_service_urls_ss: [
@@ -30,6 +33,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
             "https://example.com/iiif/2/image2"
           ],
           keywords_txtm: ["keyword"],
+          language_txtm: ["language"],
           page_count_txtm: ["4"],
           primary_thumbnail_service_url_s: "https://example.com/iiif/2/image2",
           provenance_txtm: ["provenance"],
@@ -37,6 +41,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           rights_statement_txtm: ["No Known Copyright"],
           series_txtm: ["series"],
           sort_title_txtm: ["sort title"],
+          subject_txtm: ["subject"],
           transliterated_title_txtm: ["transliterated title"],
           width_txtm: ["200"]
         },
@@ -95,12 +100,20 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     assert document |> Floki.find(~s{td:fl-contains("This is a test description")}) |> Enum.any?()
     assert document |> Floki.find(~s{th:fl-contains("Folder number")}) |> Enum.any?()
     assert document |> Floki.find(~s{td:fl-contains("1")}) |> Enum.any?()
+    assert document |> Floki.find(~s{th:fl-contains("Genre")}) |> Enum.any?()
+    assert document |> Floki.find(~s{td:fl-contains("genre")}) |> Enum.any?()
+    assert document |> Floki.find(~s{th:fl-contains("Geo subject")}) |> Enum.any?()
+    assert document |> Floki.find(~s{td:fl-contains("geo subject")}) |> Enum.any?()
+    assert document |> Floki.find(~s{th:fl-contains("Geographic origin")}) |> Enum.any?()
+    assert document |> Floki.find(~s{td:fl-contains("geographic origin")}) |> Enum.any?()
     assert document |> Floki.find(~s{th:fl-contains("Height")}) |> Enum.any?()
     assert document |> Floki.find(~s{td:fl-contains("200")}) |> Enum.any?()
     assert document |> Floki.find(~s{th:fl-contains("Holding location")}) |> Enum.any?()
     assert document |> Floki.find(~s{td:fl-contains("holding location")}) |> Enum.any?()
     assert document |> Floki.find(~s{th:fl-contains("Keywords")}) |> Enum.any?()
     assert document |> Floki.find(~s{td:fl-contains("keyword")}) |> Enum.any?()
+    assert document |> Floki.find(~s{th:fl-contains("Language")}) |> Enum.any?()
+    assert document |> Floki.find(~s{td:fl-contains("language")}) |> Enum.any?()
     assert document |> Floki.find(~s{th:fl-contains("Page count")}) |> Enum.any?()
     assert document |> Floki.find(~s{td:fl-contains("4")}) |> Enum.any?()
     assert document |> Floki.find(~s{th:fl-contains("Publisher")}) |> Enum.any?()
@@ -111,6 +124,8 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     assert document |> Floki.find(~s{td:fl-contains("No Known Copyright")}) |> Enum.any?()
     assert document |> Floki.find(~s{th:fl-contains("Series")}) |> Enum.any?()
     assert document |> Floki.find(~s{td:fl-contains("series")}) |> Enum.any?()
+    assert document |> Floki.find(~s{th:fl-contains("Subject")}) |> Enum.any?()
+    assert document |> Floki.find(~s{td:fl-contains("subject")}) |> Enum.any?()
     assert document |> Floki.find(~s{th:fl-contains("Transliterated title")}) |> Enum.any?()
     assert document |> Floki.find(~s{td:fl-contains("transliterated title")}) |> Enum.any?()
     assert document |> Floki.find(~s{th:fl-contains("Width")}) |> Enum.any?()

@@ -68,7 +68,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
            } = cache_entry.data
 
     assert %{
-             "member_ids" => %{
+             "resources" => %{
                "06838583-59a4-4ab8-ac65-2b5ea9ee6425" => %{
                  "internal_resource" => "FileSet"
                }

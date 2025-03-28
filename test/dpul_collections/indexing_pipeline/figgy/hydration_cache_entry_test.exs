@@ -82,7 +82,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           source_cache_order: ~U[2018-03-09 20:19:35.465203Z],
           related_data: %{
-            "member_ids" => %{
+            "resources" => %{
               "1" => %{
                 "internal_resource" => "FileSet",
                 "id" => "9ad621a7b-01ea-4895-9c3d-a8c6eaab4013",
@@ -164,6 +164,45 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
       assert doc[:box_number_txtm] == ["box 1"]
     end
 
+    test "extracts controlled vocabulary terms with a label" do
+      {:ok, entry} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          cache_version: 0,
+          record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
+          source_cache_order: ~U[2018-03-09 20:19:35.465203Z],
+          related_data: %{
+            "resources" => %{
+              "1" => %{
+                "id" => "1",
+                "internal_resource" => "EphemeraTerm",
+                "metadata" => %{
+                  "label" => []
+                }
+              },
+              "2" => %{
+                "id" => "2",
+                "internal_resource" => "EphemeraTerm",
+                "metadata" => %{
+                  "label" => ["Term2"]
+                }
+              }
+            }
+          },
+          data: %{
+            "id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
+            "internal_resource" => "EphemeraFolder",
+            "metadata" => %{
+              "genre" => [%{"id" => "1"}, %{"id" => "2"}],
+              "title" => ["test title 4"]
+            }
+          }
+        })
+
+      doc = HydrationCacheEntry.to_solr_document(entry)
+
+      assert doc[:genre_txtm] == ["Term2"]
+    end
+
     test "uses first image service url when there is no thumbnail_id property" do
       {:ok, entry} =
         IndexingPipeline.write_hydration_cache_entry(%{
@@ -171,7 +210,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           source_cache_order: ~U[2018-03-09 20:19:35.465203Z],
           related_data: %{
-            "member_ids" => %{
+            "resources" => %{
               "1" => %{
                 "internal_resource" => "FileSet",
                 "id" => "9ad621a7b-01ea-4895-9c3d-a8c6eaab4013",
@@ -211,7 +250,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           source_cache_order: ~U[2018-03-09 20:19:35.465203Z],
           related_data: %{
-            "member_ids" => %{
+            "resources" => %{
               "1" => %{
                 "internal_resource" => "FileSet",
                 "id" => "9ad621a7b-01ea-4895-9c3d-a8c6eaab4013",
@@ -252,7 +291,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           source_cache_order: ~U[2018-03-09 20:19:35.465203Z],
           related_data: %{
-            "member_ids" => %{}
+            "resources" => %{}
           },
           data: %{
             "id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
@@ -276,7 +315,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           source_cache_order: ~U[2018-03-09 20:19:35.465203Z],
           related_data: %{
-            "member_ids" => %{
+            "resources" => %{
               "1" => %{
                 "internal_resource" => "FileSet",
                 "id" => "9ad621a7b-01ea-4895-9c3d-a8c6eaab4013",

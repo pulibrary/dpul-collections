@@ -56,16 +56,21 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
       display_date_s: format_date(metadata),
       file_count_i: file_count(metadata),
       folder_number_txtm: get_in(metadata, ["folder_number"]),
+      genre_txtm: extract_term("genre", metadata, related_data),
+      geo_subject_txtm: extract_term("geo_subject", metadata, related_data),
+      geographic_origin_txtm: extract_term("geographic_origin", metadata, related_data),
       height_txtm: get_in(metadata, ["height"]),
       holding_location_txtm: get_in(metadata, ["holding_location"]),
       image_service_urls_ss: image_service_urls(metadata, related_data),
       keywords_txtm: get_in(metadata, ["keywords"]),
+      language_txtm: extract_term("language", metadata, related_data),
       page_count_txtm: get_in(metadata, ["page_count"]),
       primary_thumbnail_service_url_s: primary_thumbnail_service_url(metadata, related_data),
       provenance_txtm: get_in(metadata, ["provenance"]),
       publisher_txtm: get_in(metadata, ["publisher"]),
       rights_statement_txtm: extract_rights_statement(metadata),
       series_txtm: get_in(metadata, ["series"]),
+      subject_txtm: extract_term("subject", metadata, related_data),
       sort_title_txtm: get_in(metadata, ["sort_title"]),
       transliterated_title_txtm: get_in(metadata, ["transliterated_title"]),
       width_txtm: get_in(metadata, ["width"]),
@@ -88,14 +93,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
 
   defp primary_thumbnail_service_url(
          %{"thumbnail_id" => thumbnail_id} = metadata,
-         %{"member_ids" => member_data} = related_data
+         %{"resources" => resources} = related_data
        )
        when is_list(thumbnail_id) do
     thumbnail_member =
       thumbnail_id
       |> Enum.at(0, %{})
       |> Map.get("id")
-      |> then(fn id -> member_data[id] end)
+      |> then(fn id -> resources[id] end)
 
     if is_nil(thumbnail_member) do
       # When thumbnail id does not correspond to a related FileSet,
@@ -122,8 +127,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   defp image_service_urls(_, _), do: []
 
   # Find the given member ID in the related data.
-  defp extract_service_url(%{"id" => id}, %{"member_ids" => member_data}) do
-    extract_service_url(member_data[id])
+  defp extract_service_url(%{"id" => id}, %{"resources" => resources}) do
+    extract_service_url(resources[id])
   end
 
   defp extract_service_url(_id, _), do: nil
@@ -172,6 +177,36 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   defp extract_parent_metadata(_, _) do
     %{}
   end
+
+  defp extract_term(name, metadata, %{"resources" => resources}) do
+    extract_term(get_in(metadata, [name]), resources)
+  end
+
+  defp extract_term(_, _, _) do
+    nil
+  end
+
+  defp extract_term(values, resources) when is_list(values) do
+    values
+    |> Enum.map(&extract_id_from_map/1)
+    |> Enum.map(fn id -> id end)
+    |> Enum.map(fn id -> resources[id] end)
+    |> Enum.filter(fn resource -> resource end)
+    |> Enum.map(&extract_term_label/1)
+    |> Enum.filter(fn label -> label end)
+  end
+
+  defp extract_term(_, _) do
+    nil
+  end
+
+  defp extract_id_from_map(%{"id" => id}), do: id
+
+  defp extract_id_from_map(_), do: nil
+
+  defp extract_term_label(%{"metadata" => %{"label" => [label]}}), do: label
+
+  defp extract_term_label(_), do: nil
 
   def extract_title(%{"title" => []}) do
     ["[Missing Title]"]

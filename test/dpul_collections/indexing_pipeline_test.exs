@@ -107,11 +107,6 @@ defmodule DpulCollections.IndexingPipelineTest do
       end
     end
 
-    test "get_figgy_members/1 returns an empty list when the resource doesn't exist" do
-      ephemera_folder_id = "00000000-0000-0000-0000-000000000000"
-      assert IndexingPipeline.get_figgy_members(ephemera_folder_id) == []
-    end
-
     test "get_figgy_resources_since!/2 does not return Events or PreservationObjects" do
       total_records = FiggyRepo.aggregate(IndexingPipeline.Figgy.Resource, :count)
 

@@ -218,6 +218,26 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     assert document["years_is"] == [2022]
     assert document["display_date_s"] == "2022"
 
+    # Controlled Vocabulary
+    assert document["genre_txtm"] == ["Ephemera"]
+    assert document["geo_subject_txtm"] == ["Iran"]
+    assert document["geographic_origin_txtm"] == ["Iran"]
+    assert document["language_txtm"] == ["Persian"]
+
+    assert document["subject_txtm"] == [
+             "Arts",
+             "Arts--Political aspects",
+             "Collective memory",
+             "Freedom of expression",
+             "Human rights",
+             "Political violence",
+             "Women's rights",
+             "Minorities",
+             "Civil society",
+             "Democracy",
+             "Revolutions"
+           ]
+
     # Image URLs
     assert [
              "https://iiif-cloud.princeton.edu/iiif/2/5e%2F24%2Faf%2F5e24aff45b2e4c9aaba3f05321d1c797%2Fintermediate_file"
