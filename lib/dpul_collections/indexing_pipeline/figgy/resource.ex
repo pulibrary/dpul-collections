@@ -112,8 +112,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     |> Enum.concat()
     # If the value has the form `%{"id" => id}`, then extract the id string from map
     |> Enum.map(&extract_ids_from_value/1)
-    # Remove nil values
-    |> Enum.filter(fn id -> id end)
+    # Remove nil and empty string values
+    |> Enum.filter(fn id -> !is_nil(id) and id != "" end)
     # Query figgy using the resulting list of ids
     |> IndexingPipeline.get_figgy_resources()
     # Map the returned Figgy.Resources into tuples of this form:
