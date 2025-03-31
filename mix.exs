@@ -78,7 +78,8 @@ defmodule DpulCollections.MixProject do
       {:phoenix_test_playwright, "~> 0.6", only: :test, runtime: false},
       {:live_debugger, "~> 0.1.4", only: :dev},
       {:prom_ex, "~> 1.11.0"},
-      {:ecto_psql_extras, "~> 0.6"}
+      {:ecto_psql_extras, "~> 0.6"},
+      {:sibyl, "~> 0.1.0"}
     ]
   end
 

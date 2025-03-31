@@ -20,7 +20,8 @@ defmodule DpulCollections.PromEx do
       # Plugins.Oban,
       Plugins.PhoenixLiveView,
       # Plugins.Absinthe,
-      Plugins.Broadway
+      Plugins.Broadway,
+      DpulCollections.PromEx.Plugins.IndexingPipeline
 
       # Add your own PromEx metrics plugins
       # DpulCollections.Users.PromExPlugin
