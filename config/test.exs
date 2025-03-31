@@ -85,3 +85,10 @@ config :phoenix_test,
   ]
 
 config :honeybadger, api_key: ""
+
+config :dpul_collections, DpulCollections.PromEx,
+  disabled: true,
+  manual_metrics_start_delay: :no_delay,
+  drop_metrics_groups: [],
+  grafana: :disabled,
+  metrics_server: :disabled
