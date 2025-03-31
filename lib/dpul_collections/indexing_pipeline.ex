@@ -4,6 +4,7 @@ defmodule DpulCollections.IndexingPipeline do
   """
 
   import Ecto.Query, warn: false
+  import Logger
   alias DpulCollections.{Repo, FiggyRepo}
 
   alias DpulCollections.IndexingPipeline.Figgy
@@ -210,9 +211,12 @@ defmodule DpulCollections.IndexingPipeline do
   def get_figgy_parents(id) do
     json = %{"member_ids" => [%{"id" => id}]}
 
-    Figgy.Resource
-    |> where([resource], fragment("? @> ?", resource.metadata, ^json))
-    |> FiggyRepo.all()
+    query = Figgy.Resource
+            |> where([resource], fragment("? @> ?", resource.metadata, ^json))
+
+    {time, result} = :timer.tc(&FiggyRepo.all/1, [query])
+    Logger.info("get_figgy_parents: #{time}")
+    result
   end
 
   @doc """
@@ -231,8 +235,10 @@ defmodule DpulCollections.IndexingPipeline do
   """
   @spec get_figgy_resources(ids :: [String.t()]) :: list(Figgy.Resource)
   def get_figgy_resources(ids) do
-    from(r in Figgy.Resource, where: r.id in ^ids)
-    |> FiggyRepo.all()
+    query = from(r in Figgy.Resource, where: r.id in ^ids)
+    {time, result} = :timer.tc(&FiggyRepo.all/1, [query])
+    Logger.info("get_figgy_resources: #{time}")
+    result
   end
 
   @doc """
