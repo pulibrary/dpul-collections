@@ -147,8 +147,7 @@ if config_env() == :prod do
     check_origin: check_origin,
     secret_key_base: secret_key_base
 
-
-    config :dpul_collections, DpulCollections.PromEx,
+  config :dpul_collections, DpulCollections.PromEx,
     disabled: false,
     manual_metrics_start_delay: :no_delay,
     drop_metrics_groups: [],
@@ -157,7 +156,6 @@ if config_env() == :prod do
       auth_token: System.get_env("GRAFANA_SERVICE_TOKEN")
     ],
     metrics_server: :disabled
-
 
   # ## SSL Support
   #
