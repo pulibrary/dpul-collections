@@ -16,7 +16,7 @@ defmodule DpulCollections.PromEx.Plugins.IndexingPipeline do
           [
             :dpul_collections,
             :indexing_pipeline,
-            func_name,
+            :query,
             :duration,
             :milliseconds
           ],
@@ -26,6 +26,7 @@ defmodule DpulCollections.PromEx.Plugins.IndexingPipeline do
           reporter_options: [
             buckets: [10, 50, 250, 2_500, 10_000, 30_000]
           ],
+          tags: [:function],
           unit: {:native, :millisecond}
         )
       end)

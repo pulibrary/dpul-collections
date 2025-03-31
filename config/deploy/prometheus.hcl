@@ -68,6 +68,8 @@ scrape_configs:
     - source_labels: ['__meta_consul_tags']
       regex: '(.*)logging(.*)'
       action: keep
+    - source_labels: ['__meta_consul_service']
+      target_label: instance
     params:
       format: ['prometheus']
 EOH
