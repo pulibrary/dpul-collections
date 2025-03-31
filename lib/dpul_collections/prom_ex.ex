@@ -16,7 +16,7 @@ defmodule DpulCollections.PromEx do
       Plugins.Application,
       Plugins.Beam,
       {Plugins.Phoenix, router: DpulCollectionsWeb.Router, endpoint: DpulCollectionsWeb.Endpoint},
-      Plugins.Ecto,
+      {Plugins.Ecto, repos: [DpulCollections.Repo, DpulCollections.FiggyRepo]},
       # Plugins.Oban,
       Plugins.PhoenixLiveView,
       # Plugins.Absinthe,
