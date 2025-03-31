@@ -124,3 +124,10 @@ config :dpul_collections, DpulCollections.IndexingPipeline, [
 ]
 
 config :honeybadger, api_key: ""
+
+config :dpul_collections, DpulCollections.PromEx,
+  disabled: false,
+  manual_metrics_start_delay: :no_delay,
+  drop_metrics_groups: [],
+  grafana: :disabled,
+  metrics_server: :disabled

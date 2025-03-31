@@ -76,7 +76,8 @@ defmodule DpulCollections.MixProject do
       {:broadway_dashboard, "~> 0.4"},
       {:honeybadger, "~> 0.23"},
       {:phoenix_test_playwright, "~> 0.6", only: :test, runtime: false},
-      {:live_debugger, "~> 0.1.4", only: :dev}
+      {:live_debugger, "~> 0.1.4", only: :dev},
+      {:prom_ex, "~> 1.11.0"}
     ]
   end
 

@@ -147,6 +147,18 @@ if config_env() == :prod do
     check_origin: check_origin,
     secret_key_base: secret_key_base
 
+
+    config :dpul_collections, DpulCollections.PromEx,
+    disabled: false,
+    manual_metrics_start_delay: :no_delay,
+    drop_metrics_groups: [],
+    grafana: [
+      host: "https://grafana-nomad.lib.princeton.edu",
+      auth_token: System.get_env("GRAFANA_SERVICE_TOKEN")
+    ],
+    metrics_server: :disabled
+
+
   # ## SSL Support
   #
   # To get SSL working, you will need to add the `https` key

@@ -85,6 +85,7 @@ job "dpulc-staging" {
         BASIC_AUTH_PASSWORD = {{ .BASIC_AUTH_PASSWORD }}
         DNS_CLUSTER_QUERY = "dpulc-staging-web.service.consul"
         HONEYBADGER_API_KEY = {{ .HONEYBADGER_API_KEY }}
+        GRAFANA_SERVICE_TOKEN = {{ .GRAFANA_SERVICE_TOKEN }}
         {{- end -}}
         EOF
       }
