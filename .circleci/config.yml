@@ -107,7 +107,7 @@ jobs:
             curl -X POST http://solr:SolrRocks@localhost:8983/api/c -H 'Content-Type: application/json' -d '{create-alias: {name: dpulc, collections:[dpulc1]}}'
       - run:
           name: Run tests
-          command: mix test
+          command: mix test --trace
       - store_artifacts:
           path: cover
           destination: cover
