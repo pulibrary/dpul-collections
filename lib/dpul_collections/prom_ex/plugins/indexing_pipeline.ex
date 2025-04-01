@@ -4,7 +4,7 @@ defmodule DpulCollections.PromEx.Plugins.IndexingPipeline do
   @query_functions [
     :"get_figgy_resource!/1",
     :"get_figgy_parents/1",
-    :"get_figgy_resources/2",
+    :"get_figgy_resources/1",
     :"get_figgy_resources_since!/2"
   ]
 
