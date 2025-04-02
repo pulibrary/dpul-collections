@@ -54,13 +54,6 @@ job "dpulc-staging" {
       name = "dpulc-staging-web"
       tags = ["metrics"]
       port = "metrics"
-      check {
-        type = "http"
-        port = "metrics"
-        path = "/"
-        interval = "10s"
-        timeout = "1s"
-      }
     }
     affinity {
       attribute = "${meta.node_type}"
@@ -173,13 +166,6 @@ job "dpulc-staging" {
       name = "dpulc-staging-web"
       tags = ["metrics"]
       port = "metrics"
-      check {
-        type = "http"
-        port = "metrics"
-        path = "/"
-        interval = "10s"
-        timeout = "1s"
-      }
     }
     task "indexer" {
       driver = "podman"
