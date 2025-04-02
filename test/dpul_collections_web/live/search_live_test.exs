@@ -94,6 +94,8 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       view
       |> element("#search-form")
       |> render_submit(%{"q" => "Document-2"})
+      |> follow_redirect(conn)
+      |> elem(2)
       |> Floki.parse_document()
 
     assert document
@@ -145,7 +147,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     |> element("#search-form")
     |> render_submit(%{"q" => "Document"})
 
-    assert_patched(view, "/search?q=Document")
+    assert_redirected(view, "/search?q=Document")
   end
 
   test "when sorting by date, a nil date always sorts last", %{conn: conn} do
@@ -283,6 +285,8 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       view
       |> element("#search-form")
       |> render_submit(%{"q" => "Document*"})
+      |> follow_redirect(conn)
+      |> elem(2)
       |> Floki.parse_document()
 
     assert document
@@ -300,6 +304,8 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       view
       |> element("#search-form")
       |> render_submit(%{"date-from" => "1900", "date-to" => "2025"})
+      |> follow_redirect(conn)
+      |> elem(2)
       |> Floki.parse_document()
 
     assert document
