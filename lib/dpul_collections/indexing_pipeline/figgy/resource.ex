@@ -53,12 +53,24 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   end
 
   def to_hydration_cache_attrs(resource = %__MODULE__{internal_resource: "EphemeraFolder"}) do
+    related_data = extract_related_data(resource)
+
+    handled_data =
+      if resource_empty?(resource, related_data) do
+        resource |> to_map(delete: true)
+      else
+        resource |> to_map
+      end
+
     %{
-      handled_data: resource |> to_map,
-      related_data: extract_related_data(resource)
+      handled_data: handled_data,
+      related_data: related_data
     }
   end
 
+  # Don't fetch related data when the state or visibilty are not correct.
+  # Note that when an empty related data map is returned these resources will
+  # be marked for deletion.
   @spec extract_related_data(resource :: %__MODULE__{}) :: related_data()
   def extract_related_data(%__MODULE__{
         metadata: %{"state" => [state], "visibility" => [visibility]}
@@ -132,12 +144,35 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     |> Enum.filter(fn id -> !is_nil(id) and id != "" end)
     # Query figgy using the resulting list of ids
     |> IndexingPipeline.get_figgy_resources()
+    |> remove_non_displayable_filesets()
     # Map the returned Figgy.Resources into tuples of this form:
     # `{resource_id, %{"name" => value, ..}}`
     |> Enum.map(fn m -> {m.id, to_map(m)} end)
     # Convert the list of tuples into a map with the form:
     # `%{"id-1" => %{ "name" => "value", ..}, %{"id-2" => {"name" => "value", ..}}, ..}`
     |> Map.new()
+  end
+
+  defp remove_non_displayable_filesets(resources) do
+    resources
+    |> Enum.reject(fn r -> removable_resource?(r) end)
+  end
+
+  defp removable_resource?(%__MODULE__{metadata: %{"file_metadata" => file_metadata}}) do
+    # Dig through file metadata and determine if FileSet is an image
+    image? = Enum.find(file_metadata, false, fn fm -> is_image_file?(fm) end)
+
+    if image? do
+      false
+    else
+      true
+    end
+  end
+
+  defp removable_resource?(_), do: false
+
+  defp is_image_file?(%{"mime_type" => [mime_type]}) do
+    String.contains?(mime_type, "image")
   end
 
   # Extract an id string from a value map.
@@ -160,6 +195,28 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     %{}
   end
 
+  # Determine if a resource has no related member FileSets
+  @spec to_map(%__MODULE__{}, related_data()) :: map()
+  defp resource_empty?(%__MODULE__{metadata: %{"member_ids" => member_ids}}, %{
+         "resources" => related_resources
+       }) do
+    member_ids_set =
+      member_ids
+      |> Enum.map(&extract_ids_from_value/1)
+      |> MapSet.new()
+
+    related_ids_set =
+      related_resources
+      |> Map.keys()
+      |> MapSet.new()
+
+    # If the set of related ids doesn't contain any of the member ids,
+    # then the resource is considered empty
+    MapSet.disjoint?(member_ids_set, related_ids_set)
+  end
+
+  defp resource_empty?(_, _), do: true
+
   @spec to_map(resource :: %__MODULE__{}) :: map()
   defp to_map(
          resource = %__MODULE__{
@@ -178,14 +235,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     }
   end
 
-  @spec to_map(resource :: %__MODULE__{}) :: map()
-  defp to_map(
-         resource = %__MODULE__{
-           internal_resource: "EphemeraFolder",
-           metadata: %{"state" => [state], "visibility" => [visibility]}
-         }
-       )
-       when state != "complete" or visibility != "open" do
+  defp to_map(resource = %__MODULE__{}) do
+    resource
+    |> Map.from_struct()
+    |> Map.delete(:__meta__)
+  end
+
+  @spec to_map(resource :: %__MODULE__{}, boolean()) :: map()
+  defp to_map(resource = %__MODULE__{}, delete: true) do
     %{
       id: resource.id,
       internal_resource: resource.internal_resource,
@@ -194,11 +251,5 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
       updated_at: resource.updated_at,
       metadata: %{"deleted" => true}
     }
-  end
-
-  defp to_map(resource = %__MODULE__{}) do
-    resource
-    |> Map.from_struct()
-    |> Map.delete(:__meta__)
   end
 end

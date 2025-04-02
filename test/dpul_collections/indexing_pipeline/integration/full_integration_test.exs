@@ -22,13 +22,15 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # this into account.
     deleted_resource_count = FiggyTestSupport.deletion_marker_count()
     total_records = ephemera_folder_count + deleted_resource_count
+    # Empty resources are resources with no image file sets
+    empty_resource_count = 1
 
     continue =
       if transformation_cache_entries == total_records do
         DpulCollections.Solr.commit(active_collection())
 
         if DpulCollections.Solr.document_count() ==
-             transformation_cache_entries - deleted_resource_count do
+             transformation_cache_entries - deleted_resource_count - empty_resource_count do
           true
         end
       end
@@ -99,11 +101,14 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     deletion_marker_count = FiggyTestSupport.deletion_marker_count()
     total_transformed_count = FiggyTestSupport.ephemera_folder_count() + deletion_marker_count
+    # Empty resources are resources with no image file sets
+    empty_resource_count = 1
 
     assert total_transformed_count == transformation_cache_entry_count
 
     # indexed all the documents and deleted the extra record solr doc
-    assert Solr.document_count() == transformation_cache_entry_count - deletion_marker_count
+    assert Solr.document_count() ==
+             transformation_cache_entry_count - deletion_marker_count - empty_resource_count
 
     # Ensure that deleted records from deletion markers are removed from Solr
     Enum.each(records_to_be_deleted, fn record ->
@@ -137,7 +142,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # Make sure it got reindexed
     assert latest_document["_version_"] != latest_document_again["_version_"]
     # Make sure we didn't add another one
-    assert Solr.document_count() == transformation_cache_entry_count - deletion_marker_count
+    assert Solr.document_count() ==
+             transformation_cache_entry_count - deletion_marker_count - empty_resource_count
+
     # transformation entries weren't updated
     transformation_entry_again =
       Repo.get_by(Figgy.TransformationCacheEntry, record_id: latest_document["id"])

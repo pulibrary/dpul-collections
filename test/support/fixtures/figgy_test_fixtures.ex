@@ -51,7 +51,7 @@ defmodule FiggyTestFixtures do
           "title" => title,
           "visibility" => ["open"],
           "state" => ["complete"],
-          "member_ids" => []
+          "member_ids" => [%{"id" => "06838583-59a4-4ab8-ac65-2b5ea9ee6425"}]
         },
         created_at: utc_created_at |> DateTime.add(-365, :day),
         updated_at: utc_updated_at |> DateTime.add(-365, :day)
