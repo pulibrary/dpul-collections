@@ -1,6 +1,9 @@
+# This plugin converts Sibyl telemetry events into PromEx events.
 defmodule DpulCollections.PromEx.Plugins.IndexingPipeline do
   use PromEx.Plugin
   @query_event [:dpul_collections, :indexing_pipeline, :query]
+  # All function names with arity that we want to convert to PromEx metrics for
+  # Prometheus.
   @query_functions [
     :"get_figgy_resource!/1",
     :"get_figgy_parents/1",
@@ -38,6 +41,10 @@ defmodule DpulCollections.PromEx.Plugins.IndexingPipeline do
     :telemetry.execute(@query_event, event_measurement, event_metadata)
   end
 
+  # Sibyl sends events like [:dpul_collections, :indexing_pipeline,
+  # "get_figgy_parents/1", :stop], but we want to combine all those events into
+  # a single event with function as metadata. To do that we capture those events
+  # and send a new telemetry event (@query_event) which is what we actually forward to PromEx.
   defp set_up_telemetry_proxy() do
     @query_functions
     |> Enum.each(fn func_name ->

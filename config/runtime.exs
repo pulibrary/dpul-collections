@@ -151,6 +151,7 @@ if config_env() == :prod do
     disabled: false,
     manual_metrics_start_delay: :no_delay,
     drop_metrics_groups: [],
+    # Upload pre-built dashboards to Grafana.
     grafana: [
       host: "https://grafana-nomad.lib.princeton.edu",
       auth_token: System.get_env("GRAFANA_SERVICE_TOKEN")

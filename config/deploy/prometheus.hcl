@@ -1,3 +1,6 @@
+# Prometheus is a metrics aggregator. This configuration automatically pulls all
+# metrics from services registered in Consul with the tag "logger", which we're
+# also using for Loki.
 job "prometheus" {
   datacenters = ["dc1"]
   type        = "service"
