@@ -85,16 +85,10 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def render(assigns) do
     ~H"""
-    <h1 class="sr-only">{gettext("Search Results")}</h1>
+    <h1 class="text-4xl font-bold">
+      {gettext("Search Results for")}: {@search_state.q}
+    </h1>
     <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
-      <form id="search-form" phx-submit="search">
-        <div class="grid grid-cols-4">
-          <input class="col-span-4 md:col-span-3" type="text" name="q" value={@search_state.q} />
-          <button class="col-span-4 md:col-span-1 btn-primary" type="submit">
-            {gettext("Search")}
-          </button>
-        </div>
-      </form>
       <div id="filters" class="grid md:grid-cols-[auto_300px] gap-2">
         <form
           id="date-filter"
@@ -268,21 +262,6 @@ defmodule DpulCollectionsWeb.SearchLive do
       </.link>
     </nav>
     """
-  end
-
-  def handle_event("search", params, socket) do
-    params =
-      %{
-        socket.assigns.search_state
-        | q: params["q"],
-          date_to: params["date-to"],
-          date_from: params["date-from"],
-          sort_by: params["sort_by"]
-      }
-      |> Helpers.clean_params([:page, :per_page])
-
-    socket = push_patch(socket, to: ~p"/search?#{params}")
-    {:noreply, socket}
   end
 
   def handle_event("filter-date", params, socket) do
