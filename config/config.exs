@@ -46,7 +46,7 @@ config :tailwind,
   version: "4.0.9",
   dpul_collections: [
     args: ~w(
-      --input=asets/css/app.css
+      --input=assets/css/app.css
       --output=priv/static/assets/app.css
     ),
     cd: Path.expand("..", __DIR__)
