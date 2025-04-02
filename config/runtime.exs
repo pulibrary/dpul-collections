@@ -156,6 +156,8 @@ if config_env() == :prod do
       host: "https://grafana-nomad.lib.princeton.edu",
       auth_token: System.get_env("GRAFANA_SERVICE_TOKEN")
     ],
+    # Run a standalone metrics server with a bearer token auth. Prometheus will
+    # harvest metrics from this server.
     metrics_server: [
       port: 4021,
       auth_strategy: :bearer,
