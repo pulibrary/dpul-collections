@@ -55,7 +55,7 @@ job "dpulc-staging" {
       tags = ["metrics"]
       port = "metrics"
       check {
-        type = "metrics"
+        type = "http"
         port = "metrics"
         path = "/"
         interval = "10s"
@@ -174,7 +174,7 @@ job "dpulc-staging" {
       tags = ["metrics"]
       port = "metrics"
       check {
-        type = "metrics"
+        type = "http"
         port = "metrics"
         path = "/"
         interval = "10s"
