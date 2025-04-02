@@ -159,7 +159,10 @@ if config_env() == :prod do
     metrics_server: [
       port: 4021,
       auth_strategy: :bearer,
-      auth_token: System.get_env("METRICS_AUTH_TOKEN")
+      auth_token: System.get_env("METRICS_AUTH_TOKEN"),
+      cowboy_opts: [
+        ip: {0, 0, 0, 0}
+      ]
     ]
 
   # ## SSL Support
