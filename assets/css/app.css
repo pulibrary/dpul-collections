@@ -4,7 +4,7 @@
 @import "tailwindcss" source(none);
 @source "../css";
 @source "../js";
-@source "../../lib/dpul_collections";
+@source "../../lib/dpul_collections_web";
 @plugin "@tailwindcss/forms";
 @plugin "../tailwind_heroicons.js";
 @custom-variant phx-click-loading ([".phx-click-loading&", ".phx-click-loading &"]);
