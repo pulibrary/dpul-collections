@@ -1,6 +1,5 @@
 # Prometheus is a metrics aggregator. This configuration automatically pulls all
-# metrics from services registered in Consul with the tag "logger", which we're
-# also using for Loki.
+# metrics from services registered in Consul with the tag "metrics".
 job "prometheus" {
   datacenters = ["dc1"]
   type        = "service"
@@ -62,6 +61,8 @@ global:
 scrape_configs:
   - job_name: 'nomad_metrics'
     scrape_interval: 5s
+    authorization:
+      credentials: '{{with nomadVar "nomad/jobs/prometheus"}}{{ .METRICS_AUTH_TOKEN }}{{end}}'
     consul_sd_configs:
     - server: '{{ env "NOMAD_IP_prometheus_ui" }}:8500'
       authorization:
@@ -69,7 +70,7 @@ scrape_configs:
 
     relabel_configs:
     - source_labels: ['__meta_consul_tags']
-      regex: '(.*)logging(.*)'
+      regex: '(.*)metrics(.*)'
       action: keep
     - source_labels: ['__meta_consul_service']
       target_label: instance

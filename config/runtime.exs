@@ -156,7 +156,11 @@ if config_env() == :prod do
       host: "https://grafana-nomad.lib.princeton.edu",
       auth_token: System.get_env("GRAFANA_SERVICE_TOKEN")
     ],
-    metrics_server: :disabled
+    metrics_server: [
+      port: 4021,
+      auth_strategy: :bearer,
+      auth_token: System.get_env("METRICS_AUTH_TOKEN")
+    ]
 
   # ## SSL Support
   #

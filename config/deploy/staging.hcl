@@ -31,6 +31,7 @@ job "dpulc-staging" {
     count = 2
     network {
       port "http" { to = 4000 }
+      port "metrics" { to = 4021 }
       port "epmd" { static = 6789 }
       # Add the consul DNS loopback, so we can use consul queries.
       dns {
@@ -44,6 +45,18 @@ job "dpulc-staging" {
       check {
         type = "http"
         port = "http"
+        path = "/"
+        interval = "10s"
+        timeout = "1s"
+      }
+    }
+    service {
+      name = "dpulc-staging-web"
+      tags = ["metrics"]
+      port = "metrics"
+      check {
+        type = "metrics"
+        port = "metrics"
         path = "/"
         interval = "10s"
         timeout = "1s"
@@ -86,6 +99,7 @@ job "dpulc-staging" {
         DNS_CLUSTER_QUERY = "dpulc-staging-web.service.consul"
         HONEYBADGER_API_KEY = {{ .HONEYBADGER_API_KEY }}
         GRAFANA_SERVICE_TOKEN = {{ .GRAFANA_SERVICE_TOKEN }}
+        METRICS_AUTH_TOKEN = {{ .METRICS_AUTH_TOKEN }}
         {{- end -}}
         EOF
       }
@@ -125,6 +139,7 @@ job "dpulc-staging" {
         DNS_CLUSTER_QUERY = "dpulc-staging-web.service.consul"
         HONEYBADGER_API_KEY = {{ .HONEYBADGER_API_KEY }}
         GRAFANA_SERVICE_TOKEN = {{ .GRAFANA_SERVICE_TOKEN }}
+        METRICS_AUTH_TOKEN = {{ .METRICS_AUTH_TOKEN }}
         {{- end -}}
         EOF
       }
@@ -134,6 +149,7 @@ job "dpulc-staging" {
     count = 1
     network {
       port "http" { to = 4000 }
+      port "metrics" { to = 4021 }
       port "epmd" { static = 6789 }
     }
     affinity {
@@ -148,6 +164,18 @@ job "dpulc-staging" {
       check {
         type = "http"
         port = "http"
+        path = "/"
+        interval = "10s"
+        timeout = "1s"
+      }
+    }
+    service {
+      name = "dpulc-staging-web"
+      tags = ["metrics"]
+      port = "metrics"
+      check {
+        type = "metrics"
+        port = "metrics"
         path = "/"
         interval = "10s"
         timeout = "1s"
@@ -189,6 +217,7 @@ job "dpulc-staging" {
         DNS_CLUSTER_QUERY = "dpulc-staging-web.service.consul"
         HONEYBADGER_API_KEY = {{ .HONEYBADGER_API_KEY }}
         GRAFANA_SERVICE_TOKEN = {{ .GRAFANA_SERVICE_TOKEN }}
+        METRICS_AUTH_TOKEN = {{ .METRICS_AUTH_TOKEN }}
         {{- end -}}
         EOF
       }
