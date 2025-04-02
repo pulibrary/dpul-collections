@@ -41,6 +41,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
       handled_data: resource |> to_map,
       related_data: extract_related_data(resource)
     }
+    # TODO
+    # |> mark_empty_resource_for_deletion()
   end
 
   @spec extract_related_data(resource :: %__MODULE__{}) :: related_data()
@@ -116,6 +118,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     |> Enum.filter(fn id -> !is_nil(id) and id != "" end)
     # Query figgy using the resulting list of ids
     |> IndexingPipeline.get_figgy_resources()
+    # TODO
+    # |> remove_non_image_filesets()
     # Map the returned Figgy.Resources into tuples of this form:
     # `{resource_id, %{"name" => value, ..}}`
     |> Enum.map(fn m -> {m.id, to_map(m)} end)
