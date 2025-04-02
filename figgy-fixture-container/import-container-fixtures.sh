@@ -8,3 +8,5 @@ psql -d "$POSTGRES_DB" -U $POSTGRES_USER -c "\copy orm_resources FROM /tmp/fixtu
 psql -d "$POSTGRES_DB" -U $POSTGRES_USER -c "\copy orm_resources FROM /tmp/fixture-exports/project-dm-export.binary BINARY"
 psql -d "$POSTGRES_DB" -U $POSTGRES_USER -c "\copy orm_resources FROM /tmp/fixture-exports/project-ignore-export.binary BINARY"
 psql -d "$POSTGRES_DB" -U $POSTGRES_USER -c "\copy orm_resources FROM /tmp/fixture-exports/project-ignore2-export.binary BINARY"
+psql -d "$POSTGRES_DB" -U $POSTGRES_USER -c "\copy orm_resources FROM /tmp/fixture-exports/extras-export.binary BINARY"
+psql -d "$POSTGRES_DB" -U $POSTGRES_USER -c "\copy orm_resources FROM /tmp/fixture-exports/extras-members-export.binary BINARY"

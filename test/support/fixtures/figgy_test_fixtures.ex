@@ -14,14 +14,15 @@ defmodule FiggyTestFixtures do
     }
 
     marker2 = %CacheEntryMarker{
-      timestamp: ~U[2018-03-09 20:19:34.465203Z],
-      id: "69990556-434c-476a-9043-bbf9a1bda5a4"
-    }
-
-    marker3 = %CacheEntryMarker{
       timestamp: ~U[2018-03-09 20:19:34.486004Z],
       id: "47276197-e223-471c-99d7-405c5f6c5285"
     }
+
+    marker3 = %CacheEntryMarker{
+      timestamp: ~U[2018-03-09 20:19:34.465203Z],
+      id: "c7cef687-d76d-4821-a3e6-ead508722cab"
+    }
+
 
     {marker1, marker2, marker3}
   end
