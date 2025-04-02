@@ -7,6 +7,7 @@
   "skip_files": [
     "lib/dpul_collections/release.ex",
     "test/support/data_case.ex",
-    "lib/dpul_collections_web/telemetry.ex"
+    "lib/dpul_collections_web/telemetry.ex",
+    "lib/dpul_collections/prom_ex.ex"
   ]
 }
