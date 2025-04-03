@@ -69,6 +69,13 @@ config :dpul_collections, DpulCollectionsWeb.Gettext,
 
 config :dpul_collections, :web_connections, figgy_url: "https://figgy.princeton.edu"
 
+config :dpul_collections, DpulCollections.PromEx,
+  disabled: false,
+  manual_metrics_start_delay: :no_delay,
+  drop_metrics_groups: [],
+  grafana: :disabled,
+  metrics_server: :disabled
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

@@ -2,6 +2,7 @@ defmodule DpulCollections.IndexingPipeline do
   @moduledoc """
   The IndexingPipeline context.
   """
+  use Sibyl
 
   import Ecto.Query, warn: false
   alias DpulCollections.{Repo, FiggyRepo}
@@ -205,8 +206,10 @@ defmodule DpulCollections.IndexingPipeline do
       ** (Ecto.NoResultsError)
 
   """
+  @decorate trace()
   def get_figgy_resource!(id), do: FiggyRepo.get!(Figgy.Resource, id)
 
+  @decorate trace()
   def get_figgy_parents(id) do
     json = %{"member_ids" => [%{"id" => id}]}
 
@@ -230,6 +233,7 @@ defmodule DpulCollections.IndexingPipeline do
 
   """
   @spec get_figgy_resources(ids :: [String.t()]) :: list(Figgy.Resource)
+  @decorate trace()
   def get_figgy_resources(ids) do
     from(r in Figgy.Resource, where: r.id in ^ids)
     |> FiggyRepo.all()
@@ -287,6 +291,7 @@ defmodule DpulCollections.IndexingPipeline do
           marker :: CacheEntryMarker.t(),
           count :: integer
         ) :: list(Figgy.Resource)
+  @decorate trace()
   def get_figgy_resources_since!(%CacheEntryMarker{timestamp: updated_at, id: id}, count) do
     query =
       from r in Figgy.Resource,
@@ -303,6 +308,7 @@ defmodule DpulCollections.IndexingPipeline do
           nil,
           count :: integer
         ) :: list(Figgy.Resource)
+  @decorate trace()
   def get_figgy_resources_since!(nil, count) do
     query =
       from r in Figgy.Resource,

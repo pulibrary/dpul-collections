@@ -31,6 +31,7 @@ job "dpulc-staging" {
     count = 2
     network {
       port "http" { to = 4000 }
+      port "metrics" { to = 4021 }
       port "epmd" { static = 6789 }
       # Add the consul DNS loopback, so we can use consul queries.
       dns {
@@ -48,6 +49,11 @@ job "dpulc-staging" {
         interval = "10s"
         timeout = "1s"
       }
+    }
+    service {
+      name = "dpulc-staging-web"
+      tags = ["metrics"]
+      port = "metrics"
     }
     affinity {
       attribute = "${meta.node_type}"
@@ -85,6 +91,8 @@ job "dpulc-staging" {
         BASIC_AUTH_PASSWORD = {{ .BASIC_AUTH_PASSWORD }}
         DNS_CLUSTER_QUERY = "dpulc-staging-web.service.consul"
         HONEYBADGER_API_KEY = {{ .HONEYBADGER_API_KEY }}
+        GRAFANA_SERVICE_TOKEN = {{ .GRAFANA_SERVICE_TOKEN }}
+        METRICS_AUTH_TOKEN = {{ .METRICS_AUTH_TOKEN }}
         {{- end -}}
         EOF
       }
@@ -93,7 +101,7 @@ job "dpulc-staging" {
       driver = "podman"
       config {
         image = "ghcr.io/pulibrary/dpul-collections:${ var.branch_or_sha }"
-        ports = ["http", "epmd"]
+        ports = ["http", "epmd", "metrics"]
         force_pull = true
       }
       resources {
@@ -123,6 +131,8 @@ job "dpulc-staging" {
         BASIC_AUTH_PASSWORD = {{ .BASIC_AUTH_PASSWORD }}
         DNS_CLUSTER_QUERY = "dpulc-staging-web.service.consul"
         HONEYBADGER_API_KEY = {{ .HONEYBADGER_API_KEY }}
+        GRAFANA_SERVICE_TOKEN = {{ .GRAFANA_SERVICE_TOKEN }}
+        METRICS_AUTH_TOKEN = {{ .METRICS_AUTH_TOKEN }}
         {{- end -}}
         EOF
       }
@@ -132,6 +142,7 @@ job "dpulc-staging" {
     count = 1
     network {
       port "http" { to = 4000 }
+      port "metrics" { to = 4021 }
       port "epmd" { static = 6789 }
     }
     affinity {
@@ -151,11 +162,16 @@ job "dpulc-staging" {
         timeout = "1s"
       }
     }
+    service {
+      name = "dpulc-staging-web"
+      tags = ["metrics"]
+      port = "metrics"
+    }
     task "indexer" {
       driver = "podman"
       config {
         image = "ghcr.io/pulibrary/dpul-collections:${ var.branch_or_sha }"
-        ports = ["http", "epmd"]
+        ports = ["http", "epmd", "metrics"]
         force_pull = true
       }
       env {
@@ -186,6 +202,8 @@ job "dpulc-staging" {
         BASIC_AUTH_PASSWORD = {{ .BASIC_AUTH_PASSWORD }}
         DNS_CLUSTER_QUERY = "dpulc-staging-web.service.consul"
         HONEYBADGER_API_KEY = {{ .HONEYBADGER_API_KEY }}
+        GRAFANA_SERVICE_TOKEN = {{ .GRAFANA_SERVICE_TOKEN }}
+        METRICS_AUTH_TOKEN = {{ .METRICS_AUTH_TOKEN }}
         {{- end -}}
         EOF
       }

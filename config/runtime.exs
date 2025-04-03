@@ -147,6 +147,26 @@ if config_env() == :prod do
     check_origin: check_origin,
     secret_key_base: secret_key_base
 
+  config :dpul_collections, DpulCollections.PromEx,
+    disabled: false,
+    manual_metrics_start_delay: :no_delay,
+    drop_metrics_groups: [],
+    # Upload pre-built dashboards to Grafana.
+    grafana: [
+      host: "https://grafana-nomad.lib.princeton.edu",
+      auth_token: System.get_env("GRAFANA_SERVICE_TOKEN")
+    ],
+    # Run a standalone metrics server with a bearer token auth. Prometheus will
+    # harvest metrics from this server.
+    metrics_server: [
+      port: 4021,
+      auth_strategy: :bearer,
+      auth_token: System.get_env("METRICS_AUTH_TOKEN"),
+      cowboy_opts: [
+        ip: {0, 0, 0, 0}
+      ]
+    ]
+
   # ## SSL Support
   #
   # To get SSL working, you will need to add the `https` key

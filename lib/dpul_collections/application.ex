@@ -9,6 +9,7 @@ defmodule DpulCollections.Application do
   def start(_type, _args) do
     children =
       [
+        DpulCollections.PromEx,
         DpulCollectionsWeb.Telemetry,
         DpulCollections.Repo,
         DpulCollections.FiggyRepo,
