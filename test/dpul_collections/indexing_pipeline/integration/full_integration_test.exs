@@ -244,7 +244,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
              | _rest
            ] = document["image_service_urls_ss"]
 
-    assert "https://iiif-cloud.princeton.edu/iiif/2/5e%2F24%2Faf%2F5e24aff45b2e4c9aaba3f05321d1c797%2Fintermediate_file" =
+    assert "https://iiif-cloud.princeton.edu/iiif/2/76%2F5e%2F4c%2F765e4c0ada4a468bad46cbbebec4242b%2Fintermediate_file" =
              document["primary_thumbnail_service_url_s"]
   end
 end

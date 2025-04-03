@@ -40,6 +40,10 @@ We copy fixtures from Figgy's production database into a Docker container so tha
 - `cd figgy-fixture-container && ./create-fixture-exports.sh`
 - `./build-and-push.sh`
 
+To add a new fixture, edit `create-fixture-exports.sh` and add an id to the
+EXTRA_RESOURCE_IDS var. Note that adding a new fixture will update all the
+existing and you may have to make adjusts to test expectations.
+
 ### Solr credentials
 
 Solr cloud doesn't allow use of uploaded config sets without some kind of auth in place. Since we upload config sets to our Solr containers in dev and test, they are configured to use basic auth. To log into the UI for either instance you can use the credentials configured on the box (`solr`:`SolrRocks`) or the convenience account set up by our Lando scripts (`user`:`pass`).

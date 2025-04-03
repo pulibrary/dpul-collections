@@ -166,6 +166,31 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     |> Broadway.Message.put_batcher(:noop)
   end
 
+  # Hyrdation cache entries for deleted records.
+  # Uses the deleted record id as the record_id rather than the cache marker id
+  defp write_to_hydration_cache(
+         %Broadway.Message{
+           data: %{marker: marker, handled_data: data = %{id: id, metadata: %{"deleted" => true}}}
+         },
+         cache_version
+       ) do
+    # store in HydrationCache:
+    # - data (blob) - this is the record
+    # - cache_order (datetime) - this is our own new timestamp for this table
+    # - cache_version (this only changes manually, we have to hold onto it as state)
+    # - record_id (varchar) - the figgy UUID of the deleted record
+    # - source_cache_order (datetime) - the figgy updated_at
+    {:ok, response} =
+      IndexingPipeline.write_hydration_cache_entry(%{
+        cache_version: cache_version,
+        record_id: id,
+        source_cache_order: marker.timestamp,
+        data: data
+      })
+
+    {:ok, response}
+  end
+
   defp write_to_hydration_cache(
          %Broadway.Message{
            data: %{marker: marker, handled_data: data, related_data: related_data}

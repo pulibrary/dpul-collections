@@ -115,6 +115,9 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
   @impl GenStage
   @spec handle_info({atom(), atom(), list(%CacheEntryMarker{})}, state()) ::
           {:noreply, list(Broadway.Message.t()), state()}
+  # pending_markers: incoming newly acked markers
+  # state.acked_records: previously blocked acked records
+  # state.pulled_records: records the db producer has sent in order, waiting to be acked
   def handle_info({:ack, :database_producer_ack, pending_markers}, state) do
     messages = []
 

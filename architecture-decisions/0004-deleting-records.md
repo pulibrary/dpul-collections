@@ -10,7 +10,7 @@ Accepted
 
 When resources are deleted in Figgy, a DeletionMarker resource is created at the
 same time. The DeletionMarker stores the deleted resource's identifier,
-resource type, and a serialized copy of the  metadata (in the `deleted_object`
+resource type, and a serialized copy of the metadata (in the `deleted_object`
 field). We need a method for processing DeletionMarkers in DPUL-C to remove the
 corresponding record from the Solr index.
 
@@ -22,9 +22,6 @@ corresponding record from the Solr index.
 resource type that we currently index into DPUL-C. In addition, we will check
 if a hydration cache entry exists for the deleted resource and discard the 
 DeletionMarker if not.
-1. A special CacheMarker is created from the DeletionMarker that uses the
-   deleted resource's id as the id and the updated_at value from the
-   DeletionMarker as the timestamp.
 1. Special hydration cache entry attributes are generated. The hydration cache
    entry created from these attributes will replace the hydration cache entry of
    the deleted resource.
@@ -56,5 +53,5 @@ entry with the following structure.
 restored. This means that DPUL-C will have to triage an ever increasing number
 over time.
 
-- Deleted resource hydration and transformation cache entries will stay in the 
-cache after the resource is remove from Solr until the next full reindex.
+- Deleted resource hydration and transformation cache entries will stay in the
+cache after the resource is removed from Solr until the next full reindex.

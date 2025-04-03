@@ -23,7 +23,6 @@ defmodule FiggyTestFixtures do
       id: "c7cef687-d76d-4821-a3e6-ead508722cab"
     }
 
-
     {marker1, marker2, marker3}
   end
 
