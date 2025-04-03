@@ -3,7 +3,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ResourceTest do
   alias DpulCollections.IndexingPipeline.Figgy.Resource
 
   describe "to_hydration_cache_attrs/1" do
-    test "can handle an related resource id with an empty string" do
+    test "it doesn't error when the related resource id is an empty string" do
       folder = FiggyTestSupport.first_ephemera_folder()
 
       related_resource_count =

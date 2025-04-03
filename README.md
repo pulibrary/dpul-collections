@@ -37,7 +37,12 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 We copy fixtures from Figgy's production database into a Docker container so that we can easily use it for testing indexing. To rebuild that container:
 
 - `brew install lastpass-cli`
-- `cd figgy-fixture-container && ./build-and-push.sh`
+- `cd figgy-fixture-container && ./create-fixture-exports.sh`
+- `./build-and-push.sh`
+
+To add a new fixture, edit `create-fixture-exports.sh` and add an id to the
+EXTRA_RESOURCE_IDS var. Note that adding a new fixture will update all the
+existing and you may have to make adjusts to test expectations.
 
 ### Solr credentials
 
