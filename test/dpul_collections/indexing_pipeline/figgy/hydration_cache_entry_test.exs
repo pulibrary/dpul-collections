@@ -510,7 +510,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
                "couldn't parse date"
     end
 
-    test "an empty solr document is returned with a empty title field" do
+    test "when an entry has no title field the solr document title has a default value" do
       {:ok, entry} =
         IndexingPipeline.write_hydration_cache_entry(%{
           cache_version: 0,
@@ -527,6 +527,35 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
         })
 
       assert %{title_txtm: ["[Missing Title]"]} = HydrationCacheEntry.to_solr_document(entry)
+    end
+
+    test "when an entry has a term with no id, the solr document is returned without the term" do
+      {:ok, entry} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          cache_version: 0,
+          record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
+          source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
+          related_data: %{
+            "resources" => %{
+              "1" => %{
+                "internal_resource" => "FileSet",
+                "id" => "9ad621a7b-01ea-4895-9c3d-a8c6eaab4013",
+                "metadata" => %{}
+              }
+            }
+          },
+          data: %{
+            "id" => "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
+            "internal_resource" => "EphemeraFolder",
+            "metadata" => %{
+              "title" => ["A title"],
+              "date_created" => ["2022"],
+              "genre" => [%{}]
+            }
+          }
+        })
+
+      assert %{genre_txtm: []} = HydrationCacheEntry.to_solr_document(entry)
     end
   end
 end
