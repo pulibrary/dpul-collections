@@ -12,10 +12,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           id: "47276197-e223-471c-99d7-405c5f6c5285",
           updated_at: ~U[2018-03-09 20:19:34.486004Z],
           internal_resource: "EphemeraFolder",
-          metadata: %{
-            "state" => ["complete"],
-            "visibility" => ["open"]
-          }
+          state: ["complete"],
+          visibility: ["open"]
         }
       }
 
@@ -25,10 +23,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           id: "47276197-e223-471c-99d7-405c5f6c5285",
           updated_at: ~U[2018-03-09 20:19:34.486004Z],
           internal_resource: "EphemeraFolder",
-          metadata: %{
-            "state" => ["pending"],
-            "visibility" => ["open"]
-          }
+          state: ["pending"],
+          visibility: ["open"]
         }
       }
 
@@ -38,10 +34,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           id: "47276197-e223-471c-99d7-405c5f6c5285",
           updated_at: ~U[2018-03-09 20:19:34.486004Z],
           internal_resource: "EphemeraFolder",
-          metadata: %{
-            "state" => ["complete"],
-            "visibility" => ["restricted"]
-          }
+          state: ["complete"],
+          visibility: ["restricted"]
         }
       }
 
@@ -69,10 +63,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           id: "9773417d-1c36-4692-bf81-f387be688460",
           updated_at: ~U[2025-01-02 19:47:21.726083Z],
           internal_resource: "DeletionMarker",
-          metadata: %{
-            "resource_id" => [%{"id" => "a521113e-e77a-4000-b00a-17c09b3aa757"}],
-            "resource_type" => ["FileSet"]
-          }
+          metadata_resource_id: [%{"id" => "a521113e-e77a-4000-b00a-17c09b3aa757"}],
+          metadata_resource_type: ["FileSet"]
         }
       }
 
@@ -86,9 +78,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           file_set_deletion_marker_message
         ]
         |> Enum.map(&Figgy.HydrationConsumer.handle_message(nil, &1, %{cache_version: 1}))
+
+      message_batchers =
+        transformed_messages
         |> Enum.map(&Map.get(&1, :batcher))
 
-      assert transformed_messages == [:default, :noop, :noop, :default, :noop, :noop]
+      assert message_batchers == [:default, :noop, :noop, :default, :noop, :noop]
     end
 
     test "handle_batch/3 only processes deletion markers with related resources in the HydrationCache" do
@@ -98,10 +93,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           id: "47276197-e223-471c-99d7-405c5f6c5285",
           updated_at: ~U[2018-03-09 20:19:34.486004Z],
           internal_resource: "EphemeraFolder",
-          metadata: %{
-            "state" => ["complete"],
-            "visibility" => ["open"]
-          }
+          state: ["complete"],
+          visibility: ["open"]
         }
       }
 
@@ -112,10 +105,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           id: "dced9109-6980-4035-9764-84c08ed5d7db",
           updated_at: ~U[2025-01-02 19:47:21.726083Z],
           internal_resource: "DeletionMarker",
-          metadata: %{
-            "resource_id" => [%{"id" => "47276197-e223-471c-99d7-405c5f6c5285"}],
-            "resource_type" => ["EphemeraFolder"]
-          }
+          metadata_resource_id: [%{"id" => "47276197-e223-471c-99d7-405c5f6c5285"}],
+          metadata_resource_type: ["EphemeraFolder"]
         }
       }
 
@@ -126,10 +117,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           id: "f8f62bdf-9d7b-438f-9870-1793358e5fe1",
           updated_at: ~U[2025-01-02 19:47:21.726083Z],
           internal_resource: "DeletionMarker",
-          metadata: %{
-            "resource_id" => [%{"id" => "fc8d345b-6e87-461e-9182-41eaede1fab6"}],
-            "resource_type" => ["EphemeraFolder"]
-          }
+          metadata_resource_id: [%{"id" => "fc8d345b-6e87-461e-9182-41eaede1fab6"}],
+          metadata_resource_type: ["EphemeraFolder"]
         }
       }
 
@@ -140,10 +129,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           id: "1a2e9bef-e50d-4a9c-81f1-8d8e82f3a8e4",
           updated_at: ~U[2025-01-02 19:47:21.726083Z],
           internal_resource: "DeletionMarker",
-          metadata: %{
-            "resource_id" => [%{"id" => "e0d4e6f6-29f2-4fd7-9c8a-7293ae0d7689"}],
-            "resource_type" => ["EphemeraFolder"]
-          }
+          metadata_resource_id: [%{"id" => "e0d4e6f6-29f2-4fd7-9c8a-7293ae0d7689"}],
+          metadata_resource_type: ["EphemeraFolder"]
         }
       }
 
@@ -197,6 +184,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           id: "47276197-e223-471c-99d7-405c5f6c5285",
           updated_at: ~U[2018-03-09 20:19:34.486004Z],
           internal_resource: "EphemeraFolder",
+          state: ["complete"],
+          visibility: ["open"],
+          # It'll never really happen that there's both state, visibility, and
+          # populated metadata, but by doing it for this fixture the ID above
+          # doesn't have to really exist in the DB.
           metadata: %{
             "state" => ["complete"],
             "visibility" => ["open"]
@@ -210,6 +202,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           id: "2408ec35-cc34-471a-acd8-3c2631e72754",
           updated_at: ~U[2020-03-09 20:19:34.486004Z],
           internal_resource: "EphemeraFolder",
+          state: ["complete"],
+          visibility: ["open"],
           metadata: %{
             "state" => ["complete"],
             "visibility" => ["open"]
@@ -223,6 +217,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           id: "47276197-e223-471c-99d7-405c5f6c5285",
           updated_at: ~U[2018-03-09 20:19:34.486004Z],
           internal_resource: "EphemeraFolder",
+          state: ["complete"],
+          visibility: ["private"],
           metadata: %{
             "state" => ["complete"],
             "visibility" => ["private"]
@@ -236,6 +232,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           id: "2408ec35-cc34-471a-acd8-3c2631e72754",
           updated_at: ~U[2020-03-09 20:19:34.486004Z],
           internal_resource: "EphemeraFolder",
+          state: ["pending"],
+          visibility: ["open"],
           metadata: %{
             "state" => ["pending"],
             "visibility" => ["open"]
@@ -249,6 +247,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           id: "60dfde9c-62c0-49ec-b5a4-1c8807ad03f0",
           updated_at: ~U[2019-03-09 20:19:34.486004Z],
           internal_resource: "EphemeraFolder",
+          state: ["complete"],
+          visibility: ["private"],
           metadata: %{
             "state" => ["complete"],
             "visibility" => ["private"]
