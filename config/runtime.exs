@@ -33,7 +33,7 @@ if config_env() == :prod do
   config :dpul_collections, DpulCollections.Repo,
     # ssl: true,
     url: database_url,
-    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "30"),
     socket_options: maybe_ipv6
 
   figgy_database_url =
@@ -46,7 +46,7 @@ if config_env() == :prod do
   # Configure your other database
   config :dpul_collections, DpulCollections.FiggyRepo,
     url: figgy_database_url,
-    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "30"),
     socket_options: maybe_ipv6
 
   solr_base_url =

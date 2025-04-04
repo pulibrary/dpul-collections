@@ -12,7 +12,7 @@ variable "solr_read_collection" {
 }
 variable "index_cache_collections" {
   type = string
-  default = "cache_version:5,write_collection:dpulc-staging5;cache_version:6,write_collection:dpulc-staging6"
+  default = "cache_version:5,write_collection:dpulc-staging5"
 }
 variable "solr_config_set" {
   type = string
@@ -181,7 +181,7 @@ job "dpulc-staging" {
       # Save a bunch of CPU and RAM to run indexing.
       resources {
         cores = 6
-        memory = 5000
+        memory = 8000
       }
       template {
         destination = "${NOMAD_SECRETS_DIR}/env.vars"
