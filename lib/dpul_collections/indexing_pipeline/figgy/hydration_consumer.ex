@@ -51,7 +51,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         message = %Broadway.Message{
           data: %{
             internal_resource: internal_resource,
-            metadata: %{"state" => state, "visibility" => visibility}
+            state: state,
+            visibility: visibility
           }
         },
         %{cache_version: _cache_version}
@@ -127,10 +128,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         message = %Broadway.Message{
           data: %{
             internal_resource: internal_resource,
-            metadata: %{
-              "resource_id" => [%{"id" => resource_id}],
-              "resource_type" => [resource_type]
-            }
+            metadata_resource_id: [%{"id" => resource_id}],
+            metadata_resource_type: [resource_type]
           }
         },
         %{cache_version: cache_version}

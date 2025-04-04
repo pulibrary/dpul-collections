@@ -12,6 +12,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     field :metadata, :map
     field :created_at, :utc_datetime_usec
     field :updated_at, :utc_datetime_usec
+    # These are propagated by get_figgy_resources_since! to prevent pulling all
+    # of metadata.
+    field :visibility, {:array, :string}, virtual: true
+    field :state, {:array, :string}, virtual: true
+    field :metadata_resource_id, {:array, :map}, virtual: true
+    field :metadata_resource_type, {:array, :string}, virtual: true
   end
 
   @type related_data() :: %{optional(field_name :: String.t()) => related_resource_map()}
@@ -34,6 +40,16 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
       handled_data: resource |> to_map,
       related_data: %{}
     }
+  end
+
+  # We haven't pulled the full resource yet, so grab it.
+  def to_hydration_cache_attrs(%__MODULE__{
+        id: id,
+        internal_resource: "EphemeraFolder",
+        metadata: nil
+      }) do
+    IndexingPipeline.get_figgy_resource!(id)
+    |> to_hydration_cache_attrs
   end
 
   def to_hydration_cache_attrs(resource = %__MODULE__{internal_resource: "EphemeraFolder"}) do
@@ -145,12 +161,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   end
 
   @spec to_map(resource :: %__MODULE__{}) :: map()
-  defp to_map(resource = %__MODULE__{internal_resource: "DeletionMarker"}) do
-    %{
-      "resource_id" => [%{"id" => deleted_resource_id}],
-      "resource_type" => [deleted_resource_type]
-    } = resource.metadata
-
+  defp to_map(
+         resource = %__MODULE__{
+           internal_resource: "DeletionMarker",
+           metadata_resource_id: [%{"id" => deleted_resource_id}],
+           metadata_resource_type: [deleted_resource_type]
+         }
+       ) do
     %{
       id: deleted_resource_id,
       internal_resource: deleted_resource_type,

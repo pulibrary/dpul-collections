@@ -107,6 +107,30 @@ defmodule DpulCollections.IndexingPipelineTest do
       end
     end
 
+    test "get_figgy_resources_since/2 doesn't return all the metadata, just a sparse record" do
+      record = IndexingPipeline.get_figgy_resource!("26713a31-d615-49fd-adfc-93770b4f66b3")
+      marker = IndexingPipeline.DatabaseProducer.CacheEntryMarker.from(record)
+
+      record = IndexingPipeline.get_figgy_resources_since!(marker, 1) |> hd
+
+      assert record.metadata == nil
+      assert record.visibility == ["open"]
+      assert record.state == ["complete"]
+    end
+
+    test "get_figgy_resources_since/2 pulls deleted resource IDs and types" do
+      record = IndexingPipeline.get_figgy_resource!("ea2bc758-e455-493f-87fe-ecf124117fd2")
+      marker = IndexingPipeline.DatabaseProducer.CacheEntryMarker.from(record)
+      marker = %{marker | timestamp: marker.timestamp |> DateTime.add(-1)}
+
+      record = IndexingPipeline.get_figgy_resources_since!(marker, 1) |> hd
+
+      assert record.id == "ea2bc758-e455-493f-87fe-ecf124117fd2"
+      assert record.metadata == nil
+      assert record.metadata_resource_id == [%{"id" => "b7fc05bb-fb01-414f-a603-c5e479576674"}]
+      assert record.metadata_resource_type == ["EphemeraFolder"]
+    end
+
     test "get_figgy_resources_since!/2 does not return Events or PreservationObjects" do
       total_records = FiggyRepo.aggregate(IndexingPipeline.Figgy.Resource, :count)
 
