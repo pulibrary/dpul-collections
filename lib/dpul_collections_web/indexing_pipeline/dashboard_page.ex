@@ -59,6 +59,7 @@ defmodule DpulCollectionsWeb.IndexingPipeline.DashboardPage do
       row_fetcher={&hydration_times/2}
       rows_name="metrics"
     >
+      <:col field={:cache_version} sortable={:desc} />
       <:col field={:updated_at} sortable={:desc} />
       <:col :let={record} field={:duration} header="Duration (hh:mm:ss)">
         {to_hh_mm_ss(record.duration)}
@@ -77,6 +78,7 @@ defmodule DpulCollectionsWeb.IndexingPipeline.DashboardPage do
       row_fetcher={&transformation_times/2}
       rows_name="metrics"
     >
+      <:col field={:cache_version} sortable={:desc} />
       <:col field={:updated_at} sortable={:desc} />
       <:col :let={record} field={:duration} header="Duration (hh:mm:ss)">
         {to_hh_mm_ss(record.duration)}
@@ -95,6 +97,7 @@ defmodule DpulCollectionsWeb.IndexingPipeline.DashboardPage do
       row_fetcher={&indexing_times/2}
       rows_name="metrics"
     >
+      <:col field={:cache_version} sortable={:desc} />
       <:col field={:updated_at} sortable={:desc} />
       <:col :let={record} field={:duration} header="Duration (hh:mm:ss)">
         {to_hh_mm_ss(record.duration)}
