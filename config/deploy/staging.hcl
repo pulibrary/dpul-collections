@@ -181,7 +181,7 @@ job "dpulc-staging" {
       # Save a bunch of CPU and RAM to run indexing.
       resources {
         cores = 6
-        memory = 5000
+        memory = 8000
       }
       template {
         destination = "${NOMAD_SECRETS_DIR}/env.vars"
