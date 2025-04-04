@@ -58,7 +58,11 @@ defmodule DpulCollectionsWeb.BrowseLive do
         <DpulCollectionsWeb.SearchLive.search_item :for={item <- @pinned_items} item={item} />
       </div>
     </div>
-    <div class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-4" id="browse-header" phx-hook="ToolbarHook">
+    <div
+      class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-4"
+      id="browse-header"
+      phx-hook="ToolbarHook"
+    >
       <h1 class="uppercase font-bold text-4xl col-span-3">{gettext("Browse")}</h1>
       <button
         class="col-span-1 btn-primary shadow-[-6px_6px_0px_0px_rgba(0,77,112,0.50)] hover:shadow-[-4px_4px_0px_0px_rgba(0,77,112,0.75)] hover:bg-gray-800 transform rounded-lg border border-solid border-gray-700 transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
