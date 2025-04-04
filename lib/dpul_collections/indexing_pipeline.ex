@@ -298,6 +298,13 @@ defmodule DpulCollections.IndexingPipeline do
         where:
           r.internal_resource != "Event" and r.internal_resource != "PreservationObject" and
             (r.updated_at >= ^updated_at and (r.updated_at > ^updated_at or r.id > ^id)),
+        select: %{
+          struct(r, [:id, :updated_at, :internal_resource])
+          | visibility: fragment("metadata->'visibility'"),
+            state: fragment("metadata->'state'"),
+            metadata_resource_id: fragment("metadata->'resource_id'"),
+            metadata_resource_type: fragment("metadata->'resource_type'")
+        },
         limit: ^count,
         order_by: [asc: r.updated_at, asc: r.id]
 
