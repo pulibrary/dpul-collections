@@ -65,7 +65,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
       source_module.get_cache_entries_since!(last_queried_marker, total_demand, cache_version)
 
     if last_queried_marker == nil && length(records) > 0 do
-      DpulCollections.IndexMetricsTracker.register_fresh_start(source_module)
+      DpulCollections.IndexMetricsTracker.register_fresh_start(source_module, cache_version)
     end
 
     new_state =
@@ -86,7 +86,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
 
     # Set a timer to try fulfilling demand again later
     if new_state.stored_demand > 0 do
-      DpulCollections.IndexMetricsTracker.register_polling_started(source_module)
+      DpulCollections.IndexMetricsTracker.register_polling_started(source_module, cache_version)
       Process.send_after(self(), :check_for_updates, 50)
     end
 
@@ -147,7 +147,8 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
     notify_ack(
       pending_markers |> length(),
       new_state.pulled_records |> length(),
-      state.source_module.processor_marker_key()
+      state.source_module.processor_marker_key(),
+      state.cache_version
     )
 
     {:noreply, messages, new_state}
@@ -227,20 +228,21 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
 
   # This happens when ack is finished, we listen to this telemetry event in
   # tests so we know when the Producer's done processing a message.
-  @spec notify_ack(integer(), integer(), String.t()) :: any()
+  @spec notify_ack(integer(), integer(), String.t(), integer()) :: any()
   @type ack_event_metadata :: %{
           acked_count: integer(),
           unacked_count: integer(),
           processor_marker_key: String.t()
         }
-  defp notify_ack(acked_message_count, unacked_count, processor_marker_key) do
+  defp notify_ack(acked_message_count, unacked_count, processor_marker_key, cache_version) do
     :telemetry.execute(
       [:database_producer, :ack, :done],
       %{},
       %{
         acked_count: acked_message_count,
         unacked_count: unacked_count,
-        processor_marker_key: processor_marker_key
+        processor_marker_key: processor_marker_key,
+        cache_version: cache_version
       }
     )
   end
