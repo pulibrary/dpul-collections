@@ -1,0 +1,43 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.14.0/.schema/devbox.schema.json",
+  "env": {
+    "DEVBOX_COREPACK_ENABLED": "true",
+    "LD_LIBRARY_PATH":         "$PWD/.devbox/nix/profile/default/lib",
+    "PGHOST":                  "",
+    "PGGSSENCMODE":            "disable"
+  },
+  "packages": {
+    "nodejs": "22.14.0",
+    "elixir": "1.18",
+    "erlang": "27",
+    "podman": "4.9.3",
+    "qemu":   "latest",
+    "postgresql": {
+      "version": "15.7",
+      "outputs": ["out", "lib"]
+    },
+    "git":     "latest",
+    "wait4x":  "latest",
+    "openssh": "latest"
+  },
+  "shell": {
+    "init_hook": [
+      "echo 'Welcome to devbox!' > /dev/null"
+    ],
+    "scripts": {
+      "setup": [
+        "mix deps.get",
+        "podman machine init -m 8192 -v $HOME:/mnt/$HOME || true",
+        "podman machine start || true",
+        "devbox services up -b || true",
+        "wait4x -q -t 5m tcp localhost:8984 localhost:8985",
+        "podman exec --user root dpulc_test_solr /bin/bash -c 'apt-get update -y && apt-get install -y zip'",
+        "podman exec dpulc_test_solr /app/bin/setup_solr.sh",
+        "podman exec --user root dpulc_dev_solr /bin/bash -c 'apt-get update -y && apt-get install -y zip'",
+        "podman exec dpulc_dev_solr /app/bin/setup_solr.sh",
+        "mix setup",
+        "MIX_ENV=test mix setup"
+      ]
+    }
+  }
+}
