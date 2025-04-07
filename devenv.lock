@@ -87,7 +87,21 @@
         "type": "github"
       }
     },
-    "podman_nixpkgs": {
+    "officialpkgs": {
+      "locked": {
+        "lastModified": 1744048838,
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "b8e9b34dbbfef7e9f904522ecf32fe40531fe2fa",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "podman_4_9": {
       "locked": {
         "lastModified": 1712473363,
         "owner": "nixos",
@@ -107,7 +121,8 @@
         "devenv": "devenv",
         "git-hooks": "git-hooks",
         "nixpkgs": "nixpkgs",
-        "podman_nixpkgs": "podman_nixpkgs",
+        "officialpkgs": "officialpkgs",
+        "podman_4_9": "podman_4_9",
         "pre-commit-hooks": [
           "git-hooks"
         ]

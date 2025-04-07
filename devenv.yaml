@@ -2,10 +2,11 @@
 inputs:
   nixpkgs:
     url: github:cachix/devenv-nixpkgs/rolling
-  # Found at https://github.com/cachix/devenv/issues/218#issuecomment-1365842092
+  officialpkgs:
+    url: github:nixos/nixpkgs
   # Found reference with
   # https://lazamar.co.uk/nix-versions/?channel=nixpkgs-unstable&package=podman
-  podman_nixpkgs:
+  podman_4_9:
     url: "github:nixos/nixpkgs/e89cf1c932006531f454de7d652163a9a5c86668"
 
 # If you're using non-OSS software, you can set allowUnfree to true.
