@@ -1,8 +1,10 @@
 defmodule DpulCollectionsWeb.IndexingPipeline.DashboardPage do
+  alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy.IndexingProducerSource
   alias DpulCollections.IndexingPipeline.Figgy.TransformationProducerSource
   alias DpulCollections.IndexingPipeline.Figgy.HydrationProducerSource
   alias DpulCollections.IndexMetricsTracker
+  alias DpulCollections.IndexingPipeline.ProcessorMarker
   use Phoenix.LiveDashboard.PageBuilder
 
   @impl true
@@ -12,7 +14,8 @@ defmodule DpulCollectionsWeb.IndexingPipeline.DashboardPage do
         hydration_times: IndexMetricsTracker.processor_durations(HydrationProducerSource),
         transformation_times:
           IndexMetricsTracker.processor_durations(TransformationProducerSource),
-        indexing_times: IndexMetricsTracker.processor_durations(IndexingProducerSource)
+        indexing_times: IndexMetricsTracker.processor_durations(IndexingProducerSource),
+        processor_markers: IndexingPipeline.list_processor_markers()
       )
 
     {:ok, socket, temporary_assigns: [item_count: nil]}
@@ -50,6 +53,19 @@ defmodule DpulCollectionsWeb.IndexingPipeline.DashboardPage do
   @impl true
   def render(assigns) do
     ~H"""
+    <.row>
+      <:col :for={marker <- @processor_markers}>
+        <.fields_card
+          inner_title={"#{marker.type} marker"}
+          fields={[
+            id: marker.cache_record_id,
+            location: marker.cache_location,
+            cache_version: marker.cache_version
+          ]}
+        >
+        </.fields_card>
+      </:col>
+    </.row>
     <.live_table
       id="hydration-table"
       dom_id="hydration-table"
