@@ -3,6 +3,7 @@ defmodule DpuLCollectionsWeb.IndexingPipeline.DashboardPageTest do
   alias DpulCollections.IndexingPipeline.Figgy.TransformationProducerSource
   alias DpulCollections.IndexingPipeline.Figgy.HydrationProducerSource
   alias DpulCollections.IndexingPipeline.Metrics
+  alias DpulCollections.IndexingPipeline
   use DpulCollectionsWeb.ConnCase
   import Phoenix.LiveViewTest
   @endpoint DpulCollectionsWeb.Endpoint
@@ -29,6 +30,22 @@ defmodule DpuLCollectionsWeb.IndexingPipeline.DashboardPageTest do
       records_acked: 60
     })
 
+    {marker1, marker2, _marker3} = FiggyTestFixtures.markers()
+
+    IndexingPipeline.write_processor_marker(%{
+      type: "figgy_hydrator",
+      cache_version: 0,
+      cache_location: marker1.timestamp,
+      cache_record_id: marker1.id
+    })
+
+    IndexingPipeline.write_processor_marker(%{
+      type: "figgy_indexer",
+      cache_version: 0,
+      cache_location: marker2.timestamp,
+      cache_record_id: marker2.id
+    })
+
     {:ok, view, html} =
       conn
       |> put_req_header("authorization", "Basic " <> Base.encode64("admin:test"))
@@ -44,5 +61,9 @@ defmodule DpuLCollectionsWeb.IndexingPipeline.DashboardPageTest do
     assert has_element?(view, "td.transformation-table-duration", "00:00:10")
     assert has_element?(view, "td.indexing-table-per_second", "0.3")
     assert has_element?(view, "td.indexing-table-duration", "00:03:20")
+    assert html =~ "figgy_hydrator marker"
+    assert html =~ "figgy_indexer marker"
+    assert has_element?(view, "div.fields-card", marker1.id)
+    assert has_element?(view, "div.fields-card", marker2.id)
   end
 end
