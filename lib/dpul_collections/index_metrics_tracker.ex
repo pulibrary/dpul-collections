@@ -97,7 +97,7 @@ defmodule DpulCollections.IndexMetricsTracker do
     state =
       state
       |> put_in(
-        [Access.key(source.processor_marker_key(), %{}), Access.key(cache_version, %{})],
+        [Access.key(processor_marker_key, %{}), Access.key(cache_version, %{})],
         handle_ack_received(metadata, get_in(state, [processor_marker_key, cache_version]))
       )
 
