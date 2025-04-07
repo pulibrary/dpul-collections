@@ -43,19 +43,21 @@ defmodule DpuLCollectionsWeb.IndexingPipeline.DashboardPageTest do
 
     {marker1, marker2, _marker3} = FiggyTestFixtures.markers()
 
-    IndexingPipeline.write_processor_marker(%{
-      type: "figgy_hydrator",
-      cache_version: 0,
-      cache_location: marker1.timestamp,
-      cache_record_id: marker1.id
-    })
+    for version <- [1, 2] do
+      IndexingPipeline.write_processor_marker(%{
+        type: "figgy_hydrator",
+        cache_version: version,
+        cache_location: marker1.timestamp,
+        cache_record_id: marker1.id
+      })
 
-    IndexingPipeline.write_processor_marker(%{
-      type: "figgy_indexer",
-      cache_version: 0,
-      cache_location: marker2.timestamp,
-      cache_record_id: marker2.id
-    })
+      IndexingPipeline.write_processor_marker(%{
+        type: "figgy_indexer",
+        cache_version: version,
+        cache_location: marker2.timestamp,
+        cache_record_id: marker2.id
+      })
+    end
 
     {:ok, view, html} =
       conn
