@@ -61,7 +61,7 @@ defmodule DpulCollections.IndexMetricsTracker do
     new_state =
       put_in(
         state,
-        Enum.map([source.processor_marker_key(), cache_version], &Access.key(&1, %{})),
+        [Access.key(source.processor_marker_key(), %{}), Access.key(cache_version, %{})],
         %{
           start_time: :erlang.monotonic_time(),
           acked_count: 0
@@ -97,7 +97,7 @@ defmodule DpulCollections.IndexMetricsTracker do
     state =
       state
       |> put_in(
-        Enum.map([processor_marker_key, cache_version], &Access.key(&1, %{})),
+        [Access.key(source.processor_marker_key(), %{}), Access.key(cache_version, %{})],
         handle_ack_received(metadata, get_in(state, [processor_marker_key, cache_version]))
       )
 
