@@ -28,7 +28,8 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           geographic_origin_txtm: ["geographic origin"],
           height_txtm: ["200"],
           holding_location_txtm: ["holding location"],
-          iiif_manifest_url_s: "https://figgy.princeton.edu/concern/ephemera_folders/42b8f9d4-1ab0-4622-b4a9-96ed4c2bec71/manifest",
+          iiif_manifest_url_s:
+            "https://figgy.princeton.edu/concern/ephemera_folders/42b8f9d4-1ab0-4622-b4a9-96ed4c2bec71/manifest",
           image_service_urls_ss: [
             "https://example.com/iiif/2/image1",
             "https://example.com/iiif/2/image2"
@@ -85,8 +86,14 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
 
     assert document |> Floki.find(~s{th:fl-contains("Date")}) |> Enum.any?()
     assert document |> Floki.find(~s{td:fl-contains("2022")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("IIIF Manifest URL")}) |> Enum.any?()
-    assert document |> Floki.find(~s{td:fl-contains("https://figgy.princeton.edu/concern/ephemera_folders/42b8f9d4-1ab0-4622-b4a9-96ed4c2bec71/manifest")}) |> Enum.any?()
+    assert document |> Floki.find(~s{th:fl-contains("Iiif manifest url")}) |> Enum.any?()
+
+    assert document
+           |> Floki.find(
+             ~s{td:fl-contains("https://figgy.princeton.edu/concern/ephemera_folders/42b8f9d4-1ab0-4622-b4a9-96ed4c2bec71/manifest")}
+           )
+           |> Enum.any?()
+
     assert document |> Floki.find(~s{th:fl-contains("Alternative title")}) |> Enum.any?()
     assert document |> Floki.find(~s{td:fl-contains("Alternative Title")}) |> Enum.any?()
     assert document |> Floki.find(~s{th:fl-contains("Barcode")}) |> Enum.any?()

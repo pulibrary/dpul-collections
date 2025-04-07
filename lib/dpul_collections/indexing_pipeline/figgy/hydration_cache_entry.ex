@@ -61,6 +61,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
       geographic_origin_txtm: extract_term("geographic_origin", metadata, related_data),
       height_txtm: get_in(metadata, ["height"]),
       holding_location_txtm: get_in(metadata, ["holding_location"]),
+      iiif_manifest_url_s: iiif_manifest_url(id),
       image_service_urls_ss: image_service_urls(metadata, related_data),
       keywords_txtm: get_in(metadata, ["keywords"]),
       language_txtm: extract_term("language", metadata, related_data),
@@ -125,6 +126,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   end
 
   defp image_service_urls(_, _), do: []
+
+  defp iiif_manifest_url(id) do
+    "https://figgy.princeton.edu/concern/ephemera_folders/#{id}/manifest"
+  end
 
   # Find the given member ID in the related data.
   defp extract_service_url(%{"id" => id}, %{"resources" => resources}) do

@@ -25,7 +25,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
                folder_number_txtm: ["1"],
                height_txtm: ["200"],
                holding_location_txtm: ["holding location"],
-               iiif_manifest_url_s: ["iiif_manifest_url"],
+               iiif_manifest_url_s:
+                 "https://figgy.princeton.edu/concern/ephemera_folders/3cb7627b-defc-401b-9959-42ebc4488f74/manifest",
                keywords_txtm: ["keyword"],
                page_count_txtm: ["4"],
                provenance_txtm: ["provenance"],
