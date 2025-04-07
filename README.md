@@ -8,9 +8,6 @@ This project is built in Elixir using Phoenix LiveView as a web framework and Br
 
 ### First time setup
 
-- `brew install asdf`
-- `asdf install`
-
 Install Nix:
 
 ```
