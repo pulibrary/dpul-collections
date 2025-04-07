@@ -53,8 +53,10 @@ defmodule DpulCollectionsWeb.IndexingPipeline.DashboardPage do
   @impl true
   def render(assigns) do
     ~H"""
-    <.row>
-      <:col :for={marker <- @processor_markers}>
+    <.row :for={
+      markers <- Enum.group_by(@processor_markers, fn pm -> pm.cache_version end) |> Map.values()
+    }>
+      <:col :for={marker <- markers}>
         <.fields_card
           inner_title={"#{marker.type} marker"}
           fields={[
