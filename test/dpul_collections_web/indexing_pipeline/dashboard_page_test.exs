@@ -42,8 +42,8 @@ defmodule DpuLCollectionsWeb.IndexingPipeline.DashboardPageTest do
     IndexingPipeline.write_processor_marker(%{
       type: "figgy_indexer",
       cache_version: 0,
-      cache_location: marker1.timestamp,
-      cache_record_id: marker1.id
+      cache_location: marker2.timestamp,
+      cache_record_id: marker2.id
     })
 
     {:ok, view, html} =

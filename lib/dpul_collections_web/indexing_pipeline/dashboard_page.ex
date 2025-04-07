@@ -62,8 +62,7 @@ defmodule DpulCollectionsWeb.IndexingPipeline.DashboardPage do
             location: marker.cache_location,
             cache_version: marker.cache_version
           ]}
-        >
-        </.fields_card>
+        />
       </:col>
     </.row>
     <.live_table
