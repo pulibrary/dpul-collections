@@ -3,7 +3,7 @@ import Config
 # Configure your database
 config :dpul_collections, DpulCollections.Repo,
   username: "postgres",
-  password: "",
+  password: "postgres",
   hostname: "localhost",
   port: "5434",
   database: "dpul_collections_dev",

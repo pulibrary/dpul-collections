@@ -29,8 +29,8 @@ Install devenv:
 
 Do these things every time you start new work in this project in dev or test
 
-- `$ lando start` will run the test and dev database and index services
-- `mix setup` will install and setup dependencies
+- `devenv shell` will open a shell for the project.
+- `setup` will launch all the required services and get the app ready.
 
 ### Development environment
 
