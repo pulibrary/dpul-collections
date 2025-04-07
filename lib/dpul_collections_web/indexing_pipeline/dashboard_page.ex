@@ -15,7 +15,7 @@ defmodule DpulCollectionsWeb.IndexingPipeline.DashboardPage do
         transformation_times:
           IndexMetricsTracker.processor_durations(TransformationProducerSource),
         indexing_times: IndexMetricsTracker.processor_durations(IndexingProducerSource),
-        processor_markers: IndexingPipeline.list_processor_markers()
+        processor_marker_lists: group_processor_markers()
       )
 
     {:ok, socket, temporary_assigns: [item_count: nil]}
@@ -24,6 +24,12 @@ defmodule DpulCollectionsWeb.IndexingPipeline.DashboardPage do
   @impl true
   def menu_link(_, _) do
     {:ok, "Index Metrics"}
+  end
+
+  defp group_processor_markers() do
+    IndexingPipeline.list_processor_markers()
+    |> Enum.group_by(fn pm -> pm.cache_version end)
+    |> Map.values()
   end
 
   defp hydration_times(_params, _node) do
@@ -53,10 +59,8 @@ defmodule DpulCollectionsWeb.IndexingPipeline.DashboardPage do
   @impl true
   def render(assigns) do
     ~H"""
-    <.row :for={
-      markers <- Enum.group_by(@processor_markers, fn pm -> pm.cache_version end) |> Map.values()
-    }>
-      <:col :for={marker <- markers}>
+    <.row :for={marker_list <- @processor_marker_lists}>
+      <:col :for={marker <- marker_list}>
         <.fields_card
           inner_title={"#{marker.type} marker"}
           fields={[
