@@ -8,6 +8,7 @@ defmodule DpulCollections.IndexingPipeline.IndexMetric do
     # Duration in seconds
     field :duration, :integer
     field :records_acked, :integer, default: 0
+    field :cache_version, :integer
 
     timestamps(type: :utc_datetime_usec)
   end
@@ -15,7 +16,7 @@ defmodule DpulCollections.IndexingPipeline.IndexMetric do
   @doc false
   def changeset(index_metric, attrs) do
     index_metric
-    |> cast(attrs, [:type, :measurement_type, :duration, :records_acked])
-    |> validate_required([:type, :measurement_type, :duration, :records_acked])
+    |> cast(attrs, [:type, :measurement_type, :duration, :records_acked, :cache_version])
+    |> validate_required([:type, :measurement_type, :duration, :records_acked, :cache_version])
   end
 end

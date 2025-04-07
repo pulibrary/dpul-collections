@@ -9,7 +9,9 @@ defmodule DpulCollections.IndexMetricsTracker do
           polling_started: boolean(),
           acked_count: integer()
         }
-  @type state :: %{(processor_key :: String.t()) => processor_state()}
+  @type state :: %{
+          (processor_key :: String.t()) => %{(cache_version :: integer()) => processor_state()}
+        }
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
@@ -28,14 +30,14 @@ defmodule DpulCollections.IndexMetricsTracker do
     {:ok, %{}}
   end
 
-  @spec register_fresh_start(source :: module()) :: term()
-  def register_fresh_start(source) do
-    GenServer.call(__MODULE__, {:fresh_index, source})
+  @spec register_fresh_start(source :: module(), cache_version :: integer()) :: term()
+  def register_fresh_start(source, cache_version) do
+    GenServer.call(__MODULE__, {:fresh_index, source, cache_version})
   end
 
-  @spec register_polling_started(source :: module()) :: term()
-  def register_polling_started(source) do
-    GenServer.call(__MODULE__, {:poll_started, source})
+  @spec register_polling_started(source :: module(), cache_version :: integer()) :: term()
+  def register_polling_started(source, cache_version) do
+    GenServer.call(__MODULE__, {:poll_started, source, cache_version})
   end
 
   @spec processor_durations(source :: module()) :: term()
@@ -55,24 +57,29 @@ defmodule DpulCollections.IndexMetricsTracker do
 
   @impl true
   @spec handle_call(term(), term(), state()) :: term()
-  def handle_call({:fresh_index, source}, _, state) do
+  def handle_call({:fresh_index, source, cache_version}, _, state) do
     new_state =
-      put_in(state, [source.processor_marker_key()], %{
-        start_time: :erlang.monotonic_time(),
-        acked_count: 0
-      })
+      put_in(
+        state,
+        [Access.key(source.processor_marker_key(), %{}), Access.key(cache_version, %{})],
+        %{
+          start_time: :erlang.monotonic_time(),
+          acked_count: 0
+        }
+      )
 
     {:reply, nil, new_state}
   end
 
   @spec handle_call(term(), term(), state()) :: term()
-  def handle_call({:poll_started, source}, _, state) do
+  def handle_call({:poll_started, source, cache_version}, _, state) do
     # Record that polling has started if we've recorded a start time but not an
     # end time for a source. Then the next time the source finishes acknowledgements
     # we'll record an end time.
-    if get_in(state, [source.processor_marker_key(), :start_time]) != nil &&
-         get_in(state, [source.processor_marker_key(), :end_time]) == nil do
-      state = put_in(state, [source.processor_marker_key(), :polling_started], true)
+    if get_in(state, [source.processor_marker_key(), cache_version, :start_time]) != nil &&
+         get_in(state, [source.processor_marker_key(), cache_version, :end_time]) == nil do
+      state =
+        put_in(state, [source.processor_marker_key(), cache_version, :polling_started], true)
 
       {:reply, nil, state}
     else
@@ -82,15 +89,16 @@ defmodule DpulCollections.IndexMetricsTracker do
 
   @spec handle_call(term(), term(), state()) :: term()
   def handle_call(
-        {:ack_received, metadata = %{processor_marker_key: processor_marker_key}},
+        {:ack_received,
+         metadata = %{processor_marker_key: processor_marker_key, cache_version: cache_version}},
         _,
         state
       ) do
     state =
       state
       |> put_in(
-        [processor_marker_key],
-        handle_ack_received(metadata, Map.get(state, processor_marker_key))
+        [Access.key(processor_marker_key, %{}), Access.key(cache_version, %{})],
+        handle_ack_received(metadata, get_in(state, [processor_marker_key, cache_version]))
       )
 
     {:reply, nil, state}
@@ -112,13 +120,15 @@ defmodule DpulCollections.IndexMetricsTracker do
          %{
            processor_marker_key: processor_marker_key,
            acked_count: new_acked_count,
-           unacked_count: 0
+           unacked_count: 0,
+           cache_version: cache_version
          },
-         processor_state = %{
-           start_time: _start_time,
-           polling_started: true,
-           acked_count: old_acked_count
-         }
+         processor_state =
+           %{
+             start_time: _start_time,
+             polling_started: true,
+             acked_count: old_acked_count
+           }
        ) do
     processor_state =
       processor_state
@@ -131,14 +141,15 @@ defmodule DpulCollections.IndexMetricsTracker do
     :telemetry.execute(
       [:dpulc, :indexing_pipeline, event(processor_marker_key), :time_to_poll],
       %{duration: duration},
-      %{source: processor_marker_key}
+      %{source: processor_marker_key, cache_version: cache_version}
     )
 
     Metrics.create_index_metric(%{
       type: processor_marker_key,
       measurement_type: "full_index",
       duration: System.convert_time_unit(duration, :native, :second),
-      records_acked: processor_state[:acked_count]
+      records_acked: processor_state[:acked_count],
+      cache_version: cache_version
     })
 
     processor_state
