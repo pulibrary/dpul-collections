@@ -11,6 +11,20 @@ This project is built in Elixir using Phoenix LiveView as a web framework and Br
 - `brew install asdf`
 - `asdf install`
 
+Install Nix:
+
+```
+curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install \
+--extra-conf "trusted-users = root ${USER}" \
+--no-confirm
+```
+
+Restart terminal
+
+Install devenv:
+
+`nix-env --install --attr devenv -f https://github.com/NixOS/nixpkgs/tarball/nixpkgs-unstable`
+
 ### Every time setup
 
 Do these things every time you start new work in this project in dev or test

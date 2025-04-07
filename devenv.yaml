@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=https://devenv.sh/devenv.schema.json
+inputs:
+  nixpkgs:
+    url: github:cachix/devenv-nixpkgs/rolling
+  # Found at https://github.com/cachix/devenv/issues/218#issuecomment-1365842092
+  # Found reference with
+  # https://lazamar.co.uk/nix-versions/?channel=nixpkgs-unstable&package=podman
+  podman_nixpkgs:
+    url: "github:nixos/nixpkgs/e89cf1c932006531f454de7d652163a9a5c86668"
+
+# If you're using non-OSS software, you can set allowUnfree to true.
+# allowUnfree: true
+
+# If you're willing to use a package that's vulnerable
+# permittedInsecurePackages:
+#  - "openssl-1.1.1w"
+
+# If you have more than one devenv you can merge them
+#imports:
+# - ./backend
