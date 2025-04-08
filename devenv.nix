@@ -82,22 +82,83 @@
   # https://devenv.sh/scripts/
   scripts.setup = {
     exec = ''
-      mix deps.get || true
-      devenv tasks run podman:start || true
-      devenv up -d || true
-      wait4x -q -t 5m tcp localhost:8984 localhost:8985
-      podman -c devenv exec --user root dpulc_test_solr /bin/bash -c 'apt-get update -y && apt-get install -y zip' || true
-      podman -c devenv exec dpulc_test_solr /app/bin/setup_solr.sh || true
-      podman -c devenv exec --user root dpulc_dev_solr /bin/bash -c 'apt-get update -y && apt-get install -y zip' || true
-      podman -c devenv exec dpulc_dev_solr /app/bin/setup_solr.sh || true
-      mix setup
-      MIX_ENV=test mix setup
+      devenv tasks run app:setup
     '';
     binary = "bash";
     description = "Prepare everything";
   };
 
+  scripts.tests = {
+    exec = ''
+      setup
+      mix test
+    '';
+    binary = "bash";
+    description = "Run tests";
+  };
+
+  scripts.poweroff = {
+    exec = ''
+      devenv processes down > /dev/null 2>&1 || true
+      podman machine stop devenv > /dev/null 2>&1 || true
+      echo "Boomshakalaka"
+    '';
+  };
+
+  scripts.clean = {
+    exec = ''
+      poweroff
+      podman machine rm devenv -y > /dev/null 2>&1 || true
+      echo "All services stopped & deleted"
+    '';
+  };
+
   tasks = {
+    "app:setup" = {
+      exec = ''
+        wait4x -q -t 5m tcp localhost:5434 localhost:5435
+        mix deps.get
+        mix setup
+        MIX_ENV=test mix setup
+      '';
+      after = [ "processes:setup_solr" ];
+    };
+    "processes:setup_solr" = {
+      after = ["processes:start"];
+    };
+    "processes:setup_dev_solr" = {
+      exec = ''
+        wait4x -q -t 5m tcp localhost:8985
+        podman -c devenv exec --user root dpulc_dev_solr /bin/bash -c 'apt-get update -y && apt-get install -y zip' || true
+        podman -c devenv exec dpulc_dev_solr /app/bin/setup_solr.sh || true
+      '';
+      status = ''
+        output=$(wait4x -q -t 1s http http://solr:SolrRocks@localhost:8985/solr/dpulc/admin/ping --expect-status-code 200)
+      '';
+      after = ["processes:setup_solr"];
+    };
+    "processes:setup_test_solr" = {
+      exec = ''
+        wait4x -q -t 5m tcp localhost:8984
+        podman -c devenv exec --user root dpulc_test_solr /bin/bash -c 'apt-get update -y && apt-get install -y zip' || true
+        podman -c devenv exec dpulc_test_solr /app/bin/setup_solr.sh || true
+      '';
+      status = ''
+        output=$(wait4x -q -t 1s http http://solr:SolrRocks@localhost:8984/solr/dpulc/admin/ping --expect-status-code 200)
+      '';
+      after = ["processes:setup_solr"];
+        # podman -c devenv exec --user root dpulc_dev_solr /bin/bash -c 'apt-get update -y && apt-get install -y zip' || true
+        # podman -c devenv exec dpulc_dev_solr /app/bin/setup_solr.sh || true
+    };
+    "processes:start" = {
+      exec = ''
+        devenv processes up -d
+      '';
+      status = ''
+        output=$(wait4x -q -t 1s tcp localhost:8984 localhost:8985)
+      '';
+      after = [ "podman:start" ];
+    };
     "podman:init" = {
       exec = ''
         podman machine init -m 8192 -v $HOME:/mnt/$HOME devenv
