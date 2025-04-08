@@ -246,5 +246,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     assert "https://iiif-cloud.princeton.edu/iiif/2/76%2F5e%2F4c%2F765e4c0ada4a468bad46cbbebec4242b%2Fintermediate_file" =
              document["primary_thumbnail_service_url_s"]
+
+    # IIIF Manifest URL
+    assert "https://figgy.princeton.edu/concern/ephemera_folders/26713a31-d615-49fd-adfc-93770b4f66b3/manifest" =
+             document["iiif_manifest_url_s"]
   end
 end

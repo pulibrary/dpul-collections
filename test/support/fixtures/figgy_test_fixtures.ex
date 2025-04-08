@@ -75,6 +75,8 @@ defmodule FiggyTestFixtures do
           "metadata" => %{
             "title" => ["test title 1"],
             "alternative_title" => ["Zaib-un-Nisa", "Zaibunnisa"],
+            "iiif_manifest_url" =>
+              "https://figgy.princeton.edu/concern/ephemera_folders/42b8f9d4-1ab0-4622-b4a9-96ed4c2bec71/manifest",
             "barcode" => ["barcode"],
             "content_warning" => ["content warning"],
             "contributor" => ["contributor"],
