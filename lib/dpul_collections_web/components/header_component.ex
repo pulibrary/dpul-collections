@@ -6,23 +6,23 @@ defmodule DpulCollectionsWeb.HeaderComponent do
 
   def header(assigns) do
     ~H"""
-    <header class="flex flex-row gap-10 items-center bg-gray-700 px-6 py-6 sm:py-10 sm:px-8 lg:px-10">
-      <div class="logo flex-none w-32 sm:w-60">
+    <header class="flex flex-row gap-10 items-center bg-dark-blue py-6 header-x-padding">
+      <div class="logo flex-none w-32 sm:w-40">
         <img src={~p"/images/pul-logo.svg"} alt="Princeton University Library Logo" />
       </div>
-      <div class="app_name flex-1">
+      <div class="app_name flex-1 text-center">
         <.link
           navigate={~p"/"}
-          class="text-2xl hidden sm:inline-block text-white hover:underline hover:underline-offset-8 hover:decoration-orange-500 hover:decoration-2"
+          class="sm:inline-block text-4xl uppercase font-bold text-center text-sage"
         >
           {gettext("Digital Collections")}
         </.link>
       </div>
-      <div class="menu flex-none">
+      <div class="menu flex-none w-32 sm:w-40 text-right">
         <div class="dropdown relative inline-block">
           <button
             id="dropdownButton"
-            class="text-white hover:underline hover:underline-offset-8 hover:decoration-orange-500 hover:decoration-2"
+            class="text-white hover:link-hover"
             aria-haspopup="true"
             aria-expanded="false"
             phx-click={JS.toggle(to: "#dropdownMenu")}
