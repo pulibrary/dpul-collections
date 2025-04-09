@@ -9,9 +9,8 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
   end
 
   test "GET /", %{conn: conn} do
-    count = DpulCollections.Solr.document_count()
     conn = get(conn, ~p"/")
-    assert html_response(conn, 200) =~ "#{count} Ephemera items"
+    assert html_response(conn, 200) =~ "Digital Collections"
   end
 
   test "search form redirect", %{conn: conn} do
@@ -38,6 +37,8 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
     assert Enum.count(links) == 5
   end
 
+  # TODO: re-enable and update when the new browse callout is implemented
+  @tag :skip
   test "link to browse", %{conn: conn} do
     {:ok, view, _} = live(conn, "/")
 

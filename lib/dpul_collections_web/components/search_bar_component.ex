@@ -11,14 +11,17 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
           <form id="search-form" class="w-full h-full" phx-submit="search" phx-target={@myself}>
             <div class="flex items-center h-full">
               <span><.icon name="hero-magnifying-glass" class="h-6 w-6 icon" /></span>
-              <label for="q" class="sr-only">Search</label>
+              <label for="q" class="sr-only">{gettext("Search")}</label>
               <input
                 class="h-full w-9/10 bg-transparent border-none"
                 type="text"
                 id="q"
                 name="q"
-                placeholder="Search"
+                placeholder={gettext("Search")}
               />
+              <button class="btn-secondary" type="submit">
+                {gettext("Search")}
+              </button>
             </div>
           </form>
         </div>
@@ -27,7 +30,7 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
           <div class="w-full text-right">
             <span><.icon name="hero-square-3-stack-3d" class="h-6 w-6 icon" /></span>
             <.link navigate={~p"/browse"}>
-              Browse all items
+              {gettext("Browse all items")}
             </.link>
           </div>
         </div>

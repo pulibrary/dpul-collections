@@ -56,7 +56,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
       <div class="page-y-spacer" />
       <.pin_tracker>{length(@pinned_items)}</.pin_tracker>
       <div id="pinned-items" class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-1">
-        <h1 class="uppercase font-bold text-4xl col-span-3">Pinned</h1>
+        <h1 class="uppercase font-bold text-4xl col-span-3">{gettext("Pinned")}</h1>
 
         <div class="grid grid-flow-row auto-rows-max gap-8">
           <DpulCollectionsWeb.SearchLive.search_item :for={item <- @pinned_items} item={item} />
