@@ -2,6 +2,7 @@
    https://tailwindcss.com/docs/configuration */
 
 @import "tailwindcss" source(none);
+@import "../css/fonts.css";
 @source "../css";
 @source "../js";
 @source "../../lib/dpul_collections_web";
@@ -10,6 +11,7 @@
 @custom-variant phx-click-loading ([".phx-click-loading&", ".phx-click-loading &"]);
 @custom-variant phx-submit-loading ([".phx-submit-loading&", ".phx-submit-loading &"]);
 @custom-variant phx-change-loading ([".phx-change-loading&", ".phx-change-loading &"]);
+
 @theme {
   --color-taupe: #ede7e4;
   --color-wafer-pink: #e2d4c9;
@@ -17,6 +19,7 @@
   --color-cloud: #c1ccc3;
   --color-rust: #ab6b47;
   --color-dark-blue: #3a4151;
+  --font-poppins: Poppins, sans-serif;
 }
 
 /*
