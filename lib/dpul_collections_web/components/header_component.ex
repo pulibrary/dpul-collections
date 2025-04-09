@@ -6,7 +6,7 @@ defmodule DpulCollectionsWeb.HeaderComponent do
 
   def header(assigns) do
     ~H"""
-    <header class="flex flex-row gap-10 items-center bg-dark-blue py-6 header-x-padding font-poppins">
+    <header class="flex flex-row gap-10 items-center bg-dark-blue py-6 header-x-padding">
       <div class="logo flex-none w-32 sm:w-40">
         <img src={~p"/images/pul-logo.svg"} alt="Princeton University Library Logo" />
       </div>
