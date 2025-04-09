@@ -52,29 +52,24 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def render(assigns) do
     ~H"""
-    <div class="content-area">
-      <div class="page-y-spacer" />
-      <.pin_tracker>{length(@pinned_items)}</.pin_tracker>
-      <div id="pinned-items" class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-1">
-        <h1 class="uppercase font-bold text-4xl col-span-3">{gettext("Pinned")}</h1>
-
-        <div class="grid grid-flow-row auto-rows-max gap-8">
-          <DpulCollectionsWeb.SearchLive.search_item :for={item <- @pinned_items} item={item} />
-        </div>
+    <.pin_tracker>{length(@pinned_items)}</.pin_tracker>
+    <h1 class="uppercase font-bold text-4xl col-span-3">{gettext("Pinned")}</h1>
+    <div id="pinned-items" class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-1">
+      <div class="grid grid-flow-row auto-rows-max gap-8">
+        <DpulCollectionsWeb.SearchLive.search_item :for={item <- @pinned_items} item={item} />
       </div>
-      <div class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-4">
-        <h1 class="uppercase font-bold text-4xl col-span-3">{gettext("Browse")}</h1>
-        <button
-          class="col-span-1 btn-primary shadow-[-6px_6px_0px_0px_rgba(0,77,112,0.50)] hover:shadow-[-4px_4px_0px_0px_rgba(0,77,112,0.75)] hover:bg-gray-800 transform rounded-lg border border-solid border-gray-700 transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
-          phx-click="randomize"
-        >
-          {gettext("Randomize")}
-        </button>
-      </div>
-      <div class="grid grid-cols-3 gap-6 pt-5">
-        <.browse_item :for={item <- @items} item={item} />
-      </div>
-      <div class="page-y-spacer" />
+    </div>
+    <div class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-4">
+      <h1 class="uppercase font-bold text-4xl col-span-3">{gettext("Browse")}</h1>
+      <button
+        class="col-span-1 btn-primary shadow-[-6px_6px_0px_0px_rgba(0,77,112,0.50)] hover:shadow-[-4px_4px_0px_0px_rgba(0,77,112,0.75)] hover:bg-gray-800 transform rounded-lg border border-solid border-gray-700 transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
+        phx-click="randomize"
+      >
+        {gettext("Randomize")}
+      </button>
+    </div>
+    <div class="grid grid-cols-3 gap-6 pt-5">
+      <.browse_item :for={item <- @items} item={item} />
     </div>
     """
   end

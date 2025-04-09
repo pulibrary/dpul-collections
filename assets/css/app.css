@@ -70,7 +70,17 @@
   @apply pe-6 sm:pe-8 lg:pe-10;
 }
 
-@utility page-y-spacer {
+/* the same as page-t-padding and page-b-padding */
+@utility page-y-padding {
+  @apply py-6;
+}
+
+/* These are broken out in case top and bottom part of page are different
+ * colors */
+@utility page-t-padding {
+  @apply pt-6;
+}
+@utility page-b-padding {
   @apply pb-6;
 }
 

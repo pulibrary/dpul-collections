@@ -14,7 +14,8 @@ defmodule DpulCollectionsWeb.HomeLive do
           |> Enum.map(&Item.from_solr(&1))
       )
 
-    {:ok, socket, temporary_assigns: [item_count: nil]}
+    {:ok, socket,
+     temporary_assigns: [item_count: nil], layout: {DpulCollectionsWeb.Layouts, :home}}
   end
 
   def render(assigns) do
@@ -22,13 +23,13 @@ defmodule DpulCollectionsWeb.HomeLive do
     <div class="grid grid-flow-row auto-rows-max gap-20">
       <div class="recent-items grid-row bg-cloud">
         <div class="content-area">
-          <div class="page-y-spacer" />
+          <div class="page-t-padding" />
           <h2 class="uppercase font-bold text-3xl">{gettext("Recent Items")}</h2>
           <div class="grid grid-cols-5 gap-6 pt-5">
             <DpulCollectionsWeb.BrowseLive.browse_item :for={item <- @recent_items} item={item} />
           </div>
         </div>
-        <div class="page-y-spacer" />
+        <div class="page-b-padding" />
       </div>
     </div>
     """
