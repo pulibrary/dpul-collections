@@ -59,6 +59,9 @@
   }
 }
 
+/***
+ * page layout utilities
+ */
 @utility content-area {
   @apply px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto;
 }
@@ -89,6 +92,14 @@
   @apply pb-6;
 }
 
+/***
+ * element utilities
+ */
+
+@utility heading {
+  @apply uppercase font-semibold text-dark-blue;
+}
+
 @utility link-hover {
   @apply hover:underline hover:underline-offset-8 hover:decoration-rust hover:decoration-2;
 }
@@ -96,5 +107,13 @@
 @layer base {
   a {
     @apply hover:link-hover;
+  }
+
+  h1 {
+    @apply heading text-3xl;
+  }
+
+  h2 {
+    @apply text-2xl font-bold;
   }
 }

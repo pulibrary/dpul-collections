@@ -24,7 +24,7 @@ defmodule DpulCollectionsWeb.HomeLive do
       <div class="recent-items grid-row bg-cloud">
         <div class="content-area">
           <div class="page-t-padding" />
-          <h2 class="uppercase font-bold text-3xl">{gettext("Recent Items")}</h2>
+          <h1>{gettext("Recently Added Items")}</h1>
           <div class="grid grid-cols-5 gap-6 pt-5">
             <DpulCollectionsWeb.BrowseLive.browse_item :for={item <- @recent_items} item={item} />
           </div>

@@ -22,12 +22,12 @@ defmodule DpulCollectionsWeb.HeaderComponent do
         <div class="dropdown relative inline-block">
           <button
             id="dropdownButton"
-            class="text-white hover:link-hover"
+            class="text-white hover:link-hover font-medium"
             aria-haspopup="true"
             aria-expanded="false"
             phx-click={JS.toggle(to: "#dropdownMenu")}
           >
-            {gettext("Language")}
+            {gettext("Language")} <span class="font-normal">&gt;</span>
           </button>
           <ul
             id="dropdownMenu"
