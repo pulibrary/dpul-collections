@@ -83,6 +83,12 @@ scrape_configs:
         labels:
           env: qa
           service: bibdata
+      - targets:
+        - dpul-staging3.princeton.edu:9100
+        - dpul-staging4.princeton.edu:9100
+        labels:
+          env: staging
+          service: dpul
   - job_name: 'nomad_server_metrics'
     scrape_interval: 5s
     metrics_path: /v1/metrics
