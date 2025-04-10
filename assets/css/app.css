@@ -20,7 +20,8 @@
   --color-rust: #ab6b47;
   --color-dark-blue: #3a4151;
 
-  --font-sans: "Poppins", sans-serif;
+  /* just add poppins on the front of the tailwind default */
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 /*

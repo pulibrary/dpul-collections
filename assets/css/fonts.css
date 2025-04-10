@@ -12,3 +12,10 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/poppins-extra-bold.woff2");
+  font-weight: 800;
+  font-style: normal;
+}
+
