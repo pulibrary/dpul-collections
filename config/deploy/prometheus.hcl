@@ -75,6 +75,14 @@ scrape_configs:
         labels:
           env: staging
           service: figgy
+      - targets:
+        - bibdata-qa1.princeton.edu:9100
+        - bibdata-qa2.princeton.edu:9100
+        - bibdata-worker-qa1.princeton.edu:9100
+        - bibdata-worker-qa2.princeton.edu:9100
+        labels:
+          env: qa
+          service: bibdata
   - job_name: 'nomad_server_metrics'
     scrape_interval: 5s
     metrics_path: /v1/metrics
