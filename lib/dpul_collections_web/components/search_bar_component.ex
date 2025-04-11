@@ -13,7 +13,7 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
               <span><.icon name="hero-magnifying-glass" class="h-6 w-6 icon" /></span>
               <label for="q" class="sr-only">{gettext("Search")}</label>
               <input
-                class="h-full w-full bg-transparent border-none placeholder:text-dark-blue placeholder:text-xl placeholder:font-semibold"
+                class="m-2 h-full w-full bg-transparent border-none placeholder:text-dark-sage placeholder:text-2xl placeholder:font-bold"
                 type="text"
                 id="q"
                 name="q"
