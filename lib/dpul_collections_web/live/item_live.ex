@@ -29,7 +29,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div class="my-5 grid grid-flow-row auto-rows-max md:grid-cols-5 gap-4">
       <div class="item md:col-span-3 md:pl-8">
-        <h1 class="text-4xl font-bold pb-2">{@item.title}</h1>
+        <h1 class="pb-2">{@item.title}</h1>
         <div class="md:block hidden">
           <.metadata_table item={@item} />
         </div>
@@ -57,7 +57,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         <.metadata_table item={@item} />
       </div>
       <section class="md:col-span-5 m:order-last py-4">
-        <h2 class="text-xl font-bold py-4">{gettext("Pages")} ({@item.file_count})</h2>
+        <h2 class="py-4">{gettext("Pages")} ({@item.file_count})</h2>
         <div class="flex flex-wrap gap-5 justify-center md:justify-start">
           <.thumbs
             :for={{thumb, thumb_num} <- Enum.with_index(@item.image_service_urls)}

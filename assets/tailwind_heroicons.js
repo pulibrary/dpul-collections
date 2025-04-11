@@ -34,6 +34,8 @@ module.exports = plugin(function({matchComponents, theme}) {
         "mask": `var(--hero-${name})`,
         "mask-repeat": "no-repeat",
         "background-color": "currentColor",
+        "stroke": "currentColor",
+        "fill": "currentColor",
         "vertical-align": "middle",
         "display": "inline-block",
         "width": size,

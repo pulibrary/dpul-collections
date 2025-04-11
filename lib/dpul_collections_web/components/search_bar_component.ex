@@ -5,16 +5,37 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
 
   def render(assigns) do
     ~H"""
-    <div class="search-bar grid grid-flow-row auto-rows-max gap-20">
-      <form id="search-form" phx-submit="search" phx-target={@myself}>
-        <div class="grid grid-cols-4">
-          <label for="q" class="sr-only">Search</label>
-          <input class="col-span-4 md:col-span-3" type="text" id="q" name="q" />
-          <button class="col-span-4 md:col-span-1 btn-primary" type="submit">
-            {gettext("Search")}
-          </button>
+    <div class="search-bar">
+      <div class="search-browse-container min-h-14 flex justify-between bg-sage">
+        <div class="search-box header-x-padding w-2/3">
+          <form id="search-form" class="w-full h-full" phx-submit="search" phx-target={@myself}>
+            <div class="flex items-center justify-between h-full text-dark-blue">
+              <span><.icon name="hero-magnifying-glass" class="h-6 w-6 icon" /></span>
+              <label for="q" class="sr-only">{gettext("Search")}</label>
+              <input
+                class="m-2 h-full w-full bg-transparent border-none placeholder:text-dark-sage placeholder:text-2xl placeholder:font-bold"
+                type="text"
+                id="q"
+                name="q"
+                placeholder={gettext("Search")}
+              />
+              <button class="btn-secondary px-4 h-8" type="submit">
+                {gettext("Search")}
+              </button>
+            </div>
+          </form>
         </div>
-      </form>
+
+        <div class="browse-link flex items-center header-e-padding bg-cloud">
+          <div class="w-full text-right heading text-xl">
+            <span><.icon name="hero-square-3-stack-3d" class="h-6 w-6 icon" /></span>
+            <.link navigate={~p"/browse"}>
+              {gettext("Browse all items")}
+            </.link>
+          </div>
+        </div>
+      </div>
+      <hr class="h-1 border-0 bg-rust" />
     </div>
     """
   end
