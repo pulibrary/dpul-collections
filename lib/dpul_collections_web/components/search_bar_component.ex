@@ -6,14 +6,14 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
   def render(assigns) do
     ~H"""
     <div class="search-bar">
-      <div class="search-browse-container grid grid-cols-3 min-h-14 bg-linear-125 from-sage to-cloud from-66% to-66%">
-        <div class="search-box col-span-2 header-s-padding">
+      <div class="search-browse-container min-h-14 flex justify-between bg-sage">
+        <div class="search-box header-x-padding w-2/3">
           <form id="search-form" class="w-full h-full" phx-submit="search" phx-target={@myself}>
-            <div class="flex items-center h-full text-dark-blue">
+            <div class="flex items-center justify-between h-full text-dark-blue">
               <span><.icon name="hero-magnifying-glass" class="h-6 w-6 icon" /></span>
               <label for="q" class="sr-only">{gettext("Search")}</label>
               <input
-                class="h-full w-7/8 bg-transparent border-none placeholder:text-dark-blue placeholder:text-xl placeholder:font-semibold"
+                class="h-full w-full bg-transparent border-none placeholder:text-dark-blue placeholder:text-xl placeholder:font-semibold"
                 type="text"
                 id="q"
                 name="q"
@@ -26,7 +26,7 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
           </form>
         </div>
 
-        <div class="browse-link col-span-1 flex items-center header-e-padding">
+        <div class="browse-link flex items-center header-e-padding bg-cloud">
           <div class="w-full text-right heading text-xl">
             <span><.icon name="hero-square-3-stack-3d" class="h-6 w-6 icon" /></span>
             <.link navigate={~p"/browse"}>

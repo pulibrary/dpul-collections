@@ -24,6 +24,11 @@
   --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
+.browse-link {
+  padding-left: 50px;
+  clip-path: polygon(40px 0%, 100% 0%, 100% 100%, 0% 100%);
+}
+
 /*
  * Make LiveView wrapper divs transparent for layout.
  * This makes it possible to use LiveViews as flex children for example.
