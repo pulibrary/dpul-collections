@@ -42,7 +42,11 @@
 }
 
 @utility btn-primary {
-  @apply font-bold uppercase rounded-sm border bg-slate-700 text-white h-12;
+  @apply cursor-pointer font-semibold uppercase border bg-dark-blue text-white h-12;
+}
+
+@utility btn-secondary {
+  @apply cursor-pointer uppercase border bg-sage text-black;
 }
 
 @utility active {

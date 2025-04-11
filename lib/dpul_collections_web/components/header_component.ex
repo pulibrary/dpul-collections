@@ -32,7 +32,7 @@ defmodule DpulCollectionsWeb.HeaderComponent do
           <ul
             id="dropdownMenu"
             phx-click-away={JS.hide(to: "#dropdownMenu")}
-            class="dropdown-menu aria-hidden hidden absolute left-auto right-0 list-none bg-white w-150 py-2 px-0 mt-2 shadow-md rounded-md"
+            class="dropdown-menu aria-hidden hidden absolute left-auto right-0 list-none bg-white min-w-3xs py-2 px-0 mt-2 shadow-md rounded-md z-100"
             role="menu"
             aria-hidden="true"
           >
