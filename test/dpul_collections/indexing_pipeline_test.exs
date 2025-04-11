@@ -107,6 +107,13 @@ defmodule DpulCollections.IndexingPipelineTest do
       end
     end
 
+    test "get_deep_figgy_parents!/1 returns all parents arbitrarily deep" do
+      ephemera_folder_id = "8b0631b7-e1e4-49c2-904f-cd3141167a80"
+      all_parents = IndexingPipeline.get_deep_figgy_parents!(ephemera_folder_id)
+
+      assert length(all_parents) == 2
+    end
+
     test "get_figgy_resources_since/2 doesn't return all the metadata, just a sparse record" do
       record = IndexingPipeline.get_figgy_resource!("26713a31-d615-49fd-adfc-93770b4f66b3")
       marker = IndexingPipeline.DatabaseProducer.CacheEntryMarker.from(record)
