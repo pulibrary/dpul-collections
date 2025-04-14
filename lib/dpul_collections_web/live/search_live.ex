@@ -86,7 +86,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   def render(assigns) do
     ~H"""
     <h1>
-      {gettext("Search Results for")}: {@search_state.q}
+      {gettext("Search Results for")}: <span class="normal-case">{@search_state.q}</span>
     </h1>
     <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
       <div id="filters" class="grid md:grid-cols-[auto_300px] gap-2">
