@@ -93,7 +93,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
       id="sticky-tools"
       class={["fixed top-20 right-10 z-10", (@show_stickytools? && "visible") || "invisible"]}
     >
-      <div class="relative inline-flex w-fit">
+      <div class="relative inline-flex w-fit flex-col">
         <div class="absolute bottom-auto left-auto right-0 top-0 z-10 inline-block -translate-y-1/2 translate-x-2/4 rotate-0 skew-x-0 skew-y-0 scale-x-100 scale-y-100 whitespace-nowrap rounded-full bg-red-600 px-1.5 py-1 text-center align-baseline text-xs font-bold leading-none text-white">
           {render_slot(@inner_block)}
         </div>
@@ -101,6 +101,8 @@ defmodule DpulCollectionsWeb.BrowseLive do
           <span class="cursor-pointer mb-2 flex rounded-sm bg-[#3eb991] px-6 py-2.5 text-xs font-medium uppercase leading-normal text-white shadow-md transition duration-150 ease-in-out hover:shadow-lg focus:shadow-lg focus:outline-hidden focus:ring-0 active:shadow-lg">
             <.icon name="hero-archive-box-solid" class="h-6 w-6 icon" />
           </span>
+        </a>
+        <a href="#browse-header">
           <button
             class="w-full col-span-1 btn-primary shadow-[-6px_6px_0px_0px_rgba(0,77,112,0.50)] hover:shadow-[-4px_4px_0px_0px_rgba(0,77,112,0.75)] hover:bg-gray-800 transform rounded-lg border border-solid border-gray-700 transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
             phx-click="randomize"
