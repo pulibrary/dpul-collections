@@ -30,6 +30,10 @@
   clip-path: polygon(40px 0%, 100% 0%, 100% 100%, 0% 100%);
 }
 
+#search-form:focus-within #search-button {
+  visibility: visible;
+}
+
 /*
  * Make LiveView wrapper divs transparent for layout.
  * This makes it possible to use LiveViews as flex children for example.

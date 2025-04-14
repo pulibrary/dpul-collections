@@ -19,7 +19,7 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
                 name="q"
                 placeholder={gettext("Search")}
               />
-              <button class="btn-secondary px-4 h-8" type="submit">
+              <button id="search-button" type="submit" class="btn-secondary px-4 h-8 invisible">
                 {gettext("Search")}
               </button>
             </div>
