@@ -8,9 +8,9 @@ Hooks.ToolbarHook = {
     this.observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (!entry.isIntersecting) {
-          sideMenu.classList.remove('opacity-0', 'pointer-events-none');
+          this.pushEvent("show_stickytools", {})
         } else if (entry.isIntersecting) {
-          sideMenu.classList.add('opacity-0', 'pointer-events-none');
+          this.pushEvent("hide_stickytools", {})
         }
       });
     }, {
@@ -19,9 +19,6 @@ Hooks.ToolbarHook = {
       threshold: [0]
     });
     this.observer.observe(this.el);
-  },
-  updated(){
-    console.log("updated")
   }
 };
 

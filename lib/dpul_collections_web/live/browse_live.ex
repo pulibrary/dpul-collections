@@ -6,11 +6,12 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def mount(_params, _session, socket) do
     socket =
       socket
-      |> assign(items: [], pinned_items: [])
+      |> assign(items: [], pinned_items: [], show_stickytools?: false)
 
     {:ok, socket}
   end
 
+  @spec handle_params(nil | maybe_improper_list() | map(), any(), any()) :: {:noreply, any()}
   def handle_params(params, _uri, socket) do
     given_seed = params["r"]
 
@@ -50,9 +51,17 @@ defmodule DpulCollectionsWeb.BrowseLive do
     end
   end
 
+  def handle_event("show_stickytools", _params, socket) do
+    {:noreply, update(socket, :show_stickytools?, fn _val -> true end)}
+  end
+
+  def handle_event("hide_stickytools", _params, socket) do
+    {:noreply, update(socket, :show_stickytools?, fn _val -> false end)}
+  end
+
   def render(assigns) do
     ~H"""
-    <.sticky_tools>{length(@pinned_items)}</.sticky_tools>
+    <.sticky_tools show_stickytools?={@show_stickytools?}>{length(@pinned_items)}</.sticky_tools>
     <div id="pinned-items" class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-1">
       <div class="grid grid-flow-row auto-rows-max gap-8">
         <DpulCollectionsWeb.SearchLive.search_item :for={item <- @pinned_items} item={item} />
@@ -77,9 +86,13 @@ defmodule DpulCollectionsWeb.BrowseLive do
     """
   end
 
+  @spec sticky_tools(any()) :: Phoenix.LiveView.Rendered.t()
   def sticky_tools(assigns) do
     ~H"""
-    <div id="sticky-tools" class="fixed top-20 right-10 z-10 opacity-0 pointer-events-none">
+    <div
+      id="sticky-tools"
+      class={["fixed top-20 right-10 z-10", (@show_stickytools? && "visible") || "invisible"]}
+    >
       <div class="relative inline-flex w-fit">
         <div class="absolute bottom-auto left-auto right-0 top-0 z-10 inline-block -translate-y-1/2 translate-x-2/4 rotate-0 skew-x-0 skew-y-0 scale-x-100 scale-y-100 whitespace-nowrap rounded-full bg-red-600 px-1.5 py-1 text-center align-baseline text-xs font-bold leading-none text-white">
           {render_slot(@inner_block)}
