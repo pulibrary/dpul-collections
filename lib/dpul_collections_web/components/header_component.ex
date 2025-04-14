@@ -7,18 +7,28 @@ defmodule DpulCollectionsWeb.HeaderComponent do
   def header(assigns) do
     ~H"""
     <header class="flex flex-row gap-10 items-center bg-dark-blue py-6 header-x-padding">
-      <div class="logo flex-none w-32 sm:w-40">
+      
+    <!-- logo -->
+      <div class="logo flex-none w-40 hidden sm:flex">
         <img src={~p"/images/pul-logo.svg"} alt="Princeton University Library Logo" />
       </div>
-      <div class="app_name flex-1 text-center">
+
+      <div class="logo flex-none w-9 sm:hidden">
+        <img src={~p"/images/local-svgs.svg"} alt="Princeton University Library Logo" />
+      </div>
+      
+    <!-- title -->
+      <div class="app_name flex-1 w-auto text-center">
         <.link
           navigate={~p"/"}
-          class="sm:inline-block text-4xl uppercase tracking-widest font-extrabold text-center text-sage"
+          class="text-2xl sm:text-4xl sm:inline-block uppercase tracking-widest font-extrabold text-center text-sage"
         >
           {gettext("Digital Collections")}
         </.link>
       </div>
-      <div class="menu flex-none w-32 sm:w-40 text-right">
+      
+    <!-- language -->
+      <nav class="menu flex flex-none justify-end w-10 sm:w-40">
         <div class="dropdown relative inline-block">
           <button
             id="dropdownButton"
@@ -27,7 +37,10 @@ defmodule DpulCollectionsWeb.HeaderComponent do
             aria-expanded="false"
             phx-click={JS.toggle(to: "#dropdownMenu")}
           >
-            {gettext("Language")} <span class="font-normal">&gt;</span>
+            <span class="hidden sm:flex hover:link-hover font-medium">
+              {gettext("Language")} <span class="font-normal">&gt;</span>
+            </span>
+            <span class="sm:hidden"><.icon name="hero-bars-3" class="h-10 w-10 icon" /></span>
           </button>
           <ul
             id="dropdownMenu"
@@ -49,7 +62,7 @@ defmodule DpulCollectionsWeb.HeaderComponent do
             </li>
           </ul>
         </div>
-      </div>
+      </nav>
     </header>
     """
   end
