@@ -41,7 +41,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
 
     pin_tracker =
       document
-      |> Floki.find("#pin-tracker")
+      |> Floki.find("#sticky-tools")
 
     assert pin_tracker |> Floki.text() |> String.trim("\n") |> String.trim() == "1"
 
@@ -56,6 +56,18 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
       |> Floki.find("#pinned-items .item")
 
     assert Enum.count(new_count) == 0
+  end
+
+  test "sticky tools is visible / invisible depending on hook event", %{conn: conn} do
+    {:ok, view, html} = live(conn, "/browse?r=0")
+
+    # visible
+    assert render_hook(view, :show_stickytools, %{}) =~
+             ~s|<div id="sticky-tools" class="fixed top-20 right-10 z-10 visible">|
+
+    # invisible
+    assert render_hook(view, :hide_stickytools, %{}) =~
+             ~s|<div id="sticky-tools" class="fixed top-20 right-10 z-10 invisible">|
   end
 
   test "click random button", %{conn: conn} do
