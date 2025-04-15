@@ -218,6 +218,32 @@ defmodule DpulCollections.IndexingPipeline do
     |> FiggyRepo.all()
   end
 
+  def get_deep_figgy_parents!(id) do
+    parent_initial_query =
+      Figgy.Resource
+      |> select([:id])
+      |> where([c], fragment("public.get_ids(?.metadata, 'member_ids') \\? ?", c, ^id))
+      |> where([c], c.internal_resource in ^["EphemeraFolder", "EphemeraProject", "EphemeraBox"])
+
+    parent_recursive_query =
+      "deep_parents"
+      |> join(:left, [c], ct in Figgy.Resource, on: fragment("public.get_ids(?.metadata, 'member_ids') \\? ?::text", ct, c.id))
+      |> select([c, ct], {ct.id})
+      |> where([c, ct], ct.internal_resource in ^["EphemeraFolder", "EphemeraProject", "EphemeraBox"])
+
+    full_query =
+      parent_initial_query
+      |> union(^parent_recursive_query)
+
+    query = {"deep_parents", Figgy.Resource}
+    |> recursive_ctes(true)
+    |> with_cte("deep_parents", as: ^full_query)
+    |> join(:left, [p], c in Figgy.Resource, as: :full_data, on: c.id == p.id)
+    |> select([full_data: ct], ct)
+    Ecto.Adapters.SQL.to_sql(:all, FiggyRepo, query)
+    FiggyRepo.all(query)
+  end
+
   @doc """
   Gets multiple resources by id from the Figgy Database
   Note: Postgress IN() clause allows a maximum of 32,767 parameters. Items with

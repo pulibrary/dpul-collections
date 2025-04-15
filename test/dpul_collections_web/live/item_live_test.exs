@@ -45,7 +45,8 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           sort_title_txtm: ["sort title"],
           subject_txtm: ["subject"],
           transliterated_title_txtm: ["transliterated title"],
-          width_txtm: ["200"]
+          width_txtm: ["200"],
+          collections_txtm: ["Awesome Collection", "Even Better Collection"]
         },
         %{
           id: 2,
@@ -140,6 +141,8 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     assert document |> Floki.find(~s{td:fl-contains("transliterated title")}) |> Enum.any?()
     assert document |> Floki.find(~s{th:fl-contains("Width")}) |> Enum.any?()
     assert document |> Floki.find(~s{td:fl-contains("200")}) |> Enum.any?()
+    assert document |> Floki.find(~s{th:fl-contains("Collections")}) |> Enum.any?()
+    assert document |> Floki.find(~s{td:fl-contains("Awesome Collection")}) |> Enum.any?()
 
     # Does not display unconfigured fields
     assert document |> Floki.find(~s{th:fl-contains("Sort title")}) |> Enum.any?() == false

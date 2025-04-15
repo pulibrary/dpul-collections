@@ -33,7 +33,8 @@ defmodule DpulCollections.Item do
     :subject,
     :transliterated_title,
     :url,
-    :width
+    :width,
+    :collections
   ]
 
   def metadata_display_fields do
@@ -62,7 +63,8 @@ defmodule DpulCollections.Item do
       :series,
       :subject,
       :transliterated_title,
-      :width
+      :width,
+      :collections
     ]
   end
 
@@ -105,7 +107,8 @@ defmodule DpulCollections.Item do
       subject: doc["subject_txtm"] || [],
       transliterated_title: doc["transliterated_title_txtm"] || [],
       url: generate_url(id, slug),
-      width: doc["width_txtm"] || []
+      width: doc["width_txtm"] || [],
+      collections: doc["collections_txtm"] || []
     }
   end
 
