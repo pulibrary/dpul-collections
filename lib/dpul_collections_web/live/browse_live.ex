@@ -87,7 +87,6 @@ defmodule DpulCollectionsWeb.BrowseLive do
     """
   end
 
-  @spec sticky_tools(any()) :: Phoenix.LiveView.Rendered.t()
   def sticky_tools(assigns) do
     ~H"""
     <div
