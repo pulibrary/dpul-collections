@@ -52,11 +52,11 @@ defmodule DpulCollectionsWeb.BrowseLive do
   end
 
   def handle_event("show_stickytools", _params, socket) do
-    {:noreply, update(socket, :show_stickytools?, fn _val -> true end)}
+    {:noreply, assign(socket, :show_stickytools?, true)}
   end
 
   def handle_event("hide_stickytools", _params, socket) do
-    {:noreply, update(socket, :show_stickytools?, fn _val -> false end)}
+    {:noreply, assign(socket, :show_stickytools?, false)}
   end
 
   def render(assigns) do

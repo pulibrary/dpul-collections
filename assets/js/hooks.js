@@ -3,8 +3,6 @@ let Hooks = {};
 Hooks.ToolbarHook = {
   mounted() {
 
-    const sideMenu = document.getElementById("sticky-tools");
-
     this.observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (!entry.isIntersecting) {
