@@ -62,6 +62,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def render(assigns) do
     ~H"""
     <.sticky_tools show_stickytools?={@show_stickytools?}>{length(@pinned_items)}</.sticky_tools>
+    <h1 class="col-span-3">{gettext("Pinned")}</h1>
     <div id="pinned-items" class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-1">
       <div class="grid grid-flow-row auto-rows-max gap-8">
         <DpulCollectionsWeb.SearchLive.search_item :for={item <- @pinned_items} item={item} />
