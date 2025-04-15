@@ -41,7 +41,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
 
     pin_tracker =
       document
-      |> Floki.find("#pin-tracker")
+      |> Floki.find("#sticky-tools")
 
     assert pin_tracker |> Floki.text() |> String.trim("\n") |> String.trim() == "1"
 
