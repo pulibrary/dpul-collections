@@ -85,8 +85,8 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def render(assigns) do
     ~H"""
-    <h1 class="text-4xl font-bold">
-      {gettext("Search Results for")}: {@search_state.q}
+    <h1>
+      {gettext("Search Results for")}: <span class="normal-case">{@search_state.q}</span>
     </h1>
     <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
       <div id="filters" class="grid md:grid-cols-[auto_300px] gap-2">
@@ -168,7 +168,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           {@item.file_count} {gettext("Pages")}
         </div>
       </div>
-      <h2 class="underline text-2xl font-bold pt-4">
+      <h2 class="pt-4">
         <.link navigate={@item.url}>{@item.title}</.link>
       </h2>
       <div class="text-xl">{@item.date}</div>
