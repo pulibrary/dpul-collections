@@ -118,6 +118,10 @@ scrape_configs:
       action: keep
     - source_labels: ['__meta_consul_service']
       target_label: instance
+    - source_labels: ['__meta_consul_service']
+      regex: '.*(staging|production).*'
+      replacement: '$${1}'
+      target_label: env
     params:
       format: ['prometheus']
 EOH
