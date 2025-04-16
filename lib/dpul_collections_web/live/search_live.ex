@@ -27,6 +27,7 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   defmodule SearchState do
     use Solr.Constants
+
     def from_params(params) do
       %{
         q: params["q"],
@@ -40,7 +41,7 @@ defmodule DpulCollectionsWeb.SearchLive do
 
     defp valid_sort_by(%{"sort_by" => sort_by})
          when sort_by in @sort_by_keys do
-           String.to_existing_atom(sort_by)
+      String.to_existing_atom(sort_by)
     end
 
     defp valid_sort_by(_), do: :relevance
@@ -89,8 +90,8 @@ defmodule DpulCollectionsWeb.SearchLive do
   def sort_by_params do
     @valid_sort_by
     # Don't include things without labels.
-    |> Enum.filter(fn({k, v}) -> v[:label] end)
-    |> Enum.map(fn({k, v}) -> {v[:label], k} end)
+    |> Enum.filter(fn {k, v} -> v[:label] end)
+    |> Enum.map(fn {k, v} -> {v[:label], k} end)
   end
 
   def render(assigns) do
