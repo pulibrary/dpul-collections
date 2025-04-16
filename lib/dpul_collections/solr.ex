@@ -1,5 +1,6 @@
 defmodule DpulCollections.Solr do
   require Logger
+  use DpulCollections.Solr.Constants
 
   @spec document_count(String.t()) :: integer()
   def document_count(collection \\ read_collection()) do
@@ -96,11 +97,7 @@ defmodule DpulCollections.Solr do
   end
 
   defp sort_param(%{sort_by: sort_by}) do
-    case sort_by do
-      :relevance -> "score desc"
-      :date_desc -> "years_is desc"
-      :date_asc -> "years_is asc"
-    end
+    @valid_sort_by[sort_by][:solr_param]
   end
 
   defp pagination_offset(%{page: page, per_page: per_page}) do
