@@ -173,8 +173,18 @@ defmodule DpulCollectionsWeb.HomeLive do
         <div class="content-area">
           <div class="page-t-padding" />
           <h1>{gettext("Recently Added Items")}</h1>
-          <div class="grid grid-cols-5 gap-6 pt-5">
-            <DpulCollectionsWeb.BrowseLive.browse_item :for={item <- @recent_items} item={item} />
+          <p class="my-2 font-regular">
+            {gettext(
+              "Our collections are constantly growing. Keep track of additions and discover something new!"
+            )}
+          </p>
+          <!-- images -->
+          <div class="grid grid-cols-5 gap-2 overflow-hidden">
+            <DpulCollectionsWeb.BrowseLive.browse_item
+              :for={item <- @recent_items}
+              item={item}
+              added?={true}
+            />
           </div>
         </div>
         <div class="page-b-padding" />

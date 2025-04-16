@@ -96,64 +96,66 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def render(assigns) do
     ~H"""
-    <h1>
-      {gettext("Search Results for")}: <span class="normal-case">{@search_state.q}</span>
-    </h1>
-    <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
-      <div id="filters" class="grid md:grid-cols-[auto_300px] gap-2">
-        <form
-          id="date-filter"
-          phx-submit="filter-date"
-          class="grid md:grid-cols-[150px_200px_200px_200px] gap-2"
-        >
-          <label class="col-span-1 self-center font-bold uppercase" for="date-filter">
-            {gettext("filter by date")}:
-          </label>
-          <input
-            class="col-span-1"
-            type="text"
-            placeholder={gettext("From")}
-            form="date-filter"
-            name="date-from"
-            value={@search_state.date_from}
-          />
-          <input
-            class="col-span-1"
-            type="text"
-            placeholder={gettext("To")}
-            form="date-filter"
-            name="date-to"
-            value={@search_state.date_to}
-          />
-          <button class="col-span-1 md:col-span-1 btn-primary" type="submit">
-            {gettext("Apply")}
-          </button>
-        </form>
-        <form id="sort-form" class="grid md:grid-cols-[auto_200px] gap-2" phx-change="sort">
-          <label class="col-span-1 self-center font-bold uppercase md:text-right" for="sort-by">
-            {gettext("sort by")}:
-          </label>
-          <select class="col-span-1" name="sort-by">
-            {Phoenix.HTML.Form.options_for_select(
-              sort_by_params(),
-              @search_state.sort_by
-            )}
-          </select>
-        </form>
+    <div class="content-area">
+      <h1>
+        {gettext("Search Results for")}: <span class="normal-case">{@search_state.q}</span>
+      </h1>
+      <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
+        <div id="filters" class="grid md:grid-cols-[auto_300px] gap-2">
+          <form
+            id="date-filter"
+            phx-submit="filter-date"
+            class="grid md:grid-cols-[150px_200px_200px_200px] gap-2"
+          >
+            <label class="col-span-1 self-center font-bold uppercase" for="date-filter">
+              {gettext("filter by date")}:
+            </label>
+            <input
+              class="col-span-1"
+              type="text"
+              placeholder={gettext("From")}
+              form="date-filter"
+              name="date-from"
+              value={@search_state.date_from}
+            />
+            <input
+              class="col-span-1"
+              type="text"
+              placeholder={gettext("To")}
+              form="date-filter"
+              name="date-to"
+              value={@search_state.date_to}
+            />
+            <button class="col-span-1 md:col-span-1 btn-primary" type="submit">
+              {gettext("Apply")}
+            </button>
+          </form>
+          <form id="sort-form" class="grid md:grid-cols-[auto_200px] gap-2" phx-change="sort">
+            <label class="col-span-1 self-center font-bold uppercase md:text-right" for="sort-by">
+              {gettext("sort by")}:
+            </label>
+            <select class="col-span-1" name="sort-by">
+              {Phoenix.HTML.Form.options_for_select(
+                sort_by_params(),
+                @search_state.sort_by
+              )}
+            </select>
+          </form>
+        </div>
+        <div id="item-counter">
+          <span>{@item_counter}</span>
+        </div>
       </div>
-      <div id="item-counter">
-        <span>{@item_counter}</span>
+      <div class="grid grid-flow-row auto-rows-max gap-8">
+        <.search_item :for={item <- @items} item={item} />
       </div>
-    </div>
-    <div class="grid grid-flow-row auto-rows-max gap-8">
-      <.search_item :for={item <- @items} item={item} />
-    </div>
-    <div class="text-center bg-white max-w-5xl mx-auto text-lg py-8">
-      <.paginator
-        page={@search_state.page}
-        per_page={@search_state.per_page}
-        total_items={@total_items}
-      />
+      <div class="text-center bg-white max-w-5xl mx-auto text-lg py-8">
+        <.paginator
+          page={@search_state.page}
+          per_page={@search_state.per_page}
+          total_items={@total_items}
+        />
+      </div>
     </div>
     """
   end

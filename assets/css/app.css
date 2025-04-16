@@ -30,6 +30,11 @@
   clip-path: polygon(40px 0%, 100% 0%, 100% 100%, 0% 100%);
 }
 
+.diagonal-drop {
+  padding-left: 25px;
+  clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 25px 100%);
+}
+
 #search-form:focus-within #search-button {
   visibility: visible;
 }
@@ -129,5 +134,9 @@
 
   h2 {
     @apply text-2xl font-bold;
+  }
+
+  p {
+    @apply text-dark-blue;
   }
 }
