@@ -13,7 +13,7 @@ defmodule DpulCollectionsWeb.HomeLive do
           Solr.recently_digitized(5)["docs"]
           |> Enum.map(&Item.from_solr(&1)),
         hero_images:
-          Enum.chunk_every(hero_images() |> Enum.shuffle(), floor(length(hero_images()) / 3))
+          Enum.chunk_every(hero_images() |> Enum.shuffle(), ceil(length(hero_images()) / 3))
       )
 
     {:ok, socket,
@@ -140,8 +140,8 @@ defmodule DpulCollectionsWeb.HomeLive do
 
   def render(assigns) do
     ~H"""
-    <div class="grid grid-flow-row auto-rows-max">
-      <div class="explore-header grid-row bg-taupe">
+    <div class="grid grid-flow-row">
+      <div class="grid-row bg-taupe">
         <div class="content-area">
           <div class="page-y-padding">
             <h1 class="text-2xl sm:text-3xl md:text-4xl uppercase tracking-widest font-extrabold text-center">
@@ -149,26 +149,18 @@ defmodule DpulCollectionsWeb.HomeLive do
             </h1>
           </div>
         </div>
-        <hr class="h-1 border-0 bg-rust" />
-        <div class="h-[600px] overflow-hidden">
-          <%= for chunk <- @hero_images do %>
-            <div class="h-[200px] flex items-start overflow-hidden">
-              <%= for {id, image_url} <- chunk do %>
-                <div class="h-[200px] w-auto min-w-px flex-shrink-0">
-                  <.link navigate={~p"/item/#{id}"}>
-                    <img
-                      class="h-full w-auto opacity-40 select-none hover:opacity-90 cursor-pointer"
-                      draggable="false"
-                      src={image_url}
-                    />
-                  </.link>
-                </div>
-              <% end %>
-            </div>
-          <% end %>
-        </div>
       </div>
+
       <hr class="h-1 border-0 bg-rust" />
+
+      <div class="h-[600px] overflow-hidden hero-carousel-container">
+        <%= for {chunk, index} <- Enum.with_index(@hero_images) do %>
+          <.hero_row id={"row-#{index}"} images={chunk} direction={get_direction_for_index(index)} />
+        <% end %>
+      </div>
+
+      <hr class="h-1 border-0 bg-rust" />
+
       <div class="recent-items grid-row bg-cloud">
         <div class="content-area">
           <div class="page-t-padding" />
@@ -182,4 +174,48 @@ defmodule DpulCollectionsWeb.HomeLive do
     </div>
     """
   end
+
+  def hero_row(assigns) do
+    {animation_class, initial_style} =
+      case assigns.direction do
+        :left ->
+          {"animate-scroll-left", ""}
+
+        _ ->
+          {"animate-scroll-right", "transform: translateX(-50%);"}
+      end
+
+    ~H"""
+    <div class="h-[200px] w-full overflow-hidden" id={"hero-row-#{@id}"} role="presentation">
+      <div
+        class={[
+          "h-[200px] w-max flex hover:pause-animation",
+          animation_class
+        ]}
+        style={initial_style}
+      >
+        <%= for _ <- 1..2 do %>
+          <%= for {id, image_url} <- @images do %>
+            <div class="h-[200px] w-auto flex-shrink-0">
+              <.link navigate={~p"/item/#{id}"} tabindex="-1" aria-hidden="true">
+                <img
+                  class="h-full w-auto opacity-40 select-none hover:opacity-90 cursor-pointer transition-opacity duration-300"
+                  draggable="false"
+                  loading="lazy"
+                  alt=""
+                  src={image_url}
+                />
+              </.link>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+    """
+  end
+
+  # Middle row (index 1) scrolls left
+  defp get_direction_for_index(1), do: :left
+  # Top (0) and Bottom (2) rows scroll right
+  defp get_direction_for_index(_), do: :right
 end

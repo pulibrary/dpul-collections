@@ -118,6 +118,42 @@
   @apply hover:underline hover:underline-offset-8 hover:decoration-rust hover:decoration-2;
 }
 
+@utility pause-animation {
+  animation-play-state: paused;
+}
+
+@layer utilities {
+  @keyframes scroll-left {
+    from {
+      transform: translateX(0%);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @keyframes scroll-right {
+    from {
+      transform: translateX(-50%);
+    }
+    to {
+      transform: translateX(0%);
+    }
+  }
+
+  .animate-scroll-left {
+    animation: scroll-left 600s linear infinite;
+  }
+
+  .animate-scroll-right {
+    animation: scroll-right 600s linear infinite;
+  }
+
+  .paused-on-hover:hover {
+    animation-play-state: paused;
+  }
+}
+
 @layer base {
   a {
     @apply hover:link-hover;
