@@ -137,6 +137,23 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Enum.empty?()
   end
 
+  test "items can be sorted by recently added", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/search")
+
+    {:ok, document} =
+      view
+      |> render_click("sort", %{"sort-by" => "recently_added"})
+      |> Floki.parse_document()
+
+    assert document
+           |> Floki.find(~s{a[href="/i/document1/item/1"]})
+           |> Enum.empty?()
+
+    assert document
+           |> Floki.find(~s{a[href="/i/document100/item/100"]})
+           |> Enum.any?()
+  end
+
   test "changing query parameter resets sort_by to default", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/search")
 

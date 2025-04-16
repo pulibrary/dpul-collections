@@ -30,7 +30,7 @@ defmodule SolrTestSupport do
           "https://example.com/iiif/2/image7"
         ],
         primary_thumbnail_service_url_s: thumbnail_url,
-        digitized_at_dt: DateTime.utc_now() |> DateTime.to_iso8601()
+        digitized_at_dt: DateTime.utc_now() |> DateTime.add(-100+1*n, :day) |> DateTime.to_iso8601()
       }
     end
   end

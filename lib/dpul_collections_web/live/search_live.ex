@@ -1,5 +1,6 @@
 defmodule DpulCollectionsWeb.SearchComponents do
   use Phoenix.Component
+  alias DpulCollections.Solr
 
   attr :text, :string, doc: "the page number, or ellipsis"
   attr :rest, :global, doc: "the arbitrary HTML attributes to add to the flash container"
@@ -21,9 +22,11 @@ defmodule DpulCollectionsWeb.SearchLive do
   import DpulCollectionsWeb.SearchComponents
   import DpulCollectionsWeb.Gettext
   alias DpulCollections.{Item, Solr}
+  use Solr.Constants
   alias DpulCollectionsWeb.Live.Helpers
 
   defmodule SearchState do
+    use Solr.Constants
     def from_params(params) do
       %{
         q: params["q"],
@@ -36,8 +39,8 @@ defmodule DpulCollectionsWeb.SearchLive do
     end
 
     defp valid_sort_by(%{"sort_by" => sort_by})
-         when sort_by in ["relevance", "date_desc", "date_asc"] do
-      String.to_existing_atom(sort_by)
+         when sort_by in @sort_by_keys do
+           String.to_existing_atom(sort_by)
     end
 
     defp valid_sort_by(_), do: :relevance
@@ -83,6 +86,13 @@ defmodule DpulCollectionsWeb.SearchLive do
     "#{first_item} - #{last_item} #{gettext("of")} #{total_items}"
   end
 
+  def sort_by_params do
+    @valid_sort_by
+    # Don't include things without labels.
+    |> Enum.filter(fn({k, v}) -> v[:label] end)
+    |> Enum.map(fn({k, v}) -> {v[:label], k} end)
+  end
+
   def render(assigns) do
     ~H"""
     <h1>
@@ -124,11 +134,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           </label>
           <select class="col-span-1" name="sort-by">
             {Phoenix.HTML.Form.options_for_select(
-              [
-                {gettext("Relevance"), "relevance"},
-                {gettext("Year (newest first)"), "date_desc"},
-                {gettext("Year (oldest first)"), "date_asc"}
-              ],
+              sort_by_params(),
               @search_state.sort_by
             )}
           </select>
