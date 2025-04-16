@@ -34,7 +34,7 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
       |> Floki.find(".item-link")
       |> Enum.flat_map(fn a -> Floki.attribute(a, "href") end)
 
-    assert Enum.count(links) == 5
+    assert Enum.count(links) == 3
   end
 
   # TODO: re-enable and update when the new browse callout is implemented
