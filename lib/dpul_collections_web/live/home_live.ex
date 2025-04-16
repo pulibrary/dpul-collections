@@ -10,7 +10,7 @@ defmodule DpulCollectionsWeb.HomeLive do
         item_count: Solr.document_count(),
         q: nil,
         recent_items:
-          Solr.recently_digitized(5)["docs"]
+          Solr.recently_digitized(3)["docs"]
           |> Enum.map(&Item.from_solr(&1)),
         hero_images:
           Enum.chunk_every(hero_images() |> Enum.shuffle(), floor(length(hero_images()) / 3))
@@ -178,16 +178,16 @@ defmodule DpulCollectionsWeb.HomeLive do
               "Our collections are constantly growing. Keep track of additions and discover something new!"
             )}
           </p>
-          <!-- images -->
-          <div class="grid grid-cols-5 gap-2 overflow-hidden">
+          <div class="grid grid-cols-3 gap-2 overflow-hidden">
             <DpulCollectionsWeb.BrowseLive.browse_item
               :for={item <- @recent_items}
               item={item}
               added?={true}
+              pinnable?={false}
             />
           </div>
+          <div class="page-b-padding" />
         </div>
-        <div class="page-b-padding" />
       </div>
     </div>
     """

@@ -119,6 +119,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   attr :item, Item, required: true
   attr :added?, :boolean, default: false
+  attr :pinnable?, :boolean, default: true
 
   def browse_item(assigns) do
     ~H"""
@@ -128,6 +129,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
     >
       <!-- pin -->
       <div
+        :if={@pinnable?}
         id={"pin-#{@item.id}"}
         phx-click={
           JS.push("pin")
@@ -165,7 +167,10 @@ defmodule DpulCollectionsWeb.BrowseLive do
       
     <!-- card text area -->
       <div class="flex-1 px-6 py-4 bg-white relative">
-        <div :if={@item.file_count > 4} class="absolute bg-taupe right-2 top-0 z-10 p-1 diagonal-drop">
+        <div
+          :if={@item.file_count > 4}
+          class="absolute bg-taupe right-2 top-0 z-10 pr-2 pb-1 diagonal-drop"
+        >
           {@item.file_count} pages
         </div>
 
