@@ -3,7 +3,6 @@ defmodule DpulCollectionsWeb.Features.SearchBarTest do
   use PhoenixTest.Playwright.Case, async: true
   import SolrTestSupport
   alias DpulCollections.Solr
-  alias PhoenixTest.Playwright
 
   setup do
     Solr.add(SolrTestSupport.mock_solr_documents(), active_collection())

@@ -59,7 +59,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
   end
 
   test "sticky tools is visible / invisible depending on hook event", %{conn: conn} do
-    {:ok, view, html} = live(conn, "/browse?r=0")
+    {:ok, view, _html} = live(conn, "/browse?r=0")
 
     # visible
     assert render_hook(view, :show_stickytools, %{}) =~

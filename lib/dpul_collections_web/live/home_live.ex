@@ -142,7 +142,6 @@ defmodule DpulCollectionsWeb.HomeLive do
   def render(assigns) do
     ~H"""
     <div class="grid grid-flow-row auto-rows-max">
-
       <div class="explore-header grid-row bg-taupe">
         <div class="content-area">
           <div class="page-y-padding">
@@ -172,7 +171,6 @@ defmodule DpulCollectionsWeb.HomeLive do
       </div>
       <hr class="h-1 border-0 bg-rust" />
 
-
       <div class="recent-items grid-row bg-cloud">
         <div class="content-area">
           <div class="page-t-padding" />
@@ -183,8 +181,8 @@ defmodule DpulCollectionsWeb.HomeLive do
             )}
           </p>
           <div class="flex gap-8 justify-stretch page-t-padding">
-
-            <!-- cards -->
+            
+    <!-- cards -->
             <div class="w-full recent-container">
               <.browse_item
                 :for={item <- @recent_items}
@@ -194,15 +192,13 @@ defmodule DpulCollectionsWeb.HomeLive do
                 class=""
               />
             </div>
-
-            <!-- next arrow -->
+            
+    <!-- next arrow -->
             <div class="w-12 flex-none content-center">
-              <button
-                class="btn-arrow w-full"
-                aria-label="more recently added items"
-              />
+              <.link id="recently-added-link" navigate={~p"/search?sort=recently_added"}>
+                <button class="btn-arrow w-full h-14" aria-label="more recently added items" />
+              </.link>
             </div>
-
           </div>
           <div class="page-b-padding" />
         </div>

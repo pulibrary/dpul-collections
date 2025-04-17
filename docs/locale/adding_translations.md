@@ -16,23 +16,6 @@ If you edit the original string ids, simply run mix gettext.extract again. Then,
 
 _see https://hexdocs.pm/gettext/Gettext.html for additional details_
 
-## Special Cases: LUX Components
-There are a couple of "gotchas" to be aware of for any LUX components that require translations. LUX components used include the Header and Footer elements.  
-_see: lib/dpul_collections_web/components/lux-components_
+## Adding a new language
 
-### Use Longform for Vue.js Bindings
-Heex templates will error when binding attributes using shorthand that starts with a ":".
-
-Don't do this:
-`<lux-menu-bar :menu-items="..."/>`
-
-Do this:
-`<lux-menu-bar v-bind:menu-items="..."/>`
-
-### When using gettext inside of a component attribute
-Use curly braces to turn the entire attribute value into a string and do Elixir-style string interpolation:
-
-```
-<lux-menu-bar v-bind:menu-items={"[{name: '#{gettext("Language")}'}]"} />
-```
-
+The relative time wording used in the recently added content area is implemented via Cldr, which provides its own translations. When we add new languages we should ensure the translationsa are working from upstream.

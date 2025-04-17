@@ -74,7 +74,7 @@
 
 .btn-arrow {
   clip-path: polygon(0% 0%, 100% 50%, 0% 100%);
-  @apply bg-dark-blue h-14 cursor-pointer border;
+  @apply bg-dark-blue cursor-pointer border;
 }
 
 @utility active {

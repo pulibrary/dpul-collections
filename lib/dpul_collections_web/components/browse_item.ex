@@ -69,7 +69,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
       
     <!-- "added on" note -->
       <div :if={@added?} class="self-end w-full bg-taupe h-10 p-2 text-right">
-        Added a week ago
+        {"#{gettext("Added")} #{time_ago(@item.digitized_at)}"}
       </div>
     </div>
     """
@@ -107,6 +107,16 @@ defmodule DpulCollectionsWeb.BrowseItem do
 
   defp thumbnail_service_url(%{image_service_urls: [url | _]}) do
     url
+  end
+
+  defp time_ago(digitized_at) do
+    {:ok, dt, _} = DateTime.from_iso8601(digitized_at)
+    {:ok, str} = Cldr.DateTime.Relative.to_string(
+      dt, DpulCollectionsWeb.Cldr,
+      relative_to: DateTime.now!("Etc/UTC"),
+      locale: Gettext.get_locale(DpulCollectionsWeb.Gettext)
+    )
+    str
   end
 
   # TODO: default image?
