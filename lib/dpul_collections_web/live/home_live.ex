@@ -10,7 +10,7 @@ defmodule DpulCollectionsWeb.HomeLive do
         item_count: Solr.document_count(),
         q: nil,
         recent_items:
-          Solr.recently_digitized(5)["docs"]
+          Solr.recently_digitized(3)["docs"]
           |> Enum.map(&Item.from_solr(&1)),
         hero_images:
           Enum.chunk_every(hero_images() |> Enum.shuffle(), floor(length(hero_images()) / 3))
@@ -173,11 +173,21 @@ defmodule DpulCollectionsWeb.HomeLive do
         <div class="content-area">
           <div class="page-t-padding" />
           <h1>{gettext("Recently Added Items")}</h1>
-          <div class="grid grid-cols-5 gap-6 pt-5">
-            <DpulCollectionsWeb.BrowseLive.browse_item :for={item <- @recent_items} item={item} />
+          <p class="my-2 font-regular">
+            {gettext(
+              "Our collections are constantly growing. Keep track of additions and discover something new!"
+            )}
+          </p>
+          <div class="grid grid-cols-3 gap-2 overflow-hidden">
+            <DpulCollectionsWeb.BrowseLive.browse_item
+              :for={item <- @recent_items}
+              item={item}
+              added?={true}
+              pinnable?={false}
+            />
           </div>
+          <div class="page-b-padding" />
         </div>
-        <div class="page-b-padding" />
       </div>
     </div>
     """
