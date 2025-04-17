@@ -1,6 +1,7 @@
 defmodule DpulCollectionsWeb.HomeLive do
   use DpulCollectionsWeb, :live_view
   import DpulCollectionsWeb.Gettext
+  import DpulCollectionsWeb.BrowseItem
   alias DpulCollections.{Item, Solr}
   alias DpulCollectionsWeb.Live.Helpers
 
@@ -141,6 +142,7 @@ defmodule DpulCollectionsWeb.HomeLive do
   def render(assigns) do
     ~H"""
     <div class="grid grid-flow-row auto-rows-max">
+
       <div class="explore-header grid-row bg-taupe">
         <div class="content-area">
           <div class="page-y-padding">
@@ -169,6 +171,8 @@ defmodule DpulCollectionsWeb.HomeLive do
         </div>
       </div>
       <hr class="h-1 border-0 bg-rust" />
+
+
       <div class="recent-items grid-row bg-cloud">
         <div class="content-area">
           <div class="page-t-padding" />
@@ -178,13 +182,27 @@ defmodule DpulCollectionsWeb.HomeLive do
               "Our collections are constantly growing. Keep track of additions and discover something new!"
             )}
           </p>
-          <div class="grid grid-cols-3 gap-2 overflow-hidden">
-            <DpulCollectionsWeb.BrowseLive.browse_item
-              :for={item <- @recent_items}
-              item={item}
-              added?={true}
-              pinnable?={false}
-            />
+          <div class="flex gap-8 justify-stretch page-t-padding">
+
+            <!-- cards -->
+            <div class="w-full recent-container">
+              <.browse_item
+                :for={item <- @recent_items}
+                item={item}
+                added?={true}
+                pinnable?={false}
+                class=""
+              />
+            </div>
+
+            <!-- next arrow -->
+            <div class="w-12 flex-none content-center">
+              <button
+                class="btn-arrow w-full"
+                aria-label="more recently added items"
+              />
+            </div>
+
           </div>
           <div class="page-b-padding" />
         </div>
