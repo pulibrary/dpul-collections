@@ -146,7 +146,7 @@ defmodule DpulCollectionsWeb.HomeLive do
         <div class="content-area">
           <div class="page-y-padding">
             <h1 class="text-2xl sm:text-3xl md:text-4xl uppercase tracking-widest font-extrabold text-center">
-              Explore Ephemera at Princeton
+              {gettext("Explore Ephemera at Princeton")}
             </h1>
           </div>
         </div>
@@ -177,7 +177,7 @@ defmodule DpulCollectionsWeb.HomeLive do
           <h1>{gettext("Recently Added Items")}</h1>
           <p class="my-2 font-regular">
             {gettext(
-              "Our collections are constantly growing. Keep track of additions and discover something new!"
+              "Our collections are constantly growing. Discover something new!"
             )}
           </p>
           <div class="flex gap-8 justify-stretch page-t-padding">
