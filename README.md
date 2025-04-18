@@ -50,16 +50,31 @@ should be made to the local figgy Docker conainer first.
 
 Steps to rebuild figgy fixtures locally:
 - `cd figgy-fixture-container && ./create-fixture-exports.sh`
-- `lando destroy -y && lando start`
+- `lando destroy -y
+- `docker image rm dpul-collections:figgy-fixtures-local`
+- `lando start`
 
-We copy fixtures from Figgy's production database into a Docker container so that we can easily use it for testing indexing. To rebuild that container:
+### Figgy Fixtures: Creating Synthetic Fixtures
 
-- `brew install lastpass-cli`
-- `cd figgy-fixture-container && ./build-and-push.sh`
+Sometimes we need to create fixtures that don't exist in Figgy currently or are
+unstable (e.g. we need the value state value to be "needs_qa"). We can add (and
+modify) synthetic records by importing CSV files in the figgy fixture database.
 
-To add a new fixture, edit `create-fixture-exports.sh` and add an id to the
-EXTRA_RESOURCE_IDS var. Note that adding a new fixture will update all the
-existing and you may have to make adjusts to test expectations.
+Steps:
+
+- `cd figgy-fixture-container`
+- Pull resources from figgy into a csv file.
+  - Use create-synthetic-fixtures script. Example:
+    ```
+    IDS="('43ae3839-287e-4168-b85d-a9350d279402','05092b7d-d33c-4d4d-885e-b6b8973deec4')"
+    IDS_NO_MEMBERS="('7b87fdfa-a760-49b9-85e9-093f2519f2fc')"
+    ./create-synthetic-fixtures.sh
+    ```
+- Rename concatenated csv file.
+  - `mv synthetic-fixtures.csv my-new-fixtures.csv`
+- Modify csv manually if needed.
+- Add fixture description to fixtures.md file
+- Rebuild local figgy fixtures container.
 
 ### Solr credentials
 

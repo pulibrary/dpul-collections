@@ -34,8 +34,14 @@ dpul_collections-*.tar
 # In case you use Node.js/npm, you want to ignore these.
 npm-debug.log
 /assets/node_modules/
+
+# Fixture files to ignore
+figgy-fixture-container/fixture-exports/synthetic/synth-*-export.csv
+figgy-fixture-container/fixture-exports/synthetic/synthetic-fixtures.csv
 figgy-fixture-container/fixture-exports/*.binary
 figgy-fixture-container/fixture-exports/*.sql
+
+
 solr/conf/solr_config.zip
 
 # playwright screenshots
