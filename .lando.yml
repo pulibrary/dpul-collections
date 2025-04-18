@@ -7,7 +7,8 @@ services:
     type: compose
     app_mount: false
     services:
-      image: "ghcr.io/pulibrary/dpul-collections:figgy-fixtures"
+      build: ./figgy-fixture-container
+      image: "dpul-collections:figgy-fixtures-local"
       environment:
         POSTGRES_PASSWORD: "postgres"
       ports:
