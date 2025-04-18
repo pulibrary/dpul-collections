@@ -1,6 +1,7 @@
 defmodule DpulCollectionsWeb.HomeLive do
   use DpulCollectionsWeb, :live_view
   import DpulCollectionsWeb.Gettext
+  import DpulCollectionsWeb.BrowseItem
   alias DpulCollections.{Item, Solr}
   alias DpulCollectionsWeb.Live.Helpers
 
@@ -145,7 +146,7 @@ defmodule DpulCollectionsWeb.HomeLive do
         <div class="content-area">
           <div class="page-y-padding">
             <h1 class="text-2xl sm:text-3xl md:text-4xl uppercase tracking-widest font-extrabold text-center">
-              Explore Ephemera at Princeton
+              {gettext("Explore Ephemera at Princeton")}
             </h1>
           </div>
         </div>
@@ -169,22 +170,27 @@ defmodule DpulCollectionsWeb.HomeLive do
         </div>
       </div>
       <hr class="h-1 border-0 bg-rust" />
+
       <div class="recent-items grid-row bg-cloud">
         <div class="content-area">
           <div class="page-t-padding" />
           <h1>{gettext("Recently Added Items")}</h1>
           <p class="my-2 font-regular">
-            {gettext(
-              "Our collections are constantly growing. Keep track of additions and discover something new!"
-            )}
+            {gettext("Our collections are constantly growing. Discover something new!")}
           </p>
-          <div class="grid grid-cols-3 gap-2 overflow-hidden">
-            <DpulCollectionsWeb.BrowseLive.browse_item
-              :for={item <- @recent_items}
-              item={item}
-              added?={true}
-              pinnable?={false}
-            />
+          <div class="flex gap-8 justify-stretch page-t-padding">
+            
+    <!-- cards -->
+            <div class="w-full recent-container">
+              <.browse_item :for={item <- @recent_items} item={item} added?={true} pinnable?={false} />
+            </div>
+            
+    <!-- next arrow -->
+            <div class="w-12 flex-none content-center">
+              <.link id="recently-added-link" navigate={~p"/search?sort_by=recently_added"}>
+                <button class="btn-arrow w-full h-14" aria-label="more recently added items" />
+              </.link>
+            </div>
           </div>
           <div class="page-b-padding" />
         </div>

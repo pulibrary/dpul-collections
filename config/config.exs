@@ -78,3 +78,7 @@ config :dpul_collections, DpulCollections.PromEx,
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
+
+config :ex_cldr,
+  default_locale: "en",
+  default_backend: DpulCollectionsWeb.Cldr

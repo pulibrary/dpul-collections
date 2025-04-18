@@ -4,6 +4,7 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
   import SolrTestSupport
   alias DpulCollections.Solr
   @endpoint DpulCollectionsWeb.Endpoint
+
   setup do
     on_exit(fn -> Solr.delete_all(active_collection()) end)
   end
@@ -22,19 +23,44 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
              {:error, {:live_redirect, %{kind: :push, to: "/search?q=cats"}}}
   end
 
-  test "recent item blocks", %{conn: conn} do
-    Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
-    Solr.commit(active_collection())
+  describe "recent item blocks" do
+    test "renders 3 cards", %{conn: conn} do
+      Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+      Solr.commit(active_collection())
 
-    {:ok, _view, html} = live(conn, "/")
+      {:ok, _view, html} = live(conn, "/")
 
-    links =
-      html
-      |> Floki.parse_document!()
-      |> Floki.find(".item-link")
-      |> Enum.flat_map(fn a -> Floki.attribute(a, "href") end)
+      links =
+        html
+        |> Floki.parse_document!()
+        |> Floki.find(".item-link")
+        |> Enum.flat_map(fn a -> Floki.attribute(a, "href") end)
 
-    assert Enum.count(links) == 3
+      assert Enum.count(links) == 3
+    end
+
+    test "link to recently added", %{conn: conn} do
+      Solr.add(SolrTestSupport.mock_solr_documents(100), active_collection())
+      Solr.commit(active_collection())
+
+      {:ok, view, _} = live(conn, "/")
+
+      {:ok, document} =
+        view
+        |> element("#recently-added-link")
+        |> render_click()
+        |> follow_redirect(conn, "/search?sort_by=recently_added")
+        |> elem(2)
+        |> Floki.parse_document()
+
+      assert document
+             |> Floki.find(~s{a[href="/i/document1/item/1"]})
+             |> Enum.empty?()
+
+      assert document
+             |> Floki.find(~s{a[href="/i/document100/item/100"]})
+             |> Enum.any?()
+    end
   end
 
   # TODO: re-enable and update when the new browse callout is implemented
