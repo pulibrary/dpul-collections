@@ -38,10 +38,8 @@ npm-debug.log
 # Fixture files to ignore
 figgy-fixture-container/fixture-exports/synthetic/synth-*-export.csv
 figgy-fixture-container/fixture-exports/synthetic/synthetic-fixtures.csv
-figgy-fixture-container/fixture-exports/*.binary
-figgy-fixture-container/fixture-exports/*.sql
 
-
+# Ignore zipped Solr config files
 solr/conf/solr_config.zip
 
 # playwright screenshots
