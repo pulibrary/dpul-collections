@@ -32,47 +32,47 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
 ## Occasional tasks for Development and Test environments
 
-### Figgy Fixtures: CI
+### Figgy Fixtures
 
-We copy fixtures from Figgy's production database into a Docker container so that we can easily use it for testing indexing. To rebuild that container:
+We import fixtures from Figgy's production database into a Postgres Docker container so
+that we can easily use it for testing indexing. To add a new fixture:
 
-- `brew install lastpass-cli`
-- `cd figgy-fixture-container && ./build-and-push.sh`
-
-To add a new fixture, edit `create-fixture-exports.sh` and add an id to the
+- Edit `figgy-fixture-container/create-fixture-exports.sh` and add an id to the
 EXTRA_RESOURCE_IDS var. Note that adding a new fixture will update all the
 existing and you may have to make adjusts to test expectations.
+- `cd figgy-fixture-container && ./create-fixture-exports.sh`
+- Commiting and pushing the branch will update the container in CI.
+- To update fixtures locally, follow the steps below.
 
 ### Figgy Fixtures: Local Development
 
-In order to prevent breaking tests in CI when updating figgy fixtures, changes
-should be made to the local figgy Docker conainer first.
-
 Steps to rebuild figgy fixtures locally:
-- `cd figgy-fixture-container && ./create-fixture-exports.sh`
-- `lando destroy -y
-- `docker image rm dpul-collections:figgy-fixtures-local`
-- `lando start`
+
+```
+cd figgy-fixture-container && ./create-fixture-exports.sh
+cd ..
+mix fixtures.setup
+```
 
 ### Figgy Fixtures: Creating Synthetic Fixtures
 
-Sometimes we need to create fixtures that don't exist in Figgy currently or are
-unstable (e.g. we need the value state value to be "needs_qa"). We can add (and
-modify) synthetic records by importing CSV files in the figgy fixture database.
+Sometimes we need to create fixtures that don't exist in Figgy or are
+unstable (e.g. we want a resource's state value to be "needs_qa"). We can add (and
+modify) synthetic records by importing CSV files into the Figgy fixture database.
 
 Steps:
 
 - `cd figgy-fixture-container`
-- Pull resources from figgy into a csv file.
+- Pull resources from Figgy into a CSV file.
   - Use create-synthetic-fixtures script. Example:
     ```
     IDS="('43ae3839-287e-4168-b85d-a9350d279402','05092b7d-d33c-4d4d-885e-b6b8973deec4')"
     IDS_NO_MEMBERS="('7b87fdfa-a760-49b9-85e9-093f2519f2fc')"
     ./create-synthetic-fixtures.sh
     ```
-- Rename concatenated csv file.
+- Rename concatenated CSV file.
   - `mv synthetic-fixtures.csv my-new-fixtures.csv`
-- Modify csv manually if needed.
+- Modify CSV manually if needed.
 - Add fixture description to fixtures.md file
 - Rebuild local figgy fixtures container.
 
