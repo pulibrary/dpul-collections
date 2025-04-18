@@ -43,8 +43,8 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
       {:ok, view, _} = live(conn, "/")
 
       assert view
-            |> element("#recently-added-link")
-            |> render_click()
+             |> element("#recently-added-link")
+             |> render_click()
 
       assert_redirected(view, "/search?sort=recently_added")
     end

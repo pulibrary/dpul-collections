@@ -111,11 +111,15 @@ defmodule DpulCollectionsWeb.BrowseItem do
 
   defp time_ago(digitized_at) do
     {:ok, dt, _} = DateTime.from_iso8601(digitized_at)
-    {:ok, str} = Cldr.DateTime.Relative.to_string(
-      dt, DpulCollectionsWeb.Cldr,
-      relative_to: DateTime.now!("Etc/UTC"),
-      locale: Gettext.get_locale(DpulCollectionsWeb.Gettext)
-    )
+
+    {:ok, str} =
+      Cldr.DateTime.Relative.to_string(
+        dt,
+        DpulCollectionsWeb.Cldr,
+        relative_to: DateTime.now!("Etc/UTC"),
+        locale: Gettext.get_locale(DpulCollectionsWeb.Gettext)
+      )
+
     str
   end
 

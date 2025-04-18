@@ -176,9 +176,7 @@ defmodule DpulCollectionsWeb.HomeLive do
           <div class="page-t-padding" />
           <h1>{gettext("Recently Added Items")}</h1>
           <p class="my-2 font-regular">
-            {gettext(
-              "Our collections are constantly growing. Discover something new!"
-            )}
+            {gettext("Our collections are constantly growing. Discover something new!")}
           </p>
           <div class="flex gap-8 justify-stretch page-t-padding">
             
