@@ -52,6 +52,31 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     |> to_hydration_cache_attrs
   end
 
+  def to_hydration_cache_attrs(
+        resource = %__MODULE__{
+          internal_resource: "EphemeraFolder",
+          metadata: %{"visibility" => ["private"]}
+        }
+      ) do
+    %{
+      handled_data: resource |> to_map(delete: true),
+      related_data: %{}
+    }
+  end
+
+  def to_hydration_cache_attrs(
+        resource = %__MODULE__{
+          internal_resource: "EphemeraFolder",
+          metadata: %{"state" => [state]}
+        }
+      )
+      when state != "complete" do
+    %{
+      handled_data: resource |> to_map(delete: true),
+      related_data: %{}
+    }
+  end
+
   def to_hydration_cache_attrs(resource = %__MODULE__{internal_resource: "EphemeraFolder"}) do
     related_data = extract_related_data(resource)
 
@@ -71,13 +96,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   # Don't fetch related data when the state or visibilty are not correct.
   # Note that when an empty related data map is returned these resources will
   # be marked for deletion.
-  @spec extract_related_data(resource :: %__MODULE__{}) :: related_data()
-  def extract_related_data(%__MODULE__{
-        metadata: %{"state" => [state], "visibility" => [visibility]}
-      })
-      when state != "complete" or visibility != "open" do
-    %{}
-  end
+  # @spec extract_related_data(resource :: %__MODULE__{}) :: related_data()
+  # def extract_related_data(%__MODULE__{
+  #       metadata: %{"state" => [state], "visibility" => [visibility]}
+  #     })
+  #     when state != "complete" or visibility != "open" do
+  #   %{}
+  # end
 
   def extract_related_data(resource) do
     %{
@@ -191,7 +216,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   end
 
   # there isn't a parent
-  defp extract_parents(_resource) do
+  defp extract_parents(resource) do
     %{}
   end
 
