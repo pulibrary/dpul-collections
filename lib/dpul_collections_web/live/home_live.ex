@@ -187,7 +187,6 @@ defmodule DpulCollectionsWeb.HomeLive do
                 item={item}
                 added?={true}
                 pinnable?={false}
-                class=""
               />
             </div>
             

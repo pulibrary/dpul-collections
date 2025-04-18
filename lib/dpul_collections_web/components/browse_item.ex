@@ -29,20 +29,20 @@ defmodule DpulCollectionsWeb.BrowseItem do
       >
         <.icon name="hero-archive-box-arrow-down-solid" class="h-10 w-10 icon" />
       </div>
-      
-    <!-- thumbs -->
-      <div class="h-[25rem]">
+
+      <!-- thumbs -->
+      <div class="h-[25rem] px-2 pt-2 grid grid-cols-1 gap-2 bg-white">
         <!-- main thumbnail -->
-        <div :if={@item.file_count == 1} class="p-2 grid grid-cols-1 bg-white h-[100%]">
+        <div :if={@item.file_count == 1} class="h-full">
           <.thumb thumb={thumbnail_service_url(@item)} />
         </div>
 
-        <div :if={@item.file_count > 1} class="p-2 grid grid-cols-1 h-[75%] overflow-hidden">
+        <div :if={@item.file_count > 1} class="h-[1fr] overflow-hidden">
           <.thumb thumb={thumbnail_service_url(@item)} />
         </div>
-        
-    <!-- smaller thumbnails -->
-        <div class="px-2 bg-white grid grid-cols-4 gap-2 h-[25%]">
+
+        <!-- smaller thumbnails -->
+        <div :if={@item.file_count > 1} class="grid grid-cols-4 gap-2">
           <.thumb
             :for={{thumb, thumb_num} <- thumbnail_service_urls(4, @item.image_service_urls)}
             :if={@item.file_count}
@@ -51,9 +51,9 @@ defmodule DpulCollectionsWeb.BrowseItem do
           />
         </div>
       </div>
-      
+
     <!-- card text area -->
-      <div class="flex-1 px-6 py-4 bg-white relative">
+      <div class="flex-1 px-6 py-5 bg-white relative">
         <div
           :if={@item.file_count > 4}
           class="absolute bg-taupe right-2 top-0 z-10 pr-2 pb-1 diagonal-drop"
