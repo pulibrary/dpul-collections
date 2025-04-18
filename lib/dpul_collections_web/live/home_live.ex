@@ -182,12 +182,7 @@ defmodule DpulCollectionsWeb.HomeLive do
             
     <!-- cards -->
             <div class="w-full recent-container">
-              <.browse_item
-                :for={item <- @recent_items}
-                item={item}
-                added?={true}
-                pinnable?={false}
-              />
+              <.browse_item :for={item <- @recent_items} item={item} added?={true} pinnable?={false} />
             </div>
             
     <!-- next arrow -->

@@ -29,29 +29,31 @@ defmodule DpulCollectionsWeb.BrowseItem do
       >
         <.icon name="hero-archive-box-arrow-down-solid" class="h-10 w-10 icon" />
       </div>
+      
+    <!-- thumbs -->
+      <div class="px-2 pt-2 bg-white">
+        <div class="grid grid-rows-[repeat(4, 25%)] gap-2 h-[24rem]">
+          <!-- main thumbnail -->
+          <div :if={@item.file_count == 1} class="row-span-4">
+            <.thumb thumb={thumbnail_service_url(@item)} />
+          </div>
 
-      <!-- thumbs -->
-      <div class="h-[25rem] px-2 pt-2 grid grid-cols-1 gap-2 bg-white">
-        <!-- main thumbnail -->
-        <div :if={@item.file_count == 1} class="h-full">
-          <.thumb thumb={thumbnail_service_url(@item)} />
-        </div>
-
-        <div :if={@item.file_count > 1} class="h-[1fr] overflow-hidden">
-          <.thumb thumb={thumbnail_service_url(@item)} />
-        </div>
-
-        <!-- smaller thumbnails -->
-        <div :if={@item.file_count > 1} class="grid grid-cols-4 gap-2">
-          <.thumb
-            :for={{thumb, thumb_num} <- thumbnail_service_urls(4, @item.image_service_urls)}
-            :if={@item.file_count}
-            thumb={thumb}
-            thumb_num={thumb_num}
-          />
+          <div :if={@item.file_count > 1} class="row-span-3 overflow-hidden h-[18rem]">
+            <.thumb thumb={thumbnail_service_url(@item)} />
+          </div>
+          
+    <!-- smaller thumbnails -->
+          <div :if={@item.file_count > 1} class="grid grid-cols-4 gap-2 h-[6rem]">
+            <.thumb
+              :for={{thumb, thumb_num} <- thumbnail_service_urls(4, @item.image_service_urls)}
+              :if={@item.file_count}
+              thumb={thumb}
+              thumb_num={thumb_num}
+            />
+          </div>
         </div>
       </div>
-
+      
     <!-- card text area -->
       <div class="flex-1 px-6 py-5 bg-white relative">
         <div
