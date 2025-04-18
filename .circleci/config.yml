@@ -10,9 +10,10 @@ executors:
         environment:
           TEST_POSTGRES_PORT: 5432
           TEST_POSTGRES_FIGGY_HOST: figgy_database
+          TEST_POSTGRES_FIGGY_PORT: 5432
           SOLR_BASE_URL: http://localhost:8983
       - image: cimg/postgres:15.2
-      - image: ghcr.io/pulibrary/dpul-collections:figgy-fixtures
+      - image: cimg/postgres:15.2
         name: figgy_database
         environment:
           POSTGRES_PASSWORD: "postgres"
@@ -105,6 +106,9 @@ jobs:
             curl -H "Content-type:application/octet-stream" --data-binary @solr_config.zip "http://solr:SolrRocks@localhost:8983/solr/admin/configs?action=UPLOAD&name=dpul-collections"
             curl -X POST http://solr:SolrRocks@localhost:8983/api/collections/ -H 'Content-type: application/json' -d '{create: {name: dpulc1, config: dpul-collections, numShards: 1}}'
             curl -X POST http://solr:SolrRocks@localhost:8983/api/c -H 'Content-Type: application/json' -d '{create-alias: {name: dpulc, collections:[dpulc1]}}'
+      - run:
+          name: Setup fixtures
+          command: mix fixtures.setup
       - run:
           name: Run tests
           command: mix test --trace

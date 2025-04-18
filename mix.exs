@@ -96,7 +96,13 @@ defmodule DpulCollections.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],
+      setup: [
+        "deps.get",
+        "ecto.setup",
+        "assets.setup",
+        "assets.build",
+        "fixtures.setup"
+      ],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: [
@@ -104,6 +110,9 @@ defmodule DpulCollections.MixProject do
         "ecto.migrate --quiet",
         "assets.build",
         "coveralls.html"
+      ],
+      "fixtures.setup": [
+        "cmd cd ./figgy-fixture-container && PGPASSWORD=postgres ./import-container-fixtures.sh 2> /dev/null || true"
       ],
       "assets.setup": [
         "tailwind.install --if-missing",

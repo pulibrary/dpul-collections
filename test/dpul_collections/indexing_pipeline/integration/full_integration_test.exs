@@ -21,7 +21,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # stays in the transformation cache so the total number of records must take
     # this into account.
     deleted_resource_count = FiggyTestSupport.deletion_marker_count()
-    total_records = ephemera_folder_count + deleted_resource_count
+    # Resources that are not public or not complete
+    non_indexable_resource_count = 4
+    total_records = ephemera_folder_count + deleted_resource_count - non_indexable_resource_count
     # Empty resources are resources with no image file sets
     empty_resource_count = 1
 
@@ -93,18 +95,22 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # The hydrator pulled all ephemera folders, terms, deletion markers and
     # removed the hydration cache markers for the deletion marker deleted resource.
     entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
-    assert FiggyTestSupport.total_resource_count() == entry_count
+
+    # Resources that are not public or not complete
+    non_indexable_resource_count = 4
+    assert FiggyTestSupport.total_resource_count() == entry_count + non_indexable_resource_count
 
     # The transformer processed ephemera folders and deletion markers
     # removed the transformation cache markers for the deletion marker deleted resource.
     transformation_cache_entry_count = Repo.aggregate(Figgy.TransformationCacheEntry, :count)
-
     deletion_marker_count = FiggyTestSupport.deletion_marker_count()
     total_transformed_count = FiggyTestSupport.ephemera_folder_count() + deletion_marker_count
+
     # Empty resources are resources with no image file sets
     empty_resource_count = 1
 
-    assert total_transformed_count == transformation_cache_entry_count
+    assert total_transformed_count ==
+             transformation_cache_entry_count + non_indexable_resource_count
 
     # indexed all the documents and deleted the extra record solr doc
     assert Solr.document_count() ==
