@@ -40,13 +40,26 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
     end
 
     test "link to recently added", %{conn: conn} do
+      Solr.add(SolrTestSupport.mock_solr_documents(100), active_collection())
+      Solr.commit(active_collection())
+
       {:ok, view, _} = live(conn, "/")
 
-      assert view
-             |> element("#recently-added-link")
-             |> render_click()
+      {:ok, document} =
+        view
+        |> element("#recently-added-link")
+        |> render_click()
+        |> follow_redirect(conn, "/search?sort_by=recently_added")
+        |> elem(2)
+        |> Floki.parse_document()
 
-      assert_redirected(view, "/search?sort=recently_added")
+      assert document
+             |> Floki.find(~s{a[href="/i/document1/item/1"]})
+             |> Enum.empty?()
+
+      assert document
+             |> Floki.find(~s{a[href="/i/document100/item/100"]})
+             |> Enum.any?()
     end
   end
 

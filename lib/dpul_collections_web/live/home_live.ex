@@ -187,7 +187,7 @@ defmodule DpulCollectionsWeb.HomeLive do
             
     <!-- next arrow -->
             <div class="w-12 flex-none content-center">
-              <.link id="recently-added-link" navigate={~p"/search?sort=recently_added"}>
+              <.link id="recently-added-link" navigate={~p"/search?sort_by=recently_added"}>
                 <button class="btn-arrow w-full h-14" aria-label="more recently added items" />
               </.link>
             </div>
