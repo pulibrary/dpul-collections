@@ -96,10 +96,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   end
 
   def to_hydration_cache_attrs(resource = %__MODULE__{internal_resource: "EphemeraFolder"}) do
-    related_data = extract_related_data(resource)
+    related_resources = fetch_related(resource)
 
     handled_data =
-      if resource_empty?(resource, related_data) do
+      if resource_empty?(resource, related_resources) do
         resource |> to_map(delete: true)
       else
         resource |> to_map
@@ -107,14 +107,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
 
     %{
       handled_data: handled_data,
-      related_data: related_data
-    }
-  end
-
-  def extract_related_data(resource) do
-    %{
-      "parent_ids" => extract_parent(resource),
-      "resources" => fetch_related(resource)
+      related_data: %{
+        "parent_ids" => extract_parent(resource),
+        "resources" => related_resources
+      }
     }
   end
 
@@ -223,15 +219,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   end
 
   # there isn't a parent
-  defp extract_parent(_) do
+  defp extract_parent(resource) do
     %{}
   end
 
   # Determine if a resource has no related member FileSets
-  @spec to_map(%__MODULE__{}, related_data()) :: map()
-  defp resource_empty?(%__MODULE__{metadata: %{"member_ids" => member_ids}}, %{
-         "resources" => related_resources
-       }) do
+  @spec to_map(%__MODULE__{}, related_resource_map()) :: map()
+  defp resource_empty?(%__MODULE__{metadata: %{"member_ids" => member_ids}}, related_resources) do
     member_ids_set =
       member_ids
       |> Enum.map(&extract_ids_from_value/1)
@@ -246,8 +240,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     # then the resource is considered empty
     MapSet.disjoint?(member_ids_set, related_ids_set)
   end
-
-  defp resource_empty?(_, _), do: true
 
   @spec to_map(resource :: %__MODULE__{}) :: map()
   defp to_map(
