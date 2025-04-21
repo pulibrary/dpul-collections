@@ -71,10 +71,28 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
         }
       )
       when state != "complete" do
-    %{
-      handled_data: resource |> to_map(delete: true),
-      related_data: %{}
-    }
+    parent = extract_parent(resource)
+
+    parent_state =
+      Map.to_list(parent)
+      |> hd
+      |> elem(1)
+      |> get_in([:metadata, "state"])
+
+    if parent_state == ["all_in_production"] do
+      %{
+        handled_data: resource |> to_map,
+        related_data: %{
+          "parent_ids" => parent,
+          "resources" => fetch_related(resource)
+        }
+      }
+    else
+      %{
+        handled_data: resource |> to_map(delete: true),
+        related_data: %{}
+      }
+    end
   end
 
   def to_hydration_cache_attrs(resource = %__MODULE__{internal_resource: "EphemeraFolder"}) do
@@ -93,20 +111,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     }
   end
 
-  # Don't fetch related data when the state or visibilty are not correct.
-  # Note that when an empty related data map is returned these resources will
-  # be marked for deletion.
-  # @spec extract_related_data(resource :: %__MODULE__{}) :: related_data()
-  # def extract_related_data(%__MODULE__{
-  #       metadata: %{"state" => [state], "visibility" => [visibility]}
-  #     })
-  #     when state != "complete" or visibility != "open" do
-  #   %{}
-  # end
-
   def extract_related_data(resource) do
     %{
-      "parent_ids" => extract_parents(resource),
+      "parent_ids" => extract_parent(resource),
       "resources" => fetch_related(resource)
     }
   end
@@ -207,8 +214,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
 
   defp extract_ids_from_value(_), do: nil
 
-  @spec extract_parents(resource :: %__MODULE__{}) :: related_resource_map()
-  defp extract_parents(resource = %{:metadata => %{"cached_parent_id" => _cached_parent_id}}) do
+  @spec extract_parent(resource :: %__MODULE__{}) :: related_resource_map()
+  defp extract_parent(resource = %{:metadata => %{"cached_parent_id" => _cached_parent_id}}) do
     # turn it into a map of id => FiggyResource
     IndexingPipeline.get_figgy_parents(resource.id)
     |> Enum.map(fn m -> {m.id, to_map(m)} end)
@@ -216,7 +223,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   end
 
   # there isn't a parent
-  defp extract_parents(resource) do
+  defp extract_parent(_) do
     %{}
   end
 
