@@ -44,7 +44,7 @@ To refresh fixtures:
 - Edit `figgy-fixture-container/create-fixture-exports.sh` and add an id to the EXTRA_RESOURCE_IDS var
 - `cd figgy-fixture-container && ./create-fixture-exports.sh`
 
-Note that refreshing or adding a new fixture might require yout to make adjusts to test expectations.
+Note that refreshing or adding a new fixture might require you to make adjustments to test expectations.
 
 ### Figgy Fixtures: Local Development
 
