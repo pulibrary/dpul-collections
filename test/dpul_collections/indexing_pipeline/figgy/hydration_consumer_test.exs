@@ -275,22 +275,24 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
       hydration_cache_entries = IndexingPipeline.list_hydration_cache_entries()
       assert hydration_cache_entries |> length == 3
 
-      hydration_cache_entry = hydration_cache_entries |> Enum.at(0)
+      sorted_entries = Enum.sort(hydration_cache_entries, &(&1.record_id >= &2.record_id))
+
+      hydration_cache_entry = sorted_entries |> Enum.at(0)
+      assert hydration_cache_entry.data["internal_resource"] == "EphemeraFolder"
+      assert hydration_cache_entry.record_id == ephemera_folder_message_2.data.id
+      assert hydration_cache_entry.data["id"] == ephemera_folder_message_2.data.id
+      assert hydration_cache_entry.data["metadata"]["deleted"] == true
+
+      hydration_cache_entry = sorted_entries |> Enum.at(1)
       assert hydration_cache_entry.data["internal_resource"] == "EphemeraFolder"
       assert hydration_cache_entry.record_id == ephemera_folder_message_3.data.id
       assert hydration_cache_entry.data["id"] == ephemera_folder_message_3.data.id
       assert hydration_cache_entry.data["metadata"]["deleted"] == true
 
-      hydration_cache_entry = hydration_cache_entries |> Enum.at(1)
+      hydration_cache_entry = sorted_entries |> Enum.at(2)
       assert hydration_cache_entry.data["internal_resource"] == "EphemeraFolder"
       assert hydration_cache_entry.record_id == ephemera_folder_message_1.data.id
       assert hydration_cache_entry.data["id"] == ephemera_folder_message_1.data.id
-      assert hydration_cache_entry.data["metadata"]["deleted"] == true
-
-      hydration_cache_entry = hydration_cache_entries |> Enum.at(2)
-      assert hydration_cache_entry.data["internal_resource"] == "EphemeraFolder"
-      assert hydration_cache_entry.record_id == ephemera_folder_message_2.data.id
-      assert hydration_cache_entry.data["id"] == ephemera_folder_message_2.data.id
       assert hydration_cache_entry.data["metadata"]["deleted"] == true
     end
 
