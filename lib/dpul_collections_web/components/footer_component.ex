@@ -25,7 +25,7 @@ defmodule DpulCollectionsWeb.FooterComponent do
           </li>
         </ul>
       </div>
-      <div class="app_name sm:flex-1 flex-none text-center">
+      <div class="app_name sm:flex-1 sm:text-center">
         © 2025 {gettext("The Trustees of Princeton University")}
       </div>
       <div class="university-logo flex-none w-24 sm:w-48">
