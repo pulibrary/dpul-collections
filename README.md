@@ -35,14 +35,16 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 ### Figgy Fixtures
 
 We import fixtures from Figgy's production database into a Postgres Docker container so
-that we can easily use it for testing indexing. To add a new fixture:
+that we can easily use it for testing indexing.
 
-- Edit `figgy-fixture-container/create-fixture-exports.sh` and add an id to the
-EXTRA_RESOURCE_IDS var. Note that adding a new fixture will update all the
-existing and you may have to make adjusts to test expectations.
+To refresh fixtures:
 - `cd figgy-fixture-container && ./create-fixture-exports.sh`
-- Commiting and pushing the branch will update the container in CI.
-- To update fixtures locally, follow the steps below.
+
+ To add extra fixtures:
+- Edit `figgy-fixture-container/create-fixture-exports.sh` and add an id to the EXTRA_RESOURCE_IDS var
+- `cd figgy-fixture-container && ./create-fixture-exports.sh`
+
+Note that refreshing or adding a new fixture might require yout to make adjusts to test expectations.
 
 ### Figgy Fixtures: Local Development
 
