@@ -142,15 +142,20 @@ defmodule DpulCollectionsWeb.HomeLive do
   def render(assigns) do
     ~H"""
     <div class="grid grid-flow-row auto-rows-max">
-      <div class="explore-header grid-row bg-taupe">
-        <div class="content-area">
-          <div class="page-y-padding">
-            <h1 class="text-2xl sm:text-3xl md:text-4xl uppercase tracking-widest font-extrabold text-center">
-              {gettext("Explore Ephemera at Princeton")}
-            </h1>
+      <div class="explore-header grid-row bg-taupe relative">
+        <div class="bg-taupe/80 absolute h-[350px] min-w-1/3 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 p-4">
+          <div class="content-area page-y-padding text-center border-1 border-rust/80 h-full">
+            <h1>Explore Princeton Material</h1>
+            <div class="content-area page-y-padding text-2xl">
+              Princeton collects and makes available a wide variety of material including <a class="text-rust" href="#">Photographs</a>, <a class="text-rust" href="#">Posters</a>, <a class="text-rust" href="#">Books</a>, and <a class="text-rust" href="#">more</a> to inspire and support your research.
+            </div>
+            <div class="content-area page-y-padding">
+              <.link navigate={~p"/browse"} class="bg-dark-blue text-taupe p-4 text-2xl uppercase">
+                {gettext("Browse all items")}
+              </.link>
+            </div>
           </div>
         </div>
-        <hr class="h-1 border-0 bg-rust" />
         <div class="h-[600px] overflow-hidden">
           <%= for chunk <- @hero_images do %>
             <div class="h-[200px] flex items-start overflow-hidden">
