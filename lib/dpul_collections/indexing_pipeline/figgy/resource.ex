@@ -71,19 +71,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
         }
       )
       when state != "complete" do
-    parent = extract_parent(resource)
+    related_parent_map = extract_parent(resource)
 
-    parent_state =
-      Map.to_list(parent)
-      |> hd
-      |> elem(1)
-      |> get_in([:metadata, "state"])
-
-    if parent_state == ["all_in_production"] do
+    if parent_state(related_parent_map) == ["all_in_production"] do
       %{
         handled_data: resource |> to_map,
         related_data: %{
-          "parent_ids" => parent,
+          "parent_ids" => related_parent_map,
           "resources" => fetch_related(resource)
         }
       }
@@ -222,6 +216,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   defp extract_parent(resource) do
     %{}
   end
+
+  @spec parent_state(related_resource_map()) :: String.t()
+  def parent_state(related_parent_map) when map_size(related_parent_map) > 0 do
+    parent = Map.to_list(related_parent_map) |> hd |> elem(1)
+    parent |> get_in([:metadata, "state"])
+  end
+
+  def parent_state(_), do: nil
 
   # Determine if a resource has no related member FileSets
   @spec to_map(%__MODULE__{}, related_resource_map()) :: map()

@@ -232,7 +232,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         }
       }
 
-      # Parent is "all_in_production" but visibility is "private". Do not index
+      # Parent is "all_in_production" but visibility is "restricted". Do not index
       # private EphemeraFolders.
       ephemera_folder_message_3 = %Broadway.Message{
         acknowledger: nil,
@@ -241,11 +241,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           updated_at: ~U[2025-04-20 14:28:57.52611Z],
           internal_resource: "EphemeraFolder",
           state: ["complete"],
-          visibility: ["private"],
+          visibility: ["restricted"],
           metadata: %{
             "cached_parent_id" => [%{"id" => "82624edb-c360-4d8a-b202-f103ee639e8e"}],
             "state" => ["complete"],
-            "visibility" => ["private"]
+            "visibility" => ["restricted"],
+            "member_ids" => [%{"id" => "ee769854-2d5f-4d79-81d9-3fdbb27fa168"}]
           }
         }
       }
@@ -329,6 +330,41 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
       assert hydration_cache_entry.record_id == ephemera_folder_message.data.id
       assert hydration_cache_entry.data["id"] == ephemera_folder_message.data.id
       assert hydration_cache_entry.data["metadata"]["visibility"] == ["open"]
+    end
+
+    test "handle_batch/3 does not index an EphemeraFolder with a needs_qa state if the parent is an EphemeraProject" do
+      ephemera_folder_message = %Broadway.Message{
+        acknowledger: nil,
+        data: %Figgy.Resource{
+          id: "bfe04832-e57b-4ad9-939c-6ca5b466fa68",
+          updated_at: ~U[2023-10-29 02:19:48.873438Z],
+          internal_resource: "EphemeraFolder",
+          state: ["needs_qa"],
+          visibility: ["open"],
+          metadata: %{
+            "cached_parent_id" => [%{"id" => "1e63fc3c-f41d-4512-9abc-8ed671a50261"}],
+            "state" => ["needs_qa"],
+            "visibility" => ["open"],
+            "member_ids" => [%{"id" => "de165304-d4bc-4054-bf3a-ec4f0f0116b6"}]
+          }
+        }
+      }
+
+      # Create a hydration cache entry from ephemera folder message
+      create_messages =
+        [ephemera_folder_message]
+        |> Enum.map(&Figgy.HydrationConsumer.handle_message(nil, &1, %{cache_version: 1}))
+
+      Figgy.HydrationConsumer.handle_batch(:default, create_messages, nil, %{cache_version: 1})
+
+      hydration_cache_entries = IndexingPipeline.list_hydration_cache_entries()
+      assert hydration_cache_entries |> length == 1
+
+      hydration_cache_entry = hydration_cache_entries |> Enum.at(0)
+      assert hydration_cache_entry.data["internal_resource"] == "EphemeraFolder"
+      assert hydration_cache_entry.record_id == ephemera_folder_message.data.id
+      assert hydration_cache_entry.data["id"] == ephemera_folder_message.data.id
+      assert hydration_cache_entry.data["metadata"]["deleted"] == true
     end
   end
 end
