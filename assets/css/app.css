@@ -82,13 +82,17 @@
   @apply cursor-pointer uppercase border bg-sage text-black;
 }
 
+@utility btn-pagination {
+  @apply cursor-pointer font-semibold uppercase border bg-dark-blue text-taupe h-12;
+}
+
 .btn-arrow {
   clip-path: polygon(0% 0%, 100% 50%, 0% 100%);
   @apply bg-dark-blue cursor-pointer border;
 }
 
 @utility active {
-  @apply text-blue-600 border bg-blue-50 hover:bg-blue-100 hover:text-blue-700;
+  @apply text-blue-600 border border-dark-blue bg-blue-50 hover:no-underline hover:bg-blue-100 hover:text-blue-700;
 }
 
 @utility skip-to-content {
