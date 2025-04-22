@@ -161,11 +161,11 @@ defmodule DpulCollectionsWeb.HomeLive do
             </div>
           </div>
         </div>
-        <div class="h-[600px] overflow-hidden">
+        <div class="h-[600px] overflow-hidden mt-2">
           <%= for chunk <- @hero_images do %>
             <div class="h-[200px] flex items-start overflow-hidden">
               <%= for {id, image_url} <- chunk do %>
-                <div class="h-[200px] w-auto min-w-px flex-shrink-0">
+                <div class="h-[200px] w-auto min-w-px flex-shrink-0 mr-2 pb-2">
                   <.link navigate={~p"/item/#{id}"}>
                     <img
                       class="h-full w-auto opacity-40 select-none hover:opacity-90 cursor-pointer"
@@ -189,12 +189,10 @@ defmodule DpulCollectionsWeb.HomeLive do
             {gettext("Our collections are constantly growing. Discover something new!")}
           </p>
           <div class="flex gap-8 justify-stretch page-t-padding">
-            
     <!-- cards -->
             <div class="w-full recent-container">
               <.browse_item :for={item <- @recent_items} item={item} added?={true} pinnable?={false} />
             </div>
-            
     <!-- next arrow -->
             <div class="w-12 flex-none content-center">
               <.link id="recently-added-link" navigate={~p"/search?sort_by=recently_added"}>
