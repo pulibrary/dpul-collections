@@ -205,11 +205,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           updated_at: ~U[2025-04-19 14:28:57.52611Z],
           internal_resource: "EphemeraFolder",
           state: ["complete"],
-          visibility: ["private"],
+          visibility: ["restricted"],
           metadata: %{
             "cached_parent_id" => [%{"id" => "7b87fdfa-a760-49b9-85e9-093f2519f2fc"}],
             "state" => ["complete"],
-            "visibility" => ["private"],
+            "visibility" => ["restricted"],
             "member_ids" => [%{"id" => "c42bca4b-02c9-44ad-b6bd-132ab27a8986"}]
           }
         }

@@ -55,7 +55,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   def to_hydration_cache_attrs(
         resource = %__MODULE__{
           internal_resource: "EphemeraFolder",
-          metadata: %{"visibility" => ["private"]}
+          metadata: %{"visibility" => ["restricted"]}
         }
       ) do
     %{
@@ -240,6 +240,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     # then the resource is considered empty
     MapSet.disjoint?(member_ids_set, related_ids_set)
   end
+
+  defp resource_empty?(_, _), do: true
 
   @spec to_map(resource :: %__MODULE__{}) :: map()
   defp to_map(
