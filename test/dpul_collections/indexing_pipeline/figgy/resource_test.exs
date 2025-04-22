@@ -30,6 +30,18 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ResourceTest do
       assert(metadata["deleted"] == true)
     end
 
+    test "when there are no members at all, the resource is marked for deletion" do
+      folder = IndexingPipeline.get_figgy_resource!("f134f41f-63c5-4fdf-b801-0774e3bc3b2d")
+
+      metadata =
+        %Resource{folder | metadata: %{folder.metadata | "member_ids" => []}}
+        |> Resource.to_hydration_cache_attrs()
+        |> get_in([:handled_data])
+        |> get_in([:metadata])
+
+      assert(metadata["deleted"] == true)
+    end
+
     test "it filters out non-image members" do
       folder = IndexingPipeline.get_figgy_resource!("f134f41f-63c5-4fdf-b801-0774e3bc3b2d")
 

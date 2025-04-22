@@ -217,17 +217,20 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     %{}
   end
 
-  @spec parent_state(related_resource_map()) :: String.t()
+  @spec parent_state(related_resource_map()) :: list(String.t())
   def parent_state(related_parent_map) when map_size(related_parent_map) > 0 do
-    parent = Map.to_list(related_parent_map) |> hd |> elem(1)
-    parent |> get_in([:metadata, "state"])
+    Map.to_list(related_parent_map)
+    |> hd
+    |> elem(1)
+    |> get_in([:metadata, "state"])
   end
 
   def parent_state(_), do: nil
 
   # Determine if a resource has no related member FileSets
   @spec to_map(%__MODULE__{}, related_resource_map()) :: map()
-  defp resource_empty?(%__MODULE__{metadata: %{"member_ids" => member_ids}}, related_resources) do
+  defp resource_empty?(%__MODULE__{metadata: %{"member_ids" => member_ids}}, related_resources)
+       when length(member_ids) > 0 do
     member_ids_set =
       member_ids
       |> Enum.map(&extract_ids_from_value/1)
