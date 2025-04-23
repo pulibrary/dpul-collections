@@ -151,7 +151,7 @@ defmodule DpulCollectionsWeb.HomeLive do
                 class="text-rust"
                 href="#"
               >Posters</a>, <a class="text-rust" href="#">Books</a>, and
-              <a class="text-rust" href="#">more</a>
+              <.link navigate={~p"/browse"} class="text-rust">more</.link>
               to inspire and support your research.
             </div>
             <div class="content-area bg-dark-blue text-taupe p-4 text-2xl">
