@@ -36,7 +36,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
         module: {options[:producer_module], options[:producer_options]}
       ],
       processors: [
-        default: []
+        default: [concurrency: System.schedulers_online() * 2]
       ],
       batchers: [
         default: [batch_size: options[:batch_size]],
