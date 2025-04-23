@@ -143,7 +143,7 @@ defmodule DpulCollectionsWeb.HomeLive do
     ~H"""
     <div class="grid grid-flow-row auto-rows-max">
       <div class="explore-header grid-row bg-taupe relative">
-        <div class="backdrop-blur-xs shadow-lg bg-taupe/70 absolute max-h-[600px] min-w-[400px] w-full lg:max-w-1/2 xl:max-w-1/3 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 p-8">
+        <div class="shadow-lg bg-taupe absolute max-h-[600px] sm:min-w-[350px] w-full lg:max-w-1/2 2xl:max-w-1/3 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 p-8">
           <div class="content-area text-center h-full w-full flex flex-col justify-evenly">
             <h1 class="normal-case">Explore Our Collections</h1>
             <div class="content-area page-y-padding text-xl flex-grow">
