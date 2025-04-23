@@ -28,7 +28,9 @@ defmodule DpulCollectionsWeb.ItemLive do
   def render(assigns) do
     ~H"""
     <div class="w-full h-[800px]">
-      <%= live_react_component("Components.Viewer", [iiifContent: @item.iiif_manifest_url], id: "my-component-1") %>
+      {live_react_component("Components.Viewer", [iiifContent: @item.iiif_manifest_url],
+        id: "my-component-1"
+      )}
     </div>
     <div class="my-5 grid grid-flow-row auto-rows-max md:grid-cols-5 gap-4">
       <div class="item md:col-span-3 md:pl-8">
