@@ -201,7 +201,6 @@ defmodule DpulCollectionsWeb.SearchLive do
   attr :added?, :boolean, default: false
 
   def search_item(assigns) do
-    IO.inspect(assigns, label: 'assigns')
     ~H"""
     <hr />
     <div id={"item-#{@item.id}"} class="item">
@@ -333,6 +332,18 @@ defmodule DpulCollectionsWeb.SearchLive do
       </.link>
     </nav>
     """
+  end
+
+  def handle_event("filter-genre", params, socket) do
+    params =
+      %{
+        socket.assigns.search_state
+        | genre: params["genre"]
+      }
+      |> Helpers.clean_params([:page, :per_page])
+
+    socket = push_patch(socket, to: ~p"/search?#{params}")
+    {:noreply, socket}
   end
 
   def handle_event("filter-date", params, socket) do
