@@ -24,6 +24,9 @@ FROM ${BUILDER_IMAGE} as builder
 RUN apt-get update -y && apt-get install -y build-essential git \
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
+# upgrade packages to fix CVE
+RUN apt-get install --only-upgrade perl
+
 # prepare build dir
 WORKDIR /app
 
