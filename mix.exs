@@ -84,7 +84,8 @@ defmodule DpulCollections.MixProject do
       {:sibyl, "~> 0.1.0"},
       # Required to run metrics server
       {:plug_cowboy, "~> 2.0"},
-      {:ex_cldr_dates_times, "~> 2.0"}
+      {:ex_cldr_dates_times, "~> 2.0"},
+      {:phoenix_live_react, "~> 0.5"}
     ]
   end
 
