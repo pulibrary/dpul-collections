@@ -13,16 +13,30 @@
 #
 ARG ELIXIR_VERSION=1.18.3
 ARG OTP_VERSION=27.3.3
-ARG DEBIAN_VERSION=bookworm-20250407-slim
 
-ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
-ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
+ARG VARIANT=alpine
+ARG VARIANT_VERSION=3.21.3
 
-FROM ${BUILDER_IMAGE} as builder
+ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-${VARIANT}-${VARIANT_VERSION}"
+ARG RUNNER_IMAGE="${VARIANT}:${VARIANT_VERSION}"
+
+FROM ${BUILDER_IMAGE} AS builder
+
+ARG VARIANT
 
 # install build dependencies
-RUN apt-get update -y && apt-get install -y build-essential git \
-    && apt-get clean && rm -f /var/lib/apt/lists/*_*
+RUN case "${VARIANT}" in \
+    "debian" | "ubuntu") \
+        apt-get update -y && apt-get install -y build-essential git \
+        && apt-get clean && rm -f /var/lib/apt/lists/*_* \
+    ;; \
+    "alpine") \
+        apk add --no-cache build-base git \
+    ;; \
+    *) \
+        echo "Unsupported variant: ${VARIANT}" && exit 1 \
+    ;; \
+    esac
 
 # prepare build dir
 WORKDIR /app
@@ -67,12 +81,27 @@ RUN mix release
 # the compiled release and other runtime necessities
 FROM ${RUNNER_IMAGE}
 
-RUN apt-get update -y && \
-  apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates \
-  && apt-get clean && rm -f /var/lib/apt/lists/*_*
+ARG VARIANT
+
+RUN case "${VARIANT}" in \
+    "debian" | "ubuntu") \
+        apt-get update -y && apt-get install -y libstdc++6 openssl libncurses5 locales ca-certificates \
+        && apt-get clean && rm -f /var/lib/apt/lists/*_* \
+    ;; \
+    "alpine") \
+        apk add --no-cache libstdc++ openssl ncurses-dev musl-locales musl-locales-lang ca-certificates \
+    ;; \
+    *) \
+        echo "Unsupported variant: ${VARIANT}" && exit 1 \
+    ;; \
+    esac
 
 # Set the locale
-RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
+ENV MUSL_LOCPATH="/usr/share/i18n/locales/musl"
+
+RUN if [ "${VARIANT}" = "debian" ] || [ "${VARIANT}" = "ubuntu" ]; then \
+        unset MUSL_LOCPATH && sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen ; \
+    fi
 
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
