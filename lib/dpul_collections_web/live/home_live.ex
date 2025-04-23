@@ -3,7 +3,6 @@ defmodule DpulCollectionsWeb.HomeLive do
   import DpulCollectionsWeb.Gettext
   import DpulCollectionsWeb.BrowseItem
   alias DpulCollections.{Item, Solr}
-  alias DpulCollectionsWeb.Live.Helpers
 
   def mount(_params, _session, socket) do
     socket =

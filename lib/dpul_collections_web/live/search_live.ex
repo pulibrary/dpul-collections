@@ -90,7 +90,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   def sort_by_params do
     @valid_sort_by
     # Don't include things without labels.
-    |> Enum.filter(fn {k, v} -> v[:label] end)
+    |> Enum.filter(fn {_, v} -> v[:label] end)
     |> Enum.map(fn {k, v} -> {v[:label], k} end)
   end
 

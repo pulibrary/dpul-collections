@@ -4,7 +4,6 @@ defmodule DpulCollectionsWeb.IndexingPipeline.DashboardPage do
   alias DpulCollections.IndexingPipeline.Figgy.TransformationProducerSource
   alias DpulCollections.IndexingPipeline.Figgy.HydrationProducerSource
   alias DpulCollections.IndexMetricsTracker
-  alias DpulCollections.IndexingPipeline.ProcessorMarker
   use Phoenix.LiveDashboard.PageBuilder
 
   @impl true
