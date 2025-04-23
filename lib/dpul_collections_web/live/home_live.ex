@@ -141,15 +141,25 @@ defmodule DpulCollectionsWeb.HomeLive do
   def render(assigns) do
     ~H"""
     <div class="grid grid-flow-row auto-rows-max">
-      <div class="explore-header grid-row bg-taupe">
-        <div class="content-area">
-          <div class="page-y-padding">
-            <h1 class="text-2xl sm:text-3xl md:text-4xl uppercase tracking-widest font-extrabold text-center">
-              {gettext("Explore Ephemera at Princeton")}
-            </h1>
+      <div class="explore-header grid-row bg-taupe relative">
+        <div class="shadow-lg bg-taupe absolute max-h-[600px] sm:min-w-[350px] w-full lg:max-w-1/2 2xl:max-w-1/3 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 p-8">
+          <div class="content-area text-center h-full w-full flex flex-col justify-evenly">
+            <h1 class="normal-case">Explore Our Collections</h1>
+            <div class="content-area page-y-padding text-xl flex-grow">
+              Here you'll find a wide variety of material including <a class="text-rust" href="#">Photographs</a>, <a
+                class="text-rust"
+                href="#"
+              >Posters</a>, <a class="text-rust" href="#">Books</a>, and
+              <.link navigate={~p"/browse"} class="text-rust">more</.link>
+              to inspire and support your research.
+            </div>
+            <div class="content-area bg-dark-blue text-taupe p-4 text-2xl">
+              <.link navigate={~p"/browse"} class="">
+                {gettext("Browse all items")}
+              </.link>
+            </div>
           </div>
         </div>
-        <hr class="h-1 border-0 bg-rust" />
         <div class="h-[600px] overflow-hidden">
           <%= for chunk <- @hero_images do %>
             <div class="h-[200px] flex items-start overflow-hidden">
