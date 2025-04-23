@@ -1,7 +1,7 @@
 defmodule DpulCollectionsWeb.BrowseItem do
   use DpulCollectionsWeb, :html
   use Phoenix.Component
-  import DpulCollectionsWeb.Gettext
+  use Gettext, backend: DpulCollectionsWeb.Gettext
   alias DpulCollections.Item
 
   attr :item, Item, required: true

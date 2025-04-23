@@ -20,7 +20,7 @@ end
 defmodule DpulCollectionsWeb.SearchLive do
   use DpulCollectionsWeb, :live_view
   import DpulCollectionsWeb.SearchComponents
-  import DpulCollectionsWeb.Gettext
+  use Gettext, backend: DpulCollectionsWeb.Gettext
   alias DpulCollections.{Item, Solr}
   use Solr.Constants
   alias DpulCollectionsWeb.Live.Helpers

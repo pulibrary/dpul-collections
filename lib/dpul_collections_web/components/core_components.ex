@@ -17,7 +17,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
   use Phoenix.Component
 
   alias Phoenix.LiveView.JS
-  import DpulCollectionsWeb.Gettext
+  use Gettext, backend: DpulCollectionsWeb.Gettext
 
   @doc """
   Renders flash notices.

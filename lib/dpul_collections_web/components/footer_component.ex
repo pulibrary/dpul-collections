@@ -1,7 +1,7 @@
 # lib/my_app_web/components/header_component.ex
 defmodule DpulCollectionsWeb.FooterComponent do
   use DpulCollectionsWeb, :html
-  import DpulCollectionsWeb.Gettext
+  use Gettext, backend: DpulCollectionsWeb.Gettext
 
   def footer(assigns) do
     ~H"""

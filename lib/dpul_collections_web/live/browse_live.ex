@@ -1,6 +1,6 @@
 defmodule DpulCollectionsWeb.BrowseLive do
   use DpulCollectionsWeb, :live_view
-  import DpulCollectionsWeb.Gettext
+  use Gettext, backend: DpulCollectionsWeb.Gettext
   import DpulCollectionsWeb.BrowseItem
   alias DpulCollections.{Item, Solr}
 
