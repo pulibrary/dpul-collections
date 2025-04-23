@@ -141,6 +141,11 @@ defmodule DpulCollectionsWeb.SearchLive do
               )}
             </select>
           </form>
+          <div class="my-8 select-none flex">
+            <button class="py-2 px-4 shadow-md no-underline rounded-full bg-dark-blue border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-rust focus:outline-none active:shadow-none mr-2">Date</button>
+            <button class="py-2 px-4 shadow-md no-underline rounded-full bg-dark-blue border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-rust focus:outline-none active:shadow-none mr-2">Genre</button>
+            <button class="py-2 px-4 shadow-md no-underline rounded-full bg-dark-blue border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-rust focus:outline-none active:shadow-none">Subject</button>	
+          </div>
         </div>
         <div id="item-counter">
           <span>{@item_counter}</span>
@@ -163,6 +168,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   attr :item, Item, required: true
 
   def search_item(assigns) do
+    IO.inspect(assigns, label: 'assigns')
     ~H"""
     <hr />
     <div id={"item-#{@item.id}"} class="item">
@@ -177,7 +183,10 @@ defmodule DpulCollectionsWeb.SearchLive do
           {@item.file_count} {gettext("Pages")}
         </div>
       </div>
-      <h2 class="pt-4">
+      <div class="pt-4 text-gray-500 font-bold text-sm uppercase">
+        <a href="">{@item.genre}</a>
+      </div>
+      <h2>
         <.link navigate={@item.url}>{@item.title}</.link>
       </h2>
       <div class="text-xl">{@item.date}</div>

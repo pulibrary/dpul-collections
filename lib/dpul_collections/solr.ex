@@ -22,7 +22,8 @@ defmodule DpulCollections.Solr do
     "slug_s",
     "image_service_urls_ss",
     "primary_thumbnail_service_url_s",
-    "digitized_at_dt"
+    "digitized_at_dt",
+    "genre_txtm"
   ]
 
   @spec query(map(), String.t()) :: map()
