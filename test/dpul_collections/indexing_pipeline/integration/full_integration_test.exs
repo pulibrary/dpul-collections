@@ -21,18 +21,32 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # stays in the transformation cache so the total number of records must take
     # this into account.
     deleted_resource_count = FiggyTestSupport.deletion_marker_count()
-    # Resources that are not public or not complete
-    non_indexable_resource_count = 4
-    total_records = ephemera_folder_count + deleted_resource_count - non_indexable_resource_count
+    total_records = ephemera_folder_count + deleted_resource_count
     # Empty resources are resources with no image file sets
     empty_resource_count = 1
+    # Resources that are not public or not complete (with an incomplete parent)
+    non_indexable_resource_count = 1
+
+    if System.get_env("DEBUG_INTEGRATION") do
+      IO.puts(
+        "tranformation_cache_entries: #{transformation_cache_entries} / total_records: #{total_records}"
+      )
+    end
 
     continue =
       if transformation_cache_entries == total_records do
         DpulCollections.Solr.commit(active_collection())
+        solr_doc_count = DpulCollections.Solr.document_count()
 
-        if DpulCollections.Solr.document_count() ==
-             transformation_cache_entries - deleted_resource_count - empty_resource_count do
+        expected_doc_count =
+          transformation_cache_entries - deleted_resource_count - empty_resource_count -
+            non_indexable_resource_count
+
+        if System.get_env("DEBUG_INTEGRATION") do
+          IO.puts("solr_count: #{solr_doc_count} / expected_doc_count: #{expected_doc_count}")
+        end
+
+        if solr_doc_count == expected_doc_count do
           true
         end
       end
@@ -95,10 +109,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # The hydrator pulled all ephemera folders, terms, deletion markers and
     # removed the hydration cache markers for the deletion marker deleted resource.
     entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
-
-    # Resources that are not public or not complete
-    non_indexable_resource_count = 4
-    assert FiggyTestSupport.total_resource_count() == entry_count + non_indexable_resource_count
+    assert FiggyTestSupport.total_resource_count() == entry_count
 
     # The transformer processed ephemera folders and deletion markers
     # removed the transformation cache markers for the deletion marker deleted resource.
@@ -106,15 +117,18 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     deletion_marker_count = FiggyTestSupport.deletion_marker_count()
     total_transformed_count = FiggyTestSupport.ephemera_folder_count() + deletion_marker_count
 
+    # Resources that are not public or not complete (with an incomplete parent)
+    non_indexable_resource_count = 1
+
     # Empty resources are resources with no image file sets
     empty_resource_count = 1
 
-    assert total_transformed_count ==
-             transformation_cache_entry_count + non_indexable_resource_count
+    assert total_transformed_count == transformation_cache_entry_count
 
     # indexed all the documents and deleted the extra record solr doc
     assert Solr.document_count() ==
-             transformation_cache_entry_count - deletion_marker_count - empty_resource_count
+             transformation_cache_entry_count - deletion_marker_count - empty_resource_count -
+               non_indexable_resource_count
 
     # Ensure that deleted records from deletion markers are removed from Solr
     Enum.each(records_to_be_deleted, fn record ->
@@ -149,7 +163,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     assert latest_document["_version_"] != latest_document_again["_version_"]
     # Make sure we didn't add another one
     assert Solr.document_count() ==
-             transformation_cache_entry_count - deletion_marker_count - empty_resource_count
+             transformation_cache_entry_count - deletion_marker_count - empty_resource_count -
+               non_indexable_resource_count
 
     # transformation entries weren't updated
     transformation_entry_again =

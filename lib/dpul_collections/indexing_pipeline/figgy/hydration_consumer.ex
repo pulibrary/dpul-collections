@@ -50,15 +50,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         _processor,
         message = %Broadway.Message{
           data: %{
-            internal_resource: internal_resource,
-            state: state,
-            visibility: visibility
+            internal_resource: internal_resource
           }
         },
         %{cache_version: _cache_version}
       )
-      when internal_resource in ["EphemeraFolder"] and state == ["complete"] and
-             visibility == ["open"] do
+      when internal_resource in ["EphemeraFolder"] do
     marker = CacheEntryMarker.from(message)
 
     message_map =
@@ -70,39 +67,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   end
 
   @impl Broadway
-  # Check if EphemeraFolders records that are not complete or open have an entry
-  # in the hydration cache. If so, pass through message so the entry can be deleted.
-  # Otherwise, send the message to noop.
-  def handle_message(
-        _processor,
-        message = %Broadway.Message{
-          data: %{
-            id: id,
-            internal_resource: internal_resource
-          }
-        },
-        %{cache_version: cache_version}
-      )
-      when internal_resource in ["EphemeraFolder"] do
-    resource = IndexingPipeline.get_hydration_cache_entry!(id, cache_version)
-
-    cond do
-      resource ->
-        marker = CacheEntryMarker.from(message)
-
-        message_map =
-          %{marker: marker, incoming_message_data: message.data}
-          |> Map.merge(Figgy.Resource.to_hydration_cache_attrs(message.data))
-
-        message
-        |> Broadway.Message.put_data(message_map)
-
-      true ->
-        message
-        |> Broadway.Message.put_batcher(:noop)
-    end
-  end
-
   def handle_message(
         _processor,
         message = %Broadway.Message{
@@ -123,6 +87,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     |> Broadway.Message.put_data(message_map)
   end
 
+  @impl Broadway
   def handle_message(
         _processor,
         message = %Broadway.Message{
@@ -159,6 +124,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     end
   end
 
+  @impl Broadway
   # If it's not selected above, ack the message but don't do anything with it.
   def handle_message(_processor, message, _state) do
     message
