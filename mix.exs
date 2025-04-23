@@ -124,6 +124,7 @@ defmodule DpulCollections.MixProject do
       "assets.build": ["tailwind dpul_collections", "esbuild dpul_collections"],
       "assets.deploy": [
         "tailwind dpul_collections --minify",
+        "cmd --cd assets npm ci",
         "esbuild dpul_collections --minify",
         "phx.digest"
       ]
