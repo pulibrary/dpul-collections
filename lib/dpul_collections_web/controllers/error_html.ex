@@ -5,7 +5,7 @@ defmodule DpulCollectionsWeb.ErrorHTML do
   See config/config.exs.
   """
   use DpulCollectionsWeb, :html
-
+  use Gettext, backend: DpulCollectionsWeb.Gettext
   # If you want to customize your error pages,
   # add pages to the error directory, e.g.:
   #

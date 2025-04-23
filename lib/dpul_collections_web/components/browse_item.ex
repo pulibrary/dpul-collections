@@ -1,7 +1,7 @@
 defmodule DpulCollectionsWeb.BrowseItem do
   use DpulCollectionsWeb, :html
   use Phoenix.Component
-  import DpulCollectionsWeb.Gettext
+  use Gettext, backend: DpulCollectionsWeb.Gettext
   alias DpulCollections.Item
 
   attr :item, Item, required: true
@@ -111,6 +111,9 @@ defmodule DpulCollectionsWeb.BrowseItem do
     url
   end
 
+  # TODO: default image?
+  defp thumbnail_service_url(_), do: ""
+
   defp time_ago(digitized_at) do
     {:ok, dt, _} = DateTime.from_iso8601(digitized_at)
 
@@ -124,7 +127,4 @@ defmodule DpulCollectionsWeb.BrowseItem do
 
     str
   end
-
-  # TODO: default image?
-  defp thumbnail_service_url(_), do: ""
 end

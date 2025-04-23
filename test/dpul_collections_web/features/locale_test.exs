@@ -23,10 +23,10 @@ defmodule DpulCollectionsWeb.Features.LocaleTest do
 
     conn
     |> visit("/")
-    |> assert_has("#browse-item-10", text: "Added 3 months ago")
+    |> assert_has("#browse-item-9", text: "Added 3 months ago")
     |> click_button("Language")
     |> Playwright.click("//div[text()='Español']")
-    |> assert_has("#browse-item-10", text: "Añadido hace 3 meses")
+    |> assert_has("#browse-item-9", text: "Añadido hace 3 meses")
 
     Solr.delete_all(active_collection())
   end

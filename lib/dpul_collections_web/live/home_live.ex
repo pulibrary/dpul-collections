@@ -1,9 +1,8 @@
 defmodule DpulCollectionsWeb.HomeLive do
   use DpulCollectionsWeb, :live_view
-  import DpulCollectionsWeb.Gettext
+  use Gettext, backend: DpulCollectionsWeb.Gettext
   import DpulCollectionsWeb.BrowseItem
   alias DpulCollections.{Item, Solr}
-  alias DpulCollectionsWeb.Live.Helpers
 
   def mount(_params, _session, socket) do
     socket =

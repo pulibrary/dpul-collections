@@ -2,7 +2,7 @@
 defmodule DpulCollectionsWeb.HeaderComponent do
   use DpulCollectionsWeb, :html
   use Phoenix.Component
-  import DpulCollectionsWeb.Gettext
+  use Gettext, backend: DpulCollectionsWeb.Gettext
 
   def header(assigns) do
     ~H"""

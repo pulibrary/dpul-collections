@@ -1,6 +1,6 @@
 defmodule DpulCollectionsWeb.SearchBarComponent do
   use DpulCollectionsWeb, :live_component
-  import DpulCollectionsWeb.Gettext
+  use Gettext, backend: DpulCollectionsWeb.Gettext
   alias DpulCollectionsWeb.Live.Helpers
 
   def render(assigns) do

@@ -20,7 +20,7 @@ end
 defmodule DpulCollectionsWeb.SearchLive do
   use DpulCollectionsWeb, :live_view
   import DpulCollectionsWeb.SearchComponents
-  import DpulCollectionsWeb.Gettext
+  use Gettext, backend: DpulCollectionsWeb.Gettext
   alias DpulCollections.{Item, Solr}
   use Solr.Constants
   alias DpulCollectionsWeb.Live.Helpers
@@ -90,7 +90,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   def sort_by_params do
     @valid_sort_by
     # Don't include things without labels.
-    |> Enum.filter(fn {k, v} -> v[:label] end)
+    |> Enum.filter(fn {_, v} -> v[:label] end)
     |> Enum.map(fn {k, v} -> {v[:label], k} end)
   end
 

@@ -12,7 +12,7 @@ defmodule DpulCollections.PromEx.Plugins.IndexingPipeline do
   ]
 
   @impl true
-  def event_metrics(opts) do
+  def event_metrics(_opts) do
     set_up_telemetry_proxy()
 
     Event.build(
