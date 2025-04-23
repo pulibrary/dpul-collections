@@ -147,7 +147,7 @@ defmodule DpulCollectionsWeb.HomeLive do
           <div class="content-area text-center h-full w-full flex flex-col justify-evenly">
             <h1 class="normal-case">Explore Our Collections</h1>
             <div class="content-area page-y-padding text-xl flex-grow">
-              We have a wide variety of material including <a class="text-rust" href="#">Photographs</a>, <a
+              Here you'll find a wide variety of material including <a class="text-rust" href="#">Photographs</a>, <a
                 class="text-rust"
                 href="#"
               >Posters</a>, <a class="text-rust" href="#">Books</a>, and
