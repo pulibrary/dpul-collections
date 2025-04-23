@@ -143,7 +143,16 @@ defmodule DpulCollectionsWeb.SearchLive do
             </select>
           </form>
           <form id="facet-pills">
-            <div class="my-8 select-none flex-wrap">
+            <div class="my-8 select-none flex-wrap gap-4">
+              <button role="button" id="keywords-facet" name="keywords-facet" class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-dark-blue border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-rust focus:outline-none active:shadow-none mr-2">
+                {gettext("Search Terms")} <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span> 
+                <%= if @search_state.q do %>
+                  {@search_state.q}
+                <%= else %>
+                  [ {gettext("All Items")} ]
+                <% end %>
+                <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
+              </button>	
               <button role="button" :if={@search_state.date_from || @search_state.date_to} id="year-facet" name="year-facet" class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-dark-blue border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-rust focus:outline-none active:shadow-none mr-2">
                 {gettext("Year")} <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span> 
                 <%= if @search_state.date_from do %>
@@ -161,21 +170,12 @@ defmodule DpulCollectionsWeb.SearchLive do
                 <% end %>
                 <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
               </button>
-              <button role="button" :if={@search_state.genre} id="genre-facet" name="genre-facet" class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-dark-blue border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-rust focus:outline-none active:shadow-none mr-2">
+              <button role="button" :if={@search_state.genre} id="genre-facet" name="genre-facet" class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-dark-blue border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-rust focus:outline-none active:shadow-none">
                 {gettext("Genre")}
                 <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span> 
                 {@search_state.genre}
                 <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
               </button>
-              <button role="button" id="keywords-facet" name="keywords-facet" class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-dark-blue border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-rust focus:outline-none active:shadow-none">
-                {gettext("Search Terms")} <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span> 
-                <%= if @search_state.q do %>
-                  {@search_state.q}
-                <%= else %>
-                  [ {gettext("Retrieve All Possible Items")} ]
-                <% end %>
-                <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
-              </button>	
             </div>
           </form>
         </div>
