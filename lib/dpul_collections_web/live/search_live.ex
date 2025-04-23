@@ -99,7 +99,14 @@ defmodule DpulCollectionsWeb.SearchLive do
     ~H"""
     <div class="content-area">
       <h1>
-        {gettext("Search Results for")}: <span class="normal-case">{@search_state.q}</span>
+        {gettext("Search Results for")}:
+        <span class="normal-case">
+          <%= if @search_state.q do %>
+            {@search_state.q}
+          <% else %>
+            [ {gettext("All Possible Items")} ]
+          <% end %>
+        </span>
       </h1>
       <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
         <div id="filters" class="grid md:grid-cols-[auto_300px] gap-2">
@@ -144,35 +151,37 @@ defmodule DpulCollectionsWeb.SearchLive do
           </form>
           <form id="facet-pills">
             <div class="my-8 select-none flex-wrap gap-4">
-              <button role="button" id="keywords-facet" name="keywords-facet" class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-dark-blue border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-rust focus:outline-none active:shadow-none mr-2">
-                {gettext("Search Terms")} <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span> 
-                <%= if @search_state.q do %>
-                  {@search_state.q}
-                <%= else %>
-                  [ {gettext("All Items")} ]
-                <% end %>
-                <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
-              </button>	
-              <button role="button" :if={@search_state.date_from || @search_state.date_to} id="year-facet" name="year-facet" class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-dark-blue border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-rust focus:outline-none active:shadow-none mr-2">
-                {gettext("Year")} <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span> 
+              <button
+                :if={@search_state.date_from || @search_state.date_to}
+                role="button"
+                id="year-facet"
+                name="year-facet"
+                class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-dark-blue border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-rust focus:outline-none active:shadow-none mr-2"
+              >
+                {gettext("Year")}
+                <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
                 <%= if @search_state.date_from do %>
-                  <%= @search_state.date_from %>
-                <%= else %>
+                  {@search_state.date_from}
+                <% else %>
                   {gettext("Up")}
                 <% end %>
-                &nbsp;
-                {gettext("to")}
-                &nbsp;
+                &nbsp; {gettext("to")} &nbsp;
                 <%= if @search_state.date_to do %>
-                  <%= @search_state.date_to %>
-                <%= else %>
+                  {@search_state.date_to}
+                <% else %>
                   {gettext("Now")}
                 <% end %>
                 <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
               </button>
-              <button role="button" :if={@search_state.genre} id="genre-facet" name="genre-facet" class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-dark-blue border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-rust focus:outline-none active:shadow-none">
+              <button
+                :if={@search_state.genre}
+                role="button"
+                id="genre-facet"
+                name="genre-facet"
+                class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-dark-blue border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-rust focus:outline-none active:shadow-none"
+              >
                 {gettext("Genre")}
-                <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span> 
+                <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
                 {@search_state.genre}
                 <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
               </button>
