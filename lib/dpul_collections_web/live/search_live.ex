@@ -35,7 +35,8 @@ defmodule DpulCollectionsWeb.SearchLive do
         page: (params["page"] || "1") |> String.to_integer(),
         per_page: (params["per_page"] || "10") |> String.to_integer(),
         date_from: params["date_from"] || nil,
-        date_to: params["date_to"] || nil
+        date_to: params["date_to"] || nil,
+        genre: params["genre"] || nil
       }
     end
 
@@ -108,7 +109,7 @@ defmodule DpulCollectionsWeb.SearchLive do
             class="grid md:grid-cols-[150px_200px_200px_200px] gap-2"
           >
             <label class="col-span-1 self-center font-bold uppercase" for="date-filter">
-              {gettext("filter by date")}:
+              {gettext("filter by year")}:
             </label>
             <input
               class="col-span-1"
@@ -141,18 +142,49 @@ defmodule DpulCollectionsWeb.SearchLive do
               )}
             </select>
           </form>
-          <div class="my-8 select-none flex">
-            <button class="py-2 px-4 shadow-md no-underline rounded-full bg-dark-blue border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-rust focus:outline-none active:shadow-none mr-2">Date</button>
-            <button class="py-2 px-4 shadow-md no-underline rounded-full bg-dark-blue border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-rust focus:outline-none active:shadow-none mr-2">Genre</button>
-            <button class="py-2 px-4 shadow-md no-underline rounded-full bg-dark-blue border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-rust focus:outline-none active:shadow-none">Subject</button>	
-          </div>
+          <form id="facet-pills">
+            <div class="my-8 select-none flex-wrap">
+              <button role="button" :if={@search_state.date_from || @search_state.date_to} id="year-facet" name="year-facet" class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-dark-blue border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-rust focus:outline-none active:shadow-none mr-2">
+                {gettext("Year")} <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span> 
+                <%= if @search_state.date_from do %>
+                  <%= @search_state.date_from %>
+                <%= else %>
+                  {gettext("Up")}
+                <% end %>
+                &nbsp;
+                {gettext("to")}
+                &nbsp;
+                <%= if @search_state.date_to do %>
+                  <%= @search_state.date_to %>
+                <%= else %>
+                  {gettext("Now")}
+                <% end %>
+                <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
+              </button>
+              <button role="button" :if={@search_state.genre} id="genre-facet" name="genre-facet" class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-dark-blue border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-rust focus:outline-none active:shadow-none mr-2">
+                {gettext("Genre")}
+                <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span> 
+                {@search_state.genre}
+                <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
+              </button>
+              <button role="button" id="keywords-facet" name="keywords-facet" class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-dark-blue border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-rust focus:outline-none active:shadow-none">
+                {gettext("Search Terms")} <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span> 
+                <%= if @search_state.q do %>
+                  {@search_state.q}
+                <%= else %>
+                  [ {gettext("Retrieve All Possible Items")} ]
+                <% end %>
+                <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
+              </button>	
+            </div>
+          </form>
         </div>
         <div id="item-counter">
           <span>{@item_counter}</span>
         </div>
       </div>
       <div class="grid grid-flow-row auto-rows-max gap-8">
-        <.search_item :for={item <- @items} item={item} />
+        <.search_item :for={item <- @items} item={item} added?={true} />
       </div>
       <div class="text-center max-w-5xl mx-auto text-lg py-8">
         <.paginator
@@ -166,6 +198,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   end
 
   attr :item, Item, required: true
+  attr :added?, :boolean, default: false
 
   def search_item(assigns) do
     IO.inspect(assigns, label: 'assigns')
@@ -189,9 +222,28 @@ defmodule DpulCollectionsWeb.SearchLive do
       <h2>
         <.link navigate={@item.url}>{@item.title}</.link>
       </h2>
-      <div class="text-xl">{@item.date}</div>
+      <div class="flex items-start">
+        <div class="text-xl">{@item.date}</div>
+        <div :if={@added?} class="self-end w-full pb-2 text-right">
+          {gettext("Added")} {time_ago(@item.digitized_at)}
+        </div>
+      </div>
     </div>
     """
+  end
+
+  defp time_ago(digitized_at) do
+    {:ok, dt, _} = DateTime.from_iso8601(digitized_at)
+
+    {:ok, str} =
+      Cldr.DateTime.Relative.to_string(
+        dt,
+        DpulCollectionsWeb.Cldr,
+        relative_to: DateTime.now!("Etc/UTC"),
+        locale: Gettext.get_locale(DpulCollectionsWeb.Gettext)
+      )
+
+    str
   end
 
   def thumbs(assigns) do
@@ -288,7 +340,8 @@ defmodule DpulCollectionsWeb.SearchLive do
       %{
         socket.assigns.search_state
         | date_to: params["date-to"],
-          date_from: params["date-from"]
+          date_from: params["date-from"],
+          genre: params["genre"]
       }
       |> Helpers.clean_params([:page, :per_page])
 
