@@ -266,4 +266,4 @@ msgstr "filtrar por fecha"
 #: lib/dpul_collections_web/live/search_live.ex:168
 #, elixir-autogen, elixir-format
 msgid "to"
-msgstr "a"
+msgstr "hasta"
