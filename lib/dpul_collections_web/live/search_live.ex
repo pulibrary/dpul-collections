@@ -233,25 +233,11 @@ defmodule DpulCollectionsWeb.SearchLive do
       <div class="flex items-start">
         <div class="text-xl">{@item.date}</div>
         <div :if={@added?} class="self-end w-full pb-2 text-right">
-          {gettext("Added")} {time_ago(@item.digitized_at)}
+          {gettext("Added")} {DpulCollectionsWeb.BrowseItem.time_ago(@item.digitized_at)}
         </div>
       </div>
     </div>
     """
-  end
-
-  defp time_ago(digitized_at) do
-    {:ok, dt, _} = DateTime.from_iso8601(digitized_at)
-
-    {:ok, str} =
-      Cldr.DateTime.Relative.to_string(
-        dt,
-        DpulCollectionsWeb.Cldr,
-        relative_to: DateTime.now!("Etc/UTC"),
-        locale: Gettext.get_locale(DpulCollectionsWeb.Gettext)
-      )
-
-    str
   end
 
   def thumbs(assigns) do
@@ -341,18 +327,6 @@ defmodule DpulCollectionsWeb.SearchLive do
       </.link>
     </nav>
     """
-  end
-
-  def handle_event("filter-genre", params, socket) do
-    params =
-      %{
-        socket.assigns.search_state
-        | genre: params["genre"]
-      }
-      |> Helpers.clean_params([:page, :per_page])
-
-    socket = push_patch(socket, to: ~p"/search?#{params}")
-    {:noreply, socket}
   end
 
   def handle_event("filter-date", params, socket) do
