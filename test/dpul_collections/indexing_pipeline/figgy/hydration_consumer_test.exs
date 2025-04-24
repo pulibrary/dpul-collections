@@ -5,7 +5,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
   alias DpulCollections.IndexingPipeline.Figgy
 
   describe "Figgy.HydrationConsumer" do
-    test "handle_message/3 when a message is not a complete and visibile EphemeraFolder or an EphemeraTerm, it is sent to noop batcher" do
+    test "handle_message/3 when a message is not a complete and visible EphemeraFolder or an EphemeraTerm, it is sent to noop batcher" do
       ephemera_folder_message = %Broadway.Message{
         acknowledger: nil,
         data: %Figgy.Resource{
