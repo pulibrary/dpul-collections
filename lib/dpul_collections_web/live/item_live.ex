@@ -27,20 +27,29 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def render(assigns) do
     ~H"""
-    <div class="content-area">
-      <div class="column-layout my-5 flex flex-col sm:grid sm:grid-flow-row sm:auto-rows-0 sm:grid-cols-5 sm:grid-rows-[auto_1fr] sm:content-start gap-4">
-        <div class="item-title sm:row-start-1 sm:col-start-3 sm:col-span-3 sm:pl-8 h-min">
-          <p>{@item.genre}</p>
-          <h1 class="pb-2">{@item.title}</h1>
-          <p>{@item.transliterated_title}</p>
-          <p>{@item.alternative_title}</p>
-          <p>{@item.date}</p>
+    <div class="content-area item-page">
+      <div class="column-layout my-5 flex flex-col sm:grid sm:grid-flow-row sm:auto-rows-0 sm:grid-cols-5 sm:grid-rows-[auto_1fr] sm:content-start gap-x-14 gap-y-4">
+        <div class="item-title sm:row-start-1 sm:col-start-3 sm:col-span-3 h-min flex flex-col gap-4">
+          <a class="text-xl uppercase tracking-wide">{@item.genre}</a>
+          <h1 class="text-4xl font-bold normal-case">{@item.title}</h1>
+          <div
+            :if={!Enum.empty?(@item.transliterated_title) || !Enum.empty?(@item.alternative_title)}
+            class="flex flex-col gap-2"
+          >
+            <p :for={ttitle <- @item.transliterated_title} class="text-2xl font-medium text-gray-500">
+              {ttitle}
+            </p>
+            <p :for={atitle <- @item.alternative_title} class="text-2xl font-medium text-gray-500">
+              [{atitle}]
+            </p>
+          </div>
+          <p :if={@item.date} class="text-xl font-medium text-dark-blue">{@item.date}</p>
         </div>
 
-        <div class="thumbnails w-[26rem] sm:row-start-1 sm:col-start-1 sm:col-span-2 sm:row-span-2">
+        <div class="thumbnails w-full sm:row-start-1 sm:col-start-1 sm:col-span-2 sm:row-span-full">
           <.primary_thumbnail item={@item} />
 
-          <div class="bg-cloud sm:hidden">action bar</div>
+          <.action_bar class="sm:hidden pt-4" />
 
           <section class="page-thumbnails hidden sm:block md:col-span-2 py-4">
             <h2 class="py-4">{gettext("Pages")} ({@item.file_count})</h2>
@@ -55,9 +64,17 @@ defmodule DpulCollectionsWeb.ItemLive do
           </section>
         </div>
 
-        <div class="metadata sm:row-start-2 sm:col-span-3 sm:col-start-3">
-          <div class="bg-cloud">description & collection</div>
-          <div class="bg-cloud hidden sm:block">action bar</div>
+        <div class="metadata sm:row-start-2 sm:col-span-3 sm:col-start-3 flex flex-col gap-8">
+          <div
+            :for={description <- @item.description}
+            class="text-xl font-medium text-dark-blue font-serif"
+          >
+            {description}
+          </div>
+          <div :for={collection <- @item.collection} class="text-lg font-medium text-dark-blue">
+            Part of <a href="#">{collection}</a>
+          </div>
+          <.action_bar class="hidden sm:block" />
           <.metadata_table item={@item} />
         </div>
       </div>
@@ -65,6 +82,16 @@ defmodule DpulCollectionsWeb.ItemLive do
       <div class="">
         <div class="bg-cloud">RELATED ITEMS</div>
       </div>
+    </div>
+    """
+  end
+
+  attr :rest, :global
+
+  def action_bar(assigns) do
+    ~H"""
+    <div id="action-bar" {@rest}>
+      <div class="bg-cloud" {@rest}>action bar</div>
     </div>
     """
   end

@@ -23,6 +23,8 @@
 
   /* just add poppins on the front of the tailwind default */
   --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  /* and aleo in front of the serif defaults */
+  --font-serif: "Aleo", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
 }
 
 .browse-link {
@@ -137,7 +139,15 @@
 
 @layer base {
   a {
-    @apply hover:link-hover;
+    @apply hover:link-hover cursor-pointer;
+  }
+
+  .item-page a {
+    @apply text-rust font-semibold;
+  }
+
+  .item-page button a {
+    @apply text-lime-200 font-semibold hover:no-underline;
   }
 
   h1 {

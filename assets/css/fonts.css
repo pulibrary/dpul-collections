@@ -32,3 +32,10 @@
   font-weight: 800;
   font-style: normal;
 }
+
+@font-face {
+  font-family: "Aleo";
+  src: url("/fonts/aleo-regular.woff2");
+  font-weight: 400;
+  font-style: normal;
+}
