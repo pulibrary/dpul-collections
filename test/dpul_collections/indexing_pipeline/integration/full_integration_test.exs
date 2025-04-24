@@ -24,8 +24,6 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     total_records = ephemera_folder_count + deleted_resource_count
     # Empty resources are resources with no image file sets
     empty_resource_count = 1
-    # Resources that are not public or not complete (with an incomplete parent)
-    non_indexable_resource_count = 1
 
     if System.get_env("DEBUG_INTEGRATION") do
       IO.puts(
@@ -39,8 +37,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
         solr_doc_count = DpulCollections.Solr.document_count()
 
         expected_doc_count =
-          transformation_cache_entries - deleted_resource_count - empty_resource_count -
-            non_indexable_resource_count
+          transformation_cache_entries - deleted_resource_count - empty_resource_count
 
         if System.get_env("DEBUG_INTEGRATION") do
           IO.puts("solr_count: #{solr_doc_count} / expected_doc_count: #{expected_doc_count}")
@@ -117,9 +114,6 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     deletion_marker_count = FiggyTestSupport.deletion_marker_count()
     total_transformed_count = FiggyTestSupport.ephemera_folder_count() + deletion_marker_count
 
-    # Resources that are not public or not complete (with an incomplete parent)
-    non_indexable_resource_count = 1
-
     # Empty resources are resources with no image file sets
     empty_resource_count = 1
 
@@ -127,8 +121,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     # indexed all the documents and deleted the extra record solr doc
     assert Solr.document_count() ==
-             transformation_cache_entry_count - deletion_marker_count - empty_resource_count -
-               non_indexable_resource_count
+             transformation_cache_entry_count - deletion_marker_count - empty_resource_count
 
     # Ensure that deleted records from deletion markers are removed from Solr
     Enum.each(records_to_be_deleted, fn record ->
@@ -163,8 +156,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     assert latest_document["_version_"] != latest_document_again["_version_"]
     # Make sure we didn't add another one
     assert Solr.document_count() ==
-             transformation_cache_entry_count - deletion_marker_count - empty_resource_count -
-               non_indexable_resource_count
+             transformation_cache_entry_count - deletion_marker_count - empty_resource_count
 
     # transformation entries weren't updated
     transformation_entry_again =

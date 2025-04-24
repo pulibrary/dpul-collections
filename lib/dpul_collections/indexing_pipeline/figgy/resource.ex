@@ -52,48 +52,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     |> to_hydration_cache_attrs
   end
 
-  def to_hydration_cache_attrs(
-        resource = %__MODULE__{
-          internal_resource: "EphemeraFolder",
-          metadata: %{"visibility" => ["restricted"]}
-        }
-      ) do
-    %{
-      handled_data: resource |> to_map(delete: true),
-      related_data: %{}
-    }
-  end
-
-  def to_hydration_cache_attrs(
-        resource = %__MODULE__{
-          internal_resource: "EphemeraFolder",
-          metadata: %{"state" => [state]}
-        }
-      )
-      when state != "complete" do
-    related_parent_map = extract_parent(resource)
-
-    if parent_state(related_parent_map) == ["all_in_production"] do
-      %{
-        handled_data: resource |> to_map,
-        related_data: %{
-          "parent_ids" => related_parent_map,
-          "resources" => fetch_related(resource)
-        }
-      }
-    else
-      %{
-        handled_data: resource |> to_map(delete: true),
-        related_data: %{}
-      }
-    end
-  end
-
   def to_hydration_cache_attrs(resource = %__MODULE__{internal_resource: "EphemeraFolder"}) do
-    related_resources = fetch_related(resource)
+    related_data = extract_related_data(resource)
 
     handled_data =
-      if resource_empty?(resource, related_resources) do
+      if resource_empty?(resource, related_data) do
         resource |> to_map(delete: true)
       else
         resource |> to_map
@@ -101,10 +64,25 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
 
     %{
       handled_data: handled_data,
-      related_data: %{
-        "parent_ids" => extract_parent(resource),
-        "resources" => related_resources
-      }
+      related_data: related_data
+    }
+  end
+
+  # Don't fetch related data when the state or visibilty are not correct.
+  # Note that when an empty related data map is returned these resources will
+  # be marked for deletion.
+  @spec extract_related_data(resource :: %__MODULE__{}) :: related_data()
+  def extract_related_data(%__MODULE__{
+        metadata: %{"state" => [state], "visibility" => [visibility]}
+      })
+      when state != "complete" or visibility != "open" do
+    %{}
+  end
+
+  def extract_related_data(resource) do
+    %{
+      "parent_ids" => extract_parent(resource),
+      "resources" => fetch_related(resource)
     }
   end
 
@@ -112,8 +90,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   # (those with the form `[%{"id" => id}]` and then fetches those resources from Figgy
   # in a single query.
   #
-  # Example:
+  ## Example
   #
+  # ```
   # r = %Figgy.Resource{
   #       id: "097263fb-5beb-407b-ab36-b468e0489792",
   #       internal_resource: "EphemeraFolder",
@@ -148,6 +127,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   #       ]
   #     }
   #   }
+  # ```
   @spec fetch_related(%__MODULE__{}) :: related_data()
   defp fetch_related(%__MODULE__{metadata: metadata}) do
     metadata
@@ -210,24 +190,15 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   end
 
   # there isn't a parent
-  defp extract_parent(_) do
+  defp extract_parent(_resource) do
     %{}
   end
 
-  @spec parent_state(related_resource_map()) :: list(String.t())
-  def parent_state(related_parent_map) when map_size(related_parent_map) > 0 do
-    Map.to_list(related_parent_map)
-    |> hd
-    |> elem(1)
-    |> get_in([:metadata, "state"])
-  end
-
-  def parent_state(_), do: nil
-
   # Determine if a resource has no related member FileSets
-  @spec to_map(%__MODULE__{}, related_resource_map()) :: map()
-  defp resource_empty?(%__MODULE__{metadata: %{"member_ids" => member_ids}}, related_resources)
-       when length(member_ids) > 0 do
+  @spec to_map(%__MODULE__{}, related_data()) :: map()
+  defp resource_empty?(%__MODULE__{metadata: %{"member_ids" => member_ids}}, %{
+         "resources" => related_resources
+       }) do
     member_ids_set =
       member_ids
       |> Enum.map(&extract_ids_from_value/1)
