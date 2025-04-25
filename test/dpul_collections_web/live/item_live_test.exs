@@ -3,6 +3,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
   import Phoenix.LiveViewTest
   import SolrTestSupport
   alias DpulCollections.Solr
+  alias DpulCollectionsWeb.ItemLive
   @endpoint DpulCollectionsWeb.Endpoint
 
   setup_all do
@@ -233,5 +234,10 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     assert_error_sent 404, fn ->
       get(conn, "/item/badid1")
     end
+  end
+
+  test ".rights_path converts strings to image paths" do
+    assert ItemLive.rights_path("Copyright Not Evaluated") == "copyright-not-evaluated.svg"
+    assert ItemLive.rights_path("CC-BY 4.0") == "ccby-40.svg"
   end
 end

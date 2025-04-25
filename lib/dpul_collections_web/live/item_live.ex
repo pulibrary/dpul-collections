@@ -125,7 +125,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def rights_path(rights_statement) when is_binary(rights_statement) do
     rights_path =
       rights_statement
-      |> String.replace(~r/[^0-9a-zA-Z]"/, "")
+      |> String.replace(~r/[^0-9a-zA-Z ]/, "")
       |> String.replace(" ", "-")
       |> String.downcase()
 
