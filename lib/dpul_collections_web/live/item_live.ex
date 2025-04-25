@@ -91,7 +91,7 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def action_bar(assigns) do
     ~H"""
-    <div id="action-bar" {@rest}>
+    <div {@rest}>
       <div class="flex flex-row justify-left items-center">
         <.action_icon icon="pepicons-pencil:ruler">
           Size
