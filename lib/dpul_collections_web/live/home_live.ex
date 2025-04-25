@@ -178,7 +178,7 @@ defmodule DpulCollectionsWeb.HomeLive do
           <% end %>
         </div>
       </div>
-      <hr class="h-1 border-0 bg-rust" />
+      <.content_separator />
 
       <div class="recent-items grid-row bg-cloud">
         <div class="content-area">

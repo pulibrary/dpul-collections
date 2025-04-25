@@ -143,4 +143,17 @@ defmodule DpulCollectionsWeb.CoreComponents do
          "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"}
     )
   end
+
+  @doc """
+  Renders a standard content separator. We use this to separate several section
+  - in mockups it's the orange bar between things.
+  ## Examples
+      <.content_separator />
+  """
+  attr :rest, :global, default: %{class: ""}
+  def content_separator(assigns) do
+    ~H"""
+      <hr class={"h-1 border-0 bg-rust #{@rest.class}"} {@rest} />
+    """
+  end
 end

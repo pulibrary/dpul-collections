@@ -92,6 +92,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div id="action-bar" {@rest}>
       <div class="bg-cloud" {@rest}>action bar</div>
+      <.content_separator class="mt-4"/>
     </div>
     """
   end
