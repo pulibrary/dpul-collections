@@ -115,7 +115,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     <img
       class="object-fit max-h-[30px] ml-auto"
       src={~p"/images/rights/#{rights_path(@rights_statement)}"}
-      alt="Princeton University Library Logo"
+      alt={@rights_statement}
     />
     """
   end
