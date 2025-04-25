@@ -132,6 +132,8 @@ defmodule DpulCollectionsWeb.ItemLive do
     "#{rights_path}.svg"
   end
 
+  def rights_path(_), do: ""
+
   attr :rest, :global
   attr :icon, :string, required: true
   slot :inner_block, doc: "the optional inner block that renders the icon label"

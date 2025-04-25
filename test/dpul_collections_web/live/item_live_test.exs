@@ -239,5 +239,6 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
   test ".rights_path converts strings to image paths" do
     assert ItemLive.rights_path("Copyright Not Evaluated") == "copyright-not-evaluated.svg"
     assert ItemLive.rights_path("CC-BY 4.0") == "ccby-40.svg"
+    assert ItemLive.rights_path(["CC-BY 4.0"]) == "ccby-40.svg"
   end
 end
