@@ -91,9 +91,21 @@ defmodule DpulCollectionsWeb.ItemLive do
   def action_bar(assigns) do
     ~H"""
     <div id="action-bar" {@rest}>
-      <div class="bg-cloud" {@rest}>action bar</div>
+      <div {@rest}>
+        <.action_icon icon="pepicons-pencil:ruler"/>
+      </div>
       <.content_separator class="mt-4"/>
     </div>
+    """
+  end
+
+  attr :rest, :global
+  attr :icon, :string, required: true
+  def action_icon(assigns) do
+    ~H"""
+      <div class="w-10 h-10 p-2 bg-wafer-pink rounded-full flex justify-center items-center">
+        <.iconify class="w-full h-full" icon={@icon} />
+      </div>
     """
   end
 

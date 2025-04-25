@@ -3,6 +3,7 @@
 
 @import "tailwindcss" source(none);
 @import "../css/fonts.css";
+@import "../css/icons.css";
 @source "../css";
 @source "../js";
 @source "../../lib/dpul_collections_web";
@@ -161,4 +162,12 @@
   p {
     @apply text-dark-blue;
   }
+}
+
+[iconify] {
+  background-color: currentColor;
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  min-width: 0.5rem;
+  min-height: 0.5rem;
 }
