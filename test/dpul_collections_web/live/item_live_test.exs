@@ -240,7 +240,11 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     assert ItemLive.rights_path("Copyright Not Evaluated") == "copyright-not-evaluated.svg"
     assert ItemLive.rights_path("CC-BY 4.0") == "ccby-40.svg"
     assert ItemLive.rights_path(["CC-BY 4.0"]) == "ccby-40.svg"
-    assert ItemLive.rights_path("In Copyright - Rights-holder(s) Unlocatable or Unidentifiable") == "in-copyright--rightsholders-unlocatable-or-unidentifiable.svg"
-    assert ItemLive.rights_path("In Copyright - Educational Use Permitted") == "in-copyright--educational-use-permitted.svg"
+
+    assert ItemLive.rights_path("In Copyright - Rights-holder(s) Unlocatable or Unidentifiable") ==
+             "in-copyright--rightsholders-unlocatable-or-unidentifiable.svg"
+
+    assert ItemLive.rights_path("In Copyright - Educational Use Permitted") ==
+             "in-copyright--educational-use-permitted.svg"
   end
 end
