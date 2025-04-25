@@ -109,18 +109,26 @@ defmodule DpulCollectionsWeb.ItemLive do
   end
 
   attr :rights_statement, :any, required: true
+
   def rights_icon(assigns) do
     ~H"""
-        <img class="object-fit max-h-[30px] ml-auto" src={~p"/images/rights/#{rights_path(@rights_statement)}"} alt="Princeton University Library Logo" />
+    <img
+      class="object-fit max-h-[30px] ml-auto"
+      src={~p"/images/rights/#{rights_path(@rights_statement)}"}
+      alt="Princeton University Library Logo"
+    />
     """
   end
 
   def rights_path([rights_statement | _rest]), do: rights_path(rights_statement)
+
   def rights_path(rights_statement) when is_binary(rights_statement) do
-    rights_path = rights_statement
-                  |> String.replace(~r/[^0-9a-zA-Z]"/, "")
-                  |> String.replace(" ", "-")
-                  |> String.downcase
+    rights_path =
+      rights_statement
+      |> String.replace(~r/[^0-9a-zA-Z]"/, "")
+      |> String.replace(" ", "-")
+      |> String.downcase()
+
     "#{rights_path}.svg"
   end
 
