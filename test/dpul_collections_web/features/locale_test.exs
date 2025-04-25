@@ -1,6 +1,6 @@
 defmodule DpulCollectionsWeb.Features.LocaleTest do
-  use ExUnit.Case, async: true
-  use PhoenixTest.Playwright.Case, async: true
+  use ExUnit.Case
+  use PhoenixTest.Playwright.Case
   alias PhoenixTest.Playwright
   import SolrTestSupport
   alias DpulCollections.Solr
