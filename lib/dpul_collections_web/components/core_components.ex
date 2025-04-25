@@ -18,6 +18,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
 
   alias Phoenix.LiveView.JS
   use Gettext, backend: DpulCollectionsWeb.Gettext
+  import Iconify
 
   @doc """
   Renders flash notices.
@@ -121,6 +122,12 @@ defmodule DpulCollectionsWeb.CoreComponents do
     """
   end
 
+  def icon(assigns) do
+    ~H"""
+    <.iconify class={@class} icon={@name} />
+    """
+  end
+
   ## JS Commands
 
   def show(js \\ %JS{}, selector) do
@@ -151,9 +158,10 @@ defmodule DpulCollectionsWeb.CoreComponents do
       <.content_separator />
   """
   attr :rest, :global, default: %{class: ""}
+
   def content_separator(assigns) do
     ~H"""
-      <hr class={"h-1 border-0 bg-rust #{@rest.class}"} {@rest} />
+    <hr class={"h-1 border-0 bg-rust #{@rest.class}"} {@rest} />
     """
   end
 end

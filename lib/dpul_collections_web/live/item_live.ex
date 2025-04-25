@@ -91,21 +91,31 @@ defmodule DpulCollectionsWeb.ItemLive do
   def action_bar(assigns) do
     ~H"""
     <div id="action-bar" {@rest}>
-      <div {@rest}>
-        <.action_icon icon="pepicons-pencil:ruler"/>
+      <div class="flex flex-row justify-left">
+        <.action_icon icon="pepicons-pencil:ruler">
+          Size
+        </.action_icon>
+        <.action_icon icon="hero-share">
+          Share
+        </.action_icon>
       </div>
-      <.content_separator class="mt-4"/>
+      <.content_separator class="mt-4" />
     </div>
     """
   end
 
   attr :rest, :global
   attr :icon, :string, required: true
+  slot :inner_block, doc: "the optional inner block that renders the icon label"
+
   def action_icon(assigns) do
     ~H"""
+    <div class="flex flex-col justify-center text-center text-sm mr-2 min-w-15 items-center">
       <div class="w-10 h-10 p-2 bg-wafer-pink rounded-full flex justify-center items-center">
-        <.iconify class="w-full h-full" icon={@icon} />
+        <.icon class="w-full h-full" name={@icon} />
       </div>
+      {render_slot(@inner_block)}
+    </div>
     """
   end
 
