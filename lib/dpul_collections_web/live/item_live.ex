@@ -49,7 +49,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         <div class="thumbnails w-full sm:row-start-1 sm:col-start-1 sm:col-span-2 sm:row-span-full">
           <.primary_thumbnail item={@item} />
 
-          <.action_bar class="sm:hidden pt-4" />
+          <.action_bar class="sm:hidden pt-4" item={@item} />
 
           <section class="page-thumbnails hidden sm:block md:col-span-2 py-4">
             <h2 class="py-4">{gettext("Pages")} ({@item.file_count})</h2>
@@ -74,7 +74,7 @@ defmodule DpulCollectionsWeb.ItemLive do
           <div :for={collection <- @item.collection} class="text-lg font-medium text-dark-blue">
             Part of <a href="#">{collection}</a>
           </div>
-          <.action_bar class="hidden sm:block" />
+          <.action_bar class="hidden sm:block" item={@item} />
           <.metadata_table item={@item} />
         </div>
       </div>
@@ -87,21 +87,41 @@ defmodule DpulCollectionsWeb.ItemLive do
   end
 
   attr :rest, :global
+  attr :item, :map, required: true
 
   def action_bar(assigns) do
     ~H"""
     <div id="action-bar" {@rest}>
-      <div class="flex flex-row justify-left">
+      <div class="flex flex-row justify-left items-center">
         <.action_icon icon="pepicons-pencil:ruler">
           Size
         </.action_icon>
         <.action_icon icon="hero-share">
           Share
         </.action_icon>
+        <div class="ml-auto h-full flex-grow pr-4">
+          <.rights_icon rights_statement={@item.rights_statement} />
+        </div>
       </div>
       <.content_separator class="mt-4" />
     </div>
     """
+  end
+
+  attr :rights_statement, :any, required: true
+  def rights_icon(assigns) do
+    ~H"""
+        <img class="object-fit max-h-[30px] ml-auto" src={~p"/images/rights/#{rights_path(@rights_statement)}"} alt="Princeton University Library Logo" />
+    """
+  end
+
+  def rights_path([rights_statement | _rest]), do: rights_path(rights_statement)
+  def rights_path(rights_statement) when is_binary(rights_statement) do
+    rights_path = rights_statement
+                  |> String.replace(~r/[^0-9a-zA-Z]"/, "")
+                  |> String.replace(" ", "-")
+                  |> String.downcase
+    "#{rights_path}.svg"
   end
 
   attr :rest, :global
