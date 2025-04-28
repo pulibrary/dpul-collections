@@ -193,7 +193,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         </div>
       </div>
       <div class="grid grid-flow-row auto-rows-max gap-8">
-        <.search_item :for={item <- @items} item={item} added?={true} />
+        <.search_item :for={item <- @items} item={item} sort_by={@search_state.sort_by} />
       </div>
       <div class="text-center max-w-5xl mx-auto text-lg py-8">
         <.paginator
@@ -207,7 +207,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   end
 
   attr :item, Item, required: true
-  attr :added?, :boolean, default: false
+  attr :sort_by, :string, default: "relevance"
 
   def search_item(assigns) do
     ~H"""
@@ -232,7 +232,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       </h2>
       <div class="flex items-start">
         <div class="text-xl">{@item.date}</div>
-        <div :if={@added?} class="self-end w-full pb-2 text-right">
+        <div :if={@sort_by == :recently_added} class="self-end w-full pb-2 text-right">
           {gettext("Added")} {DpulCollectionsWeb.BrowseItem.time_ago(@item.digitized_at)}
         </div>
       </div>

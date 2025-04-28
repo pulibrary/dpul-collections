@@ -31,22 +31,4 @@ defmodule DpulCollectionsWeb.Features.LocaleTest do
 
     Solr.delete_all(active_collection())
   end
-
-  test "renders facet with states", %{conn: conn} do
-    Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
-    Solr.commit(active_collection())
-
-    conn
-    |> visit("/search")
-    |> refute_has("#year-facet", text: "YEAR")
-    |> refute_has("#genre-facet", text: "GENRE")
-    |> visit("/search?date_to=2025")
-    |> assert_has("#year-facet", text: "YEAR UP TO 2025")
-    |> visit("/search?date_from=2020")
-    |> assert_has("#year-facet", text: "YEAR 2020 TO NOW")
-    |> visit("/search?genre=posters")
-    |> assert_has("#genre-facet", text: "Genre Posters")
-
-    Solr.delete_all(active_collection())
-  end
 end

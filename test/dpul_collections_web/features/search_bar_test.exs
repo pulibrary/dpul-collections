@@ -28,4 +28,17 @@ defmodule DpulCollectionsWeb.Features.SearchBarTest do
     |> click_button("Search")
     |> assert_has("#item-counter", text: "1 - 1 of 1")
   end
+
+  test "renders facet with states", %{conn: conn} do
+    conn
+    |> visit("/search")
+    |> refute_has("#year-facet", text: "YEAR")
+    |> refute_has("#genre-facet", text: "GENRE")
+    |> visit("/search?date_to=2025")
+    |> assert_has("#year-facet", text: "YEAR UP TO 2025")
+    |> visit("/search?date_from=2020")
+    |> assert_has("#year-facet", text: "YEAR 2020 TO NOW")
+    |> visit("/search?genre=posters")
+    |> assert_has("#genre-facet", text: "Genre Posters")
+  end
 end
