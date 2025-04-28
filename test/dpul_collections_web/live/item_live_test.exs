@@ -215,7 +215,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     assert view
            |> has_element?(
              ".primary-thumbnail a[href='https://figgy.example.com/catalog/1/pdf']",
-             "Download PDF"
+             "Download"
            )
 
     # Renders when there's no description
