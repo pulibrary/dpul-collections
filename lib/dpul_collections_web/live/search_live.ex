@@ -232,7 +232,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       </h2>
       <div class="flex items-start">
         <div class="text-xl">{@item.date}</div>
-        <div :if={@sort_by == :recently_added} class="self-end w-full pb-2 text-right">
+        <div :if={@sort_by == :recently_added} class="digitized_at self-end w-full pb-2 text-right">
           {gettext("Added")} {DpulCollectionsWeb.BrowseItem.time_ago(@item.digitized_at)}
         </div>
       </div>
