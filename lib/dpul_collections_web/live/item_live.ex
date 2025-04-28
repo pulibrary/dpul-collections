@@ -52,10 +52,23 @@ defmodule DpulCollectionsWeb.ItemLive do
           <.action_bar class="sm:hidden pt-4" item={@item} />
 
           <section class="page-thumbnails hidden sm:block md:col-span-2 py-4">
-            <h2 class="py-4">{gettext("Pages")} ({@item.file_count})</h2>
-            <div class="flex flex-wrap gap-5 justify-center md:justify-start">
+            <h2 class="py-1">{gettext("Pages")}</h2>
+            <div class="grid grid-cols-2 py-1 pr-2">
+              <div class="text-left text-l text-gray-600 font-semibold">
+                {gettext("%{file_min} of %{file_max} pages",
+                  file_min: min(@item.file_count, 12),
+                  file_max: @item.file_count
+                )}
+              </div>
+              <div class="text-right text-rust uppercase">
+                <a href="#" target="_blank">
+                  {gettext("View all pages")}
+                </a>
+              </div>
+            </div>
+            <div class="py-1 grid grid-cols-4">
               <.thumbs
-                :for={{thumb, thumb_num} <- Enum.with_index(@item.image_service_urls)}
+                :for={{thumb, thumb_num} <- Enum.with_index(Enum.take(@item.image_service_urls, 12))}
                 :if={@item.file_count}
                 thumb={thumb}
                 thumb_num={thumb_num}
@@ -242,21 +255,14 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def thumbs(assigns) do
     ~H"""
-    <div>
+    <div class="pr-2 pb-2">
       <img
-        class="h-[465px] w-[350px] md:h-[300px] md:w-[225px]"
+        class="h-full w-full object-cover"
         src={"#{@thumb}/full/350,465/0/default.jpg"}
         alt={"image #{@thumb_num}"}
         style="
           background-color: lightgray;"
-        width="350"
-        height="465"
       />
-      <button class="w-[350px] md:w-[225px] btn-primary">
-        <a href={"#{@thumb}/full/full/0/default.jpg"} target="_blank">
-          {gettext("Download")}
-        </a>
-      </button>
     </div>
     """
   end

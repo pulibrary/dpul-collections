@@ -193,19 +193,6 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
              "img[src='https://example.com/iiif/2/image2/full/350,465/0/default.jpg']"
            )
 
-    # Download links for each thumbnail
-    assert view
-           |> has_element?(
-             "a[href='https://example.com/iiif/2/image1/full/full/0/default.jpg']",
-             "Download"
-           )
-
-    assert view
-           |> has_element?(
-             "a[href='https://example.com/iiif/2/image2/full/full/0/default.jpg']",
-             "Download"
-           )
-
     # Large thumbnail renders using thumbnail service url
     assert view
            |> has_element?(
