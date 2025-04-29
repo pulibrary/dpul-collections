@@ -114,8 +114,6 @@ defmodule DpulCollectionsWeb.BrowseItem do
   # TODO: default image?
   defp thumbnail_service_url(_), do: ""
 
-  # def time_ago(nil), do: nil
-
   def time_ago(digitized_at) do
     {:ok, dt, _} = DateTime.from_iso8601(digitized_at)
 
