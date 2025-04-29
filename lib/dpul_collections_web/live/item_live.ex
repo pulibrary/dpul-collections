@@ -164,16 +164,16 @@ defmodule DpulCollectionsWeb.ItemLive do
         height="800"
       />
 
-      <.action_link class="left-arrow-box" href="#" target="_blank">
+      <.primary_button class="left-arrow-box" href="#" target="_blank">
         <.icon name="hero-eye" /> {gettext("View")}
-      </.action_link>
+      </.primary_button>
 
-      <.action_link
+      <.primary_button
         href={"#{Application.fetch_env!(:dpul_collections, :web_connections)[:figgy_url]}/catalog/#{@item.id}/pdf"}
         target="_blank"
       >
         <.icon name="hero-arrow-down-on-square" class="h-5" /><span>{gettext("Download")}</span>
-      </.action_link>
+      </.primary_button>
     </div>
     """
   end
@@ -183,7 +183,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   attr :href, :string, default: nil
   attr :rest, :global, doc: "the arbitrary HTML attributes to add link"
 
-  def action_link(assigns) do
+  def primary_button(assigns) do
     ~H"""
     <button class={["btn-primary", @class]}>
       <a href={@href} class="flex gap-2" {@rest}>
