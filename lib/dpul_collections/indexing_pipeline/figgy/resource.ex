@@ -133,6 +133,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     metadata
     # Get the metadata property names
     |> Map.keys()
+    # Filter out parent id as it's fetched in ancestors
+    |> Enum.filter(fn key -> key != "cached_parent_id" end)
     # Map the values of each property into a list
     |> Enum.map(fn key -> metadata[key] end)
     # Flatten nested lists into a single list
