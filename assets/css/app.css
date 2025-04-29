@@ -82,10 +82,6 @@
   @apply cursor-pointer uppercase border bg-sage text-black;
 }
 
-@utility btn-pagination {
-  @apply cursor-pointer font-semibold uppercase border bg-dark-blue text-taupe h-12;
-}
-
 .btn-arrow {
   clip-path: polygon(0% 0%, 100% 50%, 0% 100%);
   @apply bg-dark-blue cursor-pointer border;

@@ -141,7 +141,7 @@ defmodule DpulCollectionsWeb.SearchLive do
             </select>
           </form>
           <form id="facet-pills">
-            <div class="my-8 select-none flex-wrap gap-4">
+            <div class="my-8 select-none flex flex-wrap gap-4">
               <button
                 :if={@search_state.date_from || @search_state.date_to}
                 role="button"
