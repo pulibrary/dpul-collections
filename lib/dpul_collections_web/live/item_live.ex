@@ -164,21 +164,32 @@ defmodule DpulCollectionsWeb.ItemLive do
         height="800"
       />
 
-      <button class="btn-primary">
-        <a href="#" target="_blank">
-          {gettext("View")}
-        </a>
-      </button>
+      <.primary_button class="left-arrow-box" href="#" target="_blank">
+        <.icon name="hero-eye" /> {gettext("View")}
+      </.primary_button>
 
-      <button class="btn-primary">
-        <a
-          href={"#{Application.fetch_env!(:dpul_collections, :web_connections)[:figgy_url]}/catalog/#{@item.id}/pdf"}
-          target="_blank"
-        >
-          {gettext("Download PDF")}
-        </a>
-      </button>
+      <.primary_button
+        href={"#{Application.fetch_env!(:dpul_collections, :web_connections)[:figgy_url]}/catalog/#{@item.id}/pdf"}
+        target="_blank"
+      >
+        <.icon name="hero-arrow-down-on-square" class="h-5" /><span>{gettext("Download")}</span>
+      </.primary_button>
     </div>
+    """
+  end
+
+  slot :inner_block
+  attr :class, :string, default: nil
+  attr :href, :string, default: nil
+  attr :rest, :global, doc: "the arbitrary HTML attributes to add link"
+
+  def primary_button(assigns) do
+    ~H"""
+    <button class={["btn-primary", @class]}>
+      <a href={@href} class="flex gap-2" {@rest}>
+        {render_slot(@inner_block)}
+      </a>
+    </button>
     """
   end
 

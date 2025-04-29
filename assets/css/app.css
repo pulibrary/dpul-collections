@@ -21,6 +21,8 @@
   --color-cloud: #c1ccc3;
   --color-rust: #ab6b47;
   --color-dark-blue: #3a4151;
+  /* Button Text on Dark Blue */
+  --color-light-green: #ECF2CB;
 
   /* just add poppins on the front of the tailwind default */
   --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
@@ -36,6 +38,12 @@
 .diagonal-drop {
   padding-left: 25px;
   clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 25px 100%);
+}
+
+.left-arrow-box {
+  clip-path: polygon(100% 0%, 100% 100%, 15% 100%, 0% 50%, 15% 0%);
+  /* Add a 7.5% padding so items are centered in the square bit of the box */
+  @apply *:pl-[7.5%]
 }
 
 #search-form:focus-within #search-button {
@@ -67,7 +75,7 @@
 }
 
 @utility btn-primary {
-  @apply cursor-pointer font-semibold uppercase border bg-dark-blue text-white h-12;
+  @apply flex items-center justify-center cursor-pointer font-bold *:font-bold uppercase bg-dark-blue text-white h-14;
 }
 
 @utility btn-secondary {
@@ -148,7 +156,7 @@
   }
 
   .item-page button a {
-    @apply text-lime-200 font-semibold hover:no-underline;
+    @apply text-light-green hover:no-underline;
   }
 
   h1 {
