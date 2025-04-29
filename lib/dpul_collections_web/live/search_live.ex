@@ -98,16 +98,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   def render(assigns) do
     ~H"""
     <div class="content-area">
-      <h1>
-        {gettext("Search Results for")}:
-        <span class="normal-case">
-          <%= if @search_state.q do %>
-            {@search_state.q}
-          <% else %>
-            [ {gettext("All Possible Items")} ]
-          <% end %>
-        </span>
-      </h1>
+      <.results_for_keywords_heading keywords={@search_state.q} />
       <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
         <div id="filters" class="grid md:grid-cols-[auto_300px] gap-2">
           <form
@@ -239,6 +230,21 @@ defmodule DpulCollectionsWeb.SearchLive do
     </div>
     """
   end
+
+  def results_for_keywords_heading(assigns) do 
+    ~H"""
+    <h1>
+      {gettext("Search Results for")}:
+      <span class="normal-case">
+        <%= if @keywords do %>
+          {@keywords}
+        <% else %>
+          [ {gettext("All Possible Items")} ]
+        <% end %>
+      </span>
+    </h1>
+    """   
+  end 
 
   def thumbs(assigns) do
     ~H"""
