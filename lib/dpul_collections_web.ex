@@ -55,6 +55,8 @@ defmodule DpulCollectionsWeb do
         layout: {DpulCollectionsWeb.Layouts, :app}
 
       alias DpulCollectionsWeb.SetLocaleHook
+      import Iconify
+      alias Iconify.Icon
 
       on_mount SetLocaleHook
       unquote(html_helpers())

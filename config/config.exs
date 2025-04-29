@@ -82,3 +82,9 @@ import_config "#{config_env()}.exs"
 config :ex_cldr,
   default_locale: "en",
   default_backend: DpulCollectionsWeb.Cldr
+
+config :iconify_ex,
+  env: config_env(),
+  mode: :css,
+  generated_icon_static_path: "./assets/css",
+  default_class: nil

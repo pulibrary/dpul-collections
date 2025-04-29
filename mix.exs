@@ -84,7 +84,9 @@ defmodule DpulCollections.MixProject do
       {:sibyl, "~> 0.1.0"},
       # Required to run metrics server
       {:plug_cowboy, "~> 2.0"},
-      {:ex_cldr_dates_times, "~> 2.0"}
+      {:ex_cldr_dates_times, "~> 2.0"},
+      # Icons
+      {:iconify_ex, "~> 0.6.1"}
     ]
   end
 
@@ -115,6 +117,7 @@ defmodule DpulCollections.MixProject do
         "cmd cd ./figgy-fixture-container && PGPASSWORD=postgres ./import-container-fixtures.sh 2> /dev/null || true"
       ],
       "assets.setup": [
+        "cmd npm --prefix deps/iconify_ex/assets install",
         "tailwind.install --if-missing",
         "esbuild.install --if-missing",
         "cmd npm --prefix assets install",

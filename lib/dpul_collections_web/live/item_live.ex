@@ -49,7 +49,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         <div class="thumbnails w-full sm:row-start-1 sm:col-start-1 sm:col-span-2 sm:row-span-full">
           <.primary_thumbnail item={@item} />
 
-          <.action_bar class="sm:hidden pt-4" />
+          <.action_bar class="sm:hidden pt-4" item={@item} />
 
           <section class="page-thumbnails hidden sm:block md:col-span-2 py-4">
             <h2 class="py-4">{gettext("Pages")} ({@item.file_count})</h2>
@@ -74,7 +74,7 @@ defmodule DpulCollectionsWeb.ItemLive do
           <div :for={collection <- @item.collection} class="text-lg font-medium text-dark-blue">
             Part of <a href="#">{collection}</a>
           </div>
-          <.action_bar class="hidden sm:block" />
+          <.action_bar class="hidden sm:block" item={@item} />
           <.metadata_table item={@item} />
         </div>
       </div>
@@ -87,11 +87,66 @@ defmodule DpulCollectionsWeb.ItemLive do
   end
 
   attr :rest, :global
+  attr :item, :map, required: true
 
   def action_bar(assigns) do
     ~H"""
-    <div id="action-bar" {@rest}>
-      <div class="bg-cloud" {@rest}>action bar</div>
+    <div {@rest}>
+      <div class="flex flex-row justify-left items-center">
+        <.action_icon icon="pepicons-pencil:ruler">
+          Size
+        </.action_icon>
+        <.action_icon icon="hero-share">
+          Share
+        </.action_icon>
+        <div class="ml-auto h-full flex-grow pr-4">
+          <.rights_icon rights_statement={@item.rights_statement} />
+        </div>
+      </div>
+      <.content_separator class="mt-4" />
+    </div>
+    """
+  end
+
+  attr :rights_statement, :any, required: true
+
+  def rights_icon(assigns) do
+    ~H"""
+    <img
+      class="object-fit max-h-[30px] ml-auto"
+      src={~p"/images/rights/#{rights_path(@rights_statement)}"}
+      alt={@rights_statement}
+    />
+    """
+  end
+
+  def rights_path([rights_statement | _rest]), do: rights_path(rights_statement)
+
+  def rights_path(rights_statement) when is_binary(rights_statement) do
+    rights_path =
+      rights_statement
+      |> String.replace(~r/[^0-9a-zA-Z ]/, "")
+      |> String.replace(" ", "-")
+      |> String.downcase()
+
+    "#{rights_path}.svg"
+  end
+
+  def rights_path(_), do: ""
+
+  attr :rest, :global
+  attr :icon, :string, required: true
+  slot :inner_block, doc: "the optional inner block that renders the icon label"
+
+  def action_icon(assigns) do
+    ~H"""
+    <div class="flex flex-col justify-center text-center text-sm mr-2 min-w-15 items-center">
+      <button>
+        <div class="hover:text-white hover:bg-rust cursor-pointer w-10 h-10 p-2 bg-wafer-pink rounded-full flex justify-center items-center">
+          <.icon class="w-full h-full" name={@icon} />
+        </div>
+        {render_slot(@inner_block)}
+      </button>
     </div>
     """
   end
