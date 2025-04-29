@@ -54,6 +54,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
       description_txtm: get_in(metadata, ["description"]),
       digitized_at_dt: digitized_date(data),
       display_date_s: format_date(metadata),
+      ephemera_project_title_s: extract_project_title(related_data),
       file_count_i: file_count(metadata),
       folder_number_txtm: get_in(metadata, ["folder_number"]),
       genre_txtm: extract_term("genre", metadata, related_data),
@@ -213,11 +214,35 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
 
   defp extract_term_label(_), do: nil
 
-  def extract_title(%{"title" => []}) do
+  defp extract_title(%{"title" => []}) do
     ["[Missing Title]"]
   end
 
-  def extract_title(%{"title" => title}), do: title
+  defp extract_title(%{"title" => title}), do: title
+
+  defp extract_project_title(%{"ancestors" => ancestors}) when map_size(ancestors) > 0 do
+    project =
+      ancestors
+      # Enum converts k,v pairs into tuples
+      |> Enum.find(fn a ->
+        # Get the resource map from the second element (value) of the tuple
+        elem(a, 1)
+        |> Map.get("internal_resource") == "EphemeraProject"
+      end)
+
+    cond do
+      is_nil(project) ->
+        nil
+
+      true ->
+        project
+        |> elem(1)
+        |> get_in(["metadata", "title"])
+        |> Enum.at(0)
+    end
+  end
+
+  defp extract_project_title(_), do: nil
 
   defp extract_rights_statement(%{"rights_statement" => [%{"@id" => url}]}) when is_binary(url) do
     %{

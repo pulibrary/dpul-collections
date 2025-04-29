@@ -82,7 +82,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   def extract_related_data(resource) do
     %{
       "parent_ids" => extract_parent(resource),
-      "resources" => fetch_related(resource)
+      "resources" => fetch_related(resource),
+      "ancestors" => extract_ancestors(resource)
     }
   end
 
@@ -190,9 +191,30 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   end
 
   # there isn't a parent
-  defp extract_parent(_resource) do
-    %{}
+  defp extract_parent(_resource), do: %{}
+
+  @spec extract_ancestors(related_resource_map(), resource :: %__MODULE__{}) ::
+          related_resource_map()
+  defp extract_ancestors(resource_map \\ %{}, resource)
+
+  defp extract_ancestors(
+         resource_map,
+         resource = %{:metadata => %{"cached_parent_id" => _cached_parent_id}}
+       ) do
+    parent = IndexingPipeline.get_figgy_parents(resource.id) |> Enum.at(0)
+
+    cond do
+      is_nil(parent) ->
+        resource_map
+
+      true ->
+        resource_map
+        |> Map.put(parent.id, to_map(parent))
+        |> extract_ancestors(parent)
+    end
   end
+
+  defp extract_ancestors(resource_map, _resource), do: resource_map
 
   # Determine if a resource has no related member FileSets
   @spec to_map(%__MODULE__{}, related_data()) :: map()

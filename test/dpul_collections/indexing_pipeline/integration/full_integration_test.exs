@@ -213,62 +213,84 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     assert hydration_metric_1.duration > 0
   end
 
-  test "indexes expected fields" do
-    {hydrator, transformer, indexer, document} =
-      FiggyTestSupport.index_record_id("26713a31-d615-49fd-adfc-93770b4f66b3")
+  describe "an Ephemera Folder with a parent EphemeraBox" do
+    test "indexes expected fields" do
+      {hydrator, transformer, indexer, document} =
+        FiggyTestSupport.index_record_id("26713a31-d615-49fd-adfc-93770b4f66b3")
 
-    hydrator |> Broadway.stop(:normal)
-    transformer |> Broadway.stop(:normal)
-    indexer |> Broadway.stop(:normal)
+      hydrator |> Broadway.stop(:normal)
+      transformer |> Broadway.stop(:normal)
+      indexer |> Broadway.stop(:normal)
 
-    assert document["title_txtm"] == ["Ali Bagheri"]
-    # Language Detection
-    assert document["title_txtm_de"] == ["Ali Bagheri"]
-    # Copy Field
-    assert document["title_ss"] == ["Ali Bagheri"]
-    # Description
-    assert %{"description_txtm" => [first_description | _tail]} = document
-    assert first_description |> String.starts_with?("Asra-Panahi") == true
-    # Language detection
-    assert %{"description_txtm_en" => [first_description | _tail]} = document
-    assert first_description |> String.starts_with?("Asra-Panahi") == true
-    assert %{"detectlang_ss" => ["de", "en"]} = document
+      assert document["title_txtm"] == ["Ali Bagheri"]
+      # Language Detection
+      assert document["title_txtm_de"] == ["Ali Bagheri"]
+      # Copy Field
+      assert document["title_ss"] == ["Ali Bagheri"]
+      # Description
+      assert %{"description_txtm" => [first_description | _tail]} = document
+      assert first_description |> String.starts_with?("Asra-Panahi") == true
+      # Language detection
+      assert %{"description_txtm_en" => [first_description | _tail]} = document
+      assert first_description |> String.starts_with?("Asra-Panahi") == true
+      assert %{"detectlang_ss" => ["de", "en"]} = document
 
-    # Date fields
-    assert document["years_is"] == [2022]
-    assert document["display_date_s"] == "2022"
+      # Date fields
+      assert document["years_is"] == [2022]
+      assert document["display_date_s"] == "2022"
 
-    # Controlled Vocabulary
-    assert document["genre_txtm"] == ["Ephemera"]
-    assert document["geo_subject_txtm"] == ["Iran"]
-    assert document["geographic_origin_txtm"] == ["Iran"]
-    assert document["language_txtm"] == ["Persian"]
+      # Controlled Vocabulary
+      assert document["genre_txtm"] == ["Ephemera"]
+      assert document["geo_subject_txtm"] == ["Iran"]
+      assert document["geographic_origin_txtm"] == ["Iran"]
+      assert document["language_txtm"] == ["Persian"]
 
-    assert document["subject_txtm"] == [
-             "Arts",
-             "Arts--Political aspects",
-             "Collective memory",
-             "Freedom of expression",
-             "Human rights",
-             "Political violence",
-             "Women's rights",
-             "Minorities",
-             "Civil society",
-             "Democracy",
-             "Revolutions"
-           ]
+      assert document["subject_txtm"] == [
+               "Arts",
+               "Arts--Political aspects",
+               "Collective memory",
+               "Freedom of expression",
+               "Human rights",
+               "Political violence",
+               "Women's rights",
+               "Minorities",
+               "Civil society",
+               "Democracy",
+               "Revolutions"
+             ]
 
-    # Image URLs
-    assert [
-             "https://iiif-cloud.princeton.edu/iiif/2/5e%2F24%2Faf%2F5e24aff45b2e4c9aaba3f05321d1c797%2Fintermediate_file"
-             | _rest
-           ] = document["image_service_urls_ss"]
+      # Parent EphemeraProject
+      assert document["ephemera_project_title_s"] == "Woman Life Freedom Movement: Iran 2022"
 
-    assert "https://iiif-cloud.princeton.edu/iiif/2/76%2F5e%2F4c%2F765e4c0ada4a468bad46cbbebec4242b%2Fintermediate_file" =
-             document["primary_thumbnail_service_url_s"]
+      # Image URLs
+      assert [
+               "https://iiif-cloud.princeton.edu/iiif/2/5e%2F24%2Faf%2F5e24aff45b2e4c9aaba3f05321d1c797%2Fintermediate_file"
+               | _rest
+             ] = document["image_service_urls_ss"]
 
-    # IIIF Manifest URL
-    assert "https://figgy.princeton.edu/concern/ephemera_folders/26713a31-d615-49fd-adfc-93770b4f66b3/manifest" =
-             document["iiif_manifest_url_s"]
+      assert "https://iiif-cloud.princeton.edu/iiif/2/76%2F5e%2F4c%2F765e4c0ada4a468bad46cbbebec4242b%2Fintermediate_file" =
+               document["primary_thumbnail_service_url_s"]
+
+      # IIIF Manifest URL
+      assert "https://figgy.princeton.edu/concern/ephemera_folders/26713a31-d615-49fd-adfc-93770b4f66b3/manifest" =
+               document["iiif_manifest_url_s"]
+    end
+  end
+
+  describe "an Ephemera Folder with a parent EphemeraProject" do
+    test "indexes expected fields" do
+      {hydrator, transformer, indexer, document} =
+        FiggyTestSupport.index_record_id("bfe04832-e57b-4ad9-939c-6ca5b466fa68")
+
+      hydrator |> Broadway.stop(:normal)
+      transformer |> Broadway.stop(:normal)
+      indexer |> Broadway.stop(:normal)
+
+      assert document["title_txtm"] == ["Guatemala information"]
+
+      # Parent EphemeraProject
+      assert document["ephemera_project_title_s"] ==
+               "Guatemala News and Information Bureau Archive (1963-2000)"
+    end
   end
 end
