@@ -73,7 +73,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
                  "internal_resource" => "FileSet"
                }
              },
-             "parent_ids" => %{
+             "ancestors" => %{
                "82624edb-c360-4d8a-b202-f103ee639e8e" => %{
                  "internal_resource" => "EphemeraBox"
                }

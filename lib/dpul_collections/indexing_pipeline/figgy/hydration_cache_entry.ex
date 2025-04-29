@@ -40,21 +40,22 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
         data: data = %{"metadata" => metadata},
         related_data: related_data
       }) do
-    parent_metadata = extract_parent_metadata(metadata, related_data)
+    box_metadata = extract_box_metadata(related_data)
+    project_metadata = extract_project_metadata(related_data)
 
     %{
       id: id,
       title_txtm: extract_title(metadata),
       alternative_title_txtm: get_in(metadata, ["alternative_title"]),
       barcode_txtm: get_in(metadata, ["barcode"]),
-      box_number_txtm: get_in(parent_metadata, ["box_number"]),
+      box_number_txtm: get_in(box_metadata, ["box_number"]),
       content_warning_txtm: get_in(metadata, ["content_warning"]) |> remove_empty_strings,
       contributor_txtm: get_in(metadata, ["contributor"]),
       creator_txtm: get_in(metadata, ["creator"]),
       description_txtm: get_in(metadata, ["description"]),
       digitized_at_dt: digitized_date(data),
       display_date_s: format_date(metadata),
-      ephemera_project_title_s: extract_project_title(related_data),
+      ephemera_project_title_s: Map.get(project_metadata, "title", []) |> Enum.at(0),
       file_count_i: file_count(metadata),
       folder_number_txtm: get_in(metadata, ["folder_number"]),
       genre_txtm: extract_term("genre", metadata, related_data),
@@ -172,16 +173,46 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
 
   defp extract_service_url(nil), do: nil
 
-  defp extract_parent_metadata(%{"cached_parent_id" => [%{"id" => cached_parent_id}]}, %{
-         "parent_ids" => parent_data
-       }) do
-    parent_data
-    |> get_in([cached_parent_id])
-    |> get_in(["metadata"])
+  defp extract_box_metadata(%{"ancestors" => ancestors}) when map_size(ancestors) > 0 do
+    box = find_ancestor_type(ancestors, "EphemeraBox")
+
+    cond do
+      is_nil(box) ->
+        %{}
+
+      true ->
+        box
+        |> elem(1)
+        |> get_in(["metadata"])
+    end
   end
 
-  defp extract_parent_metadata(_, _) do
-    %{}
+  defp extract_box_metadata(_), do: %{}
+
+  defp extract_project_metadata(%{"ancestors" => ancestors}) when map_size(ancestors) > 0 do
+    project = find_ancestor_type(ancestors, "EphemeraProject")
+
+    cond do
+      is_nil(project) ->
+        %{}
+
+      true ->
+        project
+        |> elem(1)
+        |> get_in(["metadata"])
+    end
+  end
+
+  defp extract_project_metadata(_), do: %{}
+
+  defp find_ancestor_type(ancestors, resource_type) do
+    ancestors
+    # Enum converts k,v pairs into tuples
+    |> Enum.find(fn a ->
+      # Get the resource map from the second element (value) of the tuple
+      elem(a, 1)
+      |> Map.get("internal_resource") == resource_type
+    end)
   end
 
   defp extract_term(name, metadata, %{"resources" => resources}) do
@@ -219,30 +250,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   end
 
   defp extract_title(%{"title" => title}), do: title
-
-  defp extract_project_title(%{"ancestors" => ancestors}) when map_size(ancestors) > 0 do
-    project =
-      ancestors
-      # Enum converts k,v pairs into tuples
-      |> Enum.find(fn a ->
-        # Get the resource map from the second element (value) of the tuple
-        elem(a, 1)
-        |> Map.get("internal_resource") == "EphemeraProject"
-      end)
-
-    cond do
-      is_nil(project) ->
-        nil
-
-      true ->
-        project
-        |> elem(1)
-        |> get_in(["metadata", "title"])
-        |> Enum.at(0)
-    end
-  end
-
-  defp extract_project_title(_), do: nil
 
   defp extract_rights_statement(%{"rights_statement" => [%{"@id" => url}]}) when is_binary(url) do
     %{

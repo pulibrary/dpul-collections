@@ -140,7 +140,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           source_cache_order: ~U[2018-03-09 20:19:35.465203Z],
           related_data: %{
-            "parent_ids" => %{
+            "ancestors" => %{
               "82624edb-c360-4d8a-b202-f103ee639e8e" => %{
                 "id" => "82624edb-c360-4d8a-b202-f103ee639e8e",
                 "internal_resource" => "EphemeraBox",
