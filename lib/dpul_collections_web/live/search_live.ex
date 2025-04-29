@@ -231,7 +231,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     """
   end
 
-  def results_for_keywords_heading(assigns) do 
+  def results_for_keywords_heading(assigns) do
     ~H"""
     <h1>
       {gettext("Search Results for")}:
@@ -243,8 +243,8 @@ defmodule DpulCollectionsWeb.SearchLive do
         <% end %>
       </span>
     </h1>
-    """   
-  end 
+    """
+  end
 
   def thumbs(assigns) do
     ~H"""
