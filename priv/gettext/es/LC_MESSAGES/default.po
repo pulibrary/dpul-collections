@@ -11,12 +11,12 @@ msgstr ""
 "Language: es\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: lib/dpul_collections_web/components/core_components.ex:81
+#: lib/dpul_collections_web/components/core_components.ex:82
 #, elixir-autogen, elixir-format
 msgid "Error!"
 msgstr "¡Error!"
 
-#: lib/dpul_collections_web/components/core_components.ex:90
+#: lib/dpul_collections_web/components/core_components.ex:91
 #, elixir-autogen, elixir-format
 msgid "Hang in there while we get back on track"
 msgstr "Aguanta mientras volvemos al buen camino"
@@ -28,25 +28,20 @@ msgstr "Aguanta mientras volvemos al buen camino"
 msgid "Search"
 msgstr "Buscar"
 
-#: lib/dpul_collections_web/components/core_components.ex:85
+#: lib/dpul_collections_web/components/core_components.ex:86
 #, elixir-autogen, elixir-format
 msgid "Something went wrong!"
 msgstr "¡Algo salió mal!"
 
-#: lib/dpul_collections_web/components/core_components.ex:80
+#: lib/dpul_collections_web/components/core_components.ex:81
 #, elixir-autogen, elixir-format
 msgid "Success!"
 msgstr "¡Éxito!"
 
-#: lib/dpul_collections_web/components/core_components.ex:60
+#: lib/dpul_collections_web/components/core_components.ex:61
 #, elixir-autogen, elixir-format
 msgid "close"
 msgstr "cerrar"
-
-#: lib/dpul_collections_web/live/item_live.ex:135
-#, elixir-autogen, elixir-format
-msgid "Download"
-msgstr "Descargar"
 
 #: lib/dpul_collections_web/live/search_live.ex:130
 #, elixir-autogen, elixir-format
@@ -63,7 +58,7 @@ msgstr "Idioma"
 msgid "Next"
 msgstr "Proxima"
 
-#: lib/dpul_collections_web/live/item_live.ex:60
+#: lib/dpul_collections_web/live/item_live.ex:55
 #: lib/dpul_collections_web/live/search_live.ex:177
 #, elixir-autogen, elixir-format
 msgid "Pages"
@@ -108,11 +103,6 @@ msgstr "Política de derechos de autor"
 #, elixir-autogen, elixir-format
 msgid "Privacy Notice"
 msgstr "Aviso de privacidad"
-
-#: lib/dpul_collections_web/live/item_live.ex:52
-#, elixir-autogen, elixir-format
-msgid "Download PDF"
-msgstr "Descargar PDF"
 
 #: lib/dpul_collections_web/controllers/error_html/404.html.heex:20
 #, elixir-autogen, elixir-format
@@ -171,6 +161,7 @@ msgid "The Trustees of Princeton University"
 msgstr "Los fideicomisarios de la Universidad de Princeton"
 
 #: lib/dpul_collections_web/components/search_bar_component.ex:39
+#: lib/dpul_collections_web/live/home_live.ex:158
 #, elixir-autogen, elixir-format
 msgid "Browse all items"
 msgstr "Explorar todos los materiales"
@@ -192,22 +183,37 @@ msgstr "Resultados de la búsqueda por"
 msgid "Recently Added"
 msgstr "Añadido recientemente"
 
-#: lib/dpul_collections_web/live/home_live.ex:177
+#: lib/dpul_collections_web/live/home_live.ex:186
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Recently Added Items"
 msgstr "Materiales Recientes"
 
-#: lib/dpul_collections_web/components/browse_item.ex:72
+#: lib/dpul_collections_web/components/browse_item.ex:74
 #, elixir-autogen, elixir-format
 msgid "Added"
 msgstr "Añadido"
 
-#: lib/dpul_collections_web/live/home_live.ex:179
+#: lib/dpul_collections_web/live/home_live.ex:188
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Our collections are constantly growing. Discover something new!"
 msgstr "Nuestras colecciones están en constante crecimiento. ¡Descubre algo nuevo!"
 
-#: lib/dpul_collections_web/live/home_live.ex:149
+#: lib/dpul_collections_web/live/item_live.ex:58
 #, elixir-autogen, elixir-format
-msgid "Explore Ephemera at Princeton"
-msgstr "Explora Ephemera en Princeton"
+msgid "%{file_min} of %{file_max} pages"
+msgstr "%{file_min} de %{file_max} páginas"
+
+#: lib/dpul_collections_web/live/item_live.ex:181
+#, elixir-autogen, elixir-format
+msgid "View"
+msgstr "Abrir"
+
+#: lib/dpul_collections_web/live/item_live.ex:65
+#, elixir-autogen, elixir-format
+msgid "View all pages"
+msgstr "Ver todas las páginas"
+
+#: lib/dpul_collections_web/live/item_live.ex:188
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Download"
+msgstr "Descargar"
