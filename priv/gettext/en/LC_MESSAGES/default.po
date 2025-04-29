@@ -43,16 +43,13 @@ msgstr ""
 msgid "close"
 msgstr ""
 
-<<<<<<< HEAD
 #: lib/dpul_collections_web/live/search_live.ex:130
-=======
 #: lib/dpul_collections_web/live/item_live.ex:135
 #, elixir-autogen, elixir-format
 msgid "Download"
 msgstr ""
 
 #: lib/dpul_collections_web/live/search_live.ex:138
->>>>>>> fe7b7e4 (fixes nil date error in search_live_test)
 #, elixir-autogen, elixir-format
 msgid "Apply"
 msgstr ""
