@@ -43,16 +43,14 @@ msgstr "¡Éxito!"
 msgid "close"
 msgstr "cerrar"
 
-<<<<<<< HEAD
 #: lib/dpul_collections_web/live/search_live.ex:130
-=======
 #: lib/dpul_collections_web/live/item_live.ex:135
-#, elixir-autogen, elixir-format
+#: lib/dpul_collections_web/live/item_live.ex:188
+#, elixir-autogen, elixir-format, fuzzy
 msgid "Download"
 msgstr "Descargar"
 
 #: lib/dpul_collections_web/live/search_live.ex:138
->>>>>>> fe7b7e4 (fixes nil date error in search_live_test)
 #, elixir-autogen, elixir-format
 msgid "Apply"
 msgstr "Aplicar"
@@ -67,13 +65,8 @@ msgstr "Idioma"
 msgid "Next"
 msgstr "Proxima"
 
-<<<<<<< HEAD
-#: lib/dpul_collections_web/live/item_live.ex:55
-#: lib/dpul_collections_web/live/search_live.ex:177
-=======
 #: lib/dpul_collections_web/live/item_live.ex:60
 #: lib/dpul_collections_web/live/search_live.ex:224
->>>>>>> fe7b7e4 (fixes nil date error in search_live_test)
 #, elixir-autogen, elixir-format
 msgid "Pages"
 msgstr "Páginas"
@@ -198,10 +191,7 @@ msgid "Recently Added Items"
 msgstr "Materiales Recientes"
 
 #: lib/dpul_collections_web/components/browse_item.ex:74
-<<<<<<< HEAD
-=======
 #: lib/dpul_collections_web/live/search_live.ex:236
->>>>>>> fe7b7e4 (fixes nil date error in search_live_test)
 #, elixir-autogen, elixir-format
 msgid "Added"
 msgstr "Añadido"
@@ -226,10 +216,6 @@ msgstr "Abrir"
 msgid "View all pages"
 msgstr "Ver todas las páginas"
 
-#: lib/dpul_collections_web/live/item_live.ex:188
-#, elixir-autogen, elixir-format, fuzzy
-msgid "Download"
-msgstr "Descargar"
 msgid "Explore Ephemera at Princeton"
 msgstr "Explora Ephemera en Princeton"
 
