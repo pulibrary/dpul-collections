@@ -145,6 +145,9 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       |> render_click("sort", %{"sort-by" => "recently_added"})
       |> Floki.parse_document()
 
+    # Note: 100 items are generated in solr_test_support.ex from oldest to newest.
+    # Because of this, the test expects the 100th item to be on the front page when 
+    # sorted by recently_added. 
     assert document
            |> Floki.find(~s{a[href="/i/document1/item/1"]})
            |> Enum.empty?()
@@ -152,6 +155,32 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert document
            |> Floki.find(~s{a[href="/i/document100/item/100"]})
            |> Enum.any?()
+  end
+
+  test "items should display digitized_at information when sorted by recently_added", %{
+    conn: conn
+  } do
+    {:ok, _view, html} = live(conn, "/search?sort_by=recently_added")
+
+    {:ok, document} =
+      html
+      |> Floki.parse_document()
+
+    # Items should display digitized at information
+    assert document |> Floki.find(".digitized_at") |> Enum.any?()
+  end
+
+  test "items should not display digitized_at information when not sorted by recently_added", %{
+    conn: conn
+  } do
+    {:ok, _view, html} = live(conn, "/search?")
+
+    {:ok, document} =
+      html
+      |> Floki.parse_document()
+
+    # Items should not display digitized at information
+    assert document |> Floki.find(".digitized_at") |> Enum.empty?()
   end
 
   test "changing query parameter resets sort_by to default", %{conn: conn} do

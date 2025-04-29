@@ -41,17 +41,4 @@ defmodule DpulCollectionsWeb.Features.SearchBarTest do
     |> visit("/search?genre=posters")
     |> assert_has("#genre-facet", text: "Genre Posters")
   end
-
-  test "displays digitized date only when sorting by recently added", %{conn: conn} do
-    conn
-    |> visit("/search")
-    |> fill_in("Search", with: "Document-3")
-    |> within(".search-bar", fn session ->
-      session
-      |> click_button("Search")
-    end)
-    |> refute_has(".digitized_at", text: "Added")
-    |> visit("/search?sort_by=recently_added")
-    |> assert_has(".digitized_at", text: "Added")
-  end
 end
