@@ -45,6 +45,7 @@ msgstr ""
 
 #: lib/dpul_collections_web/live/search_live.ex:130
 #: lib/dpul_collections_web/live/item_live.ex:135
+#: lib/dpul_collections_web/live/item_live.ex:188
 #, elixir-autogen, elixir-format
 msgid "Download"
 msgstr ""
@@ -64,13 +65,8 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
-<<<<<<< HEAD
-#: lib/dpul_collections_web/live/item_live.ex:55
-#: lib/dpul_collections_web/live/search_live.ex:177
-=======
 #: lib/dpul_collections_web/live/item_live.ex:60
 #: lib/dpul_collections_web/live/search_live.ex:224
->>>>>>> fe7b7e4 (fixes nil date error in search_live_test)
 #, elixir-autogen, elixir-format
 msgid "Pages"
 msgstr ""
@@ -195,10 +191,7 @@ msgid "Recently Added Items"
 msgstr ""
 
 #: lib/dpul_collections_web/components/browse_item.ex:74
-<<<<<<< HEAD
-=======
 #: lib/dpul_collections_web/live/search_live.ex:236
->>>>>>> fe7b7e4 (fixes nil date error in search_live_test)
 #, elixir-autogen, elixir-format
 msgid "Added"
 msgstr ""
@@ -221,11 +214,6 @@ msgstr ""
 #: lib/dpul_collections_web/live/item_live.ex:65
 #, elixir-autogen, elixir-format
 msgid "View all pages"
-msgstr ""
-
-#: lib/dpul_collections_web/live/item_live.ex:188
-#, elixir-autogen, elixir-format
-msgid "Download"
 msgstr ""
 
 #: lib/dpul_collections_web/live/search_live.ex:107

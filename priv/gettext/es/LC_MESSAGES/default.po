@@ -216,9 +216,6 @@ msgstr "Abrir"
 msgid "View all pages"
 msgstr "Ver todas las páginas"
 
-msgid "Explore Ephemera at Princeton"
-msgstr "Explora Ephemera en Princeton"
-
 #: lib/dpul_collections_web/live/search_live.ex:107
 #, elixir-autogen, elixir-format
 msgid "All Possible Items"
