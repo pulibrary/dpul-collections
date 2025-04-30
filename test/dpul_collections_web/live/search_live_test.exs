@@ -2,6 +2,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   use DpulCollectionsWeb.ConnCase
   import Phoenix.LiveViewTest
   import SolrTestSupport
+  import TestUtils
   alias DpulCollections.Solr
   @endpoint DpulCollectionsWeb.Endpoint
 
@@ -205,9 +206,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert document
            |> Floki.find("#year-facet")
            |> Floki.text()
-           |> String.replace("\u00A0", " ")
-           |> String.replace(~r/\s+/, " ")
-           |> String.trim() == "Year Up to 2025"
+           |> TestUtils.clean_string() == "Year Up to 2025"
 
     assert document |> Floki.find("#genre-facet") |> Enum.empty?()
 
@@ -220,9 +219,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert document
            |> Floki.find("#year-facet")
            |> Floki.text()
-           |> String.replace("\u00A0", " ")
-           |> String.replace(~r/\s+/, " ")
-           |> String.trim() == "Year 2020 to Now"
+           |> TestUtils.clean_string() == "Year 2020 to Now"
 
     assert document |> Floki.find("#genre-facet") |> Enum.empty?()
 
@@ -237,9 +234,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert document
            |> Floki.find("#genre-facet")
            |> Floki.text()
-           |> String.replace("\u00A0", " ")
-           |> String.replace(~r/\s+/, " ")
-           |> String.trim() == "Genre posters"
+           |> TestUtils.clean_string() == "Genre posters"
 
     {:ok, _view, html} = live(conn, "/search?genre=posters&date_to=2025")
 
@@ -250,16 +245,12 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert document
            |> Floki.find("#year-facet")
            |> Floki.text()
-           |> String.replace("\u00A0", " ")
-           |> String.replace(~r/\s+/, " ")
-           |> String.trim() == "Year Up to 2025"
+           |> TestUtils.clean_string() == "Year Up to 2025"
 
     assert document
            |> Floki.find("#genre-facet")
            |> Floki.text()
-           |> String.replace("\u00A0", " ")
-           |> String.replace(~r/\s+/, " ")
-           |> String.trim() == "Genre posters"
+           |> TestUtils.clean_string() == "Genre posters"
   end
 
   test "changing query parameter resets sort_by to default", %{conn: conn} do
