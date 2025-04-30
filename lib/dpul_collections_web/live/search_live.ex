@@ -35,7 +35,8 @@ defmodule DpulCollectionsWeb.SearchLive do
         page: (params["page"] || "1") |> String.to_integer(),
         per_page: (params["per_page"] || "10") |> String.to_integer(),
         date_from: params["date_from"] || nil,
-        date_to: params["date_to"] || nil
+        date_to: params["date_to"] || nil,
+        genre: params["genre"] || nil
       }
     end
 
@@ -97,9 +98,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   def render(assigns) do
     ~H"""
     <div class="content-area">
-      <h1>
-        {gettext("Search Results for")}: <span class="normal-case">{@search_state.q}</span>
-      </h1>
+      <.results_for_keywords_heading keywords={@search_state.q} />
       <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
         <div id="filters" class="grid md:grid-cols-[auto_300px] gap-2">
           <form
@@ -108,7 +107,7 @@ defmodule DpulCollectionsWeb.SearchLive do
             class="grid md:grid-cols-[150px_200px_200px_200px] gap-2"
           >
             <label class="col-span-1 self-center font-bold uppercase" for="date-filter">
-              {gettext("filter by date")}:
+              {gettext("filter by year")}:
             </label>
             <input
               class="col-span-1"
@@ -141,15 +140,53 @@ defmodule DpulCollectionsWeb.SearchLive do
               )}
             </select>
           </form>
+          <form id="facet-pills">
+            <div class="my-8 select-none flex flex-wrap gap-4">
+              <button
+                :if={@search_state.date_from || @search_state.date_to}
+                role="button"
+                id="year-facet"
+                name="year-facet"
+                class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-dark-blue border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-rust focus:outline-none active:shadow-none mr-2"
+              >
+                {gettext("Year")}
+                <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
+                <%= if @search_state.date_from do %>
+                  {@search_state.date_from}
+                <% else %>
+                  {gettext("Up")}
+                <% end %>
+                &nbsp; {gettext("to")} &nbsp;
+                <%= if @search_state.date_to do %>
+                  {@search_state.date_to}
+                <% else %>
+                  {gettext("Now")}
+                <% end %>
+                <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
+              </button>
+              <button
+                :if={@search_state.genre}
+                role="button"
+                id="genre-facet"
+                name="genre-facet"
+                class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-dark-blue border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-rust focus:outline-none active:shadow-none"
+              >
+                {gettext("Genre")}
+                <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
+                {@search_state.genre}
+                <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
+              </button>
+            </div>
+          </form>
         </div>
         <div id="item-counter">
           <span>{@item_counter}</span>
         </div>
       </div>
       <div class="grid grid-flow-row auto-rows-max gap-8">
-        <.search_item :for={item <- @items} item={item} />
+        <.search_item :for={item <- @items} item={item} sort_by={@search_state.sort_by} />
       </div>
-      <div class="text-center bg-white max-w-5xl mx-auto text-lg py-8">
+      <div class="text-center max-w-5xl mx-auto text-lg py-8">
         <.paginator
           page={@search_state.page}
           per_page={@search_state.per_page}
@@ -161,6 +198,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   end
 
   attr :item, Item, required: true
+  attr :sort_by, :string, default: "relevance"
 
   def search_item(assigns) do
     ~H"""
@@ -177,11 +215,34 @@ defmodule DpulCollectionsWeb.SearchLive do
           {@item.file_count} {gettext("Pages")}
         </div>
       </div>
-      <h2 class="pt-4">
+      <div class="pt-4 text-gray-500 font-bold text-sm uppercase">
+        <a href="">{@item.genre}</a>
+      </div>
+      <h2>
         <.link navigate={@item.url}>{@item.title}</.link>
       </h2>
-      <div class="text-xl">{@item.date}</div>
+      <div class="flex items-start">
+        <div class="text-xl">{@item.date}</div>
+        <div :if={@sort_by == :recently_added} class="digitized_at self-end w-full pb-2 text-right">
+          {gettext("Added")} {DpulCollectionsWeb.BrowseItem.time_ago(@item.digitized_at)}
+        </div>
+      </div>
     </div>
+    """
+  end
+
+  def results_for_keywords_heading(assigns) do
+    ~H"""
+    <h1>
+      {gettext("Search Results for")}:
+      <span class="normal-case">
+        <%= if @keywords do %>
+          {@keywords}
+        <% else %>
+          [ {gettext("All Possible Items")} ]
+        <% end %>
+      </span>
+    </h1>
     """
   end
 
@@ -205,7 +266,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       <.link
         :if={@page > 1}
         id="paginator-previous"
-        class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+        class="flex items-center justify-center px-3 h-8 leading-tight border border-dark-blue bg-dark-blue text-sage hover:text-white"
         phx-click="paginate"
         phx-value-page={@page - 1}
       >
@@ -237,18 +298,19 @@ defmodule DpulCollectionsWeb.SearchLive do
           h-8
           leading-tight
           #{if current_page?, do: "active", else: "
-              border-gray-300
-              text-gray-500
+              border-dark-blue
+              text-dark-blue
               bg-white border
               hover:bg-gray-100
               hover:text-gray-700
+              no-underline
             "}
         "}
       />
       <.link
         :if={more_pages?(@page, @per_page, @total_items)}
         id="paginator-next"
-        class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+        class="flex items-center justify-center px-3 h-8 leading-tight border border-dark-blue bg-dark-blue text-sage hover:text-white"
         phx-click="paginate"
         phx-value-page={@page + 1}
       >
@@ -278,7 +340,8 @@ defmodule DpulCollectionsWeb.SearchLive do
       %{
         socket.assigns.search_state
         | date_to: params["date-to"],
-          date_from: params["date-from"]
+          date_from: params["date-from"],
+          genre: params["genre"]
       }
       |> Helpers.clean_params([:page, :per_page])
 

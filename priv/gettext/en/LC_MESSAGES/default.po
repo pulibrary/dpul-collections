@@ -44,6 +44,13 @@ msgid "close"
 msgstr ""
 
 #: lib/dpul_collections_web/live/search_live.ex:130
+#: lib/dpul_collections_web/live/item_live.ex:135
+#: lib/dpul_collections_web/live/item_live.ex:188
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Download"
+msgstr ""
+
+#: lib/dpul_collections_web/live/search_live.ex:138
 #, elixir-autogen, elixir-format
 msgid "Apply"
 msgstr ""
@@ -53,38 +60,33 @@ msgstr ""
 msgid "Language"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:255
+#: lib/dpul_collections_web/live/search_live.ex:311
 #, elixir-autogen, elixir-format
 msgid "Next"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:55
-#: lib/dpul_collections_web/live/search_live.ex:177
+#: lib/dpul_collections_web/live/item_live.ex:60
+#: lib/dpul_collections_web/live/search_live.ex:224
 #, elixir-autogen, elixir-format
 msgid "Pages"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:212
+#: lib/dpul_collections_web/live/search_live.ex:267
 #, elixir-autogen, elixir-format
 msgid "Previous"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:111
-#, elixir-autogen, elixir-format
-msgid "filter by date"
-msgstr ""
-
-#: lib/dpul_collections_web/live/search_live.ex:135
+#: lib/dpul_collections_web/live/search_live.ex:143
 #, elixir-autogen, elixir-format
 msgid "sort by"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:116
+#: lib/dpul_collections_web/live/search_live.ex:124
 #, elixir-autogen, elixir-format
 msgid "From"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:124
+#: lib/dpul_collections_web/live/search_live.ex:132
 #, elixir-autogen, elixir-format
 msgid "To"
 msgstr ""
@@ -109,12 +111,12 @@ msgstr ""
 msgid "Page not found"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:75
+#: lib/dpul_collections_web/live/search_live.ex:76
 #, elixir-autogen, elixir-format
 msgid "No items found"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:87
+#: lib/dpul_collections_web/live/search_live.ex:88
 #, elixir-autogen, elixir-format
 msgid "of"
 msgstr ""
@@ -171,7 +173,7 @@ msgstr ""
 msgid "Pinned"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:101
+#: lib/dpul_collections_web/live/search_live.ex:102
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Search Results for"
 msgstr ""
@@ -189,6 +191,7 @@ msgid "Recently Added Items"
 msgstr ""
 
 #: lib/dpul_collections_web/components/browse_item.ex:74
+#: lib/dpul_collections_web/live/search_live.ex:236
 #, elixir-autogen, elixir-format
 msgid "Added"
 msgstr ""
@@ -213,7 +216,37 @@ msgstr ""
 msgid "View all pages"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:188
+#: lib/dpul_collections_web/live/search_live.ex:107
+#, elixir-autogen, elixir-format
+msgid "All Possible Items"
+msgstr ""
+
+#: lib/dpul_collections_web/live/search_live.ex:183
+#, elixir-autogen, elixir-format
+msgid "Genre"
+msgstr ""
+
+#: lib/dpul_collections_web/live/search_live.ex:172
+#, elixir-autogen, elixir-format
+msgid "Now"
+msgstr ""
+
+#: lib/dpul_collections_web/live/search_live.ex:166
+#, elixir-autogen, elixir-format
+msgid "Up"
+msgstr ""
+
+#: lib/dpul_collections_web/live/search_live.ex:161
+#, elixir-autogen, elixir-format
+msgid "Year"
+msgstr ""
+
+#: lib/dpul_collections_web/live/search_live.ex:119
 #, elixir-autogen, elixir-format, fuzzy
-msgid "Download"
+msgid "filter by year"
+msgstr ""
+
+#: lib/dpul_collections_web/live/search_live.ex:168
+#, elixir-autogen, elixir-format
+msgid "to"
 msgstr ""
