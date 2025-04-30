@@ -183,6 +183,85 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert document |> Floki.find(".digitized_at") |> Enum.empty?()
   end
 
+  test "renders active facets with states", %{
+    conn: conn
+  } do
+    {:ok, _view, html} = live(conn, "/search?")
+
+    {:ok, document} =
+      html
+      |> Floki.parse_document()
+
+    # Only facets that are in use / active should display
+    assert document |> Floki.find("#year-facet") |> Enum.empty?()
+    assert document |> Floki.find("#genre-facet") |> Enum.empty?()
+
+    {:ok, _view, html} = live(conn, "/search?date_to=2025")
+
+    {:ok, document} =
+      html
+      |> Floki.parse_document()
+
+    assert document
+           |> Floki.find("#year-facet")
+           |> Floki.text()
+           |> String.replace("\u00A0", " ")
+           |> String.replace(~r/\s+/, " ")
+           |> String.trim() == "Year Up to 2025"
+
+    assert document |> Floki.find("#genre-facet") |> Enum.empty?()
+
+    {:ok, _view, html} = live(conn, "/search?date_from=2020")
+
+    {:ok, document} =
+      html
+      |> Floki.parse_document()
+
+    assert document
+           |> Floki.find("#year-facet")
+           |> Floki.text()
+           |> String.replace("\u00A0", " ")
+           |> String.replace(~r/\s+/, " ")
+           |> String.trim() == "Year 2020 to Now"
+
+    assert document |> Floki.find("#genre-facet") |> Enum.empty?()
+
+    {:ok, _view, html} = live(conn, "/search?genre=posters")
+
+    {:ok, document} =
+      html
+      |> Floki.parse_document()
+
+    assert document |> Floki.find("#year-facet") |> Enum.empty?()
+
+    assert document
+           |> Floki.find("#genre-facet")
+           |> Floki.text()
+           |> String.replace("\u00A0", " ")
+           |> String.replace(~r/\s+/, " ")
+           |> String.trim() == "Genre posters"
+
+    {:ok, _view, html} = live(conn, "/search?genre=posters&date_to=2025")
+
+    {:ok, document} =
+      html
+      |> Floki.parse_document()
+
+    assert document
+           |> Floki.find("#year-facet")
+           |> Floki.text()
+           |> String.replace("\u00A0", " ")
+           |> String.replace(~r/\s+/, " ")
+           |> String.trim() == "Year Up to 2025"
+
+    assert document
+           |> Floki.find("#genre-facet")
+           |> Floki.text()
+           |> String.replace("\u00A0", " ")
+           |> String.replace(~r/\s+/, " ")
+           |> String.trim() == "Genre posters"
+  end
+
   test "changing query parameter resets sort_by to default", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/search")
 
