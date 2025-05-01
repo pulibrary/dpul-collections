@@ -8,6 +8,31 @@ defmodule DpulCollections.IndexingPipelineTest do
 
     import DpulCollections.IndexingPipelineFixtures
 
+    test "converting a figgy resource to a solr document" do
+      # Current State
+      ephemera_folder_id = "8b0631b7-e1e4-49c2-904f-cd3141167a80"
+      figgy_resource = IndexingPipeline.get_figgy_resource!(ephemera_folder_id)
+      # Why do we do this?
+      # To save it to the database.
+      # Is there a difference between a HydrationCacheEntry (thing we save to
+      # the db), and the thing that gets converted from a FiggyResource and into
+      # a solr document?
+      hydration_cache_attrs = Figgy.Resource.to_hydration_cache_attrs(figgy_resource)
+      # Turn hydration_cache_attrs into a broadway message somehow.
+      hydration_cache_entry = IndexingPipeline.write_to_hydration_cache_entry(hydration_cache_attrs)
+      solr_document = HydrationCacheEntry.to_solr_document(hydration_cache_entry)
+      item = Item.from_solr(solr_document)
+
+      # What would be nice - two options
+      figgy_resource |> Figgy.Resource.to_hydration_cache_entry |> HydrationCacheEntry.to_solr_document |> SolrDocument.to_item
+      # Differences - HydrationCacheEntry is saved to the database. To save it
+      # to the database we have to pass the change set parameters, not a
+      # pre-built HydrationCacheEntry.
+      # Could we build the attrs necessary for persisting the
+      # HydrationCacheEntry via .change_set from a built HydrationCacheEntry?
+      figgy_resource |> HydrationCacheEntry.from_figgy_resource |> SolrDocument.from_hydration_cache_entry |> Item.from_solr_document
+    end
+
     test "list_hydration_cache_entries/0 returns all hydration_cache_entries" do
       hydration_cache_entry = hydration_cache_entry_fixture()
       assert IndexingPipeline.list_hydration_cache_entries() == [hydration_cache_entry]
