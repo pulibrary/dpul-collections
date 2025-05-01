@@ -35,13 +35,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     }
   end
 
-  def to_hydration_cache_attrs(resource = %__MODULE__{internal_resource: "EphemeraTerm"}) do
-    %{
-      handled_data: resource |> to_map,
-      related_data: %{}
-    }
-  end
-
   # We haven't pulled the full resource yet, so grab it.
   def to_hydration_cache_attrs(%__MODULE__{
         id: id,

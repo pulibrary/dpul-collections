@@ -107,26 +107,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         _processor,
         message = %Broadway.Message{
           data: %{
-            internal_resource: internal_resource
-          }
-        },
-        %{cache_version: _cache_version}
-      )
-      when internal_resource in ["EphemeraTerm"] do
-    marker = CacheEntryMarker.from(message)
-
-    message_map =
-      %{marker: marker, incoming_message_data: message.data}
-      |> Map.merge(Figgy.Resource.to_hydration_cache_attrs(message.data))
-
-    message
-    |> Broadway.Message.put_data(message_map)
-  end
-
-  def handle_message(
-        _processor,
-        message = %Broadway.Message{
-          data: %{
             internal_resource: internal_resource,
             metadata_resource_id: [%{"id" => resource_id}],
             metadata_resource_type: [resource_type]
@@ -134,8 +114,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         },
         %{cache_version: cache_version}
       )
-      when internal_resource in ["DeletionMarker"] and
-             resource_type in ["EphemeraFolder", "EphemeraTerm"] do
+      when internal_resource in ["DeletionMarker"] and resource_type in ["EphemeraFolder"] do
     # Only process messages where the deleted resource has an existing
     # hydration cache entry. If one does not exist, it means that the resource
     # has not been indexed into DPUL-C.

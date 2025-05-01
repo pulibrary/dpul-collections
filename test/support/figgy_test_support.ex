@@ -9,9 +9,7 @@ defmodule FiggyTestSupport do
   def total_resource_count do
     query =
       from r in Figgy.Resource,
-        where:
-          r.internal_resource == "EphemeraFolder" or r.internal_resource == "EphemeraTerm" or
-            r.internal_resource == "DeletionMarker"
+        where: r.internal_resource == "EphemeraFolder" or r.internal_resource == "DeletionMarker"
 
     FiggyRepo.aggregate(query, :count)
   end
