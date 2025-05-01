@@ -81,7 +81,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
 
   def extract_related_data(resource) do
     %{
-      "parent_ids" => extract_parent(resource),
+      "ancestors" => extract_ancestors(resource),
       "resources" => fetch_related(resource)
     }
   end
@@ -133,6 +133,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     metadata
     # Get the metadata property names
     |> Map.keys()
+    # Filter out parent id as it's fetched in ancestors
+    |> Enum.filter(fn key -> key != "cached_parent_id" end)
     # Map the values of each property into a list
     |> Enum.map(fn key -> metadata[key] end)
     # Flatten nested lists into a single list
@@ -181,18 +183,28 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
 
   defp extract_ids_from_value(_), do: nil
 
-  @spec extract_parent(resource :: %__MODULE__{}) :: related_resource_map()
-  defp extract_parent(resource = %{:metadata => %{"cached_parent_id" => _cached_parent_id}}) do
-    # turn it into a map of id => FiggyResource
-    IndexingPipeline.get_figgy_parents(resource.id)
-    |> Enum.map(fn m -> {m.id, to_map(m)} end)
-    |> Map.new()
+  @spec extract_ancestors(related_resource_map(), resource :: %__MODULE__{}) ::
+          related_resource_map()
+  defp extract_ancestors(resource_map \\ %{}, resource)
+
+  defp extract_ancestors(
+         resource_map,
+         resource = %{:metadata => %{"cached_parent_id" => _cached_parent_id}}
+       ) do
+    parent = IndexingPipeline.get_figgy_parents(resource.id) |> Enum.at(0)
+
+    cond do
+      is_nil(parent) ->
+        resource_map
+
+      true ->
+        resource_map
+        |> Map.put(parent.id, to_map(parent))
+        |> extract_ancestors(parent)
+    end
   end
 
-  # there isn't a parent
-  defp extract_parent(_resource) do
-    %{}
-  end
+  defp extract_ancestors(resource_map, _resource), do: resource_map
 
   # Determine if a resource has no related member FileSets
   @spec to_map(%__MODULE__{}, related_data()) :: map()

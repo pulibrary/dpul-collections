@@ -15,7 +15,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ResourceTest do
         |> Map.keys()
         |> length()
 
-      assert(related_resource_count == 20)
+      assert(related_resource_count == 19)
     end
 
     test "when there are no image members, the resource is marked for deletion" do
@@ -60,6 +60,19 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ResourceTest do
         |> Map.keys()
 
       assert("e55355f9-a410-4f96-83d2-cfa165203d01" not in resource_ids)
+    end
+
+    test "it filters out parent resources in related resources map" do
+      folder = IndexingPipeline.get_figgy_resource!("26713a31-d615-49fd-adfc-93770b4f66b3")
+
+      resource_ids =
+        folder
+        |> Resource.to_hydration_cache_attrs()
+        |> get_in([:related_data])
+        |> get_in(["resources"])
+        |> Map.keys()
+
+      assert("82624edb-c360-4d8a-b202-f103ee639e8e" not in resource_ids)
     end
   end
 end
