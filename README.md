@@ -73,7 +73,7 @@ Steps:
     ./create-synthetic-fixtures.sh
     ```
 - Rename concatenated CSV file.
-  - `mv synthetic-fixtures.csv my-new-fixtures.csv`
+  - `mv  ./fixture-exports/synthetic/synthetic-fixtures.csv ./fixture-exports/synthetic/my-new-fixtures.csv`
 - Modify CSV manually if needed.
 - Add fixture description to fixtures.md file
 - Rebuild local figgy fixtures container.

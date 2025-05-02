@@ -98,7 +98,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
 
     assert %{
              "id" => ^marker_1_id,
-             "internal_resource" => "EphemeraTerm"
+             "internal_resource" => "EphemeraFolder"
            } = cache_entry.data
 
     hydrator |> Broadway.stop(:normal)
@@ -120,7 +120,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
 
     assert %{
              "id" => ^marker_1_id,
-             "internal_resource" => "EphemeraTerm"
+             "internal_resource" => "EphemeraFolder"
            } = cache_entry.data
 
     processor_marker = IndexingPipeline.get_processor_marker!("figgy_hydrator", 1)
@@ -134,7 +134,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     # in the future.
     IndexingPipeline.write_hydration_cache_entry(%{
       cache_version: 0,
-      record_id: "3cb7627b-defc-401b-9959-42ebc4488f74",
+      record_id: "3da68e1c-06af-4d17-8603-fc73152e1ef7",
       source_cache_order: ~U[2200-03-09 20:19:33.414040Z],
       data: %{}
     })
@@ -155,10 +155,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
   test "updates existing hydration cache entries" do
     {marker1, _marker2, _marker3} = FiggyTestFixtures.markers()
     # Create a hydration cache entry for a record that has a source_cache_order
-    # in the future.
+    # in the past.
     IndexingPipeline.write_hydration_cache_entry(%{
       cache_version: 0,
-      record_id: "3cb7627b-defc-401b-9959-42ebc4488f74",
+      record_id: "3da68e1c-06af-4d17-8603-fc73152e1ef7",
       source_cache_order: ~U[1900-03-09 20:19:33.414040Z],
       data: %{}
     })

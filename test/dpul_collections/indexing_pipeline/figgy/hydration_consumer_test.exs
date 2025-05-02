@@ -5,7 +5,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
   alias DpulCollections.IndexingPipeline.Figgy
 
   describe "Figgy.HydrationConsumer" do
-    test "handle_message/3 when a message is not a complete and visible EphemeraFolder or an EphemeraTerm, it is sent to noop batcher" do
+    test "handle_message/3 when a message is not a complete and visible EphemeraFolder, it is sent to noop batcher" do
       ephemera_folder_message = %Broadway.Message{
         acknowledger: nil,
         data: %Figgy.Resource{
@@ -101,7 +101,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         transformed_messages
         |> Enum.map(&Map.get(&1, :batcher))
 
-      assert message_batchers == [:default, :noop, :noop, :default, :noop, :noop]
+      assert message_batchers == [:default, :noop, :noop, :noop, :noop, :noop]
     end
 
     test "handle_batch/3 only processes deletion markers with related resources in the HydrationCache" do
