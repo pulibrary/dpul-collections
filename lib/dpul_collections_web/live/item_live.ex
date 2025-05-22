@@ -208,8 +208,8 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def metadata_table(assigns) do
     ~H"""
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-      <table class="w-full text-sm text-left rtl:text-right align-top">
+    <div class="relative overflow-x-auto">
+      <table class="w-full text-sm text-left rtl:text-right align-top table-auto">
         <tbody>
           <.metadata_row
             :for={{field, _} <- Enum.with_index(DpulCollections.Item.metadata_display_fields())}
@@ -219,6 +219,9 @@ defmodule DpulCollectionsWeb.ItemLive do
         </tbody>
       </table>
     </div>
+    <.primary_button class="right-arrow-box" href="#" target="_blank">
+      <.icon name="hero-table-cells" /> {gettext("View all metadata for this item")}
+    </.primary_button>
     """
   end
 
@@ -229,12 +232,16 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def metadata_row(assigns) do
     ~H"""
-    <tr class="even:bg-white odd:bg-gray-50 border-b border-gray-200">
-      <th scope="row" class="px-6 py-4 text-gray-900 whitespace-nowrap align-top">
+    <tr class="border-b-1 border-rust">
+      <th scope="row" class="whitespace-nowrap max-w-max py-4 font-medium font-serif text-lg whitespace-nowrap align-top">
         {field_label(@field)}
       </th>
       <td class="px-6 py-4 font-medium">
-        {@value}
+        <ul>
+         <li :for={value <- @value}>
+              {value}
+          </li>
+        </ul>
       </td>
     </tr>
     """

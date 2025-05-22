@@ -40,31 +40,11 @@ defmodule DpulCollections.Item do
 
   def metadata_display_fields do
     [
-      :date,
-      :description,
-      :alternative_title,
-      :barcode,
-      :box_number,
-      :content_warning,
-      :contributor,
       :creator,
-      :folder_number,
-      :genre,
-      :geo_subject,
-      :geographic_origin,
-      :height,
-      :holding_location,
-      :iiif_manifest_url,
-      :keywords,
-      :language,
-      :page_count,
-      :provenance,
       :publisher,
-      :rights_statement,
-      :series,
-      :subject,
-      :transliterated_title,
-      :width
+      :language,
+      :geographic_origin,
+      :subject
     ]
   end
 

@@ -46,6 +46,18 @@
   @apply *:pl-[7.5%]
 }
 
+.right-arrow-box {
+  clip-path: polygon(
+    0% 0%,
+    0% 100%,
+    calc(100% - 50px) 100%,
+    100% 50%,
+    calc(100% - 50px) 0%
+  );
+  @apply *:pl-[10px];
+  @apply *:pr-[60px];
+}
+
 #search-form:focus-within #search-button {
   visibility: visible;
 }
