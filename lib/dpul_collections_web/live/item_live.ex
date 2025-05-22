@@ -212,8 +212,8 @@ defmodule DpulCollectionsWeb.ItemLive do
       <table class="w-full text-sm text-left rtl:text-right align-top table-auto">
         <tbody>
           <.metadata_row
-            :for={{field, _} <- Enum.with_index(DpulCollections.Item.metadata_display_fields())}
-            field={field}
+            :for={{field, field_label} <- DpulCollections.Item.metadata_display_fields()}
+            field_label={field_label}
             value={field_value(@item, field)}
           />
         </tbody>
@@ -234,7 +234,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <tr class="border-b-1 border-rust">
       <th scope="row" class="font-bold whitespace-nowrap max-w-max py-4 text-lg whitespace-nowrap align-top">
-        {field_label(@field)}
+        {@field_label}
       </th>
       <td class="px-6 py-4 font-normal">
         <ul>

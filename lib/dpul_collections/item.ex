@@ -1,5 +1,6 @@
 defmodule DpulCollections.Item do
   use DpulCollectionsWeb, :verified_routes
+  use Gettext, backend: DpulCollectionsWeb.Gettext
 
   defstruct [
     :id,
@@ -40,11 +41,12 @@ defmodule DpulCollections.Item do
 
   def metadata_display_fields do
     [
-      :creator,
-      :publisher,
-      :language,
-      :geographic_origin,
-      :subject
+      # {field, field_label}
+      {:creator, gettext("Creator of work")},
+      {:publisher, gettext("Publisher")},
+      {:language, gettext("Language")},
+      {:geographic_origin, gettext("Geographic Origin")},
+      {:subject, gettext("Subject")}
     ]
   end
 
