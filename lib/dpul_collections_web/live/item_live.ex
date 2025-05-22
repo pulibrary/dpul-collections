@@ -88,6 +88,7 @@ defmodule DpulCollectionsWeb.ItemLive do
             Part of <a href="#">{collection}</a>
           </div>
           <.action_bar class="hidden sm:block" item={@item} />
+          <.content_separator />
           <.metadata_table item={@item} />
         </div>
       </div>
@@ -117,7 +118,6 @@ defmodule DpulCollectionsWeb.ItemLive do
         </div>
       </div>
     </div>
-    <.content_separator />
     """
   end
 
@@ -233,13 +233,16 @@ defmodule DpulCollectionsWeb.ItemLive do
   def metadata_row(assigns) do
     ~H"""
     <tr class="border-b-1 border-rust">
-      <th scope="row" class="font-bold whitespace-nowrap max-w-max py-4 text-lg whitespace-nowrap align-top">
+      <th
+        scope="row"
+        class="font-bold whitespace-nowrap max-w-max py-4 text-lg whitespace-nowrap align-top"
+      >
         {@field_label}
       </th>
       <td class="px-6 py-4 font-normal">
         <ul>
-         <li :for={value <- @value}>
-              {value}
+          <li :for={value <- @value}>
+            {value}
           </li>
         </ul>
       </td>
@@ -251,13 +254,6 @@ defmodule DpulCollectionsWeb.ItemLive do
     item
     |> Kernel.get_in([Access.key(field)])
     |> List.wrap()
-  end
-
-  def field_label(field) do
-    field
-    |> Atom.to_string()
-    |> String.replace("_", " ")
-    |> String.capitalize()
   end
 
   def thumbs(assigns) do
