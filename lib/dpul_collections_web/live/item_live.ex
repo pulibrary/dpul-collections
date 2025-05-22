@@ -116,8 +116,8 @@ defmodule DpulCollectionsWeb.ItemLive do
           <.rights_icon rights_statement={@item.rights_statement} />
         </div>
       </div>
-      <.content_separator class="mt-4" />
     </div>
+    <.content_separator />
     """
   end
 
@@ -233,10 +233,10 @@ defmodule DpulCollectionsWeb.ItemLive do
   def metadata_row(assigns) do
     ~H"""
     <tr class="border-b-1 border-rust">
-      <th scope="row" class="whitespace-nowrap max-w-max py-4 font-medium font-serif text-lg whitespace-nowrap align-top">
+      <th scope="row" class="font-bold whitespace-nowrap max-w-max py-4 text-lg whitespace-nowrap align-top">
         {field_label(@field)}
       </th>
-      <td class="px-6 py-4 font-medium">
+      <td class="px-6 py-4 font-normal">
         <ul>
          <li :for={value <- @value}>
               {value}
