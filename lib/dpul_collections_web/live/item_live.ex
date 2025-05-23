@@ -209,7 +209,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def metadata_table(assigns) do
     ~H"""
     <div class="relative overflow-x-auto">
-      <dl class="grid grid-cols-[max-content_1fr] items-start gap-x-8 gap-y-4">
+      <dl class="grid items-start gap-x-8 gap-y-4">
         <.metadata_row
           :for={{field, field_label} <- DpulCollections.Item.metadata_display_fields()}
           field_label={field_label}
@@ -231,7 +231,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def metadata_row(assigns) do
     ~H"""
     <div class="col-span-2 grid grid-cols-subgrid border-b-1 border-rust pb-4">
-      <dt class="font-bold text-lg">
+      <dt class="font-bold text-lg min-w-1/3">
         {@field_label}
       </dt>
       <dd :for={value <- @value} class="col-start-2">
