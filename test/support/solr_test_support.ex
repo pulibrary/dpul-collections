@@ -14,6 +14,13 @@ defmodule SolrTestSupport do
           true -> nil
         end
 
+      # Even numbered documents are folders.
+      genre =
+        cond do
+          rem(n, 2) == 0 -> ["Folders"]
+          true -> ["Pamphlets"]
+        end
+
       %{
         id: n,
         title_txtm: "Document-#{n}",
@@ -29,6 +36,7 @@ defmodule SolrTestSupport do
           "https://example.com/iiif/2/image6",
           "https://example.com/iiif/2/image7"
         ],
+        genre_txtm: genre,
         primary_thumbnail_service_url_s: thumbnail_url,
         digitized_at_dt:
           DateTime.utc_now() |> DateTime.add(-100 + 1 * n, :day) |> DateTime.to_iso8601()
