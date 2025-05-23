@@ -84,8 +84,8 @@ defmodule DpulCollectionsWeb.ItemLive do
           >
             {description}
           </div>
-          <div :for={collection <- @item.collection} class="text-lg font-medium text-dark-blue">
-            Part of <a href="#">{collection}</a>
+          <div :if={@item.project} class="text-lg font-medium text-dark-blue">
+            Part of <a href="#">{@item.project}</a>
           </div>
           <.action_bar class="hidden sm:block" item={@item} />
           <.content_separator />
