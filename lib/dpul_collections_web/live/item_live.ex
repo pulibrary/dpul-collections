@@ -231,7 +231,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def metadata_row(assigns) do
     ~H"""
     <div class="col-span-2 grid grid-cols-subgrid border-b-1 border-rust pb-4">
-      <dt class="font-bold text-lg min-w-1/3">
+      <dt class="font-bold text-lg">
         {@field_label}
       </dt>
       <dd :for={value <- @value} class="col-start-2">
