@@ -85,19 +85,19 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       html_response(conn, 200)
       |> Floki.parse_document()
 
-    assert document |> Floki.find(~s{th:fl-contains("Creator of work")}) |> Enum.any?()
-    assert document |> Floki.find(~s{li:fl-contains("creator")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("Geographic Origin")}) |> Enum.any?()
-    assert document |> Floki.find(~s{li:fl-contains("geographic origin")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("Language")}) |> Enum.any?()
-    assert document |> Floki.find(~s{li:fl-contains("language")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("Publisher")}) |> Enum.any?()
-    assert document |> Floki.find(~s{li:fl-contains("publisher")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("Subject")}) |> Enum.any?()
-    assert document |> Floki.find(~s{li:fl-contains("subject")}) |> Enum.any?()
+    assert document |> Floki.find(~s{dt:fl-contains("Creator of work")}) |> Enum.any?()
+    assert document |> Floki.find(~s{dd:fl-contains("creator")}) |> Enum.any?()
+    assert document |> Floki.find(~s{dt:fl-contains("Geographic Origin")}) |> Enum.any?()
+    assert document |> Floki.find(~s{dd:fl-contains("geographic origin")}) |> Enum.any?()
+    assert document |> Floki.find(~s{dt:fl-contains("Language")}) |> Enum.any?()
+    assert document |> Floki.find(~s{dd:fl-contains("language")}) |> Enum.any?()
+    assert document |> Floki.find(~s{dt:fl-contains("Publisher")}) |> Enum.any?()
+    assert document |> Floki.find(~s{dd:fl-contains("publisher")}) |> Enum.any?()
+    assert document |> Floki.find(~s{dt:fl-contains("Subject")}) |> Enum.any?()
+    assert document |> Floki.find(~s{dd:fl-contains("subject")}) |> Enum.any?()
 
     # Does not display unconfigured fields
-    assert document |> Floki.find(~s{th:fl-contains("Sort title")}) |> Enum.any?() == false
+    assert document |> Floki.find(~s{dt:fl-contains("Sort title")}) |> Enum.any?() == false
   end
 
   test "/item/{:id} redirects when title is recognized latin script", %{conn: conn} do
