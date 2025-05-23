@@ -184,7 +184,12 @@ defmodule DpulCollectionsWeb.SearchLive do
         </div>
       </div>
       <div class="grid grid-flow-row auto-rows-max gap-8">
-        <.search_item :for={item <- @items} item={item} sort_by={@search_state.sort_by} />
+        <.search_item
+          :for={item <- @items}
+          search_state={@search_state}
+          item={item}
+          sort_by={@search_state.sort_by}
+        />
       </div>
       <div class="text-center max-w-5xl mx-auto text-lg py-8">
         <.paginator
@@ -215,8 +220,10 @@ defmodule DpulCollectionsWeb.SearchLive do
           {@item.file_count} {gettext("Pages")}
         </div>
       </div>
-      <div class="pt-4 text-gray-500 font-bold text-sm uppercase">
-        <a href="">{@item.genre}</a>
+      <div data-field="genre" class="pt-4 text-gray-500 font-bold text-sm uppercase">
+        <.link navigate={self_route(@search_state, %{genre: first_value(@item.genre)})}>
+          {@item.genre}
+        </.link>
       </div>
       <h2>
         <.link navigate={@item.url}>{@item.title}</.link>
@@ -362,6 +369,16 @@ defmodule DpulCollectionsWeb.SearchLive do
     params = %{socket.assigns.search_state | page: page} |> Helpers.clean_params()
     socket = push_navigate(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
+  end
+
+  def first_value([item | _]), do: item
+  def first_value([]), do: nil
+  def first_value(nil), do: nil
+  def first_value(item), do: item
+
+  def self_route(search_state, extra \\ %{}) do
+    params = Map.merge(search_state, extra) |> Helpers.clean_params()
+    ~p"/search?#{params}"
   end
 
   defp more_pages?(page, per_page, total_items) do

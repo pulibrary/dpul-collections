@@ -323,6 +323,32 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Enum.empty?()
   end
 
+  test "items can be filtered by genre", %{conn: conn} do
+    {:ok, view, html} = live(conn, "/search")
+
+    {:ok, document} =
+      view
+      |> element("#item-2 a", "Folders")
+      |> render_click()
+      |> follow_redirect(conn)
+      |> elem(2)
+      |> Floki.parse_document()
+
+    # Only folders
+    assert document
+           |> Floki.find(~s{a[href="/i/document2/item/2"]})
+           |> Enum.any?()
+
+    assert document
+           |> Floki.find(~s{a[href="/i/document4/item/4"]})
+           |> Enum.any?()
+
+    # Odd numbered ones are pamphlets.
+    assert document
+           |> Floki.find(~s{a[href="/i/document1/item/1"]})
+           |> Enum.empty?()
+  end
+
   test "paginator works as expected", %{conn: conn} do
     # Check that the previous link is hidden on the first page
     {:ok, view, _html} = live(conn, ~p"/search?page=1")

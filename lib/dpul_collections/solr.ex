@@ -32,6 +32,8 @@ defmodule DpulCollections.Solr do
 
     solr_params = [
       q: query_param(search_state),
+      # https://solr.apache.org/docs/9_4_0/core/org/apache/solr/util/doc-files/min-should-match.html
+      # If more than 6 clauses, only require 90%. Pulled from our catalog.
       mm: "6<90%",
       fq: facet_param(search_state),
       fl: fl,
@@ -91,9 +93,15 @@ defmodule DpulCollections.Solr do
   end
 
   def facet_param(search_state) do
-    Enum.reject([date_query(search_state)], &is_nil(&1))
+    Enum.reject([date_query(search_state), genre_facet(search_state)], &is_nil(&1))
     |> Enum.join(" ")
   end
+
+  def genre_facet(%{genre: genre}) when is_binary(genre) do
+    "genre_txtm:#{genre}"
+  end
+
+  def genre_facet(_), do: nil
 
   defp date_query(%{date_from: nil, date_to: nil}), do: nil
 
