@@ -32,7 +32,8 @@ defmodule DpulCollections.Solr do
 
     solr_params = [
       q: query_param(search_state),
-      "q.op": "AND",
+      mm: "6<90%",
+      fq: facet_param(search_state),
       fl: fl,
       sort: sort_param(search_state),
       rows: search_state[:per_page],
@@ -86,7 +87,11 @@ defmodule DpulCollections.Solr do
   end
 
   defp query_param(search_state) do
-    Enum.reject([search_state[:q], date_query(search_state)], &is_nil(&1))
+    search_state[:q]
+  end
+
+  def facet_param(search_state) do
+    Enum.reject([date_query(search_state)], &is_nil(&1))
     |> Enum.join(" ")
   end
 
