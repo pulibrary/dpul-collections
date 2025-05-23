@@ -85,66 +85,19 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       html_response(conn, 200)
       |> Floki.parse_document()
 
-    assert document |> Floki.find(~s{th:fl-contains("Date")}) |> Enum.any?()
-    assert document |> Floki.find(~s{td:fl-contains("2022")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("Iiif manifest url")}) |> Enum.any?()
-
-    assert document
-           |> Floki.find(
-             ~s{td:fl-contains("https://figgy.princeton.edu/concern/ephemera_folders/42b8f9d4-1ab0-4622-b4a9-96ed4c2bec71/manifest")}
-           )
-           |> Enum.any?()
-
-    assert document |> Floki.find(~s{th:fl-contains("Alternative title")}) |> Enum.any?()
-    assert document |> Floki.find(~s{td:fl-contains("Alternative Title")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("Barcode")}) |> Enum.any?()
-    assert document |> Floki.find(~s{td:fl-contains("barcode")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("Box number")}) |> Enum.any?()
-    assert document |> Floki.find(~s{td:fl-contains("box 1")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("Content warning")}) |> Enum.any?()
-    assert document |> Floki.find(~s{td:fl-contains("content warning")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("Contributor")}) |> Enum.any?()
-    assert document |> Floki.find(~s{td:fl-contains("contributor")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("Creator")}) |> Enum.any?()
-    assert document |> Floki.find(~s{td:fl-contains("creator")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("Description")}) |> Enum.any?()
-    assert document |> Floki.find(~s{td:fl-contains("This is a test description")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("Folder number")}) |> Enum.any?()
-    assert document |> Floki.find(~s{td:fl-contains("1")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("Genre")}) |> Enum.any?()
-    assert document |> Floki.find(~s{td:fl-contains("genre")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("Geo subject")}) |> Enum.any?()
-    assert document |> Floki.find(~s{td:fl-contains("geo subject")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("Geographic origin")}) |> Enum.any?()
-    assert document |> Floki.find(~s{td:fl-contains("geographic origin")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("Height")}) |> Enum.any?()
-    assert document |> Floki.find(~s{td:fl-contains("200")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("Holding location")}) |> Enum.any?()
-    assert document |> Floki.find(~s{td:fl-contains("holding location")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("Keywords")}) |> Enum.any?()
-    assert document |> Floki.find(~s{td:fl-contains("keyword")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("Language")}) |> Enum.any?()
-    assert document |> Floki.find(~s{td:fl-contains("language")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("Page count")}) |> Enum.any?()
-    assert document |> Floki.find(~s{td:fl-contains("4")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("Publisher")}) |> Enum.any?()
-    assert document |> Floki.find(~s{td:fl-contains("publisher")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("Provenance")}) |> Enum.any?()
-    assert document |> Floki.find(~s{td:fl-contains("provenance")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("Rights statement")}) |> Enum.any?()
-    assert document |> Floki.find(~s{td:fl-contains("No Known Copyright")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("Series")}) |> Enum.any?()
-    assert document |> Floki.find(~s{td:fl-contains("series")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("Subject")}) |> Enum.any?()
-    assert document |> Floki.find(~s{td:fl-contains("subject")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("Transliterated title")}) |> Enum.any?()
-    assert document |> Floki.find(~s{td:fl-contains("transliterated title")}) |> Enum.any?()
-    assert document |> Floki.find(~s{th:fl-contains("Width")}) |> Enum.any?()
-    assert document |> Floki.find(~s{td:fl-contains("200")}) |> Enum.any?()
+    assert document |> Floki.find(~s{dt:fl-contains("Creator of work")}) |> Enum.any?()
+    assert document |> Floki.find(~s{dd:fl-contains("creator")}) |> Enum.any?()
+    assert document |> Floki.find(~s{dt:fl-contains("Geographic Origin")}) |> Enum.any?()
+    assert document |> Floki.find(~s{dd:fl-contains("geographic origin")}) |> Enum.any?()
+    assert document |> Floki.find(~s{dt:fl-contains("Language")}) |> Enum.any?()
+    assert document |> Floki.find(~s{dd:fl-contains("language")}) |> Enum.any?()
+    assert document |> Floki.find(~s{dt:fl-contains("Publisher")}) |> Enum.any?()
+    assert document |> Floki.find(~s{dd:fl-contains("publisher")}) |> Enum.any?()
+    assert document |> Floki.find(~s{dt:fl-contains("Subject")}) |> Enum.any?()
+    assert document |> Floki.find(~s{dd:fl-contains("subject")}) |> Enum.any?()
 
     # Does not display unconfigured fields
-    assert document |> Floki.find(~s{th:fl-contains("Sort title")}) |> Enum.any?() == false
-    assert document |> Floki.find(~s{td:fl-contains("sort title")}) |> Enum.any?() == false
+    assert document |> Floki.find(~s{dt:fl-contains("Sort title")}) |> Enum.any?() == false
   end
 
   test "/item/{:id} redirects when title is recognized latin script", %{conn: conn} do

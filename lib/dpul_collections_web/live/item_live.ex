@@ -88,6 +88,7 @@ defmodule DpulCollectionsWeb.ItemLive do
             Part of <a href="#">{collection}</a>
           </div>
           <.action_bar class="hidden sm:block" item={@item} />
+          <.content_separator />
           <.metadata_table item={@item} />
         </div>
       </div>
@@ -116,7 +117,6 @@ defmodule DpulCollectionsWeb.ItemLive do
           <.rights_icon rights_statement={@item.rights_statement} />
         </div>
       </div>
-      <.content_separator class="mt-4" />
     </div>
     """
   end
@@ -208,17 +208,18 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def metadata_table(assigns) do
     ~H"""
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-      <table class="w-full text-sm text-left rtl:text-right align-top">
-        <tbody>
-          <.metadata_row
-            :for={{field, _} <- Enum.with_index(DpulCollections.Item.metadata_display_fields())}
-            field={field}
-            value={field_value(@item, field)}
-          />
-        </tbody>
-      </table>
+    <div class="relative overflow-x-auto">
+      <dl class="grid items-start gap-x-8 gap-y-4">
+        <.metadata_row
+          :for={{field, field_label} <- DpulCollections.Item.metadata_display_fields()}
+          field_label={field_label}
+          value={field_value(@item, field)}
+        />
+      </dl>
     </div>
+    <.primary_button class="right-arrow-box" href="#" target="_blank">
+      <.icon name="hero-table-cells" /> {gettext("View all metadata for this item")}
+    </.primary_button>
     """
   end
 
@@ -229,14 +230,14 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def metadata_row(assigns) do
     ~H"""
-    <tr class="even:bg-white odd:bg-gray-50 border-b border-gray-200">
-      <th scope="row" class="px-6 py-4 text-gray-900 whitespace-nowrap align-top">
-        {field_label(@field)}
-      </th>
-      <td class="px-6 py-4 font-medium">
-        {@value}
-      </td>
-    </tr>
+    <div class="col-span-2 grid grid-cols-subgrid border-b-1 border-rust pb-4">
+      <dt class="font-bold text-lg">
+        {@field_label}
+      </dt>
+      <dd :for={value <- @value} class="col-start-2">
+        {value}
+      </dd>
+    </div>
     """
   end
 
@@ -244,13 +245,6 @@ defmodule DpulCollectionsWeb.ItemLive do
     item
     |> Kernel.get_in([Access.key(field)])
     |> List.wrap()
-  end
-
-  def field_label(field) do
-    field
-    |> Atom.to_string()
-    |> String.replace("_", " ")
-    |> String.capitalize()
   end
 
   def thumbs(assigns) do
