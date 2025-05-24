@@ -17,19 +17,19 @@
 @theme {
 
   /* color for light sections - neutral 05*/
-  --color-taupe: #f7f7f7;
+  --color-taupe: #FCFBF8;
   --color-wafer-pink: #e2d4c9;
   /* color for text on header - neutral 05*/
-  --color-sage: #f7f7f7;
+  --color-sage: #FCFBF8;
   /* color for placeholders - this is neutral 40*/
-  --color-dark-sage: #a0a0a0;
-  /* color for alternating sections - the "non light" ones */
-  --color-cloud: #121212;
+  --color-dark-sage: #8d7e6a;
+  /* color for alternating sections - the "non light" ones. Primary 100 */
+  --color-cloud: #04342A;
   /* callouts - this is "Bright" */
-  --color-rust: #e77500;
-  /* header colors */
-  --color-dark-blue: #121212;
-  /* Button Text on Dark Blue */
+  --color-rust: #00C08B;
+  /* header colors - primary 100*/
+  --color-dark-blue: #04342A;
+  /* Button Text on Dark Blue.  */
   --color-light-green: #ECF2CB;
   /* "Highlight" for browse cutout */
   --color-bright-light: #717171;
