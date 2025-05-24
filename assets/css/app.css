@@ -17,18 +17,18 @@
 @theme {
 
   /* color for light sections - neutral 05*/
-  --color-taupe: #f8f9fb;
+  --color-taupe: #f5f6f6;
   --color-wafer-pink: #e2d4c9;
   /* color for text on header - neutral 05*/
-  --color-sage: #f8f9fb;
+  --color-sage: #f5f6f6;
   /* color for placeholders - this is neutral 40*/
-  --color-dark-sage: #828b97;
+  --color-dark-sage: #7d8489;
   /* color for alternating sections - the "non light" ones. Primary 100 */
-  --color-cloud: #042133;
+  --color-cloud: #1c122e;
   /* callouts - this is "Bright" */
-  --color-rust: #03a9f4;
+  --color-rust: #5c43a8;
   /* header colors - primary 100*/
-  --color-dark-blue: #042133;
+  --color-dark-blue: #1c122e;
   /* Button Text on Dark Blue.  */
   --color-light-green: #ECF2CB;
 
@@ -40,6 +40,10 @@
 }
 
 .bg-cloud {
+  @apply text-sage;
+}
+
+.bg-rust {
   @apply text-sage;
 }
 
