@@ -13,21 +13,40 @@
 @custom-variant phx-submit-loading ([".phx-submit-loading&", ".phx-submit-loading &"]);
 @custom-variant phx-change-loading ([".phx-change-loading&", ".phx-change-loading &"]);
 
+/* Tiger theme - https://sitebuilder.princeton.edu/themes-design/tiger-theme */
 @theme {
-  --color-taupe: #ede7e4;
+
+  /* color for light sections - neutral 05*/
+  --color-taupe: #f7f7f7;
   --color-wafer-pink: #e2d4c9;
-  --color-sage: #d0d3ac;
-  --color-dark-sage: #9fa06c;
-  --color-cloud: #c1ccc3;
-  --color-rust: #ab6b47;
-  --color-dark-blue: #3a4151;
+  /* color for text on header - neutral 05*/
+  --color-sage: #f7f7f7;
+  /* color for placeholders - this is neutral 40*/
+  --color-dark-sage: #a0a0a0;
+  /* color for alternating sections - the "non light" ones */
+  --color-cloud: #121212;
+  /* callouts - this is "Bright" */
+  --color-rust: #e77500;
+  /* header colors */
+  --color-dark-blue: #121212;
   /* Button Text on Dark Blue */
   --color-light-green: #ECF2CB;
+  /* "Highlight" for browse cutout */
+  --color-bright-light: #717171;
 
   /* just add poppins on the front of the tailwind default */
   --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   /* and aleo in front of the serif defaults */
   --font-serif: "Aleo", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+
+}
+
+.bg-cloud {
+  @apply text-sage;
+}
+
+.bg-bright-light {
+  @apply text-white;
 }
 
 .browse-link {
@@ -151,7 +170,7 @@
  */
 
 @utility heading {
-  @apply uppercase font-semibold text-dark-blue;
+  @apply uppercase font-semibold;
 }
 
 @utility link-hover {
