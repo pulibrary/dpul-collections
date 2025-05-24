@@ -17,22 +17,20 @@
 @theme {
 
   /* color for light sections - neutral 05*/
-  --color-taupe: #FCFBF8;
+  --color-taupe: #f8f9fb;
   --color-wafer-pink: #e2d4c9;
   /* color for text on header - neutral 05*/
-  --color-sage: #FCFBF8;
+  --color-sage: #f8f9fb;
   /* color for placeholders - this is neutral 40*/
-  --color-dark-sage: #8d7e6a;
+  --color-dark-sage: #828b97;
   /* color for alternating sections - the "non light" ones. Primary 100 */
-  --color-cloud: #04342A;
+  --color-cloud: #042133;
   /* callouts - this is "Bright" */
-  --color-rust: #00C08B;
+  --color-rust: #03a9f4;
   /* header colors - primary 100*/
-  --color-dark-blue: #04342A;
+  --color-dark-blue: #042133;
   /* Button Text on Dark Blue.  */
   --color-light-green: #ECF2CB;
-  /* "Highlight" for browse cutout */
-  --color-bright-light: #717171;
 
   /* just add poppins on the front of the tailwind default */
   --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
@@ -43,10 +41,6 @@
 
 .bg-cloud {
   @apply text-sage;
-}
-
-.bg-bright-light {
-  @apply text-white;
 }
 
 .browse-link {
