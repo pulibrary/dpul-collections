@@ -7,7 +7,7 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
     ~H"""
     <div class="search-bar">
       <div class="search-browse-container min-h-14 flex flex-wrap bg-sage">
-        <div class="search-box header-x-padding grow">
+        <div class="search-box header-x-padding grow border-b-[2px] border-rust">
           <form id="search-form" class="w-full h-full" phx-submit="search" phx-target={@myself}>
             <div class="flex items-center w-full h-full text-dark-blue">
               <span class="flex-none">
@@ -32,8 +32,10 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
           </form>
         </div>
 
-        <div class="browse-link flex flex-none justify-end items-center header-e-padding bg-cloud ml-auto">
-          <div class="w-full text-right heading text-xl font-bold">
+        <div class="z-0 browse-link bg-rust pl-[50px] relative flex flex-none justify-end items-center header-e-padding border-t-[2px] border-rust">
+          <div class="z-[-1] absolute w-full h-full browse-link left-[1px] bg-cloud">
+          </div>
+          <div class="z-2 w-full text-right heading text-xl font-bold">
             <span><.icon name="hero-square-3-stack-3d" class="p-1 h-10 w-10 icon" /></span>
             <.link navigate={~p"/browse"} class="pl-2">
               {gettext("Browse all items")}
@@ -41,7 +43,6 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
           </div>
         </div>
       </div>
-      <.content_separator />
     </div>
     """
   end
