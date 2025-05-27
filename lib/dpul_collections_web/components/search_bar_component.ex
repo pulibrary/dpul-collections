@@ -32,8 +32,8 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
           </form>
         </div>
 
-        <div class="z-0 browse-link bg-rust pl-[50px] relative flex flex-none justify-end items-center header-e-padding border-t-[2px] border-rust">
-          <div class="z-[-1] absolute w-full h-full browse-link left-[1px] bg-cloud">
+        <div class="z-0 ml-[-1px] browse-link bg-rust pl-[50px] relative flex flex-none justify-end items-center header-e-padding">
+          <div class="z-[-1] absolute w-full h-full browse-link left-[1px] top-[2px] bg-sage">
           </div>
           <div class="z-2 w-full text-right heading text-xl font-bold">
             <span><.icon name="hero-square-3-stack-3d" class="p-1 h-10 w-10 icon" /></span>
