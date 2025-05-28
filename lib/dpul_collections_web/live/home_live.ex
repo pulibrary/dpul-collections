@@ -144,12 +144,14 @@ defmodule DpulCollectionsWeb.HomeLive do
       <div class="explore-header grid-row bg-taupe relative">
         <div class="shadow-lg bg-taupe absolute max-h-[600px] sm:min-w-[350px] w-full lg:max-w-1/2 2xl:max-w-1/3 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 p-8">
           <div class="content-area text-center h-full w-full flex flex-col justify-evenly">
-            <div class="content-area page-y-padding text-xl flex-grow">
-              Discover <a class="text-rust" href="#">Photographs</a>, <a class="text-rust" href="#">Posters</a>, <a
-                class="text-rust"
-                href="#"
-              >Books</a>, and <.link navigate={~p"/browse"} class="text-rust">more</.link>
-              to inspire your research.
+            <div class="page-y-padding text-xl flex-grow">
+              {gettext(
+                "Discover %{photographs}, %{posters}, %{books}, and more to inspire your research",
+                photographs: callout_link(%{url: "#", label: gettext("photographs")}),
+                posters: callout_link(%{url: "#", label: gettext("posters")}),
+                books: callout_link(%{url: "#", label: gettext("books")})
+              )
+              |> Phoenix.HTML.raw()}
             </div>
             <div class="content-area bg-dark-blue text-taupe p-4 text-2xl">
               <.link navigate={~p"/browse"} class="">
@@ -204,5 +206,11 @@ defmodule DpulCollectionsWeb.HomeLive do
       </div>
     </div>
     """
+  end
+
+  defp callout_link(assigns) do
+    Phoenix.HTML.Safe.to_iodata(~H"""
+    <.link href={@url} class="text-rust" target="_blank">{@label}</.link>
+    """)
   end
 end

@@ -8,7 +8,7 @@
 4. Add translations into the non-English .po files found in `priv/gettext/`. For example, to add the Spanish translations, update the `msgstr` for each English word you want to translate.
 
 ## How to Edit Localized Translations
-If you edit the original string ids, simply run mix gettext.extract again. Then, the next mix gettext.merge can do fuzzy matching. So, if you change "Hello world" to "Hello world!", Gettext will see that the new message ID is similar to an existing msgid, and will do two things:
+If you edit the original string ids, simply run `mix gettext.extract` again. Then, the next `mix gettext.merge priv/gettext` can do fuzzy matching. So, if you change "Hello world" to "Hello world!", Gettext will see that the new message ID is similar to an existing msgid, and will do two things:
 
     1. It will update the msgid in all .po files to match the new text.
 
