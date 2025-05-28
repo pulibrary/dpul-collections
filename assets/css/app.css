@@ -20,30 +20,30 @@
   --color-dark-sage: #9fa06c;
   --color-cloud: #c1ccc3;
   --color-rust: #ab6b47;
-  --color-dark-blue: #3a4151;
+  --color-dark-blue: hsl(222, 17%, 27%);
   /* Button Text on Dark Blue */
   --color-light-green: #ECF2CB;
 
   /* Semantic colors */
   /* For bright backgrounds, or bright text on dark backgrounds */
-  --color-bright-primary: var(--color-taupe);
+  --color-bright-primary: hsl(222, 5%, 90%);
   /* Color of action icons, and generally when something has a background on a
    * bright background and needs attention called to it. */
   --color-idle: var(--color-wafer-pink);
   /* For dark text on bright backgrounds) */
   --color-dark-primary: var(--color-dark-blue);
   /* Color of the search bar. */
-  --color-search-bar: var(--color-sage);
+  --color-search-bar: hsl(222, 15%, 60%);
   /* Color of the text in the search bar. */
-  --color-search-bar-text: var(--color-dark-sage);
+  --color-search-bar-text: hsl(222, 5%, 90%, 70%);
   /* Color for the darker sections of the page. */
-  --color-dark-section: var(--color-cloud);
+  --color-dark-section: hsl(222, 5%, 90%);
   /* Color for separators */
   --color-separators: var(--color-rust);
   /* Color for target text on light bgs */
   --color-target: var(--color-rust);
   /* Color for target text on dark bgs */
-  --color-light-target: var(--color-light-green);
+  --color-light-target: var(--color-bright-primary);
   /* Color for header & footer *dark) */
   --color-header: var(--color-dark-blue);
 

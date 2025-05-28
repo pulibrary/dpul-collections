@@ -21,7 +21,7 @@ defmodule DpulCollectionsWeb.HeaderComponent do
       <div class="app_name flex-1 w-auto text-center">
         <.link
           navigate={~p"/"}
-          class="text-xl sm:text-3xl md:text-4xl sm:inline-block uppercase tracking-widest font-extrabold text-center text-search-bar"
+          class="text-xl sm:text-3xl md:text-4xl sm:inline-block uppercase tracking-widest font-extrabold text-center text-bright-primary"
         >
           {gettext("Digital Collections")}
         </.link>
