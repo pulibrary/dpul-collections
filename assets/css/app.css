@@ -24,10 +24,29 @@
   /* Button Text on Dark Blue */
   --color-light-green: #ECF2CB;
 
+  /* Some semantic colors */
+  --color-background: var(--color-taupe);
+  --color-light-text: var(--color-taupe);
+  --color-dark-text: var(--color-dark-blue);
+  /* brand is the color that's the site's brand - header/footer */
+  --color-brand: var(--color-dark-blue);
+  /* Primary is calls to action - buttons */
+  --color-primary: var(--color-dark-blue);
+  /* Secondary is for alternate lower-priority sections */
+  --color-secondary: hsl(65, 15%, 70%);
+  /* Accents are an additional color.
+   * Images/highlights/hyperlinks/boxes/cards/etc.
+   */
+  --color-accent: var(--color-rust);
+
   /* just add poppins on the front of the tailwind default */
   --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   /* and aleo in front of the serif defaults */
   --font-serif: "Aleo", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+}
+
+.bg-brand {
+  @apply text-light-text;
 }
 
 .browse-link {

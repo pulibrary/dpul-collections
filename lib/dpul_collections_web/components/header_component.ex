@@ -6,7 +6,7 @@ defmodule DpulCollectionsWeb.HeaderComponent do
 
   def header(assigns) do
     ~H"""
-    <header class="flex flex-row gap-10 items-center bg-dark-blue py-6 header-x-padding">
+    <header class="flex flex-row gap-10 items-center bg-brand py-6 header-x-padding">
       
     <!-- logo -->
       <div class="logo flex-none sm:w-32 md:w-40 hidden sm:flex">
@@ -21,7 +21,7 @@ defmodule DpulCollectionsWeb.HeaderComponent do
       <div class="app_name flex-1 w-auto text-center">
         <.link
           navigate={~p"/"}
-          class="text-xl sm:text-3xl md:text-4xl sm:inline-block uppercase tracking-widest font-extrabold text-center text-sage"
+          class="text-xl sm:text-3xl md:text-4xl sm:inline-block uppercase tracking-widest font-extrabold text-center"
         >
           {gettext("Digital Collections")}
         </.link>

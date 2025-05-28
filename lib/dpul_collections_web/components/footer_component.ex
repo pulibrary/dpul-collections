@@ -5,7 +5,7 @@ defmodule DpulCollectionsWeb.FooterComponent do
 
   def footer(assigns) do
     ~H"""
-    <footer class="text-white flex flex-wrap sm:flex-row gap-10 items-center bg-dark-blue py-6 sm:py-10 header-x-padding">
+    <footer class="text-white flex flex-wrap sm:flex-row gap-10 items-center bg-brand py-6 sm:py-10 header-x-padding">
       <div class="footer-links flex-none w-32 sm:w-60">
         <ul class="text-xs">
           <li class="py-1">
