@@ -153,7 +153,7 @@ defmodule DpulCollectionsWeb.HomeLive do
               <.link navigate={~p"/browse"} class="text-target">more</.link>
               to inspire and support your research.
             </div>
-            <div class="content-area bg-header text-bright-primary p-4 text-2xl">
+            <div class="content-area bg-button-primary text-bright-primary p-4 text-2xl">
               <.link navigate={~p"/browse"} class="">
                 {gettext("Browse all items")}
               </.link>

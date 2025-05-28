@@ -147,7 +147,7 @@ defmodule DpulCollectionsWeb.SearchLive do
                 role="button"
                 id="year-facet"
                 name="year-facet"
-                class="mb-2 focus:border-3 focus:visible:border-separators focus:border-separators py-2 px-4 shadow-md no-underline rounded-lg bg-header border-header text-bright-primary font-sans font-semibold text-sm btn-primary hover:text-bright-primary hover:bg-separators focus:outline-none active:shadow-none mr-2"
+                class="mb-2 focus:border-3 focus:visible:border-separators focus:border-separators py-2 px-4 shadow-md no-underline rounded-lg bg-button-primary border-header text-bright-primary font-sans font-semibold text-sm btn-primary hover:text-bright-primary hover:bg-separators focus:outline-none active:shadow-none mr-2"
               >
                 {gettext("Year")}
                 <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
@@ -169,7 +169,7 @@ defmodule DpulCollectionsWeb.SearchLive do
                 role="button"
                 id="genre-facet"
                 name="genre-facet"
-                class="mb-2 focus:border-3 focus:visible:border-separators focus:border-separators py-2 px-4 shadow-md no-underline rounded-lg bg-header border-header text-bright-primary font-sans font-semibold text-sm btn-primary hover:text-bright-primary hover:bg-separators focus:outline-none active:shadow-none"
+                class="mb-2 focus:border-3 focus:visible:border-separators focus:border-separators py-2 px-4 shadow-md no-underline rounded-lg bg-button-primary border-header text-bright-primary font-sans font-semibold text-sm btn-primary hover:text-bright-primary hover:bg-separators focus:outline-none active:shadow-none"
               >
                 {gettext("Genre")}
                 <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
@@ -266,7 +266,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       <.link
         :if={@page > 1}
         id="paginator-previous"
-        class="flex items-center justify-center px-3 h-8 leading-tight border border-header bg-header text-search-bar hover:text-bright-primary"
+        class="flex items-center justify-center px-3 h-8 leading-tight border border-header bg-button-primary text-search-bar hover:text-bright-primary"
         phx-click="paginate"
         phx-value-page={@page - 1}
       >
@@ -310,7 +310,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       <.link
         :if={more_pages?(@page, @per_page, @total_items)}
         id="paginator-next"
-        class="flex items-center justify-center px-3 h-8 leading-tight border border-dark-primary bg-header text-search-bar hover:text-bright-primary"
+        class="flex items-center justify-center px-3 h-8 leading-tight border border-dark-primary bg-button-primary text-search-bar hover:text-bright-primary"
         phx-click="paginate"
         phx-value-page={@page + 1}
       >

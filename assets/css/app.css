@@ -31,7 +31,7 @@
    * bright background and needs attention called to it. */
   --color-idle: var(--color-wafer-pink);
   /* For dark text on bright backgrounds) */
-  --color-dark-primary: hsl(65, 80%, 10%);
+  --color-dark-primary: hsl(55, 50%, 0%);
   /* Color of the search bar. */
   --color-search-bar: hsl(65, 31%, 75%);
   /* Color of the text in the search bar. */
@@ -45,7 +45,8 @@
   /* Color for target text on dark bgs */
   --color-light-target: var(--color-bright-primary);
   /* Color for header & footer *dark) */
-  --color-header: hsl(65, 80%, 5%);
+  --color-header: hsl(0, 0%, 7%);
+  --color-button-primary: var(--color-dark-blue);
 
   /* just add poppins on the front of the tailwind default */
   --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
@@ -57,7 +58,7 @@
   @apply text-dark-primary;
 }
 
-.bg-dark-primary {
+.bg-button-primary {
   @apply text-bright-primary;
 }
 
@@ -118,7 +119,7 @@
 }
 
 @utility btn-primary {
-  @apply flex items-center justify-center cursor-pointer font-bold *:font-bold uppercase bg-header text-bright-primary h-14;
+  @apply flex items-center justify-center cursor-pointer font-bold *:font-bold uppercase bg-button-primary text-bright-primary h-14;
 }
 
 @utility btn-secondary {
@@ -127,7 +128,7 @@
 
 .btn-arrow {
   clip-path: polygon(0% 0%, 100% 50%, 0% 100%);
-  @apply bg-header cursor-pointer border;
+  @apply bg-button-primary cursor-pointer border;
 }
 
 @utility active {
@@ -182,7 +183,7 @@
  */
 
 @utility heading {
-  @apply uppercase font-semibold text-dark-primary;
+  @apply uppercase font-semibold;
 }
 
 @utility link-hover {
