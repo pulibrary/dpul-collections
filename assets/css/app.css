@@ -57,7 +57,7 @@
   @apply text-dark-primary;
 }
 
-.bg-dark-primary {
+.bg-dark-primary, .bg-header {
   @apply text-bright-primary;
 }
 
