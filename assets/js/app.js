@@ -22,6 +22,7 @@ import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 import Hooks from "./hooks";
+import { initLiveReact } from "phoenix_live_react"
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {
@@ -52,4 +53,15 @@ liveSocket.connect()
 // >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
+
+// Initiate React for Clover IIIF Viewer once content is loaded
+document.addEventListener("DOMContentLoaded", e => {
+  initLiveReact()
+})
+
+import Viewer from "@samvera/clover-iiif/viewer";
+
+window.Components = {
+  Viewer
+}
 

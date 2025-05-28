@@ -27,6 +27,18 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def render(assigns) do
     ~H"""
+    <div id="drawer" class="hidden bg-white z-10 sticky top-0 left-0 w-[100vw] h-[100vh]" style="padding-inline: 1rem;">
+      <div id="drawer-content" class="w-full">
+        <div id="viewer-close" class="w-full text-right p-2">
+          <button phx-click={hide_drawer("#drawer")}>
+            <.icon name="hero-arrow-left" />
+          </button>
+        </div>
+        <div class="w-full h-full">
+          <%= live_react_component("Components.Viewer", [iiifContent: @item.iiif_manifest_url], id: "my-component-1") %>
+        </div>
+      </div>
+    </div>
     <div class="content-area item-page">
       <div class="column-layout my-5 flex flex-col sm:grid sm:grid-flow-row sm:auto-rows-0 sm:grid-cols-5 sm:grid-rows-[auto_1fr] sm:content-start gap-x-14 gap-y-4">
         <div class="item-title sm:row-start-1 sm:col-start-3 sm:col-span-3 h-min flex flex-col gap-4">
@@ -177,7 +189,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         height="800"
       />
 
-      <.primary_button class="left-arrow-box" href="#" target="_blank">
+      <.primary_button class="left-arrow-box" phx-click={show_drawer("#drawer", "flex")} target="_blank">
         <.icon name="hero-eye" /> {gettext("View")}
       </.primary_button>
 
@@ -259,5 +271,22 @@ defmodule DpulCollectionsWeb.ItemLive do
       />
     </div>
     """
+  end
+
+  def show_drawer(selector, display \\ "block") do
+    JS.show(%JS{},
+      to: selector,
+      display: display,
+      transition: {"ease-out duration-150", "-translate-x-full", "translate-x-0"},
+      time: 150
+    )
+  end
+
+  def hide_drawer(selector) do
+    JS.hide(%JS{},
+      to: selector,
+      transition: {"ease-in duration-150", "translate-x-0", "-translate-x-full"},
+      time: 150
+    )
   end
 end

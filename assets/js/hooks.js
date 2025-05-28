@@ -1,4 +1,5 @@
-let Hooks = {};
+import LiveReact from "phoenix_live_react"
+let Hooks = { LiveReact };
 
 Hooks.ToolbarHook = {
   mounted() {
