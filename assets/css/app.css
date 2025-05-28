@@ -31,13 +31,13 @@
    * bright background and needs attention called to it. */
   --color-idle: var(--color-wafer-pink);
   /* For dark text on bright backgrounds) */
-  --color-dark-primary: var(--color-dark-blue);
+  --color-dark-primary: hsl(65, 80%, 10%);
   /* Color of the search bar. */
-  --color-search-bar: hsl(222, 15%, 60%);
+  --color-search-bar: hsl(65, 31%, 75%);
   /* Color of the text in the search bar. */
-  --color-search-bar-text: hsl(222, 5%, 90%, 70%);
+  --color-search-bar-text: hsl(65, 70%, 20%, 70%);
   /* Color for the darker sections of the page. */
-  --color-dark-section: hsl(222, 5%, 90%);
+  --color-dark-section: hsl(65, 15%, 70%);
   /* Color for separators */
   --color-separators: var(--color-rust);
   /* Color for target text on light bgs */
@@ -45,7 +45,7 @@
   /* Color for target text on dark bgs */
   --color-light-target: var(--color-bright-primary);
   /* Color for header & footer *dark) */
-  --color-header: var(--color-dark-blue);
+  --color-header: hsl(65, 80%, 5%);
 
   /* just add poppins on the front of the tailwind default */
   --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
