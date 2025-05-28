@@ -43,7 +43,7 @@ defmodule DpulCollectionsWeb.ItemLive do
               [{atitle}]
             </p>
           </div>
-          <p :if={@item.date} class="text-xl font-medium text-dark-blue">{@item.date}</p>
+          <p :if={@item.date} class="text-xl font-medium text-dark-primary">{@item.date}</p>
         </div>
 
         <div class="thumbnails w-full sm:row-start-1 sm:col-start-1 sm:col-span-2 sm:row-span-full">
@@ -60,7 +60,7 @@ defmodule DpulCollectionsWeb.ItemLive do
                   file_max: @item.file_count
                 )}
               </div>
-              <div class="text-right text-rust uppercase">
+              <div class="text-right text-target uppercase">
                 <a href="#" target="_blank">
                   {gettext("View all pages")}
                 </a>
@@ -80,11 +80,11 @@ defmodule DpulCollectionsWeb.ItemLive do
         <div class="metadata sm:row-start-2 sm:col-span-3 sm:col-start-3 flex flex-col gap-8">
           <div
             :for={description <- @item.description}
-            class="text-xl font-medium text-dark-blue font-serif"
+            class="text-xl font-medium text-dark-primary font-serif"
           >
             {description}
           </div>
-          <div :if={@item.project} class="text-lg font-medium text-dark-blue">
+          <div :if={@item.project} class="text-lg font-medium text-dark-primary">
             Part of <a href="#">{@item.project}</a>
           </div>
           <.action_bar class="hidden sm:block" item={@item} />
@@ -94,7 +94,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       </div>
 
       <div class="">
-        <div class="bg-cloud">RELATED ITEMS</div>
+        <div class="bg-dark-section">RELATED ITEMS</div>
       </div>
     </div>
     """
@@ -155,7 +155,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div class="flex flex-col justify-center text-center text-sm mr-2 min-w-15 items-center">
       <button>
-        <div class="hover:text-white hover:bg-rust cursor-pointer w-10 h-10 p-2 bg-wafer-pink rounded-full flex justify-center items-center">
+        <div class="hover:text-bright-primary hover:bg-separators cursor-pointer w-10 h-10 p-2 bg-wafer-pink rounded-full flex justify-center items-center">
           <.icon class="w-full h-full" name={@icon} />
         </div>
         {render_slot(@inner_block)}
@@ -230,7 +230,7 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def metadata_row(assigns) do
     ~H"""
-    <div class="col-span-2 grid grid-cols-subgrid border-b-1 border-rust pb-4">
+    <div class="col-span-2 grid grid-cols-subgrid border-b-1 border-separators pb-4">
       <dt class="font-bold text-lg">
         {@field_label}
       </dt>

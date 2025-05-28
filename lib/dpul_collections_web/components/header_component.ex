@@ -6,7 +6,7 @@ defmodule DpulCollectionsWeb.HeaderComponent do
 
   def header(assigns) do
     ~H"""
-    <header class="flex flex-row gap-10 items-center bg-dark-blue py-6 header-x-padding">
+    <header class="flex flex-row gap-10 items-center bg-header py-6 header-x-padding">
       
     <!-- logo -->
       <div class="logo flex-none sm:w-32 md:w-40 hidden sm:flex">
@@ -21,7 +21,7 @@ defmodule DpulCollectionsWeb.HeaderComponent do
       <div class="app_name flex-1 w-auto text-center">
         <.link
           navigate={~p"/"}
-          class="text-xl sm:text-3xl md:text-4xl sm:inline-block uppercase tracking-widest font-extrabold text-center text-sage"
+          class="text-xl sm:text-3xl md:text-4xl sm:inline-block uppercase tracking-widest font-extrabold text-center text-search-bar"
         >
           {gettext("Digital Collections")}
         </.link>
@@ -32,7 +32,7 @@ defmodule DpulCollectionsWeb.HeaderComponent do
         <div class="dropdown relative inline-block">
           <button
             id="dropdownButton"
-            class="text-white hover:link-hover font-medium"
+            class="text-bright-primary hover:link-hover font-medium"
             aria-haspopup="true"
             aria-expanded="false"
             phx-click={JS.toggle(to: "#dropdownMenu")}
@@ -45,7 +45,7 @@ defmodule DpulCollectionsWeb.HeaderComponent do
           <ul
             id="dropdownMenu"
             phx-click-away={JS.hide(to: "#dropdownMenu")}
-            class="dropdown-menu aria-hidden hidden absolute left-auto right-0 list-none bg-white min-w-3xs py-2 px-0 mt-2 shadow-md rounded-md z-100"
+            class="dropdown-menu aria-hidden hidden absolute left-auto right-0 list-none bg-bright-primary min-w-3xs py-2 px-0 mt-2 shadow-md rounded-md z-100"
             role="menu"
             aria-hidden="true"
           >

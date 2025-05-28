@@ -12,7 +12,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
     ~H"""
     <div
       id={"browse-item-#{@item.id}"}
-      class="flex bg-white flex-col overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_rgba(148,163,184,0.75)] min-w-[250px]"
+      class="flex bg-bright-primary flex-col overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_rgba(148,163,184,0.75)] min-w-[250px]"
     >
       <!-- pin -->
       <div
@@ -20,18 +20,18 @@ defmodule DpulCollectionsWeb.BrowseItem do
         id={"pin-#{@item.id}"}
         phx-click={
           JS.push("pin")
-          |> JS.toggle_class("bg-white", to: {:inner, ".icon"})
+          |> JS.toggle_class("bg-bright-primary", to: {:inner, ".icon"})
           |> JS.toggle_class("bg-black")
-          |> JS.toggle_class("bg-white")
+          |> JS.toggle_class("bg-bright-primary")
         }
         phx-value-item_id={@item.id}
-        class="h-10 w-10 absolute left-2 top-2 cursor-pointer bg-white text-dark-blue"
+        class="h-10 w-10 absolute left-2 top-2 cursor-pointer bg-bright-primary text-dark-primary"
       >
         <.icon name="hero-archive-box-arrow-down-solid" class="h-10 w-10 icon" />
       </div>
       
     <!-- thumbs -->
-      <div class="px-2 pt-2 bg-white">
+      <div class="px-2 pt-2 bg-bright-primary">
         <div class="grid grid-rows-[repeat(4, 25%)] gap-2 h-[24rem]">
           <!-- main thumbnail -->
           <div :if={@item.file_count == 1} class="row-span-4">
@@ -55,10 +55,10 @@ defmodule DpulCollectionsWeb.BrowseItem do
       </div>
       
     <!-- card text area -->
-      <div class="flex-1 px-6 py-5 bg-white relative">
+      <div class="flex-1 px-6 py-5 bg-bright-primary relative">
         <div
           :if={@item.file_count > 4}
-          class="absolute bg-taupe right-2 top-0 z-10 pr-2 pb-1 diagonal-drop"
+          class="absolute bg-bright-primary right-2 top-0 z-10 pr-2 pb-1 diagonal-drop"
         >
           {@item.file_count} pages
         </div>
@@ -70,7 +70,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
       </div>
       
     <!-- "added on" note -->
-      <div :if={@added?} class="digitized_at self-end w-full bg-taupe h-10 p-2 text-right">
+      <div :if={@added?} class="digitized_at self-end w-full bg-bright-primary h-10 p-2 text-right">
         {"#{gettext("Added")} #{time_ago(@item.digitized_at)}"}
       </div>
     </div>
@@ -80,7 +80,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
   def thumb(assigns) do
     ~H"""
     <img
-      class="thumbnail bg-slate-400 text-white h-full w-full object-cover"
+      class="thumbnail bg-slate-400 text-bright-primary h-full w-full object-cover"
       src={thumbnail_url(assigns)}
       alt="thumbnail image"
     />

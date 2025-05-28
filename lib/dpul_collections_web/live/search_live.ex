@@ -147,7 +147,7 @@ defmodule DpulCollectionsWeb.SearchLive do
                 role="button"
                 id="year-facet"
                 name="year-facet"
-                class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-dark-blue border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-rust focus:outline-none active:shadow-none mr-2"
+                class="mb-2 focus:border-3 focus:visible:border-separators focus:border-separators py-2 px-4 shadow-md no-underline rounded-lg bg-header border-header text-bright-primary font-sans font-semibold text-sm btn-primary hover:text-bright-primary hover:bg-separators focus:outline-none active:shadow-none mr-2"
               >
                 {gettext("Year")}
                 <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
@@ -169,7 +169,7 @@ defmodule DpulCollectionsWeb.SearchLive do
                 role="button"
                 id="genre-facet"
                 name="genre-facet"
-                class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-dark-blue border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-rust focus:outline-none active:shadow-none"
+                class="mb-2 focus:border-3 focus:visible:border-separators focus:border-separators py-2 px-4 shadow-md no-underline rounded-lg bg-header border-header text-bright-primary font-sans font-semibold text-sm btn-primary hover:text-bright-primary hover:bg-separators focus:outline-none active:shadow-none"
               >
                 {gettext("Genre")}
                 <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
@@ -211,7 +211,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           thumb={thumb}
           thumb_num={thumb_num}
         />
-        <div :if={@item.file_count > 1} class="absolute right-0 top-0 bg-white px-4 py-2">
+        <div :if={@item.file_count > 1} class="absolute right-0 top-0 bg-bright-primary px-4 py-2">
           {@item.file_count} {gettext("Pages")}
         </div>
       </div>
@@ -266,7 +266,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       <.link
         :if={@page > 1}
         id="paginator-previous"
-        class="flex items-center justify-center px-3 h-8 leading-tight border border-dark-blue bg-dark-blue text-sage hover:text-white"
+        class="flex items-center justify-center px-3 h-8 leading-tight border border-header bg-header text-search-bar hover:text-bright-primary"
         phx-click="paginate"
         phx-value-page={@page - 1}
       >
@@ -298,9 +298,9 @@ defmodule DpulCollectionsWeb.SearchLive do
           h-8
           leading-tight
           #{if current_page?, do: "active", else: "
-              border-dark-blue
-              text-dark-blue
-              bg-white border
+              border-header
+              text-dark-primary
+              bg-bright-primary border
               hover:bg-gray-100
               hover:text-gray-700
               no-underline
@@ -310,7 +310,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       <.link
         :if={more_pages?(@page, @per_page, @total_items)}
         id="paginator-next"
-        class="flex items-center justify-center px-3 h-8 leading-tight border border-dark-blue bg-dark-blue text-sage hover:text-white"
+        class="flex items-center justify-center px-3 h-8 leading-tight border border-dark-primary bg-header text-search-bar hover:text-bright-primary"
         phx-click="paginate"
         phx-value-page={@page + 1}
       >

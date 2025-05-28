@@ -161,7 +161,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
 
   def content_separator(assigns) do
     ~H"""
-    <hr class={"h-1 border-0 bg-rust #{@rest.class}"} {@rest} />
+    <hr class={"h-1 border-0 bg-separators #{@rest.class}"} {@rest} />
     """
   end
 end

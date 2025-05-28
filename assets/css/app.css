@@ -24,10 +24,41 @@
   /* Button Text on Dark Blue */
   --color-light-green: #ECF2CB;
 
+  /* Semantic colors */
+  /* For bright backgrounds, or bright text on dark backgrounds */
+  --color-bright-primary: var(--color-taupe);
+  /* Color of action icons, and generally when something has a background on a
+   * bright background and needs attention called to it. */
+  --color-idle: var(--color-wafer-pink);
+  /* For dark text on bright backgrounds) */
+  --color-dark-primary: var(--color-dark-blue);
+  /* Color of the search bar. */
+  --color-search-bar: var(--color-sage);
+  /* Color of the text in the search bar. */
+  --color-search-bar-text: var(--color-dark-sage);
+  /* Color for the darker sections of the page. */
+  --color-dark-section: var(--color-cloud);
+  /* Color for separators */
+  --color-separators: var(--color-rust);
+  /* Color for target text on light bgs */
+  --color-target: var(--color-rust);
+  /* Color for target text on dark bgs */
+  --color-light-target: var(--color-light-green);
+  /* Color for header & footer *dark) */
+  --color-header: var(--color-dark-blue);
+
   /* just add poppins on the front of the tailwind default */
   --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   /* and aleo in front of the serif defaults */
   --font-serif: "Aleo", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+}
+
+.bg-bright-primary {
+  @apply text-dark-primary;
+}
+
+.bg-dark-primary {
+  @apply text-bright-primary;
 }
 
 .browse-link {
@@ -87,16 +118,16 @@
 }
 
 @utility btn-primary {
-  @apply flex items-center justify-center cursor-pointer font-bold *:font-bold uppercase bg-dark-blue text-white h-14;
+  @apply flex items-center justify-center cursor-pointer font-bold *:font-bold uppercase bg-header text-bright-primary h-14;
 }
 
 @utility btn-secondary {
-  @apply cursor-pointer uppercase border bg-sage text-black;
+  @apply cursor-pointer uppercase border bg-search-bar text-black;
 }
 
 .btn-arrow {
   clip-path: polygon(0% 0%, 100% 50%, 0% 100%);
-  @apply bg-dark-blue cursor-pointer border;
+  @apply bg-header cursor-pointer border;
 }
 
 @utility active {
@@ -151,11 +182,11 @@
  */
 
 @utility heading {
-  @apply uppercase font-semibold text-dark-blue;
+  @apply uppercase font-semibold text-dark-primary;
 }
 
 @utility link-hover {
-  @apply hover:underline hover:underline-offset-8 hover:decoration-rust hover:decoration-2;
+  @apply hover:underline hover:underline-offset-8 hover:decoration-separators hover:decoration-2;
 }
 
 @layer base {
@@ -164,11 +195,11 @@
   }
 
   .item-page a {
-    @apply text-rust font-semibold;
+    @apply text-target font-semibold;
   }
 
   .item-page button a {
-    @apply text-light-green hover:no-underline;
+    @apply text-light-target hover:no-underline;
   }
 
   h1 {
@@ -180,7 +211,7 @@
   }
 
   p {
-    @apply text-dark-blue;
+    @apply text-dark-primary;
   }
 }
 
