@@ -45,6 +45,10 @@
   --font-serif: "Aleo", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
 }
 
+.bg-brand {
+  @apply text-light-text;
+}
+
 .browse-link {
   padding-left: 50px;
   clip-path: polygon(40px 0%, 100% 0%, 100% 100%, 0% 100%);
