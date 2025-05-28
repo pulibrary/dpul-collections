@@ -274,6 +274,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       # IIIF Manifest URL
       assert "https://figgy.princeton.edu/concern/ephemera_folders/26713a31-d615-49fd-adfc-93770b4f66b3/manifest" =
                document["iiif_manifest_url_s"]
+
+      # Resource has "none" pdf_type so will not index a pdf url
+      assert document["pdf_url_s"] == nil
     end
   end
 
@@ -291,6 +294,20 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       # Parent EphemeraProject
       assert document["ephemera_project_title_s"] ==
                "Guatemala News and Information Bureau Archive (1963-2000)"
+    end
+  end
+
+  describe "Ephemera Folder with a pdf type" do
+    test "indexes expected fields" do
+      {hydrator, transformer, indexer, document} =
+        FiggyTestSupport.index_record_id("3da68e1c-06af-4d17-8603-fc73152e1ef7")
+
+      hydrator |> Broadway.stop(:normal)
+      transformer |> Broadway.stop(:normal)
+      indexer |> Broadway.stop(:normal)
+
+      assert document["pdf_url_s"] ==
+               "https://figgy.example.com/concern/ephemera_folders/3da68e1c-06af-4d17-8603-fc73152e1ef7/pdf"
     end
   end
 end

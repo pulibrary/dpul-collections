@@ -68,6 +68,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
       keywords_txtm: get_in(metadata, ["keywords"]),
       language_txtm: extract_term("language", metadata, related_data),
       page_count_txtm: get_in(metadata, ["page_count"]),
+      pdf_url_s: extract_pdf_url(data),
       primary_thumbnail_service_url_s: primary_thumbnail_service_url(metadata, related_data),
       provenance_txtm: get_in(metadata, ["provenance"]),
       publisher_txtm: get_in(metadata, ["publisher"]),
@@ -172,6 +173,26 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   end
 
   defp extract_service_url(nil), do: nil
+
+  defp extract_pdf_url(%{
+         "id" => id,
+         "internal_resource" => internal_resource,
+         "metadata" => %{
+           "pdf_type" => [pdf_type]
+         }
+       })
+       when internal_resource in [
+              "Numismatics::Coin",
+              "EphemeraFolder",
+              "ScannedMap",
+              "ScannedResource"
+            ] and pdf_type in ["color", "gray", "bitonal"] do
+    figgy_base_url = Application.fetch_env!(:dpul_collections, :web_connections)[:figgy_url]
+    controller = Macro.underscore(internal_resource) <> "s"
+    "#{figgy_base_url}/concern/#{controller}/#{id}/pdf"
+  end
+
+  defp extract_pdf_url(_), do: nil
 
   defp extract_box_metadata(%{"ancestors" => ancestors}) when map_size(ancestors) > 0 do
     box = find_ancestor_type(ancestors, "EphemeraBox")
