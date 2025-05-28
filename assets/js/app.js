@@ -53,3 +53,10 @@ liveSocket.connect()
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
 
+// Clipboard copy function
+window.addEventListener("dpulc:clipcopy", (event) => {
+  if ("clipboard" in navigator) {
+    const text = event.target.textContent;
+    navigator.clipboard.writeText(text);
+  }
+});

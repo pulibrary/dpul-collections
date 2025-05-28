@@ -1,6 +1,6 @@
 defmodule DpulCollectionsWeb.Features.SearchBarTest do
-  use ExUnit.Case, async: true
-  use PhoenixTest.Playwright.Case, async: true
+  use ExUnit.Case
+  use PhoenixTest.Playwright.Case
   import SolrTestSupport
   alias DpulCollections.Solr
 

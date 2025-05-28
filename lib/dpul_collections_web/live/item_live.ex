@@ -96,6 +96,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       <div class="">
         <div class="bg-cloud">RELATED ITEMS</div>
       </div>
+      <.share_modal item={@item} />
     </div>
     """
   end
@@ -110,7 +111,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         <.action_icon icon="pepicons-pencil:ruler">
           Size
         </.action_icon>
-        <.action_icon icon="hero-share">
+        <.action_icon icon="hero-share" phx-click={JS.show(to: "#share-modal")}>
           Share
         </.action_icon>
         <div class="ml-auto h-full flex-grow pr-4">
@@ -154,7 +155,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def action_icon(assigns) do
     ~H"""
     <div class="flex flex-col justify-center text-center text-sm mr-2 min-w-15 items-center">
-      <button>
+      <button {@rest}>
         <div class="hover:text-white hover:bg-rust cursor-pointer w-10 h-10 p-2 bg-wafer-pink rounded-full flex justify-center items-center">
           <.icon class="w-full h-full" name={@icon} />
         </div>
@@ -187,6 +188,47 @@ defmodule DpulCollectionsWeb.ItemLive do
       >
         <.icon name="hero-arrow-down-on-square" class="h-5" /><span>{gettext("Download")}</span>
       </.primary_button>
+    </div>
+    """
+  end
+
+  def hide_modal(js \\ %JS{}) do
+    js
+    |> JS.hide(to: "#share-modal")
+    |> JS.remove_class("bg-rust", to: "#copy-button")
+  end
+
+  def share_modal(assigns) do
+    ~H"""
+    <div id="share-modal" class="hidden">
+      <div class="fixed inset-0 p-4 flex flex-wrap justify-center items-center w-full h-full z-[1000] before:fixed before:inset-0 before:w-full before:h-full before:bg-[rgba(0,0,0,0.5)] overflow-auto">
+        <div
+          class="w-full max-w-2xl bg-white shadow-lg rounded-lg p-8 relative"
+          phx-click-away={hide_modal()}
+        >
+          <div class="flex items-center pb-3 border-b border-gray-300">
+            <h3 class="text-xl font-semibold flex-1 text-slate-900">Share</h3>
+            <button id="close-share" phx-click={hide_modal()} class="cursor-pointer">
+              <.icon name="hero-x-mark" />
+            </button>
+          </div>
+          <div>
+            <div class="w-full rounded-lg overflow-hidden border border-gray-300 flex items-center mt-4">
+              <p id="share-url" class="text-sm text-slate-500 flex-1 ml-4">
+                {DpulCollectionsWeb.Endpoint.url()}{@item.url}
+              </p>
+              <button
+                id="copy-button"
+                phx-click={JS.dispatch("dpulc:clipcopy", to: "#share-url") |> JS.add_class("bg-rust")}
+                class="group btn-primary px-4 py-3 text-sm font-medium text-white"
+              >
+                <span id="copy-text" class="group-[.bg-rust]:hidden">Copy</span>
+                <span id="copied-text" class="not-group-[.bg-rust]:hidden">Copied</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     """
   end
