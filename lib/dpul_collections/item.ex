@@ -37,8 +37,9 @@ defmodule DpulCollections.Item do
     :subject,
     :transliterated_title,
     :url,
-    :width,
-    :pdf_url
+    :pdf_url,
+    :metadata_url,
+    :width
   ]
 
   def metadata_display_fields do
@@ -49,6 +50,55 @@ defmodule DpulCollections.Item do
       {:language, gettext("Language")},
       {:geographic_origin, gettext("Geographic Origin")},
       {:subject, gettext("Subject")}
+    ]
+  end
+
+  # description is handled differently so it's not in this list
+  def metadata_detail_categories do
+    [
+      {gettext("Descriptive Information"),
+       [
+         {:title, gettext("Title")},
+         {:transliterated_title, gettext("Transliterated Title")},
+         {:alternative_title, gettext("Alternative Title")},
+         {:sort_title, gettext("Sort Title")},
+         {:creator, gettext("Creator of work")},
+         {:contributor, gettext("Contributor")},
+         {:publisher, gettext("Publisher")},
+         {:language, gettext("Language")},
+         {:date, gettext("Date Created")},
+         {:genre, gettext("Genre")},
+         {:content_warning, gettext("Content Warning")},
+         {:series, gettext("Series")},
+         {:provenance, gettext("Provenance")},
+         {:rights_statement, gettext("Rights Statement")}
+       ]},
+
+      {gettext("Discovery Information"),
+       [
+         {:subject, gettext("Subject")},
+         {:geo_subject, gettext("Geographic Subject")},
+         {:keywords, gettext("Keywords")},
+         {:geographic_origin, gettext("Geographic Origin")}
+       ]},
+
+      {gettext("Physical Characteristics"),
+       [
+         {:height, gettext("Height")},
+         {:width, gettext("Width")},
+         {:page_count, gettext("Page Count")},
+         {:file_count, gettext("File Count")}
+       ]},
+      {gettext("Institutional Information"),
+       [
+         {:project, gettext("Ephemera Project")},
+         # :collection,
+         {:box_number, gettext("Box number")},
+         {:folder_number, gettext("Folder number")},
+         {:barcode, gettext("Barcode")},
+         {:holding_location, gettext("Holding location")},
+         {:iiif_manifest_url, gettext("IIIF Manifest URL")}
+       ]}
     ]
   end
 
@@ -94,12 +144,17 @@ defmodule DpulCollections.Item do
       subject: doc["subject_txtm"] || [],
       transliterated_title: doc["transliterated_title_txtm"] || [],
       url: generate_url(id, slug),
-      width: doc["width_txtm"] || [],
-      pdf_url: doc["pdf_url_s"]
+      pdf_url: doc["pdf_url_s"],
+      metadata_url: generate_metadata_url(id, slug),
+      width: doc["width_txtm"] || []
     }
   end
 
   defp generate_url(id, slug) do
     "/i/#{slug}/item/#{id}"
+  end
+
+  defp generate_metadata_url(id, slug) do
+    "/i/#{slug}/item/#{id}/metadata"
   end
 end
