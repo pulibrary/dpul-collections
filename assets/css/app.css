@@ -183,7 +183,7 @@
   }
 
   .item-page a {
-    @apply text-rust font-semibold;
+    @apply text-accent font-semibold;
   }
 
   .item-page button a {

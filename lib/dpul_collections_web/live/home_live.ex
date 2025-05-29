@@ -210,7 +210,7 @@ defmodule DpulCollectionsWeb.HomeLive do
 
   defp callout_link(assigns) do
     Phoenix.HTML.Safe.to_iodata(~H"""
-    <.link href={@url} class="text-rust" target="_blank">{@label}</.link>
+    <.link href={@url} class="text-accent" target="_blank">{@label}</.link>
     """)
   end
 end

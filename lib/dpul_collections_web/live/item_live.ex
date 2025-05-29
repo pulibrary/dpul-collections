@@ -60,7 +60,7 @@ defmodule DpulCollectionsWeb.ItemLive do
                   file_max: @item.file_count
                 )}
               </div>
-              <div class="text-right text-rust uppercase">
+              <div class="text-right text-accent uppercase">
                 <a href="#" target="_blank">
                   {gettext("View all pages")}
                 </a>
