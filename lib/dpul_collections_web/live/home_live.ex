@@ -180,7 +180,7 @@ defmodule DpulCollectionsWeb.HomeLive do
       </div>
       <.content_separator />
 
-      <div class="recent-items grid-row bg-secondary">
+      <div class="recent-items grid-row bg-background">
         <div class="content-area">
           <div class="page-t-padding" />
           <h1>{gettext("Recently Added Items")}</h1>
