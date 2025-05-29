@@ -47,7 +47,9 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           subject_txtm: ["subject"],
           transliterated_title_txtm: ["transliterated title"],
           width_txtm: ["200"],
-          ephemera_project_title_s: "Test Project"
+          ephemera_project_title_s: "Test Project",
+          pdf_url_s:
+            "https://figgy.example.com/concern/ephemera_folders/3da68e1c-06af-4d17-8603-fc73152e1ef7/pdf"
         },
         %{
           id: 2,
@@ -130,40 +132,50 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     assert conn.status == 200
   end
 
-  test "GET /i/{:slug}/item/{:id} response", %{conn: conn} do
-    {:ok, view, _html} = live(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
-    response = render(view)
-    assert response =~ "Învăţămîntul trebuie să urmărească dezvoltarea deplină a personalităţii"
-    assert response =~ "2022"
-    assert response =~ "17"
-    assert response =~ "This is a test description"
-    # Thumbnails render.
-    assert view
-           |> has_element?(
-             "img[src='https://example.com/iiif/2/image1/full/350,465/0/default.jpg']"
-           )
+  describe "GET /i/{:slug}/item/{:id}" do
+    test "response", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
+      response = render(view)
+      assert response =~ "Învăţămîntul trebuie să urmărească dezvoltarea deplină a personalităţii"
+      assert response =~ "2022"
+      assert response =~ "17"
+      assert response =~ "This is a test description"
+      # Thumbnails render.
+      assert view
+             |> has_element?(
+               "img[src='https://example.com/iiif/2/image1/full/350,465/0/default.jpg']"
+             )
 
-    assert view
-           |> has_element?(
-             "img[src='https://example.com/iiif/2/image2/full/350,465/0/default.jpg']"
-           )
+      assert view
+             |> has_element?(
+               "img[src='https://example.com/iiif/2/image2/full/350,465/0/default.jpg']"
+             )
 
-    # Large thumbnail renders using thumbnail service url
-    assert view
-           |> has_element?(
-             ".primary-thumbnail img[src='https://example.com/iiif/2/image2/full/525,800/0/default.jpg']"
-           )
+      # Large thumbnail renders using thumbnail service url
+      assert view
+             |> has_element?(
+               ".primary-thumbnail img[src='https://example.com/iiif/2/image2/full/525,800/0/default.jpg']"
+             )
 
-    assert view
-           |> has_element?(
-             ".primary-thumbnail a[href='https://figgy.example.com/catalog/1/pdf']",
-             "Download"
-           )
+      assert view
+             |> has_element?(
+               ".primary-thumbnail a[href='https://figgy.example.com/concern/ephemera_folders/3da68e1c-06af-4d17-8603-fc73152e1ef7/pdf']",
+               "Download"
+             )
 
-    # Renders when there's no description
-    {:ok, view, _html} = live(conn, "/i/زلزلہ/item/2")
-    response = render(view)
-    assert response =~ "زلزلہ"
+      # Renders when there's no description
+      {:ok, view, _html} = live(conn, "/i/زلزلہ/item/2")
+      response = render(view)
+      assert response =~ "زلزلہ"
+    end
+
+    test "doesn't display a pdf for resources with no pdf permission", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/i/زلزلہ/item/2")
+      response = render(view)
+
+      assert response =~ "زلزلہ"
+      assert response =~ "No PDF Available"
+    end
   end
 
   test "/i/{:slug}/item/{:id} 404s with a bad id", %{conn: conn} do
