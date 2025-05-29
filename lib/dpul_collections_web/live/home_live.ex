@@ -153,7 +153,7 @@ defmodule DpulCollectionsWeb.HomeLive do
               )
               |> Phoenix.HTML.raw()}
             </div>
-            <div class="content-area bg-dark-blue text-light-text p-4 text-2xl">
+            <div class="content-area bg-primary text-light-text p-4 text-2xl">
               <.link navigate={~p"/browse"} class="">
                 {gettext("Browse all items")}
               </.link>
