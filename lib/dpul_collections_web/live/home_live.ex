@@ -143,9 +143,11 @@ defmodule DpulCollectionsWeb.HomeLive do
 
   defp iiif_url(encoded_portion) do
     # start x and y at a random point at least 15 percent into the image and
-    # far enough from the other side to allow another 15 percent on that side
-    startx = Enum.random(15..60)
-    starty = Enum.random(15..60)
+    # far enough from the other side to allow another 15 percent on that side.
+    # limit the possible starting points so there few enough versions of each
+    # image to get cache hits
+    startx = Enum.random([15, 30, 45, 60])
+    starty = Enum.random([15, 30, 45, 60])
     percent = 25
 
     "https://iiif-cloud.princeton.edu/iiif/2/#{encoded_portion}/pct:#{startx},#{starty},#{percent},#{percent}/,200/0/default.jpg"
