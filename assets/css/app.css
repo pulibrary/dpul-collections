@@ -24,17 +24,20 @@
   /* Button Text on Dark Blue */
   --color-light-green: #ECF2CB;
 
+  --color-princeton-black: #121212;
+
+  /* hsl(65, 15%, 70%) */
 
   /* Some semantic colors */
   --color-background: var(--color-taupe);
   --color-light-text: var(--color-taupe);
-  --color-dark-text: var(--color-dark-blue);
+  --color-dark-text: var(--color-princeton-black);
   /* brand is the color that's the site's brand - header/footer */
-  --color-brand: var(--color-dark-blue);
+  --color-brand: var(--color-princeton-black);
   /* Primary is calls to action - buttons */
-  --color-primary: var(--color-dark-blue);
-  /* Secondary is for alternate lower-priority sections */
-  --color-secondary: hsl(65, 15%, 70%);
+  --color-primary: hsl(65, 15%, 70%);
+  /* Secondary is for gentler highlights */
+  --color-secondary: var(--color-wafer-pink);
   /* Accents are an additional color.
    * Images/highlights/hyperlinks/boxes/cards/etc.
    */
@@ -52,7 +55,7 @@
 }
 
 .bg-primary {
-  @apply text-light-text;
+  @apply text-dark-text;
 }
 
 .browse-link {
@@ -121,7 +124,7 @@
 
 .btn-arrow {
   clip-path: polygon(0% 0%, 100% 50%, 0% 100%);
-  @apply bg-primary cursor-pointer border;
+  @apply bg-primary cursor-pointer;
 }
 
 @utility active {
@@ -193,7 +196,7 @@
   }
 
   .item-page button a {
-    @apply text-light-green hover:no-underline;
+    @apply text-dark-text hover:no-underline;
   }
 
   h1 {

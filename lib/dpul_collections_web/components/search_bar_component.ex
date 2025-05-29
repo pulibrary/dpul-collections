@@ -32,7 +32,7 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
           </form>
         </div>
 
-        <div class="browse-link flex flex-none justify-end items-center header-e-padding bg-secondary ml-auto">
+        <div class="browse-link flex flex-none justify-end items-center header-e-padding bg-primary ml-auto">
           <div class="w-full text-right heading text-xl font-bold">
             <span><.icon name="hero-square-3-stack-3d" class="p-1 h-10 w-10 icon" /></span>
             <.link navigate={~p"/browse"} class="pl-2">
