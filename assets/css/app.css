@@ -45,9 +45,9 @@
   /* brand is the color that's the site's brand - header/footer */
   --color-brand: var(--color-princeton-black);
   /* Primary is calls to action - buttons */
-  --color-primary: var(--color-sage-300);
+  --color-primary: hsl(65, 15%, 70%);
   /* Secondary is for gentler highlights */
-  --color-secondary: var(--color-sage-200);
+  --color-secondary: var(--color-wafer-pink);
   /* Accents are an additional color.
    * Images/highlights/hyperlinks/boxes/cards/etc.
    */
