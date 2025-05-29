@@ -24,6 +24,7 @@
   /* Button Text on Dark Blue */
   --color-light-green: #ECF2CB;
 
+
   /* Some semantic colors */
   --color-background: var(--color-taupe);
   --color-light-text: var(--color-taupe);
@@ -38,6 +39,7 @@
    * Images/highlights/hyperlinks/boxes/cards/etc.
    */
   --color-accent: var(--color-rust);
+  --color-search: var(--color-sage);
 
   /* just add poppins on the front of the tailwind default */
   --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
@@ -46,6 +48,10 @@
 }
 
 .bg-brand {
+  @apply text-light-text;
+}
+
+.bg-primary {
   @apply text-light-text;
 }
 
@@ -174,7 +180,7 @@
 }
 
 @utility link-hover {
-  @apply hover:underline hover:underline-offset-8 hover:decoration-rust hover:decoration-2;
+  @apply hover:underline hover:underline-offset-8 hover:decoration-accent hover:decoration-2;
 }
 
 @layer base {
