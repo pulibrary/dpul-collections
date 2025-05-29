@@ -15,7 +15,7 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
               </span>
               <label for="q" class="sr-only">{gettext("Search")}</label>
               <input
-                class="m-2 p-1 grow h-full placeholder:text-dark-sage bg-transparent border-none placeholder:text-2xl text-2xl placeholder:font-bold w-full"
+                class="m-2 p-1 grow h-full placeholder:text-dark-text/40 bg-transparent border-none placeholder:text-2xl text-2xl placeholder:font-bold w-full"
                 type="text"
                 id="q"
                 name="q"

@@ -195,7 +195,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def hide_modal(js \\ %JS{}) do
     js
     |> JS.hide(to: "#share-modal")
-    |> JS.remove_class("bg-rust", to: "#copy-button")
+    |> JS.remove_class("bg-accent", to: "#copy-button")
   end
 
   def share_modal(assigns) do
@@ -219,11 +219,13 @@ defmodule DpulCollectionsWeb.ItemLive do
               </p>
               <button
                 id="copy-button"
-                phx-click={JS.dispatch("dpulc:clipcopy", to: "#share-url") |> JS.add_class("bg-rust")}
-                class="group btn-primary px-4 py-3 text-sm font-medium text-white"
+                phx-click={
+                  JS.dispatch("dpulc:clipcopy", to: "#share-url") |> JS.add_class("bg-accent")
+                }
+                class="group btn-primary px-4 py-3 text-sm font-medium"
               >
-                <span id="copy-text" class="group-[.bg-rust]:hidden">Copy</span>
-                <span id="copied-text" class="not-group-[.bg-rust]:hidden">Copied</span>
+                <span id="copy-text" class="group-[.bg-accent]:hidden">Copy</span>
+                <span id="copied-text" class="not-group-[.bg-accent]:hidden">Copied</span>
               </button>
             </div>
           </div>
