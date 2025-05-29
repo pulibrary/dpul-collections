@@ -156,7 +156,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div class="flex flex-col justify-center text-center text-sm mr-2 min-w-15 items-center">
       <button {@rest}>
-        <div class="hover:text-white hover:bg-rust cursor-pointer w-10 h-10 p-2 bg-wafer-pink rounded-full flex justify-center items-center">
+        <div class="hover:text-white hover:bg-accent cursor-pointer w-10 h-10 p-2 bg-wafer-pink rounded-full flex justify-center items-center">
           <.icon class="w-full h-full" name={@icon} />
         </div>
         {render_slot(@inner_block)}

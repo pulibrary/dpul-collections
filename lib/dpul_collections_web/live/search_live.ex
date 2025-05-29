@@ -147,7 +147,7 @@ defmodule DpulCollectionsWeb.SearchLive do
                 role="button"
                 id="year-facet"
                 name="year-facet"
-                class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-rust focus:outline-none active:shadow-none mr-2"
+                class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-accent focus:outline-none active:shadow-none mr-2"
               >
                 {gettext("Year")}
                 <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
@@ -169,7 +169,7 @@ defmodule DpulCollectionsWeb.SearchLive do
                 role="button"
                 id="genre-facet"
                 name="genre-facet"
-                class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-rust focus:outline-none active:shadow-none"
+                class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-accent focus:outline-none active:shadow-none"
               >
                 {gettext("Genre")}
                 <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
