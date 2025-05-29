@@ -178,17 +178,28 @@ defmodule DpulCollectionsWeb.ItemLive do
         height="800"
       />
 
-      <.primary_button class="left-arrow-box" href="#" target="_blank">
+      <.primary_button class="left-arrow-box">
         <.icon name="hero-eye" /> {gettext("View")}
       </.primary_button>
 
-      <.primary_button
-        href={"#{Application.fetch_env!(:dpul_collections, :web_connections)[:figgy_url]}/catalog/#{@item.id}/pdf"}
-        target="_blank"
-      >
-        <.icon name="hero-arrow-down-on-square" class="h-5" /><span>{gettext("Download")}</span>
-      </.primary_button>
+      <.download_button item={@item} />
     </div>
+    """
+  end
+
+  def download_button(assigns = %{item: %{pdf_url: pdf_url}}) when is_binary(pdf_url) do
+    ~H"""
+    <.primary_button href={@item.pdf_url} target="_blank">
+      <.icon name="hero-arrow-down-on-square" class="h-5" /><span>{gettext("Download")}</span>
+    </.primary_button>
+    """
+  end
+
+  def download_button(assigns) do
+    ~H"""
+    <.primary_button disabled>
+      No PDF Available
+    </.primary_button>
     """
   end
 
@@ -237,15 +248,24 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   slot :inner_block
   attr :class, :string, default: nil
-  attr :href, :string, default: nil
+  attr :href, :string, default: nil, doc: "link - if set it makes an anchor tag"
+  attr :disabled, :boolean, default: false
   attr :rest, :global, doc: "the arbitrary HTML attributes to add link"
+
+  def primary_button(assigns = %{href: href}) when href != nil do
+    ~H"""
+    <a href={@href} class={["btn-primary", "flex gap-2", @class]} {@rest}>
+      <div>
+        {render_slot(@inner_block)}
+      </div>
+    </a>
+    """
+  end
 
   def primary_button(assigns) do
     ~H"""
-    <button class={["btn-primary", @class]}>
-      <a href={@href} class="flex gap-2" {@rest}>
-        {render_slot(@inner_block)}
-      </a>
+    <button class={["btn-primary flex gap-2", @class]} disabled={@disabled}>
+      {render_slot(@inner_block)}
     </button>
     """
   end
@@ -261,7 +281,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         />
       </dl>
     </div>
-    <.primary_button class="right-arrow-box" href="#" target="_blank">
+    <.primary_button class="right-arrow-box">
       <.icon name="hero-table-cells" /> {gettext("View all metadata for this item")}
     </.primary_button>
     """

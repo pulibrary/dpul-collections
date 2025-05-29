@@ -37,7 +37,8 @@ defmodule DpulCollections.Item do
     :subject,
     :transliterated_title,
     :url,
-    :width
+    :width,
+    :pdf_url
   ]
 
   def metadata_display_fields do
@@ -93,7 +94,8 @@ defmodule DpulCollections.Item do
       subject: doc["subject_txtm"] || [],
       transliterated_title: doc["transliterated_title_txtm"] || [],
       url: generate_url(id, slug),
-      width: doc["width_txtm"] || []
+      width: doc["width_txtm"] || [],
+      pdf_url: doc["pdf_url_s"]
     }
   end
 
