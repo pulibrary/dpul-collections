@@ -39,8 +39,8 @@
   /* hsl(65, 15%, 70%) */
 
   /* Some semantic colors */
-  --color-background: var(--color-sage-100);
-  --color-light-text: var(--color-sage-100);
+  --color-background: var(--color-taupe);
+  --color-light-text: var(--color-taupe);
   --color-dark-text: var(--color-princeton-black);
   /* brand is the color that's the site's brand - header/footer */
   --color-brand: var(--color-princeton-black);
