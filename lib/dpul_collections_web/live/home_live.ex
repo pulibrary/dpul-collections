@@ -157,7 +157,7 @@ defmodule DpulCollectionsWeb.HomeLive do
     ~H"""
     <div class="grid grid-flow-row auto-rows-max">
       <div class="explore-header grid-row bg-background relative">
-        <div class="shadow-lg bg-background absolute max-h-[600px] sm:min-w-[350px] w-full lg:max-w-1/2 2xl:max-w-1/3 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 p-8">
+        <div class="drop-shadow-[1px_1px_3rem_rgba(0,0,0,1)] bg-background absolute max-h-[600px] sm:min-w-[350px] w-full lg:max-w-1/2 2xl:max-w-1/3 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 p-8">
           <div class="content-area text-center h-full w-full flex flex-col justify-evenly">
             <div class="page-y-padding text-xl flex-grow">
               {gettext(
@@ -182,7 +182,7 @@ defmodule DpulCollectionsWeb.HomeLive do
                 <div class="h-[200px] w-auto min-w-px flex-shrink-0">
                   <.link navigate={~p"/item/#{id}"}>
                     <img
-                      class="h-full w-auto opacity-40 select-none hover:opacity-90 cursor-pointer"
+                      class="h-full w-auto opacity-60 select-none hover:opacity-100 cursor-pointer"
                       draggable="false"
                       src={image_url}
                     />
