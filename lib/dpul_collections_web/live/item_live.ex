@@ -198,7 +198,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def download_button(assigns) do
     ~H"""
     <.primary_button disabled>
-      No PDF Available
+          {gettext("No PDF Available")}
     </.primary_button>
     """
   end

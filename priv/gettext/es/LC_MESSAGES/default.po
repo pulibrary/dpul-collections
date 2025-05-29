@@ -43,7 +43,7 @@ msgstr "¡Éxito!"
 msgid "close"
 msgstr "cerrar"
 
-#: lib/dpul_collections_web/live/item_live.ex:188
+#: lib/dpul_collections_web/live/item_live.ex:193
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Download"
 msgstr "Descargar"
@@ -53,7 +53,7 @@ msgstr "Descargar"
 msgid "Apply"
 msgstr "Aplicar"
 
-#: lib/dpul_collections/item.ex:48
+#: lib/dpul_collections/item.ex:49
 #: lib/dpul_collections_web/components/header_component.ex:41
 #, elixir-autogen, elixir-format
 msgid "Language"
@@ -162,7 +162,7 @@ msgid "The Trustees of Princeton University"
 msgstr "Los fideicomisarios de la Universidad de Princeton"
 
 #: lib/dpul_collections_web/components/search_bar_component.ex:39
-#: lib/dpul_collections_web/live/home_live.ex:157
+#: lib/dpul_collections_web/live/home_live.ex:173
 #, elixir-autogen, elixir-format
 msgid "Browse all items"
 msgstr "Explorar todos los materiales"
@@ -184,7 +184,7 @@ msgstr "Resultados de la búsqueda por"
 msgid "Recently Added"
 msgstr "Añadido recientemente"
 
-#: lib/dpul_collections_web/live/home_live.ex:185
+#: lib/dpul_collections_web/live/home_live.ex:201
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Recently Added Items"
 msgstr "Materiales Recientes"
@@ -195,7 +195,7 @@ msgstr "Materiales Recientes"
 msgid "Added"
 msgstr "Añadido"
 
-#: lib/dpul_collections_web/live/home_live.ex:187
+#: lib/dpul_collections_web/live/home_live.ex:203
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Our collections are constantly growing. Discover something new!"
 msgstr "Nuestras colecciones están en constante crecimiento. ¡Descubre algo nuevo!"
@@ -205,7 +205,7 @@ msgstr "Nuestras colecciones están en constante crecimiento. ¡Descubre algo nu
 msgid "%{file_min} of %{file_max} pages"
 msgstr "%{file_min} de %{file_max} páginas"
 
-#: lib/dpul_collections_web/live/item_live.ex:181
+#: lib/dpul_collections_web/live/item_live.ex:182
 #, elixir-autogen, elixir-format
 msgid "View"
 msgstr "Abrir"
@@ -250,47 +250,52 @@ msgstr "filtrar por fecha"
 msgid "to"
 msgstr "hasta"
 
-#: lib/dpul_collections/item.ex:46
+#: lib/dpul_collections/item.ex:47
 #, elixir-autogen, elixir-format
 msgid "Creator of work"
 msgstr "Creador de la obra"
 
-#: lib/dpul_collections/item.ex:49
+#: lib/dpul_collections/item.ex:50
 #, elixir-autogen, elixir-format
 msgid "Geographic Origin"
 msgstr "Origen geográfico"
 
-#: lib/dpul_collections/item.ex:47
+#: lib/dpul_collections/item.ex:48
 #, elixir-autogen, elixir-format
 msgid "Publisher"
 msgstr "Editor"
 
-#: lib/dpul_collections/item.ex:50
+#: lib/dpul_collections/item.ex:51
 #, elixir-autogen, elixir-format
 msgid "Subject"
 msgstr "Tema"
 
-#: lib/dpul_collections_web/live/item_live.ex:221
+#: lib/dpul_collections_web/live/item_live.ex:283
 #, elixir-autogen, elixir-format
 msgid "View all metadata for this item"
 msgstr "Ver todos los metadatos de este ítem"
 
-#: lib/dpul_collections_web/live/home_live.ex:148
+#: lib/dpul_collections_web/live/home_live.ex:163
 #, elixir-autogen, elixir-format
 msgid "Discover %{photographs}, %{posters}, %{books}, and more to inspire your research"
 msgstr "Descubre %{photographs}, %{posters}, %{books} y más para inspirar tu investigación."
 
-#: lib/dpul_collections_web/live/home_live.ex:152
+#: lib/dpul_collections_web/live/home_live.ex:167
 #, elixir-autogen, elixir-format
 msgid "books"
 msgstr "libros"
 
-#: lib/dpul_collections_web/live/home_live.ex:150
+#: lib/dpul_collections_web/live/home_live.ex:165
 #, elixir-autogen, elixir-format
 msgid "photographs"
 msgstr "fotografías"
 
-#: lib/dpul_collections_web/live/home_live.ex:151
+#: lib/dpul_collections_web/live/home_live.ex:166
 #, elixir-autogen, elixir-format
 msgid "posters"
 msgstr "pósteres"
+
+#: lib/dpul_collections_web/live/item_live.ex:201
+#, elixir-autogen, elixir-format
+msgid "No PDF Available"
+msgstr "PDF no disponible"
