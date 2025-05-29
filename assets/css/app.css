@@ -26,28 +26,43 @@
 
   --color-princeton-black: #121212;
 
+  /* sage mono colors from canva: https://www.canva.com/colors/color-meanings/sage-green/ */
+
+  --color-sage-100: #E8E6DC;
+  --color-sage-200: #D6D3C0;
+  --color-sage-300: #C4BFA4;
+  --color-sage-500: #B2AC88;
+  --color-sage-600: #A0996C;
+  --color-sage-700: #878057;
+  --color-sage-900: #6B6645;
+
   /* hsl(65, 15%, 70%) */
 
   /* Some semantic colors */
-  --color-background: var(--color-taupe);
-  --color-light-text: var(--color-taupe);
+  --color-background: var(--color-sage-100);
+  --color-light-text: var(--color-sage-100);
   --color-dark-text: var(--color-princeton-black);
   /* brand is the color that's the site's brand - header/footer */
   --color-brand: var(--color-princeton-black);
   /* Primary is calls to action - buttons */
-  --color-primary: hsl(65, 15%, 70%);
+  --color-primary: var(--color-sage-300);
   /* Secondary is for gentler highlights */
-  --color-secondary: var(--color-wafer-pink);
+  --color-secondary: var(--color-sage-200);
   /* Accents are an additional color.
    * Images/highlights/hyperlinks/boxes/cards/etc.
    */
   --color-accent: var(--color-rust);
-  --color-search: var(--color-sage);
+  --color-search: var(--color-sage-200);
+  --color-light-green: var(--color-dark-text);
 
   /* just add poppins on the front of the tailwind default */
   --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   /* and aleo in front of the serif defaults */
   --font-serif: "Aleo", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+}
+
+.bg-accent {
+  @apply text-light-text;
 }
 
 .bg-brand {
@@ -115,7 +130,7 @@
 }
 
 @utility btn-primary {
-  @apply flex items-center justify-center cursor-pointer font-bold *:font-bold uppercase bg-primary text-white h-14;
+  @apply flex items-center justify-center cursor-pointer font-bold *:font-bold uppercase bg-primary h-14;
 }
 
 @utility btn-secondary {
