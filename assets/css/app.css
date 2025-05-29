@@ -53,7 +53,6 @@
    */
   --color-accent: var(--color-rust);
   --color-search: var(--color-sage-200);
-  --color-light-green: var(--color-dark-text);
 
   /* just add poppins on the front of the tailwind default */
   --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
