@@ -299,7 +299,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           leading-tight
           #{if current_page?, do: "active", else: "
               border-dark-blue
-              text-dark-blue
+              text-dark-text
               bg-white border
               hover:bg-gray-100
               hover:text-gray-700

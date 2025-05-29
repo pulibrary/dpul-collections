@@ -9,7 +9,7 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
       <div class="search-browse-container min-h-14 flex flex-wrap bg-sage">
         <div class="search-box header-x-padding grow">
           <form id="search-form" class="w-full h-full" phx-submit="search" phx-target={@myself}>
-            <div class="flex items-center w-full h-full text-dark-blue">
+            <div class="flex items-center w-full h-full text-dark-text">
               <span class="flex-none">
                 <.icon name="hero-magnifying-glass" class="h-10 w-10 icon" />
               </span>

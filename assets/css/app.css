@@ -170,7 +170,7 @@
  */
 
 @utility heading {
-  @apply uppercase font-semibold text-dark-blue;
+  @apply uppercase font-semibold text-dark-text;
 }
 
 @utility link-hover {
@@ -199,7 +199,7 @@
   }
 
   p {
-    @apply text-dark-blue;
+    @apply text-dark-text;
   }
 }
 

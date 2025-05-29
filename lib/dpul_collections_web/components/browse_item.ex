@@ -25,7 +25,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
           |> JS.toggle_class("bg-white")
         }
         phx-value-item_id={@item.id}
-        class="h-10 w-10 absolute left-2 top-2 cursor-pointer bg-white text-dark-blue"
+        class="h-10 w-10 absolute left-2 top-2 cursor-pointer bg-white text-dark-text"
       >
         <.icon name="hero-archive-box-arrow-down-solid" class="h-10 w-10 icon" />
       </div>
