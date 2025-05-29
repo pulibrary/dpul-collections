@@ -6,16 +6,16 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
   def render(assigns) do
     ~H"""
     <div class="search-bar">
-      <div class="search-browse-container min-h-14 flex flex-wrap bg-sage">
+      <div class="search-browse-container min-h-14 flex flex-wrap bg-search">
         <div class="search-box header-x-padding grow">
           <form id="search-form" class="w-full h-full" phx-submit="search" phx-target={@myself}>
-            <div class="flex items-center w-full h-full text-dark-blue">
+            <div class="flex items-center w-full h-full">
               <span class="flex-none">
                 <.icon name="hero-magnifying-glass" class="h-10 w-10 icon" />
               </span>
               <label for="q" class="sr-only">{gettext("Search")}</label>
               <input
-                class="m-2 p-1 grow h-full bg-transparent border-none placeholder:text-dark-sage placeholder:text-2xl text-2xl placeholder:font-bold w-full"
+                class="m-2 p-1 grow h-full placeholder:text-dark-sage bg-transparent border-none placeholder:text-2xl text-2xl placeholder:font-bold w-full"
                 type="text"
                 id="q"
                 name="q"
