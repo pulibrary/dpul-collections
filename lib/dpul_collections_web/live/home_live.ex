@@ -141,8 +141,8 @@ defmodule DpulCollectionsWeb.HomeLive do
   def render(assigns) do
     ~H"""
     <div class="grid grid-flow-row auto-rows-max">
-      <div class="explore-header grid-row bg-taupe relative">
-        <div class="shadow-lg bg-taupe absolute max-h-[600px] sm:min-w-[350px] w-full lg:max-w-1/2 2xl:max-w-1/3 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 p-8">
+      <div class="explore-header grid-row bg-background relative">
+        <div class="shadow-lg bg-background absolute max-h-[600px] sm:min-w-[350px] w-full lg:max-w-1/2 2xl:max-w-1/3 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 p-8">
           <div class="content-area text-center h-full w-full flex flex-col justify-evenly">
             <div class="page-y-padding text-xl flex-grow">
               {gettext(

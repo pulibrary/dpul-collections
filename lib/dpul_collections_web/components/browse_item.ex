@@ -58,7 +58,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
       <div class="flex-1 px-6 py-5 bg-white relative">
         <div
           :if={@item.file_count > 4}
-          class="absolute bg-taupe right-2 top-0 z-10 pr-2 pb-1 diagonal-drop"
+          class="absolute bg-background right-2 top-0 z-10 pr-2 pb-1 diagonal-drop"
         >
           {@item.file_count} pages
         </div>
@@ -70,7 +70,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
       </div>
       
     <!-- "added on" note -->
-      <div :if={@added?} class="digitized_at self-end w-full bg-taupe h-10 p-2 text-right">
+      <div :if={@added?} class="digitized_at self-end w-full bg-background h-10 p-2 text-right">
         {"#{gettext("Added")} #{time_ago(@item.digitized_at)}"}
       </div>
     </div>
