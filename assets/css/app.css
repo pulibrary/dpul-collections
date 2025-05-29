@@ -68,6 +68,10 @@
   @apply text-light-text;
 }
 
+.bg-brand #dropdownMenu{
+  @apply text-dark-text;
+}
+
 .bg-primary {
   @apply text-dark-text;
 }
