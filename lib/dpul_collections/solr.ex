@@ -32,7 +32,10 @@ defmodule DpulCollections.Solr do
 
     solr_params = [
       q: query_param(search_state),
-      "q.op": "AND",
+      # https://solr.apache.org/docs/9_4_0/core/org/apache/solr/util/doc-files/min-should-match.html
+      # If more than 6 clauses, only require 90%. Pulled from our catalog.
+      mm: "6<90%",
+      fq: facet_param(search_state),
       fl: fl,
       sort: sort_param(search_state),
       rows: search_state[:per_page],
@@ -86,17 +89,33 @@ defmodule DpulCollections.Solr do
   end
 
   defp query_param(search_state) do
-    Enum.reject([search_state[:q], date_query(search_state)], &is_nil(&1))
+    search_state[:q]
+  end
+
+  def facet_param(search_state) do
+    Enum.reject([date_query(search_state), genre_facet(search_state)], &is_nil(&1))
     |> Enum.join(" ")
   end
 
-  defp date_query(%{date_from: nil, date_to: nil}), do: nil
-
-  defp date_query(%{date_from: date_from, date_to: date_to}) do
-    from = date_from || "*"
-    to = date_to || "*"
-    "years_is:[#{from} TO #{to}]"
+  def genre_facet(%{facet: %{"genre" => genre}}) when is_binary(genre) and genre != "" do
+    "+filter(genre_txtm:#{genre})"
   end
+
+  def genre_facet(_), do: nil
+
+  defp date_query(%{facet: %{"year" => %{"date_from" => nil, "date_to" => nil}}}), do: nil
+
+  defp date_query(%{facet: %{"year" => %{"date_from" => date_from, "date_to" => date_to}}}) do
+    from = to_date_query_param(date_from)
+    to = to_date_query_param(date_to)
+    "+filter(years_is:[#{from} TO #{to}])"
+  end
+
+  defp date_query(_), do: nil
+
+  defp to_date_query_param(""), do: "*"
+  defp to_date_query_param(nil), do: "*"
+  defp to_date_query_param(param), do: param
 
   defp sort_param(%{sort_by: sort_by}) do
     @valid_sort_by[sort_by][:solr_param]

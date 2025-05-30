@@ -24,29 +24,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   alias DpulCollections.{Item, Solr}
   use Solr.Constants
   alias DpulCollectionsWeb.Live.Helpers
-
-  defmodule SearchState do
-    use Solr.Constants
-
-    def from_params(params) do
-      %{
-        q: params["q"],
-        sort_by: valid_sort_by(params),
-        page: (params["page"] || "1") |> String.to_integer(),
-        per_page: (params["per_page"] || "10") |> String.to_integer(),
-        date_from: params["date_from"] || nil,
-        date_to: params["date_to"] || nil,
-        genre: params["genre"] || nil
-      }
-    end
-
-    defp valid_sort_by(%{"sort_by" => sort_by})
-         when sort_by in @sort_by_keys do
-      String.to_existing_atom(sort_by)
-    end
-
-    defp valid_sort_by(_), do: :relevance
-  end
+  alias DpulCollectionsWeb.SearchLive.SearchState
 
   def mount(_params, _session, socket) do
     {:ok, socket}
@@ -114,16 +92,16 @@ defmodule DpulCollectionsWeb.SearchLive do
               type="text"
               placeholder={gettext("From")}
               form="date-filter"
-              name="date-from"
-              value={@search_state.date_from}
+              name="facet[year][date_from]"
+              value={SearchState.date_from(@search_state)}
             />
             <input
               class="col-span-1"
               type="text"
               placeholder={gettext("To")}
               form="date-filter"
-              name="date-to"
-              value={@search_state.date_to}
+              name="facet[year][date_to]"
+              value={SearchState.date_to(@search_state)}
             />
             <button class="col-span-1 md:col-span-1 btn-primary" type="submit">
               {gettext("Apply")}
@@ -142,40 +120,18 @@ defmodule DpulCollectionsWeb.SearchLive do
           </form>
           <form id="facet-pills">
             <div class="my-8 select-none flex flex-wrap gap-4">
-              <button
-                :if={@search_state.date_from || @search_state.date_to}
-                role="button"
-                id="year-facet"
-                name="year-facet"
-                class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-accent focus:outline-none active:shadow-none mr-2"
-              >
-                {gettext("Year")}
-                <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
-                <%= if @search_state.date_from do %>
-                  {@search_state.date_from}
-                <% else %>
-                  {gettext("Up")}
-                <% end %>
-                &nbsp; {gettext("to")} &nbsp;
-                <%= if @search_state.date_to do %>
-                  {@search_state.date_to}
-                <% else %>
-                  {gettext("Now")}
-                <% end %>
-                <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
-              </button>
-              <button
-                :if={@search_state.genre}
-                role="button"
-                id="genre-facet"
-                name="genre-facet"
-                class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-accent focus:outline-none active:shadow-none"
-              >
-                {gettext("Genre")}
-                <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
-                {@search_state.genre}
-                <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
-              </button>
+              <.facet
+                field="year"
+                facet_value={SearchState.facet_value(@search_state, "year")}
+                label={gettext("Year")}
+                search_state={@search_state}
+              />
+              <.facet
+                field="genre"
+                facet_value={SearchState.facet_value(@search_state, "genre")}
+                label={gettext("Genre")}
+                search_state={@search_state}
+              />
             </div>
           </form>
         </div>
@@ -184,7 +140,12 @@ defmodule DpulCollectionsWeb.SearchLive do
         </div>
       </div>
       <div class="grid grid-flow-row auto-rows-max gap-8">
-        <.search_item :for={item <- @items} item={item} sort_by={@search_state.sort_by} />
+        <.search_item
+          :for={item <- @items}
+          search_state={@search_state}
+          item={item}
+          sort_by={@search_state.sort_by}
+        />
       </div>
       <div class="text-center max-w-5xl mx-auto text-lg py-8">
         <.paginator
@@ -194,6 +155,29 @@ defmodule DpulCollectionsWeb.SearchLive do
         />
       </div>
     </div>
+    """
+  end
+
+  attr :field, :string, required: true
+  attr :facet_value, :string, required: true
+  attr :label, :string, required: true
+  attr :search_state, :map, required: true
+
+  def facet(assigns) do
+    ~H"""
+    <.link
+      :if={@facet_value}
+      role="button"
+      id={"#{@field}-facet"}
+      name={"#{@field}-facet"}
+      navigate={self_route(@search_state, %{facet: %{@field => nil}})}
+      class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-accent focus:outline-none active:shadow-none"
+    >
+      {@label}
+      <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
+      {@facet_value}
+      <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
+    </.link>
     """
   end
 
@@ -215,8 +199,10 @@ defmodule DpulCollectionsWeb.SearchLive do
           {@item.file_count} {gettext("Pages")}
         </div>
       </div>
-      <div class="pt-4 text-gray-500 font-bold text-sm uppercase">
-        <a href="">{@item.genre}</a>
+      <div data-field="genre" class="pt-4 text-gray-500 font-bold text-sm uppercase">
+        <.link navigate={self_route(@search_state, %{facet: %{"genre" => first_value(@item.genre)}})}>
+          {@item.genre}
+        </.link>
       </div>
       <h2>
         <.link navigate={@item.url}>{@item.title}</.link>
@@ -339,9 +325,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     params =
       %{
         socket.assigns.search_state
-        | date_to: params["date-to"],
-          date_from: params["date-from"],
-          genre: params["genre"]
+        | facet: Map.merge(socket.assigns.search_state.facet, params["facet"])
       }
       |> Helpers.clean_params([:page, :per_page])
 
@@ -363,6 +347,21 @@ defmodule DpulCollectionsWeb.SearchLive do
     socket = push_navigate(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
   end
+
+  def first_value([item | _]), do: item
+  def first_value([]), do: nil
+  def first_value(nil), do: nil
+  def first_value(item), do: item
+
+  def self_route(search_state, extra \\ %{}) do
+    params = Map.merge(search_state, extra, &merger/3) |> Helpers.clean_params()
+    ~p"/search?#{params}"
+  end
+
+  def merger(:facet, first_facet = %{}, second_facet = %{}),
+    do: Map.merge(first_facet, second_facet)
+
+  def merger(_key, _value1, value2), do: value2
 
   defp more_pages?(page, per_page, total_items) do
     page * per_page < total_items
