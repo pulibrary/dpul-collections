@@ -37,6 +37,7 @@
   --color-sage-900: #6B6645;
 
   /* hsl(65, 15%, 70%) */
+  --color-dpulc-primary: hsl(65, 15%, 65%);
 
   /* Some semantic colors */
   --color-background: var(--color-taupe);
@@ -45,9 +46,10 @@
   /* brand is the color that's the site's brand - header/footer */
   --color-brand: var(--color-princeton-black);
   /* Primary is calls to action - buttons */
-  --color-primary: hsl(65, 15%, 70%);
+  --color-primary: var(--color-dpulc-primary);
   /* Secondary is for gentler highlights */
-  --color-secondary: var(--color-wafer-pink);
+  --color-secondary: var(--color-sage-200);
+  --color-light-secondary: var(--color-sage-100);
   /* Accents are an additional color.
    * Images/highlights/hyperlinks/boxes/cards/etc.
    */
