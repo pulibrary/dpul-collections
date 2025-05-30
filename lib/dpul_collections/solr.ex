@@ -97,19 +97,25 @@ defmodule DpulCollections.Solr do
     |> Enum.join(" ")
   end
 
-  def genre_facet(%{genre: genre}) when is_binary(genre) do
-    "genre_txtm:#{genre}"
+  def genre_facet(%{facet: %{"genre" => genre}}) when is_binary(genre) and genre != "" do
+    "+filter(genre_txtm:#{genre})"
   end
 
   def genre_facet(_), do: nil
 
-  defp date_query(%{date_from: nil, date_to: nil}), do: nil
+  defp date_query(%{facet: %{"year" => %{"date_from" => nil, "date_to" => nil}}}), do: nil
 
-  defp date_query(%{date_from: date_from, date_to: date_to}) do
-    from = date_from || "*"
-    to = date_to || "*"
-    "years_is:[#{from} TO #{to}]"
+  defp date_query(%{facet: %{"year" => %{"date_from" => date_from, "date_to" => date_to}}}) do
+    from = to_date_query_param(date_from)
+    to = to_date_query_param(date_to)
+    "+filter(years_is:[#{from} TO #{to}])"
   end
+
+  defp date_query(_), do: nil
+
+  defp to_date_query_param(""), do: "*"
+  defp to_date_query_param(nil), do: "*"
+  defp to_date_query_param(param), do: param
 
   defp sort_param(%{sort_by: sort_by}) do
     @valid_sort_by[sort_by][:solr_param]

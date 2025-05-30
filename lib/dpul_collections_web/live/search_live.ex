@@ -92,16 +92,16 @@ defmodule DpulCollectionsWeb.SearchLive do
               type="text"
               placeholder={gettext("From")}
               form="date-filter"
-              name="date-from"
-              value={@search_state.date_from}
+              name="facet[year][date_from]"
+              value={SearchState.date_from(@search_state)}
             />
             <input
               class="col-span-1"
               type="text"
               placeholder={gettext("To")}
               form="date-filter"
-              name="date-to"
-              value={@search_state.date_to}
+              name="facet[year][date_to]"
+              value={SearchState.date_to(@search_state)}
             />
             <button class="col-span-1 md:col-span-1 btn-primary" type="submit">
               {gettext("Apply")}
@@ -122,13 +122,15 @@ defmodule DpulCollectionsWeb.SearchLive do
             <div class="my-8 select-none flex flex-wrap gap-4">
               <.facet
                 field="year"
-                facet_value={SearchState.date_value(@search_state)}
+                facet_value={SearchState.facet_value(@search_state, "year")}
                 label={gettext("Year")}
+                search_state={@search_state}
               />
               <.facet
                 field="genre"
-                facet_value={@search_state |> Map.get(:genre)}
+                facet_value={SearchState.facet_value(@search_state, "genre")}
                 label={gettext("Genre")}
+                search_state={@search_state}
               />
             </div>
           </form>
@@ -159,21 +161,23 @@ defmodule DpulCollectionsWeb.SearchLive do
   attr :field, :string, required: true
   attr :facet_value, :string, required: true
   attr :label, :string, required: true
+  attr :search_state, :map, required: true
 
   def facet(assigns) do
     ~H"""
-    <button
+    <.link
       :if={@facet_value}
       role="button"
       id={"#{@field}-facet"}
       name={"#{@field}-facet"}
+      navigate={self_route(@search_state, %{facet: %{@field => nil}})}
       class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-accent focus:outline-none active:shadow-none"
     >
       {@label}
       <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
       {@facet_value}
       <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
-    </button>
+    </.link>
     """
   end
 
@@ -196,7 +200,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         </div>
       </div>
       <div data-field="genre" class="pt-4 text-gray-500 font-bold text-sm uppercase">
-        <.link navigate={self_route(@search_state, %{genre: first_value(@item.genre)})}>
+        <.link navigate={self_route(@search_state, %{facet: %{"genre" => first_value(@item.genre)}})}>
           {@item.genre}
         </.link>
       </div>
@@ -321,9 +325,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     params =
       %{
         socket.assigns.search_state
-        | date_to: params["date-to"],
-          date_from: params["date-from"],
-          genre: params["genre"]
+        | facet: Map.merge(socket.assigns.search_state.facet, params["facet"])
       }
       |> Helpers.clean_params([:page, :per_page])
 
@@ -352,9 +354,14 @@ defmodule DpulCollectionsWeb.SearchLive do
   def first_value(item), do: item
 
   def self_route(search_state, extra \\ %{}) do
-    params = Map.merge(search_state, extra) |> Helpers.clean_params()
+    params = Map.merge(search_state, extra, &merger/3) |> Helpers.clean_params()
     ~p"/search?#{params}"
   end
+
+  def merger(:facet, first_facet = %{}, second_facet = %{}),
+    do: Map.merge(first_facet, second_facet)
+
+  def merger(_key, _value1, value2), do: value2
 
   defp more_pages?(page, per_page, total_items) do
     page * per_page < total_items
