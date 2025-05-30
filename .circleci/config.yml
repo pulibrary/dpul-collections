@@ -6,7 +6,7 @@ orbs:
 executors:
   builder:
     docker:
-      - image: cimg/elixir:1.18.2-erlang-26.2.1-browsers
+      - image: cimg/elixir:1.18.4-erlang-27.2.2-browsers
         environment:
           TEST_POSTGRES_PORT: 5432
           TEST_POSTGRES_FIGGY_HOST: figgy_database
