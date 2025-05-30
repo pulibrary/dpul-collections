@@ -77,7 +77,8 @@ defmodule DpulCollectionsWeb.BrowseLive do
       >
         <h1 class="col-span-3">{gettext("Browse")}</h1>
         <button
-          class="col-span-1 btn-primary shadow-[-6px_6px_0px_0px_rgba(0,77,112,0.50)] hover:shadow-[-4px_4px_0px_0px_rgba(0,77,112,0.75)] hover:bg-accent hover:text-light-text transform rounded-lg border border-solid border-gray-700 transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
+          class="col-span-1 btn-primary 
+          shadow-[-6px_6px_0px_0px_var(--color-sage-700)] hover:shadow-[-4px_4px_0px_0px_rgba(0,77,112,0.75)] hover:bg-accent hover:text-light-text transform rounded-lg border border-solid border-gray-700 transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
           phx-click="randomize"
         >
           {gettext("Randomize")}

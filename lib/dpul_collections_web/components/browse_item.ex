@@ -12,7 +12,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
     ~H"""
     <div
       id={"browse-item-#{@item.id}"}
-      class="flex bg-white flex-col overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_rgba(148,163,184,0.75)] min-w-[250px]"
+      class="flex bg-white flex-col overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_var(--color-sage-300)] min-w-[250px]"
     >
       <!-- pin -->
       <div
