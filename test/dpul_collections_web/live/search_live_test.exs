@@ -197,7 +197,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert document |> Floki.find("#year-facet") |> Enum.empty?()
     assert document |> Floki.find("#genre-facet") |> Enum.empty?()
 
-    {:ok, _view, html} = live(conn, "/search?date_to=2025")
+    {:ok, _view, html} = live(conn, "/search?facet[year][date_to]=2025")
 
     {:ok, document} =
       html
@@ -210,7 +210,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     assert document |> Floki.find("#genre-facet") |> Enum.empty?()
 
-    {:ok, _view, html} = live(conn, "/search?date_from=2020")
+    {:ok, _view, html} = live(conn, "/search?facet[year][date_from]=2020")
 
     {:ok, document} =
       html
@@ -223,7 +223,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     assert document |> Floki.find("#genre-facet") |> Enum.empty?()
 
-    {:ok, _view, html} = live(conn, "/search?genre=posters")
+    {:ok, _view, html} = live(conn, "/search?facet[genre]=posters")
 
     {:ok, document} =
       html
@@ -236,7 +236,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Floki.text()
            |> TestUtils.clean_string() == "Genre posters"
 
-    {:ok, _view, html} = live(conn, "/search?genre=posters&date_to=2025")
+    {:ok, _view, html} = live(conn, "/search?facet[genre]=posters&facet[year][date_to]=2025")
 
     {:ok, document} =
       html
@@ -307,7 +307,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     {:ok, document} =
       view
       |> element("#date-filter")
-      |> render_submit(%{"date-from" => "1925", "date-to" => "1926"})
+      |> render_submit(%{"facet" => %{"year" => %{"date_from" => "1925", "date_to" => "1926"}}})
       |> Floki.parse_document()
 
     assert document
