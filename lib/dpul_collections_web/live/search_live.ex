@@ -24,29 +24,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   alias DpulCollections.{Item, Solr}
   use Solr.Constants
   alias DpulCollectionsWeb.Live.Helpers
-
-  defmodule SearchState do
-    use Solr.Constants
-
-    def from_params(params) do
-      %{
-        q: params["q"],
-        sort_by: valid_sort_by(params),
-        page: (params["page"] || "1") |> String.to_integer(),
-        per_page: (params["per_page"] || "10") |> String.to_integer(),
-        date_from: params["date_from"] || nil,
-        date_to: params["date_to"] || nil,
-        genre: params["genre"] || nil
-      }
-    end
-
-    defp valid_sort_by(%{"sort_by" => sort_by})
-         when sort_by in @sort_by_keys do
-      String.to_existing_atom(sort_by)
-    end
-
-    defp valid_sort_by(_), do: :relevance
-  end
+  alias DpulCollectionsWeb.SearchLive.SearchState
 
   def mount(_params, _session, socket) do
     {:ok, socket}
@@ -142,40 +120,16 @@ defmodule DpulCollectionsWeb.SearchLive do
           </form>
           <form id="facet-pills">
             <div class="my-8 select-none flex flex-wrap gap-4">
-              <button
-                :if={@search_state.date_from || @search_state.date_to}
-                role="button"
-                id="year-facet"
-                name="year-facet"
-                class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-accent focus:outline-none active:shadow-none mr-2"
-              >
-                {gettext("Year")}
-                <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
-                <%= if @search_state.date_from do %>
-                  {@search_state.date_from}
-                <% else %>
-                  {gettext("Up")}
-                <% end %>
-                &nbsp; {gettext("to")} &nbsp;
-                <%= if @search_state.date_to do %>
-                  {@search_state.date_to}
-                <% else %>
-                  {gettext("Now")}
-                <% end %>
-                <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
-              </button>
-              <button
-                :if={@search_state.genre}
-                role="button"
-                id="genre-facet"
-                name="genre-facet"
-                class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-accent focus:outline-none active:shadow-none"
-              >
-                {gettext("Genre")}
-                <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
-                {@search_state.genre}
-                <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
-              </button>
+              <.facet
+                field="year"
+                facet_value={SearchState.date_value(@search_state)}
+                label={gettext("Year")}
+              />
+              <.facet
+                field="genre"
+                facet_value={@search_state |> Map.get(:genre)}
+                label={gettext("Genre")}
+              />
             </div>
           </form>
         </div>
@@ -199,6 +153,27 @@ defmodule DpulCollectionsWeb.SearchLive do
         />
       </div>
     </div>
+    """
+  end
+
+  attr :field, :string, required: true
+  attr :facet_value, :string, required: true
+  attr :label, :string, required: true
+
+  def facet(assigns) do
+    ~H"""
+    <button
+      :if={@facet_value}
+      role="button"
+      id={"#{@field}-facet"}
+      name={"#{@field}-facet"}
+      class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-accent focus:outline-none active:shadow-none"
+    >
+      {@label}
+      <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
+      {@facet_value}
+      <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
+    </button>
     """
   end
 
