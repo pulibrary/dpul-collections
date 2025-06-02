@@ -1,11 +1,30 @@
 defmodule DpulCollectionsWeb.Live.Helpers do
   # Remove KV pairs with nil or empty string values 
   # or with Keys in a remove_keys list
-  def clean_params(params, remove_keys \\ []) do
+  # Also cleans nested maps.
+  def clean_params(params = %{}, remove_keys \\ []) do
     params
-    |> Enum.reject(fn {_, v} -> v == "" end)
-    |> Enum.reject(fn {_, v} -> is_nil(v) end)
-    |> Enum.reject(fn {k, _} -> Enum.member?(remove_keys, k) end)
+    |> Enum.map(&clean_map_params(&1, remove_keys))
+    # clean_map_params returns nil if it should be removed
+    |> Enum.reject(fn x -> is_nil(x) end)
     |> Enum.into(%{})
+  end
+
+  # For k/v pairs
+  # Ignore coverage, this is a header because of the remove_keys default
+  # coveralls-ignore-next-line
+  def clean_map_params(map_pair, remove_keys \\ [])
+  def clean_map_params({_, ""}, _), do: nil
+  def clean_map_params({_, nil}, _), do: nil
+  def clean_map_params({k, v = %{}}, remove_keys), do: {k, clean_params(v, remove_keys)}
+
+  def clean_map_params({k, v}, remove_keys) do
+    case Enum.member?(remove_keys, k) do
+      true ->
+        nil
+
+      _ ->
+        {k, v}
+    end
   end
 end

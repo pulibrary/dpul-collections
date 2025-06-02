@@ -31,7 +31,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   end
 
   def handle_params(params, _uri, socket) do
-    search_state = SearchState.from_params(params)
+    search_state = SearchState.from_params(params |> Helpers.clean_params())
     solr_response = Solr.query(search_state)
 
     items =
@@ -73,6 +73,10 @@ defmodule DpulCollectionsWeb.SearchLive do
     |> Enum.map(fn {k, v} -> {v[:label], k} end)
   end
 
+  def facet_configuration do
+    @facets
+  end
+
   def render(assigns) do
     ~H"""
     <div class="content-area">
@@ -92,16 +96,16 @@ defmodule DpulCollectionsWeb.SearchLive do
               type="text"
               placeholder={gettext("From")}
               form="date-filter"
-              name="facet[year][date_from]"
-              value={SearchState.date_from(@search_state)}
+              name="facet[year][from]"
+              value={@search_state.facet["year"]["from"]}
             />
             <input
               class="col-span-1"
               type="text"
               placeholder={gettext("To")}
               form="date-filter"
-              name="facet[year][date_to]"
-              value={SearchState.date_to(@search_state)}
+              name="facet[year][to]"
+              value={@search_state.facet["year"]["to"]}
             />
             <button class="col-span-1 md:col-span-1 btn-primary" type="submit">
               {gettext("Apply")}
@@ -121,16 +125,11 @@ defmodule DpulCollectionsWeb.SearchLive do
           <form id="facet-pills">
             <div class="my-8 select-none flex flex-wrap gap-4">
               <.facet
-                field="year"
-                facet_value={SearchState.facet_value(@search_state, "year")}
-                label={gettext("Year")}
+                :for={{facet_field, facet_settings} <- facet_configuration()}
                 search_state={@search_state}
-              />
-              <.facet
-                field="genre"
-                facet_value={SearchState.facet_value(@search_state, "genre")}
-                label={gettext("Genre")}
-                search_state={@search_state}
+                field={facet_field}
+                label={facet_settings.label}
+                facet_value={facet_settings.value_function.(@search_state.facet[facet_field])}
               />
             </div>
           </form>
@@ -169,9 +168,8 @@ defmodule DpulCollectionsWeb.SearchLive do
       :if={@facet_value}
       role="button"
       id={"#{@field}-facet"}
-      name={"#{@field}-facet"}
       navigate={self_route(@search_state, %{facet: %{@field => nil}})}
-      class="mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-accent focus:outline-none active:shadow-none"
+      class="filter mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-accent focus:outline-none active:shadow-none"
     >
       {@label}
       <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
@@ -183,6 +181,7 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   attr :item, Item, required: true
   attr :sort_by, :string, default: "relevance"
+  attr :search_state, :map
 
   def search_item(assigns) do
     ~H"""
@@ -200,7 +199,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         </div>
       </div>
       <div data-field="genre" class="pt-4 text-gray-500 font-bold text-sm uppercase">
-        <.link navigate={self_route(@search_state, %{facet: %{"genre" => first_value(@item.genre)}})}>
+        <.link navigate={self_route(@search_state, %{facet: %{"genre" => List.first(@item.genre)}})}>
           {@item.genre}
         </.link>
       </div>
@@ -348,20 +347,14 @@ defmodule DpulCollectionsWeb.SearchLive do
     {:noreply, socket}
   end
 
-  def first_value([item | _]), do: item
-  def first_value([]), do: nil
-  def first_value(nil), do: nil
-  def first_value(item), do: item
-
   def self_route(search_state, extra \\ %{}) do
     params = Map.merge(search_state, extra, &merger/3) |> Helpers.clean_params()
     ~p"/search?#{params}"
   end
 
+  # Merge new facets with existing facets.
   def merger(:facet, first_facet = %{}, second_facet = %{}),
     do: Map.merge(first_facet, second_facet)
-
-  def merger(_key, _value1, value2), do: value2
 
   defp more_pages?(page, per_page, total_items) do
     page * per_page < total_items

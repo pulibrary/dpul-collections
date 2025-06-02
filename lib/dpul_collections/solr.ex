@@ -93,29 +93,28 @@ defmodule DpulCollections.Solr do
   end
 
   def facet_param(search_state) do
-    Enum.reject([date_query(search_state), genre_facet(search_state)], &is_nil(&1))
+    search_state.facet
+    |> Enum.map(&generate_filter_query/1)
+    |> Enum.reject(&is_nil/1)
     |> Enum.join(" ")
   end
 
-  def genre_facet(%{facet: %{"genre" => genre}}) when is_binary(genre) and genre != "" do
-    "+filter(genre_txtm:#{genre})"
+  # Simple string facet
+  def generate_filter_query({facet_key, facet_value})
+      when is_binary(facet_value) and facet_key in @facet_keys do
+    solr_field = @facets[facet_key].solr_field
+    "+filter(#{solr_field}:#{facet_value})"
   end
 
-  def genre_facet(_), do: nil
-
-  defp date_query(%{facet: %{"year" => %{"date_from" => nil, "date_to" => nil}}}), do: nil
-
-  defp date_query(%{facet: %{"year" => %{"date_from" => date_from, "date_to" => date_to}}}) do
-    from = to_date_query_param(date_from)
-    to = to_date_query_param(date_to)
-    "+filter(years_is:[#{from} TO #{to}])"
+  # Range facet.
+  def generate_filter_query({facet_key, facet_value = %{}}) when facet_key in @facet_keys do
+    from = facet_value["from"] || "*"
+    to = facet_value["to"] || "*"
+    solr_field = @facets[facet_key].solr_field
+    "+filter(#{solr_field}:[#{from} TO #{to}])"
   end
 
-  defp date_query(_), do: nil
-
-  defp to_date_query_param(""), do: "*"
-  defp to_date_query_param(nil), do: "*"
-  defp to_date_query_param(param), do: param
+  def generate_filter_query(_), do: nil
 
   defp sort_param(%{sort_by: sort_by}) do
     @valid_sort_by[sort_by][:solr_param]
