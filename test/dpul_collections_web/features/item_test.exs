@@ -31,4 +31,13 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
       &Frame.evaluate(&1.frame_id, "window.navigator.clipboard.writeText = function() {}")
     )
   end
+
+  test "links to and from metadata page", %{conn: conn} do
+    conn
+    |> visit("/i/document1/item/1")
+    |> click_link("View all metadata for this item")
+    |> assert_path("/i/document1/item/1/metadata")
+    |> click_link("#back-link", "")
+    |> assert_path("/i/document1/item/1")
+  end
 end

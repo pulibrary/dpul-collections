@@ -302,7 +302,9 @@ defmodule DpulCollectionsWeb.ItemLive do
       </dl>
     </div>
     <.primary_button class="right-arrow-box">
-      <.icon name="hero-table-cells" /> {gettext("View all metadata for this item")}
+      <.link id="metadata-link" navigate={~p"/item/#{@item.id}/metadata"}>
+        <.icon name="hero-table-cells" />{gettext("View all metadata for this item")}
+      </.link>
     </.primary_button>
     """
   end
