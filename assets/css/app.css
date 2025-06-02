@@ -239,3 +239,15 @@
   min-width: 0.5rem;
   min-height: 0.5rem;
 }
+
+/* Change the color of the NProgress Bar to match the design */
+
+#nprogress .bar {
+  background: var(--color-rust);
+}
+
+/* Fancy blur effect */
+#nprogress .peg {
+  box-shadow: 0 0 10px var(--color-rust), 0 0 5px var(--color-rust);
+}
+
