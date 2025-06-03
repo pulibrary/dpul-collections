@@ -120,7 +120,12 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     assert view |> has_element?("dt", "Holding location")
     assert view |> has_element?("dd", "Special Collections")
     assert view |> has_element?("dt", "IIIF Manifest URL")
-    assert view |> has_element?("dd", "https://figgy.princeton.edu/concern/ephemera_folders/42b8f9d4-1ab0-4622-b4a9-96ed4c2bec71/manifest")
+
+    assert view
+           |> has_element?(
+             "dd",
+             "https://figgy.princeton.edu/concern/ephemera_folders/42b8f9d4-1ab0-4622-b4a9-96ed4c2bec71/manifest"
+           )
 
     # Does not display unconfigured fields
     assert !(view |> has_element?("dd", "https://example.com/iiif/2/image1"))

@@ -73,7 +73,6 @@ defmodule DpulCollections.Item do
          {:provenance, gettext("Provenance")},
          {:rights_statement, gettext("Rights Statement")}
        ]},
-
       {gettext("Discovery Information"),
        [
          {:subject, gettext("Subject")},
@@ -81,7 +80,6 @@ defmodule DpulCollections.Item do
          {:keywords, gettext("Keywords")},
          {:geographic_origin, gettext("Geographic Origin")}
        ]},
-
       {gettext("Physical Characteristics"),
        [
          {:height, gettext("Height")},

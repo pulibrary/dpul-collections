@@ -40,18 +40,14 @@ defmodule DpulCollectionsWeb.MetadataLive do
         <h2 class="sm:border-t-1 border-accent py-3">{gettext("Item Description")}</h2>
         <p>{@item.description}</p>
       </div>
-      <div
-        class="py-6"
-        :for={{category, fields} <- DpulCollections.Item.metadata_detail_categories()}
-      >
-        <div
-          class="sm:grid sm:grid-cols-5 gap-4">
+      <div :for={{category, fields} <- DpulCollections.Item.metadata_detail_categories()} class="py-6">
+        <div class="sm:grid sm:grid-cols-5 gap-4">
           <div class="sm:col-span-2">
-          <h2 class="sm:border-t-1 border-accent py-3">{category}</h2>
+            <h2 class="sm:border-t-1 border-accent py-3">{category}</h2>
           </div>
           <div class="sm:col-span-3">
             <dl>
-              <.metadata_row
+              <.metadata_pane_row
                 :for={{field, field_label} <- fields}
                 field_label={field_label}
                 value={field_value(@item, field)}
@@ -64,12 +60,12 @@ defmodule DpulCollectionsWeb.MetadataLive do
     """
   end
 
-  def metadata_row(%{value: []} = assigns) do
+  def metadata_pane_row(%{value: []} = assigns) do
     ~H"""
     """
   end
 
-  def metadata_row(assigns) do
+  def metadata_pane_row(assigns) do
     ~H"""
     <div class="grid grid-cols-2 border-t-1 border-accent py-3">
       <dt class="font-bold text-lg">
