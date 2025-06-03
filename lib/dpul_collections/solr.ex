@@ -103,7 +103,7 @@ defmodule DpulCollections.Solr do
   def generate_filter_query({facet_key, facet_value})
       when is_binary(facet_value) and facet_key in @facet_keys do
     solr_field = @facets[facet_key].solr_field
-    "+filter(#{solr_field}:#{facet_value})"
+    "+filter(#{solr_field}:\"#{facet_value}\")"
   end
 
   # Range facet.
