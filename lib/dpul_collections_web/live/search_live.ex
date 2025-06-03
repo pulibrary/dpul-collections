@@ -171,7 +171,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       navigate={self_route(@search_state, %{facet: %{@field => nil}})}
       class="filter mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-accent focus:outline-none active:shadow-none"
     >
-      {@label}
+      {Gettext.gettext(DpulCollectionsWeb.Gettext, @label)}
       <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
       {@facet_value}
       <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
