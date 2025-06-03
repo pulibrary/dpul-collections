@@ -42,7 +42,8 @@ defmodule DpulCollections.Solr.Constants do
         },
         "project" => %{
           solr_field: "ephemera_project_title_s",
-          label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Project"),
+          label:
+            Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Ephemera Project"),
           # Identity just returns whatever you gave it.
           value_function: &Function.identity/1
         },
