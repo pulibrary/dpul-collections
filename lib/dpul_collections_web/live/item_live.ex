@@ -139,15 +139,21 @@ defmodule DpulCollectionsWeb.ItemLive do
   def metadata_pane(assigns) do
     ~H"""
     <div
+      id="metadata-pane"
       class="w-full h-full translate-x-full"
-      phx-mounted={JS.transition({"ease-out duration-400", "translate-x-full", "translate-x-0"})}
+      phx-mounted={JS.transition({"ease-out duration-250", "translate-x-full", "translate-x-0"})}
+      phx-remove={JS.patch(~p"/item/#{@item.id}")}
+      data-cancel={JS.exec("phx-remove")}
+      phx-window-keydown={JS.exec("data-cancel", to: "#metadata-pane")}
+      phx-key="escape"
     >
       <div class="header-x-padding page-y-padding bg-accent flex flex-row">
         <h1 class="uppercase text-light-text flex-auto">{gettext("Metadata")}</h1>
-        <button class="flex-none cursor-pointer justify-end">
-          <.link id="back-link" navigate={~p"/item/#{@item.id}"}>
-            <.icon class="w-8 h-8" name="hero-x-mark" />
-          </.link>
+        <button
+          class="flex-none cursor-pointer justify-end"
+          phx-click={JS.exec("phx-remove", to: "#metadata-pane")}
+        >
+          <.icon class="w-8 h-8" name="hero-x-mark" />
         </button>
       </div>
       <div class="main-content header-x-padding page-y-padding">
