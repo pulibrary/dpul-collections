@@ -197,7 +197,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert document |> Floki.find("#year-facet") |> Enum.empty?()
     assert document |> Floki.find("#genre-facet") |> Enum.empty?()
 
-    {:ok, _view, html} = live(conn, "/search?date_to=2025")
+    {:ok, _view, html} = live(conn, "/search?facet[year][to]=2025")
 
     {:ok, document} =
       html
@@ -210,7 +210,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     assert document |> Floki.find("#genre-facet") |> Enum.empty?()
 
-    {:ok, _view, html} = live(conn, "/search?date_from=2020")
+    {:ok, _view, html} = live(conn, "/search?facet[year][from]=2020&facet[year][to]=")
 
     {:ok, document} =
       html
@@ -223,7 +223,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     assert document |> Floki.find("#genre-facet") |> Enum.empty?()
 
-    {:ok, _view, html} = live(conn, "/search?genre=posters")
+    {:ok, _view, html} = live(conn, "/search?facet[genre]=posters")
 
     {:ok, document} =
       html
@@ -236,7 +236,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Floki.text()
            |> TestUtils.clean_string() == "Genre posters"
 
-    {:ok, _view, html} = live(conn, "/search?genre=posters&date_to=2025")
+    {:ok, _view, html} = live(conn, "/search?facet[genre]=posters&facet[year][to]=2025")
 
     {:ok, document} =
       html
@@ -307,7 +307,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     {:ok, document} =
       view
       |> element("#date-filter")
-      |> render_submit(%{"date-from" => "1925", "date-to" => "1926"})
+      |> render_submit(%{"facet" => %{"year" => %{"from" => "1925", "to" => "1926"}}})
       |> Floki.parse_document()
 
     assert document
@@ -320,6 +320,42 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     assert document
            |> Floki.find(~s{a[href="/i/document98/item/98"]})
+           |> Enum.empty?()
+  end
+
+  test "unknown filters are ignored", %{conn: conn} do
+    {:ok, view, html} = live(conn, "/search?facet[stuff]=1")
+
+    {:ok, document} = Floki.parse_document(html)
+
+    assert document
+           |> Floki.find(~s{.facet})
+           |> Enum.empty?()
+  end
+
+  test "items can be filtered by genre", %{conn: conn} do
+    {:ok, view, html} = live(conn, "/search")
+
+    {:ok, document} =
+      view
+      |> element("#item-2 a", "Folders")
+      |> render_click()
+      |> follow_redirect(conn)
+      |> elem(2)
+      |> Floki.parse_document()
+
+    # Only folders
+    assert document
+           |> Floki.find(~s{a[href="/i/document2/item/2"]})
+           |> Enum.any?()
+
+    assert document
+           |> Floki.find(~s{a[href="/i/document4/item/4"]})
+           |> Enum.any?()
+
+    # Odd numbered ones are pamphlets.
+    assert document
+           |> Floki.find(~s{a[href="/i/document1/item/1"]})
            |> Enum.empty?()
   end
 

@@ -67,7 +67,11 @@ defmodule DpulCollectionsWeb.BrowseLive do
       <h1 class="col-span-3">{gettext("Pinned")}</h1>
       <div id="pinned-items" class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-1">
         <div class="grid grid-flow-row auto-rows-max gap-8">
-          <DpulCollectionsWeb.SearchLive.search_item :for={item <- @pinned_items} item={item} />
+          <DpulCollectionsWeb.SearchLive.search_item
+            :for={item <- @pinned_items}
+            search_state={%{}}
+            item={item}
+          />
         </div>
       </div>
       <div

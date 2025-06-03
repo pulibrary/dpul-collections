@@ -1,4 +1,5 @@
 defmodule DpulCollectionsWeb.ItemLive do
+  alias DpulCollectionsWeb.Live.Helpers
   use DpulCollectionsWeb, :live_view
   use Gettext, backend: DpulCollectionsWeb.Gettext
   alias DpulCollections.{Item, Solr}
@@ -25,12 +26,31 @@ defmodule DpulCollectionsWeb.ItemLive do
     assign(socket, item: item)
   end
 
+  attr :facet_name, :string, required: true
+  attr :facet_value, :string, required: true
+  attr :rest, :global, doc: "the arbitrary HTML attributes to add to the link"
+
+  def facet_link(assigns) do
+    ~H"""
+    <.link
+      href={~p"/search?#{%{facet: %{@facet_name => @facet_value}} |> Helpers.clean_params()}"}
+      {@rest}
+    >
+      {@facet_value}
+    </.link>
+    """
+  end
+
   def render(assigns) do
     ~H"""
     <div class="content-area item-page">
       <div class="column-layout my-5 flex flex-col sm:grid sm:grid-flow-row sm:auto-rows-0 sm:grid-cols-5 sm:grid-rows-[auto_1fr] sm:content-start gap-x-14 gap-y-4">
         <div class="item-title sm:row-start-1 sm:col-start-3 sm:col-span-3 h-min flex flex-col gap-4">
-          <a class="text-xl uppercase tracking-wide">{@item.genre}</a>
+          <.facet_link
+            class="text-xl uppercase tracking-wide"
+            facet_value={@item.genre |> List.first()}
+            facet_name="genre"
+          />
           <h1 class="text-4xl font-bold normal-case">{@item.title}</h1>
           <div
             :if={!Enum.empty?(@item.transliterated_title) || !Enum.empty?(@item.alternative_title)}
