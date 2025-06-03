@@ -37,7 +37,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
     |> visit("/i/document1/item/1")
     |> click_link("View all metadata for this item")
     |> assert_path("/i/document1/item/1/metadata")
-    |> click_link("#back-link", "")
+    |> click_link("close")
     |> assert_path("/i/document1/item/1")
   end
 end

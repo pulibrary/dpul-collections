@@ -16,13 +16,11 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   defp build_socket(socket = %{assigns: %{live_action: :metadata}}, item, path)
        when item.metadata_url != path do
-    item.metadata_url |> dbg()
     push_patch(socket, to: item.metadata_url, replace: true)
   end
 
   defp build_socket(socket = %{assigns: %{live_action: :live}}, item, path)
        when item.url != path do
-    item.metadata_url |> dbg()
     push_patch(socket, to: item.url, replace: true)
   end
 
@@ -51,14 +49,16 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def render(assigns) do
     ~H"""
-    <.metadata_pane :if={@live_action == :metadata} item={@item} />
-    <.item_page :if={@live_action == :live} item={@item} />
+    <div id="item-wrap" class="grid grid-rows-[1fr/1fr] grid-cols-[1fr/1fr]">
+      <.item_page item={@item} />
+      <.metadata_pane :if={@live_action == :metadata} item={@item} />
+    </div>
     """
   end
 
   def item_page(assigns) do
     ~H"""
-    <div class="bg-background page-y-padding content-area item-page">
+    <div class="bg-background page-y-padding content-area item-page col-start-1 row-start-1">
       <div class="column-layout my-5 flex flex-col sm:grid sm:grid-flow-row sm:auto-rows-0 sm:grid-cols-5 sm:grid-rows-[auto_1fr] sm:content-start gap-x-14 gap-y-4">
         <div class="item-title sm:row-start-1 sm:col-start-3 sm:col-span-3 h-min flex flex-col gap-4">
           <.facet_link
@@ -140,7 +140,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div
       id="metadata-pane"
-      class="w-full h-full translate-x-full"
+      class="bg-background w-full h-full translate-x-full col-start-1 row-start-1"
       phx-mounted={JS.transition({"ease-out duration-250", "translate-x-full", "translate-x-0"})}
       phx-remove={JS.patch(~p"/item/#{@item.id}")}
       data-cancel={JS.exec("phx-remove")}
@@ -149,12 +149,13 @@ defmodule DpulCollectionsWeb.ItemLive do
     >
       <div class="header-x-padding page-y-padding bg-accent flex flex-row">
         <h1 class="uppercase text-light-text flex-auto">{gettext("Metadata")}</h1>
-        <button
+        <.link
+          aria-label={gettext("close")}
           class="flex-none cursor-pointer justify-end"
           phx-click={JS.exec("phx-remove", to: "#metadata-pane")}
         >
           <.icon class="w-8 h-8" name="hero-x-mark" />
-        </button>
+        </.link>
       </div>
       <div class="main-content header-x-padding page-y-padding">
         <div class="py-6">
@@ -333,16 +334,17 @@ defmodule DpulCollectionsWeb.ItemLive do
   slot :inner_block
   attr :class, :string, default: nil
   attr :href, :string, default: nil, doc: "link - if set it makes an anchor tag"
+  attr :patch, :string, default: nil, doc: "link - if set makes an anchor tag"
   attr :disabled, :boolean, default: false
   attr :rest, :global, doc: "the arbitrary HTML attributes to add link"
 
-  def primary_button(assigns = %{href: href}) when href != nil do
+  def primary_button(assigns = %{href: href, patch: patch}) when href != nil or patch != nil do
     ~H"""
-    <a href={@href} class={["btn-primary", "flex gap-2", @class]} {@rest}>
+    <.link href={@href} patch={@patch} class={["btn-primary", "flex gap-2", @class]} {@rest}>
       <div>
         {render_slot(@inner_block)}
       </div>
-    </a>
+    </.link>
     """
   end
 
@@ -365,10 +367,8 @@ defmodule DpulCollectionsWeb.ItemLive do
         />
       </dl>
     </div>
-    <.primary_button class="right-arrow-box">
-      <.link id="metadata-link" patch={@item.metadata_url}>
+    <.primary_button id="metadata-link" class="right-arrow-box" patch={@item.metadata_url}>
         <.icon name="hero-table-cells" />{gettext("View all metadata for this item")}
-      </.link>
     </.primary_button>
     """
   end
