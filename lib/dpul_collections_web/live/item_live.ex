@@ -142,7 +142,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       id="metadata-pane"
       class="bg-background w-full h-full translate-x-full col-start-1 row-start-1"
       phx-mounted={JS.transition({"ease-out duration-250", "translate-x-full", "translate-x-0"})}
-      phx-remove={JS.patch(~p"/item/#{@item.id}")}
+      phx-remove={JS.patch(@item.url)}
       data-cancel={JS.exec("phx-remove")}
       phx-window-keydown={JS.exec("data-cancel", to: "#metadata-pane")}
       phx-key="escape"
@@ -152,7 +152,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         <.link
           aria-label={gettext("close")}
           class="flex-none cursor-pointer justify-end"
-          phx-click={JS.exec("phx-remove", to: "#metadata-pane")}
+          patch={@item.url}
         >
           <.icon class="w-8 h-8" name="hero-x-mark" />
         </.link>
