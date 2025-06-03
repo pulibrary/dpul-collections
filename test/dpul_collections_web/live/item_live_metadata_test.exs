@@ -1,4 +1,4 @@
-defmodule DpulCollectionsWeb.MetadataLiveTest do
+defmodule DpulCollectionsWeb.ItemLiveMetadataTest do
   use DpulCollectionsWeb.ConnCase
   import Phoenix.LiveViewTest
   import SolrTestSupport
