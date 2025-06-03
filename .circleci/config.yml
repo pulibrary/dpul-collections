@@ -12,6 +12,7 @@ executors:
           TEST_POSTGRES_FIGGY_HOST: figgy_database
           TEST_POSTGRES_FIGGY_PORT: 5432
           SOLR_BASE_URL: http://localhost:8983
+          MIX_ENV: test
       - image: cimg/postgres:15.2
       - image: cimg/postgres:15.2
         name: figgy_database
@@ -22,7 +23,9 @@ executors:
     working_directory: ~/project
   formatter:
     docker:
-      - image: cimg/elixir:1.17.2-erlang-26.2.1-browsers
+      - image: cimg/elixir:1.18.4-erlang-27.2.2-browsers
+        environment:
+          MIX_ENV: test
     working_directory: ~/project
 
 commands:
@@ -38,10 +41,6 @@ commands:
             - v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
             - v1-mix-cache-{{ .Branch }}
             - v1-mix-cache
-      - restore_cache:
-          keys:
-            - v1-build-cache-{{ .Branch }}
-            - v1-build-cache
       - run:
           name: Install hex
           command: mix local.hex --force
@@ -51,6 +50,11 @@ commands:
       - run:
           name: Install mix deps
           command: mix deps.get
+      - restore_cache:
+          keys:
+            - v1-build-cache-<< parameters.include-assets >>-{{ .Branch }}-{{ checksum "mix.lock" }}
+            - v1-build-cache-<< parameters.include-assets >>-{{ .Branch }}
+            - v1-build-cache-<< parameters.include-assets >>
       - when:
           condition: << parameters.include-assets >>
           steps:
@@ -61,19 +65,31 @@ commands:
                 command: mix assets.setup
       - save_cache:
           key: v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
-          paths: "deps"
+          paths:
+            - "deps"
       - save_cache:
           key: v1-mix-cache-{{ .Branch }}
-          paths: "deps"
+          paths:
+            - "deps"
       - save_cache:
           key: v1-mix-cache
-          paths: "deps"
+          paths:
+            - "deps"
       - save_cache:
-          key: v1-build-cache-{{ .Branch }}
-          paths: "_build"
+          key: v1-build-cache-<< parameters.include-assets >>-{{ .Branch }}-{{ checksum "mix.lock" }}
+          paths:
+            - "_build"
+            - "~/.cache/ms-playwright"
       - save_cache:
-          key: v1-build-cache
-          paths: "_build"
+          key: v1-build-cache-<< parameters.include-assets >>-{{ .Branch }}
+          paths:
+            - "_build"
+            - "~/.cache/ms-playwright"
+      - save_cache:
+          key: v1-build-cache-<< parameters.include-assets >>
+          paths:
+            - "_build"
+            - "~/.cache/ms-playwright"
 
   mix-format:
     description: Validates code has been formatted with mix format
