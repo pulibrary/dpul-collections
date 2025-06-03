@@ -86,7 +86,9 @@ defmodule DpulCollections.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:ex_cldr_dates_times, "~> 2.0"},
       # Icons
-      {:iconify_ex, "~> 0.6.1"}
+      {:iconify_ex, "~> 0.6.1"},
+      # React for Clover Viewer
+      {:phoenix_live_react, "~> 0.5"}
     ]
   end
 
@@ -126,6 +128,7 @@ defmodule DpulCollections.MixProject do
       "assets.build": ["tailwind dpul_collections", "esbuild dpul_collections"],
       "assets.deploy": [
         "tailwind dpul_collections --minify",
+        "cmd --cd assets npm ci",
         "esbuild dpul_collections --minify",
         "phx.digest"
       ]

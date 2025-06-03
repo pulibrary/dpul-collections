@@ -55,6 +55,7 @@ defmodule DpulCollectionsWeb do
         layout: {DpulCollectionsWeb.Layouts, :app}
 
       alias DpulCollectionsWeb.SetLocaleHook
+      import PhoenixLiveReact
       import Iconify
       alias Iconify.Icon
 
