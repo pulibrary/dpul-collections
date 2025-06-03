@@ -89,15 +89,15 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       |> Floki.parse_document()
 
     assert document |> Floki.find(~s{dt:fl-contains("Creator of work")}) |> Enum.any?()
-    assert document |> Floki.find(~s{dd:fl-contains("creator")}) |> Enum.any?()
+    assert document |> Floki.find(~s{.metadata *:fl-contains("creator")}) |> Enum.any?()
     assert document |> Floki.find(~s{dt:fl-contains("Geographic Origin")}) |> Enum.any?()
-    assert document |> Floki.find(~s{dd:fl-contains("geographic origin")}) |> Enum.any?()
+    assert document |> Floki.find(~s{.metadata *:fl-contains("geographic origin")}) |> Enum.any?()
     assert document |> Floki.find(~s{dt:fl-contains("Language")}) |> Enum.any?()
-    assert document |> Floki.find(~s{dd:fl-contains("language")}) |> Enum.any?()
+    assert document |> Floki.find(~s{.metadata *:fl-contains("language")}) |> Enum.any?()
     assert document |> Floki.find(~s{dt:fl-contains("Publisher")}) |> Enum.any?()
-    assert document |> Floki.find(~s{dd:fl-contains("publisher")}) |> Enum.any?()
+    assert document |> Floki.find(~s{.metadata *:fl-contains("publisher")}) |> Enum.any?()
     assert document |> Floki.find(~s{dt:fl-contains("Subject")}) |> Enum.any?()
-    assert document |> Floki.find(~s{dd:fl-contains("subject")}) |> Enum.any?()
+    assert document |> Floki.find(~s{.metadata *:fl-contains("subject")}) |> Enum.any?()
     assert document |> Floki.find(~s{*:fl-contains("Test Project")}) |> Enum.any?()
 
     # Does not display unconfigured fields
