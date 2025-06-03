@@ -1,4 +1,5 @@
 defmodule DpulCollectionsWeb.ItemLive do
+  use DpulCollections.Solr.Constants
   alias DpulCollectionsWeb.Live.Helpers
   use DpulCollectionsWeb, :live_view
   use Gettext, backend: DpulCollectionsWeb.Gettext
@@ -36,7 +37,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   attr :facet_value, :string, required: true
   attr :rest, :global, doc: "the arbitrary HTML attributes to add to the link"
 
-  def facet_link(assigns) do
+  def facet_link(assigns = %{facet_name: facet_name}) when facet_name in @facet_keys do
     ~H"""
     <.link
       href={~p"/search?#{%{facet: %{@facet_name => @facet_value}} |> Helpers.clean_params()}"}
@@ -44,6 +45,12 @@ defmodule DpulCollectionsWeb.ItemLive do
     >
       {@facet_value}
     </.link>
+    """
+  end
+
+  def facet_link(assigns) do
+    ~H"""
+    {@facet_value}
     """
   end
 
@@ -120,7 +127,7 @@ defmodule DpulCollectionsWeb.ItemLive do
             {description}
           </div>
           <div :if={@item.project} class="text-lg font-medium text-dark-text">
-            Part of <a href="#">{@item.project}</a>
+            Part of <.facet_link facet_name="project" facet_value={@item.project} />
           </div>
           <.action_bar class="hidden sm:block" item={@item} />
           <.content_separator />
@@ -364,6 +371,7 @@ defmodule DpulCollectionsWeb.ItemLive do
           :for={{field, field_label} <- DpulCollections.Item.metadata_display_fields()}
           field_label={field_label}
           value={field_value(@item, field)}
+          field={field}
         />
       </dl>
     </div>
@@ -385,7 +393,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         {@field_label}
       </dt>
       <dd :for={value <- @value} class="col-start-2">
-        {value}
+        <.facet_link facet_value={value} facet_name={"#{@field}"} />
       </dd>
     </div>
     """

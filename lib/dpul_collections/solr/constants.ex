@@ -39,6 +39,35 @@ defmodule DpulCollections.Solr.Constants do
           label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Genre"),
           # Identity just returns whatever you gave it.
           value_function: &Function.identity/1
+        },
+        "project" => %{
+          solr_field: "ephemera_project_title_s",
+          label:
+            Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Ephemera Project"),
+          # Identity just returns whatever you gave it.
+          value_function: &Function.identity/1
+        },
+        "language" => %{
+          solr_field: "language_txtm",
+          label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Language"),
+          value_function: &Function.identity/1
+        },
+        "subject" => %{
+          solr_field: "subject_txtm",
+          label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Subject"),
+          value_function: &Function.identity/1
+        },
+        "creator" => %{
+          solr_field: "creator_txtm",
+          label:
+            Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Creator of work"),
+          value_function: &Function.identity/1
+        },
+        "geographic_origin" => %{
+          solr_field: "geographic_origin_txtm",
+          label:
+            Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Geographic Origin"),
+          value_function: &Function.identity/1
         }
       }
 
