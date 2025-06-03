@@ -16,8 +16,8 @@ defmodule DpulCollectionsWeb.ItemLive do
   end
 
   defp build_socket(socket = %{assigns: %{live_action: :metadata}}, item, path)
-       when item.metadata_url != path do
-    push_patch(socket, to: item.metadata_url, replace: true)
+      when item.metadata_url != path do
+        push_patch(socket, to: item.metadata_url, replace: true)
   end
 
   defp build_socket(socket = %{assigns: %{live_action: :live}}, item, path)
@@ -87,36 +87,82 @@ defmodule DpulCollectionsWeb.ItemLive do
           </div>
           <p :if={@item.date} class="text-xl font-medium text-dark-text">{@item.date}</p>
         </div>
+      <.viewer_pane :if={@live_action == :viewer} item={@item} />
+    </div>
+    """
+  end
 
-        <div class="thumbnails w-full sm:row-start-1 sm:col-start-1 sm:col-span-2 sm:row-span-full">
-          <.primary_thumbnail item={@item} />
-
-          <.action_bar class="sm:hidden pt-4" item={@item} />
-
-          <section class="page-thumbnails hidden sm:block md:col-span-2 py-4">
-            <h2 class="py-1">{gettext("Pages")}</h2>
-            <div class="grid grid-cols-2 py-1 pr-2">
-              <div class="text-left text-l text-gray-600 font-semibold">
-                {gettext("%{file_min} of %{file_max} pages",
-                  file_min: min(@item.file_count, 12),
-                  file_max: @item.file_count
-                )}
-              </div>
-              <div class="text-right text-accent uppercase">
-                <a href="#" target="_blank">
-                  {gettext("View all pages")}
-                </a>
-              </div>
+  def item_page(assigns) do
+    ~H"""
+    <div class="bg-background page-y-padding content-area item-page col-start-1 row-start-1">
+      <div class="content-area item-page">
+        <div class="column-layout my-5 flex flex-col sm:grid sm:grid-flow-row sm:auto-rows-0 sm:grid-cols-5 sm:grid-rows-[auto_1fr] sm:content-start gap-x-14 gap-y-4">
+          <div class="item-title sm:row-start-1 sm:col-start-3 sm:col-span-3 h-min flex flex-col gap-4">
+            <.facet_link
+              class="text-xl uppercase tracking-wide"
+              facet_value={@item.genre |> List.first()}
+              facet_name="genre"
+            />
+            <h1 class="text-4xl font-bold normal-case">{@item.title}</h1>
+            <div
+              :if={!Enum.empty?(@item.transliterated_title) || !Enum.empty?(@item.alternative_title)}
+              class="flex flex-col gap-2"
+            >
+              <p :for={ttitle <- @item.transliterated_title} class="text-2xl font-medium text-gray-500">
+                {ttitle}
+              </p>
+              <p :for={atitle <- @item.alternative_title} class="text-2xl font-medium text-gray-500">
+                [{atitle}]
+              </p>
             </div>
-            <div class="py-1 grid grid-cols-4">
-              <.thumbs
-                :for={{thumb, thumb_num} <- Enum.with_index(Enum.take(@item.image_service_urls, 12))}
-                :if={@item.file_count}
-                thumb={thumb}
-                thumb_num={thumb_num}
-              />
+            <p :if={@item.date} class="text-xl font-medium text-dark-text">{@item.date}</p>
+          </div>
+
+          <div class="thumbnails w-full sm:row-start-1 sm:col-start-1 sm:col-span-2 sm:row-span-full">
+            <.primary_thumbnail item={@item} />
+
+            <.action_bar class="sm:hidden pt-4" item={@item} />
+
+            <section class="page-thumbnails hidden sm:block md:col-span-2 py-4">
+              <h2 class="py-1">{gettext("Pages")}</h2>
+              <div class="grid grid-cols-2 py-1 pr-2">
+                <div class="text-left text-l text-gray-600 font-semibold">
+                  {gettext("%{file_min} of %{file_max} pages",
+                    file_min: min(@item.file_count, 12),
+                    file_max: @item.file_count
+                  )}
+                </div>
+                <div class="text-right text-accent uppercase">
+                  <a href="#" target="_blank">
+                    {gettext("View all pages")}
+                  </a>
+                </div>
+              </div>
+              <div class="py-1 grid grid-cols-4">
+                <.thumbs
+                  :for={{thumb, thumb_num} <- Enum.with_index(Enum.take(@item.image_service_urls, 12))}
+                  :if={@item.file_count}
+                  thumb={thumb}
+                  thumb_num={thumb_num}
+                />
+              </div>
+            </section>
+          </div>
+
+          <div class="metadata sm:row-start-2 sm:col-span-3 sm:col-start-3 flex flex-col gap-8">
+            <div
+              :for={description <- @item.description}
+              class="text-xl font-medium text-dark-text font-serif"
+            >
+              {description}
             </div>
-          </section>
+            <div :if={@item.project} class="text-lg font-medium text-dark-text">
+              Part of <a href="#">{@item.project}</a>
+            </div>
+            <.action_bar class="hidden sm:block" item={@item} />
+            <.content_separator />
+            <.metadata_table item={@item} />
+          </div>
         </div>
 
         <div class="metadata sm:row-start-2 sm:col-span-3 sm:col-start-3 flex flex-col gap-8">
@@ -132,13 +178,43 @@ defmodule DpulCollectionsWeb.ItemLive do
           <.action_bar class="hidden sm:block" item={@item} />
           <.content_separator />
           <.metadata_table item={@item} />
+        <div class="">
+          <div class="bg-secondary">RELATED ITEMS</div>
         </div>
+        <.share_modal item={@item} />
       </div>
+    </div>
+    """
+  end
 
-      <div class="">
-        <div class="bg-secondary">RELATED ITEMS</div>
+  def viewer_pane(assigns) do
+    ~H"""
+    <div
+      id="viewer-pane"
+      class="bg-background w-full h-full -translate-x-full col-start-1 row-start-1"
+      phx-mounted={JS.transition({"ease-out duration-250", "-translate-x-full", "translate-x-0"})}
+      phx-remove={JS.patch(~p"/item/#{@item.id}")}
+      data-cancel={JS.exec("phx-remove")}
+      phx-window-keydown={JS.exec("data-cancel", to: "#viewer-pane")}
+      phx-key="escape"
+    >
+      <div class="header-x-padding page-y-padding bg-accent flex flex-row">
+        <h1 class="uppercase text-light-text flex-auto">{gettext("Viewer")}</h1>
+        <.link
+          aria-label={gettext("close")}
+          class="flex-none cursor-pointer justify-end"
+          phx-click={JS.exec("phx-remove", to: "#viewer-pane")}
+                 >
+          <.icon class="w-8 h-8" name="hero-x-mark" />
+        </.link>
       </div>
-      <.share_modal item={@item} />
+      <div class="main-content header-x-padding page-y-padding">
+        <div class="bg-cloud w-[92vw] h-[92vh] col-start-1 row-start-1">
+        {live_react_component("Components.Viewer", [iiifContent: @item.iiif_manifest_url],
+          id: "viewer-component"
+        )}
+      </div>
+      </div>
     </div>
     """
   end
@@ -270,7 +346,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         height="800"
       />
 
-      <.primary_button class="left-arrow-box">
+      <.primary_button id="viewer-link" class="left-arrow-box" patch={@item.viewer_url}>
         <.icon name="hero-eye" /> {gettext("View")}
       </.primary_button>
 
@@ -344,6 +420,16 @@ defmodule DpulCollectionsWeb.ItemLive do
   attr :patch, :string, default: nil, doc: "link - if set makes an anchor tag"
   attr :disabled, :boolean, default: false
   attr :rest, :global, doc: "the arbitrary HTML attributes to add link"
+
+  def primary_button(assigns = %{href: href, patch: patch}) when href != nil or patch != nil do
+    ~H"""
+    <.link href={@href} patch={@patch} class={["btn-primary", "flex gap-2", @class]} {@rest}>
+      <div>
+        {render_slot(@inner_block)}
+      </div>
+    </.link>
+    """
+  end
 
   def primary_button(assigns = %{href: href, patch: patch}) when href != nil or patch != nil do
     ~H"""
