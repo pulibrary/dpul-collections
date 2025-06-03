@@ -28,12 +28,13 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   attr :facet_name, :string, required: true
   attr :facet_value, :string, required: true
+  attr :rest, :global, doc: "the arbitrary HTML attributes to add to the link"
 
   def facet_link(assigns) do
     ~H"""
     <.link
-      class="text-xl uppercase tracking-wide"
       href={~p"/search?#{%{facet: %{@facet_name => @facet_value}} |> Helpers.clean_params()}"}
+      {@rest}
     >
       {@facet_value}
     </.link>
@@ -45,7 +46,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     <div class="content-area item-page">
       <div class="column-layout my-5 flex flex-col sm:grid sm:grid-flow-row sm:auto-rows-0 sm:grid-cols-5 sm:grid-rows-[auto_1fr] sm:content-start gap-x-14 gap-y-4">
         <div class="item-title sm:row-start-1 sm:col-start-3 sm:col-span-3 h-min flex flex-col gap-4">
-          <.facet_link facet_value={@item.genre |> List.first()} facet_name="genre" />
+          <.facet_link class="text-xl uppercase tracking-wide" facet_value={@item.genre |> List.first()} facet_name="genre" />
           <h1 class="text-4xl font-bold normal-case">{@item.title}</h1>
           <div
             :if={!Enum.empty?(@item.transliterated_title) || !Enum.empty?(@item.alternative_title)}
