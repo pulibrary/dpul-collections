@@ -30,6 +30,8 @@ defmodule DpulCollectionsWeb.Router do
     live "/search", SearchLive, :live
     live "/item/:id", ItemLive, :live
     live "/i/:slug/item/:id", ItemLive, :live
+    live "/i/:slug/item/:id/metadata", ItemLive, :metadata
+    live "/item/:id/metadata", ItemLive, :metadata
   end
 
   # Other scopes may use custom stacks.
