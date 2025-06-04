@@ -30,9 +30,25 @@ defmodule DpulCollectionsWeb.ItemLiveViewerTest do
     on_exit(fn -> Solr.delete_all(active_collection()) end)
   end
 
-  test "/item/{:id}/metadata displays all the metadata fields", %{conn: conn} do
+  test "GET /item/{:id}/viewer", %{conn: conn} do
+    conn = get(conn, ~p"/i/gandalf-the-grey/item/1/viewer")
+    assert html_response(conn, 200) =~ "Digital Collections"
+  end
+
+  test "/item/{:id}/viewer displays and renders", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/i/gandalf-the-grey/item/1/viewer")
 
     assert view |> has_element?("h1", "Viewer")
+  end
+
+  test "/item/{:id}/viewer redirects when slug is missing", %{conn: conn} do
+    conn = get(conn, "/item/1/viewer")
+    assert redirected_to(conn, 302) == "/i/gandalf-the-grey/item/1/viewer"
+  end
+
+  test "/i/{:slug}/item/{:id}/viewer redirects when slug is incorrect",
+       %{conn: conn} do
+    conn = get(conn, "/i/not-a-real-slug/item/1/viewer")
+    assert redirected_to(conn, 302) == "/i/gandalf-the-grey/item/1/viewer"
   end
 end
