@@ -108,7 +108,10 @@ defmodule DpulCollectionsWeb.ItemLive do
               :if={!Enum.empty?(@item.transliterated_title) || !Enum.empty?(@item.alternative_title)}
               class="flex flex-col gap-2"
             >
-              <p :for={ttitle <- @item.transliterated_title} class="text-2xl font-medium text-gray-500">
+              <p
+                :for={ttitle <- @item.transliterated_title}
+                class="text-2xl font-medium text-gray-500"
+              >
                 {ttitle}
               </p>
               <p :for={atitle <- @item.alternative_title} class="text-2xl font-medium text-gray-500">
@@ -140,7 +143,9 @@ defmodule DpulCollectionsWeb.ItemLive do
               </div>
               <div class="py-1 grid grid-cols-4">
                 <.thumbs
-                  :for={{thumb, thumb_num} <- Enum.with_index(Enum.take(@item.image_service_urls, 12))}
+                  :for={
+                    {thumb, thumb_num} <- Enum.with_index(Enum.take(@item.image_service_urls, 12))
+                  }
                   :if={@item.file_count}
                   thumb={thumb}
                   thumb_num={thumb_num}
@@ -193,7 +198,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       id="viewer-pane"
       class="bg-background w-full h-full -translate-x-full col-start-1 row-start-1"
       phx-mounted={JS.transition({"ease-out duration-250", "-translate-x-full", "translate-x-0"})}
-      phx-remove={JS.patch(~p"/item/#{@item.id}")}
+      phx-remove={JS.patch(@item.url)}
       data-cancel={JS.exec("phx-remove")}
       phx-window-keydown={JS.exec("data-cancel", to: "#viewer-pane")}
       phx-key="escape"
@@ -203,17 +208,18 @@ defmodule DpulCollectionsWeb.ItemLive do
         <.link
           aria-label={gettext("close")}
           class="flex-none cursor-pointer justify-end"
+          patch={@item.url}
           phx-click={JS.exec("phx-remove", to: "#viewer-pane")}
-                 >
+        >
           <.icon class="w-8 h-8" name="hero-x-mark" />
         </.link>
       </div>
       <div class="main-content header-x-padding page-y-padding">
         <div class="bg-cloud w-[92vw] h-[92vh] col-start-1 row-start-1">
-        {live_react_component("Components.Viewer", [iiifContent: @item.iiif_manifest_url],
-          id: "viewer-component"
-        )}
-      </div>
+          {live_react_component("Components.Viewer", [iiifContent: @item.iiif_manifest_url],
+            id: "viewer-component"
+          )}
+        </div>
       </div>
     </div>
     """
@@ -346,7 +352,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         height="800"
       />
 
-      <.primary_button id="viewer-link" class="left-arrow-box" patch={@item.viewer_url}>
+      <.primary_button id="viewer-link" class="left-arrow-box" href={@item.viewer_url}>
         <.icon name="hero-eye" /> {gettext("View")}
       </.primary_button>
 
