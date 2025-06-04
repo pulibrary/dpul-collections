@@ -39,20 +39,12 @@ msgid "Success!"
 msgstr "¡Éxito!"
 
 #: lib/dpul_collections_web/components/core_components.ex:61
-<<<<<<< HEAD
 #: lib/dpul_collections_web/live/item_live.ex:160
-=======
-#: lib/dpul_collections_web/live/item_live.ex:155
->>>>>>> e78a623 (adds viewer drawer/panel to item page)
 #, elixir-autogen, elixir-format
 msgid "close"
 msgstr "cerrar"
 
-<<<<<<< HEAD
-#: lib/dpul_collections_web/live/item_live.ex:285
-=======
 #: lib/dpul_collections_web/live/item_live.ex:264
->>>>>>> e78a623 (adds viewer drawer/panel to item page)
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Download"
 msgstr "Descargar"
@@ -63,11 +55,6 @@ msgid "Apply"
 msgstr "Aplicar"
 
 #: lib/dpul_collections/item.ex:50
-<<<<<<< HEAD
-#: lib/dpul_collections/item.ex:68
-#: lib/dpul_collections/solr.ex:3
-=======
->>>>>>> e78a623 (adds viewer drawer/panel to item page)
 #: lib/dpul_collections_web/components/header_component.ex:41
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
@@ -76,31 +63,18 @@ msgstr "Aplicar"
 msgid "Language"
 msgstr "Idioma"
 
-<<<<<<< HEAD
-#: lib/dpul_collections_web/live/search_live.ex:303
-=======
 #: lib/dpul_collections_web/live/search_live.ex:302
->>>>>>> e78a623 (adds viewer drawer/panel to item page)
 #, elixir-autogen, elixir-format
 msgid "Next"
 msgstr "Proxima"
 
-<<<<<<< HEAD
-#: lib/dpul_collections_web/live/item_live.ex:97
-#: lib/dpul_collections_web/live/search_live.ex:199
-=======
 #: lib/dpul_collections_web/live/item_live.ex:91
 #: lib/dpul_collections_web/live/search_live.ex:198
->>>>>>> e78a623 (adds viewer drawer/panel to item page)
 #, elixir-autogen, elixir-format
 msgid "Pages"
 msgstr "Páginas"
 
-<<<<<<< HEAD
-#: lib/dpul_collections_web/live/search_live.ex:259
-=======
 #: lib/dpul_collections_web/live/search_live.ex:258
->>>>>>> e78a623 (adds viewer drawer/panel to item page)
 #, elixir-autogen, elixir-format
 msgid "Previous"
 msgstr "Anterior"

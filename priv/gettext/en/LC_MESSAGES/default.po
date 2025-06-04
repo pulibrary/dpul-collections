@@ -181,11 +181,7 @@ msgstr ""
 msgid "Pinned"
 msgstr ""
 
-<<<<<<< HEAD
-#: lib/dpul_collections_web/live/search_live.ex:223
-=======
 #: lib/dpul_collections_web/live/search_live.ex:222
->>>>>>> e78a623 (adds viewer drawer/panel to item page)
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Search Results for"
 msgstr ""
@@ -204,11 +200,7 @@ msgid "Recently Added Items"
 msgstr ""
 
 #: lib/dpul_collections_web/components/browse_item.ex:74
-<<<<<<< HEAD
-#: lib/dpul_collections_web/live/search_live.ex:213
-=======
 #: lib/dpul_collections_web/live/search_live.ex:212
->>>>>>> e78a623 (adds viewer drawer/panel to item page)
 #, elixir-autogen, elixir-format
 msgid "Added"
 msgstr ""

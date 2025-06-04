@@ -157,7 +157,7 @@ defmodule DpulCollections.Item do
   defp generate_metadata_url(id, slug) do
     "/i/#{slug}/item/#{id}/metadata"
   end
-  
+
   defp generate_viewer_url(id, slug) do
     "/i/#{slug}/item/#{id}/viewer"
   end
