@@ -196,7 +196,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           thumb_num={thumb_num}
         />
         <div :if={@item.file_count > 1} class="absolute right-0 top-0 bg-white px-4 py-2">
-          {@item.file_count} {gettext("Pages")}
+          {@item.file_count} {gettext("Images")}
         </div>
       </div>
       <div data-field="genre" class="pt-4 text-gray-500 font-bold text-sm uppercase">
