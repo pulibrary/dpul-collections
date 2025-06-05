@@ -326,42 +326,42 @@ msgstr "Abrir"
 #: lib/dpul_collections/item.ex:64
 #, elixir-autogen, elixir-format
 msgid "Alternative Title"
-msgstr ""
+msgstr "Título Alternativo"
 
 #: lib/dpul_collections/item.ex:97
 #, elixir-autogen, elixir-format
 msgid "Barcode"
-msgstr ""
+msgstr "Código de barras"
 
 #: lib/dpul_collections/item.ex:95
 #, elixir-autogen, elixir-format
 msgid "Box number"
-msgstr ""
+msgstr "Número de caja"
 
 #: lib/dpul_collections/item.ex:72
 #, elixir-autogen, elixir-format
 msgid "Content Warning"
-msgstr ""
+msgstr "Advertencia de contenido"
 
 #: lib/dpul_collections/item.ex:67
 #, elixir-autogen, elixir-format
 msgid "Contributor"
-msgstr ""
+msgstr "Colaborador"
 
 #: lib/dpul_collections/item.ex:70
 #, elixir-autogen, elixir-format
 msgid "Date Created"
-msgstr ""
+msgstr "Fecha de creación"
 
 #: lib/dpul_collections/item.ex:60
 #, elixir-autogen, elixir-format
 msgid "Descriptive Information"
-msgstr ""
+msgstr "Información descriptiva"
 
 #: lib/dpul_collections/item.ex:77
 #, elixir-autogen, elixir-format
 msgid "Discovery Information"
-msgstr ""
+msgstr "Información de descubrimiento"
 
 #: lib/dpul_collections/item.ex:93
 #: lib/dpul_collections/solr.ex:3
@@ -370,102 +370,102 @@ msgstr ""
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
 #, elixir-autogen, elixir-format
 msgid "Ephemera Project"
-msgstr ""
+msgstr "Colección de efímeras"
 
 #: lib/dpul_collections/item.ex:89
 #, elixir-autogen, elixir-format
 msgid "File Count"
-msgstr ""
+msgstr "Recuento de archivos"
 
 #: lib/dpul_collections/item.ex:96
 #, elixir-autogen, elixir-format
 msgid "Folder number"
-msgstr ""
+msgstr "Número de carpeta"
 
 #: lib/dpul_collections/item.ex:80
 #, elixir-autogen, elixir-format
 msgid "Geographic Subject"
-msgstr ""
+msgstr "Tema geográfico"
 
 #: lib/dpul_collections/item.ex:86
 #, elixir-autogen, elixir-format
 msgid "Height"
-msgstr ""
+msgstr "Altura"
 
 #: lib/dpul_collections/item.ex:98
 #, elixir-autogen, elixir-format
 msgid "Holding location"
-msgstr ""
+msgstr "Ubicación del artículo"
 
 #: lib/dpul_collections/item.ex:99
 #, elixir-autogen, elixir-format
 msgid "IIIF Manifest URL"
-msgstr ""
+msgstr "URL del manifiesto IIIF"
 
 #: lib/dpul_collections/item.ex:91
 #, elixir-autogen, elixir-format
 msgid "Institutional Information"
-msgstr ""
+msgstr "Información institucional"
 
 #: lib/dpul_collections_web/live/item_live.ex:176
 #, elixir-autogen, elixir-format
 msgid "Item Description"
-msgstr ""
+msgstr "Descripción del artículo"
 
 #: lib/dpul_collections/item.ex:81
 #, elixir-autogen, elixir-format
 msgid "Keywords"
-msgstr ""
+msgstr "Palabras clave"
 
 #: lib/dpul_collections_web/live/item_live.ex:165
 #, elixir-autogen, elixir-format
 msgid "Metadata"
-msgstr ""
+msgstr "Metadatos"
 
 #: lib/dpul_collections/item.ex:88
 #, elixir-autogen, elixir-format
 msgid "Page Count"
-msgstr ""
+msgstr "Número de páginas"
 
 #: lib/dpul_collections/item.ex:84
 #, elixir-autogen, elixir-format
 msgid "Physical Characteristics"
-msgstr ""
+msgstr "Características físicas"
 
 #: lib/dpul_collections/item.ex:74
 #, elixir-autogen, elixir-format
 msgid "Provenance"
-msgstr ""
+msgstr "Procedencia"
 
 #: lib/dpul_collections/item.ex:75
 #, elixir-autogen, elixir-format
 msgid "Rights Statement"
-msgstr ""
+msgstr "Derechos"
 
 #: lib/dpul_collections/item.ex:73
 #, elixir-autogen, elixir-format
 msgid "Series"
-msgstr ""
+msgstr "Serie"
 
 #: lib/dpul_collections/item.ex:65
 #, elixir-autogen, elixir-format
 msgid "Sort Title"
-msgstr ""
+msgstr "Título de ordenar"
 
 #: lib/dpul_collections/item.ex:62
 #, elixir-autogen, elixir-format
 msgid "Title"
-msgstr ""
+msgstr "Título"
 
 #: lib/dpul_collections/item.ex:63
 #, elixir-autogen, elixir-format
 msgid "Transliterated Title"
-msgstr ""
+msgstr "Título transliterado"
 
 #: lib/dpul_collections/item.ex:87
 #, elixir-autogen, elixir-format
 msgid "Width"
-msgstr ""
+msgstr "Anchura"
 
 #: lib/dpul_collections_web/live/item_live.ex:106
 #, elixir-autogen, elixir-format
