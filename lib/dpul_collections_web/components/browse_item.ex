@@ -60,7 +60,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
           :if={@item.file_count > 4}
           class="absolute bg-background right-2 top-0 z-10 pr-2 pb-1 diagonal-drop"
         >
-          {@item.file_count} pages
+          {@item.file_count} {gettext("Images")}
         </div>
 
         <h2 class="font-normal tracking-tight py-2">
