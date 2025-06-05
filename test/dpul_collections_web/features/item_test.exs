@@ -40,4 +40,13 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
     |> click_link("close")
     |> assert_path("/i/document1/item/1")
   end
+
+  test "links to and from viewer page", %{conn: conn} do
+    conn
+    |> visit("/i/document1/item/1")
+    |> click_link("#viewer-link", "View")
+    |> assert_path("/i/document1/item/1/viewer")
+    |> click_link("close")
+    |> assert_path("/i/document1/item/1")
+  end
 end

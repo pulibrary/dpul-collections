@@ -131,7 +131,7 @@ defmodule DpulCollectionsWeb.ItemLiveMetadataTest do
     assert !(view |> has_element?("dd", "https://example.com/iiif/2/image1"))
   end
 
-  test "/item/{:id}/metadata redirects when title is recognized latin script", %{conn: conn} do
+  test "/item/{:id}/metadata redirects when slug is missing", %{conn: conn} do
     conn = get(conn, "/item/1/metadata")
     assert redirected_to(conn, 302) == "/i/gandalf-the-grey/item/1/metadata"
   end

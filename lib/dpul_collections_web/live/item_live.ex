@@ -20,6 +20,11 @@ defmodule DpulCollectionsWeb.ItemLive do
     push_patch(socket, to: item.metadata_url, replace: true)
   end
 
+  defp build_socket(socket = %{assigns: %{live_action: :viewer}}, item, path)
+       when item.viewer_url != path do
+    push_patch(socket, to: item.viewer_url, replace: true)
+  end
+
   defp build_socket(socket = %{assigns: %{live_action: :live}}, item, path)
        when item.url != path do
     push_patch(socket, to: item.url, replace: true)
@@ -59,6 +64,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     <div id="item-wrap" class="grid grid-rows-[1fr/1fr] grid-cols-[1fr/1fr]">
       <.item_page item={@item} />
       <.metadata_pane :if={@live_action == :metadata} item={@item} />
+      <.viewer_pane :if={@live_action == :viewer} item={@item} />
     </div>
     """
   end
@@ -193,6 +199,39 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
+  def viewer_pane(assigns) do
+    ~H"""
+    <div
+      id="viewer-pane"
+      class="bg-background w-full h-full -translate-x-full col-start-1 row-start-1"
+      phx-mounted={JS.transition({"ease-out duration-250", "-translate-x-full", "translate-x-0"})}
+      phx-remove={JS.patch(@item.url)}
+      data-cancel={JS.exec("phx-remove")}
+      phx-window-keydown={JS.exec("data-cancel", to: "#viewer-pane")}
+      phx-key="escape"
+    >
+      <div class="header-x-padding page-y-padding bg-accent flex flex-row">
+        <h1 class="uppercase text-light-text flex-auto">{gettext("Viewer")}</h1>
+        <.link
+          aria-label={gettext("close")}
+          class="flex-none cursor-pointer justify-end"
+          patch={@item.url}
+          phx-click={JS.exec("phx-remove", to: "#viewer-pane")}
+        >
+          <.icon class="w-8 h-8" name="hero-x-mark" />
+        </.link>
+      </div>
+      <div class="main-content header-x-padding page-y-padding">
+        <div class="bg-cloud w-[92vw] h-[92vh] col-start-1 row-start-1">
+          {live_react_component("Components.Viewer", [iiifContent: @item.iiif_manifest_url],
+            id: "viewer-component"
+          )}
+        </div>
+      </div>
+    </div>
+    """
+  end
+
   attr :rest, :global
   attr :item, :map, required: true
 
@@ -270,7 +309,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         height="800"
       />
 
-      <.primary_button class="left-arrow-box">
+      <.primary_button id="viewer-link" class="left-arrow-box" href={@item.viewer_url}>
         <.icon name="hero-eye" /> {gettext("View")}
       </.primary_button>
 

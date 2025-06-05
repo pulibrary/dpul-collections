@@ -21,8 +21,18 @@ ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
 FROM ${BUILDER_IMAGE} as builder
 
 # install build dependencies
-RUN apt-get update -y && apt-get install -y build-essential git \
+RUN apt-get update -y && apt-get install -y build-essential git curl \
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
+
+# Install JavaScript dependencies
+# renovate: datasource=node-version depName=node
+ARG NODE_VERSION=22.14.0
+# renovate: datasource=npm depName=yarn versioning=npm
+ENV PATH=/usr/local/node/bin:$PATH
+RUN curl -sL https://github.com/nodenv/node-build/archive/master.tar.gz | tar xz -C /tmp/ && \
+    /tmp/node-build-master/bin/node-build "${NODE_VERSION}" /usr/local/node && \
+    rm -rf /tmp/node-build-master
+
 
 # prepare build dir
 WORKDIR /app
@@ -33,6 +43,7 @@ RUN mix local.hex --force && \
 
 # set build ENV
 ENV MIX_ENV="prod"
+ENV NODE_ENV="production"
 
 # install mix dependencies
 COPY mix.exs mix.lock ./
