@@ -153,6 +153,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       data-cancel={JS.exec("phx-remove")}
       phx-window-keydown={JS.exec("data-cancel", to: "#metadata-pane")}
       phx-key="escape"
+      phx-hook="ScrollTop"
     >
       <div class="header-x-padding page-y-padding bg-accent flex flex-row">
         <h1 class="uppercase text-light-text flex-auto">{gettext("Metadata")}</h1>
@@ -375,7 +376,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         />
       </dl>
     </div>
-    <.primary_button id="metadata-link" class="right-arrow-box" href={@item.metadata_url}>
+    <.primary_button id="metadata-link" class="right-arrow-box" patch={@item.metadata_url}>
       <.icon name="hero-table-cells" />{gettext("View all metadata for this item")}
     </.primary_button>
     """
