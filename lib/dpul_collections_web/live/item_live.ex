@@ -1,6 +1,7 @@
 defmodule DpulCollectionsWeb.ItemLive do
   use DpulCollections.Solr.Constants
   alias DpulCollectionsWeb.Live.Helpers
+  import DpulCollectionsWeb.BrowseItem
   use DpulCollectionsWeb, :live_view
   use Gettext, backend: DpulCollectionsWeb.Gettext
   alias DpulCollections.{Item, Solr}
@@ -35,7 +36,9 @@ defmodule DpulCollectionsWeb.ItemLive do
   end
 
   defp build_socket(socket, item, _) do
-    assign(socket, item: item)
+    related_items = Solr.related_items(item, %{facet: %{"project" => item.project}})
+                    |> IO.inspect
+    assign(socket, item: item, related_items: related_items)
   end
 
   attr :facet_name, :string, required: true
@@ -62,7 +65,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def render(assigns) do
     ~H"""
     <div id="item-wrap" class="grid grid-rows-[1fr/1fr] grid-cols-[1fr/1fr]">
-      <.item_page item={@item} />
+      <.item_page item={@item} related_items={@related_items} />
       <.metadata_pane :if={@live_action == :metadata} item={@item} />
       <.viewer_pane :if={@live_action == :viewer} item={@item} />
     </div>
@@ -141,8 +144,21 @@ defmodule DpulCollectionsWeb.ItemLive do
         </div>
       </div>
 
-      <div class="">
-        <div class="bg-secondary">RELATED ITEMS</div>
+      <div id="related-same-project" class="grid-row bg-secondary">
+        <div class="content-area">
+          <div class="page-t-padding" />
+          <h1>{gettext("Related Items in this Collection")}</h1>
+          <div class="flex gap-8 justify-stretch page-t-padding">
+
+    <!-- cards -->
+            <div class="w-full recent-container">
+              <.browse_item :for={item <- @related_items} item={item} added?={false} pinnable?={false} />
+            </div>
+          </div>
+          <div class="page-b-padding" />
+        </div>
+      </div>
+      <div id="related-different-project" class="bg-secondary">
       </div>
       <.share_modal item={@item} />
     </div>
