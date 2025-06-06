@@ -78,15 +78,15 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           title_txtm: "Similar Item Same Project",
           ephemera_project_title_s: "Test Project",
           genre_txtm: ["genre"],
-          subject_txtm: ["subject"],
+          subject_txtm: ["subject"]
         },
         %{
           id: "similar-to-1-diff-project",
           title_txtm: "Similar Item Different Project",
           ephemera_project_title_s: "Different Project",
           genre_txtm: ["genre"],
-          subject_txtm: ["subject"],
-        },
+          subject_txtm: ["subject"]
+        }
       ],
       active_collection()
     )
@@ -195,7 +195,15 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       {:ok, view, _html} = live(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
 
       assert view |> has_element?("#related-same-project h2 a", "Similar Item Same Project")
-      assert view |> has_element?("#related-different-project h2 a", "Similar Item Different Project")
+
+      assert view
+             |> has_element?("#related-different-project h2 a", "Similar Item Different Project")
+    end
+
+    test "doesn't show collection related items for items without a collection", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/i/زلزلہ/item/2")
+
+      refute view |> has_element?("#related-same-project")
     end
   end
 
