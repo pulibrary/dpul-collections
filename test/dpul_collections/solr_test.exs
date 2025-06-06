@@ -1,4 +1,6 @@
 defmodule DpulCollections.SolrTest do
+  alias DpulCollectionsWeb.SearchLive.SearchState
+  alias DpulCollections.Item
   use DpulCollections.DataCase
   alias DpulCollections.Solr
   import SolrTestSupport
@@ -78,14 +80,59 @@ defmodule DpulCollections.SolrTest do
       Solr.add(docs, active_collection())
       Solr.commit(active_collection())
 
-      results = Solr.related_items("reference")
-                |> Map.get("docs")
-                |> Enum.map(&Map.get(&1, "id"))
+      results =
+        Solr.related_items(%Item{id: "reference", project: "Latin American Ephemera"}, %{
+          facet: %{"project" => "Latin American Ephemera"}
+        })
+        |> Map.get("docs")
+        |> Enum.map(&Map.get(&1, "id"))
 
       assert results == ["similar", "less-similar"]
     end
 
     test "returns similar items in the other collections" do
+      docs = [
+        %{
+          "id" => "reference",
+          "title_txtm" => ["test title 1"],
+          "genre_txtm" => ["pamphlets"],
+          "subject_txtm" => ["folk art", "museum exhibits"],
+          "ephemera_project_title_s" => "Latin American Ephemera"
+        },
+        %{
+          "id" => "similar",
+          "title_txtm" => ["similar item"],
+          "genre_txtm" => ["pamphlets"],
+          "subject_txtm" => ["folk art", "music"],
+          "ephemera_project_title_s" => "Latin American Ephemera"
+        },
+        %{
+          "id" => "less-similar",
+          "title_txtm" => ["item that's not as similar"],
+          "genre_txtm" => ["pamphlets"],
+          "subject_txtm" => ["education", "music"],
+          "ephemera_project_title_s" => "Latin American Ephemera"
+        },
+        %{
+          "id" => "other-project",
+          "title_txtm" => ["similar item"],
+          "genre_txtm" => ["pamphlets"],
+          "subject_txtm" => ["folk art", "music"],
+          "ephemera_project_title_s" => "South Asian Ephemera"
+        }
+      ]
+
+      Solr.add(docs, active_collection())
+      Solr.commit(active_collection())
+
+      results =
+        Solr.related_items(%Item{id: "reference", project: "Latin American Ephemera"}, %{
+          facet: %{"project" => "-Latin American Ephemera"}
+        })
+        |> Map.get("docs")
+        |> Enum.map(&Map.get(&1, "id"))
+
+      assert results == ["other-project"]
     end
   end
 
