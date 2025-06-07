@@ -23,7 +23,8 @@ defmodule DpulCollections.Application do
         # {DpulCollections.Worker, arg},
         # Start to serve requests, typically the last entry
         DpulCollectionsWeb.Endpoint,
-        DpulCollections.IndexMetricsTracker
+        DpulCollections.IndexMetricsTracker,
+        DpulCollections.Classifier
       ] ++ filter_pipeline_children()
 
     # See https://hexdocs.pm/elixir/Supervisor.html
