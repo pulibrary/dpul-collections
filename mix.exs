@@ -90,6 +90,7 @@ defmodule DpulCollections.MixProject do
       # React for Clover Viewer
       {:phoenix_live_react, "~> 0.6"},
       {:sham, "~> 1.0", only: :test}
+      {:scholar, "~> 0.3.0"}
     ]
   end
 

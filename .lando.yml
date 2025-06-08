@@ -40,7 +40,7 @@ services:
       command: 
         - "/bin/sh"
         - "-c"
-        - "ollama serve & until ollama list >/dev/null 2>&1; do sleep 1; done; ollama pull hf.co/Qwen/Qwen3-Embedding-0.6B-GGUF:Q8_0; wait"
+        - "ollama serve & until ollama list >/dev/null 2>&1; do sleep 1; done; ollama pull hf.co/Qwen/Qwen3-Embedding-0.6B-GGUF:f16; wait"
       environment:
         OLLAMA_KEEP_ALIVE: -1
     overrides:
