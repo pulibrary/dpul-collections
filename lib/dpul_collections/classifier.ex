@@ -1,5 +1,6 @@
 defmodule DpulCollections.Classifier do
   use GenServer
+  @model "hf.co/Qwen/Qwen3-Embedding-0.6B-GGUF:Q8_0"
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
@@ -7,80 +8,25 @@ defmodule DpulCollections.Classifier do
 
   @impl true
   def init(_) do
-    {:ok, %{}, {:continue, :init}}
+    {:ok, %{client: Ollama.init("http://localhost:11439/api")}, {:continue, :init}}
   end
 
   def get_top_subjects(query) do
     GenServer.call(__MODULE__, {:top_subjects, query})
   end
 
-  def handle_call({:top_subjects, query}, _from, state = %{globals: globals}) do
-    {result, output_globals} =
-      Pythonx.eval(
-        """
-        # Each query must come with a one-sentence instruction that describes the task
-        subject_task = 'Given a query return the subjects that most closely match the user need.'
-        genre_task = 'Given a query return the genres that most closely match the kind of material the user wants.'
-
-        queries = [
-            get_detailed_instruct(subject_task, query.decode('utf-8')),
-            get_detailed_instruct(genre_task, query.decode('utf-8')),
-        ]
-
-        outputs = model.embed(queries)
-        embeddings = torch.tensor([o.outputs.embedding for o in outputs])
-        # Generate a dot product distance between query embedding and all the
-        # subjects.
-        subject_scores = (embeddings[0:1] @ subject_embeddings.T)
-        genre_scores = (embeddings[1:2] @ genre_embeddings.T)
-        subject_matches = [
-            dict(
-                sorted(zip(subjects, score_list), key=lambda item: item[1], reverse=True)[:5]
-            )
-            for score_list in subject_scores.tolist()
-        ]
-        genre_matches = [
-            dict(
-                sorted(zip(genres, score_list), key=lambda item: item[1], reverse=True)[:5]
-            )
-            for score_list in genre_scores.tolist()
-        ]
-        {'subjects': subject_matches, 'genres': genre_matches}
-        """,
-        globals |> Map.put("query", query)
-      )
-    result = result |> Pythonx.decode |> dbg
-    {:reply, result, state}
+  def handle_call({:top_subjects, query}, _from, state = %{subject_embeddings: subject_embeddings, genre_embeddings: genre_embeddings}) do
+    {:reply, genre_embeddings, state}
   end
 
   @impl true
-  def handle_continue(:init, state) do
-    state = Map.put(state, :globals, load_globals())
+  def handle_continue(:init, state = %{client: client}) do
+    {:ok, %{"embeddings" => subject_embeddings}} = Ollama.embed(client, [model: "hf.co/Qwen/Qwen3-Embedding-0.6B-GGUF:Q8_0", input: subjects()])
+    {:ok, %{"embeddings" => genre_embeddings}} = Ollama.embed(client, [model: @model, input: genres()])
+    state = state
+            |> Map.put(:subject_embeddings, subject_embeddings)
+            |> Map.put(:genre_embeddings, genre_embeddings)
     {:noreply, state}
-  end
-
-  # Pre-calculate all the subject embeddings and store them in memory.
-  defp load_globals do
-    {_result, globals} = Pythonx.eval(
-      """
-      import torch
-      import vllm
-      from vllm import LLM
-      def get_detailed_instruct(task_description: str, query: str) -> str:
-        return f'Instruct: {task_description}\\nQuery:{query}'
-
-      model = LLM(model="Qwen/Qwen3-Embedding-0.6B", task="embed")
-      subjects = [s.decode('utf-8') for s in subjects]
-      genres = [g.decode('utf-8') for g in genres]
-
-      print("Generating subject embeddings")
-      subject_embeddings = torch.tensor([o.outputs.embedding for o in model.embed(subjects)])
-      print("Generating genre embeddings")
-      genre_embeddings = torch.tensor([o.outputs.embedding for o in model.embed(genres)])
-      """,
-        %{"subjects" => subjects(), "genres" => genres()}
-    )
-    globals |> dbg
   end
 
   defp genres() do
