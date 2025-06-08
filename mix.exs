@@ -89,8 +89,8 @@ defmodule DpulCollections.MixProject do
       {:iconify_ex, "~> 0.6.1"},
       # React for Clover Viewer
       {:phoenix_live_react, "~> 0.6"},
-      {:pythonx, "~> 0.4.0"},
-      {:ollama, "~> 0.8.0"}
+      {:ollama, "~> 0.8.0"},
+      {:scholar, "~> 0.3.0"},
     ]
   end
 
