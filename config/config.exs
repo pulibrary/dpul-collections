@@ -103,15 +103,3 @@ config :iconify_ex,
   mode: :css,
   generated_icon_static_path: "./assets/css",
   default_class: nil
-
-config :pythonx, :uv_init,
-  pyproject_toml: """
-  [project]
-  name = "dpul-collections"
-  version = "0.0.1"
-  requires-python = "==3.12.*"
-  dependencies = [
-    "vllm>=0.8.5",
-    "torch>=2.6.0"
-  ]
-  """

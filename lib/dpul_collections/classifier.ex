@@ -15,21 +15,44 @@ defmodule DpulCollections.Classifier do
     GenServer.call(__MODULE__, {:top_subjects, query})
   end
 
-  def handle_call({:top_subjects, query}, _from, state = %{subject_embeddings: subject_embeddings, genre_embeddings: genre_embeddings}) do
-    {:reply, genre_embeddings, state}
+  def handle_call({:top_subjects, query}, _from, state = %{client: client, sentiment_embeddings: sentiment_embeddings, subject_embeddings: subject_embeddings, genre_embeddings: genre_embeddings}) do
+    queries = [
+      get_detailed_instruct("Given a query return the subjects that most closely match the user need.", query),
+      get_detailed_instruct("Given a query return the genres that most closely match the kind of material the user wants.", query),
+      get_detailed_instruct("Perform sentiment analysis against this user query.", query)
+    ]
+    {:ok, %{"embeddings" => query_embedding}} = Ollama.embed(client, [model: "hf.co/Qwen/Qwen3-Embedding-0.6B-GGUF:f16", input: queries])
+    query_embedding = Nx.tensor(query_embedding, type: :f16)
+    subject_dot_products = Nx.dot(query_embedding[0], subject_embeddings)
+    genre_dot_products = Nx.dot(query_embedding[1], genre_embeddings)
+    sentiment_dot_products = Nx.dot(query_embedding[2], sentiment_embeddings)
+    subject_results = subject_dot_products |> Nx.to_flat_list |> Enum.zip(subjects()) |> Enum.sort(:desc) |> Enum.take(5)
+    genre_results = genre_dot_products |> Nx.to_flat_list |> Enum.zip(genres()) |> Enum.sort(:desc) |> Enum.take(5)
+    sentiment_results = sentiment_dot_products |> Nx.to_flat_list |> Enum.zip(sentiments()) |> Enum.sort(:desc) |> Enum.take(5)
+    {:reply, %{subjects: subject_results, genres: genre_results, sentiments: sentiment_results}, state}
   end
 
   @impl true
   def handle_continue(:init, state = %{client: client}) do
-    {:ok, %{"embeddings" => subject_embeddings}} = Ollama.embed(client, [model: "hf.co/Qwen/Qwen3-Embedding-0.6B-GGUF:Q8_0", input: subjects()])
+    {:ok, %{"embeddings" => subject_embeddings}} = Ollama.embed(client, [model: "hf.co/Qwen/Qwen3-Embedding-0.6B-GGUF:f16", input: subjects()])
     {:ok, %{"embeddings" => genre_embeddings}} = Ollama.embed(client, [model: @model, input: genres()])
+    {:ok, %{"embeddings" => sentiment_embeddings}} = Ollama.embed(client, [model: @model, input: sentiments()])
     state = state
-            |> Map.put(:subject_embeddings, subject_embeddings)
-            |> Map.put(:genre_embeddings, genre_embeddings)
+            |> Map.put(:subject_embeddings, Nx.transpose(Nx.tensor(subject_embeddings, type: :f16)))
+            |> Map.put(:genre_embeddings, Nx.transpose(Nx.tensor(genre_embeddings, type: :f16)))
+            |> Map.put(:sentiment_embeddings, Nx.transpose(Nx.tensor(sentiment_embeddings, type: :f16)))
     {:noreply, state}
   end
 
-  defp genres() do
+  defp get_detailed_instruct(task_description, query) do
+    "Instruct: #{task_description}\nQuery:#{query}"
+  end
+
+  def sentiments() do
+    ["positive", "neutral", "negative", "harmful"]
+  end
+
+  def genres() do
     [
 "Advertisements",
 "Bags",
@@ -78,7 +101,7 @@ defmodule DpulCollections.Classifier do
     ]
   end
 
-  defp subjects() do
+  def subjects() do
     [
 "Politics and government",
 "Arts and culture",
