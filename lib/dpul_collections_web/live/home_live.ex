@@ -195,30 +195,18 @@ defmodule DpulCollectionsWeb.HomeLive do
       </div>
       <.content_separator />
 
-      <div class="recent-items grid-row bg-background">
-        <div class="content-area">
-          <div class="page-t-padding" />
-          <h1>{gettext("Recently Added Items")}</h1>
-          <p class="my-2 font-regular">
-            {gettext("Our collections are constantly growing. Discover something new!")}
-          </p>
-          <div class="flex gap-8 justify-stretch page-t-padding">
-            
-    <!-- cards -->
-            <div class="w-full recent-container">
-              <.browse_item :for={item <- @recent_items} item={item} added?={true} pinnable?={false} />
-            </div>
-            
-    <!-- next arrow -->
-            <div class="w-12 flex-none content-center">
-              <.link id="recently-added-link" navigate={~p"/search?sort_by=recently_added"}>
-                <button class="btn-arrow w-full h-14" aria-label="more recently added items" />
-              </.link>
-            </div>
-          </div>
-          <div class="page-b-padding" />
-        </div>
-      </div>
+      <.browse_item_row
+        id="recent-items"
+        class="grid-row bg-background"
+        items={@recent_items}
+        title={gettext("Recently Added Items")}
+        more_link={~p"/search?sort_by=recently_added"}
+        added?={true}
+      >
+        <p class="my-2 font-regular">
+          {gettext("Our collections are constantly growing. Discover something new!")}
+        </p>
+      </.browse_item_row>
     </div>
     """
   end

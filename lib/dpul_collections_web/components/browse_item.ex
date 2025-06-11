@@ -4,6 +4,37 @@ defmodule DpulCollectionsWeb.BrowseItem do
   use Gettext, backend: DpulCollectionsWeb.Gettext
   alias DpulCollections.Item
 
+  attr :items, :list, required: true
+  attr :title, :string, required: true
+  attr :added?, :boolean, default: false
+  attr :more_link, :boolean, default: nil
+  attr :rest, :global, default: %{class: "grid-row bg-secondary"}
+  slot :inner_block, doc: "the optional inner block that renders above the images"
+
+  def browse_item_row(assigns) do
+    ~H"""
+    <div {@rest}>
+      <div class="content-area">
+        <div class="page-t-padding" />
+        <h1>{@title}</h1>
+        {render_slot(@inner_block)}
+        <div class="flex gap-8 justify-stretch page-t-padding">
+          <!-- cards -->
+          <div class="w-full recent-container">
+            <.browse_item :for={item <- @items} item={item} added?={@added?} pinnable?={false} />
+          </div>
+          <div :if={@more_link} class="w-12 flex-none content-center">
+            <.link navigate={@more_link}>
+              <button class="btn-arrow w-full h-14" aria-label="more items" />
+            </.link>
+          </div>
+        </div>
+        <div class="page-b-padding" />
+      </div>
+    </div>
+    """
+  end
+
   attr :item, Item, required: true
   attr :added?, :boolean, default: false
   attr :pinnable?, :boolean, default: true
