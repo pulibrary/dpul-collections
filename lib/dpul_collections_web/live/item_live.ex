@@ -62,7 +62,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def render(assigns) do
     ~H"""
     <div id="item-wrap" class="grid grid-rows-[1fr/1fr] grid-cols-[1fr/1fr]">
-      <.item_page item={@item} />
+      <.item_page item={@item} live_action={@live_action} />
       <.metadata_pane :if={@live_action == :metadata} item={@item} />
       <.viewer_pane :if={@live_action == :viewer} item={@item} />
     </div>
@@ -71,7 +71,7 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def item_page(assigns) do
     ~H"""
-    <div class="bg-background page-y-padding content-area item-page col-start-1 row-start-1">
+    <div class={"bg-background page-y-padding content-area item-page col-start-1 row-start-1"}>
       <div class="column-layout my-5 flex flex-col sm:grid sm:grid-flow-row sm:auto-rows-0 sm:grid-cols-5 sm:grid-rows-[auto_1fr] sm:content-start gap-x-14 gap-y-4">
         <div class="item-title sm:row-start-1 sm:col-start-3 sm:col-span-3 h-min flex flex-col gap-4">
           <.facet_link
@@ -204,8 +204,8 @@ defmodule DpulCollectionsWeb.ItemLive do
     <div
       id="viewer-pane"
       class="bg-background w-full h-full -translate-x-full col-start-1 row-start-1"
-                    phx-mounted={JS.transition({"ease-out duration-250", "-translate-x-full", "translate-x-0"})}
-                    data-cancel={JS.patch(@item.url) |> JS.remove_class("hidden", to: ".item-page")}
+                    phx-mounted={JS.transition({"ease-out duration-250", "-translate-x-full", "translate-x-0"}) |> JS.hide(to: ".item-page", transition: "fade-out-scale", time: 250)}
+                    data-cancel={JS.show(to: ".item-page") |> JS.patch(@item.url)}
       phx-window-keydown={JS.exec("data-cancel", to: "#viewer-pane")}
       phx-key="escape"
     >
@@ -221,7 +221,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       </div>
       <div class="main-content">
         <div class="w-full h-full col-start-1 row-start-1">
-          {live_react_component("Components.Viewer", [iiifContent: @item.iiif_manifest_url, options: %{informationPanel: %{open: false, renderAbout: false, renderToggle: false}}],
+          {live_react_component("Components.DpulcViewer", [iiifContent: @item.iiif_manifest_url, options: %{openSeadragon: %{mouseNavEnabled: false, gestureSettings: %{scrollToZoom: false}},informationPanel: %{open: false, renderAbout: false, renderToggle: false}}],
             id: "viewer-component"
           )}
         </div>
