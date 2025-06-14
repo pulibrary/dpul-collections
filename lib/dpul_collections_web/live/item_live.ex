@@ -230,8 +230,8 @@ defmodule DpulCollectionsWeb.ItemLive do
     <div
       id="viewer-pane"
       class="bg-background w-full h-full -translate-x-full col-start-1 row-start-1"
-      phx-mounted={JS.transition({"ease-out duration-250", "-translate-x-full", "translate-x-0"})}
-      data-cancel={JS.patch(@item.url)}
+                    phx-mounted={JS.transition({"ease-out duration-250", "-translate-x-full", "translate-x-0"})}
+                    data-cancel={JS.patch(@item.url) |> JS.remove_class("hidden", to: ".item-page")}
       phx-window-keydown={JS.exec("data-cancel", to: "#viewer-pane")}
       phx-key="escape"
     >
@@ -245,9 +245,9 @@ defmodule DpulCollectionsWeb.ItemLive do
           <.icon class="w-8 h-8" name="hero-x-mark" />
         </.link>
       </div>
-      <div class="main-content header-x-padding page-y-padding">
-        <div class="bg-cloud w-[92vw] h-[92vh] col-start-1 row-start-1">
-          {live_react_component("Components.Viewer", [iiifContent: @item.iiif_manifest_url],
+      <div class="main-content">
+        <div class="w-full h-full col-start-1 row-start-1">
+          {live_react_component("Components.Viewer", [iiifContent: @item.iiif_manifest_url, options: %{informationPanel: %{open: false, renderAbout: false, renderToggle: false}}],
             id: "viewer-component"
           )}
         </div>
