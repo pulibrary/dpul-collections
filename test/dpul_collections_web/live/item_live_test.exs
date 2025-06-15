@@ -72,6 +72,20 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
             "https://example.com/iiif/2/image2"
           ],
           primary_thumbnail_service_url_s: "https://example.com/iiif/2/image1"
+        },
+        %{
+          id: "similar-to-1",
+          title_txtm: "Similar Item Same Project",
+          ephemera_project_title_s: "Test Project",
+          genre_txtm: ["genre"],
+          subject_txtm: ["subject"]
+        },
+        %{
+          id: "similar-to-1-diff-project",
+          title_txtm: "Similar Item Different Project",
+          ephemera_project_title_s: "Different Project",
+          genre_txtm: ["genre"],
+          subject_txtm: ["subject"]
         }
       ],
       active_collection()
@@ -133,7 +147,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
   end
 
   describe "GET /i/{:slug}/item/{:id}" do
-    test "response", %{conn: conn} do
+    test "renders values and thumbnails", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
       response = render(view)
       assert response =~ "Învăţămîntul trebuie să urmărească dezvoltarea deplină a personalităţii"
@@ -175,6 +189,21 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
 
       assert response =~ "زلزلہ"
       assert response =~ "No PDF Available"
+    end
+
+    test "shows some related items", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
+
+      assert view |> has_element?("#related-same-project h2 a", "Similar Item Same Project")
+
+      assert view
+             |> has_element?("#related-different-project h2 a", "Similar Item Different Project")
+    end
+
+    test "doesn't show collection related items for items without a collection", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/i/زلزلہ/item/2")
+
+      refute view |> has_element?("#related-same-project")
     end
   end
 
