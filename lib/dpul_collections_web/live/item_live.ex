@@ -62,7 +62,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def render(assigns) do
     ~H"""
     <div id="item-wrap" class="grid grid-rows-[1fr/1fr] grid-cols-[1fr/1fr]">
-      <.item_page item={@item} />
+      <.item_page item={@item} live_action={@live_action} />
       <.metadata_pane :if={@live_action == :metadata} item={@item} />
       <.viewer_pane :if={@live_action == :viewer} item={@item} />
     </div>
@@ -204,8 +204,11 @@ defmodule DpulCollectionsWeb.ItemLive do
     <div
       id="viewer-pane"
       class="bg-background w-full h-full -translate-x-full col-start-1 row-start-1"
-      phx-mounted={JS.transition({"ease-out duration-250", "-translate-x-full", "translate-x-0"})}
-      data-cancel={JS.patch(@item.url)}
+      phx-mounted={
+        JS.transition({"ease-out duration-250", "-translate-x-full", "translate-x-0"})
+        |> JS.hide(to: ".item-page", transition: "fade-out-scale", time: 250)
+      }
+      data-cancel={JS.show(to: ".item-page") |> JS.patch(@item.url)}
       phx-window-keydown={JS.exec("data-cancel", to: "#viewer-pane")}
       phx-key="escape"
     >
@@ -219,9 +222,17 @@ defmodule DpulCollectionsWeb.ItemLive do
           <.icon class="w-8 h-8" name="hero-x-mark" />
         </.link>
       </div>
-      <div class="main-content header-x-padding page-y-padding">
-        <div class="bg-cloud w-[92vw] h-[92vh] col-start-1 row-start-1">
-          {live_react_component("Components.Viewer", [iiifContent: @item.iiif_manifest_url],
+      <div class="main-content">
+        <div class="w-full h-full col-start-1 row-start-1">
+          {live_react_component(
+            "Components.DpulcViewer",
+            [
+              iiifContent: @item.iiif_manifest_url,
+              options: %{
+                openSeadragon: %{mouseNavEnabled: false, gestureSettings: %{scrollToZoom: false}},
+                informationPanel: %{open: false, renderAbout: false, renderToggle: false}
+              }
+            ],
             id: "viewer-component"
           )}
         </div>
