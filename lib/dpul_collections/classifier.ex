@@ -14,7 +14,7 @@ defmodule DpulCollections.Classifier do
   def get_top_subjects(query) do
     case GenServer.call(__MODULE__, {:cached_embeddings}) do
       :not_loaded ->
-        :timer.sleep(500)
+        :timer.sleep(100)
         get_top_subjects(query)
 
       %{subject_embeddings: subject_embeddings, genre_embeddings: genre_embeddings} ->
@@ -76,7 +76,9 @@ defmodule DpulCollections.Classifier do
 
   @impl true
   def handle_continue(:init, state = %{client: client}) do
-    Task.async(fn -> {:subjects, generate_embeddings(subjects())} end)
+    subjects = subjects()
+               |> Enum.map(&get_detailed_instruct("This is a possible subject for a resource in a library.", &1))
+    Task.async(fn -> {:subjects, generate_embeddings(subjects)} end)
     Task.async(fn -> {:genres, generate_embeddings(genres())} end)
     {:noreply, state}
   end
