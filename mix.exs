@@ -90,7 +90,7 @@ defmodule DpulCollections.MixProject do
       # React for Clover Viewer
       {:phoenix_live_react, "~> 0.6"},
       {:ollama, "~> 0.8.0"},
-      {:scholar, "~> 0.3.0"},
+      {:scholar, "~> 0.3.0"}
     ]
   end
 
