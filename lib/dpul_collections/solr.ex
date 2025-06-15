@@ -146,7 +146,7 @@ defmodule DpulCollections.Solr do
     "-filter(#{solr_field}:\"#{facet_value}\")"
   end
 
-  # Similar facet - display, but handle in q.
+  # Similar facet - display, but handle in the q parameter instead.
   def generate_filter_query({"similar", _facet_value}) do
     nil
   end
