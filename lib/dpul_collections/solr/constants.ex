@@ -86,15 +86,15 @@ defmodule DpulCollections.Solr.Constants do
             Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Rights Statement"),
           value_function: &Function.identity/1
         },
+        "similar" => %{
+          solr_field: "none",
+          label: "Similar To",
+          value_function: &DpulCollections.Solr.Constants.id_to_title/1
+        },
         "subject" => %{
           solr_field: "subject_txtm",
           label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Subject"),
           value_function: &Function.identity/1
-        },
-        "year" => %{
-          solr_field: "years_is",
-          label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Year"),
-          value_function: &DpulCollections.Solr.Constants.date_value/1
         }
       }
 
@@ -102,7 +102,13 @@ defmodule DpulCollections.Solr.Constants do
     end
   end
 
-  # Returns a string version of a date filter.
+  def id_to_title(nil), do: nil
+
+  def id_to_title(id) do
+    DpulCollections.Solr.find_by_id(id) |> DpulCollections.Item.from_solr() |> Map.get(:title)
+  end
+
+  # Returns a string version of a date facet.
   def date_value(year_params = %{}) do
     from = year_params["from"] || gettext("Up")
     to = year_params["to"] || gettext("Now")

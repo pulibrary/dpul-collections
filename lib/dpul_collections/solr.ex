@@ -40,7 +40,8 @@ defmodule DpulCollections.Solr do
       fl: fl,
       sort: sort_param(search_state),
       rows: search_state[:per_page],
-      start: pagination_offset(search_state)
+      start: pagination_offset(search_state),
+      uf: "* _query_"
     ]
 
     {:ok, response} =
@@ -59,8 +60,7 @@ defmodule DpulCollections.Solr do
 
     solr_params = [
       fl: fl,
-      q:
-        "{!mlt qf=genre_txtm,subject_txtm,geo_subject_txtm,geographic_origin_txtm,language_txtm,keywords_txtm,description_txtm mintf=1}#{id}",
+      q: mlt_query(id),
       rows: 5,
       indent: false,
       fq: filter_param(search_state),
@@ -74,6 +74,10 @@ defmodule DpulCollections.Solr do
       )
 
     response.body["response"]
+  end
+
+  def mlt_query(id) do
+    "{!mlt qf=genre_txtm,subject_txtm,geo_subject_txtm,geographic_origin_txtm,language_txtm,keywords_txtm,description_txtm mintf=1}#{id}"
   end
 
   def recently_digitized(count, collection \\ read_collection()) do
@@ -114,7 +118,15 @@ defmodule DpulCollections.Solr do
   end
 
   defp query_param(search_state) do
-    search_state[:q]
+    [mlt_focus(search_state), search_state[:q]] |> Enum.reject(&is_nil/1) |> Enum.join(" ")
+  end
+
+  def mlt_focus(%{facet: %{"similar" => id}}) do
+    mlt_query(id)
+  end
+
+  def mlt_focus(search_state) do
+    nil
   end
 
   def filter_param(search_state) do
@@ -132,6 +144,11 @@ defmodule DpulCollections.Solr do
       when is_binary(filter_value) and filter_key in @filter_keys do
     solr_field = @filters[filter_key].solr_field
     "-filter(#{solr_field}:\"#{filter_value}\")"
+  end
+
+  # Similar filter - display, but handle in q.
+  def generate_filter_query({"similar", _filter_value}) do
+    nil
   end
 
   # Inclusion filter
