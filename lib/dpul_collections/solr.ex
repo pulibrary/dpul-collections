@@ -39,7 +39,8 @@ defmodule DpulCollections.Solr do
       fl: fl,
       sort: sort_param(search_state),
       rows: search_state[:per_page],
-      start: pagination_offset(search_state)
+      start: pagination_offset(search_state),
+      uf: "* _query_"
     ]
 
     {:ok, response} =
@@ -49,6 +50,34 @@ defmodule DpulCollections.Solr do
       )
 
     response.body["response"]
+  end
+
+  # This query works: '/query?q={!mlt qf=genre_txtm,subject_txtm mintf=1}d304cae2-3eff-44cc-9c46-e1b6bf1259e4&fq=-ephemera_project_title_s:"Latin American Ephemera"'
+  # {!mlt qf=genre_txtm,subject_txtm,geo_subject_txtm,geographic_origin_txtm,language_txtm,keywords_txtm,description_txtm mintf=1}bf72c321-ec3a-4978-b169-6e310513b24c
+  # Let's do one in other collections, and one in this collection.
+  def related_items(%{id: id}, search_state, collection \\ read_collection()) do
+    fl = Enum.join(@query_field_list, ",")
+
+    solr_params = [
+      fl: fl,
+      q: mlt_query(id),
+      rows: 5,
+      indent: false,
+      fq: facet_param(search_state),
+      mm: 1
+    ]
+
+    {:ok, response} =
+      Req.get(
+        query_url(collection),
+        params: solr_params
+      )
+
+    response.body["response"]
+  end
+
+  def mlt_query(id) do
+    "{!mlt qf=genre_txtm,subject_txtm,geo_subject_txtm,geographic_origin_txtm,language_txtm,keywords_txtm,description_txtm mintf=1}#{id}"
   end
 
   def recently_digitized(count, collection \\ read_collection()) do
@@ -89,7 +118,15 @@ defmodule DpulCollections.Solr do
   end
 
   defp query_param(search_state) do
-    search_state[:q]
+    [mlt_focus(search_state), search_state[:q]] |> Enum.reject(&is_nil/1) |> Enum.join(" ")
+  end
+
+  def mlt_focus(%{facet: %{"similar" => id}}) do
+    mlt_query(id)
+  end
+
+  def mlt_focus(search_state) do
+    nil
   end
 
   def facet_param(search_state) do
@@ -100,6 +137,21 @@ defmodule DpulCollections.Solr do
   end
 
   # Simple string facet
+  # Negation facet
+  def generate_filter_query({_facet_key, "-"}), do: nil
+
+  def generate_filter_query({facet_key, "-" <> facet_value})
+      when is_binary(facet_value) and facet_key in @facet_keys do
+    solr_field = @facets[facet_key].solr_field
+    "-filter(#{solr_field}:\"#{facet_value}\")"
+  end
+
+  # Similar facet - display, but handle in the q parameter instead.
+  def generate_filter_query({"similar", _facet_value}) do
+    nil
+  end
+
+  # Inclusion facet
   def generate_filter_query({facet_key, facet_value})
       when is_binary(facet_value) and facet_key in @facet_keys do
     solr_field = @facets[facet_key].solr_field
@@ -233,6 +285,11 @@ defmodule DpulCollections.Solr do
   defp update_url(collection) do
     client()
     |> Req.merge(url: "/solr/#{collection}/update")
+  end
+
+  defp query_url(collection) do
+    client()
+    |> Req.merge(url: "/solr/#{collection}/query")
   end
 
   @spec client() :: Req.Request.t()

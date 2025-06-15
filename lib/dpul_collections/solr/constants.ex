@@ -68,11 +68,22 @@ defmodule DpulCollections.Solr.Constants do
           label:
             Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Geographic Origin"),
           value_function: &Function.identity/1
+        },
+        "similar" => %{
+          solr_field: "none",
+          label: "Similar To",
+          value_function: &DpulCollections.Solr.Constants.id_to_title/1
         }
       }
 
       @facet_keys Map.keys(@facets)
     end
+  end
+
+  def id_to_title(nil), do: nil
+
+  def id_to_title(id) do
+    DpulCollections.Solr.find_by_id(id) |> DpulCollections.Item.from_solr() |> Map.get(:title)
   end
 
   # Returns a string version of a date facet.
