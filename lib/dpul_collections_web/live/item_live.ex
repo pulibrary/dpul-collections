@@ -157,20 +157,20 @@ defmodule DpulCollectionsWeb.ItemLive do
           <.metadata_table item={@item} />
         </div>
       </div>
-
-      <.browse_item_row
-        :if={@item.project}
-        id="related-same-project"
-        items={@related_items}
-        title={gettext("Similar Items in this Collection")}
-      />
-      <.browse_item_row
-        id="related-different-project"
-        items={@different_project_related_items}
-        title={gettext("Similar Items outside this Collection")}
-      />
       <.share_modal item={@item} />
     </div>
+    <.browse_item_row
+      :if={@item.project}
+      id="related-same-project"
+      items={@related_items}
+      title={gettext("Similar Items in this Collection")}
+    />
+    <.browse_item_row
+      id="related-different-project"
+      items={@different_project_related_items}
+      title={gettext("Similar Items outside this Collection")}
+      class="grid-row bg-background"
+    />
     """
   end
 
