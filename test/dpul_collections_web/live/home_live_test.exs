@@ -47,7 +47,7 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
 
       {:ok, document} =
         view
-        |> element("#recently-added-link")
+        |> element("#recent-items .btn-arrow")
         |> render_click()
         |> follow_redirect(conn, "/search?sort_by=recently_added")
         |> elem(2)

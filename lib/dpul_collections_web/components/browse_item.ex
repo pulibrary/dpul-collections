@@ -24,8 +24,11 @@ defmodule DpulCollectionsWeb.BrowseItem do
             <.browse_item :for={item <- @items} item={item} added?={@added?} pinnable?={false} />
           </div>
           <div :if={@more_link} class="w-12 flex-none content-center">
-            <.link navigate={@more_link}>
-              <button class="btn-arrow w-full h-14" aria-label="more items" />
+            <.link
+              class="btn-arrow w-full h-14 w-full block"
+              aria-label="more items"
+              navigate={@more_link}
+            >
             </.link>
           </div>
         </div>
