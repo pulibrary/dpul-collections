@@ -76,10 +76,20 @@ defmodule DpulCollections.Classifier do
 
   @impl true
   def handle_continue(:init, state = %{client: client}) do
-    subjects = subjects()
-               |> Enum.map(&get_detailed_instruct("This is a possible subject for a resource in a library.", &1))
+    subjects =
+      subjects()
+      |> Enum.map(
+        &get_detailed_instruct("This is a possible subject for a resource in a library.", &1)
+      )
+
+    genres =
+      genres()
+      |> Enum.map(
+        &get_detailed_instruct("This is a possible genre for a resource in a library.", &1)
+      )
+
     Task.async(fn -> {:subjects, generate_embeddings(subjects)} end)
-    Task.async(fn -> {:genres, generate_embeddings(genres())} end)
+    Task.async(fn -> {:genres, generate_embeddings(genres)} end)
     {:noreply, state}
   end
 
