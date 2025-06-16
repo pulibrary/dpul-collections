@@ -225,6 +225,20 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
+  # Hide elements that get covered by the viewer modal so they're not tab
+  # targetable.
+  def hide_covered_elements(js \\ %JS{}) do
+    [".item-page", ".search-bar", "footer"]
+    |> Enum.reduce(js, fn class, acc_js ->
+      JS.hide(acc_js, to: class, transition: "fade-out-scale", time: 250)
+    end)
+  end
+
+  def show_covered_elements(js \\ %JS{}) do
+    [".item-page", ".search-bar", "footer"]
+    |> Enum.reduce(js, fn class, acc_js -> JS.show(acc_js, to: class) end)
+  end
+
   def viewer_pane(assigns) do
     ~H"""
     <div
@@ -232,12 +246,13 @@ defmodule DpulCollectionsWeb.ItemLive do
       class="bg-background flex flex-col min-h-full min-w-full -translate-x-full col-start-1 row-start-1 absolute top-0"
       phx-mounted={
         JS.transition({"ease-out duration-250", "-translate-x-full", "translate-x-0"})
-        |> JS.hide(to: ".item-page", transition: "fade-out-scale", time: 250)
+        |> hide_covered_elements()
       }
-      phx-remove={JS.show(to: ".item-page")}
+      phx-remove={show_covered_elements()}
       data-cancel={JS.patch(@item.url)}
       phx-window-keydown={JS.exec("data-cancel", to: "#viewer-pane")}
       phx-key="escape"
+      phx-hook="ScrollTop"
     >
       <div class="header-x-padding page-y-padding bg-accent flex flex-row">
         <h1 class="uppercase text-light-text flex-auto">{gettext("Viewer")}</h1>
