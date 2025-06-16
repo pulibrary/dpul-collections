@@ -81,8 +81,8 @@ defmodule DpulCollectionsWeb.ItemLive do
         different_project_related_items={@different_project_related_items}
       />
       <.metadata_pane :if={@live_action == :metadata} item={@item} />
-      <.viewer_pane :if={@live_action == :viewer} item={@item} />
     </div>
+    <.viewer_pane :if={@live_action == :viewer} item={@item} />
     """
   end
 
@@ -228,14 +228,14 @@ defmodule DpulCollectionsWeb.ItemLive do
   # Hide elements that get covered by the viewer modal so they're not tab
   # targetable.
   def hide_covered_elements(js \\ %JS{}) do
-    [".item-page", ".search-bar", "footer"]
+    ["#item-wrap", ".search-bar", "footer"]
     |> Enum.reduce(js, fn selector, acc_js ->
       JS.hide(acc_js, to: selector, transition: "fade-out-scale", time: 250)
     end)
   end
 
   def show_covered_elements(js \\ %JS{}) do
-    [".item-page", ".search-bar", "footer"]
+    ["#item-wrap", ".search-bar", "footer"]
     |> Enum.reduce(js, fn selector, acc_js -> JS.show(acc_js, to: selector) end)
   end
 
