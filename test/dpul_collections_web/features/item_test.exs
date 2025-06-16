@@ -6,7 +6,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
   alias DpulCollections.Solr
 
   setup do
-    Solr.add(SolrTestSupport.mock_solr_documents(), active_collection())
+    Solr.add(SolrTestSupport.mock_solr_documents(1), active_collection())
     Solr.commit(active_collection())
     on_exit(fn -> Solr.delete_all(active_collection()) end)
   end
@@ -48,5 +48,22 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
     |> assert_path("/i/document1/item/1/viewer")
     |> click_link("close")
     |> assert_path("/i/document1/item/1")
+  end
+
+  test "the metadata page is not part of browser history", %{conn: conn} do
+    conn
+    |> visit("/search")
+    |> click_link("Document-1")
+    |> click_link("View all metadata for this item")
+    |> assert_path("/i/document1/item/1/metadata")
+    |> click_link("close")
+    |> assert_path("/i/document1/item/1")
+    |> go_back
+    |> assert_path("/search")
+  end
+
+  def go_back(conn) do
+    conn
+    |> unwrap(&Frame.evaluate(&1.frame_id, "window.history.back()"))
   end
 end

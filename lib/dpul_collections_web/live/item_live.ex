@@ -155,7 +155,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       id="metadata-pane"
       class="bg-background w-full h-full translate-x-full col-start-1 row-start-1"
       phx-mounted={JS.transition({"ease-out duration-250", "translate-x-full", "translate-x-0"})}
-      data-cancel={JS.patch(@item.url)}
+      data-cancel={JS.patch(@item.url, replace: true)}
       phx-window-keydown={JS.exec("data-cancel", to: "#metadata-pane")}
       phx-key="escape"
       phx-hook="ScrollTop"
@@ -166,6 +166,7 @@ defmodule DpulCollectionsWeb.ItemLive do
           aria-label={gettext("close")}
           class="flex-none cursor-pointer justify-end"
           patch={@item.url}
+          replace
         >
           <.icon class="w-8 h-8" name="hero-x-mark" />
         </.link>
@@ -412,7 +413,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         />
       </dl>
     </div>
-    <.primary_button id="metadata-link" class="right-arrow-box" patch={@item.metadata_url}>
+    <.primary_button id="metadata-link" class="right-arrow-box" patch={@item.metadata_url} replace>
       <.icon name="hero-table-cells" />{gettext("View all metadata for this item")}
     </.primary_button>
     """
