@@ -62,8 +62,9 @@ window.addEventListener("dpulc:clipcopy", (event) => {
   }
 });
 
+// Initialize react components.
 document.addEventListener("DOMContentLoaded", e => {
-  window.output = initLiveReact()
+  initLiveReact()
 })
 
 import DpulcViewer from "./dpulc_viewer";

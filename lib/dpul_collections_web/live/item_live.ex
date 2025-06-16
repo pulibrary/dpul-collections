@@ -253,11 +253,7 @@ defmodule DpulCollectionsWeb.ItemLive do
           {live_react_component(
             "Components.DpulcViewer",
             [
-              iiifContent: @item.iiif_manifest_url,
-              options: %{
-                openSeadragon: %{mouseNavEnabled: false, gestureSettings: %{scrollToZoom: false}},
-                informationPanel: %{open: false, renderAbout: false, renderToggle: false}
-              }
+              iiifContent: @item.iiif_manifest_url
             ],
             id: "viewer-component"
           )}
