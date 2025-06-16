@@ -8,6 +8,7 @@ export default function DpulcViewer(props) {
     <Viewer
       options={
         {
+          canvasHeight: "auto",
           openSeadragon: {
             mouseNavEnabled: false,
               gestureSettings: {
