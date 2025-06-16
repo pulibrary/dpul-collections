@@ -264,6 +264,7 @@ defmodule DpulCollectionsWeb.ItemLive do
           <.icon class="w-8 h-8" name="hero-x-mark" />
         </.link>
       </div>
+      <!-- "relative" here lets Clover fill the full size of main-content. -->
       <div class="main-content grow relative">
         {live_react_component(
           "Components.DpulcViewer",
