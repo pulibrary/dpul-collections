@@ -62,12 +62,13 @@ window.addEventListener("dpulc:clipcopy", (event) => {
   }
 });
 
+// Initialize react components.
 document.addEventListener("DOMContentLoaded", e => {
   initLiveReact()
 })
 
-import Viewer from "@samvera/clover-iiif/viewer";
+import DpulcViewer from "./dpulc_viewer";
 
 window.Components = {
-  Viewer
+  DpulcViewer
 }

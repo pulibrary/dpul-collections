@@ -81,8 +81,8 @@ defmodule DpulCollectionsWeb.ItemLive do
         different_project_related_items={@different_project_related_items}
       />
       <.metadata_pane :if={@live_action == :metadata} item={@item} />
-      <.viewer_pane :if={@live_action == :viewer} item={@item} />
     </div>
+    <.viewer_pane :if={@live_action == :viewer} item={@item} />
     """
   end
 
@@ -225,15 +225,34 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
+  # Hide elements that get covered by the viewer modal so they're not tab
+  # targetable.
+  def hide_covered_elements(js \\ %JS{}) do
+    ["#item-wrap", ".search-bar", "footer"]
+    |> Enum.reduce(js, fn selector, acc_js ->
+      JS.hide(acc_js, to: selector, transition: "fade-out-scale", time: 250)
+    end)
+  end
+
+  def show_covered_elements(js \\ %JS{}) do
+    ["#item-wrap", ".search-bar", "footer"]
+    |> Enum.reduce(js, fn selector, acc_js -> JS.show(acc_js, to: selector) end)
+  end
+
   def viewer_pane(assigns) do
     ~H"""
     <div
       id="viewer-pane"
-      class="bg-background w-full h-full -translate-x-full col-start-1 row-start-1"
-      phx-mounted={JS.transition({"ease-out duration-250", "-translate-x-full", "translate-x-0"})}
+      class="bg-background flex flex-col min-h-full min-w-full -translate-x-full col-start-1 row-start-1 absolute top-0"
+      phx-mounted={
+        JS.transition({"ease-out duration-250", "-translate-x-full", "translate-x-0"})
+        |> hide_covered_elements()
+      }
+      phx-remove={show_covered_elements()}
       data-cancel={JS.patch(@item.url)}
       phx-window-keydown={JS.exec("data-cancel", to: "#viewer-pane")}
       phx-key="escape"
+      phx-hook="ScrollTop"
     >
       <div class="header-x-padding page-y-padding bg-accent flex flex-row">
         <h1 class="uppercase text-light-text flex-auto">{gettext("Viewer")}</h1>
@@ -245,12 +264,15 @@ defmodule DpulCollectionsWeb.ItemLive do
           <.icon class="w-8 h-8" name="hero-x-mark" />
         </.link>
       </div>
-      <div class="main-content header-x-padding page-y-padding">
-        <div class="bg-cloud w-[92vw] h-[92vh] col-start-1 row-start-1">
-          {live_react_component("Components.Viewer", [iiifContent: @item.iiif_manifest_url],
-            id: "viewer-component"
-          )}
-        </div>
+      <!-- "relative" here lets Clover fill the full size of main-content. -->
+      <div class="main-content grow relative">
+        {live_react_component(
+          "Components.DpulcViewer",
+          [
+            iiifContent: @item.iiif_manifest_url
+          ],
+          id: "viewer-component"
+        )}
       </div>
     </div>
     """
@@ -333,7 +355,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         height="800"
       />
 
-      <.primary_button id="viewer-link" class="left-arrow-box" href={@item.viewer_url}>
+      <.primary_button id="viewer-link" class="left-arrow-box" patch={@item.viewer_url}>
         <.icon name="hero-eye" /> {gettext("View")}
       </.primary_button>
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="[scrollbar-gutter:stable] font-sans">
+<html lang="en" class="font-sans">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -20,10 +20,13 @@
     </a>
     <div class="flex flex-col min-h-screen" id="app">
       {DpulCollectionsWeb.HeaderComponent.header(assigns)}
-      <div class="flex-1 bg-background">
-        {@inner_content}
+      <!-- "relative" here lets us have absolute layout elements that cover all parts of the page except the header. -->
+      <div class="relative flex-1 flex flex-col">
+        <div class="flex-1 bg-background">
+          {@inner_content}
+        </div>
+        {DpulCollectionsWeb.FooterComponent.footer(assigns)}
       </div>
-      {DpulCollectionsWeb.FooterComponent.footer(assigns)}
     </div>
   </body>
 </html>
