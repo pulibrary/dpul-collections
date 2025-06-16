@@ -229,14 +229,14 @@ defmodule DpulCollectionsWeb.ItemLive do
   # targetable.
   def hide_covered_elements(js \\ %JS{}) do
     [".item-page", ".search-bar", "footer"]
-    |> Enum.reduce(js, fn class, acc_js ->
-      JS.hide(acc_js, to: class, transition: "fade-out-scale", time: 250)
+    |> Enum.reduce(js, fn selector, acc_js ->
+      JS.hide(acc_js, to: selector, transition: "fade-out-scale", time: 250)
     end)
   end
 
   def show_covered_elements(js \\ %JS{}) do
     [".item-page", ".search-bar", "footer"]
-    |> Enum.reduce(js, fn class, acc_js -> JS.show(acc_js, to: class) end)
+    |> Enum.reduce(js, fn selector, acc_js -> JS.show(acc_js, to: selector) end)
   end
 
   def viewer_pane(assigns) do
