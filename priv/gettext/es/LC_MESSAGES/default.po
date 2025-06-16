@@ -39,13 +39,13 @@ msgid "Success!"
 msgstr "¡Éxito!"
 
 #: lib/dpul_collections_web/components/core_components.ex:61
-#: lib/dpul_collections_web/live/item_live.ex:167
-#: lib/dpul_collections_web/live/item_live.ex:217
+#: lib/dpul_collections_web/live/item_live.ex:192
+#: lib/dpul_collections_web/live/item_live.ex:242
 #, elixir-autogen, elixir-format
 msgid "close"
 msgstr "cerrar"
 
-#: lib/dpul_collections_web/live/item_live.ex:325
+#: lib/dpul_collections_web/live/item_live.ex:350
 #, elixir-autogen, elixir-format
 msgid "Download"
 msgstr "Descargar"
@@ -189,23 +189,23 @@ msgstr "Resultados de la búsqueda por"
 msgid "Recently Added"
 msgstr "Añadido recientemente"
 
-#: lib/dpul_collections_web/live/home_live.ex:201
+#: lib/dpul_collections_web/live/home_live.ex:202
 #, elixir-autogen, elixir-format
 msgid "Recently Added Items"
 msgstr "Materiales Recientes"
 
-#: lib/dpul_collections_web/components/browse_item.ex:74
+#: lib/dpul_collections_web/components/browse_item.ex:108
 #: lib/dpul_collections_web/live/search_live.ex:213
 #, elixir-autogen, elixir-format
 msgid "Added"
 msgstr "Añadido"
 
-#: lib/dpul_collections_web/live/home_live.ex:203
+#: lib/dpul_collections_web/live/home_live.ex:207
 #, elixir-autogen, elixir-format
 msgid "Our collections are constantly growing. Discover something new!"
 msgstr "Nuestras colecciones están en constante crecimiento. ¡Descubre algo nuevo!"
 
-#: lib/dpul_collections_web/live/item_live.ex:314
+#: lib/dpul_collections_web/live/item_live.ex:339
 #, elixir-autogen, elixir-format
 msgid "View"
 msgstr "Abrir"
@@ -288,7 +288,7 @@ msgstr "Editor"
 msgid "Subject"
 msgstr "Tema"
 
-#: lib/dpul_collections_web/live/item_live.ex:419
+#: lib/dpul_collections_web/live/item_live.ex:444
 #, elixir-autogen, elixir-format
 msgid "View all metadata for this item"
 msgstr "Ver todos los metadatos de este ítem"
@@ -313,12 +313,12 @@ msgstr "fotografías"
 msgid "posters"
 msgstr "pósteres"
 
-#: lib/dpul_collections_web/live/item_live.ex:333
+#: lib/dpul_collections_web/live/item_live.ex:358
 #, elixir-autogen, elixir-format
 msgid "No PDF Available"
 msgstr "PDF no disponible"
 
-#: lib/dpul_collections_web/live/item_live.ex:215
+#: lib/dpul_collections_web/live/item_live.ex:240
 #, elixir-autogen, elixir-format
 msgid "Viewer"
 msgstr "Abrir"
@@ -407,7 +407,7 @@ msgstr "URL del manifiesto IIIF"
 msgid "Institutional Information"
 msgstr "Información institucional"
 
-#: lib/dpul_collections_web/live/item_live.ex:176
+#: lib/dpul_collections_web/live/item_live.ex:201
 #, elixir-autogen, elixir-format
 msgid "Item Description"
 msgstr "Descripción del artículo"
@@ -417,7 +417,7 @@ msgstr "Descripción del artículo"
 msgid "Keywords"
 msgstr "Palabras clave"
 
-#: lib/dpul_collections_web/live/item_live.ex:165
+#: lib/dpul_collections_web/live/item_live.ex:190
 #, elixir-autogen, elixir-format
 msgid "Metadata"
 msgstr "Metadatos"
@@ -467,19 +467,29 @@ msgstr "Título transliterado"
 msgid "Width"
 msgstr "Anchura"
 
-#: lib/dpul_collections_web/live/item_live.ex:106
+#: lib/dpul_collections_web/live/item_live.ex:123
 #, elixir-autogen, elixir-format
 msgid "%{file_min} of %{file_max} images"
 msgstr "%{file_min} de %{file_max} imágenes"
 
-#: lib/dpul_collections_web/components/browse_item.ex:63
-#: lib/dpul_collections_web/live/item_live.ex:103
+#: lib/dpul_collections_web/components/browse_item.ex:97
+#: lib/dpul_collections_web/live/item_live.ex:120
 #: lib/dpul_collections_web/live/search_live.ex:199
 #, elixir-autogen, elixir-format
 msgid "Images"
 msgstr "Imágenes"
 
-#: lib/dpul_collections_web/live/item_live.ex:113
+#: lib/dpul_collections_web/live/item_live.ex:130
 #, elixir-autogen, elixir-format
 msgid "View all images"
 msgstr "Ver todas las imágenes"
+
+#: lib/dpul_collections_web/live/item_live.ex:166
+#, elixir-autogen, elixir-format
+msgid "Similar Items in this Collection"
+msgstr "Artículos similares en esta colección"
+
+#: lib/dpul_collections_web/live/item_live.ex:171
+#, elixir-autogen, elixir-format
+msgid "Similar Items outside this Collection"
+msgstr "Artículos similares fuera de esta colección"

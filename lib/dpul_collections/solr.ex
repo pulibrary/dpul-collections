@@ -51,6 +51,30 @@ defmodule DpulCollections.Solr do
     response.body["response"]
   end
 
+  # Uses the more like this query parser
+  # see: https://solr.apache.org/guide/solr/latest/query-guide/morelikethis.html#morelikethis-query-parser
+  def related_items(%{id: id}, search_state, collection \\ read_collection()) do
+    fl = Enum.join(@query_field_list, ",")
+
+    solr_params = [
+      fl: fl,
+      q:
+        "{!mlt qf=genre_txtm,subject_txtm,geo_subject_txtm,geographic_origin_txtm,language_txtm,keywords_txtm,description_txtm mintf=1}#{id}",
+      rows: 5,
+      indent: false,
+      fq: facet_param(search_state),
+      mm: 1
+    ]
+
+    {:ok, response} =
+      Req.get(
+        query_url(collection),
+        params: solr_params
+      )
+
+    response.body["response"]
+  end
+
   def recently_digitized(count, collection \\ read_collection()) do
     fl = Enum.join(@query_field_list, ",")
 
@@ -100,6 +124,16 @@ defmodule DpulCollections.Solr do
   end
 
   # Simple string facet
+  # Negation facet
+  def generate_filter_query({_facet_key, "-"}), do: nil
+
+  def generate_filter_query({facet_key, "-" <> facet_value})
+      when is_binary(facet_value) and facet_key in @facet_keys do
+    solr_field = @facets[facet_key].solr_field
+    "-filter(#{solr_field}:\"#{facet_value}\")"
+  end
+
+  # Inclusion facet
   def generate_filter_query({facet_key, facet_value})
       when is_binary(facet_value) and facet_key in @facet_keys do
     solr_field = @facets[facet_key].solr_field
@@ -233,6 +267,11 @@ defmodule DpulCollections.Solr do
   defp update_url(collection) do
     client()
     |> Req.merge(url: "/solr/#{collection}/update")
+  end
+
+  defp query_url(collection) do
+    client()
+    |> Req.merge(url: "/solr/#{collection}/query")
   end
 
   @spec client() :: Req.Request.t()

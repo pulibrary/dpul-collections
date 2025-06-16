@@ -1,6 +1,7 @@
 defmodule DpulCollectionsWeb.ItemLive do
   use DpulCollections.Solr.Constants
   alias DpulCollectionsWeb.Live.Helpers
+  import DpulCollectionsWeb.BrowseItem
   use DpulCollectionsWeb, :live_view
   use Gettext, backend: DpulCollectionsWeb.Gettext
   alias DpulCollections.{Item, Solr}
@@ -35,7 +36,19 @@ defmodule DpulCollectionsWeb.ItemLive do
   end
 
   defp build_socket(socket, item, _) do
-    assign(socket, item: item)
+    related_items =
+      Solr.related_items(item, %{facet: %{"project" => item.project}})["docs"]
+      |> Enum.map(&Item.from_solr(&1))
+
+    different_project_related_items =
+      Solr.related_items(item, %{facet: %{"project" => "-#{item.project}"}})["docs"]
+      |> Enum.map(&Item.from_solr(&1))
+
+    assign(socket,
+      item: item,
+      related_items: related_items,
+      different_project_related_items: different_project_related_items
+    )
   end
 
   attr :facet_name, :string, required: true
@@ -62,7 +75,11 @@ defmodule DpulCollectionsWeb.ItemLive do
   def render(assigns) do
     ~H"""
     <div id="item-wrap" class="grid grid-rows-[1fr/1fr] grid-cols-[1fr/1fr]">
-      <.item_page item={@item} />
+      <.item_page
+        item={@item}
+        related_items={@related_items}
+        different_project_related_items={@different_project_related_items}
+      />
       <.metadata_pane :if={@live_action == :metadata} item={@item} />
       <.viewer_pane :if={@live_action == :viewer} item={@item} />
     </div>
@@ -140,12 +157,20 @@ defmodule DpulCollectionsWeb.ItemLive do
           <.metadata_table item={@item} />
         </div>
       </div>
-
-      <div class="">
-        <div class="bg-secondary">RELATED ITEMS</div>
-      </div>
       <.share_modal item={@item} />
     </div>
+    <.browse_item_row
+      :if={@item.project}
+      id="related-same-project"
+      items={@related_items}
+      title={gettext("Similar Items in this Collection")}
+    />
+    <.browse_item_row
+      id="related-different-project"
+      items={@different_project_related_items}
+      title={gettext("Similar Items outside this Collection")}
+      class="grid-row bg-background"
+    />
     """
   end
 
