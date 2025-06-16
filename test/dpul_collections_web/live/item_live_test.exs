@@ -168,7 +168,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       # Large thumbnail renders using thumbnail service url
       assert view
              |> has_element?(
-               ".primary-thumbnail img[src='https://example.com/iiif/2/image2/full/525,800/0/default.jpg']"
+               ".primary-thumbnail img[src='https://example.com/iiif/2/image2/full/!525,800/0/default.jpg']"
              )
 
       assert view
