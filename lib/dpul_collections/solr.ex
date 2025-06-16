@@ -51,9 +51,8 @@ defmodule DpulCollections.Solr do
     response.body["response"]
   end
 
-  # This query works: '/query?q={!mlt qf=genre_txtm,subject_txtm mintf=1}d304cae2-3eff-44cc-9c46-e1b6bf1259e4&fq=-ephemera_project_title_s:"Latin American Ephemera"'
-  # {!mlt qf=genre_txtm,subject_txtm,geo_subject_txtm,geographic_origin_txtm,language_txtm,keywords_txtm,description_txtm mintf=1}bf72c321-ec3a-4978-b169-6e310513b24c
-  # Let's do one in other collections, and one in this collection.
+  # Uses the more like this query parser
+  # see: https://solr.apache.org/guide/solr/latest/query-guide/morelikethis.html#morelikethis-query-parser
   def related_items(%{id: id}, search_state, collection \\ read_collection()) do
     fl = Enum.join(@query_field_list, ",")
 
