@@ -1,7 +1,6 @@
 defmodule DpulCollections.SolrTest do
-  alias DpulCollectionsWeb.SearchLive.SearchState
-  alias DpulCollections.Item
   use DpulCollections.DataCase
+  alias DpulCollections.Item
   alias DpulCollections.Solr
   import SolrTestSupport
   import ExUnit.CaptureLog
@@ -82,7 +81,7 @@ defmodule DpulCollections.SolrTest do
 
       results =
         Solr.related_items(%Item{id: "reference", project: "Latin American Ephemera"}, %{
-          facet: %{"project" => "Latin American Ephemera"}
+          filter: %{"project" => "Latin American Ephemera"}
         })
         |> Map.get("docs")
         |> Enum.map(&Map.get(&1, "id"))
@@ -127,7 +126,7 @@ defmodule DpulCollections.SolrTest do
 
       results =
         Solr.related_items(%Item{id: "reference", project: "Latin American Ephemera"}, %{
-          facet: %{"project" => "-Latin American Ephemera"}
+          filter: %{"project" => "-Latin American Ephemera"}
         })
         |> Map.get("docs")
         |> Enum.map(&Map.get(&1, "id"))

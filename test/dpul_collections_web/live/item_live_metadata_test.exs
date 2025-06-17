@@ -3,7 +3,6 @@ defmodule DpulCollectionsWeb.ItemLiveMetadataTest do
   import Phoenix.LiveViewTest
   import SolrTestSupport
   alias DpulCollections.Solr
-  alias DpulCollectionsWeb.ItemLive
   @endpoint DpulCollectionsWeb.Endpoint
 
   setup_all do

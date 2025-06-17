@@ -35,7 +35,7 @@ defmodule DpulCollections.Solr do
       # https://solr.apache.org/docs/9_4_0/core/org/apache/solr/util/doc-files/min-should-match.html
       # If more than 6 clauses, only require 90%. Pulled from our catalog.
       mm: "6<90%",
-      fq: facet_param(search_state),
+      fq: filter_param(search_state),
       fl: fl,
       sort: sort_param(search_state),
       rows: search_state[:per_page],
@@ -62,7 +62,7 @@ defmodule DpulCollections.Solr do
         "{!mlt qf=genre_txtm,subject_txtm,geo_subject_txtm,geographic_origin_txtm,language_txtm,keywords_txtm,description_txtm mintf=1}#{id}",
       rows: 5,
       indent: false,
-      fq: facet_param(search_state),
+      fq: filter_param(search_state),
       mm: 1
     ]
 
@@ -116,35 +116,35 @@ defmodule DpulCollections.Solr do
     search_state[:q]
   end
 
-  def facet_param(search_state) do
-    search_state.facet
+  def filter_param(search_state) do
+    search_state.filter
     |> Enum.map(&generate_filter_query/1)
     |> Enum.reject(&is_nil/1)
     |> Enum.join(" ")
   end
 
-  # Simple string facet
-  # Negation facet
-  def generate_filter_query({_facet_key, "-"}), do: nil
+  # Simple string filter
+  # Negation filter
+  def generate_filter_query({_filter_key, "-"}), do: nil
 
-  def generate_filter_query({facet_key, "-" <> facet_value})
-      when is_binary(facet_value) and facet_key in @facet_keys do
-    solr_field = @facets[facet_key].solr_field
-    "-filter(#{solr_field}:\"#{facet_value}\")"
+  def generate_filter_query({filter_key, "-" <> filter_value})
+      when is_binary(filter_value) and filter_key in @filter_keys do
+    solr_field = @filters[filter_key].solr_field
+    "-filter(#{solr_field}:\"#{filter_value}\")"
   end
 
-  # Inclusion facet
-  def generate_filter_query({facet_key, facet_value})
-      when is_binary(facet_value) and facet_key in @facet_keys do
-    solr_field = @facets[facet_key].solr_field
-    "+filter(#{solr_field}:\"#{facet_value}\")"
+  # Inclusion filter
+  def generate_filter_query({filter_key, filter_value})
+      when is_binary(filter_value) and filter_key in @filter_keys do
+    solr_field = @filters[filter_key].solr_field
+    "+filter(#{solr_field}:\"#{filter_value}\")"
   end
 
-  # Range facet.
-  def generate_filter_query({facet_key, facet_value = %{}}) when facet_key in @facet_keys do
-    from = facet_value["from"] || "*"
-    to = facet_value["to"] || "*"
-    solr_field = @facets[facet_key].solr_field
+  # Range filter.
+  def generate_filter_query({filter_key, filter_value = %{}}) when filter_key in @filter_keys do
+    from = filter_value["from"] || "*"
+    to = filter_value["to"] || "*"
+    solr_field = @filters[filter_key].solr_field
     "+filter(#{solr_field}:[#{from} TO #{to}])"
   end
 

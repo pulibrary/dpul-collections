@@ -28,7 +28,7 @@ defmodule DpulCollections.Solr.Constants do
       }
       @sort_by_keys Enum.map(Map.keys(@valid_sort_by), &to_string/1)
 
-      @facets %{
+      @filters %{
         "year" => %{
           solr_field: "years_is",
           label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Year"),
@@ -71,11 +71,11 @@ defmodule DpulCollections.Solr.Constants do
         }
       }
 
-      @facet_keys Map.keys(@facets)
+      @filter_keys Map.keys(@filters)
     end
   end
 
-  # Returns a string version of a date facet.
+  # Returns a string version of a date filter.
   def date_value(year_params = %{}) do
     from = year_params["from"] || gettext("Up")
     to = year_params["to"] || gettext("Now")

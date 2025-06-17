@@ -8,7 +8,7 @@ defmodule DpulCollectionsWeb.SearchLive.SearchState do
       sort_by: valid_sort_by(params),
       page: (params["page"] || "1") |> String.to_integer(),
       per_page: (params["per_page"] || "10") |> String.to_integer(),
-      facet: params["facet"] || %{}
+      filter: params["filter"] || %{}
     }
   end
 
