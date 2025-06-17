@@ -385,7 +385,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def hide_modal(js \\ %JS{}) do
     js
     |> JS.hide(to: "#share-modal")
-    |> JS.remove_class("bg-accent", to: "#copy-button")
+    |> JS.remove_class("bg-accent", to: "#share-url-copy")
   end
 
   def share_modal(assigns) do
@@ -398,11 +398,16 @@ defmodule DpulCollectionsWeb.ItemLive do
         >
           <div class="flex items-center pb-3 border-b border-gray-300">
             <h3 class="text-xl font-semibold flex-1 text-slate-900">Share</h3>
-            <button id="close-share" phx-click={hide_modal()} class="cursor-pointer">
+            <button
+              id="close-share"
+              aria-label="close"
+              phx-click={hide_modal()}
+              class="cursor-pointer"
+            >
               <.icon name="hero-x-mark" />
             </button>
           </div>
-          <div>
+          <div class="mt-4">
             <.copy_element value={"#{DpulCollectionsWeb.Endpoint.url()}#{@item.url}"} id="share-url" />
           </div>
         </div>
@@ -517,6 +522,8 @@ defmodule DpulCollectionsWeb.ItemLive do
     |> List.wrap()
   end
 
+  attr :value, :string, required: true, doc: "the value to copy"
+
   attr :id, :string,
     required: true,
     doc:
@@ -533,8 +540,8 @@ defmodule DpulCollectionsWeb.ItemLive do
         phx-click={JS.dispatch("dpulc:clipcopy", to: "##{@id}") |> JS.add_class("bg-accent")}
         class="group btn-primary px-4 py-3 text-sm font-medium h-full"
       >
-        <span id="copy-text" class="group-[.bg-accent]:hidden">Copy</span>
-        <span id="copied-text" class="not-group-[.bg-accent]:hidden">Copied</span>
+        <span class="group-[.bg-accent]:hidden">Copy</span>
+        <span class="not-group-[.bg-accent]:hidden">Copied</span>
       </button>
     </div>
     """
