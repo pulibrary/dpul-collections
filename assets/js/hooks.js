@@ -29,7 +29,6 @@ Hooks.ScrollTop = {
 }
 
 Hooks.ShowPageCount = {
-  // on resize
   mounted() {
     function showPageCount(container, totalFiles) {
       const allImages = container.querySelectorAll('img')
