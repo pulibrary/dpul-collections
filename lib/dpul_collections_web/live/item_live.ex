@@ -80,8 +80,8 @@ defmodule DpulCollectionsWeb.ItemLive do
         related_items={@related_items}
         different_project_related_items={@different_project_related_items}
       />
-      <.metadata_pane :if={@live_action == :metadata} item={@item} />
     </div>
+    <.metadata_pane :if={@live_action == :metadata} item={@item} />
     <.viewer_pane :if={@live_action == :viewer} item={@item} />
     """
   end
@@ -178,8 +178,12 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div
       id="metadata-pane"
-      class="bg-background w-full h-full translate-x-full col-start-1 row-start-1"
-      phx-mounted={JS.transition({"ease-out duration-250", "translate-x-full", "translate-x-0"})}
+      class="bg-background min-w-full min-h-full translate-x-full col-start-1 row-start-1 absolute top-0"
+      phx-mounted={
+        JS.transition({"ease-out duration-250", "translate-x-full", "translate-x-0"})
+        |> hide_covered_elements()
+      }
+      phx-remove={show_covered_elements()}
       data-cancel={JS.patch(@item.url, replace: true)}
       phx-window-keydown={JS.exec("data-cancel", to: "#metadata-pane")}
       phx-key="escape"
