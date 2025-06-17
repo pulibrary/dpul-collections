@@ -187,7 +187,10 @@ defmodule DpulCollectionsWeb.SearchLive do
   def search_item(assigns) do
     ~H"""
     <hr />
-    <div id={"item-#{@item.id}"} class="item">
+    <div id={"item-#{@item.id}"} class="item" 
+      phx-hook="ShowPageCount"
+      data-id={@item.id} 
+      data-filecount={@item.file_count}>
       <div class="flex flex-wrap gap-5 md:max-h-60 max-h-[22rem] overflow-hidden justify-center md:justify-start relative">
         <.thumbs
           :for={{thumb, thumb_num} <- thumbnail_service_urls(5, @item)}
@@ -195,7 +198,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           thumb={thumb}
           thumb_num={thumb_num}
         />
-        <div :if={@item.file_count > 1} class="absolute right-0 top-0 bg-white px-4 py-2">
+        <div :if={@item.file_count > 1} id={"filecount-#{@item.id}"} class="hidden absolute right-0 top-0 bg-white px-4 py-2">
           {@item.file_count} {gettext("Images")}
         </div>
       </div>
