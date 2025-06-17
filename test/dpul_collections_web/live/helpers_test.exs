@@ -19,7 +19,7 @@ defmodule DpulCollectionsWeb.HelpersTest do
         "stay" => "1",
         "remove" => "",
         "remove_2" => nil,
-        "facet" => %{
+        "filter" => %{
           "year" => %{
             "to" => "",
             "from" => "1900"
@@ -30,7 +30,7 @@ defmodule DpulCollectionsWeb.HelpersTest do
 
       assert Helpers.clean_params(test_map) == %{
                "stay" => "1",
-               "facet" => %{"year" => %{"from" => "1900"}}
+               "filter" => %{"year" => %{"from" => "1900"}}
              }
     end
   end

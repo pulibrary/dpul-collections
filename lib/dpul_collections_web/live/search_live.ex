@@ -73,8 +73,8 @@ defmodule DpulCollectionsWeb.SearchLive do
     |> Enum.map(fn {k, v} -> {v[:label], k} end)
   end
 
-  def facet_configuration do
-    @facets
+  def filter_configuration do
+    @filters
   end
 
   def render(assigns) do
@@ -96,16 +96,16 @@ defmodule DpulCollectionsWeb.SearchLive do
               type="text"
               placeholder={gettext("From")}
               form="date-filter"
-              name="facet[year][from]"
-              value={@search_state.facet["year"]["from"]}
+              name="filter[year][from]"
+              value={@search_state.filter["year"]["from"]}
             />
             <input
               class="col-span-1"
               type="text"
               placeholder={gettext("To")}
               form="date-filter"
-              name="facet[year][to]"
-              value={@search_state.facet["year"]["to"]}
+              name="filter[year][to]"
+              value={@search_state.filter["year"]["to"]}
             />
             <button class="col-span-1 md:col-span-1 btn-primary" type="submit">
               {gettext("Apply")}
@@ -122,14 +122,14 @@ defmodule DpulCollectionsWeb.SearchLive do
               )}
             </select>
           </form>
-          <form id="facet-pills">
+          <form id="filter-pills">
             <div class="my-8 select-none flex flex-wrap gap-4">
-              <.facet
-                :for={{facet_field, facet_settings} <- facet_configuration()}
+              <.filter
+                :for={{filter_field, filter_settings} <- filter_configuration()}
                 search_state={@search_state}
-                field={facet_field}
-                label={facet_settings.label}
-                facet_value={facet_settings.value_function.(@search_state.facet[facet_field])}
+                field={filter_field}
+                label={filter_settings.label}
+                filter_value={filter_settings.value_function.(@search_state.filter[filter_field])}
               />
             </div>
           </form>
@@ -158,23 +158,23 @@ defmodule DpulCollectionsWeb.SearchLive do
   end
 
   attr :field, :string, required: true
-  attr :facet_value, :string, required: true
+  attr :filter_value, :string, required: true
   attr :label, :string, required: true
   attr :search_state, :map, required: true
 
-  def facet(assigns) do
+  def filter(assigns) do
     ~H"""
     <.link
-      :if={@facet_value}
+      :if={@filter_value}
       role="button"
-      id={"#{@field}-facet"}
-      navigate={self_route(@search_state, %{facet: %{@field => nil}})}
+      id={"#{@field}-filter"}
+      navigate={self_route(@search_state, %{filter: %{@field => nil}})}
       class="filter mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-accent focus:outline-none active:shadow-none"
     >
       {# These labels are defined explicitly in Solr.Constants, but have to be called here because Constants is defined at compile time.}
       {Gettext.gettext(DpulCollectionsWeb.Gettext, @label)}
       <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
-      {@facet_value}
+      {@filter_value}
       <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
     </.link>
     """
@@ -200,7 +200,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         </div>
       </div>
       <div data-field="genre" class="pt-4 text-gray-500 font-bold text-sm uppercase">
-        <.link navigate={self_route(@search_state, %{facet: %{"genre" => List.first(@item.genre)}})}>
+        <.link navigate={self_route(@search_state, %{filter: %{"genre" => List.first(@item.genre)}})}>
           {@item.genre}
         </.link>
       </div>
@@ -325,7 +325,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     params =
       %{
         socket.assigns.search_state
-        | facet: Map.merge(socket.assigns.search_state.facet, params["facet"])
+        | filter: Map.merge(socket.assigns.search_state.filter, params["filter"])
       }
       |> Helpers.clean_params([:page, :per_page])
 
@@ -353,9 +353,9 @@ defmodule DpulCollectionsWeb.SearchLive do
     ~p"/search?#{params}"
   end
 
-  # Merge new facets with existing facets.
-  def merger(:facet, first_facet = %{}, second_facet = %{}),
-    do: Map.merge(first_facet, second_facet)
+  # Merge new filters with existing filters.
+  def merger(:filter, first_filter = %{}, second_filter = %{}),
+    do: Map.merge(first_filter, second_filter)
 
   defp more_pages?(page, per_page, total_items) do
     page * per_page < total_items

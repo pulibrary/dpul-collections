@@ -82,7 +82,7 @@ defmodule DpulCollections.SolrTest do
 
       results =
         Solr.related_items(%Item{id: "reference", project: "Latin American Ephemera"}, %{
-          facet: %{"project" => "Latin American Ephemera"}
+          filter: %{"project" => "Latin American Ephemera"}
         })
         |> Map.get("docs")
         |> Enum.map(&Map.get(&1, "id"))
@@ -127,7 +127,7 @@ defmodule DpulCollections.SolrTest do
 
       results =
         Solr.related_items(%Item{id: "reference", project: "Latin American Ephemera"}, %{
-          facet: %{"project" => "-Latin American Ephemera"}
+          filter: %{"project" => "-Latin American Ephemera"}
         })
         |> Map.get("docs")
         |> Enum.map(&Map.get(&1, "id"))

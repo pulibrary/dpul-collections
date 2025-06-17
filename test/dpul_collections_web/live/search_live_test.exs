@@ -184,7 +184,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert document |> Floki.find(".digitized_at") |> Enum.empty?()
   end
 
-  test "renders active facets with states", %{
+  test "renders active filters with states", %{
     conn: conn
   } do
     {:ok, _view, html} = live(conn, "/search?")
@@ -193,62 +193,62 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       html
       |> Floki.parse_document()
 
-    # Only facets that are in use / active should display
-    assert document |> Floki.find("#year-facet") |> Enum.empty?()
-    assert document |> Floki.find("#genre-facet") |> Enum.empty?()
+    # Only filters that are in use / active should display
+    assert document |> Floki.find("#year-filter") |> Enum.empty?()
+    assert document |> Floki.find("#genre-filter") |> Enum.empty?()
 
-    {:ok, _view, html} = live(conn, "/search?facet[year][to]=2025")
+    {:ok, _view, html} = live(conn, "/search?filter[year][to]=2025")
 
     {:ok, document} =
       html
       |> Floki.parse_document()
 
     assert document
-           |> Floki.find("#year-facet")
+           |> Floki.find("#year-filter")
            |> Floki.text()
            |> TestUtils.clean_string() == "Year Up to 2025"
 
-    assert document |> Floki.find("#genre-facet") |> Enum.empty?()
+    assert document |> Floki.find("#genre-filter") |> Enum.empty?()
 
-    {:ok, _view, html} = live(conn, "/search?facet[year][from]=2020&facet[year][to]=")
+    {:ok, _view, html} = live(conn, "/search?filter[year][from]=2020&filter[year][to]=")
 
     {:ok, document} =
       html
       |> Floki.parse_document()
 
     assert document
-           |> Floki.find("#year-facet")
+           |> Floki.find("#year-filter")
            |> Floki.text()
            |> TestUtils.clean_string() == "Year 2020 to Now"
 
-    assert document |> Floki.find("#genre-facet") |> Enum.empty?()
+    assert document |> Floki.find("#genre-filter") |> Enum.empty?()
 
-    {:ok, _view, html} = live(conn, "/search?facet[genre]=posters")
+    {:ok, _view, html} = live(conn, "/search?filter[genre]=posters")
 
     {:ok, document} =
       html
       |> Floki.parse_document()
 
-    assert document |> Floki.find("#year-facet") |> Enum.empty?()
+    assert document |> Floki.find("#year-filter") |> Enum.empty?()
 
     assert document
-           |> Floki.find("#genre-facet")
+           |> Floki.find("#genre-filter")
            |> Floki.text()
            |> TestUtils.clean_string() == "Genre posters"
 
-    {:ok, _view, html} = live(conn, "/search?facet[genre]=posters&facet[year][to]=2025")
+    {:ok, _view, html} = live(conn, "/search?filter[genre]=posters&filter[year][to]=2025")
 
     {:ok, document} =
       html
       |> Floki.parse_document()
 
     assert document
-           |> Floki.find("#year-facet")
+           |> Floki.find("#year-filter")
            |> Floki.text()
            |> TestUtils.clean_string() == "Year Up to 2025"
 
     assert document
-           |> Floki.find("#genre-facet")
+           |> Floki.find("#genre-filter")
            |> Floki.text()
            |> TestUtils.clean_string() == "Genre posters"
   end
@@ -307,7 +307,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     {:ok, document} =
       view
       |> element("#date-filter")
-      |> render_submit(%{"facet" => %{"year" => %{"from" => "1925", "to" => "1926"}}})
+      |> render_submit(%{"filter" => %{"year" => %{"from" => "1925", "to" => "1926"}}})
       |> Floki.parse_document()
 
     assert document
@@ -324,12 +324,12 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   end
 
   test "unknown filters are ignored", %{conn: conn} do
-    {:ok, view, html} = live(conn, "/search?facet[stuff]=1")
+    {:ok, view, html} = live(conn, "/search?filter[stuff]=1")
 
     {:ok, document} = Floki.parse_document(html)
 
     assert document
-           |> Floki.find(~s{.facet})
+           |> Floki.find(~s{.filter})
            |> Enum.empty?()
   end
 

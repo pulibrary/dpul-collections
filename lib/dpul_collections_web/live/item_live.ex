@@ -37,11 +37,11 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   defp build_socket(socket, item, _) do
     related_items =
-      Solr.related_items(item, %{facet: %{"project" => item.project}})["docs"]
+      Solr.related_items(item, %{filter: %{"project" => item.project}})["docs"]
       |> Enum.map(&Item.from_solr(&1))
 
     different_project_related_items =
-      Solr.related_items(item, %{facet: %{"project" => "-#{item.project}"}})["docs"]
+      Solr.related_items(item, %{filter: %{"project" => "-#{item.project}"}})["docs"]
       |> Enum.map(&Item.from_solr(&1))
 
     assign(socket,
@@ -51,24 +51,24 @@ defmodule DpulCollectionsWeb.ItemLive do
     )
   end
 
-  attr :facet_name, :string, required: true
-  attr :facet_value, :string, required: true
+  attr :filter_name, :string, required: true
+  attr :filter_value, :string, required: true
   attr :rest, :global, doc: "the arbitrary HTML attributes to add to the link"
 
-  def facet_link(assigns = %{facet_name: facet_name}) when facet_name in @facet_keys do
+  def filter_link(assigns = %{filter_name: filter_name}) when filter_name in @filter_keys do
     ~H"""
     <.link
-      href={~p"/search?#{%{facet: %{@facet_name => @facet_value}} |> Helpers.clean_params()}"}
+      href={~p"/search?#{%{filter: %{@filter_name => @filter_value}} |> Helpers.clean_params()}"}
       {@rest}
     >
-      {@facet_value}
+      {@filter_value}
     </.link>
     """
   end
 
-  def facet_link(assigns) do
+  def filter_link(assigns) do
     ~H"""
-    {@facet_value}
+    {@filter_value}
     """
   end
 
@@ -91,10 +91,10 @@ defmodule DpulCollectionsWeb.ItemLive do
     <div class="bg-background page-y-padding content-area item-page col-start-1 row-start-1">
       <div class="column-layout my-5 flex flex-col sm:grid sm:grid-flow-row sm:auto-rows-0 sm:grid-cols-5 sm:grid-rows-[auto_1fr] sm:content-start gap-x-14 gap-y-4">
         <div class="item-title sm:row-start-1 sm:col-start-3 sm:col-span-3 h-min flex flex-col gap-4">
-          <.facet_link
+          <.filter_link
             class="text-xl uppercase tracking-wide"
-            facet_value={@item.genre |> List.first()}
-            facet_name="genre"
+            filter_value={@item.genre |> List.first()}
+            filter_name="genre"
           />
           <h1 class="text-4xl font-bold normal-case">{@item.title}</h1>
           <div
@@ -150,7 +150,7 @@ defmodule DpulCollectionsWeb.ItemLive do
             {description}
           </div>
           <div :if={@item.project} class="text-lg font-medium text-dark-text">
-            Part of <.facet_link facet_name="project" facet_value={@item.project} />
+            Part of <.filter_link filter_name="project" filter_value={@item.project} />
           </div>
           <.action_bar class="hidden sm:block" item={@item} />
           <.content_separator />
@@ -478,7 +478,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         {@field_label}
       </dt>
       <dd :for={value <- @value} class="col-start-2">
-        <.facet_link facet_value={value} facet_name={"#{@field}"} />
+        <.filter_link filter_value={value} filter_name={"#{@field}"} />
       </dd>
     </div>
     """
