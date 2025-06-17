@@ -403,21 +403,7 @@ defmodule DpulCollectionsWeb.ItemLive do
             </button>
           </div>
           <div>
-            <div class="w-full rounded-lg overflow-hidden border border-gray-300 flex items-center mt-4">
-              <p id="share-url" class="text-sm text-slate-500 flex-1 ml-4">
-                {DpulCollectionsWeb.Endpoint.url()}{@item.url}
-              </p>
-              <button
-                id="copy-button"
-                phx-click={
-                  JS.dispatch("dpulc:clipcopy", to: "#share-url") |> JS.add_class("bg-accent")
-                }
-                class="group btn-primary px-4 py-3 text-sm font-medium"
-              >
-                <span id="copy-text" class="group-[.bg-accent]:hidden">Copy</span>
-                <span id="copied-text" class="not-group-[.bg-accent]:hidden">Copied</span>
-              </button>
-            </div>
+            <.copy_element value={"#{DpulCollectionsWeb.Endpoint.url()}#{@item.url}"} id="share-url" />
           </div>
         </div>
       </div>
@@ -521,7 +507,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def field_value(item, field = :iiif_manifest_url) do
     value = Kernel.get_in(item, [Access.key(field)])
 
-    copy_element(%{value: value})
+    copy_element(%{value: value, id: "iiif-url"})
     |> List.wrap()
   end
 
@@ -531,15 +517,20 @@ defmodule DpulCollectionsWeb.ItemLive do
     |> List.wrap()
   end
 
+  attr :id, :string,
+    required: true,
+    doc:
+      "text <p> id for click to use in identifying text to copy. internal to this component, but should be unique"
+
   def copy_element(assigns) do
     ~H"""
     <div class="rounded-lg overflow-hidden border border-gray-300 grid grid-rows-1 grid-cols-5 relative">
-      <p id="iiif-url" class="text-sm text-slate-500 m-2 overflow-wrap-anywhere col-span-4">
+      <p id={@id} class="text-sm text-slate-500 m-2 overflow-wrap-anywhere col-span-4">
         {@value}
       </p>
       <button
-        id="iiif-copy"
-        phx-click={JS.dispatch("dpulc:clipcopy", to: "#iiif-url") |> JS.add_class("bg-accent")}
+        id={"#{@id}-copy"}
+        phx-click={JS.dispatch("dpulc:clipcopy", to: "##{@id}") |> JS.add_class("bg-accent")}
         class="group btn-primary px-4 py-3 text-sm font-medium h-full"
       >
         <span id="copy-text" class="group-[.bg-accent]:hidden">Copy</span>

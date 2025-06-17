@@ -47,7 +47,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
     |> stub_clipboard
     |> assert_has("#iiif-url", text: "https://example.com/1/manifest")
     |> click_button("Copy")
-    |> assert_has("button#iiif-copy", text: "Copied")
+    |> assert_has("button#iiif-url-copy", text: "Copied")
   end
 
   test "links to and from viewer page", %{conn: conn} do
