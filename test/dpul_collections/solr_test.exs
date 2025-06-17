@@ -1,7 +1,6 @@
 defmodule DpulCollections.SolrTest do
-  alias DpulCollectionsWeb.SearchLive.SearchState
-  alias DpulCollections.Item
   use DpulCollections.DataCase
+  alias DpulCollections.Item
   alias DpulCollections.Solr
   import SolrTestSupport
   import ExUnit.CaptureLog

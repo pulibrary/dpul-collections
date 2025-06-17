@@ -2,7 +2,6 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   use DpulCollectionsWeb.ConnCase
   import Phoenix.LiveViewTest
   import SolrTestSupport
-  import TestUtils
   alias DpulCollections.Solr
   @endpoint DpulCollectionsWeb.Endpoint
 
@@ -324,7 +323,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   end
 
   test "unknown filters are ignored", %{conn: conn} do
-    {:ok, view, html} = live(conn, "/search?filter[stuff]=1")
+    {:ok, _view, html} = live(conn, "/search?filter[stuff]=1")
 
     {:ok, document} = Floki.parse_document(html)
 
@@ -334,7 +333,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   end
 
   test "items can be filtered by genre", %{conn: conn} do
-    {:ok, view, html} = live(conn, "/search")
+    {:ok, view, _html} = live(conn, "/search")
 
     {:ok, document} =
       view
