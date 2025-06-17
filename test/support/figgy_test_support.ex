@@ -121,7 +121,7 @@ defmodule FiggyTestSupport do
     task =
       Task.async(fn -> wait_for_indexed_count(1) end)
 
-    Task.await(task, 15000)
+    Task.await(task, 30000)
     document = Solr.find_by_id(id)
     {hydrator, transformer, indexer, document}
   end

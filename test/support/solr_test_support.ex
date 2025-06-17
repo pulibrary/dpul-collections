@@ -36,6 +36,15 @@ defmodule SolrTestSupport do
           "https://example.com/iiif/2/image6",
           "https://example.com/iiif/2/image7"
         ],
+        file_sets: [
+          %{
+            "id" => "#{n}-image1",
+            "width_i" => 10,
+            "height_i" => 10,
+            "derivative_id_s" => "image1",
+            "original_id_s" => "other"
+          }
+        ],
         genre_txtm: genre,
         primary_thumbnail_service_url_s: thumbnail_url,
         digitized_at_dt:

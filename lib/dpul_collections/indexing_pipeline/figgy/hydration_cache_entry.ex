@@ -78,7 +78,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
       sort_title_txtm: get_in(metadata, ["sort_title"]),
       transliterated_title_txtm: get_in(metadata, ["transliterated_title"]),
       width_txtm: get_in(metadata, ["width"]),
-      years_is: extract_years(data)
+      years_is: extract_years(data),
+      file_sets: file_set_documents(metadata, related_data)
     }
   end
 
@@ -121,6 +122,51 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
     image_service_urls(metadata, related_data)
     |> Enum.at(0)
   end
+
+  defp file_set_documents(%{"member_ids" => member_ids}, related_data) do
+    member_ids
+    |> Enum.map(&generate_file_set_document(&1, related_data))
+    |> Enum.filter(fn doc -> doc end)
+  end
+
+  defp file_set_documents(_, _), do: []
+
+  defp generate_file_set_document(%{"id" => id}, %{"resources" => resources}) do
+    build_file_set_document(resources[id])
+  end
+
+  defp generate_file_set_document(_, _), do: nil
+
+  defp build_file_set_document(resource = %{"internal_resource" => "FileSet"}) do
+    original_file = original_file(resource) || %{}
+
+    %{
+      id: resource["id"],
+      derivative_id_s: derivative_id(resource),
+      original_id_s: original_id(original_file),
+      height_i: original_file["height"],
+      width_i: original_file["width"]
+    }
+  end
+
+  defp derivative_id(%{"metadata" => %{"file_metadata" => file_metadata}}) do
+    case Enum.find(file_metadata, &is_derivative/1) do
+      %{"id" => %{"id" => id}} -> id
+      nil -> nil
+      _ -> nil
+    end
+  end
+
+  defp derivative_id(_), do: nil
+
+  def original_file(%{"metadata" => %{"file_metadata" => file_metadata}}) do
+    Enum.find(file_metadata, &is_original/1)
+  end
+
+  def original_file(_), do: nil
+
+  defp original_id(%{"id" => %{"id" => id}}), do: id
+  defp original_id(_), do: nil
 
   defp image_service_urls(%{"member_ids" => member_ids}, related_data) do
     member_ids
@@ -312,6 +358,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
        do: true
 
   defp is_derivative(_), do: false
+
+  defp is_original(%{
+         "use" => [%{"@id" => "http://pcdm.org/use#OriginalFile"}]
+       }),
+       do: true
+
+  defp is_original(_), do: false
 
   defp file_count(%{"member_ids" => member_ids}) when is_list(member_ids) do
     member_ids |> length

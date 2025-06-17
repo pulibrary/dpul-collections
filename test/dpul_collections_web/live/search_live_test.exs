@@ -366,7 +366,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert view |> has_element?("#paginator-next")
 
     # Check that the previous and next links are displayed and work as expected
-    {:ok, view, _html} = live(conn, ~p"/search?page=5")
+    {:ok, view, _html} = live(conn, ~p"/search?page=5&sort_by=recently_added")
     assert(view |> element(".paginator > a.active", ~r(5)) |> has_element?())
 
     {:ok, document} =
@@ -378,10 +378,10 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       |> Floki.parse_document()
 
     assert document
-           |> Floki.find(~s{a[href="/i/document40/item/40"]})
+           |> Floki.find(~s{a[href="/i/document68/item/68"]})
            |> Enum.any?()
 
-    {:ok, view, _html} = live(conn, ~p"/search?page=4")
+    {:ok, view, _html} = live(conn, ~p"/search?page=4&sort_by=recently_added")
 
     {:ok, document} =
       view
@@ -392,11 +392,11 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       |> Floki.parse_document()
 
     assert document
-           |> Floki.find(~s{a[href="/i/document50/item/50"]})
+           |> Floki.find(~s{a[href="/i/document51/item/51"]})
            |> Enum.any?()
 
     # Check that the next link is hidden on the last page
-    {:ok, view, _html} = live(conn, ~p"/search?page=10")
+    {:ok, view, _html} = live(conn, ~p"/search?page=10&sort_by=recently_added")
     assert view |> has_element?("#paginator-previous")
     assert !(view |> has_element?("#paginator-next"))
 

@@ -7,7 +7,7 @@ defmodule DpulCollections.Solr do
     {:ok, response} =
       Req.get(
         select_url(collection),
-        params: [q: "*:*"]
+        params: [q: "*:*", fq: "-_nest_path_:*"]
       )
 
     response.body["response"]["numFound"]
@@ -23,7 +23,10 @@ defmodule DpulCollections.Solr do
     "image_service_urls_ss",
     "primary_thumbnail_service_url_s",
     "digitized_at_dt",
-    "genre_txtm"
+    "genre_txtm",
+    "derivative_id_s",
+    "original_id_s",
+    "file_sets"
   ]
 
   @spec query(map(), String.t()) :: map()
@@ -36,7 +39,7 @@ defmodule DpulCollections.Solr do
       # If more than 6 clauses, only require 90%. Pulled from our catalog.
       mm: "6<90%",
       fq: facet_param(search_state),
-      fl: fl,
+      fl: "#{fl},[child limit=5]",
       sort: sort_param(search_state),
       rows: search_state[:per_page],
       start: pagination_offset(search_state)
@@ -100,7 +103,8 @@ defmodule DpulCollections.Solr do
     solr_params = [
       fl: fl,
       rows: count,
-      sort: "random_#{seed} desc"
+      sort: "random_#{seed} desc",
+      fq: "-filter(_nest_path_:*)"
     ]
 
     {:ok, response} =
@@ -117,10 +121,13 @@ defmodule DpulCollections.Solr do
   end
 
   def facet_param(search_state) do
-    search_state.facet
-    |> Enum.map(&generate_filter_query/1)
-    |> Enum.reject(&is_nil/1)
-    |> Enum.join(" ")
+    param =
+      search_state.facet
+      |> Enum.map(&generate_filter_query/1)
+      |> Enum.reject(&is_nil/1)
+      |> Enum.join(" ")
+
+    "#{param} -filter(_nest_path_:*)"
   end
 
   # Simple string facet
@@ -163,7 +170,7 @@ defmodule DpulCollections.Solr do
     {:ok, response} =
       Req.get(
         select_url(collection),
-        params: [q: "*:*", sort: "_version_ desc"]
+        params: [q: "*:*", sort: "_version_ desc", fq: "-_nest_path_:*"]
       )
 
     case response.body["response"]["docs"] do
@@ -177,7 +184,7 @@ defmodule DpulCollections.Solr do
     {:ok, response} =
       Req.get(
         select_url(collection),
-        params: [q: "id:#{id}"]
+        params: [q: "id:#{id}", fl: "*,[child limit=-1]"]
       )
 
     case response.body["response"]["docs"] do
