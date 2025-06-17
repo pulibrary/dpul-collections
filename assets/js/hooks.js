@@ -50,9 +50,10 @@ Hooks.ShowPageCount = {
     }
 
     function isElementHiddenByOverflow(element, container) {
-      const elementRect = element.getBoundingClientRect();
-      const containerRect = container.getBoundingClientRect();
+      const elementRect = element.getBoundingClientRect()
+      const containerRect = container.getBoundingClientRect()
       // Check if the element is outside the container boundaries
+      // There is a 92 px offset to account for
       return (
         elementRect.top >= containerRect.bottom - 92
       )
@@ -73,12 +74,12 @@ Hooks.ShowPageCount = {
       }
     }
 
-    // Add event listener to call on resize
-    let resizeTimeout;
+    // Add event listener to call on resize (debounce for performance)
+    let resizeTimeout
     this.boundResizeListener = () => {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
-        this.handleResize();
+        this.handleResize()
       }, 200);
     };
     window.addEventListener("resize", this.boundResizeListener);
@@ -89,7 +90,7 @@ Hooks.ShowPageCount = {
 
   destroyed() {
     // Clean up the event listener when the hook is destroyed
-    window.removeEventListener("resize", this.handleResize);
+    window.removeEventListener("resize", this.handleResize)
   }
 }
 
