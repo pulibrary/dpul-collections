@@ -153,7 +153,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
     case Enum.find(file_metadata, &is_derivative/1) do
       %{"id" => %{"id" => id}} -> id
       nil -> nil
-      _ -> nil
     end
   end
 
@@ -162,8 +161,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   def original_file(%{"metadata" => %{"file_metadata" => file_metadata}}) do
     Enum.find(file_metadata, &is_original/1)
   end
-
-  def original_file(_), do: nil
 
   defp original_id(%{"id" => %{"id" => id}}), do: id
   defp original_id(_), do: nil

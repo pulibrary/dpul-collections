@@ -26,7 +26,8 @@ defmodule DpulCollections.Solr do
     "genre_txtm",
     "derivative_id_s",
     "original_id_s",
-    "file_sets"
+    "file_sets",
+    "[child limit=5]"
   ]
 
   @spec query(map(), String.t()) :: map()
@@ -39,7 +40,7 @@ defmodule DpulCollections.Solr do
       # If more than 6 clauses, only require 90%. Pulled from our catalog.
       mm: "6<90%",
       fq: facet_param(search_state),
-      fl: "#{fl},[child limit=5]",
+      fl: fl,
       sort: sort_param(search_state),
       rows: search_state[:per_page],
       start: pagination_offset(search_state)
