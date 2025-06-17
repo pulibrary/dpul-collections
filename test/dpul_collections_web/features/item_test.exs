@@ -11,6 +11,15 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
     on_exit(fn -> Solr.delete_all(active_collection()) end)
   end
 
+  # Playwright has no clipboard permission, so just stub it out to prevent an
+  # error in console.
+  def stub_clipboard(conn) do
+    conn
+    |> unwrap(
+      &Frame.evaluate(&1.frame_id, "window.navigator.clipboard.writeText = function() {}")
+    )
+  end
+
   test "clicking the share button works", %{conn: conn} do
     conn
     |> visit("/i/document-1/item/1")
@@ -23,22 +32,22 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
     |> assert_has("#share-url", text: "http://localhost:4002/i/document1/item/1")
   end
 
-  # Playwright has no clipboard permission, so just stub it out to prevent an
-  # error in console.
-  def stub_clipboard(conn) do
-    conn
-    |> unwrap(
-      &Frame.evaluate(&1.frame_id, "window.navigator.clipboard.writeText = function() {}")
-    )
-  end
-
-  test "links to and from metadata pane", %{conn: conn} do
+  test "links to and from metadata page", %{conn: conn} do
     conn
     |> visit("/i/document1/item/1")
     |> click_link("View all metadata for this item")
     |> assert_path("/i/document1/item/1/metadata")
     |> click_link("close")
     |> assert_path("/i/document1/item/1")
+  end
+
+  test "item metdata pane has a manifest clipboard icon", %{conn: conn} do
+    conn
+    |> visit("/i/document1/item/1/metadata")
+    |> stub_clipboard
+    |> assert_has("#iiif-url", text: "https://example.com/1/manifest")
+    |> click_button("Copy")
+    |> assert_has("button#iiif-copy", text: "Copied")
   end
 
   test "links to and from viewer page", %{conn: conn} do

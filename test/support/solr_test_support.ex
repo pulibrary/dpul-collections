@@ -21,6 +21,8 @@ defmodule SolrTestSupport do
           true -> ["Pamphlets"]
         end
 
+      manifest_url = "https://example.com/#{n}/manifest"
+
       %{
         id: n,
         title_txtm: "Document-#{n}",
@@ -38,6 +40,7 @@ defmodule SolrTestSupport do
         ],
         genre_txtm: genre,
         primary_thumbnail_service_url_s: thumbnail_url,
+        iiif_manifest_url_s: manifest_url,
         digitized_at_dt:
           DateTime.utc_now() |> DateTime.add(-100 + 1 * n, :day) |> DateTime.to_iso8601()
       }

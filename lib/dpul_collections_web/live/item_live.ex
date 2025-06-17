@@ -213,6 +213,7 @@ defmodule DpulCollectionsWeb.ItemLive do
               <dl>
                 <.metadata_pane_row
                   :for={{field, field_label} <- fields}
+                  field={field}
                   field_label={field_label}
                   value={field_value(@item, field)}
                 />
@@ -490,6 +491,20 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
+  # manifest url copy element has to become single-column at smaller sizes
+  def metadata_pane_row(assigns = %{field: :iiif_manifest_url}) do
+    ~H"""
+    <div class="grid grid-cols-1 lg:grid-cols-2 border-t-1 border-accent py-3">
+      <dt class="font-bold text-lg">
+        {@field_label}
+      </dt>
+      <dd :for={value <- @value} class="py-1">
+        {value}
+      </dd>
+    </div>
+    """
+  end
+
   def metadata_pane_row(assigns) do
     ~H"""
     <div class="grid grid-cols-2 border-t-1 border-accent py-3">
@@ -503,10 +518,35 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
+  def field_value(item, field = :iiif_manifest_url) do
+    value = Kernel.get_in(item, [Access.key(field)])
+
+    copy_element(%{value: value})
+    |> List.wrap()
+  end
+
   def field_value(item, field) do
     item
     |> Kernel.get_in([Access.key(field)])
     |> List.wrap()
+  end
+
+  def copy_element(assigns) do
+    ~H"""
+    <div class="rounded-lg overflow-hidden border border-gray-300 grid grid-rows-1 grid-cols-5 relative">
+      <p id="iiif-url" class="text-sm text-slate-500 m-2 overflow-wrap-anywhere col-span-4">
+        {@value}
+      </p>
+      <button
+        id="iiif-copy"
+        phx-click={JS.dispatch("dpulc:clipcopy", to: "#iiif-url") |> JS.add_class("bg-accent")}
+        class="group btn-primary px-4 py-3 text-sm font-medium h-full"
+      >
+        <span id="copy-text" class="group-[.bg-accent]:hidden">Copy</span>
+        <span id="copied-text" class="not-group-[.bg-accent]:hidden">Copied</span>
+      </button>
+    </div>
+    """
   end
 
   def thumbs(assigns) do
