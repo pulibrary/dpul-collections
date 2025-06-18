@@ -80,8 +80,8 @@ defmodule DpulCollectionsWeb.ItemLive do
         related_items={@related_items}
         different_project_related_items={@different_project_related_items}
       />
-      <.metadata_pane :if={@live_action == :metadata} item={@item} />
     </div>
+    <.metadata_pane :if={@live_action == :metadata} item={@item} />
     <.viewer_pane :if={@live_action == :viewer} item={@item} />
     """
   end
@@ -178,8 +178,12 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div
       id="metadata-pane"
-      class="bg-background w-full h-full translate-x-full col-start-1 row-start-1"
-      phx-mounted={JS.transition({"ease-out duration-250", "translate-x-full", "translate-x-0"})}
+      class="bg-background min-w-full min-h-full translate-x-full col-start-1 row-start-1 absolute top-0"
+      phx-mounted={
+        JS.transition({"ease-out duration-250", "translate-x-full", "translate-x-0"})
+        |> hide_covered_elements()
+      }
+      phx-remove={show_covered_elements()}
       data-cancel={JS.patch(@item.url, replace: true)}
       phx-window-keydown={JS.exec("data-cancel", to: "#metadata-pane")}
       phx-key="escape"
@@ -213,6 +217,7 @@ defmodule DpulCollectionsWeb.ItemLive do
               <dl>
                 <.metadata_pane_row
                   :for={{field, field_label} <- fields}
+                  field={field}
                   field_label={field_label}
                   value={field_value(@item, field)}
                 />
@@ -384,7 +389,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def hide_modal(js \\ %JS{}) do
     js
     |> JS.hide(to: "#share-modal")
-    |> JS.remove_class("bg-accent", to: "#copy-button")
+    |> JS.remove_class("bg-accent", to: "#share-url-copy")
   end
 
   def share_modal(assigns) do
@@ -397,26 +402,17 @@ defmodule DpulCollectionsWeb.ItemLive do
         >
           <div class="flex items-center pb-3 border-b border-gray-300">
             <h3 class="text-xl font-semibold flex-1 text-slate-900">Share</h3>
-            <button id="close-share" phx-click={hide_modal()} class="cursor-pointer">
+            <button
+              id="close-share"
+              aria-label="close"
+              phx-click={hide_modal()}
+              class="cursor-pointer"
+            >
               <.icon name="hero-x-mark" />
             </button>
           </div>
-          <div>
-            <div class="w-full rounded-lg overflow-hidden border border-gray-300 flex items-center mt-4">
-              <p id="share-url" class="text-sm text-slate-500 flex-1 ml-4">
-                {DpulCollectionsWeb.Endpoint.url()}{@item.url}
-              </p>
-              <button
-                id="copy-button"
-                phx-click={
-                  JS.dispatch("dpulc:clipcopy", to: "#share-url") |> JS.add_class("bg-accent")
-                }
-                class="group btn-primary px-4 py-3 text-sm font-medium"
-              >
-                <span id="copy-text" class="group-[.bg-accent]:hidden">Copy</span>
-                <span id="copied-text" class="not-group-[.bg-accent]:hidden">Copied</span>
-              </button>
-            </div>
+          <div class="mt-4">
+            <.copy_element value={"#{DpulCollectionsWeb.Endpoint.url()}#{@item.url}"} id="share-url" />
           </div>
         </div>
       </div>
@@ -490,6 +486,20 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
+  # manifest url copy element has to become single-column at smaller sizes
+  def metadata_pane_row(assigns = %{field: :iiif_manifest_url}) do
+    ~H"""
+    <div class="grid grid-cols-1 lg:grid-cols-2 border-t-1 border-accent py-3">
+      <dt class="font-bold text-lg">
+        {@field_label}
+      </dt>
+      <dd :for={value <- @value} class="py-1">
+        {value}
+      </dd>
+    </div>
+    """
+  end
+
   def metadata_pane_row(assigns) do
     ~H"""
     <div class="grid grid-cols-2 border-t-1 border-accent py-3">
@@ -503,10 +513,42 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
+  def field_value(item, field = :iiif_manifest_url) do
+    value = Kernel.get_in(item, [Access.key(field)])
+
+    copy_element(%{value: value, id: "iiif-url"})
+    |> List.wrap()
+  end
+
   def field_value(item, field) do
     item
     |> Kernel.get_in([Access.key(field)])
     |> List.wrap()
+  end
+
+  attr :value, :string, required: true, doc: "the value to copy"
+
+  attr :id, :string,
+    required: true,
+    doc:
+      "text <p> id for click to use in identifying text to copy. internal to this component, but should be unique"
+
+  def copy_element(assigns) do
+    ~H"""
+    <div class="rounded-lg border border-gray-300 grid grid-rows-1 grid-cols-5 relative">
+      <p id={@id} class="text-sm text-slate-500 m-2 wrap-anywhere col-span-4">
+        {@value}
+      </p>
+      <button
+        id={"#{@id}-copy"}
+        phx-click={JS.dispatch("dpulc:clipcopy", to: "##{@id}") |> JS.add_class("bg-accent")}
+        class="group btn-primary px-4 py-3 text-sm font-medium h-full"
+      >
+        <span class="group-[.bg-accent]:hidden">Copy</span>
+        <span class="not-group-[.bg-accent]:hidden">Copied</span>
+      </button>
+    </div>
+    """
   end
 
   def thumbs(assigns) do
