@@ -32,7 +32,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
     )
   end
 
-  test "links to and from metadata page", %{conn: conn} do
+  test "links to and from metadata pane", %{conn: conn} do
     conn
     |> visit("/i/document1/item/1")
     |> click_link("View all metadata for this item")
@@ -50,12 +50,24 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
     |> assert_path("/i/document1/item/1")
   end
 
-  test "the metadata page is not part of browser history", %{conn: conn} do
+  test "the metadata pane is not part of browser history", %{conn: conn} do
     conn
     |> visit("/search")
     |> click_link("Document-1")
     |> click_link("View all metadata for this item")
     |> assert_path("/i/document1/item/1/metadata")
+    |> click_link("close")
+    |> assert_path("/i/document1/item/1")
+    |> go_back
+    |> assert_path("/search")
+  end
+
+  test "the viewer pane is not part of browser history", %{conn: conn} do
+    conn
+    |> visit("/search")
+    |> click_link("Document-1")
+    |> click_link("#viewer-link", "View")
+    |> assert_path("/i/document1/item/1/viewer")
     |> click_link("close")
     |> assert_path("/i/document1/item/1")
     |> go_back

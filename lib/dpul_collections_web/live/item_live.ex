@@ -249,7 +249,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         |> hide_covered_elements()
       }
       phx-remove={show_covered_elements()}
-      data-cancel={JS.patch(@item.url)}
+      data-cancel={JS.patch(@item.url, replace: true)}
       phx-window-keydown={JS.exec("data-cancel", to: "#viewer-pane")}
       phx-key="escape"
       phx-hook="ScrollTop"
@@ -260,6 +260,7 @@ defmodule DpulCollectionsWeb.ItemLive do
           aria-label={gettext("close")}
           class="flex-none cursor-pointer justify-end"
           patch={@item.url}
+          replace
         >
           <.icon class="w-8 h-8" name="hero-x-mark" />
         </.link>
@@ -355,7 +356,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         height="800"
       />
 
-      <.primary_button id="viewer-link" class="left-arrow-box" patch={@item.viewer_url}>
+      <.primary_button id="viewer-link" class="left-arrow-box" patch={@item.viewer_url} replace>
         <.icon name="hero-eye" /> {gettext("View")}
       </.primary_button>
 
