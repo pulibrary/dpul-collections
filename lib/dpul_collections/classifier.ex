@@ -8,7 +8,52 @@ defmodule DpulCollections.Classifier do
 
   @impl true
   def init(_) do
-    {:ok, %{client: default_client()}, {:continue, :init}}
+    {:ok, tokenizer} = Tokenizers.Tokenizer.from_pretrained("janni-t/qwen3-embedding-0.6b-int8-tei-onnx")
+    tokenizer = Tokenizers.Tokenizer.set_padding(tokenizer, direction: :left) |> Tokenizers.Tokenizer.set_truncation(max_length: 8192)
+    model = Ortex.load("./models/qwen3_int8.onnx")
+    {:ok, %{client: default_client(), tokenizer: tokenizer, model: model}, {:continue, :init}}
+  end
+
+  def get_top_subjects_cosine(query) do
+    case GenServer.call(__MODULE__, {:cached_embeddings}) do
+      :not_loaded ->
+        :timer.sleep(100)
+        get_top_subjects_cosine(query)
+
+      %{subject_embeddings: subject_embeddings, genre_embeddings: genre_embeddings} ->
+        queries = [
+          get_detailed_instruct(
+            "Given a query return the subjects that most closely match the user need.",
+            query
+          ),
+          get_detailed_instruct(
+            "Given a query return the genres that most closely match the kind of material the user wants.",
+            query
+          )
+        ]
+
+        query_embedding = generate_embeddings(queries)
+      subject_dot_products = Scholar.Metrics.Distance.pairwise_cosine(query_embedding[0..0], subject_embeddings |> Nx.transpose)
+      genre_dot_products = Scholar.Metrics.Distance.pairwise_cosine(query_embedding[1..1], genre_embeddings |> Nx.transpose)
+
+        subject_results =
+          subject_dot_products[0]
+          |> Nx.to_flat_list()
+          |> Enum.zip(subjects())
+          |> Enum.sort(:asc)
+          |> Enum.take(5)
+          |> Enum.map(fn ({x, k}) -> {1 - x, k} end)
+
+        genre_results =
+          genre_dot_products[0]
+          |> Nx.to_flat_list()
+          |> Enum.zip(genres())
+          |> Enum.sort(:asc)
+          |> Enum.take(5)
+          |> Enum.map(fn ({x, k}) -> {1 - x, k} end)
+
+        %{subjects: subject_results, genres: genre_results}
+    end
   end
 
   def get_top_subjects(query) do
@@ -55,11 +100,23 @@ defmodule DpulCollections.Classifier do
     Ollama.init("http://localhost:11439/api")
   end
 
-  def generate_embeddings(queries, client \\ default_client()) do
-    {:ok, %{"embeddings" => embeddings}} =
-      Ollama.embed(client, model: "hf.co/Qwen/Qwen3-Embedding-0.6B-GGUF:f16", input: queries)
+  def generate_embeddings(inputs) do
+    %{tokenizer: tokenizer, model: model} = GenServer.call(__MODULE__, {:get_tokenizer_and_model})
+    {:ok, encodings} = Tokenizers.Tokenizer.encode_batch(tokenizer, inputs)
 
-    embeddings |> Nx.tensor(type: :f16)
+    input_ids = for i <- encodings, do: Tokenizers.Encoding.get_ids(i)
+    input_mask = for i <- encodings, do: Tokenizers.Encoding.get_attention_mask(i)
+    inputs = {Nx.tensor(input_ids, type: :s64), Nx.tensor(input_mask, type: :s64)}
+    {embeddings} = Ortex.run(model, inputs)
+    {input_size, token_embedding_count, embedding_dimension} = Nx.shape(embeddings)
+    embeddings
+    |> Nx.backend_transfer()
+    |> Nx.slice_along_axis(token_embedding_count, 1, axis: 1)
+    |> Nx.reshape({input_size, embedding_dimension})
+  end
+
+  def handle_call({:get_tokenizer_and_model}, _from, state = %{tokenizer: tokenizer, model: model}) do
+    {:reply, %{tokenizer: tokenizer, model: model}, state}
   end
 
   def handle_call(
@@ -76,20 +133,8 @@ defmodule DpulCollections.Classifier do
 
   @impl true
   def handle_continue(:init, state = %{client: client}) do
-    subjects =
-      subjects()
-      |> Enum.map(
-        &get_detailed_instruct("This is a possible subject for a resource in a library.", &1)
-      )
-
-    genres =
-      genres()
-      |> Enum.map(
-        &get_detailed_instruct("This is a possible genre for a resource in a library.", &1)
-      )
-
-    Task.async(fn -> {:subjects, generate_embeddings(subjects)} end)
-    Task.async(fn -> {:genres, generate_embeddings(genres)} end)
+    Task.async(fn -> {:subjects, generate_embeddings(subjects())} end)
+    Task.async(fn -> {:genres, generate_embeddings(genres())} end)
     {:noreply, state}
   end
 
@@ -113,7 +158,7 @@ defmodule DpulCollections.Classifier do
     {:noreply, state}
   end
 
-  defp get_detailed_instruct(task_description, query) do
+  def get_detailed_instruct(task_description, query) do
     "Instruct: #{task_description}\nQuery:#{query}"
   end
 
