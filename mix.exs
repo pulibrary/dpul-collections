@@ -91,7 +91,10 @@ defmodule DpulCollections.MixProject do
       {:oban, "~> 2.19"},
       {:oban_web, "~> 2.11"},
       {:a11y_audit, "~> 0.2.3", only: :test},
-      {:scholar, "~> 0.3.0"}
+      {:scholar, "~> 0.3.0"},
+      {:ortex, github: "elixir-nx/ortex"},
+      {:tokenizers, github: "elixir-nx/tokenizers"},
+      {:exla, ">= 0.0.0"}
     ]
   end
 

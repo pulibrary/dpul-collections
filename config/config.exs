@@ -103,3 +103,8 @@ config :iconify_ex,
   mode: :css,
   generated_icon_static_path: "./assets/css",
   default_class: nil
+
+import Config
+config :nx, :default_backend, EXLA.Backend
+# Client can also be set to :cuda / :rocm
+config :nx, :default_defn_options, [compiler: EXLA, client: :host]
