@@ -10,9 +10,10 @@ defmodule DpulCollectionsWeb.ItemLive do
     {:ok, socket, layout: {DpulCollectionsWeb.Layouts, :home}}
   end
 
-  def handle_params(%{"id" => id}, uri, socket) do
+  def handle_params(params = %{"id" => id}, uri, socket) do
     item = Solr.find_by_id(id) |> Item.from_solr()
     path = URI.parse(uri).path |> URI.decode()
+    socket = socket |> assign(:current_canvas_id, params["current_canvas_id"])
     {:noreply, build_socket(socket, item, path)}
   end
 
@@ -23,7 +24,13 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   defp build_socket(socket = %{assigns: %{live_action: :viewer}}, item, path)
        when item.viewer_url != path do
-    push_patch(socket, to: item.viewer_url, replace: true)
+    case String.starts_with?(path, item.viewer_url) do
+      false ->
+        push_patch(socket, to: item.viewer_url, replace: true)
+
+      true ->
+        build_socket(socket, item, item.viewer_url)
+    end
   end
 
   defp build_socket(socket = %{assigns: %{live_action: :live}}, item, path)
@@ -348,6 +355,35 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
+  def handle_event(
+        "changedCanvas",
+        canvas_id,
+        socket = %{
+          assigns: %{
+            current_canvas_id: current_canvas_id,
+            item: item = %{image_canvas_ids: canvas_ids}
+          }
+        }
+      )
+      when not is_nil(current_canvas_id) do
+    idx = Enum.find_index(canvas_ids, fn x -> x == canvas_id end) || 0
+
+    case idx + 1 == String.to_integer(current_canvas_id) do
+      true ->
+        {:noreply, socket}
+
+      false ->
+        current_canvas_id = idx + 1
+
+        {:noreply,
+         socket
+         |> assign(current_canvas_id: idx + 1)
+         |> push_patch(to: "#{item.viewer_url}/#{current_canvas_id}", replace: true)}
+    end
+  end
+
+  def handle_event("changedCanvas", _, socket), do: {:noreply, socket}
+
   def primary_thumbnail(assigns) do
     ~H"""
     <div class="primary-thumbnail grid grid-cols-2 gap-2 content-start">
@@ -361,7 +397,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         height={@item.primary_thumbnail_height}
       />
 
-      <.primary_button id="viewer-link" class="left-arrow-box" patch={@item.viewer_url} replace>
+      <.primary_button id="viewer-link" class="left-arrow-box" patch={"#{@item.viewer_url}/1"} replace>
         <.icon name="hero-eye" /> {gettext("View")}
       </.primary_button>
 

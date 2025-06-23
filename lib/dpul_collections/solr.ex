@@ -21,6 +21,7 @@ defmodule DpulCollections.Solr do
     "detectlang_ss",
     "slug_s",
     "image_service_urls_ss",
+    "image_canvas_ids_ss",
     "primary_thumbnail_service_url_s",
     "digitized_at_dt",
     "genre_txtm"
