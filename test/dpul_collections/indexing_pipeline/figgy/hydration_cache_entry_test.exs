@@ -75,6 +75,55 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
       assert doc2[:file_count_i] == 0
     end
 
+    test "doesn't convert canvas IDs for missing file sets" do
+      {:ok, entry} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          cache_version: 0,
+          record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
+          source_cache_order: ~U[2018-03-09 20:19:35.465203Z],
+          related_data: %{
+            "resources" => %{
+              "1" => %{
+                "internal_resource" => "FileSet",
+                "id" => "9ad621a7b-01ea-4895-9c3d-a8c6eaab4013",
+                "metadata" => %{
+                  "file_metadata" => [
+                    # Not this one - it's an old JP2
+                    %{
+                      "id" => %{"id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4014"},
+                      "internal_resource" => "FileMetadata",
+                      "mime_type" => ["image/jp2"],
+                      "use" => [%{"@id" => "http://pcdm.org/use#ServiceFile"}]
+                    },
+                    %{
+                      "id" => %{"id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4017"},
+                      "internal_resource" => "FileMetadata",
+                      "mime_type" => ["image/tiff"],
+                      "use" => [%{"@id" => "http://pcdm.org/use#ServiceFile"}]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          data: %{
+            "id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
+            "internal_resource" => "EphemeraFolder",
+            "metadata" => %{
+              "member_ids" => [%{"id" => "1"}, %{"id" => "2"}],
+              "title" => ["test title 4"],
+              "thumbnail_id" => [%{"id" => "1"}]
+            }
+          }
+        })
+
+      doc = HydrationCacheEntry.to_solr_document(entry)
+
+      assert doc[:image_canvas_ids_ss] == [
+               "https://figgy.princeton.edu/concern/ephemera_folders/0cff895a-01ea-4895-9c3d-a8c6eaab4013/manifest/canvas/1"
+             ]
+    end
+
     test "transforms related member image service urls" do
       # Add FileMetadata with both a JP2/Pyramidal derivative, to ensure it
       # picks the pyramidal
