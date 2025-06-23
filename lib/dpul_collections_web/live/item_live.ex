@@ -13,7 +13,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def handle_params(params = %{"id" => id}, uri, socket) do
     item = Solr.find_by_id(id) |> Item.from_solr()
     path = URI.parse(uri).path |> URI.decode()
-    socket = socket |> assign(:current_canvas_id, params["current_canvas_id"])
+    socket = socket |> assign(:current_canvas_id, params["current_canvas_id"] || "0")
     {:noreply, build_socket(socket, item, path)}
   end
 
@@ -28,6 +28,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       false ->
         push_patch(socket, to: item.viewer_url, replace: true)
 
+      # It's a page URL, let it through.
       true ->
         build_socket(socket, item, item.viewer_url)
     end
@@ -381,8 +382,6 @@ defmodule DpulCollectionsWeb.ItemLive do
          |> push_patch(to: "#{item.viewer_url}/#{current_canvas_id}", replace: true)}
     end
   end
-
-  def handle_event("changedCanvas", _, socket), do: {:noreply, socket}
 
   def primary_thumbnail(assigns) do
     ~H"""

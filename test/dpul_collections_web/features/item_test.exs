@@ -123,6 +123,12 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
     |> assert_path("/i/document1/item/1/viewer/1")
     |> click_button("figcaption", "2")
     |> assert_path("/i/document1/item/1/viewer/2")
+
+    stub_manifest(1)
+
+    conn
+    |> visit("/i/document/item/1/viewer")
+    |> assert_path("/i/document1/item/1/viewer/1")
   end
 
   def go_back(conn) do
