@@ -42,6 +42,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
       }) do
     box_metadata = extract_box_metadata(related_data)
     project_metadata = extract_project_metadata(related_data)
+    thumbnail = primary_thumbnail(metadata, related_data)
 
     %{
       id: id,
@@ -69,7 +70,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
       language_txtm: extract_term("language", metadata, related_data),
       page_count_txtm: get_in(metadata, ["page_count"]),
       pdf_url_s: extract_pdf_url(data),
-      primary_thumbnail_service_url_s: primary_thumbnail_service_url(metadata, related_data),
+      primary_thumbnail_service_url_s: extract_service_url(thumbnail),
+      # primary_thumbnail_h_w_ratio_f: primary_thumbnail_ratio(metadata, related_data),
       provenance_txtm: get_in(metadata, ["provenance"]),
       publisher_txtm: get_in(metadata, ["publisher"]),
       rights_statement_txtm: extract_rights_statement(metadata),
@@ -95,7 +97,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
 
   defp digitized_date(_data), do: nil
 
-  defp primary_thumbnail_service_url(
+  defp primary_thumbnail(
          %{"thumbnail_id" => thumbnail_id} = metadata,
          %{"resources" => resources} = related_data
        )
@@ -108,18 +110,28 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
 
     if is_nil(thumbnail_member) do
       # When thumbnail id does not correspond to a related FileSet,
-      # use the first image service url
-      image_service_urls(metadata, related_data)
-      |> Enum.at(0)
+      # remove thumbnail_id and call primary_thumbnail again to
+      # attempt to get the first member instead
+      Map.drop(metadata, ["thumbnail_id"])
+      |> primary_thumbnail(related_data)
     else
-      extract_service_url(thumbnail_member)
+      thumbnail_member
     end
   end
 
-  defp primary_thumbnail_service_url(metadata, related_data) do
-    # When the thumbnail id is not set, use first image service url
-    image_service_urls(metadata, related_data)
+  defp primary_thumbnail(
+         %{"member_ids" => member_ids},
+         %{"resources" => resources}
+       )
+       when length(member_ids) > 0 do
+    member_ids
     |> Enum.at(0)
+    |> Map.get("id")
+    |> then(fn id -> resources[id] end)
+  end
+
+  defp primary_thumbnail(_, _) do
+    nil
   end
 
   defp image_service_urls(%{"member_ids" => member_ids}, related_data) do
