@@ -1,6 +1,7 @@
 defmodule DpulCollections.Classifier do
+  import Nx.Defn
   use GenServer
-  @model "hf.co/Qwen/Qwen3-Embedding-0.6B-GGUF:Q8_0"
+  @model "janni-t/qwen3-embedding-0.6b-int8-tei-onnx"
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
@@ -8,52 +9,7 @@ defmodule DpulCollections.Classifier do
 
   @impl true
   def init(_) do
-    {:ok, tokenizer} = Tokenizers.Tokenizer.from_pretrained("janni-t/qwen3-embedding-0.6b-int8-tei-onnx")
-    tokenizer = Tokenizers.Tokenizer.set_padding(tokenizer, direction: :left) |> Tokenizers.Tokenizer.set_truncation(max_length: 8192)
-    model = Ortex.load("./models/qwen3_int8.onnx")
-    {:ok, %{client: default_client(), tokenizer: tokenizer, model: model}, {:continue, :init}}
-  end
-
-  def get_top_subjects_cosine(query) do
-    case GenServer.call(__MODULE__, {:cached_embeddings}) do
-      :not_loaded ->
-        :timer.sleep(100)
-        get_top_subjects_cosine(query)
-
-      %{subject_embeddings: subject_embeddings, genre_embeddings: genre_embeddings} ->
-        queries = [
-          get_detailed_instruct(
-            "Given a query return the subjects that most closely match the user need.",
-            query
-          ),
-          get_detailed_instruct(
-            "Given a query return the genres that most closely match the kind of material the user wants.",
-            query
-          )
-        ]
-
-        query_embedding = generate_embeddings(queries)
-      subject_dot_products = Scholar.Metrics.Distance.pairwise_cosine(query_embedding[0..0], subject_embeddings |> Nx.transpose)
-      genre_dot_products = Scholar.Metrics.Distance.pairwise_cosine(query_embedding[1..1], genre_embeddings |> Nx.transpose)
-
-        subject_results =
-          subject_dot_products[0]
-          |> Nx.to_flat_list()
-          |> Enum.zip(subjects())
-          |> Enum.sort(:asc)
-          |> Enum.take(5)
-          |> Enum.map(fn ({x, k}) -> {1 - x, k} end)
-
-        genre_results =
-          genre_dot_products[0]
-          |> Nx.to_flat_list()
-          |> Enum.zip(genres())
-          |> Enum.sort(:asc)
-          |> Enum.take(5)
-          |> Enum.map(fn ({x, k}) -> {1 - x, k} end)
-
-        %{subjects: subject_results, genres: genre_results}
-    end
+    {:ok, %{}, {:continue, :init}}
   end
 
   def get_top_subjects(query) do
@@ -74,48 +30,39 @@ defmodule DpulCollections.Classifier do
           )
         ]
 
-        query_embedding = generate_embeddings(queries)
-        subject_dot_products = Nx.dot(query_embedding[0], subject_embeddings)
-        genre_dot_products = Nx.dot(query_embedding[1], genre_embeddings)
+        query_embedding =
+          generate_embeddings(queries) |> Nx.backend_transfer(Nx.default_backend())
 
-        subject_results =
-          subject_dot_products
-          |> Nx.to_flat_list()
-          |> Enum.zip(subjects())
-          |> Enum.sort(:desc)
-          |> Enum.take(5)
-
-        genre_results =
-          genre_dot_products
-          |> Nx.to_flat_list()
-          |> Enum.zip(genres())
-          |> Enum.sort(:desc)
-          |> Enum.take(5)
-
+        subject_results = top_results(query_embedding[0..0], subject_embeddings, subjects())
+        genre_results = top_results(query_embedding[1..1], genre_embeddings, genres())
         %{subjects: subject_results, genres: genre_results}
     end
   end
 
-  def default_client() do
-    Ollama.init("http://localhost:11439/api")
+  def top_results(query_embedding, classification_embeddings, classification_labels) do
+    {values, indices} = top_k_matches(query_embedding, classification_embeddings)
+    {values, indices} = {values |> Nx.to_list(), indices |> Nx.to_list()}
+
+    Enum.zip(values, indices)
+    |> Enum.map(fn {v, idx} -> {v, classification_labels |> Enum.at(idx)} end)
+  end
+
+  defn top_k_matches(query_embedding, classification_embeddings) do
+    Scholar.Metrics.Distance.pairwise_cosine(query_embedding, classification_embeddings)
+    |> Nx.take(0)
+    |> then(&Nx.subtract(Nx.tensor(1), &1))
+    |> Nx.top_k(k: 10)
   end
 
   def generate_embeddings(inputs) do
-    %{tokenizer: tokenizer, model: model} = GenServer.call(__MODULE__, {:get_tokenizer_and_model})
-    {:ok, encodings} = Tokenizers.Tokenizer.encode_batch(tokenizer, inputs)
-
-    input_ids = for i <- encodings, do: Tokenizers.Encoding.get_ids(i)
-    input_mask = for i <- encodings, do: Tokenizers.Encoding.get_attention_mask(i)
-    inputs = {Nx.tensor(input_ids, type: :s64), Nx.tensor(input_mask, type: :s64)}
-    {embeddings} = Ortex.run(model, inputs)
-    {input_size, token_embedding_count, embedding_dimension} = Nx.shape(embeddings)
-    embeddings
-    |> Nx.backend_transfer()
-    |> Nx.slice_along_axis(token_embedding_count, 1, axis: 1)
-    |> Nx.reshape({input_size, embedding_dimension})
+    Nx.Serving.batched_run(DpulCollections.Classifier.Serving, inputs)
   end
 
-  def handle_call({:get_tokenizer_and_model}, _from, state = %{tokenizer: tokenizer, model: model}) do
+  def handle_call(
+        {:get_tokenizer_and_model},
+        _from,
+        state = %{tokenizer: tokenizer, model: model}
+      ) do
     {:reply, %{tokenizer: tokenizer, model: model}, state}
   end
 
@@ -132,16 +79,19 @@ defmodule DpulCollections.Classifier do
   end
 
   @impl true
-  def handle_continue(:init, state = %{client: client}) do
-    Task.async(fn -> {:subjects, generate_embeddings(subjects())} end)
+  def handle_continue(:init, state) do
     Task.async(fn -> {:genres, generate_embeddings(genres())} end)
+    Task.async(fn -> {:subjects, generate_embeddings(subjects())} end)
     {:noreply, state}
   end
 
   def handle_info({_ref, {:subjects, subject_embeddings}}, state) do
     state =
       state
-      |> Map.put(:subject_embeddings, Nx.transpose(subject_embeddings))
+      |> Map.put(
+        :subject_embeddings,
+        subject_embeddings |> Nx.backend_transfer(Nx.default_backend())
+      )
 
     {:noreply, state}
   end
@@ -149,7 +99,7 @@ defmodule DpulCollections.Classifier do
   def handle_info({_ref, {:genres, genre_embeddings}}, state) do
     state =
       state
-      |> Map.put(:genre_embeddings, Nx.transpose(genre_embeddings))
+      |> Map.put(:genre_embeddings, genre_embeddings |> Nx.backend_transfer(Nx.default_backend()))
 
     {:noreply, state}
   end
