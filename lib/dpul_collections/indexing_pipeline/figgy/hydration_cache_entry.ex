@@ -144,7 +144,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   defp primary_thumbnail_ratio(%{"height" => [height], "width" => [width]}) do
     {h, _} = Float.parse(height)
     {w, _} = Float.parse(width)
-    (h / w) |> Float.ceil(2)
+    (h / w) |> Float.ceil(4)
   end
 
   defp primary_thumbnail_ratio(_), do: nil

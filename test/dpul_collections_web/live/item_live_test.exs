@@ -39,6 +39,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           language_txtm: ["language"],
           page_count_txtm: ["4"],
           primary_thumbnail_service_url_s: "https://example.com/iiif/2/image2",
+          primary_thumbnail_h_w_ratio_f: 1.3256,
           provenance_txtm: ["provenance"],
           publisher_txtm: ["publisher"],
           rights_statement_txtm: ["No Known Copyright"],
@@ -170,6 +171,14 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
              |> has_element?(
                ".primary-thumbnail img[src='https://example.com/iiif/2/image2/full/!525,800/0/default.jpg']"
              )
+
+      # Large thumbnail has default width
+      assert view
+             |> has_element?(".primary-thumbnail img[width='525']")
+
+      # Large thumbnail has calculated height
+      assert view
+             |> has_element?(".primary-thumbnail img[height='696']")
 
       assert view
              |> has_element?(

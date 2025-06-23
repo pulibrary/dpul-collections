@@ -353,12 +353,12 @@ defmodule DpulCollectionsWeb.ItemLive do
     <div class="primary-thumbnail grid grid-cols-2 gap-2 content-start">
       <img
         class="col-span-2 w-full"
-        src={"#{@item.primary_thumbnail_service_url}/full/!525,800/0/default.jpg"}
+        src={"#{@item.primary_thumbnail_service_url}/full/!#{@item.primary_thumbnail_width},800/0/default.jpg"}
         alt="main image display"
         style="
           background-color: lightgray;"
-        width="525"
-        height="800"
+        width={@item.primary_thumbnail_width}
+        height={@item.primary_thumbnail_height}
       />
 
       <.primary_button id="viewer-link" class="left-arrow-box" patch={@item.viewer_url} replace>

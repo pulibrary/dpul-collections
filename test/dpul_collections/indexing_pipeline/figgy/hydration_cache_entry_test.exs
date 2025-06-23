@@ -254,7 +254,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
       assert doc[:primary_thumbnail_service_url_s] ==
                "https://iiif-cloud.princeton.edu/iiif/2/0c%2Fff%2F89%2F0cff895a01ea48959c3da8c6eaab4017%2Fintermediate_file"
 
-      assert doc[:primary_thumbnail_h_w_ratio_f] == 1.51
+      assert doc[:primary_thumbnail_h_w_ratio_f] == 1.5011
     end
 
     test "uses first image service url when thumbnail id does not point to related FileSet" do
@@ -307,7 +307,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
       assert doc[:primary_thumbnail_service_url_s] ==
                "https://iiif-cloud.princeton.edu/iiif/2/0c%2Fff%2F89%2F0cff895a01ea48959c3da8c6eaab4017%2Fintermediate_file"
 
-      assert doc[:primary_thumbnail_h_w_ratio_f] == 1.51
+      assert doc[:primary_thumbnail_h_w_ratio_f] == 1.5011
     end
 
     test "does not add a thumbnail service url when there are no image members" do
