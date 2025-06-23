@@ -65,6 +65,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
       height_txtm: get_in(metadata, ["height"]),
       holding_location_txtm: get_in(metadata, ["holding_location"]),
       iiif_manifest_url_s: iiif_manifest_url(id),
+      image_canvas_ids_ss: image_canvas_ids(id, metadata, related_data),
       image_service_urls_ss: image_service_urls(metadata, related_data),
       keywords_txtm: get_in(metadata, ["keywords"]),
       language_txtm: extract_term("language", metadata, related_data),
@@ -148,6 +149,27 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   end
 
   defp primary_thumbnail_ratio(_), do: nil
+
+  defp image_canvas_ids(id, %{"member_ids" => member_ids}, related_data) do
+    member_ids
+    |> Enum.map(&extract_canvas_id(id, &1, related_data))
+    |> Enum.filter(fn url -> url end)
+  end
+
+  defp image_canvas_ids(_, _, _), do: []
+
+  # If the file set is real, generate a canvas ID for it.
+  defp extract_canvas_id(id, %{"id" => file_set_id}, %{"resources" => resources}) do
+    case resources[file_set_id] do
+      nil ->
+        nil
+
+      _ ->
+        "https://figgy.princeton.edu/concern/ephemera_folders/#{id}/manifest/canvas/#{file_set_id}"
+    end
+  end
+
+  defp extract_canvas_id(_, _, _), do: nil
 
   defp image_service_urls(%{"member_ids" => member_ids}, related_data) do
     member_ids
@@ -339,6 +361,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
        do: true
 
   defp is_derivative(_), do: false
+
+  defp is_original(%{
+         "use" => [%{"@id" => "http://pcdm.org/use#OriginalFile"}]
+       }),
+       do: true
+
+  defp is_original(_), do: false
 
   defp file_count(%{"member_ids" => member_ids}) when is_list(member_ids) do
     member_ids |> length
