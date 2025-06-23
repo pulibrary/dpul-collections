@@ -71,7 +71,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
       page_count_txtm: get_in(metadata, ["page_count"]),
       pdf_url_s: extract_pdf_url(data),
       primary_thumbnail_service_url_s: extract_service_url(thumbnail),
-      # primary_thumbnail_h_w_ratio_f: primary_thumbnail_ratio(metadata, related_data),
+      primary_thumbnail_h_w_ratio_f: primary_thumbnail_ratio(original_file(thumbnail)),
       provenance_txtm: get_in(metadata, ["provenance"]),
       publisher_txtm: get_in(metadata, ["publisher"]),
       rights_statement_txtm: extract_rights_statement(metadata),
@@ -133,6 +133,21 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   defp primary_thumbnail(_, _) do
     nil
   end
+
+  defp original_file(%{"metadata" => %{"file_metadata" => metadata}}) do
+    metadata
+    |> Enum.find(fn m -> m["use"] == [%{"@id" => "http://pcdm.org/use#OriginalFile"}] end)
+  end
+
+  defp original_file(_), do: %{}
+
+  defp primary_thumbnail_ratio(%{"height" => [height], "width" => [width]}) do
+    {h, _} = Float.parse(height)
+    {w, _} = Float.parse(width)
+    (h / w) |> Float.ceil(2)
+  end
+
+  defp primary_thumbnail_ratio(_), do: nil
 
   defp image_service_urls(%{"member_ids" => member_ids}, related_data) do
     member_ids
