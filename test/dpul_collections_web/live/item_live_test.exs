@@ -169,16 +169,16 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       # Large thumbnail renders using thumbnail service url
       assert view
              |> has_element?(
-               ".primary-thumbnail img[src='https://example.com/iiif/2/image2/full/!525,800/0/default.jpg']"
+               ".primary-thumbnail img[src='https://example.com/iiif/2/image2/full/!453,600/0/default.jpg']"
              )
 
       # Large thumbnail has default width
       assert view
-             |> has_element?(".primary-thumbnail img[width='525']")
+             |> has_element?(".primary-thumbnail img[width='453']")
 
       # Large thumbnail has calculated height
       assert view
-             |> has_element?(".primary-thumbnail img[height='696']")
+             |> has_element?(".primary-thumbnail img[height='600']")
 
       assert view
              |> has_element?(

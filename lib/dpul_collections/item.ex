@@ -168,7 +168,7 @@ defmodule DpulCollections.Item do
   end
 
   defp primary_thumbnail_dimensions(doc) do
-    width = 525
+    width = 453
     ratio = doc["primary_thumbnail_h_w_ratio_f"]
 
     height =
