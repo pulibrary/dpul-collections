@@ -13,12 +13,14 @@ defmodule DpulCollectionsWeb.ItemLive do
   def handle_params(params = %{"id" => id}, uri, socket) do
     item = Solr.find_by_id(id) |> Item.from_solr()
     path = URI.parse(uri).path |> URI.decode()
+    # Initialize current_canvas_id to be 0 if it's not set. 0 is a filler value
+    # for "no canvas selected"
     socket = socket |> assign(:current_canvas_id, params["current_canvas_id"] || "0")
     {:noreply, build_socket(socket, item, path)}
   end
 
   # Redirect to the slug-ified path if we don't have it.
-  defp build_socket(socket, item, path)
+  defp build_socket(socket, item = %{}, path)
        when item.url != path do
     case String.starts_with?(path, item.url) do
       # We're at a sub-path, it's fine.
@@ -353,11 +355,12 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def handle_event(
         "changedCanvas",
-        canvas_id,
+        %{"canvas_id" => canvas_id},
         socket = %{
           assigns: %{
             current_canvas_id: current_canvas_id,
-            item: item = %{image_canvas_ids: canvas_ids}
+            item: item = %{image_canvas_ids: canvas_ids},
+            live_action: :viewer
           }
         }
       )
@@ -377,6 +380,9 @@ defmodule DpulCollectionsWeb.ItemLive do
          |> push_patch(to: "#{item.viewer_url}/#{current_canvas_id}", replace: true)}
     end
   end
+
+  # If we're not in the viewer, ignore this event.
+  def handle_event("changedCanvas", _, socket), do: {:noreply, socket}
 
   def primary_thumbnail(assigns) do
     ~H"""

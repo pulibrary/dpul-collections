@@ -120,6 +120,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
     |> click_button("figcaption", "2")
     |> assert_path("/i/document1/item/1/viewer/2")
 
+    # It defaults to the first page Clover opens if not given one.
     conn
     |> visit("/i/document/item/1/viewer")
     |> assert_path("/i/document1/item/1/viewer/1")

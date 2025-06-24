@@ -61,6 +61,10 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
             "https://example.com/iiif/2/image1",
             "https://example.com/iiif/2/image2"
           ],
+          image_canvas_ids_ss: [
+            "https://iiif.io/api/cookbook/recipe/0001-mvm-image/canvas/p1",
+            "https://iiif.io/api/cookbook/recipe/0001-mvm-image/canvas/p2"
+          ],
           primary_thumbnail_service_url_s: "https://example.com/iiif/2/image1"
         },
         %{
@@ -238,5 +242,34 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
 
     assert ItemLive.rights_path("In Copyright - Educational Use Permitted") ==
              "in-copyright--educational-use-permitted.svg"
+  end
+
+  describe "GET /i/{:slug}/item/{:id}/viewer" do
+    test "changed_canvas_event doesn't do anything if not on the viewer pane", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/i/زلزلہ/item/2")
+
+      view
+      |> render_hook("changedCanvas", %{
+        "canvas_id" => "https://iiif.io/api/cookbook/recipe/0001-mvm-image/canvas/p2"
+      })
+
+      refute_navigation(view, :patch, "/i/زلزلہ/item/2/viewer/2")
+    end
+  end
+
+  # Copied from
+  # https://github.com/phoenixframework/phoenix_live_view/blob/v1.0.17/lib/phoenix_live_view/test/live_view_test.ex#L1478C1-L1492C6
+  # because we don't have a refute_patched. Remove when
+  # https://github.com/phoenixframework/phoenix_live_view/issues/3863 is closed.
+  defp refute_navigation(view = %{proxy: {ref, topic, _}}, kind, to) do
+    receive do
+      {^ref, {^kind, ^topic, %{to: new_to}}} when new_to == to or to == nil ->
+        message =
+          "expected #{inspect(view.module)} not to #{kind} to #{inspect(to)}, "
+
+        raise ArgumentError, message <> "but got a #{kind} to #{inspect(new_to)}"
+    after
+      0 -> :ok
+    end
   end
 end
