@@ -28,6 +28,8 @@ defmodule DpulCollections.Item do
     :language,
     :page_count,
     :primary_thumbnail_service_url,
+    :primary_thumbnail_width,
+    :primary_thumbnail_height,
     :project,
     :provenance,
     :publisher,
@@ -107,6 +109,7 @@ defmodule DpulCollections.Item do
     slug = doc["slug_s"]
     id = doc["id"]
     title = doc["title_ss"] |> Enum.at(0)
+    {primary_thumbnail_width, primary_thumbnail_height} = primary_thumbnail_dimensions(doc)
 
     %__MODULE__{
       id: id,
@@ -134,6 +137,8 @@ defmodule DpulCollections.Item do
       language: doc["language_txtm"] || [],
       page_count: doc["page_count_txtm"] || [],
       primary_thumbnail_service_url: doc["primary_thumbnail_service_url_s"],
+      primary_thumbnail_width: primary_thumbnail_width,
+      primary_thumbnail_height: primary_thumbnail_height,
       project: doc["ephemera_project_title_s"],
       provenance: doc["provenance_txtm"] || [],
       publisher: doc["publisher_txtm"] || [],
@@ -160,5 +165,18 @@ defmodule DpulCollections.Item do
 
   defp generate_viewer_url(id, slug) do
     "/i/#{slug}/item/#{id}/viewer"
+  end
+
+  defp primary_thumbnail_dimensions(doc) do
+    width = 453
+    ratio = doc["primary_thumbnail_h_w_ratio_f"]
+
+    height =
+      case ratio do
+        nil -> 800
+        _ -> (width * ratio) |> round
+      end
+
+    {width, height}
   end
 end

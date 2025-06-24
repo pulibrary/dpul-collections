@@ -222,7 +222,17 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
                       "id" => %{"id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4017"},
                       "internal_resource" => "FileMetadata",
                       "mime_type" => ["image/tiff"],
+                      "height" => ["10937"],
+                      "width" => ["7286"],
                       "use" => [%{"@id" => "http://pcdm.org/use#ServiceFile"}]
+                    },
+                    %{
+                      "id" => %{"id" => "0cff895a-01ea-4895-9c3d-a8c6eaab1111"},
+                      "internal_resource" => "FileMetadata",
+                      "mime_type" => ["image/tiff"],
+                      "height" => ["10937"],
+                      "width" => ["7286"],
+                      "use" => [%{"@id" => "http://pcdm.org/use#OriginalFile"}]
                     }
                   ]
                 }
@@ -243,6 +253,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
       assert doc[:primary_thumbnail_service_url_s] ==
                "https://iiif-cloud.princeton.edu/iiif/2/0c%2Fff%2F89%2F0cff895a01ea48959c3da8c6eaab4017%2Fintermediate_file"
+
+      assert doc[:primary_thumbnail_h_w_ratio_f] == 1.5011
     end
 
     test "uses first image service url when thumbnail id does not point to related FileSet" do
@@ -256,6 +268,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
               "1" => %{
                 "internal_resource" => "FileSet",
                 "id" => "9ad621a7b-01ea-4895-9c3d-a8c6eaab4013",
+                "height" => ["10937"],
+                "width" => ["7286"],
                 "metadata" => %{
                   "file_metadata" => [
                     %{
@@ -263,6 +277,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
                       "internal_resource" => "FileMetadata",
                       "mime_type" => ["image/tiff"],
                       "use" => [%{"@id" => "http://pcdm.org/use#ServiceFile"}]
+                    },
+                    %{
+                      "id" => %{"id" => "0cff895a-01ea-4895-9c3d-a8c6eaab1111"},
+                      "internal_resource" => "FileMetadata",
+                      "mime_type" => ["image/tiff"],
+                      "height" => ["10937"],
+                      "width" => ["7286"],
+                      "use" => [%{"@id" => "http://pcdm.org/use#OriginalFile"}]
                     }
                   ]
                 }
@@ -284,6 +306,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
       assert doc[:primary_thumbnail_service_url_s] ==
                "https://iiif-cloud.princeton.edu/iiif/2/0c%2Fff%2F89%2F0cff895a01ea48959c3da8c6eaab4017%2Fintermediate_file"
+
+      assert doc[:primary_thumbnail_h_w_ratio_f] == 1.5011
     end
 
     test "does not add a thumbnail service url when there are no image members" do
@@ -308,6 +332,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
       doc = HydrationCacheEntry.to_solr_document(entry)
 
       assert doc[:primary_thumbnail_service_url_s] == nil
+      assert doc[:primary_thumbnail_h_w_ratio_f] == nil
     end
 
     test "can handle when members do not have the correct file metadata type" do
