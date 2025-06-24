@@ -1,5 +1,5 @@
 defmodule SolrTestSupport do
-  def mock_solr_documents(count \\ 100, embed_manifest \\ false) do
+  def mock_solr_documents(count \\ 100, embed_manifest \\ false, sham \\ nil) do
     for n <- 1..count do
       date = 2025 - n
 
@@ -28,8 +28,12 @@ defmodule SolrTestSupport do
 
           # Content state encode a simple IIIF manifest.
           true ->
-            TestServer.start()
-            "#{TestServer.url()}/manifest/#{n}/manifest"
+            url = "http://localhost:#{sham.port}/manifest/#{n}/manifest"
+
+            sham
+            |> Sham.stub("GET", "/manifest/#{n}/manifest", &manifest_response(&1, url))
+
+            url
         end
 
       %{
@@ -58,11 +62,6 @@ defmodule SolrTestSupport do
           DateTime.utc_now() |> DateTime.add(-100 + 1 * n, :day) |> DateTime.to_iso8601()
       }
     end
-  end
-
-  def stub_manifest(n) do
-    url = "#{TestServer.url()}/manifest/#{n}/manifest"
-    TestServer.add("/manifest/#{n}/manifest", via: :get, to: &manifest_response(&1, url))
   end
 
   def manifest_response(conn, url) do
