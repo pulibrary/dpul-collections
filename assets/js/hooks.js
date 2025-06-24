@@ -76,7 +76,7 @@ Hooks.ShowPageCount = {
     // Add event listener to call on resize (debounce for performance)
     let resizeTimeout
     this.boundResizeListener = () => {
-      clearTimeout(resizeTimeout);
+      clearTimeout(resizeTimeout)
       resizeTimeout = setTimeout(() => {
         this.handleResize()
       }, 200);

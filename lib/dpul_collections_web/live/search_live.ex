@@ -202,7 +202,6 @@ defmodule DpulCollectionsWeb.SearchLive do
           thumb_num={thumb_num}
         />
         <div
-          :if={@item.file_count > 1}
           id={"filecount-#{@item.id}"}
           class="hidden absolute right-0 top-0 bg-white px-4 py-2"
         >
