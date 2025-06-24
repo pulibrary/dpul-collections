@@ -268,6 +268,12 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
                | _rest
              ] = document["image_service_urls_ss"]
 
+      # Image Canvas IDs
+      assert [
+               "https://figgy.princeton.edu/concern/ephemera_folders/26713a31-d615-49fd-adfc-93770b4f66b3/manifest/canvas/f60ce0c9-57fc-4820-b70d-49d1f2b248f9"
+               | _rest
+             ] = document["image_canvas_ids_ss"]
+
       assert "https://iiif-cloud.princeton.edu/iiif/2/76%2F5e%2F4c%2F765e4c0ada4a468bad46cbbebec4242b%2Fintermediate_file" =
                document["primary_thumbnail_service_url_s"]
 

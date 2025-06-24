@@ -10,25 +10,30 @@ defmodule DpulCollectionsWeb.ItemLive do
     {:ok, socket, layout: {DpulCollectionsWeb.Layouts, :home}}
   end
 
-  def handle_params(%{"id" => id}, uri, socket) do
+  def handle_params(params = %{"id" => id}, uri, socket) do
     item = Solr.find_by_id(id) |> Item.from_solr()
     path = URI.parse(uri).path |> URI.decode()
+    # Initialize current_canvas_idx to be 0 if it's not set. 0 is a filler value
+    # for "no canvas selected"
+    socket = socket |> assign(:current_canvas_idx, params["current_canvas_idx"] || "0")
     {:noreply, build_socket(socket, item, path)}
   end
 
-  defp build_socket(socket = %{assigns: %{live_action: :metadata}}, item, path)
-       when item.metadata_url != path do
-    push_patch(socket, to: item.metadata_url, replace: true)
-  end
-
-  defp build_socket(socket = %{assigns: %{live_action: :viewer}}, item, path)
-       when item.viewer_url != path do
-    push_patch(socket, to: item.viewer_url, replace: true)
-  end
-
-  defp build_socket(socket = %{assigns: %{live_action: :live}}, item, path)
+  # Redirect to the slug-ified path if we don't have it.
+  defp build_socket(socket, item = %{}, path)
        when item.url != path do
-    push_patch(socket, to: item.url, replace: true)
+    case String.starts_with?(path, item.url) do
+      # We're at a sub-path, it's fine.
+      true ->
+        build_socket(socket, item, item.url)
+
+      false ->
+        # Replace `/item/:id` with `/i/:slug/item/:id`
+        # This is regex because we should redirect if someone passed the wrong
+        # slug.
+        url = String.replace(path, ~r/.*\/item\/#{item.id}/, item.url)
+        push_patch(socket, to: url, replace: true)
+    end
   end
 
   defp build_socket(_, nil, _) do
@@ -348,6 +353,39 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
+  def handle_event(
+        "changedCanvas",
+        %{"canvas_id" => canvas_id},
+        socket = %{
+          assigns: %{
+            current_canvas_idx: current_canvas_idx,
+            item: item = %{image_canvas_ids: canvas_ids},
+            live_action: :viewer
+          }
+        }
+      )
+      when not is_nil(current_canvas_idx) do
+    idx = Enum.find_index(canvas_ids, fn x -> x == canvas_id end) || 0
+
+    case idx + 1 == String.to_integer(current_canvas_idx) do
+      # We're already on the correct page, don't do anything.
+      true ->
+        {:noreply, socket}
+
+      # Update the URL to include the canvas number.
+      false ->
+        current_canvas_idx = idx + 1
+
+        {:noreply,
+         socket
+         |> assign(current_canvas_idx: idx + 1)
+         |> push_patch(to: "#{item.viewer_url}/#{current_canvas_idx}", replace: true)}
+    end
+  end
+
+  # If we're not in the viewer, ignore this event.
+  def handle_event("changedCanvas", _, socket), do: {:noreply, socket}
+
   def primary_thumbnail(assigns) do
     ~H"""
     <div class="primary-thumbnail grid grid-cols-2 gap-2 content-start">
@@ -361,7 +399,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         height={@item.primary_thumbnail_height}
       />
 
-      <.primary_button id="viewer-link" class="left-arrow-box" patch={@item.viewer_url} replace>
+      <.primary_button id="viewer-link" class="left-arrow-box" patch={"#{@item.viewer_url}/1"} replace>
         <.icon name="hero-eye" /> {gettext("View")}
       </.primary_button>
 

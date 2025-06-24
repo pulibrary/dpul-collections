@@ -33,6 +33,7 @@ defmodule DpulCollectionsWeb.Router do
     live "/i/:slug/item/:id/metadata", ItemLive, :metadata
     live "/item/:id/metadata", ItemLive, :metadata
     live "/i/:slug/item/:id/viewer", ItemLive, :viewer
+    live "/i/:slug/item/:id/viewer/:current_canvas_idx", ItemLive, :viewer
     live "/item/:id/viewer", ItemLive, :viewer
   end
 

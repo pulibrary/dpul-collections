@@ -6,9 +6,11 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
   alias DpulCollections.Solr
 
   setup do
-    Solr.add(SolrTestSupport.mock_solr_documents(1), active_collection())
+    sham = Sham.start()
+    Solr.add(SolrTestSupport.mock_solr_documents(1, true, sham), active_collection())
     Solr.commit(active_collection())
     on_exit(fn -> Solr.delete_all(active_collection()) end)
+    {:ok, sham: sham}
   end
 
   # Playwright has no clipboard permission, so just stub it out to prevent an
@@ -39,11 +41,11 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
       |> assert_has("#share-modal button", text: "Copy")
     end
 
-    test "item metdata pane can copy manifest url", %{conn: conn} do
+    test "item metdata pane can copy manifest url", %{conn: conn, sham: sham} do
       conn
       |> visit("/i/document1/item/1/metadata")
       |> stub_clipboard
-      |> assert_has("#iiif-url", text: "https://example.com/1/manifest")
+      |> assert_has("#iiif-url", text: "http://localhost:#{sham.port}/manifest/1/manifest")
       |> click_button("Copy")
       |> assert_has("button#iiif-url-copy", text: "Copied")
     end
@@ -81,7 +83,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
     conn
     |> visit("/i/document1/item/1")
     |> click_link("#viewer-link", "View")
-    |> assert_path("/i/document1/item/1/viewer")
+    |> assert_path("/i/document1/item/1/viewer/1")
     |> click_link("close")
     |> assert_path("/i/document1/item/1")
   end
@@ -103,11 +105,25 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
     |> visit("/search")
     |> click_link("Document-1")
     |> click_link("#viewer-link", "View")
-    |> assert_path("/i/document1/item/1/viewer")
+    |> assert_path("/i/document1/item/1/viewer/1")
     |> click_link("close")
     |> assert_path("/i/document1/item/1")
     |> go_back
     |> assert_path("/search")
+  end
+
+  test "the viewer pane changes the URL when clicking a new item", %{conn: conn} do
+    conn
+    |> visit("/item/1")
+    |> click_link("#viewer-link", "View")
+    |> assert_path("/i/document1/item/1/viewer/1")
+    |> click_button("figcaption", "2")
+    |> assert_path("/i/document1/item/1/viewer/2")
+
+    # It defaults to the first page Clover opens if not given one.
+    conn
+    |> visit("/i/document/item/1/viewer")
+    |> assert_path("/i/document1/item/1/viewer/1")
   end
 
   def go_back(conn) do
