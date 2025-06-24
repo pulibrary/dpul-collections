@@ -137,6 +137,7 @@ defmodule DpulCollectionsWeb.ItemLive do
                 :if={@item.file_count}
                 thumb={thumb}
                 thumb_num={thumb_num}
+                viewer_url={@item.viewer_url}
               />
             </div>
           </section>
@@ -554,13 +555,15 @@ defmodule DpulCollectionsWeb.ItemLive do
   def thumbs(assigns) do
     ~H"""
     <div class="pr-2 pb-2">
-      <img
-        class="h-full w-full object-cover"
-        src={"#{@thumb}/full/350,465/0/default.jpg"}
-        alt={"image #{@thumb_num}"}
-        style="
-          background-color: lightgray;"
-      />
+      <a href={"#{@viewer_url}/#{@thumb_num}"}>
+        <img
+          class="h-full w-full object-cover"
+          src={"#{@thumb}/full/350,465/0/default.jpg"}
+          alt={"image #{@thumb_num}"}
+          style="
+            background-color: lightgray;"
+        />
+      </a>
     </div>
     """
   end
