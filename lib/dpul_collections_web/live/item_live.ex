@@ -17,26 +17,21 @@ defmodule DpulCollectionsWeb.ItemLive do
     {:noreply, build_socket(socket, item, path)}
   end
 
-  defp build_socket(socket = %{assigns: %{live_action: :metadata}}, item, path)
-       when item.metadata_url != path do
-    push_patch(socket, to: item.metadata_url, replace: true)
-  end
-
-  defp build_socket(socket = %{assigns: %{live_action: :viewer}}, item, path)
-       when item.viewer_url != path do
-    case String.starts_with?(path, item.viewer_url) do
-      false ->
-        push_patch(socket, to: item.viewer_url, replace: true)
-
-      # It's a page URL, let it through.
-      true ->
-        build_socket(socket, item, item.viewer_url)
-    end
-  end
-
-  defp build_socket(socket = %{assigns: %{live_action: :live}}, item, path)
+  # Redirect to the slug-ified path if we don't have it.
+  defp build_socket(socket, item, path)
        when item.url != path do
-    push_patch(socket, to: item.url, replace: true)
+    case String.starts_with?(path, item.url) do
+      # We're at a sub-path, it's fine.
+      true ->
+        build_socket(socket, item, item.url)
+
+      false ->
+        # Replace `/item/:id` with `/i/:slug/item/:id`
+        # This is regex because we should redirect if someone passed the wrong
+        # slug.
+        url = String.replace(path, ~r/.*\/item\/#{item.id}/, item.url)
+        push_patch(socket, to: url, replace: true)
+    end
   end
 
   defp build_socket(_, nil, _) do
