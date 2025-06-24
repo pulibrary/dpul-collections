@@ -362,13 +362,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
 
   defp is_derivative(_), do: false
 
-  defp is_original(%{
-         "use" => [%{"@id" => "http://pcdm.org/use#OriginalFile"}]
-       }),
-       do: true
-
-  defp is_original(_), do: false
-
   defp file_count(%{"member_ids" => member_ids}) when is_list(member_ids) do
     member_ids |> length
   end
