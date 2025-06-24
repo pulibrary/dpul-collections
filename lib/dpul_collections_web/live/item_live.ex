@@ -352,7 +352,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div class="primary-thumbnail grid grid-cols-2 gap-2 content-start">
       <img
-        class="col-span-2 w-full h-auto"
+        class="col-span-2 h-full w-auto"
         src={"#{@item.primary_thumbnail_service_url}/full/!#{@item.primary_thumbnail_width},#{@item.primary_thumbnail_height}/0/default.jpg"}
         alt="main image display"
         style="
