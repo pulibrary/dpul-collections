@@ -206,17 +206,13 @@
   @apply hover:underline hover:underline-offset-8 hover:decoration-accent hover:decoration-2;
 }
 
+@utility filter-link {
+  @apply text-accent font-semibold;
+}
+
 @layer base {
   a {
     @apply hover:link-hover cursor-pointer;
-  }
-
-  .item-page a {
-    @apply text-accent font-semibold;
-  }
-
-  .item-page button a {
-    @apply text-dark-text hover:no-underline;
   }
 
   h1 {

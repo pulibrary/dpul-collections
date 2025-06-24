@@ -63,6 +63,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def filter_link(assigns = %{filter_name: filter_name}) when filter_name in @filter_keys do
     ~H"""
     <.link
+      class="filter-link"
       href={~p"/search?#{%{filter: %{@filter_name => @filter_value}} |> Helpers.clean_params()}"}
       {@rest}
     >
@@ -545,7 +546,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         {@field_label}
       </dt>
       <dd :for={value <- @value} class="col-start-2 py-1">
-        {value}
+        <.filter_link filter_value={value} filter_name={"#{@field}"} />
       </dd>
     </div>
     """
