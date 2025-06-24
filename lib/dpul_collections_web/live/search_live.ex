@@ -201,10 +201,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           thumb={thumb}
           thumb_num={thumb_num}
         />
-        <div
-          id={"filecount-#{@item.id}"}
-          class="hidden absolute right-0 top-0 bg-white px-4 py-2"
-        >
+        <div id={"filecount-#{@item.id}"} class="hidden absolute right-0 top-0 bg-white px-4 py-2">
           {@item.file_count} {gettext("Images")}
         </div>
       </div>
