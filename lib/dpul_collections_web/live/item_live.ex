@@ -15,7 +15,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     path = URI.parse(uri).path |> URI.decode()
     # Initialize current_canvas_idx to be 0 if it's not set. 0 is a filler value
     # for "no canvas selected"
-    current_canvas_idx = (params["current_canvas_idx"]  || "0") |> String.to_integer()
+    current_canvas_idx = (params["current_canvas_idx"] || "0") |> String.to_integer()
     current_content_state_url = content_state_url(uri, item, current_canvas_idx)
 
     socket =
@@ -155,6 +155,7 @@ defmodule DpulCollectionsWeb.ItemLive do
                 :if={@item.file_count}
                 thumb={thumb}
                 thumb_num={thumb_num}
+                viewer_url={@item.viewer_url}
               />
             </div>
           </section>
@@ -611,13 +612,15 @@ defmodule DpulCollectionsWeb.ItemLive do
   def thumbs(assigns) do
     ~H"""
     <div class="pr-2 pb-2">
-      <img
-        class="h-full w-full object-cover"
-        src={"#{@thumb}/full/350,465/0/default.jpg"}
-        alt={"image #{@thumb_num}"}
-        style="
-          background-color: lightgray;"
-      />
+      <a href={"#{@viewer_url}/#{@thumb_num + 1}"}>
+        <img
+          class="h-full w-full object-cover"
+          src={"#{@thumb}/full/350,465/0/default.jpg"}
+          alt={"image #{@thumb_num}"}
+          style="
+            background-color: lightgray;"
+        />
+      </a>
     </div>
     """
   end
