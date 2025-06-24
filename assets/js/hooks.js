@@ -28,4 +28,69 @@ Hooks.ScrollTop = {
   }
 }
 
+Hooks.ShowPageCount = {
+  mounted() {
+    function showPageCount(container, totalFiles) {
+      const allImages = container.querySelectorAll('img')
+      let hiddenCount = 0
+      let containerFileCount = 0
+
+      allImages.forEach(el => {
+        containerFileCount++
+        if (isElementHiddenByOverflow(el, container)) {
+          hiddenCount++
+        }
+      })
+
+      if ((totalFiles == containerFileCount && hiddenCount == 0)) {
+        return false
+      } 
+      return true
+    }
+
+    function isElementHiddenByOverflow(element, container) {
+      const elementRect = element.getBoundingClientRect()
+      const containerRect = container.getBoundingClientRect()
+      // Check if the element is outside the container boundaries
+      // There is a 92 px offset to account for
+      return (
+        elementRect.top >= containerRect.bottom - 92
+      )
+    }
+
+    // Get Elements
+    let elID = this.el.getAttribute("data-id")
+    let elFilecount = this.el.getAttribute("data-filecount")
+    let fileCountLabelEl = window.document.getElementById('filecount-'+elID)
+    let containerEl = window.document.getElementById('item-'+elID)
+
+    // Handle Resize
+    this.handleResize = () => {
+      if(showPageCount(containerEl, elFilecount) && fileCountLabelEl !== null){
+        fileCountLabelEl.style.display = "block"
+      } else {
+        fileCountLabelEl.style.display = "none"
+      }
+    }
+
+    // Add event listener to call on resize (debounce for performance)
+    let resizeTimeout
+    this.boundResizeListener = () => {
+      clearTimeout(resizeTimeout)
+      resizeTimeout = setTimeout(() => {
+        this.handleResize()
+      }, 200);
+    };
+    window.addEventListener("resize", this.boundResizeListener);
+
+    // Call on initial mount
+    this.handleResize()
+  },
+
+  destroyed() {
+    // Clean up the event listener when the hook is destroyed
+    window.removeEventListener("resize", this.handleResize)
+  }
+}
+
 export default Hooks;
