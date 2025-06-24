@@ -13,9 +13,9 @@ defmodule DpulCollectionsWeb.ItemLive do
   def handle_params(params = %{"id" => id}, uri, socket) do
     item = Solr.find_by_id(id) |> Item.from_solr()
     path = URI.parse(uri).path |> URI.decode()
-    # Initialize current_canvas_id to be 0 if it's not set. 0 is a filler value
+    # Initialize current_canvas_idx to be 0 if it's not set. 0 is a filler value
     # for "no canvas selected"
-    socket = socket |> assign(:current_canvas_id, params["current_canvas_id"] || "0")
+    socket = socket |> assign(:current_canvas_idx, params["current_canvas_idx"] || "0")
     {:noreply, build_socket(socket, item, path)}
   end
 
@@ -358,26 +358,28 @@ defmodule DpulCollectionsWeb.ItemLive do
         %{"canvas_id" => canvas_id},
         socket = %{
           assigns: %{
-            current_canvas_id: current_canvas_id,
+            current_canvas_idx: current_canvas_idx,
             item: item = %{image_canvas_ids: canvas_ids},
             live_action: :viewer
           }
         }
       )
-      when not is_nil(current_canvas_id) do
+      when not is_nil(current_canvas_idx) do
     idx = Enum.find_index(canvas_ids, fn x -> x == canvas_id end) || 0
 
-    case idx + 1 == String.to_integer(current_canvas_id) do
+    case idx + 1 == String.to_integer(current_canvas_idx) do
+      # We're already on the correct page, don't do anything.
       true ->
         {:noreply, socket}
 
+      # Update the URL to include the canvas number.
       false ->
-        current_canvas_id = idx + 1
+        current_canvas_idx = idx + 1
 
         {:noreply,
          socket
-         |> assign(current_canvas_id: idx + 1)
-         |> push_patch(to: "#{item.viewer_url}/#{current_canvas_id}", replace: true)}
+         |> assign(current_canvas_idx: idx + 1)
+         |> push_patch(to: "#{item.viewer_url}/#{current_canvas_idx}", replace: true)}
     end
   end
 
