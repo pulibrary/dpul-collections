@@ -91,8 +91,6 @@ defmodule DpulCollections.MixProject do
       {:phoenix_live_react, "~> 0.6"},
       {:sham, "~> 1.0", only: :test},
       {:scholar, "~> 0.3.0"},
-      {:ortex, github: "elixir-nx/ortex"},
-      {:tokenizers, github: "elixir-nx/tokenizers"},
       {:exla, ">= 0.0.0"},
       {:rustler, "~> 0.36.2"}
     ]
@@ -108,7 +106,6 @@ defmodule DpulCollections.MixProject do
     [
       setup: [
         "deps.get",
-        "model.download",
         "ecto.setup",
         "assets.setup",
         "assets.build",

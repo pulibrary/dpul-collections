@@ -72,9 +72,6 @@ COPY lib lib
 
 COPY assets assets
 
-# Download models
-RUN mix model.download
-
 # compile assets
 RUN mix assets.deploy
 

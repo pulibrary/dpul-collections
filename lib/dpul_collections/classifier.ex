@@ -54,7 +54,7 @@ defmodule DpulCollections.Classifier do
   end
 
   def generate_embeddings(inputs) do
-    Nx.Serving.batched_run(DpulCollections.Classifier.Serving, inputs)
+    EmbedAnything.embed_text(inputs) |> Nx.tensor()
   end
 
   def handle_call(
