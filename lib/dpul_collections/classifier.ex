@@ -1,7 +1,6 @@
 defmodule DpulCollections.Classifier do
   import Nx.Defn
   use GenServer
-  @model "janni-t/qwen3-embedding-0.6b-int8-tei-onnx"
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
@@ -80,8 +79,20 @@ defmodule DpulCollections.Classifier do
 
   @impl true
   def handle_continue(:init, state) do
-    Task.async(fn -> {:genres, generate_embeddings(genres())} end)
-    Task.async(fn -> {:subjects, generate_embeddings(subjects())} end)
+    subjects =
+      subjects()
+      |> Enum.map(
+        &get_detailed_instruct("This is a possible subject for a resource in a library.", &1)
+      )
+
+    genres =
+      genres()
+      |> Enum.map(
+        &get_detailed_instruct("This is a possible genre for a resource in a library.", &1)
+      )
+
+    Task.async(fn -> {:genres, generate_embeddings(genres)} end)
+    Task.async(fn -> {:subjects, generate_embeddings(subjects)} end)
     {:noreply, state}
   end
 

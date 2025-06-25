@@ -107,6 +107,7 @@ defmodule DpulCollections.MixProject do
     [
       setup: [
         "deps.get",
+        "model.download",
         "ecto.setup",
         "assets.setup",
         "assets.build",

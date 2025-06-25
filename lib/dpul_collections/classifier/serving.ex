@@ -1,12 +1,22 @@
 defmodule DpulCollections.Classifier.Serving do
-  @model "janni-t/qwen3-embedding-0.6b-int8-tei-onnx"
+  def model(), do: "janni-t/qwen3-embedding-0.6b-int8-tei-onnx"
+  def model_revision(), do: "8fe0c238c7c48016d28e750413ca492024be3ddf"
+
+  def model_path() do
+    "#{:code.priv_dir(:dpul_collections)}/models/#{model()}/#{model_revision()}/model.onnx"
+  end
+
+  def tokenizer_path() do
+    "#{:code.priv_dir(:dpul_collections)}/models/#{model()}/#{model_revision()}/tokenizer.json"
+  end
+
   @padding_groups [8, 16, 32, 64, 128, 256, 512]
 
   def serving() do
-    model = Ortex.load("./models/qwen3_int8.onnx")
+    model = Ortex.load(model_path())
 
     {:ok, tokenizer} =
-      Tokenizers.Tokenizer.from_pretrained("janni-t/qwen3-embedding-0.6b-int8-tei-onnx")
+      Tokenizers.Tokenizer.from_file(tokenizer_path())
 
     tokenizer =
       Tokenizers.Tokenizer.set_padding(tokenizer, direction: :left)
@@ -20,9 +30,14 @@ defmodule DpulCollections.Classifier.Serving do
   def last_token_pooling({{embeddings}, _meta}, client_info) do
     {input_size, token_embedding_count, embedding_dimension} = Nx.shape(embeddings)
 
+    input_mask_expanded = Nx.new_axis(client_info.attention_mask, -1)
+
     embeddings
+    |> Nx.backend_transfer(Nx.default_backend())
+    |> Nx.multiply(input_mask_expanded)
     |> Nx.slice_along_axis(token_embedding_count, 1, axis: 1)
-    |> Nx.reshape({input_size, embedding_dimension})
+    |> Nx.sum(axes: [1])
+    |> Nx.divide(Nx.sum(input_mask_expanded, axes: [1]))
   end
 
   def build_embedding_inputs(inputs, tokenizer) do
@@ -45,6 +60,6 @@ defmodule DpulCollections.Classifier.Serving do
       |> Nx.Batch.stack()
       |> Nx.Batch.key(padding_size)
 
-    {inputs, %{}}
+    {inputs, %{attention_mask: Nx.tensor(input_mask)}}
   end
 end
