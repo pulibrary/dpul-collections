@@ -93,7 +93,8 @@ defmodule DpulCollections.MixProject do
       {:scholar, "~> 0.3.0"},
       {:ortex, github: "elixir-nx/ortex"},
       {:tokenizers, github: "elixir-nx/tokenizers"},
-      {:exla, ">= 0.0.0"}
+      {:exla, ">= 0.0.0"},
+      {:rustler, "~> 0.36.2"}
     ]
   end
 
