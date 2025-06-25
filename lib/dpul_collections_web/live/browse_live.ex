@@ -64,7 +64,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
     %{subjects: subjects, genres: genres} = DpulCollections.Classifier.get_top_subjects(search_query)
     subjects = Enum.filter(subjects, fn({score, label}) -> score > 0.45 end)
     genres = Enum.filter(genres, fn({score, label}) -> score > 0.45 end)
-    search_state = DpulCollectionsWeb.SearchLive.SearchState.from_params(%{"q" => "subject_txtm:(#{subjects |> Enum.map(fn ({score, x}) -> "'#{x}'" end) |> Enum.join(" OR ")}) genre_txtm:(#{genres |> Enum.map(fn ({score, x}) -> "'#{x}'" end) |> Enum.join(" OR ")})"})
+    search_state = DpulCollectionsWeb.SearchLive.SearchState.from_params(%{"per_page" => "100", "q" => "subject_txtm:(#{subjects |> weight_matches |> Enum.join(" OR ")}) genre_txtm:(#{genres |> weight_matches |> Enum.join(" OR ")})"})
     solr_response = Solr.query(search_state)
     items =
       solr_response["docs"]
@@ -73,6 +73,17 @@ defmodule DpulCollectionsWeb.BrowseLive do
       socket
       |> assign(items: items)
     {:noreply, socket}
+  end
+
+  def weight_matches(matches) do
+    Enum.map(matches, fn({score, value}) ->
+      cond do
+        score > 0.65 -> "'#{value}'^4"
+        score > 0.6 -> "'#{value}'^3"
+        score > 0.5 -> "'#{value}'^2"
+        true        -> "'#{value}'"
+      end
+    end)
   end
 
   def render(assigns) do
