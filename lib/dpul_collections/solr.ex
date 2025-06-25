@@ -35,7 +35,7 @@ defmodule DpulCollections.Solr do
       q: query_param(search_state),
       # https://solr.apache.org/docs/9_4_0/core/org/apache/solr/util/doc-files/min-should-match.html
       # If more than 6 clauses, only require 90%. Pulled from our catalog.
-      mm: "6<90%",
+      mm: "0",
       fq: filter_param(search_state),
       fl: fl,
       sort: sort_param(search_state),

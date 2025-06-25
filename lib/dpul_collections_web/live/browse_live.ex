@@ -60,10 +60,48 @@ defmodule DpulCollectionsWeb.BrowseLive do
     {:noreply, assign(socket, :show_stickytools?, false)}
   end
 
+  def handle_event("search", params = %{"q" => search_query}, socket) do
+    %{subjects: subjects, genres: genres} = DpulCollections.Classifier.get_top_subjects(search_query)
+    subjects = Enum.filter(subjects, fn({score, label}) -> score > 0.45 end)
+    genres = Enum.filter(genres, fn({score, label}) -> score > 0.45 end)
+    search_state = DpulCollectionsWeb.SearchLive.SearchState.from_params(%{"q" => "subject_txtm:(#{subjects |> Enum.map(fn ({score, x}) -> "'#{x}'" end) |> Enum.join(" OR ")}) genre_txtm:(#{genres |> Enum.map(fn ({score, x}) -> "'#{x}'" end) |> Enum.join(" OR ")})"})
+    solr_response = Solr.query(search_state)
+    items =
+      solr_response["docs"]
+      |> Enum.map(&Item.from_solr(&1))
+    socket =
+      socket
+      |> assign(items: items)
+    {:noreply, socket}
+  end
+
   def render(assigns) do
     ~H"""
     <div class="content-area">
       <.sticky_tools show_stickytools?={@show_stickytools?}>{length(@pinned_items)}</.sticky_tools>
+
+          <form id="search-form" class="w-full h-full" phx-submit="search">
+            <div class="flex items-center w-full h-full">
+              <span class="flex-none">
+                <.icon name="hero-magnifying-glass" class="h-10 w-10 icon" />
+              </span>
+              <label for="q" class="sr-only">{gettext("Search")}</label>
+              <input
+                class="m-2 p-1 grow h-full placeholder:text-dark-text/40 bg-transparent border-none placeholder:text-2xl text-2xl placeholder:font-bold w-full"
+                type="text"
+                id="q"
+                name="q"
+                placeholder={"What kind of art do you have for my spanish class?"}
+              />
+              <button
+                id="search-button"
+                type="submit"
+                class="btn-secondary px-4 h-8 invisible flex-none"
+              >
+                {gettext("Search")}
+              </button>
+            </div>
+          </form>
       <h1 class="col-span-3">{gettext("Pinned")}</h1>
       <div id="pinned-items" class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-1">
         <div class="grid grid-flow-row auto-rows-max gap-8">
