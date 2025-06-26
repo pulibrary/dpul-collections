@@ -19,21 +19,21 @@ defmodule DpulCollectionsWeb.ItemLiveMetadataTest do
           contributor_txtm: ["Bofur", "Bombur"],
           publisher_txtm: ["Elrond"],
           language_txtm: ["Common", "Elvish"],
-          display_date_s: "Durin's Day",
+          display_date_s: "Durin",
           genre_txtm: ["Paintings"],
           content_warning_txtm: ["Some people may not want to see this"],
           series_txtm: ["Lord of the Rings"],
           provenance_txtm: ["Donation of Bilbo Baggins"],
-          rights_statement_txtm: ["No Known Copyright"],
+          rights_statement_txtm: ["Copyright"],
           subject_txtm: ["Magic"],
-          geo_subject_txtm: ["Middle Earth"],
+          geo_subject_txtm: ["Mordor"],
           keywords_txtm: ["wands", "hats"],
-          geographic_origin_txtm: ["Misty Mountains"],
+          geographic_origin_txtm: ["Mountains"],
           height_txtm: ["40"],
           width_txtm: ["20"],
           page_count_txtm: ["27"],
           file_count_i: 30,
-          ephemera_project_title_s: "Nonexistent Things",
+          ephemera_project_title_s: "Things",
           box_number_txtm: ["65"],
           folder_number_txtm: ["18"],
           barcode_txtm: ["3334445556"],
@@ -53,7 +53,8 @@ defmodule DpulCollectionsWeb.ItemLiveMetadataTest do
     on_exit(fn -> Solr.delete_all(active_collection()) end)
   end
 
-  test "/item/{:id}/metadata displays all the metadata fields", %{conn: conn} do
+  test "/item/{:id}/metadata displays all the metadata fields and has links for linkable fields",
+       %{conn: conn} do
     {:ok, view, _html} = live(conn, "/i/gandalf-the-grey/item/1/metadata")
 
     assert view |> has_element?("h1", "Metadata")
@@ -70,18 +71,24 @@ defmodule DpulCollectionsWeb.ItemLiveMetadataTest do
     assert view |> has_element?("dd", "gandalf the grey")
     assert view |> has_element?("dt", "Creator of work")
     assert view |> has_element?("dd", "Bifur")
+    assert view |> has_element?("a[href='/search?filter[creator]=Bifur']")
     assert view |> has_element?("dt", "Contributor")
+    assert view |> has_element?("a[href='/search?filter[contributor]=Bombur']")
     assert view |> has_element?("dd", "Bofur")
     assert view |> has_element?("dd", "Bombur")
     assert view |> has_element?("dt", "Publisher")
     assert view |> has_element?("dd", "Elrond")
+    assert view |> has_element?("a[href='/search?filter[publisher]=Elrond']")
     assert view |> has_element?("dt", "Language")
     assert view |> has_element?("dd", "Common")
+    assert view |> has_element?("a[href='/search?filter[language]=Common']")
     assert view |> has_element?("dd", "Elvish")
     assert view |> has_element?("dt", "Date Created")
-    assert view |> has_element?("dd", "Durin's Day")
+    assert view |> has_element?("dd", "Durin")
+    assert view |> has_element?("a[href='/search?filter[date]=Durin']")
     assert view |> has_element?("dt", "Genre")
     assert view |> has_element?("dd", "Paintings")
+    assert view |> has_element?("a[href='/search?filter[genre]=Paintings']")
     assert view |> has_element?("dt", "Content Warning")
     assert view |> has_element?("dd", "Some people may not want to see this")
     assert view |> has_element?("dt", "Series")
@@ -89,16 +96,20 @@ defmodule DpulCollectionsWeb.ItemLiveMetadataTest do
     assert view |> has_element?("dt", "Provenance")
     assert view |> has_element?("dd", "Donation of Bilbo Baggins")
     assert view |> has_element?("dt", "Rights Statement")
-    assert view |> has_element?("dd", "No Known Copyright")
+    assert view |> has_element?("dd", "Copyright")
+    assert view |> has_element?("a[href='/search?filter[rights_statement]=Copyright']")
     assert view |> has_element?("dt", "Subject")
     assert view |> has_element?("dd", "Magic")
+    assert view |> has_element?("a[href='/search?filter[subject]=Magic']")
     assert view |> has_element?("dt", "Geographic Subject")
-    assert view |> has_element?("dd", "Middle Earth")
+    assert view |> has_element?("dd", "Mordor")
+    assert view |> has_element?("a[href='/search?filter[geo_subject]=Mordor']")
     assert view |> has_element?("dt", "Keywords")
     assert view |> has_element?("dd", "wands")
     assert view |> has_element?("dd", "hats")
     assert view |> has_element?("dt", "Geographic Origin")
-    assert view |> has_element?("dd", "Misty Mountains")
+    assert view |> has_element?("dd", "Mountains")
+    assert view |> has_element?("a[href='/search?filter[geographic_origin]=Mountains']")
     assert view |> has_element?("dt", "Height")
     # TODO: make it display cm
     assert view |> has_element?("dd", "40")
@@ -109,7 +120,8 @@ defmodule DpulCollectionsWeb.ItemLiveMetadataTest do
     assert view |> has_element?("dt", "File Count")
     assert view |> has_element?("dd", "30")
     assert view |> has_element?("dt", "Ephemera Project")
-    assert view |> has_element?("dd", "Nonexistent Things")
+    assert view |> has_element?("dd", "Things")
+    assert view |> has_element?("a[href='/search?filter[project]=Things']")
     assert view |> has_element?("dt", "Box number")
     assert view |> has_element?("dd", "65")
     assert view |> has_element?("dt", "Folder number")

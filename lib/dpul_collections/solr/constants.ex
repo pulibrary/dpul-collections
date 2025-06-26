@@ -29,15 +29,43 @@ defmodule DpulCollections.Solr.Constants do
       @sort_by_keys Enum.map(Map.keys(@valid_sort_by), &to_string/1)
 
       @filters %{
-        "year" => %{
-          solr_field: "years_is",
-          label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Year"),
-          value_function: &DpulCollections.Solr.Constants.date_value/1
+        "contributor" => %{
+          solr_field: "contributor_txtm",
+          label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Contributor"),
+          value_function: &Function.identity/1
+        },
+        "creator" => %{
+          solr_field: "creator_txtm",
+          label:
+            Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Creator of work"),
+          value_function: &Function.identity/1
+        },
+        "date" => %{
+          solr_field: "display_date_s",
+          label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Date Created"),
+          value_function: &Function.identity/1
         },
         "genre" => %{
           solr_field: "genre_txtm",
           label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Genre"),
           # Identity just returns whatever you gave it.
+          value_function: &Function.identity/1
+        },
+        "geo_subject" => %{
+          solr_field: "geo_subject_txtm",
+          label:
+            Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Geographic Subject"),
+          value_function: &Function.identity/1
+        },
+        "geographic_origin" => %{
+          solr_field: "geographic_origin_txtm",
+          label:
+            Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Geographic Origin"),
+          value_function: &Function.identity/1
+        },
+        "language" => %{
+          solr_field: "language_txtm",
+          label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Language"),
           value_function: &Function.identity/1
         },
         "project" => %{
@@ -47,9 +75,15 @@ defmodule DpulCollections.Solr.Constants do
           # Identity just returns whatever you gave it.
           value_function: &Function.identity/1
         },
-        "language" => %{
-          solr_field: "language_txtm",
-          label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Language"),
+        "publisher" => %{
+          solr_field: "publisher_txtm",
+          label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Publisher"),
+          value_function: &Function.identity/1
+        },
+        "rights_statement" => %{
+          solr_field: "rights_statement_txtm",
+          label:
+            Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Rights Statement"),
           value_function: &Function.identity/1
         },
         "subject" => %{
@@ -57,17 +91,10 @@ defmodule DpulCollections.Solr.Constants do
           label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Subject"),
           value_function: &Function.identity/1
         },
-        "creator" => %{
-          solr_field: "creator_txtm",
-          label:
-            Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Creator of work"),
-          value_function: &Function.identity/1
-        },
-        "geographic_origin" => %{
-          solr_field: "geographic_origin_txtm",
-          label:
-            Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Geographic Origin"),
-          value_function: &Function.identity/1
+        "year" => %{
+          solr_field: "years_is",
+          label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Year"),
+          value_function: &DpulCollections.Solr.Constants.date_value/1
         }
       }
 
