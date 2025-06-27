@@ -303,13 +303,14 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
-  defp content_state_url(_, nil, _), do: nil
-  defp content_state_url(_, _, 0), do: nil
+  defp content_state_url(_, nil, _) do
+    nil
+  end
 
   defp content_state_url(uri, item, current_canvas_idx) do
     %URI{scheme: scheme, authority: authority} = URI.parse(uri)
     base = "#{scheme}://#{authority}"
-    "#{base}/iiif/#{item.id}/content_state/#{current_canvas_idx - 1}"
+    "#{base}/iiif/#{item.id}/content_state/#{current_canvas_idx}"
   end
 
   attr :rest, :global
