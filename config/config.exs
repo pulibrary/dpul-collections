@@ -100,4 +100,4 @@ config :nx, :default_backend, EXLA.Backend
 # Client can also be set to :cuda / :rocm
 config :nx, :default_defn_options, compiler: EXLA, client: :host
 
-config :dpul_collections, EmbedAnything, crate: :embedanything, mode: :debug
+config :dpul_collections, EmbedAnything, crate: :embedanything
