@@ -1,30 +1,65 @@
-use embed_anything::embeddings::embed::{EmbedderBuilder, Embedder, EmbeddingResult};
 use once_cell::sync::Lazy; // Import Lazy
 use rustler::{Env, Term, Error};
 use std::sync::Arc;
+use std::{fs, path::{self, Path, PathBuf},};
+use futures::future::join_all;
 use tokio::runtime::Runtime;
+use text_embeddings_backend::{Backend, DType, ModelType, Pool};
+use text_embeddings_core::{
+    TextEmbeddingsError,
+    infer::{Infer, PooledEmbeddingsInferResponse},
+    queue::Queue,
+    tokenization::{EncodingInput, Tokenization},
+};
+use tokenizers::{Tokenizer, TruncationDirection};
+use tokenizers::utils::padding::{PaddingParams, PaddingDirection};
+use anyhow::{Result};
+use hf_hub::api::sync::Api;
 
 // Tokio runtime lets us block on async code.
 static TOKIO_RUNTIME: Lazy<Runtime> =
     Lazy::new(|| tokio::runtime::Runtime::new().expect("Failed to create Tokio runtime"));
 
-static MODEL: Lazy<Result<Arc<Embedder>, String>> = Lazy::new(|| {
-    let result = EmbedderBuilder::new()
-        .model_architecture("qwen3")
-        .model_id(Some("Qwen/Qwen3-Embedding-0.6B"))
-        .revision(None)
-        .token(None)
-        .from_pretrained_hf();
+static MODEL: Lazy<Arc<Infer>> = Lazy::new(|| {
+    let _guard = TOKIO_RUNTIME.enter();
+    let api = Api::new().unwrap();
+    let repo = api.model("Qwen/Qwen3-Embedding-0.6B".to_string());
+    let _config_json = repo.get("config.json").unwrap();
+    let tokenizer_json = repo.get("tokenizer.json").unwrap();
+    let model_file = repo.get("model.safetensors").unwrap();
+    let parent_dir = model_file.parent().unwrap();
+    println!("Downloaded");
+    let mut padding = PaddingParams::default();
+    padding.direction = PaddingDirection::Left;
+    let tokenizer = Tokenizer::from(Tokenizer::from_file(tokenizer_json).unwrap().with_padding(Some(padding)).clone());
+    println!("Tokenizer: {:?}", tokenizer.get_padding().unwrap());
+    let token = Tokenization::new(
+        1,
+        tokenizer,
+        1024,
+        0,
+        None,
+        None
+    );
+    let model_type = ModelType::Embedding(Pool::LastToken);
+    let backend = TOKIO_RUNTIME.block_on(Backend::new(
+        parent_dir.into(),
+        None,
+        DType::Float16,
+        model_type,
+        String::new(),
+        None,
+        String::new()
+    )).unwrap();
+    let queue = Queue::new(
+        backend.padded_model,
+        16384,
+        None,
+        512
+    );
+    let infer = Infer::new(token, queue, 512, backend);
 
-    match result {
-        Ok(embedder) => {
-            Ok(Arc::new(embedder))
-        }
-        Err(e) => {
-            eprintln!("Failed to load model on startup: {}", e);
-            Err(e.to_string())
-        }
-    }
+    Arc::new(infer)
 });
 
 
@@ -36,30 +71,36 @@ fn load(_env: Env, _: Term) -> bool {
 
 #[rustler::nif(schedule = "DirtyCpu")]
 fn embed_text(texts_to_embed: Vec<String>) -> Result<Vec<Vec<f32>>, Error> {
-    // Access the globally shared model.
-    let model_result = &*MODEL;
-
-    match model_result {
-        Ok(model_arc) => {
-            let text_slices: Vec<&str> = texts_to_embed.iter().map(|s| s.as_str()).collect();
-            let result_from_async = TOKIO_RUNTIME.block_on(model_arc.embed(&text_slices,None,None));
-            let embedding_results = result_from_async.map_err(|e| Error::Term(Box::new(e.to_string())))?;
-
-            let final_vectors = embedding_results
-                .into_iter()
-                .filter_map(|data| match data {
-                    EmbeddingResult::DenseVector(vector) => Some(vector),
-                    EmbeddingResult::MultiVector(_vector) => None,
-                })
-                .collect();
-
-            Ok(final_vectors)
-        }
-        Err(error_string) => {
-            let error_message = format!("Model is not available. Load error: {}", error_string);
-            Err(Error::Term(Box::new(error_message)))
-        }
+    let infer = &*MODEL;
+    let batch_size = texts_to_embed.len();
+    let mut futures = Vec::with_capacity(batch_size);
+    for input in texts_to_embed {
+        let local_infer = infer.clone();
+        futures.push(async move {
+            let permit = local_infer.acquire_permit().await;
+            local_infer
+                .embed_pooled(
+                    input,
+                    false,
+                    TruncationDirection::Right,
+                    None,
+                    true,
+                    permit
+                )
+                .await
+        });
     }
+    let final_result: Result<Vec<Vec<f32>>, _> =
+        TOKIO_RUNTIME.block_on(join_all(futures)) // Produces Vec<Result<...>>
+        .into_iter() // Creates an iterator over the Results
+        .collect::<Result<Vec<_>, _>>() // Transforms Vec<Result<T, E>> to Result<Vec<T>, E>
+        .map(|responses| { // .map() is called on the Result
+            responses
+                .into_iter()
+                .map(|response| response.results) // Extracts the Vec<f32> from each response
+                .collect() // Collects these into the final Vec<Vec<f32>>
+        })
+        .map_err(|e| Error::Term(Box::new(format!("Errored embedding: {}", e))));
+    final_result
 }
-
 rustler::init!("Elixir.EmbedAnything", load = load);
