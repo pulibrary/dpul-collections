@@ -54,8 +54,7 @@ defmodule DpulCollections.Classifier do
   end
 
   def generate_embeddings(inputs) do
-    # EmbedAnything.embed_text(inputs) |> Nx.tensor()
-    Nx.tensor(1)
+    EmbedAnything.embed_text(inputs) |> Nx.tensor(type: :f16)
   end
 
   def handle_call(
