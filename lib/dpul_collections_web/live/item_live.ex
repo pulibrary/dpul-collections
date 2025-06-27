@@ -303,6 +303,9 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
+  defp content_state_url(_, nil, _), do: nil
+  defp content_state_url(_, _, 0), do: nil
+
   defp content_state_url(uri, item, current_canvas_idx) do
     %URI{scheme: scheme, authority: authority} = URI.parse(uri)
     base = "#{scheme}://#{authority}"
@@ -612,7 +615,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def thumbs(assigns) do
     ~H"""
     <div class="pr-2 pb-2">
-      <a href={"#{@viewer_url}/#{@thumb_num + 1}"}>
+      <a href={"#{@viewer_url}/#{@thumb_num + 1}"} }>
         <img
           class="h-full w-full object-cover"
           src={"#{@thumb}/full/350,465/0/default.jpg"}
