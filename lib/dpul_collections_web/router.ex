@@ -37,10 +37,9 @@ defmodule DpulCollectionsWeb.Router do
     live "/item/:id/viewer", ItemLive, :viewer
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", DpulCollectionsWeb do
-  #   pipe_through :api
-  # end
+  scope "/iiif", DpulCollectionsWeb do
+    get "/:id/content_state/:canvas_index", IiifContentStateController, :show
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:dpul_collections, :dev_routes) do
