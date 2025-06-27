@@ -12,10 +12,13 @@ crate-type = ["cdylib"]
 rustler = "0.36.2"
 once_cell = "1.21.3"
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
-text-embeddings-backend = { git = "https://github.com/tpendragon/text-embeddings-inference.git", branch = "qwen3_fp16_batch", features = ["candle"]}
-text-embeddings-backend-core = { git = "https://github.com/tpendragon/text-embeddings-inference.git", branch = "qwen3_fp16_batch"}
-text-embeddings-backend-candle = { git = "https://github.com/tpendragon/text-embeddings-inference.git", branch = "qwen3_fp16_batch"}
-text-embeddings-core = { git = "https://github.com/tpendragon/text-embeddings-inference.git", branch = "qwen3_fp16_batch"}
+text-embeddings-backend = { git = "https://github.com/tpendragon/text-embeddings-inference.git", branch = "ort_last_token_pooling", features = ["ort", "candle"]}
+text-embeddings-backend-core = { git = "https://github.com/tpendragon/text-embeddings-inference.git", branch = "ort_last_token_pooling"}
+text-embeddings-backend-candle = { git = "https://github.com/tpendragon/text-embeddings-inference.git", branch = "ort_last_token_pooling"}
+text-embeddings-backend-ort = { git = "https://github.com/tpendragon/text-embeddings-inference.git", branch = "ort_last_token_pooling"}
+text-embeddings-core = { git = "https://github.com/tpendragon/text-embeddings-inference.git", branch = "ort_last_token_pooling"}
+ort = { version = "2.0.0-rc.9", default-features = false, features = ["download-binaries", "half", "onednn", "ndarray"] }
+ort-sys = { version = "2.0.0-rc.9" }
 hf-hub = "0.4.3"
 tokenizers = "0.21.2"
 anyhow = "1.0.98"

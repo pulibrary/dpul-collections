@@ -13,6 +13,7 @@ use tokenizers::{Tokenizer, TruncationDirection};
 use tokenizers::utils::padding::{PaddingParams, PaddingDirection};
 use anyhow::{Result};
 use hf_hub::api::sync::Api;
+use std::path::PathBuf;
 
 // Tokio runtime lets us block on async code.
 static TOKIO_RUNTIME: Lazy<Runtime> =
@@ -21,14 +22,14 @@ static TOKIO_RUNTIME: Lazy<Runtime> =
 static MODEL: Lazy<Arc<Infer>> = Lazy::new(|| {
     let _guard = TOKIO_RUNTIME.enter();
     let api = Api::new().unwrap();
-    let repo = api.model("Qwen/Qwen3-Embedding-0.6B".to_string());
+    let repo = api.model("janni-t/qwen3-embedding-0.6b-int8-tei-onnx".to_string());
     let _config_json = repo.get("config.json").unwrap();
     let tokenizer_json = repo.get("tokenizer.json").unwrap();
-    let model_file = repo.get("model.safetensors").unwrap();
+    let model_file = repo.get("model.onnx").unwrap();
     let parent_dir = model_file.parent().unwrap();
     let mut padding = PaddingParams::default();
     padding.direction = PaddingDirection::Left;
-    let tokenizer = Tokenizer::from_file(tokenizer_json).unwrap();
+    let tokenizer = Tokenizer::from(Tokenizer::from_file(tokenizer_json).unwrap().with_padding(Some(padding)).clone());
     let token = Tokenization::new(
         1,
         tokenizer,
@@ -41,7 +42,7 @@ static MODEL: Lazy<Arc<Infer>> = Lazy::new(|| {
     let backend = TOKIO_RUNTIME.block_on(Backend::new(
         parent_dir.into(),
         None,
-        DType::Float16,
+        DType::Float32,
         model_type,
         String::new(),
         None,
@@ -51,9 +52,9 @@ static MODEL: Lazy<Arc<Infer>> = Lazy::new(|| {
         backend.padded_model,
         16384,
         None,
-        100
+        2
     );
-    let infer = Infer::new(token, queue, 100, backend);
+    let infer = Infer::new(token, queue, 2, backend);
 
     Arc::new(infer)
 });
@@ -80,7 +81,7 @@ fn embed_text(texts_to_embed: Vec<String>) -> Result<Vec<Vec<f32>>, Error> {
                     false,
                     TruncationDirection::Right,
                     None,
-                    true,
+                    false,
                     permit
                 )
                 .await
