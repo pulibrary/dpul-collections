@@ -616,7 +616,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def thumbs(assigns) do
     ~H"""
     <div class="pr-2 pb-2">
-      <a href={"#{@viewer_url}/#{@thumb_num + 1}"} }>
+      <.link patch={"#{@viewer_url}/#{@thumb_num + 1}"} }>
         <img
           class="h-full w-full object-cover"
           src={"#{@thumb}/full/350,465/0/default.jpg"}
@@ -624,7 +624,7 @@ defmodule DpulCollectionsWeb.ItemLive do
           style="
             background-color: lightgray;"
         />
-      </a>
+      </.link>
     </div>
     """
   end
