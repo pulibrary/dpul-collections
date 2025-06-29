@@ -14,7 +14,7 @@ defmodule DpulCollectionsWeb.IiifContentStateControllerTest do
         image_service_urls_ss: [
           "https://example.com/iiif/1/image1"
         ],
-        image_canvas_ids_ss: ["https://example.com/manifest/1/canvas/0"],
+        image_canvas_ids_ss: ["https://example.com/manifest/1/canvas/1"],
         primary_thumbnail_service_url_s: "https://example.com/iiif/1/image1"
       },
       %{
@@ -37,16 +37,16 @@ defmodule DpulCollectionsWeb.IiifContentStateControllerTest do
     test "returns a valid IIIF content state JSON when given a valid ID and canvas index", %{
       conn: conn
     } do
-      conn = get(conn, ~p"/iiif/1/content_state/0")
+      conn = get(conn, ~p"/iiif/1/content_state/1")
 
       # Assert the response
       assert json_response(conn, 200) == %{
                "@context" => "http://iiif.io/api/presentation/3/context.json",
-               "id" => "http://localhost:4002/iiif/1/content_state/0",
+               "id" => "http://localhost:4002/iiif/1/content_state/1",
                "type" => "Annotation",
                "motivation" => ["contentState"],
                "target" => %{
-                 "id" => "https://example.com/manifest/1/canvas/0",
+                 "id" => "https://example.com/manifest/1/canvas/1",
                  "type" => "Canvas",
                  "partOf" => [
                    %{
@@ -64,12 +64,12 @@ defmodule DpulCollectionsWeb.IiifContentStateControllerTest do
     end
 
     test "returns a 404 error when the item is not found", %{conn: conn} do
-      conn = get(conn, ~p"/iiif/non-existent-id/content_state/0")
+      conn = get(conn, ~p"/iiif/non-existent-id/content_state/1")
       assert json_response(conn, 404) == %{"error" => "Item not found"}
     end
 
     test "returns a 404 error when the canvas is not found", %{conn: conn} do
-      conn = get(conn, ~p"/iiif/2/content_state/0")
+      conn = get(conn, ~p"/iiif/2/content_state/1")
       assert json_response(conn, 404) == %{"error" => "Canvas not found"}
     end
   end

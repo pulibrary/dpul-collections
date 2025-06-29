@@ -26,7 +26,8 @@ export default function DpulcViewer(props) {
             informationPanel: {
               open: false,
                 renderAbout: false,
-                renderToggle: false
+                renderToggle: false,
+                renderAnnotation: false
             }
         }
       }

@@ -9,7 +9,7 @@ defmodule DpulCollectionsWeb.IiifContentStateController do
   """
   def show(conn, %{"id" => id, "canvas_index" => canvas_index}) when is_bitstring(canvas_index) do
     case Integer.parse(canvas_index) do
-      {index, ""} when index >= 0 ->
+      {index, ""} when index >= 1 ->
         show(conn, %{"id" => id, "canvas_index" => index})
 
       _ ->
@@ -29,7 +29,7 @@ defmodule DpulCollectionsWeb.IiifContentStateController do
         |> json(%{error: "Item not found"})
 
       item ->
-        canvas_id = item.image_canvas_ids |> Enum.at(canvas_index)
+        canvas_id = item.image_canvas_ids |> Enum.at(canvas_index - 1)
 
         case canvas_id do
           nil ->

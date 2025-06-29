@@ -159,16 +159,22 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       assert response =~ "2022"
       assert response =~ "17"
       assert response =~ "This is a test description"
-      # Thumbnails render.
+      # Thumbnails render with link to viewer
       assert view
              |> has_element?(
                "img[src='https://example.com/iiif/2/image1/full/350,465/0/default.jpg']"
              )
 
       assert view
+             |> has_element?("a[href='/i/învăţămîntul-trebuie-urmărească-dez/item/1/viewer/1']")
+
+      assert view
              |> has_element?(
                "img[src='https://example.com/iiif/2/image2/full/350,465/0/default.jpg']"
              )
+
+      assert view
+             |> has_element?("a[href='/i/învăţămîntul-trebuie-urmărească-dez/item/1/viewer/2']")
 
       # Large thumbnail renders using thumbnail service url
       assert view
