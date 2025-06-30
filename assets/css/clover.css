@@ -1,0 +1,4 @@
+.clover-viewer-media-wrapper {
+  /* Add left margin to the thumbnail container so it isn't rendered directly on the edge */
+  margin-left: 16px;
+}

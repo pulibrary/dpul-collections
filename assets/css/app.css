@@ -2,6 +2,7 @@
    https://tailwindcss.com/docs/configuration */
 
 @import "tailwindcss" source(none);
+@import "../css/clover.css";
 @import "../css/fonts.css";
 @import "../css/icons.css";
 @source "../css";
