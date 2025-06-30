@@ -15,7 +15,15 @@ defmodule DpulCollectionsWeb.ItemLive do
     path = URI.parse(uri).path |> URI.decode()
     # Initialize current_canvas_idx to be 0 if it's not set. 0 is a filler value
     # for "no canvas selected"
-    socket = socket |> assign(:current_canvas_idx, params["current_canvas_idx"] || "0")
+    current_canvas_idx = (params["current_canvas_idx"] || "0") |> String.to_integer()
+    current_content_state_url = content_state_url(uri, item, current_canvas_idx)
+
+    socket =
+      assign(socket,
+        current_canvas_idx: current_canvas_idx,
+        current_content_state_url: current_content_state_url
+      )
+
     {:noreply, build_socket(socket, item, path)}
   end
 
@@ -88,7 +96,11 @@ defmodule DpulCollectionsWeb.ItemLive do
       />
     </div>
     <.metadata_pane :if={@live_action == :metadata} item={@item} />
-    <.viewer_pane :if={@live_action == :viewer} item={@item} />
+    <.viewer_pane
+      :if={@live_action == :viewer}
+      item={@item}
+      current_content_state_url={@current_content_state_url}
+    />
     """
   end
 
@@ -143,6 +155,7 @@ defmodule DpulCollectionsWeb.ItemLive do
                 :if={@item.file_count}
                 thumb={thumb}
                 thumb_num={thumb_num}
+                viewer_url={@item.viewer_url}
               />
             </div>
           </section>
@@ -281,13 +294,23 @@ defmodule DpulCollectionsWeb.ItemLive do
         {live_react_component(
           "Components.DpulcViewer",
           [
-            iiifContent: @item.iiif_manifest_url
+            iiifContent: @current_content_state_url
           ],
           id: "viewer-component"
         )}
       </div>
     </div>
     """
+  end
+
+  defp content_state_url(_, nil, _) do
+    nil
+  end
+
+  defp content_state_url(uri, item, current_canvas_idx) do
+    %URI{scheme: scheme, authority: authority} = URI.parse(uri)
+    base = "#{scheme}://#{authority}"
+    "#{base}/iiif/#{item.id}/content_state/#{current_canvas_idx}"
   end
 
   attr :rest, :global
@@ -368,7 +391,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       when not is_nil(current_canvas_idx) do
     idx = Enum.find_index(canvas_ids, fn x -> x == canvas_id end) || 0
 
-    case idx + 1 == String.to_integer(current_canvas_idx) do
+    case idx + 1 == current_canvas_idx do
       # We're already on the correct page, don't do anything.
       true ->
         {:noreply, socket}
@@ -593,13 +616,15 @@ defmodule DpulCollectionsWeb.ItemLive do
   def thumbs(assigns) do
     ~H"""
     <div class="pr-2 pb-2">
-      <img
-        class="h-full w-full object-cover"
-        src={"#{@thumb}/full/350,465/0/default.jpg"}
-        alt={"image #{@thumb_num}"}
-        style="
-          background-color: lightgray;"
-      />
+      <.link patch={"#{@viewer_url}/#{@thumb_num + 1}"} }>
+        <img
+          class="h-full w-full object-cover"
+          src={"#{@thumb}/full/350,465/0/default.jpg"}
+          alt={"image #{@thumb_num}"}
+          style="
+            background-color: lightgray;"
+        />
+      </.link>
     </div>
     """
   end
