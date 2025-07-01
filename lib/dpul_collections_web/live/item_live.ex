@@ -16,7 +16,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     # Initialize current_canvas_idx to be 0 if it's not set. 0 is a filler value
     # for "no canvas selected"
     current_canvas_idx = (params["current_canvas_idx"] || "0") |> String.to_integer()
-    current_content_state_url = content_state_url(uri, item, current_canvas_idx)
+    current_content_state_url = content_state_url(item, current_canvas_idx)
 
     socket =
       assign(socket,
@@ -295,7 +295,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         {live_react_component(
           "Components.DpulcViewer",
           [
-            iiifContent: @current_content_state_url
+            iiifContent: unverified_url(DpulCollectionsWeb.Endpoint, @current_content_state_url)
           ],
           id: "viewer-component"
         )}
@@ -304,14 +304,12 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
-  defp content_state_url(_, nil, _) do
+  defp content_state_url(nil, _) do
     nil
   end
 
-  defp content_state_url(uri, item, current_canvas_idx) do
-    %URI{scheme: scheme, authority: authority} = URI.parse(uri)
-    base = "#{scheme}://#{authority}"
-    "#{base}/iiif/#{item.id}/content_state/#{current_canvas_idx}"
+  defp content_state_url(item, current_canvas_idx) do
+    "/iiif/#{item.id}/content_state/#{current_canvas_idx}"
   end
 
   attr :rest, :global
