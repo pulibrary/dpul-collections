@@ -290,7 +290,8 @@ defmodule DpulCollectionsWeb.ItemLive do
         </.link>
       </div>
       <!-- "relative" here lets Clover fill the full size of main-content. -->
-      <div class="main-content grow relative">
+      <!-- Ignore phoenix updates, since Clover manages switching the canvas. Without this it's jumpy on page switches. -->
+      <div id="clover-viewer" class="main-content grow relative" phx-update="ignore">
         {live_react_component(
           "Components.DpulcViewer",
           [
