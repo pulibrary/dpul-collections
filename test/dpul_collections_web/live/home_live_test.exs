@@ -63,13 +63,26 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
     end
   end
 
-  # TODO: re-enable and update when the new browse callout is implemented
-  @tag :skip
+  test "link to filters", %{conn: conn} do
+    {:ok, view, _} = live(conn, "/")
+
+    ["photographs", "posters", "books"]
+    |> Enum.each(fn genre ->
+      {:ok, view, _} = live(conn, "/")
+
+      assert view
+             |> has_element?()
+             |> element("#main-content a", genre)
+             |> render_click() ==
+               {:error, {:redirect, %{to: "/search?filter[genre]=#{genre}"}}}
+    end)
+  end
+
   test "link to browse", %{conn: conn} do
     {:ok, view, _} = live(conn, "/")
 
     assert view
-           |> element("#browse-callout > a")
+           |> element("#main-content a", "Browse all items")
            |> render_click() ==
              {:error, {:live_redirect, %{kind: :push, to: "/browse"}}}
   end
