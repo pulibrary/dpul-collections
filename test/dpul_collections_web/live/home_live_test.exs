@@ -71,7 +71,6 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
       {:ok, view, _} = live(conn, "/")
 
       assert view
-             |> has_element?()
              |> element("#main-content a", genre)
              |> render_click() ==
                {:error, {:redirect, %{to: "/search?filter[genre]=#{genre}"}}}
