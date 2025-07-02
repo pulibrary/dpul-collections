@@ -162,9 +162,21 @@ defmodule DpulCollectionsWeb.HomeLive do
             <div class="page-y-padding text-xl flex-grow">
               {gettext(
                 "Discover %{photographs}, %{posters}, %{books}, and more to inspire your research",
-                photographs: callout_link(%{url: "#", label: gettext("photographs")}),
-                posters: callout_link(%{url: "#", label: gettext("posters")}),
-                books: callout_link(%{url: "#", label: gettext("books")})
+                photographs:
+                  callout_link(%{
+                    url: ~p"/search?#{%{filter: %{genre: "photographs"}}}",
+                    label: gettext("photographs")
+                  }),
+                posters:
+                  callout_link(%{
+                    url: ~p"/search?#{%{filter: %{genre: "posters"}}}",
+                    label: gettext("posters")
+                  }),
+                books:
+                  callout_link(%{
+                    url: ~p"/search?#{%{filter: %{genre: "books"}}}",
+                    label: gettext("books")
+                  })
               )
               |> Phoenix.HTML.raw()}
             </div>
