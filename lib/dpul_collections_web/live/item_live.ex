@@ -421,18 +421,6 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div class="primary-thumbnail grid grid-cols-[auto_minmax(0,1fr)] gap-y-2 content-start mb-2">
       <div class="col-span-2 grid grid-cols-subgrid relative">
-        <div
-          :if={@display_size && relative_paper_dimension_style(@item)}
-          id="letter-preview"
-          class="absolute bottom-0 right-0 z-1 border-2 border-accent"
-          style={relative_paper_dimension_style(@item)}
-        >
-          <div class="flex justify-center items-center z-1 w-full h-full backdrop-blur-xs bg-white/70 text-accent text-sm p-4">
-            <div>
-              Letter Paper 8.5" x 11" <.icon class="w-5 h-5" name="pepicons-pencil:ruler" />
-            </div>
-          </div>
-        </div>
         <div :if={@display_size} class="col-start-2 flex justify-center items-center">
           <span class="h-[11px] w-[1px] bg-accent"></span>
           <span class="h-[1px] mr-[5px] flex-grow bg-accent"></span>
@@ -449,15 +437,28 @@ defmodule DpulCollectionsWeb.ItemLive do
           <span class="w-[1px] mt-[5px] flex-grow bg-accent"></span>
           <span class="w-[11px] h-[1px] bg-accent"></span>
         </div>
-        <img
-          class="col-start-2"
-          src={"#{@item.primary_thumbnail_service_url}/full/!#{@item.primary_thumbnail_width},#{@item.primary_thumbnail_height}/0/default.jpg"}
-          alt="main image display"
-          style="
+        <div class="col-start-2 relative">
+          <img
+            src={"#{@item.primary_thumbnail_service_url}/full/!#{@item.primary_thumbnail_width},#{@item.primary_thumbnail_height}/0/default.jpg"}
+            alt="main image display"
+            style="
             background-color: lightgray;"
-          width={@item.primary_thumbnail_width}
-          height={@item.primary_thumbnail_height}
-        />
+            width={@item.primary_thumbnail_width}
+            height={@item.primary_thumbnail_height}
+          />
+          <div
+            :if={@display_size && relative_paper_dimension_style(@item)}
+            id="letter-preview"
+            class="absolute bottom-0 right-0 z-1 border-2 border-accent"
+            style={relative_paper_dimension_style(@item)}
+          >
+            <div class="flex justify-center items-center z-1 w-full h-full backdrop-blur-xs bg-white/70 text-accent text-sm p-4">
+              <div>
+                Letter Paper 8.5" x 11" <.icon class="w-5 h-5" name="pepicons-pencil:ruler" />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="w-full col-span-2 gap-2">
         <div class="grid grid-cols-2 gap-2">
