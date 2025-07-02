@@ -61,7 +61,7 @@ defmodule DpulCollectionsWeb.Router do
           index_metrics: DpulCollectionsWeb.IndexingPipeline.DashboardPage
         ]
 
-      oban_dashboard "/oban"
+      oban_dashboard("/oban")
 
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
