@@ -411,22 +411,45 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def primary_thumbnail(assigns) do
     ~H"""
-    <div class="primary-thumbnail grid grid-cols-2 gap-2 content-start">
-      <img
-        class="col-span-2 w-full"
-        src={"#{@item.primary_thumbnail_service_url}/full/!#{@item.primary_thumbnail_width},#{@item.primary_thumbnail_height}/0/default.jpg"}
-        alt="main image display"
-        style="
-          background-color: lightgray;"
-        width={@item.primary_thumbnail_width}
-        height={@item.primary_thumbnail_height}
-      />
+    <div class="primary-thumbnail grid grid-cols-[auto_minmax(0,1fr)] gap-y-2 content-start mb-2">
+      <div class="col-span-2 grid grid-cols-subgrid">
+        <div class="col-start-2 flex justify-center items-center">
+          <span class="h-[11px] w-[1px] bg-accent"></span>
+          <span class="h-[1px] mr-[5px] flex-grow bg-accent"></span>
+          <span class="text-accent">77 cm.</span>
+          <span class="h-[1px] ml-[5px] flex-grow bg-accent"></span>
+          <span class="h-[11px] w-[1px] bg-accent"></span>
+        </div>
+        <div class="h-full flex flex-col justify-center items-center">
+          <span class="w-[11px] h-[1px] bg-accent"></span>
+          <span class="w-[1px] mb-[5px] flex-grow bg-accent"></span>
+          <span class="text-accent pr-1">77 cm.</span>
+          <span class="w-[1px] mt-[5px] flex-grow bg-accent"></span>
+          <span class="w-[11px] h-[1px] bg-accent"></span>
+        </div>
+        <img
+          src={"#{@item.primary_thumbnail_service_url}/full/!#{@item.primary_thumbnail_width},#{@item.primary_thumbnail_height}/0/default.jpg"}
+          alt="main image display"
+          style="
+            background-color: lightgray;"
+          width={@item.primary_thumbnail_width}
+          height={@item.primary_thumbnail_height}
+        />
+      </div>
+      <div class="w-full col-span-2 gap-2">
+        <div class="grid grid-cols-2 gap-2">
+          <.primary_button
+            id="viewer-link"
+            class="left-arrow-box"
+            patch={"#{@item.viewer_url}/1"}
+            replace
+          >
+            <.icon name="hero-eye" /> {gettext("View")}
+          </.primary_button>
 
-      <.primary_button id="viewer-link" class="left-arrow-box" patch={"#{@item.viewer_url}/1"} replace>
-        <.icon name="hero-eye" /> {gettext("View")}
-      </.primary_button>
-
-      <.download_button item={@item} />
+          <.download_button item={@item} />
+        </div>
+      </div>
     </div>
     """
   end
