@@ -21,7 +21,8 @@ defmodule DpulCollectionsWeb.ItemLive do
     socket =
       assign(socket,
         current_canvas_idx: current_canvas_idx,
-        current_content_state_url: current_content_state_url
+        current_content_state_url: current_content_state_url,
+        display_size: false
       )
 
     {:noreply, build_socket(socket, item, path)}
@@ -89,11 +90,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def render(assigns) do
     ~H"""
     <div id="item-wrap" class="grid grid-rows-[1fr/1fr] grid-cols-[1fr/1fr]">
-      <.item_page
-        item={@item}
-        related_items={@related_items}
-        different_project_related_items={@different_project_related_items}
-      />
+      <.item_page {assigns} />
     </div>
     <.metadata_pane :if={@live_action == :metadata} item={@item} />
     <.viewer_pane
@@ -130,7 +127,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         </div>
 
         <div class="thumbnails w-full sm:row-start-1 sm:col-start-1 sm:col-span-2 sm:row-span-full">
-          <.primary_thumbnail item={@item} />
+          <.primary_thumbnail item={@item} display_size={@display_size} />
 
           <.action_bar class="sm:hidden pt-4" item={@item} />
 
@@ -312,6 +309,9 @@ defmodule DpulCollectionsWeb.ItemLive do
     "/iiif/#{item.id}/content_state/#{current_canvas_idx}"
   end
 
+  defp has_dimensions(%{width: [_width | _], height: [_height | _]}), do: true
+  defp has_dimensions(_), do: false
+
   attr :rest, :global
   attr :item, :map, required: true
 
@@ -319,7 +319,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div {@rest}>
       <div class="flex flex-row justify-left items-center">
-        <.action_icon icon="pepicons-pencil:ruler">
+        <.action_icon :if={has_dimensions(@item)} icon="pepicons-pencil:ruler" phx-click="toggle_size">
           Size
         </.action_icon>
         <.action_icon icon="hero-share" phx-click={JS.show(to: "#share-modal")}>
@@ -376,6 +376,14 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
+  def handle_event("toggle_size", _opts, socket = %{assigns: %{display_size: display_size}}) do
+    socket =
+      socket
+      |> assign(display_size: !display_size)
+
+    {:noreply, socket}
+  end
+
   def handle_event(
         "changedCanvas",
         %{"canvas_id" => canvas_id},
@@ -413,21 +421,22 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div class="primary-thumbnail grid grid-cols-[auto_minmax(0,1fr)] gap-y-2 content-start mb-2">
       <div class="col-span-2 grid grid-cols-subgrid">
-        <div class="col-start-2 flex justify-center items-center">
+        <div :if={@display_size} class="col-start-2 flex justify-center items-center">
           <span class="h-[11px] w-[1px] bg-accent"></span>
           <span class="h-[1px] mr-[5px] flex-grow bg-accent"></span>
-          <span class="text-accent">77 cm.</span>
+          <span class="text-accent">{@item.width} cm.</span>
           <span class="h-[1px] ml-[5px] flex-grow bg-accent"></span>
           <span class="h-[11px] w-[1px] bg-accent"></span>
         </div>
-        <div class="h-full flex flex-col justify-center items-center">
+        <div :if={@display_size} class="h-full flex flex-col justify-center items-center">
           <span class="w-[11px] h-[1px] bg-accent"></span>
           <span class="w-[1px] mb-[5px] flex-grow bg-accent"></span>
-          <span class="text-accent pr-1">77 cm.</span>
+          <span class="text-accent pr-1">{@item.height} cm.</span>
           <span class="w-[1px] mt-[5px] flex-grow bg-accent"></span>
           <span class="w-[11px] h-[1px] bg-accent"></span>
         </div>
         <img
+          class="col-start-2"
           src={"#{@item.primary_thumbnail_service_url}/full/!#{@item.primary_thumbnail_width},#{@item.primary_thumbnail_height}/0/default.jpg"}
           alt="main image display"
           style="

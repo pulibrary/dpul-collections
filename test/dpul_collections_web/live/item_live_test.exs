@@ -202,6 +202,21 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       assert response =~ "زلزلہ"
     end
 
+    test "displays size when using the button", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
+
+      assert view
+             |> element(".metadata button", "Size")
+             |> render_click() =~ "200 cm."
+    end
+
+    test "doesn't have a size button when there's no size metadata", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/i/زلزلہ/item/2")
+
+      refute view
+             |> has_element?(".metadata button", "Size")
+    end
+
     test "doesn't display a pdf for resources with no pdf permission", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/i/زلزلہ/item/2")
       response = render(view)
