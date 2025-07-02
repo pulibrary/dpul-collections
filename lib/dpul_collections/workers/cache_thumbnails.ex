@@ -22,25 +22,6 @@ defmodule DpulCollections.Workers.CacheThumbnails do
     ]
   end
 
-  defp hero_image_configurations do
-    {"pct:15,15,25,25", "", "200"}
-    {"pct:15,30,25,25", "", "200"}
-    {"pct:15,45,25,25", "", "200"}
-    {"pct:15,60,25,25", "", "200"}
-    {"pct:30,15,25,25", "", "200"}
-    {"pct:30,30,25,25", "", "200"}
-    {"pct:30,45,25,25", "", "200"}
-    {"pct:30,60,25,25", "", "200"}
-    {"pct:45,15,25,25", "", "200"}
-    {"pct:45,30,25,25", "", "200"}
-    {"pct:45,45,25,25", "", "200"}
-    {"pct:45,60,25,25", "", "200"}
-    {"pct:60,15,25,25", "", "200"}
-    {"pct:60,30,25,25", "", "200"}
-    {"pct:60,45,25,25", "", "200"}
-    {"pct:60,60,25,25", "", "200"}
-  end
-
   defp primary_thumbnail_configuration(item) do
     {"full", "!#{item.primary_thumbnail_width}", "#{item.primary_thumbnail_height}"}
   end
@@ -52,5 +33,6 @@ defmodule DpulCollections.Workers.CacheThumbnails do
   defp cache_iiif_image(base_url, configuration) do
     {region, width, height} = configuration
     url = "#{base_url}/#{region}/#{width},#{height}/0/default.jpg"
+    {:ok, %{status: 200}} = Req.get(url)
   end
 end

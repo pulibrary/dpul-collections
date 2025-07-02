@@ -4,8 +4,8 @@ defmodule DpulCollections.Workers.CacheHeroImages do
   @impl Oban.Worker
   def perform(%Oban.Job{args: _}) do
     # Cache hero thumbnails
-    DpulCollectionsWeb.HomeLive.hero_images()
-    |> Enum.each(&cache_iiif_image(&1))
+    DpulCollectionsWeb.HomeLive.hero_images() |> Enum.each(&cache_iiif_image(&1))
+
     :ok
   end
 
@@ -31,12 +31,21 @@ defmodule DpulCollections.Workers.CacheHeroImages do
   end
 
   defp cache_iiif_image(image) do
-    {_, base_url} = image
+    # Generate iiif image server base url from hero image tuple
+    {_, iiif_url} = image
+
+    base_url =
+      iiif_url
+      |> String.split("/")
+      |> Enum.drop(-4)
+      |> Enum.join("/")
+
     hero_image_configurations() |> Enum.each(&cache_iiif_image(base_url, &1))
   end
 
   defp cache_iiif_image(base_url, configuration) do
     {region, width, height} = configuration
     url = "#{base_url}/#{region}/#{width},#{height}/0/default.jpg"
+    {:ok, %{status: 200}} = Req.get(url)
   end
 end
