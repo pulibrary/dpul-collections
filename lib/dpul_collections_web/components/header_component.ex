@@ -43,7 +43,9 @@ defmodule DpulCollectionsWeb.HeaderComponent do
             <span class="hidden sm:flex hover:link-hover font-medium text-md cursor-pointer">
               {gettext("Language")}&nbsp;<span class="font-normal">&gt;</span>
             </span>
-            <div class="sm:hidden text-sm cursor-pointer">{gettext("Language")}&nbsp;<span class="font-normal">&gt;</span></div>
+            <div class="sm:hidden text-sm cursor-pointer">
+              {gettext("Language")}&nbsp;<span class="font-normal">&gt;</span>
+            </div>
           </button>
           <ul
             id="dropdownMenu"
@@ -52,13 +54,25 @@ defmodule DpulCollectionsWeb.HeaderComponent do
             role="menu"
             aria-hidden="true"
           >
-            <li role="menuitem" tabindex="-1" class="p-2 hover:bg-stone-200 focus:bg-stone-200 cursor-pointer">
+            <li
+              role="menuitem"
+              tabindex="-1"
+              class="p-2 hover:bg-stone-200 focus:bg-stone-200 cursor-pointer"
+            >
               <div phx-click={JS.dispatch("setLocale", detail: %{locale: "en"})}>English</div>
             </li>
-            <li role="menuitem" tabindex="-1" class="p-2 hover:bg-stone-200 focus:bg-stone-200 cursor-pointer">
+            <li
+              role="menuitem"
+              tabindex="-1"
+              class="p-2 hover:bg-stone-200 focus:bg-stone-200 cursor-pointer"
+            >
               <div phx-click={JS.dispatch("setLocale", detail: %{locale: "es"})}>Español</div>
             </li>
-            <li role="menuitem" tabindex="-1" class="p-2 hover:bg-stone-200 focus:bg-stone-200 cursor-pointer">
+            <li
+              role="menuitem"
+              tabindex="-1"
+              class="p-2 hover:bg-stone-200 focus:bg-stone-200 cursor-pointer"
+            >
               <div phx-click={JS.dispatch("setLocale", detail: %{locale: "pt-BR"})}>
                 Português do Brasil
               </div>
