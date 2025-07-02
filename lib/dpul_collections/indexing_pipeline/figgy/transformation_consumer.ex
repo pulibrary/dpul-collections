@@ -58,6 +58,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
       )
       when internal_resource in ["EphemeraFolder"] do
     solr_doc = Figgy.HydrationCacheEntry.to_solr_document(hydration_cache_entry)
+
+    # Cache solr document thumbnails
+    %{solr_document: solr_doc}
+    |> DpulCollections.Workers.CacheThumbnails.new()
+    |> Oban.insert()
+
     marker = CacheEntryMarker.from(message)
 
     message

@@ -25,7 +25,7 @@ config :dpul_collections, DpulCollectionsWeb.Endpoint,
 # Configures Oban job processing
 config :dpul_collections, Oban,
   engine: Oban.Engines.Basic,
-  queues: [default: 10],
+  queues: [default: 10, cache: 10],
   repo: DpulCollections.Repo
 
 # Configures the mailer
