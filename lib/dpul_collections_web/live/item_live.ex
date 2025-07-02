@@ -481,8 +481,8 @@ defmodule DpulCollectionsWeb.ItemLive do
   @letter_dimensions %{width: 21.59, height: 27.94}
   # Height and width are in cm.
   defp relative_paper_dimension_style(%{width: [width | _], height: [height | _]}) do
-    width_percentage = @letter_dimensions.width / String.to_integer(width) * 100
-    height_percentage = @letter_dimensions.height / String.to_integer(height) * 100
+    width_percentage = @letter_dimensions.width / String.to_float(width) * 100
+    height_percentage = @letter_dimensions.height / String.to_float(height) * 100
     # Only return a style if object is bigger than a letter.
     case {width_percentage, height_percentage} do
       {w, _} when w > 100 -> false
