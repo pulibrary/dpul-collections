@@ -420,7 +420,19 @@ defmodule DpulCollectionsWeb.ItemLive do
   def primary_thumbnail(assigns) do
     ~H"""
     <div class="primary-thumbnail grid grid-cols-[auto_minmax(0,1fr)] gap-y-2 content-start mb-2">
-      <div class="col-span-2 grid grid-cols-subgrid">
+      <div class="col-span-2 grid grid-cols-subgrid relative">
+        <div
+          :if={@display_size && relative_paper_dimension_style(@item)}
+          id="letter-preview"
+          class="absolute bottom-0 right-0 z-1 border-2 border-accent"
+          style={relative_paper_dimension_style(@item)}
+        >
+          <div class="flex justify-center items-center z-1 w-full h-full backdrop-blur-xs bg-white/70 text-accent text-sm p-4">
+            <div>
+              Letter Paper 8.5" x 11" <.icon class="w-5 h-5" name="pepicons-pencil:ruler" />
+            </div>
+          </div>
+        </div>
         <div :if={@display_size} class="col-start-2 flex justify-center items-center">
           <span class="h-[11px] w-[1px] bg-accent"></span>
           <span class="h-[1px] mr-[5px] flex-grow bg-accent"></span>
@@ -463,6 +475,19 @@ defmodule DpulCollectionsWeb.ItemLive do
       </div>
     </div>
     """
+  end
+
+  @letter_dimensions %{width: 21.59, height: 27.94}
+  # Height and width are in cm.
+  defp relative_paper_dimension_style(%{width: [width | _], height: [height | _]}) do
+    width_percentage = @letter_dimensions.width / String.to_integer(width) * 100
+    height_percentage = @letter_dimensions.height / String.to_integer(height) * 100
+    # Only return a style if object is bigger than a letter.
+    case {width_percentage, height_percentage} do
+      {w, _} when w > 100 -> false
+      {_, h} when h > 100 -> false
+      _ -> "width: #{width_percentage}%; height: #{height_percentage}%;"
+    end
   end
 
   def download_button(assigns = %{item: %{pdf_url: pdf_url}}) when is_binary(pdf_url) do
