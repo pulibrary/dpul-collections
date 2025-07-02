@@ -18,10 +18,11 @@ export default function DpulcViewer(props) {
         {
           canvasHeight: "auto",
           openSeadragon: {
-            mouseNavEnabled: false,
-              gestureSettings: {
-                scrollToZoom: false
-              }
+            mouseNavEnabled: true,
+            gestureSettingsMouse: {
+              clickToZoom: true,
+              scrollToZoom: true
+            }
           },
             informationPanel: {
               open: false,
