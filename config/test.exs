@@ -75,6 +75,18 @@ config :dpul_collections, :figgy_hydrator, poll_interval: 50
 
 config :dpul_collections, :web_connections, figgy_url: "https://figgy.example.com"
 
+# Stub http requests in CacheThumbnails Oban worker
+config :dpul_collections,
+  thumbnail_req_options: [
+    plug: {Req.Test, DpulCollections.Workers.CacheThumbnails}
+  ]
+
+# Stub http requests in CacheHeroImages Oban worker
+config :dpul_collections,
+  hero_image_req_options: [
+    plug: {Req.Test, DpulCollections.Workers.CacheHeroImages}
+  ]
+
 config :phoenix_test,
   otp_app: :dpul_collections,
   endpoint: DpulCollectionsWeb.Endpoint,

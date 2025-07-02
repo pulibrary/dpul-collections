@@ -1,5 +1,6 @@
 defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest do
   use DpulCollections.DataCase
+  use Oban.Testing, repo: DpulCollections.Repo
 
   alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline
@@ -43,6 +44,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
              "id" => ^marker_1_id,
              "title_txtm" => ["test title 1"]
            } = cache_entry.data
+
+    # Ensure that an Oban worker to cache thumbnails is enqueued
+    assert_enqueued(
+      worker: DpulCollections.Workers.CacheThumbnails,
+      args: %{solr_document: cache_entry.data}
+    )
 
     transformer |> Broadway.stop(:normal)
   end

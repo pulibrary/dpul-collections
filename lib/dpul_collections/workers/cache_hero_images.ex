@@ -45,7 +45,15 @@ defmodule DpulCollections.Workers.CacheHeroImages do
 
   defp cache_iiif_image(base_url, configuration) do
     {region, width, height} = configuration
-    url = "#{base_url}/#{region}/#{width},#{height}/0/default.jpg"
-    {:ok, %{status: 200}} = Req.get(url)
+    url = "/#{region}/#{width},#{height}/0/default.jpg"
+
+    options =
+      [
+        base_url: base_url,
+        url: url
+      ]
+      |> Keyword.merge(Application.get_env(:dpul_collections, :hero_image_req_options, []))
+
+    {:ok, %{status: 200}} = Req.request(options)
   end
 end
