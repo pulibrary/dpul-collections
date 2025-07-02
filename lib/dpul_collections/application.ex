@@ -18,6 +18,7 @@ defmodule DpulCollections.Application do
         {Phoenix.PubSub, name: DpulCollections.PubSub},
         # Start the Finch HTTP client for sending emails
         {Finch, name: DpulCollections.Finch},
+        {Oban, Application.fetch_env!(:dpul_collections, Oban)},
         # Start a worker by calling: DpulCollections.Worker.start_link(arg)
         # {DpulCollections.Worker, arg},
         # Start to serve requests, typically the last entry
