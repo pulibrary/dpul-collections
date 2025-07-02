@@ -32,6 +32,9 @@ config :dpul_collections, DpulCollectionsWeb.Endpoint,
   secret_key_base: "fS76i6oeLWDlMP7AEe+nExNz3J4tHyaIZrELNhSmY3LUocagaphwGc8Ff7rAh6qS",
   server: true
 
+# In test, don't run jobs
+config :dpul_collections, Oban, testing: :manual
+
 # In test we don't send emails.
 config :dpul_collections, DpulCollections.Mailer, adapter: Swoosh.Adapters.Test
 

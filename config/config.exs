@@ -22,6 +22,12 @@ config :dpul_collections, DpulCollectionsWeb.Endpoint,
   pubsub_server: DpulCollections.PubSub,
   live_view: [signing_salt: "Z37237LW"]
 
+# Configures Oban job processing
+config :dpul_collections, Oban,
+  engine: Oban.Engines.Basic,
+  queues: [default: 10],
+  repo: DpulCollections.Repo
+
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails
