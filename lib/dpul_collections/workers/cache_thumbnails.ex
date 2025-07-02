@@ -1,15 +1,26 @@
 defmodule DpulCollections.Workers.CacheThumbnails do
   use Oban.Worker, queue: :cache
+  alias DpulCollections.Utilities
 
   @impl Oban.Worker
+  def perform(%Oban.Job{args: %{"solr_document" => %{"deleted" => true}}}) do
+    :ok
+  end
+
   def perform(%Oban.Job{args: %{"solr_document" => solr_document}}) do
-    item = DpulCollections.Item.from_solr(solr_document)
+    item =
+      solr_document
+      |> Utilities.stringify_map_keys()
+      |> DpulCollections.Item.from_solr()
 
     # Cache standard thumbnails
     item.image_service_urls |> Enum.each(&cache_iiif_image(&1))
 
     # Cache primary thumbnail item page image
-    cache_iiif_image(item.primary_thumbnail_service_url, primary_thumbnail_configuration(item))
+    if item.primary_thumbnail_service_url do
+      cache_iiif_image(item.primary_thumbnail_service_url, primary_thumbnail_configuration(item))
+    end
+
     :ok
   end
 
@@ -32,7 +43,15 @@ defmodule DpulCollections.Workers.CacheThumbnails do
 
   defp cache_iiif_image(base_url, configuration) do
     {region, width, height} = configuration
-    url = "#{base_url}/#{region}/#{width},#{height}/0/default.jpg"
-    {:ok, %{status: 200}} = Req.get(url)
+    url = "/#{region}/#{width},#{height}/0/default.jpg"
+
+    options =
+      [
+        base_url: base_url,
+        url: url
+      ]
+      |> Keyword.merge(Application.get_env(:dpul_collections, :thumbnail_req_options, []))
+
+    {:ok, %{status: 200}} = Req.request(options)
   end
 end
