@@ -431,7 +431,9 @@ defmodule DpulCollectionsWeb.ItemLive do
         <div :if={@display_size} class="h-full flex flex-col justify-center items-center">
           <span class="w-[11px] h-[1px] bg-accent"></span>
           <span class="w-[1px] mb-[5px] flex-grow bg-accent"></span>
-          <span class="text-accent pr-1">{@item.height} cm.</span>
+          <span class="text-accent pl-1 [writing-mode:vertical-rl] rotate-180">
+            {@item.height} cm.
+          </span>
           <span class="w-[1px] mt-[5px] flex-grow bg-accent"></span>
           <span class="w-[11px] h-[1px] bg-accent"></span>
         </div>
