@@ -5,7 +5,7 @@ defmodule DpulCollections.Workers.CacheThumbnails do
   def perform(%Oban.Job{args: %{"solr_document" => solr_document}}) do
     item = DpulCollections.Item.from_solr(solr_document)
 
-    # Cache thumnails
+    # Cache standard thumbnails
     item.image_service_urls |> Enum.each(&cache_iiif_image(&1))
 
     # Cache primary thumbnail item page image
@@ -20,6 +20,25 @@ defmodule DpulCollections.Workers.CacheThumbnails do
       {"full", "278", ""},
       {"full", "350", "465"}
     ]
+  end
+
+  defp hero_image_configurations do
+    {"pct:15,15,25,25", "", "200"}
+    {"pct:15,30,25,25", "", "200"}
+    {"pct:15,45,25,25", "", "200"}
+    {"pct:15,60,25,25", "", "200"}
+    {"pct:30,15,25,25", "", "200"}
+    {"pct:30,30,25,25", "", "200"}
+    {"pct:30,45,25,25", "", "200"}
+    {"pct:30,60,25,25", "", "200"}
+    {"pct:45,15,25,25", "", "200"}
+    {"pct:45,30,25,25", "", "200"}
+    {"pct:45,45,25,25", "", "200"}
+    {"pct:45,60,25,25", "", "200"}
+    {"pct:60,15,25,25", "", "200"}
+    {"pct:60,30,25,25", "", "200"}
+    {"pct:60,45,25,25", "", "200"}
+    {"pct:60,60,25,25", "", "200"}
   end
 
   defp primary_thumbnail_configuration(item) do
