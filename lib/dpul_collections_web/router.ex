@@ -1,6 +1,7 @@
 defmodule DpulCollectionsWeb.Router do
   use DpulCollectionsWeb, :router
   use Honeybadger.Plug
+  import Oban.Web.Router
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -59,6 +60,8 @@ defmodule DpulCollectionsWeb.Router do
           broadway: BroadwayDashboard,
           index_metrics: DpulCollectionsWeb.IndexingPipeline.DashboardPage
         ]
+
+      oban_dashboard "/oban"
 
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
