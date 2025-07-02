@@ -85,7 +85,9 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           title_txtm: "Similar Item Same Project",
           ephemera_project_title_s: "Test Project",
           genre_txtm: ["genre"],
-          subject_txtm: ["subject"]
+          subject_txtm: ["subject"],
+          width_txtm: ["10"],
+          height_txtm: ["20"]
         },
         %{
           id: "similar-to-1-diff-project",
@@ -227,6 +229,16 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
         |> render_click()
 
       assert html =~ "20 cm."
+      refute html =~ "Letter Paper"
+
+      {:ok, view, _html} = live(conn, "/i/similar-item-same-project/item/similar-to-1")
+
+      html =
+        view
+        |> element(".metadata button", "Size")
+        |> render_click()
+
+      assert html =~ "10 cm."
       refute html =~ "Letter Paper"
     end
 
