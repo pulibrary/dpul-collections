@@ -76,14 +76,18 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
             "https://example.com/iiif/2/image1",
             "https://example.com/iiif/2/image2"
           ],
-          primary_thumbnail_service_url_s: "https://example.com/iiif/2/image1"
+          primary_thumbnail_service_url_s: "https://example.com/iiif/2/image1",
+          width_txtm: ["50"],
+          height_txtm: ["20"]
         },
         %{
           id: "similar-to-1",
           title_txtm: "Similar Item Same Project",
           ephemera_project_title_s: "Test Project",
           genre_txtm: ["genre"],
-          subject_txtm: ["subject"]
+          subject_txtm: ["subject"],
+          width_txtm: ["10"],
+          height_txtm: ["20"]
         },
         %{
           id: "similar-to-1-diff-project",
@@ -200,6 +204,51 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       {:ok, view, _html} = live(conn, "/i/زلزلہ/item/2")
       response = render(view)
       assert response =~ "زلزلہ"
+    end
+
+    test "displays size when using the button", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
+
+      html =
+        view
+        |> element(".metadata button", "Size")
+        |> render_click()
+
+      assert html =~ "200 cm."
+      assert html =~ "Letter Paper"
+    end
+
+    test "doesnt display letter paper unless the thing is at least letter paper size", %{
+      conn: conn
+    } do
+      {:ok, view, _html} = live(conn, "/i/اب-كوئى-جنگ-نه-هوگى/item/3")
+
+      html =
+        view
+        |> element(".metadata button", "Size")
+        |> render_click()
+
+      assert html =~ "20 cm."
+      refute html =~ "Letter Paper"
+
+      {:ok, view, _html} = live(conn, "/i/similar-item-same-project/item/similar-to-1")
+
+      html =
+        view
+        |> element(".metadata button", "Size")
+        |> render_click()
+
+      assert html =~ "10 cm."
+      refute html =~ "Letter Paper"
+    end
+
+    test "doesn't have a size button when there's no size metadata", %{conn: conn} do
+      {:ok, view, html} = live(conn, "/i/زلزلہ/item/2")
+
+      refute view
+             |> has_element?(".metadata button", "Size")
+
+      refute html =~ "Letter Paper"
     end
 
     test "doesn't display a pdf for resources with no pdf permission", %{conn: conn} do

@@ -21,7 +21,8 @@ defmodule DpulCollectionsWeb.ItemLive do
     socket =
       assign(socket,
         current_canvas_idx: current_canvas_idx,
-        current_content_state_url: current_content_state_url
+        current_content_state_url: current_content_state_url,
+        display_size: false
       )
 
     {:noreply, build_socket(socket, item, path)}
@@ -89,11 +90,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def render(assigns) do
     ~H"""
     <div id="item-wrap" class="grid grid-rows-[1fr/1fr] grid-cols-[1fr/1fr]">
-      <.item_page
-        item={@item}
-        related_items={@related_items}
-        different_project_related_items={@different_project_related_items}
-      />
+      <.item_page {assigns} />
     </div>
     <.metadata_pane :if={@live_action == :metadata} item={@item} />
     <.viewer_pane
@@ -130,7 +127,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         </div>
 
         <div class="thumbnails w-full sm:row-start-1 sm:col-start-1 sm:col-span-2 sm:row-span-full">
-          <.primary_thumbnail item={@item} />
+          <.primary_thumbnail item={@item} display_size={@display_size} />
 
           <.action_bar class="sm:hidden pt-4" item={@item} />
 
@@ -312,6 +309,9 @@ defmodule DpulCollectionsWeb.ItemLive do
     "/iiif/#{item.id}/content_state/#{current_canvas_idx}"
   end
 
+  defp has_dimensions(%{width: [_width | _], height: [_height | _]}), do: true
+  defp has_dimensions(_), do: false
+
   attr :rest, :global
   attr :item, :map, required: true
 
@@ -319,7 +319,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div {@rest}>
       <div class="flex flex-row justify-left items-center">
-        <.action_icon icon="pepicons-pencil:ruler">
+        <.action_icon :if={has_dimensions(@item)} icon="pepicons-pencil:ruler" phx-click="toggle_size">
           Size
         </.action_icon>
         <.action_icon icon="hero-share" phx-click={JS.show(to: "#share-modal")}>
@@ -376,6 +376,14 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
+  def handle_event("toggle_size", _opts, socket = %{assigns: %{display_size: display_size}}) do
+    socket =
+      socket
+      |> assign(display_size: !display_size)
+
+    {:noreply, socket}
+  end
+
   def handle_event(
         "changedCanvas",
         %{"canvas_id" => canvas_id},
@@ -411,24 +419,78 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def primary_thumbnail(assigns) do
     ~H"""
-    <div class="primary-thumbnail grid grid-cols-2 gap-2 content-start">
-      <img
-        class="col-span-2 w-full"
-        src={"#{@item.primary_thumbnail_service_url}/full/!#{@item.primary_thumbnail_width},#{@item.primary_thumbnail_height}/0/default.jpg"}
-        alt="main image display"
-        style="
-          background-color: lightgray;"
-        width={@item.primary_thumbnail_width}
-        height={@item.primary_thumbnail_height}
-      />
+    <div class="primary-thumbnail grid grid-cols-[auto_minmax(0,1fr)] gap-y-2 content-start mb-2">
+      <div class="col-span-2 grid grid-cols-subgrid relative">
+        <div :if={@display_size} class="col-start-2 flex justify-center items-center">
+          <span class="h-[11px] w-[1px] bg-accent"></span>
+          <span class="h-[1px] mr-[5px] flex-grow bg-accent"></span>
+          <span class="text-accent">{@item.width} cm.</span>
+          <span class="h-[1px] ml-[5px] flex-grow bg-accent"></span>
+          <span class="h-[11px] w-[1px] bg-accent"></span>
+        </div>
+        <div :if={@display_size} class="h-full flex flex-col justify-center items-center">
+          <span class="w-[11px] h-[1px] bg-accent"></span>
+          <span class="w-[1px] mb-[5px] flex-grow bg-accent"></span>
+          <span class="text-accent pl-1 [writing-mode:vertical-rl] rotate-180">
+            {@item.height} cm.
+          </span>
+          <span class="w-[1px] mt-[5px] flex-grow bg-accent"></span>
+          <span class="w-[11px] h-[1px] bg-accent"></span>
+        </div>
+        <div class="col-start-2 relative">
+          <img
+            src={"#{@item.primary_thumbnail_service_url}/full/!#{@item.primary_thumbnail_width},#{@item.primary_thumbnail_height}/0/default.jpg"}
+            alt="main image display"
+            style="
+            background-color: lightgray;"
+            width={@item.primary_thumbnail_width}
+            height={@item.primary_thumbnail_height}
+          />
+          <div
+            :if={@display_size && relative_paper_dimension_style(@item)}
+            id="letter-preview"
+            class="absolute bottom-0 right-0 z-1 border-2 border-accent"
+            style={relative_paper_dimension_style(@item)}
+          >
+            <div class="flex justify-center items-center z-1 w-full h-full backdrop-blur-xs bg-white/70 text-accent text-sm p-4">
+              <div>
+                Letter Paper 8.5" x 11" <.icon class="w-5 h-5" name="pepicons-pencil:ruler" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="w-full col-span-2 gap-2">
+        <div class="grid grid-cols-2 gap-2">
+          <.primary_button
+            id="viewer-link"
+            class="left-arrow-box"
+            patch={"#{@item.viewer_url}/1"}
+            replace
+          >
+            <.icon name="hero-eye" /> {gettext("View")}
+          </.primary_button>
 
-      <.primary_button id="viewer-link" class="left-arrow-box" patch={"#{@item.viewer_url}/1"} replace>
-        <.icon name="hero-eye" /> {gettext("View")}
-      </.primary_button>
-
-      <.download_button item={@item} />
+          <.download_button item={@item} />
+        </div>
+      </div>
     </div>
     """
+  end
+
+  @letter_dimensions %{width: 21.59, height: 27.94}
+  # Height and width are in cm.
+  defp relative_paper_dimension_style(%{width: [width | _], height: [height | _]}) do
+    {width, _} = Float.parse(width)
+    {height, _} = Float.parse(height)
+    width_percentage = @letter_dimensions.width / width * 100
+    height_percentage = @letter_dimensions.height / height * 100
+    # Only return a style if object is bigger than a letter.
+    case {width_percentage, height_percentage} do
+      {w, _} when w > 100 -> false
+      {_, h} when h > 100 -> false
+      _ -> "width: #{width_percentage}%; height: #{height_percentage}%;"
+    end
   end
 
   def download_button(assigns = %{item: %{pdf_url: pdf_url}}) when is_binary(pdf_url) do
