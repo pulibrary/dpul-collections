@@ -22,5 +22,18 @@ config :logger, level: :info
 
 config :honeybadger, environment_name: :staging
 
+# Configures Oban job processing
+config :dpul_collections, Oban,
+  engine: Oban.Engines.Basic,
+  queues: [default: 10, cache: 10],
+  repo: DpulCollections.Repo,
+  plugins: [
+    {Oban.Plugins.Cron,
+     crontab: [
+       # Cache Hero Images once a week. 1 AM every Monday.
+       {"0 1 * * MON", DpulCollections.Workers.CacheHeroImages, queue: :cache}
+     ]}
+  ]
+
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.
