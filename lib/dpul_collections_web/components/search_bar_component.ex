@@ -20,6 +20,7 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
                 id="q"
                 name="q"
                 placeholder={gettext("Search")}
+                dir="auto"
               />
               <button
                 id="search-button"

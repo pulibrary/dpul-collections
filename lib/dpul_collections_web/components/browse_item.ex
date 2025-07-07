@@ -97,7 +97,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
           {@item.file_count} {gettext("Images")}
         </div>
 
-        <h2 class="font-normal tracking-tight py-2">
+        <h2 class="font-normal tracking-tight py-2" dir="auto">
           <.link navigate={@item.url} class="item-link">{@item.title}</.link>
         </h2>
         <p class="text-gray-700 text-base">{@item.date}</p>
