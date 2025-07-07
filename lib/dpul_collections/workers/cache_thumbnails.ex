@@ -3,11 +3,32 @@ defmodule DpulCollections.Workers.CacheThumbnails do
   alias DpulCollections.Utilities
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"solr_document" => %{"deleted" => true}}}) do
-    :ok
+  def perform(%Oban.Job{args: %{"solr_document" => solr_document}}) do
+    cache_images(solr_document, Mix.env())
   end
 
-  def perform(%Oban.Job{args: %{"solr_document" => solr_document}}) do
+  defp thumbnail_configurations do
+    [
+      # Small browse thumbnails
+      {"square", "100", "100"},
+      # Browse and search results thumbnails
+      {"square", "350", "350"},
+      # Item page thumbnails
+      {"full", "350", "465"}
+    ]
+  end
+
+  defp primary_thumbnail_configuration(item) do
+    {"full", "!#{item.primary_thumbnail_width}", "#{item.primary_thumbnail_height}"}
+  end
+
+  # Don't cache images in development mode
+  defp cache_images(_, :dev), do: :ok
+
+  # Don't attempt to cache deleted records
+  defp cache_images(%{"deleted" => true}, _), do: :ok
+
+  defp cache_images(solr_document, _) do
     item =
       solr_document
       |> Utilities.stringify_map_keys()
@@ -36,21 +57,6 @@ defmodule DpulCollections.Workers.CacheThumbnails do
     Task.await_many(tasks ++ primary_thumbnail_task, 600_000)
 
     :ok
-  end
-
-  defp thumbnail_configurations do
-    [
-      # Small browse thumbnails
-      {"square", "100", "100"},
-      # Browse and search results thumbnails
-      {"square", "350", "350"},
-      # Item page thumbnails
-      {"full", "350", "465"}
-    ]
-  end
-
-  defp primary_thumbnail_configuration(item) do
-    {"full", "!#{item.primary_thumbnail_width}", "#{item.primary_thumbnail_height}"}
   end
 
   def cache_iiif_image(base_url) do
