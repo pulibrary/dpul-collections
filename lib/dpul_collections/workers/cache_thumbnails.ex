@@ -4,14 +4,9 @@ defmodule DpulCollections.Workers.CacheThumbnails do
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"solr_document" => solr_document}}) do
-    # Get current enviroment
-    env =
-      case Code.ensure_compiled(Mix) do
-        {:module, Mix} -> Mix.env()
-        _ -> nil
-      end
-
-    cache_images(solr_document, env)
+    if Application.get_env(:dpul_collections, :cache_thumbnails?) do
+      cache_images(solr_document)
+    end
   end
 
   defp thumbnail_configurations do
@@ -29,13 +24,10 @@ defmodule DpulCollections.Workers.CacheThumbnails do
     {"full", "!#{item.primary_thumbnail_width}", "#{item.primary_thumbnail_height}"}
   end
 
-  # Don't cache images in development mode
-  defp cache_images(_, :dev), do: :ok
-
   # Don't attempt to cache deleted records
-  defp cache_images(%{"deleted" => true}, _), do: :ok
+  defp cache_images(%{"deleted" => true}), do: :ok
 
-  defp cache_images(solr_document, _) do
+  defp cache_images(solr_document) do
     item =
       solr_document
       |> Utilities.stringify_map_keys()

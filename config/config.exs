@@ -87,6 +87,9 @@ config :dpul_collections, DpulCollections.PromEx,
   grafana: :disabled,
   metrics_server: :disabled
 
+# Turn on thumbnail caching
+config :dpul_collections, :cache_thumbnails?, true
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
