@@ -4,7 +4,14 @@ defmodule DpulCollections.Workers.CacheThumbnails do
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"solr_document" => solr_document}}) do
-    cache_images(solr_document, Mix.env())
+    # Get current enviroment
+    env =
+      case Code.ensure_compiled(Mix) do
+        {:module, Mix} -> Mix.env()
+        _ -> nil
+      end
+
+    cache_images(solr_document, env)
   end
 
   defp thumbnail_configurations do
