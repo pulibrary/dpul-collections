@@ -69,8 +69,10 @@ defmodule DpulCollections.Workers.CacheThumbnails do
         base_url: base_url,
         url: url
       ]
+      # Add plug option to facilitate http stubbing in tests
       |> Keyword.merge(Application.get_env(:dpul_collections, :thumbnail_req_options, []))
 
-    {:ok, %{status: 200}} = Req.request(options)
+    {:ok, %{status: 200}} =
+      Req.request(options, into: fn {:data, _}, {req, resp} -> {:cont, {req, resp}} end)
   end
 end
