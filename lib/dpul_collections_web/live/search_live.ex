@@ -210,7 +210,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           {@item.genre}
         </.link>
       </div>
-      <h2>
+      <h2 dir="auto">
         <.link navigate={@item.url}>{@item.title}</.link>
       </h2>
       <div class="flex items-start">
@@ -225,9 +225,9 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def results_for_keywords_heading(assigns) do
     ~H"""
-    <h1>
-      {gettext("Search Results for")}:
-      <span class="normal-case">
+    <h1 class="flex">
+      {gettext("Search Results for")}:&nbsp;
+      <span dir="auto" class="normal-case flex-grow">
         <%= if @keywords do %>
           {@keywords}
         <% else %>

@@ -111,15 +111,23 @@ defmodule DpulCollectionsWeb.ItemLive do
             filter_value={@item.genre |> List.first()}
             filter_name="genre"
           />
-          <h1 class="text-4xl font-bold normal-case">{@item.title}</h1>
+          <h1 class="text-4xl font-bold normal-case" dir="auto">{@item.title}</h1>
           <div
             :if={!Enum.empty?(@item.transliterated_title) || !Enum.empty?(@item.alternative_title)}
             class="flex flex-col gap-2"
           >
-            <p :for={ttitle <- @item.transliterated_title} class="text-2xl font-medium text-gray-500">
+            <p
+              :for={ttitle <- @item.transliterated_title}
+              dir="auto"
+              class="text-2xl font-medium text-gray-500"
+            >
               {ttitle}
             </p>
-            <p :for={atitle <- @item.alternative_title} class="text-2xl font-medium text-gray-500">
+            <p
+              :for={atitle <- @item.alternative_title}
+              dir="auto"
+              class="text-2xl font-medium text-gray-500"
+            >
               [{atitle}]
             </p>
           </div>
@@ -161,6 +169,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         <div class="metadata sm:row-start-2 sm:col-span-3 sm:col-start-3 flex flex-col gap-8">
           <div
             :for={description <- @item.description}
+            dir="auto"
             class="text-xl font-medium text-dark-text font-serif"
           >
             {description}
@@ -219,7 +228,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       <div class="main-content header-x-padding page-y-padding">
         <div class="py-6">
           <h2 class="sm:border-t-1 border-accent py-3">{gettext("Item Description")}</h2>
-          <p>{@item.description}</p>
+          <p dir="auto">{@item.description}</p>
         </div>
         <div
           :for={{category, fields} <- DpulCollections.Item.metadata_detail_categories()}
@@ -597,7 +606,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       <dt class="font-bold text-lg">
         {@field_label}
       </dt>
-      <dd :for={value <- @value} class="col-start-2">
+      <dd :for={value <- @value} dir="auto" class="col-start-2">
         <.filter_link filter_value={value} filter_name={"#{@field}"} />
       </dd>
     </div>
@@ -629,7 +638,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       <dt class="font-bold text-lg">
         {@field_label}
       </dt>
-      <dd :for={value <- @value} class="col-start-2 py-1">
+      <dd :for={value <- @value} dir="auto" class="col-start-2 py-1">
         <.filter_link filter_value={value} filter_name={"#{@field}"} />
       </dd>
     </div>
