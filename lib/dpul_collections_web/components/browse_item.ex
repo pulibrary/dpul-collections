@@ -44,14 +44,10 @@ defmodule DpulCollectionsWeb.BrowseItem do
 
   def browse_item(assigns) do
     ~H"""
-    <div
-      id={"browse-item-#{@item.id}"}
-      class="flex bg-white flex-col overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_var(--color-sage-300)] min-w-[250px]"
-    >
+    <div class="flex bg-white flex-col overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_var(--color-sage-300)] min-w-[250px]">
       <!-- pin -->
       <div
         :if={@pinnable?}
-        id={"pin-#{@item.id}"}
         phx-click={
           JS.push("pin")
           |> JS.toggle_class("hidden", to: {:inner, ".icon"})

@@ -1,4 +1,5 @@
 defmodule DpulCollectionsWeb.BrowseLive do
+  alias DpulCollectionsWeb.SearchLive.SearchState
   use DpulCollectionsWeb, :live_view
   use Gettext, backend: DpulCollectionsWeb.Gettext
   import DpulCollectionsWeb.BrowseItem
@@ -7,7 +8,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def mount(_params, _session, socket) do
     socket =
       socket
-      |> assign(items: [], pinned_items: [], show_stickytools?: false)
+      |> assign(items: [], pinned_items: [], recommended_items: [], show_stickytools?: false)
 
     {:ok, socket}
   end
@@ -42,14 +43,25 @@ defmodule DpulCollectionsWeb.BrowseLive do
       ) do
     doc = items |> Enum.find(fn item -> item.id == id end)
 
-    case Enum.find_index(pinned_items, fn pinned_item -> doc.id == pinned_item.id end) do
-      nil ->
-        {:noreply, socket |> assign(pinned_items: Enum.concat(pinned_items, [doc]))}
+    pinned =
+      case Enum.find_index(pinned_items, fn pinned_item -> doc.id == pinned_item.id end) do
+        nil ->
+          Enum.concat(pinned_items, [doc])
 
-      idx ->
-        socket = socket |> assign(pinned_items: List.delete_at(pinned_items, idx))
-        {:noreply, socket}
-    end
+        idx ->
+          List.delete_at(pinned_items, idx)
+      end
+
+    recommended_items = recommended_items_from_pinned(pinned)
+    socket = socket |> assign(pinned_items: pinned, recommended_items: recommended_items)
+    {:noreply, socket}
+  end
+
+  def recommended_items_from_pinned([]), do: []
+
+  def recommended_items_from_pinned(pinned_items) when is_list(pinned_items) do
+    Solr.related_items(pinned_items, SearchState.from_params(%{}))["docs"]
+    |> Enum.map(&Item.from_solr(&1))
   end
 
   def handle_event("show_stickytools", _params, socket) do
@@ -144,7 +156,11 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def recommended_items(assigns) do
     ~H"""
-    <div id="recommended-items" class="hidden"></div>
+    <div id="recommended-items" class="hidden">
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,_1fr))] gap-6 pt-5 col-span-3">
+        <.browse_item :for={item <- @recommended_items} id={"rec-browse-#{item.id}"} item={item} />
+      </div>
+    </div>
     """
   end
 
