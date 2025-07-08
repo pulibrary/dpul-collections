@@ -25,7 +25,7 @@ config :honeybadger, environment_name: :staging
 # Configures Oban job processing
 config :dpul_collections, Oban,
   engine: Oban.Engines.Basic,
-  queues: [default: 10, cache: 10],
+  queues: [cache: 20],
   repo: DpulCollections.Repo,
   plugins: [
     {Oban.Plugins.Cron,
