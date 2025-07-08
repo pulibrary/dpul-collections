@@ -114,7 +114,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
 
   def thumb(assigns) do
     ~H"""
-    <.link navigate={@link} class="item-link">
+    <.link navigate={@link} class="thumb-link">
       <img
         class="thumbnail bg-slate-400 text-white h-full w-full object-cover"
         src={thumbnail_url(assigns)}

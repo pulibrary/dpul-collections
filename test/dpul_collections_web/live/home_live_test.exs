@@ -61,6 +61,26 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
              |> Floki.find(~s{a[href="/i/document100/item/100"]})
              |> Enum.any?()
     end
+
+    test "recently added thumbnails link to record", %{conn: conn} do
+      Solr.add(SolrTestSupport.mock_solr_documents(3), active_collection())
+      Solr.commit(active_collection())
+
+      {:ok, view, _} = live(conn, "/")
+
+      html = render(view)
+
+      first_href =
+        html
+        |> Floki.parse_document!()
+        |> Floki.find(".thumb-link")
+        |> Enum.flat_map(&Floki.attribute(&1, "href"))
+        |> Enum.at(0)
+
+      # Optional: assert the href is what you expect
+      assert first_href == "/i/document3/item/3"
+
+    end
   end
 
   test "link to filters", %{conn: conn} do
