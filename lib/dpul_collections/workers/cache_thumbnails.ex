@@ -7,6 +7,8 @@ defmodule DpulCollections.Workers.CacheThumbnails do
     if Application.get_env(:dpul_collections, :cache_thumbnails?) do
       cache_images(solr_document)
     end
+
+    :ok
   end
 
   defp thumbnail_configurations do
@@ -79,7 +81,6 @@ defmodule DpulCollections.Workers.CacheThumbnails do
       # Add plug option to facilitate http stubbing in tests
       |> Keyword.merge(Application.get_env(:dpul_collections, :thumbnail_req_options, []))
 
-    {:ok, %{status: 200}} =
-      Req.request(options, into: fn {:data, _}, {req, resp} -> {:cont, {req, resp}} end)
+    {:ok, %{status: 200}} = Req.request(options)
   end
 end
