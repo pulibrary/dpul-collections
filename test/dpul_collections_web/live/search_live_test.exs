@@ -481,4 +481,16 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     {:ok, view, _html} = live(conn, ~p"/search?q=notavalidsearch")
     assert view |> has_element?("#item-counter", "No items found")
   end
+
+  test "thumbnails link to record page", %{conn: conn} do
+    {:ok, view, _html} = live(conn, ~p"/search?q=")
+
+    # Select the first .item-link (index 0)
+    first_item = element(view, "#item-1 > :first-child > :first-child")
+    # Perform the click
+    result = render_click(first_item)
+
+    # Now pattern match the result
+    assert result == {:error, {:redirect, %{to: "/i/document1/item/1"}}}
+  end
 end
