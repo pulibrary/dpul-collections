@@ -82,7 +82,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
               :for={{thumb, thumb_num} <- thumbnail_service_urls(4, @item.image_service_urls)}
               :if={@item.file_count}
               thumb={thumb}
-              thumb_num={thumb_num} 
+              thumb_num={thumb_num}
               link={@item.url}
             />
           </div>
