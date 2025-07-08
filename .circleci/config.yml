@@ -126,6 +126,9 @@ jobs:
           name: Setup fixtures
           command: mix fixtures.setup
       - run:
+          name: Setup warnings as errors
+          command: MIX_ENV=test mix compile --warnings-as-errors
+      - run:
           name: Run tests
           command: mix test --trace
       - store_artifacts:
