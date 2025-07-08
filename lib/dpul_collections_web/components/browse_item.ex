@@ -54,14 +54,13 @@ defmodule DpulCollectionsWeb.BrowseItem do
         id={"pin-#{@item.id}"}
         phx-click={
           JS.push("pin")
-          |> JS.toggle_class("bg-white", to: {:inner, ".icon"})
-          |> JS.toggle_class("bg-black")
-          |> JS.toggle_class("bg-white")
+          |> JS.toggle_class("hidden", to: {:inner, ".icon"})
         }
         phx-value-item_id={@item.id}
-        class="h-10 w-10 absolute left-2 top-2 cursor-pointer bg-white text-dark-text"
+        class="h-10 w-10 absolute left-2 top-2 cursor-pointer bg-white text-accent"
       >
-        <.icon name="hero-archive-box-arrow-down-solid" class="h-10 w-10 icon" />
+        <.icon name="hero-heart-solid" class="h-10 w-10 bg-accent icon selected hidden" />
+        <.icon name="hero-heart" class="h-10 w-10 icon selected" />
       </div>
       
     <!-- thumbs -->

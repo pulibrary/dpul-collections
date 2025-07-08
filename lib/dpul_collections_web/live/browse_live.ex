@@ -86,13 +86,13 @@ defmodule DpulCollectionsWeb.BrowseLive do
       >
         <h1 class="col-span-4 font-bold">{gettext("Browse")}</h1>
         <div id="browse-buttons" class="grid col-span-4 grid-cols-3 gap-4 border-b-4 border-accent">
-          <.primary_button phx-click={select_tab("liked-items")}>
-            <.icon name="hero-heart-solid" class="bg-accent" />My Liked Items (3)
+          <.primary_button class="selected" phx-click={select_tab("liked-items")}>
+            <.icon name="hero-heart-solid" class="bg-accent" />My Liked Items ({length(@pinned_items)})
           </.primary_button>
           <.primary_button phx-click={select_tab("recommended-items")}>
             Recommended Items
           </.primary_button>
-          <.primary_button class="selected" phx-click={select_tab("random-selections")}>
+          <.primary_button phx-click={select_tab("random-selections")}>
             Random Items
           </.primary_button>
         </div>
@@ -116,7 +116,29 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def liked_items(assigns) do
     ~H"""
-    <div id="liked-items" class="hidden"></div>
+    <div id="liked-items" class="flex flex-col gap-4">
+      <h2>Liked items</h2>
+      <div>Liked items can be used to make recommendations based on the items you have liked.</div>
+      <div class="flex gap-4">
+        <.primary_button class="px-4">
+          <.icon name="hero-check-solid" />Check all items
+        </.primary_button>
+        <.primary_button class="px-4">
+          <.icon name="hero-trash" />Remove checked items
+        </.primary_button>
+      </div>
+      <div class="grid grid-flow-row auto-rows-max gap-8">
+        <div :for={item <- @pinned_items} class="grid grid-cols-[auto_minmax(0,1fr)] gap-4">
+          <hr class="mb-8 col-span-2" />
+          <div>
+            <input type="checkbox" />
+          </div>
+          <div class="flex gap-4 flex-col">
+            <DpulCollectionsWeb.SearchLive.search_item search_state={%{}} item={item} />
+          </div>
+        </div>
+      </div>
+    </div>
     """
   end
 
@@ -128,7 +150,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def random_selections(assigns) do
     ~H"""
-    <div id="random-selections" class="grid grid-cols-3">
+    <div id="random-selections" class="hidden grid grid-cols-3">
       <button
         class="col-start-3 btn-primary tracking-wider text-xl
           hover:bg-sage-200 transform transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
