@@ -60,35 +60,83 @@ defmodule DpulCollectionsWeb.BrowseLive do
     {:noreply, assign(socket, :show_stickytools?, false)}
   end
 
+  def extra(assigns) do
+    ~H"""
+    <.sticky_tools show_stickytools?={@show_stickytools?}>{length(@pinned_items)}</.sticky_tools>
+    <h1 class="col-span-3">{gettext("Pinned")}</h1>
+    <div id="pinned-items" class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-1">
+      <div class="grid grid-flow-row auto-rows-max gap-8">
+        <DpulCollectionsWeb.SearchLive.search_item
+          :for={item <- @pinned_items}
+          search_state={%{}}
+          item={item}
+        />
+      </div>
+    </div>
+    """
+  end
+
   def render(assigns) do
     ~H"""
     <div class="content-area">
-      <.sticky_tools show_stickytools?={@show_stickytools?}>{length(@pinned_items)}</.sticky_tools>
-      <h1 class="col-span-3">{gettext("Pinned")}</h1>
-      <div id="pinned-items" class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-1">
-        <div class="grid grid-flow-row auto-rows-max gap-8">
-          <DpulCollectionsWeb.SearchLive.search_item
-            :for={item <- @pinned_items}
-            search_state={%{}}
-            item={item}
-          />
-        </div>
-      </div>
       <div
         class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-4"
         id="browse-header"
         phx-hook="ToolbarHook"
       >
-        <h1 class="col-span-3">{gettext("Browse")}</h1>
-        <button
-          class="col-span-1 btn-primary tracking-wider text-xl
-          hover:bg-sage-200 transform transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
-          phx-click="randomize"
-        >
-          {gettext("Randomize")}
-        </button>
+        <h1 class="col-span-4 font-bold">{gettext("Browse")}</h1>
+        <div id="browse-buttons" class="grid col-span-4 grid-cols-3 gap-4 border-b-4 border-accent">
+          <.primary_button phx-click={select_tab("liked-items")}>
+            <.icon name="hero-heart-solid" class="bg-accent" />My Liked Items (3)
+          </.primary_button>
+          <.primary_button phx-click={select_tab("recommended-items")}>
+            Recommended Items
+          </.primary_button>
+          <.primary_button class="selected" phx-click={select_tab("random-selections")}>
+            Random Items
+          </.primary_button>
+        </div>
+        <div id="browse-tab-content" class="col-span-4">
+          <.liked_items {assigns} />
+          <.recommended_items {assigns} />
+          <.random_selections {assigns} />
+        </div>
       </div>
-      <div class="grid grid-cols-3 gap-6 pt-5">
+    </div>
+    """
+  end
+
+  def select_tab(tab_id, js \\ %JS{}) do
+    js
+    |> JS.remove_class("selected", to: "#browse-buttons .selected")
+    |> JS.add_class("selected")
+    |> JS.add_class("hidden", to: "#browse-tab-content > div")
+    |> JS.remove_class("hidden", to: "##{tab_id}")
+  end
+
+  def liked_items(assigns) do
+    ~H"""
+    <div id="liked-items" class="hidden"></div>
+    """
+  end
+
+  def recommended_items(assigns) do
+    ~H"""
+    <div id="recommended-items" class="hidden"></div>
+    """
+  end
+
+  def random_selections(assigns) do
+    ~H"""
+    <div id="random-selections" class="grid grid-cols-3">
+      <button
+        class="col-start-3 btn-primary tracking-wider text-xl
+          hover:bg-sage-200 transform transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
+        phx-click="randomize"
+      >
+        {gettext("Randomize")}
+      </button>
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,_1fr))] gap-6 pt-5 col-span-3">
         <.browse_item :for={item <- @items} item={item} />
       </div>
     </div>

@@ -164,4 +164,29 @@ defmodule DpulCollectionsWeb.CoreComponents do
     <hr class={"h-1 border-0 bg-accent #{@rest.class}"} {@rest} />
     """
   end
+
+  slot :inner_block
+  attr :class, :string, default: nil
+  attr :href, :string, default: nil, doc: "link - if set it makes an anchor tag"
+  attr :patch, :string, default: nil, doc: "link - if set makes an anchor tag"
+  attr :disabled, :boolean, default: false
+  attr :rest, :global, include: ~w(replace), doc: "the arbitrary HTML attributes to add link"
+
+  def primary_button(assigns = %{href: href, patch: patch}) when href != nil or patch != nil do
+    ~H"""
+    <.link href={@href} patch={@patch} class={["btn-primary", "flex gap-2", @class]} {@rest}>
+      <div>
+        {render_slot(@inner_block)}
+      </div>
+    </.link>
+    """
+  end
+
+  def primary_button(assigns) do
+    ~H"""
+    <button class={["btn-primary flex gap-2", @class]} disabled={@disabled} {@rest}>
+      {render_slot(@inner_block)}
+    </button>
+    """
+  end
 end
