@@ -3,10 +3,8 @@ defmodule DpulCollections.Workers.CacheHeroImages do
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: _}) do
-    # Cache hero thumbnails with 10 minute timeout
-    DpulCollectionsWeb.HomeLive.hero_images()
-    |> Enum.map(fn url -> Task.async(__MODULE__, :cache_iiif_image, [url]) end)
-    |> Task.await_many(600_000)
+    # Cache hero thumbnails
+    DpulCollectionsWeb.HomeLive.hero_images() |> Enum.each(&cache_iiif_image(&1))
 
     :ok
   end
