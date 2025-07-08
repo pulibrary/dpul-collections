@@ -3,8 +3,10 @@ defmodule DpulCollections.Workers.CacheHeroImages do
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: _}) do
-    # Cache hero thumbnails
-    DpulCollectionsWeb.HomeLive.hero_images() |> Enum.each(&cache_iiif_image(&1))
+    # Cache hero thumbnails with 10 minute timeout
+    DpulCollectionsWeb.HomeLive.hero_images()
+    |> Enum.map(fn url -> Task.async(__MODULE__, :cache_iiif_image, [url]) end)
+    |> Task.await_many(600_000)
 
     :ok
   end
@@ -40,10 +42,7 @@ defmodule DpulCollections.Workers.CacheHeroImages do
       |> Enum.drop(-4)
       |> Enum.join("/")
 
-    hero_image_configurations()
-    |> Enum.map(fn config -> Task.async(__MODULE__, :cache_iiif_image, [base_url, config]) end)
-    # 2 minute timeout
-    |> Task.await_many(120_000)
+    hero_image_configurations() |> Enum.each(&cache_iiif_image(base_url, &1))
   end
 
   def cache_iiif_image(base_url, configuration) do

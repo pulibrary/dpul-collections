@@ -34,21 +34,32 @@ defmodule DpulCollections.Workers.CacheThumbnails do
       |> DpulCollections.Item.from_solr()
 
     # Cache standard thumbnails
-    item.image_service_urls |> Enum.each(&cache_iiif_image(&1))
+    tasks =
+      item.image_service_urls
+      |> Enum.map(fn url -> Task.async(__MODULE__, :cache_iiif_image, [url]) end)
 
     # Cache primary thumbnail item page image
-    if item.primary_thumbnail_service_url do
-      cache_iiif_image(item.primary_thumbnail_service_url, primary_thumbnail_configuration(item))
-    end
+    primary_thumbnail_task =
+      case item.primary_thumbnail_service_url do
+        nil ->
+          []
+
+        _ ->
+          Task.async(__MODULE__, :cache_iiif_image, [
+            item.primary_thumbnail_service_url,
+            primary_thumbnail_configuration(item)
+          ])
+          |> List.wrap()
+      end
+
+    # Run tasks with 10 minute timeout
+    Task.await_many(tasks ++ primary_thumbnail_task, 600_000)
 
     :ok
   end
 
   def cache_iiif_image(base_url) do
-    thumbnail_configurations()
-    |> Enum.map(fn config -> Task.async(__MODULE__, :cache_iiif_image, [base_url, config]) end)
-    # 2 minute timeout
-    |> Task.await_many(120_000)
+    thumbnail_configurations() |> Enum.each(&cache_iiif_image(base_url, &1))
   end
 
   def cache_iiif_image(base_url, configuration) do
