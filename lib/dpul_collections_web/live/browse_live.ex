@@ -60,7 +60,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def recommended_items_from_pinned([]), do: []
 
   def recommended_items_from_pinned(pinned_items) when is_list(pinned_items) do
-    Solr.related_items(pinned_items, SearchState.from_params(%{}))["docs"]
+    Solr.related_items(pinned_items, SearchState.from_params(%{}), 50)["docs"]
     |> Enum.map(&Item.from_solr(&1))
   end
 
@@ -158,7 +158,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
     ~H"""
     <div id="recommended-items" class="hidden">
       <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,_1fr))] gap-6 pt-5 col-span-3">
-        <.browse_item :for={item <- @recommended_items} id={"rec-browse-#{item.id}"} item={item} />
+        <.browse_item :for={item <- @recommended_items} item={item} />
       </div>
     </div>
     """
