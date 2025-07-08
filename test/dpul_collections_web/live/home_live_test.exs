@@ -64,7 +64,7 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
   end
 
   test "link to filters", %{conn: conn} do
-    {:ok, view, _} = live(conn, "/")
+    {:ok, _, _} = live(conn, "/")
 
     ["photographs", "posters", "books"]
     |> Enum.each(fn genre ->
