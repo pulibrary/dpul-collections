@@ -9,7 +9,7 @@ defmodule DpulCollectionsWeb.HeaderComponent do
     <header class="flex flex-row gap-10 items-center bg-brand py-6 header-x-padding">
       
     <!-- logo -->
-      <.link name="Princeton University Library Logo" href="https://library.princeton.edu">
+      <.link href="https://library.princeton.edu">
         <div class="logo flex-none sm:w-32 md:w-40 hidden sm:flex">
           <img src={~p"/images/pul-logo.svg"} alt="Princeton University Library Logo" />
         </div>
