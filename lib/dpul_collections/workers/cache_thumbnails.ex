@@ -33,12 +33,17 @@ defmodule DpulCollections.Workers.CacheThumbnails do
       |> Utilities.stringify_map_keys()
       |> DpulCollections.Item.from_solr()
 
-    # Cache standard thumbnails
+    # Cache top 12 (number of thumbnails on item page).
+    # Plus the primary thumbnail.
     tasks =
       item.image_service_urls
+      |> Enum.take(12)
+      |> List.insert_at(0, item.primary_thumbnail_service_url)
+      |> Enum.reject(&is_nil/1)
+      |> Enum.uniq()
       |> Enum.map(fn url -> Task.async(__MODULE__, :cache_iiif_image, [url]) end)
 
-    # Cache primary thumbnail item page image
+    # Cache larger primary thumbnail image
     primary_thumbnail_task =
       case item.primary_thumbnail_service_url do
         nil ->
