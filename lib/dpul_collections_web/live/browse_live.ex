@@ -158,7 +158,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
     ~H"""
     <div id="recommended-items" class="hidden">
       <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,_1fr))] gap-6 pt-5 col-span-3">
-        <.browse_item :for={item <- @recommended_items} item={item} />
+        <.browse_item :for={item <- @recommended_items} id={"rec-item-#{item.id}"} item={item} />
       </div>
     </div>
     """

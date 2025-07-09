@@ -41,10 +41,14 @@ defmodule DpulCollectionsWeb.BrowseItem do
   attr :item, Item, required: true
   attr :added?, :boolean, default: false
   attr :pinnable?, :boolean, default: true
+  attr :id, :string, default: nil
 
   def browse_item(assigns) do
     ~H"""
-    <div class="flex bg-white flex-col overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_var(--color-sage-300)] min-w-[250px]">
+    <div
+      id={@id || "browse-item-#{@item.id}"}
+      class="flex bg-white flex-col overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_var(--color-sage-300)] min-w-[250px]"
+    >
       <!-- pin -->
       <div
         :if={@pinnable?}
