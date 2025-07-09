@@ -166,7 +166,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     assert src == ["https://example.com/iiif/2/image1/square/350,350/0/default.jpg"]
   end
 
-  test "renders large and small thumbnails", %{conn: conn} do
+  test "renders large and small thumbnails that link to records", %{conn: conn} do
     Solr.add(
       [
         %{
@@ -197,5 +197,14 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
              "https://example.com/iiif/2/image1/square/350,350/0/default.jpg",
              "https://example.com/iiif/2/image2/square/100,100/0/default.jpg"
            ]
+
+    first_href =
+      html
+      |> Floki.parse_document!()
+      |> Floki.find(".thumb-link")
+      |> Enum.flat_map(&Floki.attribute(&1, "href"))
+      |> Enum.at(0)
+
+    assert first_href == "/i/documentn/item/n"
   end
 end

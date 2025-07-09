@@ -69,11 +69,11 @@ defmodule DpulCollectionsWeb.BrowseItem do
         <div class="grid grid-rows-[repeat(4, 25%)] gap-2 h-[24rem]">
           <!-- main thumbnail -->
           <div :if={@item.file_count == 1} class="row-span-4">
-            <.thumb thumb={thumbnail_service_url(@item)} />
+            <.thumb thumb={thumbnail_service_url(@item)} link={@item.url} />
           </div>
 
           <div :if={@item.file_count > 1} class="row-span-3 overflow-hidden h-[18rem]">
-            <.thumb thumb={thumbnail_service_url(@item)} />
+            <.thumb thumb={thumbnail_service_url(@item)} link={@item.url} />
           </div>
           
     <!-- smaller thumbnails -->
@@ -83,6 +83,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
               :if={@item.file_count}
               thumb={thumb}
               thumb_num={thumb_num}
+              link={@item.url}
             />
           </div>
         </div>
@@ -113,11 +114,13 @@ defmodule DpulCollectionsWeb.BrowseItem do
 
   def thumb(assigns) do
     ~H"""
-    <img
-      class="thumbnail bg-slate-400 text-white h-full w-full object-cover"
-      src={thumbnail_url(assigns)}
-      alt="thumbnail image"
-    />
+    <.link navigate={@link} class="thumb-link">
+      <img
+        class="thumbnail bg-slate-400 text-white h-full w-full object-cover"
+        src={thumbnail_url(assigns)}
+        alt="thumbnail image"
+      />
+    </.link>
     """
   end
 
