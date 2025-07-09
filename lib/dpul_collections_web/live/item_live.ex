@@ -428,8 +428,8 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def primary_thumbnail(assigns) do
     ~H"""
-    <div class="primary-thumbnail grid grid-cols-[auto_minmax(0,1fr)] gap-y-2 content-start mb-2">
-      <div class="col-span-2 grid grid-cols-subgrid relative">
+    <div class="grid grid-cols-[auto_minmax(0,1fr)] gap-y-2 content-start mb-2">
+      <div class="primary-thumbnail col-span-2 grid grid-cols-subgrid relative">
         <div :if={@display_size} class="col-start-2 flex justify-center items-center">
           <span class="h-[11px] w-[1px] bg-accent"></span>
           <span class="h-[1px] mr-[5px] flex-grow bg-accent"></span>
@@ -470,7 +470,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         </div>
       </div>
       <div class="w-full col-span-2 gap-2">
-        <div class="grid grid-cols-2 gap-2">
+        <div class="thumbnail-buttons grid grid-cols-2 gap-2">
           <.primary_button
             id="viewer-link"
             class="left-arrow-box"

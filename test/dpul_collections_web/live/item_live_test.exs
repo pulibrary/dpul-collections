@@ -174,29 +174,24 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       assert document |> Floki.find(~s{dt:fl-contains("Sort title")}) |> Enum.any?() == false
     end
 
-    test "renders values and thumbnails", %{conn: conn} do
+    test "renders values, thumbnails, and links", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
       response = render(view)
       assert response =~ "Învăţămîntul trebuie să urmărească dezvoltarea deplină a personalităţii"
       assert response =~ "2022"
       assert response =~ "17"
       assert response =~ "This is a test description"
-      # Thumbnails render with link to viewer
+
+      # Small thumbnails render with links to viewer
       assert view
              |> has_element?(
-               "img[src='https://example.com/iiif/2/image1/full/350,465/0/default.jpg']"
+               "a[href='/i/învăţămîntul-trebuie-urmărească-dez/item/1/viewer/1'] > img[src='https://example.com/iiif/2/image1/full/350,465/0/default.jpg']"
              )
 
       assert view
-             |> has_element?("a[href='/i/învăţămîntul-trebuie-urmărească-dez/item/1/viewer/1']")
-
-      assert view
              |> has_element?(
-               "img[src='https://example.com/iiif/2/image2/full/350,465/0/default.jpg']"
+               "a[href='/i/învăţămîntul-trebuie-urmărească-dez/item/1/viewer/2'] > img[src='https://example.com/iiif/2/image2/full/350,465/0/default.jpg']"
              )
-
-      assert view
-             |> has_element?("a[href='/i/învăţămîntul-trebuie-urmărească-dez/item/1/viewer/2']")
 
       # Large thumbnail renders using thumbnail service url
       assert view
@@ -214,11 +209,11 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
 
       assert view
              |> has_element?(
-               ".primary-thumbnail a[href='https://figgy.example.com/concern/ephemera_folders/3da68e1c-06af-4d17-8603-fc73152e1ef7/pdf']",
+               ".thumbnail-buttons a[href='https://figgy.example.com/concern/ephemera_folders/3da68e1c-06af-4d17-8603-fc73152e1ef7/pdf']",
                "Download"
              )
 
-      # Renders when there's no description
+      # Page renders when there's no description
       {:ok, view, _html} = live(conn, "/i/زلزلہ/item/2")
       response = render(view)
       assert response =~ "زلزلہ"
