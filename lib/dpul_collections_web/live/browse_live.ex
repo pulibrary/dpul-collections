@@ -78,6 +78,20 @@ defmodule DpulCollectionsWeb.BrowseLive do
     |> Enum.map(&Item.from_solr(&1))
   end
 
+  # Shuffled MLT gets the more like this items from all pinned things and
+  # shuffles the top 50 of each.
+  def recommended_items_from_pinned(pinned_items, "Shuffled MLT")
+      when is_list(pinned_items) do
+    # Slow implementation, but should be roughly the same as having Solr do it.
+    pinned_items
+    |> Enum.flat_map(fn pinned_item ->
+      Solr.related_items(pinned_item, SearchState.from_params(%{}), 50)["docs"]
+    end)
+    |> Enum.shuffle()
+    |> Enum.take(50)
+    |> Enum.map(&Item.from_solr(&1))
+  end
+
   def handle_event("show_stickytools", _params, socket) do
     {:noreply, assign(socket, :show_stickytools?, true)}
   end
@@ -199,19 +213,34 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def recommended_items(assigns) do
     ~H"""
     <div id="recommended-items" class="hidden">
-      <.primary_button
-        class={
-          [
-            "px-4",
-            if(@recommendation_algorithm == "Combined MLT Score", do: "selected")
-          ]
-          |> Enum.join(" ")
-        }
-        phx-click="select_algo"
-        phx-value-algo="Combined MLT Score"
-      >
-        Combined MLT Score
-      </.primary_button>
+      <div class="flex gap-4">
+        <.primary_button
+          class={
+            [
+              "px-4",
+              if(@recommendation_algorithm == "Combined MLT Score", do: "selected")
+            ]
+            |> Enum.join(" ")
+          }
+          phx-click="select_algo"
+          phx-value-algo="Combined MLT Score"
+        >
+          Combined MLT Score
+        </.primary_button>
+        <.primary_button
+          class={
+            [
+              "px-4",
+              if(@recommendation_algorithm == "Shuffled MLT", do: "selected")
+            ]
+            |> Enum.join(" ")
+          }
+          phx-click="select_algo"
+          phx-value-algo="Shuffled MLT"
+        >
+          Shuffled MLT
+        </.primary_button>
+      </div>
       <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,_1fr))] gap-6 pt-5 col-span-3">
         <.browse_item :for={item <- @recommended_items} id={"rec-item-#{item.id}"} item={item} />
       </div>
