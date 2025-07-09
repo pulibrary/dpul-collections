@@ -104,58 +104,76 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     on_exit(fn -> Solr.delete_all(active_collection()) end)
   end
 
-  test "/item/{:id} displays metadata fields", %{conn: conn} do
-    conn = get(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
+  describe "url paths and routing" do
+    test "/item/{:id} redirects when title is recognized latin script", %{conn: conn} do
+      conn = get(conn, "/item/1")
+      assert redirected_to(conn, 302) == "/i/învăţămîntul-trebuie-urmărească-dez/item/1"
+    end
 
-    {:ok, document} =
-      html_response(conn, 200)
-      |> Floki.parse_document()
+    test "/i/{:slug}/item/{:id} redirects when slug is incorrect",
+         %{conn: conn} do
+      conn = get(conn, "/i/not-a-real-slug/item/1")
+      assert redirected_to(conn, 302) == "/i/învăţămîntul-trebuie-urmărească-dez/item/1"
+    end
 
-    assert document |> Floki.find(~s{dt:fl-contains("Creator of work")}) |> Enum.any?()
-    assert document |> Floki.find(~s{.metadata *:fl-contains("creator")}) |> Enum.any?()
-    assert document |> Floki.find(~s{dt:fl-contains("Geographic Origin")}) |> Enum.any?()
-    assert document |> Floki.find(~s{.metadata *:fl-contains("geographic origin")}) |> Enum.any?()
-    assert document |> Floki.find(~s{dt:fl-contains("Language")}) |> Enum.any?()
-    assert document |> Floki.find(~s{.metadata *:fl-contains("language")}) |> Enum.any?()
-    assert document |> Floki.find(~s{dt:fl-contains("Publisher")}) |> Enum.any?()
-    assert document |> Floki.find(~s{.metadata *:fl-contains("publisher")}) |> Enum.any?()
-    assert document |> Floki.find(~s{dt:fl-contains("Subject")}) |> Enum.any?()
-    assert document |> Floki.find(~s{.metadata *:fl-contains("subject")}) |> Enum.any?()
-    assert document |> Floki.find(~s{*:fl-contains("Test Project")}) |> Enum.any?()
+    test "/i/{:slug}/item/{:id} does not redirect when slug is correct",
+         %{conn: conn} do
+      conn = get(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
+      assert conn.status == 200
+    end
 
-    # Does not display unconfigured fields
-    assert document |> Floki.find(~s{dt:fl-contains("Sort title")}) |> Enum.any?() == false
+    test "/i/{:slug}/item/{:id} does not redirect with url encoded arabic slug",
+         %{conn: conn} do
+      conn =
+        get(
+          conn,
+          "/i/%D8%A7%D8%A8-%D9%83%D9%88%D8%A6%D9%89-%D8%AC%D9%86%DA%AF-%D9%86%D9%87-%D9%87%D9%88%DA%AF%D9%89/item/3"
+        )
+
+      assert conn.status == 200
+    end
+
+    test "/i/{:slug}/item/{:id} 404s with a bad id", %{conn: conn} do
+      assert_error_sent 404, fn ->
+        get(conn, "/i/not-a-real-slug/item/badid1")
+      end
+    end
+
+    test "GET /item/{:id} 404s with a bad id", %{conn: conn} do
+      assert_error_sent 404, fn ->
+        get(conn, "/item/badid1")
+      end
+    end
   end
 
-  test "/item/{:id} redirects when title is recognized latin script", %{conn: conn} do
-    conn = get(conn, "/item/1")
-    assert redirected_to(conn, 302) == "/i/învăţămîntul-trebuie-urmărească-dez/item/1"
-  end
+  describe "page display" do
+    test "displays metadata fields", %{conn: conn} do
+      conn = get(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
 
-  test "/i/{:slug}/item/{:id} redirects when slug is incorrect",
-       %{conn: conn} do
-    conn = get(conn, "/i/not-a-real-slug/item/1")
-    assert redirected_to(conn, 302) == "/i/învăţămîntul-trebuie-urmărească-dez/item/1"
-  end
+      {:ok, document} =
+        html_response(conn, 200)
+        |> Floki.parse_document()
 
-  test "/i/{:slug}/item/{:id} does not redirect when slug is correct",
-       %{conn: conn} do
-    conn = get(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
-    assert conn.status == 200
-  end
+      assert document |> Floki.find(~s{dt:fl-contains("Creator of work")}) |> Enum.any?()
+      assert document |> Floki.find(~s{.metadata *:fl-contains("creator")}) |> Enum.any?()
+      assert document |> Floki.find(~s{dt:fl-contains("Geographic Origin")}) |> Enum.any?()
 
-  test "/i/{:slug}/item/{:id} does not redirect with url encoded arabic slug",
-       %{conn: conn} do
-    conn =
-      get(
-        conn,
-        "/i/%D8%A7%D8%A8-%D9%83%D9%88%D8%A6%D9%89-%D8%AC%D9%86%DA%AF-%D9%86%D9%87-%D9%87%D9%88%DA%AF%D9%89/item/3"
-      )
+      assert document
+             |> Floki.find(~s{.metadata *:fl-contains("geographic origin")})
+             |> Enum.any?()
 
-    assert conn.status == 200
-  end
+      assert document |> Floki.find(~s{dt:fl-contains("Language")}) |> Enum.any?()
+      assert document |> Floki.find(~s{.metadata *:fl-contains("language")}) |> Enum.any?()
+      assert document |> Floki.find(~s{dt:fl-contains("Publisher")}) |> Enum.any?()
+      assert document |> Floki.find(~s{.metadata *:fl-contains("publisher")}) |> Enum.any?()
+      assert document |> Floki.find(~s{dt:fl-contains("Subject")}) |> Enum.any?()
+      assert document |> Floki.find(~s{.metadata *:fl-contains("subject")}) |> Enum.any?()
+      assert document |> Floki.find(~s{*:fl-contains("Test Project")}) |> Enum.any?()
 
-  describe "GET /i/{:slug}/item/{:id}" do
+      # Does not display unconfigured fields
+      assert document |> Floki.find(~s{dt:fl-contains("Sort title")}) |> Enum.any?() == false
+    end
+
     test "renders values and thumbnails", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
       response = render(view)
@@ -206,6 +224,16 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       assert response =~ "زلزلہ"
     end
 
+    test "doesn't display a pdf for resources with no pdf permission", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/i/زلزلہ/item/2")
+      response = render(view)
+
+      assert response =~ "زلزلہ"
+      assert response =~ "No PDF Available"
+    end
+  end
+
+  describe "size toggle" do
     test "displays size when using the button", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
 
@@ -250,15 +278,9 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
 
       refute html =~ "Letter Paper"
     end
+  end
 
-    test "doesn't display a pdf for resources with no pdf permission", %{conn: conn} do
-      {:ok, view, _html} = live(conn, "/i/زلزلہ/item/2")
-      response = render(view)
-
-      assert response =~ "زلزلہ"
-      assert response =~ "No PDF Available"
-    end
-
+  describe "related items" do
     test "shows some related items", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
 
@@ -275,28 +297,18 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     end
   end
 
-  test "/i/{:slug}/item/{:id} 404s with a bad id", %{conn: conn} do
-    assert_error_sent 404, fn ->
-      get(conn, "/i/not-a-real-slug/item/badid1")
+  describe ".rights_path" do
+    test "converts strings to image paths" do
+      assert ItemLive.rights_path("Copyright Not Evaluated") == "copyright-not-evaluated.svg"
+      assert ItemLive.rights_path("CC-BY 4.0") == "ccby-40.svg"
+      assert ItemLive.rights_path(["CC-BY 4.0"]) == "ccby-40.svg"
+
+      assert ItemLive.rights_path("In Copyright - Rights-holder(s) Unlocatable or Unidentifiable") ==
+               "in-copyright--rightsholders-unlocatable-or-unidentifiable.svg"
+
+      assert ItemLive.rights_path("In Copyright - Educational Use Permitted") ==
+               "in-copyright--educational-use-permitted.svg"
     end
-  end
-
-  test "GET /item/{:id} 404s with a bad id", %{conn: conn} do
-    assert_error_sent 404, fn ->
-      get(conn, "/item/badid1")
-    end
-  end
-
-  test ".rights_path converts strings to image paths" do
-    assert ItemLive.rights_path("Copyright Not Evaluated") == "copyright-not-evaluated.svg"
-    assert ItemLive.rights_path("CC-BY 4.0") == "ccby-40.svg"
-    assert ItemLive.rights_path(["CC-BY 4.0"]) == "ccby-40.svg"
-
-    assert ItemLive.rights_path("In Copyright - Rights-holder(s) Unlocatable or Unidentifiable") ==
-             "in-copyright--rightsholders-unlocatable-or-unidentifiable.svg"
-
-    assert ItemLive.rights_path("In Copyright - Educational Use Permitted") ==
-             "in-copyright--educational-use-permitted.svg"
   end
 
   describe "GET /i/{:slug}/item/{:id}/viewer" do
