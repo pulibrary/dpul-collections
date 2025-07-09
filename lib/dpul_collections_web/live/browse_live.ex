@@ -8,7 +8,13 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def mount(_params, _session, socket) do
     socket =
       socket
-      |> assign(items: [], pinned_items: [], recommended_items: [], show_stickytools?: false)
+      |> assign(
+        items: [],
+        pinned_items: [],
+        recommendation_algorithm: "Combined MLT Score",
+        recommended_items: [],
+        show_stickytools?: false
+      )
 
     {:ok, socket}
   end
@@ -39,7 +45,14 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def handle_event(
         "pin",
         %{"item_id" => id},
-        socket = %{assigns: %{items: items, pinned_items: pinned_items, recommended_items: recommended_items}}
+        socket = %{
+          assigns: %{
+            items: items,
+            pinned_items: pinned_items,
+            recommended_items: recommended_items,
+            recommendation_algorithm: algo
+          }
+        }
       ) do
     doc = Enum.concat(items, recommended_items) |> Enum.find(fn item -> item.id == id end)
 
@@ -52,14 +65,15 @@ defmodule DpulCollectionsWeb.BrowseLive do
           List.delete_at(pinned_items, idx)
       end
 
-    recommended_items = recommended_items_from_pinned(pinned)
+    recommended_items = recommended_items_from_pinned(pinned, algo)
     socket = socket |> assign(pinned_items: pinned, recommended_items: recommended_items)
     {:noreply, socket}
   end
 
-  def recommended_items_from_pinned([]), do: []
+  def recommended_items_from_pinned([], _), do: []
 
-  def recommended_items_from_pinned(pinned_items) when is_list(pinned_items) do
+  def recommended_items_from_pinned(pinned_items, "Combined MLT Score")
+      when is_list(pinned_items) do
     Solr.related_items(pinned_items, SearchState.from_params(%{}), 50)["docs"]
     |> Enum.map(&Item.from_solr(&1))
   end
@@ -154,9 +168,50 @@ defmodule DpulCollectionsWeb.BrowseLive do
     """
   end
 
+  def handle_event(
+        "select_algo",
+        %{"algo" => algo},
+        socket = %{
+          assigns: %{
+            recommendation_algorithm: algo
+          }
+        }
+      ) do
+    {:noreply, socket}
+  end
+
+  def handle_event(
+        "select_algo",
+        %{"algo" => algo},
+        socket = %{
+          assigns: %{
+            recommendation_algorithm: _other_algo,
+            pinned_items: pinned
+          }
+        }
+      ) do
+    recommended_items = recommended_items_from_pinned(pinned, algo)
+
+    {:noreply,
+     socket |> assign(%{recommendation_algorithm: algo, recommended_items: recommended_items})}
+  end
+
   def recommended_items(assigns) do
     ~H"""
     <div id="recommended-items" class="hidden">
+      <.primary_button
+        class={
+          [
+            "px-4",
+            if(@recommendation_algorithm == "Combined MLT Score", do: "selected")
+          ]
+          |> Enum.join(" ")
+        }
+        phx-click="select_algo"
+        phx-value-algo="Combined MLT Score"
+      >
+        Combined MLT Score
+      </.primary_button>
       <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,_1fr))] gap-6 pt-5 col-span-3">
         <.browse_item :for={item <- @recommended_items} id={"rec-item-#{item.id}"} item={item} />
       </div>
