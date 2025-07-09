@@ -137,6 +137,9 @@
 
 @utility btn-primary {
   @apply flex items-center justify-center cursor-pointer font-bold *:font-bold uppercase bg-primary text-dark-text h-14 disabled:cursor-not-allowed;
+  &.selected {
+    @apply bg-accent text-light-text;
+  }
 }
 
 @utility btn-secondary {

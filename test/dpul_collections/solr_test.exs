@@ -44,6 +44,71 @@ defmodule DpulCollections.SolrTest do
   end
 
   describe ".related_items/1" do
+    test "can return items similar to multiple items" do
+      docs = [
+        %{
+          "id" => "reference",
+          "title_txtm" => ["test title 1"],
+          "genre_txtm" => ["pamphlets"],
+          "subject_txtm" => ["folk art", "museum exhibits"],
+          "ephemera_project_title_s" => "Latin American Ephemera"
+        },
+        %{
+          "id" => "reference_2",
+          "title_txtm" => ["test title 1"],
+          "genre_txtm" => ["posters"],
+          "subject_txtm" => ["dances", "more dances"],
+          "ephemera_project_title_s" => "Latin American Ephemera"
+        },
+        %{
+          "id" => "similar",
+          "title_txtm" => ["similar item"],
+          "genre_txtm" => ["pamphlets"],
+          "subject_txtm" => ["folk art", "music"],
+          "ephemera_project_title_s" => "Latin American Ephemera"
+        },
+        %{
+          "id" => "less-similar",
+          "title_txtm" => ["item that's not as similar"],
+          "genre_txtm" => ["pamphlets"],
+          "subject_txtm" => ["education", "music"],
+          "ephemera_project_title_s" => "Latin American Ephemera"
+        },
+        %{
+          "id" => "other-project",
+          "title_txtm" => ["similar item"],
+          "genre_txtm" => ["pamphlets"],
+          "subject_txtm" => ["folk art", "music"],
+          "ephemera_project_title_s" => "South Asian Ephemera"
+        },
+        %{
+          "id" => "similar-to-2",
+          "title_txtm" => ["similar item"],
+          "genre_txtm" => ["pamphlets"],
+          "subject_txtm" => ["dances", "more dances"],
+          "ephemera_project_title_s" => "Latin American Ephemera"
+        }
+      ]
+
+      Solr.add(docs, active_collection())
+      Solr.commit(active_collection())
+
+      results =
+        Solr.related_items(
+          [
+            %Item{id: "reference", project: "Latin American Ephemera"},
+            %Item{id: "reference_2", project: "Latin American Ephemera"}
+          ],
+          %{
+            filter: %{"project" => "Latin American Ephemera"}
+          }
+        )
+        |> Map.get("docs")
+        |> Enum.map(&Map.get(&1, "id"))
+
+      assert results == ["similar-to-2", "similar", "less-similar"]
+    end
+
     test "returns similar items in the same collection" do
       docs = [
         %{

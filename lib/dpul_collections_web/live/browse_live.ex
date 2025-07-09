@@ -1,4 +1,5 @@
 defmodule DpulCollectionsWeb.BrowseLive do
+  alias DpulCollectionsWeb.SearchLive.SearchState
   use DpulCollectionsWeb, :live_view
   use Gettext, backend: DpulCollectionsWeb.Gettext
   import DpulCollectionsWeb.BrowseItem
@@ -7,7 +8,13 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def mount(_params, _session, socket) do
     socket =
       socket
-      |> assign(items: [], pinned_items: [], show_stickytools?: false)
+      |> assign(
+        items: [],
+        pinned_items: [],
+        recommendation_algorithm: "Combined MLT Score",
+        recommended_items: [],
+        show_stickytools?: false
+      )
 
     {:ok, socket}
   end
@@ -38,18 +45,51 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def handle_event(
         "pin",
         %{"item_id" => id},
-        socket = %{assigns: %{items: items, pinned_items: pinned_items}}
+        socket = %{
+          assigns: %{
+            items: items,
+            pinned_items: pinned_items,
+            recommended_items: recommended_items,
+            recommendation_algorithm: algo
+          }
+        }
       ) do
-    doc = items |> Enum.find(fn item -> item.id == id end)
+    doc = Enum.concat(items, recommended_items) |> Enum.find(fn item -> item.id == id end)
 
-    case Enum.find_index(pinned_items, fn pinned_item -> doc.id == pinned_item.id end) do
-      nil ->
-        {:noreply, socket |> assign(pinned_items: Enum.concat(pinned_items, [doc]))}
+    pinned =
+      case Enum.find_index(pinned_items, fn pinned_item -> doc.id == pinned_item.id end) do
+        nil ->
+          Enum.concat(pinned_items, [doc])
 
-      idx ->
-        socket = socket |> assign(pinned_items: List.delete_at(pinned_items, idx))
-        {:noreply, socket}
-    end
+        idx ->
+          List.delete_at(pinned_items, idx)
+      end
+
+    recommended_items = recommended_items_from_pinned(pinned, algo)
+    socket = socket |> assign(pinned_items: pinned, recommended_items: recommended_items)
+    {:noreply, socket}
+  end
+
+  def recommended_items_from_pinned([], _), do: []
+
+  def recommended_items_from_pinned(pinned_items, "Combined MLT Score")
+      when is_list(pinned_items) do
+    Solr.related_items(pinned_items, SearchState.from_params(%{}), 50)["docs"]
+    |> Enum.map(&Item.from_solr(&1))
+  end
+
+  # Shuffled MLT gets the more like this items from all pinned things and
+  # shuffles the top 50 of each.
+  def recommended_items_from_pinned(pinned_items, "Shuffled MLT")
+      when is_list(pinned_items) do
+    # Slow implementation, but should be roughly the same as having Solr do it.
+    pinned_items
+    |> Enum.flat_map(fn pinned_item ->
+      Solr.related_items(pinned_item, SearchState.from_params(%{}), 50)["docs"]
+    end)
+    |> Enum.shuffle()
+    |> Enum.take(50)
+    |> Enum.map(&Item.from_solr(&1))
   end
 
   def handle_event("show_stickytools", _params, socket) do
@@ -60,35 +100,165 @@ defmodule DpulCollectionsWeb.BrowseLive do
     {:noreply, assign(socket, :show_stickytools?, false)}
   end
 
+  def extra(assigns) do
+    ~H"""
+    <.sticky_tools show_stickytools?={@show_stickytools?}>{length(@pinned_items)}</.sticky_tools>
+    <h1 class="col-span-3">{gettext("Pinned")}</h1>
+    <div id="pinned-items" class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-1">
+      <div class="grid grid-flow-row auto-rows-max gap-8">
+        <DpulCollectionsWeb.SearchLive.search_item
+          :for={item <- @pinned_items}
+          search_state={%{}}
+          item={item}
+        />
+      </div>
+    </div>
+    """
+  end
+
   def render(assigns) do
     ~H"""
     <div class="content-area">
-      <.sticky_tools show_stickytools?={@show_stickytools?}>{length(@pinned_items)}</.sticky_tools>
-      <h1 class="col-span-3">{gettext("Pinned")}</h1>
-      <div id="pinned-items" class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-1">
-        <div class="grid grid-flow-row auto-rows-max gap-8">
-          <DpulCollectionsWeb.SearchLive.search_item
-            :for={item <- @pinned_items}
-            search_state={%{}}
-            item={item}
-          />
-        </div>
-      </div>
       <div
         class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-4"
         id="browse-header"
         phx-hook="ToolbarHook"
       >
-        <h1 class="col-span-3">{gettext("Browse")}</h1>
-        <button
-          class="col-span-1 btn-primary tracking-wider text-xl
-          hover:bg-sage-200 transform transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
-          phx-click="randomize"
-        >
-          {gettext("Randomize")}
-        </button>
+        <h1 class="col-span-4 font-bold">{gettext("Browse")}</h1>
+        <div id="browse-buttons" class="grid col-span-4 grid-cols-3 gap-4 border-b-4 border-accent">
+          <.primary_button phx-click={select_tab("liked-items")}>
+            <.icon name="hero-heart-solid" class="bg-accent" />My Liked Items ({length(@pinned_items)})
+          </.primary_button>
+          <.primary_button phx-click={select_tab("recommended-items")}>
+            Recommended Items
+          </.primary_button>
+          <.primary_button class="selected" phx-click={select_tab("random-selections")}>
+            Random Items
+          </.primary_button>
+        </div>
+        <div id="browse-tab-content" class="col-span-4">
+          <.liked_items {assigns} />
+          <.recommended_items {assigns} />
+          <.random_selections {assigns} />
+        </div>
       </div>
-      <div class="grid grid-cols-3 gap-6 pt-5">
+    </div>
+    """
+  end
+
+  def select_tab(tab_id, js \\ %JS{}) do
+    js
+    |> JS.remove_class("selected", to: "#browse-buttons .selected")
+    |> JS.add_class("selected")
+    |> JS.add_class("hidden", to: "#browse-tab-content > div")
+    |> JS.remove_class("hidden", to: "##{tab_id}")
+  end
+
+  def liked_items(assigns) do
+    ~H"""
+    <div id="liked-items" class="flex flex-col gap-4 hidden">
+      <h2>Liked items</h2>
+      <div>Liked items can be used to make recommendations based on the items you have liked.</div>
+      <div class="flex gap-4">
+        <.primary_button class="px-4">
+          <.icon name="hero-check-solid" />Check all items
+        </.primary_button>
+        <.primary_button class="px-4">
+          <.icon name="hero-trash" />Remove checked items
+        </.primary_button>
+      </div>
+      <div class="grid grid-flow-row auto-rows-max gap-8">
+        <div :for={item <- @pinned_items} class="grid grid-cols-[auto_minmax(0,1fr)] gap-4">
+          <hr class="mb-8 col-span-2" />
+          <div>
+            <input type="checkbox" />
+          </div>
+          <div class="flex gap-4 flex-col">
+            <DpulCollectionsWeb.SearchLive.search_item search_state={%{}} item={item} />
+          </div>
+        </div>
+      </div>
+    </div>
+    """
+  end
+
+  def handle_event(
+        "select_algo",
+        %{"algo" => algo},
+        socket = %{
+          assigns: %{
+            recommendation_algorithm: algo
+          }
+        }
+      ) do
+    {:noreply, socket}
+  end
+
+  def handle_event(
+        "select_algo",
+        %{"algo" => algo},
+        socket = %{
+          assigns: %{
+            recommendation_algorithm: _other_algo,
+            pinned_items: pinned
+          }
+        }
+      ) do
+    recommended_items = recommended_items_from_pinned(pinned, algo)
+
+    {:noreply,
+     socket |> assign(%{recommendation_algorithm: algo, recommended_items: recommended_items})}
+  end
+
+  def recommended_items(assigns) do
+    ~H"""
+    <div id="recommended-items" class="hidden">
+      <div class="flex gap-4">
+        <.primary_button
+          class={
+            [
+              "px-4",
+              if(@recommendation_algorithm == "Combined MLT Score", do: "selected")
+            ]
+            |> Enum.join(" ")
+          }
+          phx-click="select_algo"
+          phx-value-algo="Combined MLT Score"
+        >
+          Combined MLT Score
+        </.primary_button>
+        <.primary_button
+          class={
+            [
+              "px-4",
+              if(@recommendation_algorithm == "Shuffled MLT", do: "selected")
+            ]
+            |> Enum.join(" ")
+          }
+          phx-click="select_algo"
+          phx-value-algo="Shuffled MLT"
+        >
+          Shuffled MLT
+        </.primary_button>
+      </div>
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,_1fr))] gap-6 pt-5 col-span-3">
+        <.browse_item :for={item <- @recommended_items} id={"rec-item-#{item.id}"} item={item} />
+      </div>
+    </div>
+    """
+  end
+
+  def random_selections(assigns) do
+    ~H"""
+    <div id="random-selections" class="grid grid-cols-3">
+      <button
+        class="col-start-3 btn-primary tracking-wider text-xl
+          hover:bg-sage-200 transform transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
+        phx-click="randomize"
+      >
+        {gettext("Randomize")}
+      </button>
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,_1fr))] gap-6 pt-5 col-span-3">
         <.browse_item :for={item <- @items} item={item} />
       </div>
     </div>
