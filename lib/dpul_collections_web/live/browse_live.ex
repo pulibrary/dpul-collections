@@ -39,9 +39,9 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def handle_event(
         "pin",
         %{"item_id" => id},
-        socket = %{assigns: %{items: items, pinned_items: pinned_items}}
+        socket = %{assigns: %{items: items, pinned_items: pinned_items, recommended_items: recommended_items}}
       ) do
-    doc = items |> Enum.find(fn item -> item.id == id end)
+    doc = Enum.concat(items, recommended_items) |> Enum.find(fn item -> item.id == id end)
 
     pinned =
       case Enum.find_index(pinned_items, fn pinned_item -> doc.id == pinned_item.id end) do
