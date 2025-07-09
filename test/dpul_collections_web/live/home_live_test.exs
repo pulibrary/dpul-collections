@@ -77,9 +77,7 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
         |> Enum.flat_map(&Floki.attribute(&1, "href"))
         |> Enum.at(0)
 
-      # Optional: assert the href is what you expect
       assert first_href == "/i/document3/item/3"
-
     end
   end
 
