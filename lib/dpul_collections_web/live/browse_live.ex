@@ -44,7 +44,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
     doc = items |> Enum.find(fn item -> item.id == id end)
 
     pinned =
-      case Enum.find_index(pinned_items, fn pinned_item -> doc[:id] == pinned_item.id end) do
+      case Enum.find_index(pinned_items, fn pinned_item -> doc.id == pinned_item.id end) do
         nil ->
           Enum.concat(pinned_items, [doc])
 
