@@ -447,14 +447,16 @@ defmodule DpulCollectionsWeb.ItemLive do
           <span class="w-[11px] h-[1px] bg-accent"></span>
         </div>
         <div class="col-start-2 relative">
-          <img
-            src={"#{@item.primary_thumbnail_service_url}/full/!#{@item.primary_thumbnail_width},#{@item.primary_thumbnail_height}/0/default.jpg"}
-            alt="main image display"
-            style="
-            background-color: lightgray;"
-            width={@item.primary_thumbnail_width}
-            height={@item.primary_thumbnail_height}
-          />
+          <.link patch={"#{@item.viewer_url}/#{primary_thumbnail_idx(@item)}"} replace>
+            <img
+              src={"#{@item.primary_thumbnail_service_url}/full/!#{@item.primary_thumbnail_width},#{@item.primary_thumbnail_height}/0/default.jpg"}
+              alt="main image display"
+              style="
+              background-color: lightgray;"
+              width={@item.primary_thumbnail_width}
+              height={@item.primary_thumbnail_height}
+            />
+          </.link>
           <div
             :if={@display_size && relative_paper_dimension_style(@item)}
             id="letter-preview"
@@ -485,6 +487,11 @@ defmodule DpulCollectionsWeb.ItemLive do
       </div>
     </div>
     """
+  end
+
+  defp primary_thumbnail_idx(item) do
+    (Enum.find_index(item.image_service_urls, fn x -> x == item.primary_thumbnail_service_url end) ||
+       0) + 1
   end
 
   @letter_dimensions %{width: 21.59, height: 27.94}

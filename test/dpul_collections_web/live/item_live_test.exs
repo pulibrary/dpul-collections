@@ -185,18 +185,18 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       # Small thumbnails render with links to viewer
       assert view
              |> has_element?(
-               "a[href='/i/învăţămîntul-trebuie-urmărească-dez/item/1/viewer/1'] > img[src='https://example.com/iiif/2/image1/full/350,465/0/default.jpg']"
+               "a[href='/i/învăţămîntul-trebuie-urmărească-dez/item/1/viewer/1'] img[src='https://example.com/iiif/2/image1/full/350,465/0/default.jpg']"
              )
 
       assert view
              |> has_element?(
-               "a[href='/i/învăţămîntul-trebuie-urmărească-dez/item/1/viewer/2'] > img[src='https://example.com/iiif/2/image2/full/350,465/0/default.jpg']"
+               "a[href='/i/învăţămîntul-trebuie-urmărească-dez/item/1/viewer/2'] img[src='https://example.com/iiif/2/image2/full/350,465/0/default.jpg']"
              )
 
-      # Large thumbnail renders using thumbnail service url
+      # Large thumbnail links to the correct image when it's not the first image
       assert view
              |> has_element?(
-               ".primary-thumbnail img[src='https://example.com/iiif/2/image2/full/!453,600/0/default.jpg']"
+               ".primary-thumbnail a[href='/i/învăţămîntul-trebuie-urmărească-dez/item/1/viewer/2'] img[src='https://example.com/iiif/2/image2/full/!453,600/0/default.jpg']"
              )
 
       # Large thumbnail has default width
