@@ -8,6 +8,7 @@ defmodule DpulCollectionsWeb.HomeLive do
     socket =
       assign(socket,
         item_count: Solr.document_count(),
+        page_title: "Digital Collections",
         q: nil,
         recent_items:
           Solr.recently_digitized(3)["docs"]
