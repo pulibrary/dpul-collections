@@ -228,6 +228,25 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     end
   end
 
+  describe "view all images link" do
+    test "doesn't display if there are 12 or fewer images", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/i/اب-كوئى-جنگ-نه-هوگى/item/3")
+
+      response = render(view)
+      refute response =~ "View all images"
+    end
+
+    test "links to viewer if there are more than 12 images", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
+
+      assert view
+             |> has_element?(
+               "a[href='/i/învăţămîntul-trebuie-urmărească-dez/item/1/viewer/1']",
+               "View all images"
+             )
+    end
+  end
+
   describe "size toggle" do
     test "displays size when using the button", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
