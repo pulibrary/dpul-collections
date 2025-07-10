@@ -144,19 +144,26 @@ defmodule DpulCollectionsWeb.ItemLive do
             <div class="grid grid-cols-2 py-1 pr-2">
               <div class="text-left text-l text-gray-600 font-semibold">
                 {gettext("%{file_min} of %{file_max} images",
-                  file_min: min(@item.file_count, 12),
+                  file_min: min(@item.file_count, image_thumb_grid_count()),
                   file_max: @item.file_count
                 )}
               </div>
               <div class="text-right text-accent uppercase">
-                <a href="#" target="_blank">
+                <.link
+                  :if={@item.file_count > image_thumb_grid_count()}
+                  patch={"#{@item.viewer_url}/1"}
+                  replace
+                >
                   {gettext("View all images")}
-                </a>
+                </.link>
               </div>
             </div>
             <div class="py-1 grid grid-cols-4">
               <.thumbs
-                :for={{thumb, thumb_num} <- Enum.with_index(Enum.take(@item.image_service_urls, 12))}
+                :for={
+                  {thumb, thumb_num} <-
+                    Enum.with_index(Enum.take(@item.image_service_urls, image_thumb_grid_count()))
+                }
                 :if={@item.file_count}
                 thumb={thumb}
                 thumb_num={thumb_num}
@@ -428,8 +435,8 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def primary_thumbnail(assigns) do
     ~H"""
-    <div class="primary-thumbnail grid grid-cols-[auto_minmax(0,1fr)] gap-y-2 content-start mb-2">
-      <div class="col-span-2 grid grid-cols-subgrid relative">
+    <div class="grid grid-cols-[auto_minmax(0,1fr)] gap-y-2 content-start mb-2">
+      <div class="primary-thumbnail col-span-2 grid grid-cols-subgrid relative">
         <div :if={@display_size} class="col-start-2 flex justify-center items-center">
           <span class="h-[11px] w-[1px] bg-accent"></span>
           <span class="h-[1px] mr-[5px] flex-grow bg-accent"></span>
@@ -447,14 +454,16 @@ defmodule DpulCollectionsWeb.ItemLive do
           <span class="w-[11px] h-[1px] bg-accent"></span>
         </div>
         <div class="col-start-2 relative">
-          <img
-            src={"#{@item.primary_thumbnail_service_url}/full/!#{@item.primary_thumbnail_width},#{@item.primary_thumbnail_height}/0/default.jpg"}
-            alt="main image display"
-            style="
-            background-color: lightgray;"
-            width={@item.primary_thumbnail_width}
-            height={@item.primary_thumbnail_height}
-          />
+          <.link patch={"#{@item.viewer_url}/#{primary_thumbnail_idx(@item)}"} replace>
+            <img
+              src={"#{@item.primary_thumbnail_service_url}/full/!#{@item.primary_thumbnail_width},#{@item.primary_thumbnail_height}/0/default.jpg"}
+              alt="main image display"
+              style="
+              background-color: lightgray;"
+              width={@item.primary_thumbnail_width}
+              height={@item.primary_thumbnail_height}
+            />
+          </.link>
           <div
             :if={@display_size && relative_paper_dimension_style(@item)}
             id="letter-preview"
@@ -470,7 +479,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         </div>
       </div>
       <div class="w-full col-span-2 gap-2">
-        <div class="grid grid-cols-2 gap-2">
+        <div class="thumbnail-buttons grid grid-cols-2 gap-2">
           <.primary_button
             id="viewer-link"
             class="left-arrow-box"
@@ -485,6 +494,15 @@ defmodule DpulCollectionsWeb.ItemLive do
       </div>
     </div>
     """
+  end
+
+  defp primary_thumbnail_idx(item) do
+    (Enum.find_index(item.image_service_urls, fn x -> x == item.primary_thumbnail_service_url end) ||
+       0) + 1
+  end
+
+  defp image_thumb_grid_count() do
+    12
   end
 
   @letter_dimensions %{width: 21.59, height: 27.94}

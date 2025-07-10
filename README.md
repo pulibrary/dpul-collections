@@ -53,8 +53,11 @@ Steps to rebuild figgy fixtures locally:
 ```
 cd figgy-fixture-container && ./create-fixture-exports.sh
 cd ..
-mix fixtures.setup
+lando destroy -y && lando start && mix setup
 ```
+
+Then when you run the server, do a `DpulCollections.Solr.commit()`
+
 
 ### Figgy Fixtures: Creating Synthetic Fixtures
 
