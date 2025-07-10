@@ -42,6 +42,7 @@ defmodule DpulCollectionsWeb.SearchLive do
 
     socket =
       assign(socket,
+        page_title: "Search Results - Digital Collections",
         search_state: search_state,
         item_counter: item_counter(search_state, total_items),
         items: items,

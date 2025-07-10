@@ -496,4 +496,16 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     assert first_href == "/i/document1/item/1"
   end
+
+  test "page title", %{conn: conn} do
+    {:ok, _, html} = live(conn, ~p"/search?q=")
+
+    title =
+      html
+      |> Floki.parse_document!()
+      |> Floki.find("title")
+      |> Floki.text()
+
+    assert title == "\n      Search Results - Digital Collections\n    "
+  end
 end
