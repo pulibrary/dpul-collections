@@ -123,4 +123,7 @@ config :dpul_collections, DpulCollections.IndexingPipeline, [
   ]
 ]
 
+# Turn off thumbnail caching during local development
+config :dpul_collections, :cache_thumbnails?, false
+
 config :honeybadger, api_key: ""

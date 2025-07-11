@@ -21,6 +21,9 @@ defmodule DpulCollectionsWeb.HomeLive do
      temporary_assigns: [item_count: nil], layout: {DpulCollectionsWeb.Layouts, :home}}
   end
 
+  # After updating hero images, start a new CacheHeroImages Oban Job to keep the
+  # cache up-to-date:
+  # `Oban.insert(DpulCollections.Workers.CacheHeroImages.new(%{}))`
   def hero_images() do
     [
       # Stakeholder favorites

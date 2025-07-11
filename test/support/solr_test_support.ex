@@ -39,7 +39,7 @@ if Mix.env() == :test do
 
         %{
           id: n,
-          title_txtm: "Document-#{n}",
+          title_txtm: ["Document-#{n}"],
           display_date_s: date |> Integer.to_string(),
           years_is: [date],
           file_count_i: file_count,

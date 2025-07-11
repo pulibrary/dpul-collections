@@ -22,6 +22,12 @@ config :dpul_collections, DpulCollectionsWeb.Endpoint,
   pubsub_server: DpulCollections.PubSub,
   live_view: [signing_salt: "Z37237LW"]
 
+# Configures Oban job processing
+config :dpul_collections, Oban,
+  engine: Oban.Engines.Basic,
+  queues: [cache: 20],
+  repo: DpulCollections.Repo
+
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails
@@ -80,6 +86,9 @@ config :dpul_collections, DpulCollections.PromEx,
   drop_metrics_groups: [],
   grafana: :disabled,
   metrics_server: :disabled
+
+# Turn on thumbnail caching
+config :dpul_collections, :cache_thumbnails?, true
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

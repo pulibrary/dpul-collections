@@ -89,7 +89,9 @@ defmodule DpulCollections.MixProject do
       {:iconify_ex, "~> 0.6.1"},
       # React for Clover Viewer
       {:phoenix_live_react, "~> 0.6"},
-      {:sham, "~> 1.0", only: :test}
+      {:sham, "~> 1.0", only: :test},
+      {:oban, "~> 2.19"},
+      {:oban_web, "~> 2.11"}
     ]
   end
 
