@@ -103,4 +103,18 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
            |> render_click() ==
              {:error, {:live_redirect, %{kind: :push, to: "/browse"}}}
   end
+
+  test "page title", %{conn: conn} do
+    {:ok, _, html} = live(conn, "/")
+
+    title =
+      html
+      |> Floki.parse_document!()
+      |> Floki.find("title")
+      |> Floki.text()
+      |> String.trim_leading()
+      |> String.trim_trailing()
+
+    assert title == "Digital Collections"
+  end
 end

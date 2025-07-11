@@ -338,6 +338,44 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     end
   end
 
+  test "page title", %{conn: conn} do
+    {:ok, _view, html} = live(conn, "/i/زلزلہ/item/2")
+
+    title =
+      html
+      |> Floki.parse_document!()
+      |> Floki.find("title")
+      |> Floki.text()
+      |> String.trim_leading()
+      |> String.trim_trailing()
+
+    assert title == "زلزلہ - Digital Collections"
+
+    {:ok, _view, html} = live(conn, "/i/زلزلہ/item/2/metadata")
+
+    title =
+      html
+      |> Floki.parse_document!()
+      |> Floki.find("title")
+      |> Floki.text()
+      |> String.trim_leading()
+      |> String.trim_trailing()
+
+    assert title == "Metadata - زلزلہ - Digital Collections"
+
+    {:ok, _view, html} = live(conn, "/i/زلزلہ/item/2/viewer/0")
+
+    title =
+      html
+      |> Floki.parse_document!()
+      |> Floki.find("title")
+      |> Floki.text()
+      |> String.trim_leading()
+      |> String.trim_trailing()
+
+    assert title == "Viewer - زلزلہ - Digital Collections"
+  end
+
   # Copied from
   # https://github.com/phoenixframework/phoenix_live_view/blob/v1.0.17/lib/phoenix_live_view/test/live_view_test.ex#L1478C1-L1492C6
   # because we don't have a refute_patched. Remove when

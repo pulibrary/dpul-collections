@@ -8,7 +8,8 @@ defmodule DpulCollectionsWeb.HomeLive do
     socket =
       assign(socket,
         item_count: Solr.document_count(),
-        q: nil,
+        page_title: "Digital Collections",
+        q_: nil,
         recent_items:
           Solr.recently_digitized(3)["docs"]
           |> Enum.map(&Item.from_solr(&1)),

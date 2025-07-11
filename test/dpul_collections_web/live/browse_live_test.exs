@@ -207,4 +207,18 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
 
     assert first_href == "/i/documentn/item/n"
   end
+
+  test "page title", %{conn: conn} do
+    {:ok, _, html} = live(conn, "/browse?r=0")
+
+    title =
+      html
+      |> Floki.parse_document!()
+      |> Floki.find("title")
+      |> Floki.text()
+      |> String.trim_leading()
+      |> String.trim_trailing()
+
+    assert title == "Browse - Digital Collections"
+  end
 end

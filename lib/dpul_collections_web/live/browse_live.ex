@@ -7,7 +7,12 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def mount(_params, _session, socket) do
     socket =
       socket
-      |> assign(items: [], pinned_items: [], show_stickytools?: false)
+      |> assign(
+        items: [],
+        pinned_items: [],
+        show_stickytools?: false,
+        page_title: "Browse - Digital Collections"
+      )
 
     {:ok, socket}
   end

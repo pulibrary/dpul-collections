@@ -20,6 +20,7 @@ defmodule DpulCollectionsWeb.ItemLive do
 
     socket =
       assign(socket,
+        page_title: page_title(item, socket),
         current_canvas_idx: current_canvas_idx,
         current_content_state_url: current_content_state_url,
         display_size: false
@@ -715,5 +716,15 @@ defmodule DpulCollectionsWeb.ItemLive do
       </.link>
     </div>
     """
+  end
+
+  defp page_title(nil, _), do: nil
+
+  defp page_title(item, socket) do
+    case socket.assigns.live_action do
+      :metadata -> "Metadata - #{item.title} - Digital Collections"
+      :viewer -> "Viewer - #{item.title} - Digital Collections"
+      _ -> "#{item.title} - Digital Collections"
+    end
   end
 end
