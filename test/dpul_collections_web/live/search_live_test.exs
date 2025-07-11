@@ -505,7 +505,9 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       |> Floki.parse_document!()
       |> Floki.find("title")
       |> Floki.text()
+      |> String.trim_leading()
+      |> String.trim_trailing()
 
-    assert title == "\n      Search Results - Digital Collections\n    "
+    assert title == "Search Results - Digital Collections"
   end
 end

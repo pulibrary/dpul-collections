@@ -320,8 +320,10 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       |> Floki.parse_document!()
       |> Floki.find("title")
       |> Floki.text()
+      |> String.trim_leading()
+      |> String.trim_trailing()
 
-    assert title == "\n      زلزلہ - Digital Collections\n    "
+    assert title == "زلزلہ - Digital Collections"
 
     {:ok, _view, html} = live(conn, "/i/زلزلہ/item/2/metadata")
 
@@ -330,8 +332,10 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       |> Floki.parse_document!()
       |> Floki.find("title")
       |> Floki.text()
+      |> String.trim_leading()
+      |> String.trim_trailing()
 
-    assert title == "\n      Metadata - زلزلہ - Digital Collections\n    "
+    assert title == "Metadata - زلزلہ - Digital Collections"
 
     {:ok, _view, html} = live(conn, "/i/زلزلہ/item/2/viewer/0")
 
@@ -340,8 +344,10 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       |> Floki.parse_document!()
       |> Floki.find("title")
       |> Floki.text()
+      |> String.trim_leading()
+      |> String.trim_trailing()
 
-    assert title == "\n      Viewer - زلزلہ - Digital Collections\n    "
+    assert title == "Viewer - زلزلہ - Digital Collections"
   end
 
   # Copied from

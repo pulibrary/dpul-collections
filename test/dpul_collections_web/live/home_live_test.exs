@@ -112,7 +112,9 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
       |> Floki.parse_document!()
       |> Floki.find("title")
       |> Floki.text()
+      |> String.trim_leading()
+      |> String.trim_trailing()
 
-    assert title == "\n      Digital Collections\n    "
+    assert title == "Digital Collections"
   end
 end

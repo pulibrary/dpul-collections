@@ -216,7 +216,9 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
       |> Floki.parse_document!()
       |> Floki.find("title")
       |> Floki.text()
+      |> String.trim_leading()
+      |> String.trim_trailing()
 
-    assert title == "\n      Browse - Digital Collections\n    "
+    assert title == "Browse - Digital Collections"
   end
 end
