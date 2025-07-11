@@ -7,7 +7,6 @@ defmodule DpulCollectionsWeb.HomeLive do
   def mount(_params, _session, socket) do
     socket =
       assign(socket,
-        item_count: Solr.document_count(),
         page_title: "Digital Collections",
         q_: nil,
         recent_items:
@@ -17,8 +16,7 @@ defmodule DpulCollectionsWeb.HomeLive do
           Enum.chunk_every(hero_images() |> Enum.shuffle(), floor(length(hero_images()) / 3))
       )
 
-    {:ok, socket,
-     temporary_assigns: [item_count: nil], layout: {DpulCollectionsWeb.Layouts, :home}}
+    {:ok, socket, layout: {DpulCollectionsWeb.Layouts, :home}}
   end
 
   # After updating hero images, start a new CacheHeroImages Oban Job to keep the
