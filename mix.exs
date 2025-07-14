@@ -75,7 +75,7 @@ defmodule DpulCollections.MixProject do
       {:req, "~> 0.5"},
       {:broadway_dashboard, "~> 0.4"},
       {:honeybadger, "~> 0.23"},
-      {:phoenix_test_playwright, "~> 0.6", only: :test, runtime: false},
+      {:phoenix_test_playwright, "~> 0.7.1", only: :test, runtime: false},
       {:live_debugger, "~> 0.1.4", only: :dev},
       {:prom_ex, "~> 1.11.0"},
       {:ecto_psql_extras, "~> 0.6"},
@@ -91,7 +91,8 @@ defmodule DpulCollections.MixProject do
       {:phoenix_live_react, "~> 0.6"},
       {:sham, "~> 1.0", only: :test},
       {:oban, "~> 2.19"},
-      {:oban_web, "~> 2.11"}
+      {:oban_web, "~> 2.11"},
+      {:a11y_audit, "~> 0.2.3", only: :test}
     ]
   end
 

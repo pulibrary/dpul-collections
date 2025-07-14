@@ -28,4 +28,10 @@ defmodule DpulCollectionsWeb.Features.SearchBarTest do
     |> click_button("Search")
     |> assert_has("#item-counter", text: "1 - 1 of 1")
   end
+
+  test "search results page is accessible", %{conn: conn} do
+    conn
+    |> visit("/search?q=Document-3")
+    |> unwrap(&TestUtils.assert_a11y/1)
+  end
 end
