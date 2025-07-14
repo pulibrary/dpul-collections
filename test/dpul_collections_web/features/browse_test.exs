@@ -17,8 +17,12 @@ defmodule DpulCollectionsWeb.Features.BrowseViewTest do
       conn
       |> visit("/browse")
       |> assert_has(".tab-content #browse-item-1")
+      # No header until it's displayed.
+      |> refute_has("h2", text: "Liked items")
       |> click("*[role='tab']", "My Liked Items (0)")
       |> assert_has("h2", text: "Liked items")
+      |> click("*[role='tab']", "Recommended Items")
+      |> assert_has("h2", text: "Recommendations")
     end
   end
 end

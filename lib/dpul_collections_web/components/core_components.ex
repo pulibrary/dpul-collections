@@ -249,6 +249,9 @@ defmodule DpulCollectionsWeb.CoreComponents do
     """
   end
 
+  # coveralls-ignore-start
+  # Ignore coverage for this because for some reason ExCoveralls is having a
+  # hard time noticing it being called.
   def hide_tab(js \\ %JS{}, id, count) do
     Enum.reduce(1..count, js, fn item, acc ->
       acc
@@ -257,6 +260,8 @@ defmodule DpulCollectionsWeb.CoreComponents do
       |> JS.set_attribute({"aria-selected", "false"}, to: "##{id}-tab-header-#{item}")
     end)
   end
+
+  # coveralls-ignore-stop
 
   def show_tab(js \\ %JS{}, id, count) when is_binary(id) do
     js
