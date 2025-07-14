@@ -25,7 +25,10 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
       |> Floki.parse_document!()
       |> Floki.find("#pinned-items .item")
 
-    assert length(initial_count) == 0
+    assert html
+           |> Floki.parse_document!()
+           |> Floki.find("#browse-tabs-tab-header-1")
+           |> Floki.text() =~ "(0)"
 
     # Pin one
     {:ok, document} =
@@ -33,11 +36,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
       |> render_click("pin", %{"item_id" => "1"})
       |> Floki.parse_document()
 
-    new_count =
-      document
-      |> Floki.find("#pinned-items .item")
-
-    assert Enum.count(new_count) == 1
+    assert document |> Floki.find("#browse-tabs-tab-header-1") |> Floki.text() =~ "(1)"
 
     pin_tracker =
       document
@@ -51,11 +50,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
       |> render_click("pin", %{"item_id" => "1"})
       |> Floki.parse_document()
 
-    new_count =
-      document
-      |> Floki.find("#pinned-items .item")
-
-    assert Enum.count(new_count) == 0
+    assert document |> Floki.find("#browse-tabs-tab-header-1") |> Floki.text() =~ "(0)"
   end
 
   test "sticky tools is visible / invisible depending on hook event", %{conn: conn} do
