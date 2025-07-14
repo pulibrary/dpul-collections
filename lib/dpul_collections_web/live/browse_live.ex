@@ -85,7 +85,6 @@ defmodule DpulCollectionsWeb.BrowseLive do
           <.random_items {assigns} />
         </:panel>
       </.tabs>
-      <.sticky_tools show_stickytools?={@show_stickytools?}>{length(@pinned_items)}</.sticky_tools>
       <h1 class="col-span-3">{gettext("Pinned")}</h1>
       <div id="pinned-items" class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-1">
         <div class="grid grid-flow-row auto-rows-max gap-8">
@@ -103,6 +102,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def random_items(assigns) do
     ~H"""
     <div class="my-5 grid grid-cols-3" id="browse-header" phx-hook="ToolbarHook">
+      <.sticky_tools show_stickytools?={@show_stickytools?}>{length(@pinned_items)}</.sticky_tools>
       <button
         class="btn-primary tracking-wider text-xl
           hover:bg-sage-200 transform transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
