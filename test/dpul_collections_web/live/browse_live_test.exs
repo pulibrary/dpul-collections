@@ -23,7 +23,9 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     initial_count =
       html
       |> Floki.parse_document!()
-      |> Floki.find("#pinned-items .item")
+      |> Floki.find("#liked-items .item")
+
+    assert length(initial_count) == 0
 
     assert html
            |> Floki.parse_document!()
@@ -35,6 +37,8 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
       view
       |> render_click("pin", %{"item_id" => "1"})
       |> Floki.parse_document()
+
+    assert document |> Floki.find("#liked-items .item") |> length == 1
 
     assert document |> Floki.find("#browse-tabs-tab-header-1") |> Floki.text() =~ "(1)"
 
@@ -49,6 +53,8 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
       view
       |> render_click("pin", %{"item_id" => "1"})
       |> Floki.parse_document()
+
+    assert document |> Floki.find("#liked-items .item") |> length == 0
 
     assert document |> Floki.find("#browse-tabs-tab-header-1") |> Floki.text() =~ "(0)"
   end

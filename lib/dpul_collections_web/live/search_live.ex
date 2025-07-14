@@ -140,12 +140,10 @@ defmodule DpulCollectionsWeb.SearchLive do
         </div>
       </div>
       <div class="grid grid-flow-row auto-rows-max gap-8">
-        <.search_item
-          :for={item <- @items}
-          search_state={@search_state}
-          item={item}
-          sort_by={@search_state.sort_by}
-        />
+        <div :for={item <- @items}>
+          <hr class="mb-8" />
+          <.search_item search_state={@search_state} item={item} sort_by={@search_state.sort_by} />
+        </div>
       </div>
       <div class="text-center max-w-5xl mx-auto text-lg py-8">
         <.paginator
@@ -187,7 +185,6 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def search_item(assigns) do
     ~H"""
-    <hr />
     <div
       id={"item-#{@item.id}"}
       class="item"
