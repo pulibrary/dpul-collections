@@ -131,7 +131,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
         {gettext("Randomize")}
       </button>
     </div>
-    <div class="grid grid-cols-[repeat(auto-fit,minmax(300px,_1fr))] gap-6 pt-5">
+    <div id="browse-items" class="grid grid-cols-[repeat(auto-fit,minmax(300px,_1fr))] gap-6 pt-5">
       <.browse_item :for={item <- @items} item={item} />
     </div>
     """
@@ -153,7 +153,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
             <.icon name="hero-heart" class="row-[1] col-[1] h-6 w-6 icon bg-dark-text" />
           </span>
         </.link>
-        <a href="#browse-header">
+        <a href="#browse-items">
           <button
             class="w-full col-span-1 btn-primary hover:bg-sage-200 transform transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
             phx-click="randomize"
