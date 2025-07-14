@@ -209,34 +209,35 @@ defmodule DpulCollectionsWeb.CoreComponents do
     assigns = assign(assigns, :active_index, active_index + 1)
 
     ~H"""
-    <div id={@id}>
-      <div role="tablist" class={["flex gap-4", @class]}>
-        <.primary_button
-          :for={{tab, index} <- Enum.with_index(@tab, 1)}
-          id={"#{@id}-tab-header-#{index}"}
-          phx-show-tab={hide_tab(@id, length(@tab)) |> show_tab(@id, index)}
-          phx-click={JS.exec("phx-show-tab", to: "##{@id}-tab-header-#{index}")}
-          phx-mounted={tab[:active] && JS.exec("phx-show-tab", to: "##{@id}-tab-header-#{index}")}
-          role="tab"
-          aria-selected={@active_index == index}
-          aria-controls={"#{@id}-tab-panel-#{index}"}
-          tabindex={(@active_index == index && "0") || "-1"}
-          class={[
-            tab[:class],
-            "flex-grow"
-          ]}
-        >
-          {render_slot(tab)}
-        </.primary_button>
-      </div>
+    <div class="grid grid-cols-[220px_minmax(200px,1fr)] gap-4" id={@id}>
       <div>
+        <div role="tablist" class={["flex flex-col gap-4", @class]}>
+          <.primary_button
+            :for={{tab, index} <- Enum.with_index(@tab, 1)}
+            id={"#{@id}-tab-header-#{index}"}
+            phx-show-tab={hide_tab(@id, length(@tab)) |> show_tab(@id, index)}
+            phx-click={JS.exec("phx-show-tab", to: "##{@id}-tab-header-#{index}")}
+            phx-mounted={tab[:active] && JS.exec("phx-show-tab", to: "##{@id}-tab-header-#{index}")}
+            role="tab"
+            aria-selected={@active_index == index}
+            aria-controls={"#{@id}-tab-panel-#{index}"}
+            tabindex={(@active_index == index && "0") || "-1"}
+            class={[
+              tab[:class]
+            ]}
+          >
+            {render_slot(tab)}
+          </.primary_button>
+        </div>
+      </div>
+      <div class="col-[2]">
         <div
           :for={{panel, index} <- Enum.with_index(@panel, 1)}
           id={"#{@id}-tab-panel-#{index}"}
           aria-labelledby={"#{@id}-tab-header-#{index}"}
           role="tabpanel"
           class={[
-            "tab-content w-full py-4",
+            "tab-content w-full",
             "[&:not(.active-panel)]:hidden",
             "[&.active-panel]:block",
             panel[:class]

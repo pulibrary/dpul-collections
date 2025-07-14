@@ -70,7 +70,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
     <div class="content-area">
       <h1 class="mb-2">{gettext("Browse")}</h1>
       {# coveralls-ignore-start}
-      <.tabs id="browse-tabs" class="border-b-4 border-accent">
+      <.tabs id="browse-tabs" class="sticky top-4">
         {# coveralls-ignore-stop}
         <:tab>
           <.icon name="hero-heart-solid" class="bg-accent" />My Liked Items ({length(@pinned_items)})
@@ -121,10 +121,10 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def random_items(assigns) do
     ~H"""
-    <div class="my-5 grid grid-cols-3" id="browse-header" phx-hook="ToolbarHook">
+    <div class="flex" id="browse-header" phx-hook="ToolbarHook">
       <.sticky_tools show_stickytools?={@show_stickytools?}>{length(@pinned_items)}</.sticky_tools>
       <button
-        class="btn-primary tracking-wider text-xl
+        class="btn-primary p-4 tracking-wider text-xl
           hover:bg-sage-200 transform transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
         phx-click="randomize"
       >
