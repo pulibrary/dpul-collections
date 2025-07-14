@@ -68,6 +68,34 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def render(assigns) do
     ~H"""
     <div class="content-area">
+      <.tabs id="tabs" class="border-b-4 border-accent">
+        <:tab>My Liked Items ({length(@pinned_items)})</:tab>
+        <:tab>Recommended Items</:tab>
+        <:tab active={true}>Random Items</:tab>
+        <:panel>
+          <h2>Liked Items</h2>
+        </:panel>
+        <:panel>Recommended Items</:panel>
+        <:panel>
+          <div
+            class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-4"
+            id="browse-header"
+            phx-hook="ToolbarHook"
+          >
+            <h1 class="col-span-3">{gettext("Browse")}</h1>
+            <button
+              class="col-span-1 btn-primary tracking-wider text-xl
+          hover:bg-sage-200 transform transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
+              phx-click="randomize"
+            >
+              {gettext("Randomize")}
+            </button>
+          </div>
+          <div class="grid grid-cols-3 gap-6 pt-5">
+            <.browse_item :for={item <- @items} item={item} />
+          </div>
+        </:panel>
+      </.tabs>
       <.sticky_tools show_stickytools?={@show_stickytools?}>{length(@pinned_items)}</.sticky_tools>
       <h1 class="col-span-3">{gettext("Pinned")}</h1>
       <div id="pinned-items" class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-1">
@@ -78,23 +106,6 @@ defmodule DpulCollectionsWeb.BrowseLive do
             item={item}
           />
         </div>
-      </div>
-      <div
-        class="my-5 grid grid-flow-row auto-rows-max gap-10 grid-cols-4"
-        id="browse-header"
-        phx-hook="ToolbarHook"
-      >
-        <h1 class="col-span-3">{gettext("Browse")}</h1>
-        <button
-          class="col-span-1 btn-primary tracking-wider text-xl
-          hover:bg-sage-200 transform transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
-          phx-click="randomize"
-        >
-          {gettext("Randomize")}
-        </button>
-      </div>
-      <div class="grid grid-cols-3 gap-6 pt-5">
-        <.browse_item :for={item <- @items} item={item} />
       </div>
     </div>
     """

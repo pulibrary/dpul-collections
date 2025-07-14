@@ -164,4 +164,104 @@ defmodule DpulCollectionsWeb.CoreComponents do
     <hr class={"h-1 border-0 bg-accent #{@rest.class}"} {@rest} />
     """
   end
+
+  slot :inner_block
+  attr :class, :any, default: nil
+  attr :href, :string, default: nil, doc: "link - if set it makes an anchor tag"
+  attr :patch, :string, default: nil, doc: "link - if set makes an anchor tag"
+  attr :disabled, :boolean, default: false
+  attr :rest, :global, include: ~w(replace), doc: "the arbitrary HTML attributes to add link"
+
+  def primary_button(assigns = %{href: href, patch: patch}) when href != nil or patch != nil do
+    ~H"""
+    <.link href={@href} patch={@patch} class={["btn-primary", "flex gap-2 p-x-2", @class]} {@rest}>
+      <div>
+        {render_slot(@inner_block)}
+      </div>
+    </.link>
+    """
+  end
+
+  def primary_button(assigns) do
+    ~H"""
+    <button class={["btn-primary flex gap-2 p-4", @class]} disabled={@disabled} {@rest}>
+      {render_slot(@inner_block)}
+    </button>
+    """
+  end
+
+  attr :id, :string, required: true
+  attr :class, :string, default: nil
+
+  slot :tab, required: true do
+    attr :class, :string
+    attr :active, :boolean
+  end
+
+  slot :panel, required: false do
+    attr :class, :string
+  end
+
+  def tabs(assigns) do
+    active_index =
+      Enum.find_index(assigns.tab, &Map.get(&1, :active)) || 0
+
+    assigns = assign(assigns, :active_index, active_index + 1)
+
+    ~H"""
+    <div id={@id}>
+      <div role="tablist" class={["flex gap-4", @class]}>
+        <.primary_button
+          :for={{tab, index} <- Enum.with_index(@tab, 1)}
+          id={"#{@id}-tab-header-#{index}"}
+          phx-show-tab={hide_tab(@id, length(@tab)) |> show_tab(@id, index)}
+          phx-click={JS.exec("phx-show-tab", to: "##{@id}-tab-header-#{index}")}
+          phx-mounted={tab[:active] && JS.exec("phx-show-tab", to: "##{@id}-tab-header-#{index}")}
+          role="tab"
+          aria-selected={@active_index == index}
+          aria-controls={"#{@id}-tab-panel-#{index}"}
+          tabindex={(@active_index == index && "0") || "-1"}
+          class={[
+            tab[:class],
+            "flex-grow"
+          ]}
+        >
+          {render_slot(tab)}
+        </.primary_button>
+      </div>
+      <div>
+        <div
+          :for={{panel, index} <- Enum.with_index(@panel, 1)}
+          id={"#{@id}-tab-panel-#{index}"}
+          aria-labelledby={"#{@id}-tab-header-#{index}"}
+          role="tabpanel"
+          class={[
+            "tab-content w-full py-4",
+            "[&:not(.active-panel)]:hidden",
+            "[&.active-panel]:block",
+            panel[:class]
+          ]}
+        >
+          {render_slot(panel)}
+        </div>
+      </div>
+    </div>
+    """
+  end
+
+  def hide_tab(js \\ %JS{}, id, count) do
+    Enum.reduce(1..count, js, fn item, acc ->
+      acc
+      |> JS.remove_class("active", to: "##{id}-tab-header-#{item}")
+      |> JS.remove_class("active-panel", to: "##{id}-tab-panel-#{item}")
+      |> JS.set_attribute({"aria-selected", "false"}, to: "##{id}-tab-header-#{item}")
+    end)
+  end
+
+  def show_tab(js \\ %JS{}, id, count) when is_binary(id) do
+    js
+    |> JS.add_class("active", to: "##{id}-tab-header-#{count}")
+    |> JS.add_class("active-panel", to: "##{id}-tab-panel-#{count}")
+    |> JS.set_attribute({"aria-selected", "true"}, to: "##{id}-tab-header-#{count}")
+  end
 end
