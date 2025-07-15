@@ -47,6 +47,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
     ~H"""
     <div
       id={"#{@id}-#{@item.id}"}
+      data-item-id={@item.id}
       class="browse-item flex bg-white flex-col overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_var(--color-sage-300)] min-w-[250px]"
     >
       <!-- like -->
@@ -58,6 +59,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
           |> JS.toggle_class("hidden", to: {:inner, ".icon"})
         }
         phx-value-item_id={@item.id}
+        phx-value-browse_id={@id}
         class="h-10 w-10 absolute left-2 top-2 cursor-pointer bg-white text-accent"
       >
         <.icon name="hero-heart-solid" class="h-10 w-10 bg-accent icon selected hidden" />
