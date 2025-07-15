@@ -282,14 +282,14 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div
       id="viewer-pane"
-      class="bg-background flex flex-col min-h-full min-w-full -translate-x-full col-start-1 row-start-1 absolute top-0"
+      class="bg-background flex flex-col min-h-full min-w-full -translate-x-full col-start-1 row-start-1 absolute top-0 dismissable"
       phx-mounted={
         JS.transition({"ease-out duration-250", "-translate-x-full", "translate-x-0"})
         |> hide_covered_elements()
       }
       phx-remove={show_covered_elements()}
       data-cancel={JS.patch(@item.url, replace: true)}
-      phx-window-keydown={JS.exec("data-cancel", to: "#viewer-pane")}
+      phx-window-keydown={JS.exec("data-cancel", to: "#viewer-pane.dismissable")}
       phx-key="escape"
       phx-hook="ScrollTop"
     >
@@ -298,7 +298,7 @@ defmodule DpulCollectionsWeb.ItemLive do
           <h1 class="uppercase text-light-text flex-none">{gettext("Viewer")}</h1>
           <.action_icon
             icon="hero-share"
-            phx-click={JS.show(to: "#viewer-share-modal")}
+            phx-click={show_viewer_share_modal()}
             utility="pane-action-icon"
             aria-label={gettext("Share")}
           >
@@ -562,10 +562,21 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
+  # When we show the modal we need to disable "Escape" for the viewer itself, we
+  # use this dismissable class for that
+  def show_viewer_share_modal(js \\ %JS{}) do
+    js
+    |> JS.remove_class("dismissable", to: "#viewer-pane")
+    |> JS.show(to: "#viewer-share-modal")
+  end
+
+  # When we hide the modal we have to re-set the copy button and make "Escape"
+  # work again for dismissing the viewer pane.
   def hide_modal(id, js \\ %JS{}) do
     js
     |> JS.hide(to: "##{id}")
     |> JS.remove_class("bg-accent", to: "##{id}-value-copy")
+    |> JS.add_class("dismissable", to: "#viewer-pane")
   end
 
   attr :id, :string, required: true
@@ -574,7 +585,13 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def share_modal(assigns) do
     ~H"""
-    <div id={@id} class="hidden">
+    <div
+      id={@id}
+      class="hidden"
+      phx-hook="CloseModals"
+      phx-window-keydown={hide_modal(@id)}
+      phx-key="escape"
+    >
       <div class="fixed inset-0 p-4 flex flex-wrap justify-center items-center w-full h-full z-[1000] before:fixed before:inset-0 before:w-full before:h-full before:bg-[rgba(0,0,0,0.5)] overflow-auto">
         <div
           class="w-full max-w-2xl bg-white shadow-lg rounded-lg p-8 relative"

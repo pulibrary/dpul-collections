@@ -2,6 +2,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
   use ExUnit.Case
   use PhoenixTest.Playwright.Case
   alias PhoenixTest.Playwright.Frame
+  alias PhoenixTest.Playwright
   import SolrTestSupport
   alias DpulCollections.Solr
 
@@ -27,7 +28,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
       conn
       |> visit("/i/document-1/item/1")
       |> stub_clipboard
-      |> refute_has("#share-modal h3", text: "Share")
+      |> refute_has("#share-modal")
       # opens the modal
       |> click_button("Share")
       |> assert_has("#share-modal h3", text: "Share this item")
@@ -36,6 +37,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
       |> assert_has("#share-modal button", text: "Copied")
       |> assert_has("#share-modal-value", text: "http://localhost:4002/i/document1/item/1")
       |> click_button("close")
+      |> refute_has("#share-modal")
       # button text goes back after it's closed / opened again
       |> click_button("Share")
       |> assert_has("#share-modal button", text: "Copy")
@@ -54,7 +56,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
       conn
       |> visit("/i/document1/item/1/viewer")
       |> stub_clipboard
-      |> refute_has("#viewer-share-modal h3", text: "Share")
+      |> refute_has("#viewer-share-modal")
       # opens the modal
       |> click_button("Share")
       |> assert_has("#viewer-share-modal h3", text: "Share this image")
@@ -64,7 +66,17 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
       |> click_button("Copy")
       |> assert_has("button#viewer-share-modal-value-copy", text: "Copied")
       |> click_button("close")
-      |> refute_has("#share-modal h3", text: "Share")
+      |> refute_has("#viewer-share-modal")
+      # Escape closes the modal
+      |> click_button("Share")
+      |> assert_has("#viewer-share-modal h3", text: "Share this image")
+      |> Playwright.press("#viewer-share-modal", "Escape")
+      |> refute_has("#viewer-share-modal")
+      |> assert_path("/i/document1/item/1/viewer/1")
+      |> assert_has("#viewer-pane")
+      # can still also close the viewer pane
+      |> Playwright.press("#viewer-pane", "Escape")
+      |> assert_path("/i/document1/item/1")
     end
 
     test "the 2 copy buttons don't interact", %{conn: conn} do
