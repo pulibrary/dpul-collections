@@ -101,7 +101,9 @@ defmodule DpulCollections.SolrTest do
           [
             %Item{id: "reference", project: "Latin American Ephemera"},
             %Item{id: "reference_2", project: "Latin American Ephemera"}
-          ]
+          ],
+          90,
+          active_collection()
         )
         |> Map.get("docs")
         |> Enum.map(&Map.get(&1, "id"))
