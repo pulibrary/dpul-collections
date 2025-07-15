@@ -77,11 +77,7 @@ defmodule DpulCollections.Solr do
     response.body["response"]
   end
 
-  def random_recommended_from_items(
-        items = [%{id: _id} | _],
-        rows \\ 90,
-        collection \\ read_collection()
-      ) do
+  def random_recommended_from_items(items, rows \\ 90, collection \\ read_collection()) do
     ids = Enum.map(items, fn item -> item.id end)
 
     all_docs =
