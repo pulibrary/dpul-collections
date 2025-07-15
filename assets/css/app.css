@@ -151,6 +151,7 @@
   @apply bg-primary cursor-pointer;
 }
 
+// action_icon utilities
 @utility item-action-icon {
   @apply hover:text-white hover:bg-accent cursor-pointer w-10 h-10 p-2 bg-secondary rounded-full flex justify-center items-center;
 }

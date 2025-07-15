@@ -402,7 +402,12 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   attr :rest, :global
   attr :icon, :string, required: true
-  attr :utility, :string, required: true
+
+  attr :utility, :string,
+    required: true,
+    doc:
+      "utilities group classes, are defined in app.css, and allow rendering the icon in different sizes and with different color combinations, for example."
+
   slot :inner_block, doc: "the optional inner block that renders the icon label"
 
   def action_icon(assigns) do
