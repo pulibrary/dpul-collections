@@ -15,7 +15,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
   end
 
   test "click like", %{conn: conn} do
-    Solr.add(SolrTestSupport.mock_solr_documents(100), active_collection())
+    Solr.add(SolrTestSupport.mock_solr_documents(200), active_collection())
     Solr.commit(active_collection())
 
     {:ok, view, html} = live(conn, "/browse?r=0")
@@ -27,15 +27,23 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
 
     assert length(initial_count) == 0
 
-    assert html
-           |> Floki.parse_document!()
+    document = html |> Floki.parse_document!()
+
+    assert document
            |> Floki.find("#browse-tabs-tab-header-1")
            |> Floki.text() =~ "(0)"
+
+    first_id =
+      document
+      |> Floki.find("#browse-items .browse-item")
+      |> hd
+      |> Floki.attribute("data-item-id")
+      |> hd
 
     # Pin one
     {:ok, document} =
       view
-      |> render_click("like", %{"item_id" => "1"})
+      |> render_click("like", %{"item_id" => first_id, "browse_id" => "browse-item"})
       |> Floki.parse_document()
 
     assert document |> Floki.find("#liked-items .item") |> length == 1
@@ -58,12 +66,39 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
       |> render_click("randomize_recommended", %{})
       |> Floki.parse_document()
 
-    assert Floki.find(document, "#recommended-items .browse-item") != first_recommended_items
+    second_recommended_items = Floki.find(document, "#recommended-items .browse-item")
 
-    # Unpin it
+    assert second_recommended_items != first_recommended_items
+
+    # Like a recommended item - this shouldn't refresh the recommended items.
+
+    recommended_id =
+      document
+      |> Floki.find("#recommended-items .browse-item")
+      |> hd
+      |> Floki.attribute("data-item-id")
+      |> hd
+
     {:ok, document} =
       view
-      |> render_click("like", %{"item_id" => "1"})
+      |> render_click("like", %{"item_id" => recommended_id, "browse_id" => "recommended-items"})
+      |> Floki.parse_document()
+
+    third_recommended_items = Floki.find(document, "#recommended-items .browse-item")
+
+    # Ensure it doesn't change when we like from recommended items.
+    assert second_recommended_items == third_recommended_items
+
+    # Unlike recommended item
+    {:ok, document} =
+      view
+      |> render_click("like", %{"item_id" => recommended_id, "browse_id" => "recommended-items"})
+      |> Floki.parse_document()
+
+    # Unlike it
+    {:ok, document} =
+      view
+      |> render_click("like", %{"item_id" => first_id, "browse_id" => "browse-item"})
       |> Floki.parse_document()
 
     assert document |> Floki.find("#liked-items .item") |> length == 0

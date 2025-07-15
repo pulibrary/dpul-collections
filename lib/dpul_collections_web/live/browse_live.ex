@@ -50,10 +50,12 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def handle_event(
         "like",
-        %{"item_id" => id},
-        socket = %{assigns: %{items: items, liked_items: liked_items}}
+        %{"item_id" => id, "browse_id" => browse_id},
+        socket = %{
+          assigns: %{items: items, liked_items: liked_items, recommended_items: recommended_items}
+        }
       ) do
-    doc = items |> Enum.find(fn item -> item.id == id end)
+    doc = (items ++ recommended_items) |> Enum.find(fn item -> item.id == id end)
 
     socket =
       case Enum.find_index(liked_items, fn liked_item -> doc.id == liked_item.id end) do
@@ -65,7 +67,14 @@ defmodule DpulCollectionsWeb.BrowseLive do
       end
 
     socket =
-      socket |> assign(recommended_items: generate_recommendations(socket.assigns.liked_items))
+      case browse_id do
+        "recommended-items" ->
+          socket
+
+        _ ->
+          socket
+          |> assign(recommended_items: generate_recommendations(socket.assigns.liked_items))
+      end
 
     {:noreply, socket}
   end
@@ -119,7 +128,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
       <div class="text-xl">
         {gettext("Recommendations are generated randomly based on items you've liked while browsing.")}
       </div>
-      <div class="grid grid-cols-3" id="browse-header" phx-hook="ToolbarHook">
+      <div class="grid grid-cols-3">
         <button
           class="btn-primary tracking-wider text-xl
               hover:bg-sage-200 transform transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
