@@ -10,6 +10,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
       |> assign(
         items: [],
         liked_items: [],
+        recommended_items: [],
         show_stickytools?: false,
         page_title: "Browse - Digital Collections"
       )
@@ -47,14 +48,19 @@ defmodule DpulCollectionsWeb.BrowseLive do
       ) do
     doc = items |> Enum.find(fn item -> item.id == id end)
 
-    case Enum.find_index(liked_items, fn liked_item -> doc.id == liked_item.id end) do
-      nil ->
-        {:noreply, socket |> assign(liked_items: Enum.concat(liked_items, [doc]))}
+    socket =
+      case Enum.find_index(liked_items, fn liked_item -> doc.id == liked_item.id end) do
+        nil ->
+          socket |> assign(liked_items: Enum.concat(liked_items, [doc]))
 
-      idx ->
-        socket = socket |> assign(liked_items: List.delete_at(liked_items, idx))
-        {:noreply, socket}
-    end
+        idx ->
+          socket |> assign(liked_items: List.delete_at(liked_items, idx))
+      end
+
+    socket =
+      socket |> assign(recommended_items: generate_recommendations(socket.assigns.liked_items))
+
+    {:noreply, socket}
   end
 
   def handle_event("show_stickytools", _params, socket) do
@@ -63,6 +69,13 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def handle_event("hide_stickytools", _params, socket) do
     {:noreply, assign(socket, :show_stickytools?, false)}
+  end
+
+  def generate_recommendations([]), do: []
+
+  def generate_recommendations(liked_items) when is_list(liked_items) do
+    Solr.random_recommended_from_items(liked_items)["docs"]
+    |> Enum.map(&Item.from_solr(&1))
   end
 
   def render(assigns) do
@@ -83,12 +96,27 @@ defmodule DpulCollectionsWeb.BrowseLive do
           <.liked_items {assigns} />
         </:panel>
         <:panel>
-          <h2>{gettext("Recommendations")}</h2>
+          <.recommendations {assigns} />
         </:panel>
         <:panel>
           <.random_items {assigns} />
         </:panel>
       </.tabs>
+    </div>
+    """
+  end
+
+  def recommendations(assigns) do
+    ~H"""
+    <div class="flex flex-col gap-4">
+      <h2>{gettext("Recommendations")}</h2>
+
+      <div
+        id="recommended-items"
+        class="grid grid-cols-[repeat(auto-fit,minmax(300px,_1fr))] gap-6 pt-5"
+      >
+        <.browse_item :for={item <- @recommended_items} id="recommended-items" item={item} />
+      </div>
     </div>
     """
   end
