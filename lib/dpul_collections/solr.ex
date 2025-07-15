@@ -82,11 +82,7 @@ defmodule DpulCollections.Solr do
     "{!mlt qf=genre_txtm,subject_txtm,geo_subject_txtm,geographic_origin_txtm,language_txtm,keywords_txtm,description_txtm mintf=1}#{id}"
   end
 
-  def random_recommended_from_items(
-        items = [%{id: _id} | _],
-        rows \\ 90,
-        collection \\ read_collection()
-      ) do
+  def random_recommended_from_items(items, rows \\ 90, collection \\ read_collection()) do
     ids = Enum.map(items, fn item -> item.id end)
 
     all_docs =

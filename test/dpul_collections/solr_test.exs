@@ -97,12 +97,20 @@ defmodule DpulCollections.SolrTest do
       Solr.commit(active_collection())
 
       results =
+        Solr.random_recommended_from_items([
+          %Item{id: "reference", project: "Latin American Ephemera"},
+          %Item{id: "reference_2", project: "Latin American Ephemera"}
+        ])
+        |> Map.get("docs")
+        |> Enum.map(&Map.get(&1, "id"))
+
+      results_limited =
         Solr.random_recommended_from_items(
           [
             %Item{id: "reference", project: "Latin American Ephemera"},
             %Item{id: "reference_2", project: "Latin American Ephemera"}
           ],
-          90,
+          1,
           active_collection()
         )
         |> Map.get("docs")
@@ -110,6 +118,7 @@ defmodule DpulCollections.SolrTest do
 
       return_ids = ["similar", "less-similar", "similar_to_2", "less-similar-to-2"] |> Enum.sort()
       assert Enum.sort(results) == return_ids
+      assert length(results_limited) == 1
     end
   end
 
