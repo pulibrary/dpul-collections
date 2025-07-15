@@ -21,7 +21,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
         <div class="flex gap-8 justify-stretch page-t-padding">
           <!-- cards -->
           <div class="w-full recent-container">
-            <.browse_item :for={item <- @items} item={item} added?={@added?} pinnable?={false} />
+            <.browse_item :for={item <- @items} item={item} added?={@added?} likeable?={false} />
           </div>
           <div :if={@more_link} class="w-12 flex-none content-center">
             <.link
@@ -40,7 +40,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
 
   attr :item, Item, required: true
   attr :added?, :boolean, default: false
-  attr :pinnable?, :boolean, default: true
+  attr :likeable?, :boolean, default: true
 
   def browse_item(assigns) do
     ~H"""
@@ -48,20 +48,19 @@ defmodule DpulCollectionsWeb.BrowseItem do
       id={"browse-item-#{@item.id}"}
       class="flex bg-white flex-col overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_var(--color-sage-300)] min-w-[250px]"
     >
-      <!-- pin -->
+      <!-- like -->
       <div
-        :if={@pinnable?}
-        id={"pin-#{@item.id}"}
+        :if={@likeable?}
+        id={"like-#{@item.id}"}
         phx-click={
-          JS.push("pin")
-          |> JS.toggle_class("bg-white", to: {:inner, ".icon"})
-          |> JS.toggle_class("bg-black")
-          |> JS.toggle_class("bg-white")
+          JS.push("like")
+          |> JS.toggle_class("hidden", to: {:inner, ".icon"})
         }
         phx-value-item_id={@item.id}
-        class="h-10 w-10 absolute left-2 top-2 cursor-pointer bg-white text-dark-text"
+        class="h-10 w-10 absolute left-2 top-2 cursor-pointer bg-white text-accent"
       >
-        <.icon name="hero-archive-box-arrow-down-solid" class="h-10 w-10 icon" />
+        <.icon name="hero-heart-solid" class="h-10 w-10 bg-accent icon selected hidden" />
+        <.icon name="hero-heart" class="h-10 w-10 icon selected" />
       </div>
       
     <!-- thumbs -->
