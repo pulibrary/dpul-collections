@@ -52,7 +52,7 @@ msgstr ""
 
 #: lib/dpul_collections/item.ex:54
 #: lib/dpul_collections/item.ex:72
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/components/header_component.ex:37
 #: lib/dpul_collections_web/components/header_component.ex:44
 #: lib/dpul_collections_web/components/header_component.ex:47
@@ -119,7 +119,7 @@ msgstr ""
 msgid "of"
 msgstr ""
 
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -127,7 +127,7 @@ msgstr ""
 msgid "Relevance"
 msgstr ""
 
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -135,7 +135,7 @@ msgstr ""
 msgid "Year (newest first)"
 msgstr ""
 
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -143,7 +143,7 @@ msgstr ""
 msgid "Year (oldest first)"
 msgstr ""
 
-#: lib/dpul_collections_web/live/browse_live.ex:71
+#: lib/dpul_collections_web/live/browse_live.ex:101
 #, elixir-autogen, elixir-format
 msgid "Browse"
 msgstr ""
@@ -153,7 +153,8 @@ msgstr ""
 msgid "Digital Collections"
 msgstr ""
 
-#: lib/dpul_collections_web/live/browse_live.ex:135
+#: lib/dpul_collections_web/live/browse_live.ex:138
+#: lib/dpul_collections_web/live/browse_live.ex:190
 #, elixir-autogen, elixir-format
 msgid "Randomize"
 msgstr ""
@@ -174,7 +175,7 @@ msgstr ""
 msgid "Search Results for"
 msgstr ""
 
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -187,7 +188,7 @@ msgstr ""
 msgid "Recently Added Items"
 msgstr ""
 
-#: lib/dpul_collections_web/components/browse_item.ex:108
+#: lib/dpul_collections_web/components/browse_item.ex:111
 #: lib/dpul_collections_web/live/search_live.ex:218
 #, elixir-autogen, elixir-format
 msgid "Added"
@@ -209,7 +210,7 @@ msgid "All Possible Items"
 msgstr ""
 
 #: lib/dpul_collections/item.ex:74
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -227,7 +228,7 @@ msgstr ""
 msgid "Up"
 msgstr ""
 
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -247,7 +248,7 @@ msgstr ""
 
 #: lib/dpul_collections/item.ex:52
 #: lib/dpul_collections/item.ex:69
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -257,7 +258,7 @@ msgstr ""
 
 #: lib/dpul_collections/item.ex:55
 #: lib/dpul_collections/item.ex:85
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -267,7 +268,7 @@ msgstr ""
 
 #: lib/dpul_collections/item.ex:53
 #: lib/dpul_collections/item.ex:71
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -277,7 +278,7 @@ msgstr ""
 
 #: lib/dpul_collections/item.ex:56
 #: lib/dpul_collections/item.ex:82
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -341,7 +342,7 @@ msgid "Content Warning"
 msgstr ""
 
 #: lib/dpul_collections/item.ex:70
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -350,7 +351,7 @@ msgid "Contributor"
 msgstr ""
 
 #: lib/dpul_collections/item.ex:73
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -369,7 +370,7 @@ msgid "Discovery Information"
 msgstr ""
 
 #: lib/dpul_collections/item.ex:96
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -388,7 +389,7 @@ msgid "Folder number"
 msgstr ""
 
 #: lib/dpul_collections/item.ex:83
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -447,7 +448,7 @@ msgid "Provenance"
 msgstr ""
 
 #: lib/dpul_collections/item.ex:78
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -485,7 +486,7 @@ msgstr ""
 msgid "%{file_min} of %{file_max} images"
 msgstr ""
 
-#: lib/dpul_collections_web/components/browse_item.ex:97
+#: lib/dpul_collections_web/components/browse_item.ex:100
 #: lib/dpul_collections_web/live/item_live.ex:145
 #: lib/dpul_collections_web/live/search_live.ex:204
 #, elixir-autogen, elixir-format
@@ -507,42 +508,37 @@ msgstr ""
 msgid "Similar Items outside this Collection"
 msgstr ""
 
-#: lib/dpul_collections_web/live/browse_live.ex:105
+#: lib/dpul_collections_web/live/browse_live.ex:161
 #, elixir-autogen, elixir-format
 msgid "Check all items"
 msgstr ""
 
-#: lib/dpul_collections_web/live/browse_live.ex:99
+#: lib/dpul_collections_web/live/browse_live.ex:155
 #, elixir-autogen, elixir-format
 msgid "Liked Items"
 msgstr ""
 
-#: lib/dpul_collections_web/live/browse_live.ex:101
+#: lib/dpul_collections_web/live/browse_live.ex:157
 #, elixir-autogen, elixir-format
 msgid "Liked items can be used to make recommendations based on the items you have liked."
 msgstr ""
 
-#: lib/dpul_collections_web/live/browse_live.ex:81
+#: lib/dpul_collections_web/live/browse_live.ex:111
 #, elixir-autogen, elixir-format
 msgid "Random Items"
 msgstr ""
 
-#: lib/dpul_collections_web/live/browse_live.ex:86
-#, elixir-autogen, elixir-format
-msgid "Recommendations"
-msgstr ""
-
-#: lib/dpul_collections_web/live/browse_live.ex:80
+#: lib/dpul_collections_web/live/browse_live.ex:110
 #, elixir-autogen, elixir-format
 msgid "Recommended Items"
 msgstr ""
 
-#: lib/dpul_collections_web/live/browse_live.ex:108
+#: lib/dpul_collections_web/live/browse_live.ex:164
 #, elixir-autogen, elixir-format
 msgid "Remove checked items"
 msgstr ""
 
-#: lib/dpul_collections_web/live/browse_live.ex:76
+#: lib/dpul_collections_web/live/browse_live.ex:106
 #, elixir-autogen, elixir-format
 msgid "My Liked Items"
 msgstr ""
@@ -571,4 +567,9 @@ msgstr ""
 #: lib/dpul_collections_web/live/item_live.ex:557
 #, elixir-autogen, elixir-format
 msgid "Download PDF"
+msgstr ""
+
+#: lib/dpul_collections_web/live/browse_live.ex:130
+#, elixir-autogen, elixir-format
+msgid "Recommendations are generated randomly based on items you've liked while browsing."
 msgstr ""
