@@ -116,7 +116,7 @@ defmodule DpulCollectionsWeb.SearchLive do
             <label class="col-span-1 self-center font-bold uppercase md:text-right" for="sort-by">
               {gettext("sort by")}:
             </label>
-            <select class="col-span-1" name="sort-by">
+            <select class="col-span-1" name="sort-by" aria-label={gettext("sort by")}>
               {Phoenix.HTML.Form.options_for_select(
                 sort_by_params(),
                 @search_state.sort_by
