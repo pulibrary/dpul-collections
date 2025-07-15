@@ -96,8 +96,9 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def render(assigns) do
     ~H"""
-    <div class="content-area">
-      <h1 class="mb-2">{gettext("Browse")}</h1>
+    <div id="browse" class="content-area">
+      <.sticky_tools show_stickytools?={@show_stickytools?}>{length(@liked_items)}</.sticky_tools>
+      <h1 id="browse-header" class="mb-2" phx-hook="ToolbarHook">{gettext("Browse")}</h1>
       {# coveralls-ignore-start}
       <.tabs id="browse-tabs" class="border-b-4 border-accent">
         {# coveralls-ignore-stop}
@@ -124,7 +125,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def recommendations(assigns) do
     ~H"""
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-4 relative">
       <div class="text-xl">
         {gettext("Recommendations are generated randomly based on items you've liked while browsing.")}
       </div>
@@ -180,8 +181,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def random_items(assigns) do
     ~H"""
-    <div class="my-5 grid grid-cols-3" id="browse-header" phx-hook="ToolbarHook">
-      <.sticky_tools show_stickytools?={@show_stickytools?}>{length(@liked_items)}</.sticky_tools>
+    <div class="my-5 grid grid-cols-3">
       <button
         class="btn-primary tracking-wider text-xl
           hover:bg-sage-200 transform transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
@@ -206,20 +206,24 @@ defmodule DpulCollectionsWeb.BrowseLive do
         <div class="absolute bottom-auto left-auto right-0 top-0 z-10 inline-block -translate-y-1/2 translate-x-2/4 rotate-0 skew-x-0 skew-y-0 scale-x-100 scale-y-100 whitespace-nowrap rounded-full bg-red-600 px-1.5 py-1 text-center align-baseline text-xs font-bold leading-none text-white">
           {render_slot(@inner_block)}
         </div>
-        <.link id="liked-button" phx-click={JS.exec("phx-show-tab", to: "#browse-tabs-tab-header-1")}>
+        <.link phx-click={
+          JS.exec("phx-show-tab", to: "#browse-tabs-tab-header-1") |> JS.dispatch("dpulc:scrollTop")
+        }>
           <span class="cursor-pointer mb-2 grid grid-cols-1 grid-rows-1 rounded-sm bg-primary hover:bg-sage-200 px-6 py-2.5 text-xs font-medium uppercase leading-normal text-white shadow-md transition duration-150 ease-in-out hover:shadow-lg focus:shadow-lg focus:outline-hidden focus:ring-0 active:shadow-lg text-accent">
             <.icon name="hero-heart-solid" class="row-[1] col-[1] h-6 w-6 icon bg-accent" />
             <.icon name="hero-heart" class="row-[1] col-[1] h-6 w-6 icon bg-dark-text" />
           </span>
         </.link>
-        <a href="#browse-items">
-          <button
-            class="w-full col-span-1 btn-primary hover:bg-sage-200 transform transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
-            phx-click="randomize"
-          >
-            <.icon name="hero-arrow-path" class="h-6 w-6 icon" />
-          </button>
-        </a>
+        <.link
+          phx-click={
+            JS.push("randomize")
+            |> JS.push("randomize_recommended")
+            |> JS.dispatch("dpulc:scrollTo", to: "#browse-header")
+          }
+          class="w-full col-span-1 btn-primary hover:bg-sage-200 transform transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
+        >
+          <.icon name="hero-arrow-path" class="h-6 w-6 icon" />
+        </.link>
       </div>
     </div>
     """
