@@ -45,7 +45,7 @@ msgstr "¡Éxito!"
 msgid "close"
 msgstr "cerrar"
 
-#: lib/dpul_collections_web/live/item_live.ex:552
+#: lib/dpul_collections_web/live/item_live.ex:557
 #, elixir-autogen, elixir-format
 msgid "Download"
 msgstr "Descargar"
@@ -57,7 +57,7 @@ msgstr "Aplicar"
 
 #: lib/dpul_collections/item.ex:54
 #: lib/dpul_collections/item.ex:72
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/components/header_component.ex:37
 #: lib/dpul_collections_web/components/header_component.ex:44
 #: lib/dpul_collections_web/components/header_component.ex:47
@@ -123,7 +123,7 @@ msgstr "No artículos encontrada"
 msgid "of"
 msgstr "de"
 
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -131,7 +131,7 @@ msgstr "de"
 msgid "Relevance"
 msgstr "Relevancia"
 
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -139,7 +139,7 @@ msgstr "Relevancia"
 msgid "Year (newest first)"
 msgstr "Año (más reciente primero)"
 
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -147,7 +147,7 @@ msgstr "Año (más reciente primero)"
 msgid "Year (oldest first)"
 msgstr "Año (más antigua primero)"
 
-#: lib/dpul_collections_web/live/browse_live.ex:71
+#: lib/dpul_collections_web/live/browse_live.ex:101
 #, elixir-autogen, elixir-format
 msgid "Browse"
 msgstr "navegar"
@@ -157,7 +157,8 @@ msgstr "navegar"
 msgid "Digital Collections"
 msgstr "Colecciones Digitales"
 
-#: lib/dpul_collections_web/live/browse_live.ex:135
+#: lib/dpul_collections_web/live/browse_live.ex:138
+#: lib/dpul_collections_web/live/browse_live.ex:190
 #, elixir-autogen, elixir-format
 msgid "Randomize"
 msgstr "Aleatorizar"
@@ -178,7 +179,7 @@ msgstr "Explorar todos los materiales"
 msgid "Search Results for"
 msgstr "Resultados de la búsqueda por"
 
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -191,7 +192,7 @@ msgstr "Añadido recientemente"
 msgid "Recently Added Items"
 msgstr "Materiales Recientes"
 
-#: lib/dpul_collections_web/components/browse_item.ex:108
+#: lib/dpul_collections_web/components/browse_item.ex:111
 #: lib/dpul_collections_web/live/search_live.ex:218
 #, elixir-autogen, elixir-format
 msgid "Added"
@@ -202,7 +203,7 @@ msgstr "Añadido"
 msgid "Our collections are constantly growing. Discover something new!"
 msgstr "Nuestras colecciones están en constante crecimiento. ¡Descubre algo nuevo!"
 
-#: lib/dpul_collections_web/live/item_live.ex:515
+#: lib/dpul_collections_web/live/item_live.ex:520
 #, elixir-autogen, elixir-format
 msgid "View"
 msgstr "Abrir"
@@ -213,7 +214,7 @@ msgid "All Possible Items"
 msgstr "Todos los elementos posibles"
 
 #: lib/dpul_collections/item.ex:74
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -231,7 +232,7 @@ msgstr "Ahora"
 msgid "Up"
 msgstr "Arriba"
 
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -251,7 +252,7 @@ msgstr "hasta"
 
 #: lib/dpul_collections/item.ex:52
 #: lib/dpul_collections/item.ex:69
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -261,7 +262,7 @@ msgstr "Creador de la obra"
 
 #: lib/dpul_collections/item.ex:55
 #: lib/dpul_collections/item.ex:85
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -271,7 +272,7 @@ msgstr "Origen geográfico"
 
 #: lib/dpul_collections/item.ex:53
 #: lib/dpul_collections/item.ex:71
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -281,7 +282,7 @@ msgstr "Editor"
 
 #: lib/dpul_collections/item.ex:56
 #: lib/dpul_collections/item.ex:82
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -289,7 +290,7 @@ msgstr "Editor"
 msgid "Subject"
 msgstr "Tema"
 
-#: lib/dpul_collections_web/live/item_live.ex:628
+#: lib/dpul_collections_web/live/item_live.ex:633
 #, elixir-autogen, elixir-format
 msgid "View all metadata for this item"
 msgstr "Ver todos los metadatos de este ítem"
@@ -314,7 +315,7 @@ msgstr "fotografías"
 msgid "posters"
 msgstr "pósteres"
 
-#: lib/dpul_collections_web/live/item_live.ex:560
+#: lib/dpul_collections_web/live/item_live.ex:565
 #, elixir-autogen, elixir-format
 msgid "No PDF Available"
 msgstr "PDF no disponible"
@@ -345,7 +346,7 @@ msgid "Content Warning"
 msgstr "Advertencia de contenido"
 
 #: lib/dpul_collections/item.ex:70
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -354,7 +355,7 @@ msgid "Contributor"
 msgstr "Colaborador"
 
 #: lib/dpul_collections/item.ex:73
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -373,7 +374,7 @@ msgid "Discovery Information"
 msgstr "Información de descubrimiento"
 
 #: lib/dpul_collections/item.ex:96
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -392,7 +393,7 @@ msgid "Folder number"
 msgstr "Número de carpeta"
 
 #: lib/dpul_collections/item.ex:83
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -451,7 +452,7 @@ msgid "Provenance"
 msgstr "Procedencia"
 
 #: lib/dpul_collections/item.ex:78
-#: lib/dpul_collections/solr.ex:3
+#: lib/dpul_collections/solr.ex:4
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:25
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -489,7 +490,7 @@ msgstr "Anchura"
 msgid "%{file_min} of %{file_max} images"
 msgstr "%{file_min} de %{file_max} imágenes"
 
-#: lib/dpul_collections_web/components/browse_item.ex:97
+#: lib/dpul_collections_web/components/browse_item.ex:100
 #: lib/dpul_collections_web/live/item_live.ex:145
 #: lib/dpul_collections_web/live/search_live.ex:204
 #, elixir-autogen, elixir-format
@@ -511,42 +512,37 @@ msgstr "Artículos similares en esta colección"
 msgid "Similar Items outside this Collection"
 msgstr "Artículos similares fuera de esta colección"
 
-#: lib/dpul_collections_web/live/browse_live.ex:105
+#: lib/dpul_collections_web/live/browse_live.ex:161
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Check all items"
 msgstr "Explorar todos los materiales"
 
-#: lib/dpul_collections_web/live/browse_live.ex:99
+#: lib/dpul_collections_web/live/browse_live.ex:155
 #, elixir-autogen, elixir-format
 msgid "Liked Items"
 msgstr "Artículos que te gustan"
 
-#: lib/dpul_collections_web/live/browse_live.ex:101
+#: lib/dpul_collections_web/live/browse_live.ex:157
 #, elixir-autogen, elixir-format
 msgid "Liked items can be used to make recommendations based on the items you have liked."
 msgstr "Los artículos que te gustan se pueden usar para hacer recomendaciones basadas en los artículos que te han gustado."
 
-#: lib/dpul_collections_web/live/browse_live.ex:81
+#: lib/dpul_collections_web/live/browse_live.ex:111
 #, elixir-autogen, elixir-format
 msgid "Random Items"
 msgstr "Elementos aleatorios"
 
-#: lib/dpul_collections_web/live/browse_live.ex:86
-#, elixir-autogen, elixir-format
-msgid "Recommendations"
-msgstr "Recomendaciones"
-
-#: lib/dpul_collections_web/live/browse_live.ex:80
+#: lib/dpul_collections_web/live/browse_live.ex:110
 #, elixir-autogen, elixir-format
 msgid "Recommended Items"
 msgstr "Elementos recomendados"
 
-#: lib/dpul_collections_web/live/browse_live.ex:108
+#: lib/dpul_collections_web/live/browse_live.ex:164
 #, elixir-autogen, elixir-format
 msgid "Remove checked items"
 msgstr "Eliminar elementos marcados"
 
-#: lib/dpul_collections_web/live/browse_live.ex:76
+#: lib/dpul_collections_web/live/browse_live.ex:106
 #, elixir-autogen, elixir-format, fuzzy
 msgid "My Liked Items"
 msgstr "Artículos que te gustan"
@@ -571,3 +567,8 @@ msgstr "Comparte este artículo"
 #, elixir-autogen, elixir-format
 msgid "Size"
 msgstr "Tamaño"
+
+#: lib/dpul_collections_web/live/browse_live.ex:130
+#, elixir-autogen, elixir-format
+msgid "Recommendations are generated randomly based on items you've liked while browsing."
+msgstr "Las recomendaciones se generan aleatoriamente en función de los artículos que te gustaron mientras navegabas."
