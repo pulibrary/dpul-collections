@@ -75,13 +75,13 @@ defmodule DpulCollectionsWeb.BrowseLive do
         <:tab>
           <.icon name="hero-heart-solid" class="bg-accent" />My Liked Items ({length(@pinned_items)})
         </:tab>
-        <:tab>Recommended Items</:tab>
-        <:tab active={true}>Random Items</:tab>
+        <:tab>{gettext("Recommended Items")}</:tab>
+        <:tab active={true}>{gettext("Random Items")}</:tab>
         <:panel>
           <.liked_items {assigns} />
         </:panel>
         <:panel>
-          <h2>Recommendations</h2>
+          <h2>{gettext("Recommendations")}</h2>
         </:panel>
         <:panel>
           <.random_items {assigns} />
@@ -94,14 +94,14 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def liked_items(assigns) do
     ~H"""
     <div id="liked-items" class="flex flex-col gap-4">
-      <h2>Liked Items</h2>
-      <div>Liked items can be used to make recommendations based on the items you have liked.</div>
+      <h2>{gettext("Liked Items")}</h2>
+      <div>{gettext("Liked items can be used to make recommendations based on the items you have liked.")}</div>
       <div class="flex gap-4">
         <.primary_button class="px-4">
-          <.icon name="hero-check-solid" />Check all items
+          <.icon name="hero-check-solid" />{gettext("Check all items")}
         </.primary_button>
         <.primary_button class="px-4">
-          <.icon name="hero-trash" />Remove checked items
+          <.icon name="hero-trash" />{gettext("Remove checked items")}
         </.primary_button>
       </div>
       <div class="grid grid-flow-row auto-rows-max gap-8">
