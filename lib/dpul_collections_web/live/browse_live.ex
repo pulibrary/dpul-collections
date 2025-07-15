@@ -206,9 +206,12 @@ defmodule DpulCollectionsWeb.BrowseLive do
         <div class="absolute bottom-auto left-auto right-0 top-0 z-10 inline-block -translate-y-1/2 translate-x-2/4 rotate-0 skew-x-0 skew-y-0 scale-x-100 scale-y-100 whitespace-nowrap rounded-full bg-red-600 px-1.5 py-1 text-center align-baseline text-xs font-bold leading-none text-white">
           {render_slot(@inner_block)}
         </div>
-        <.link phx-click={
-          JS.exec("phx-show-tab", to: "#browse-tabs-tab-header-1") |> JS.dispatch("dpulc:scrollTop")
-        }>
+        <.link
+          id="liked-button"
+          phx-click={
+            JS.exec("phx-show-tab", to: "#browse-tabs-tab-header-1") |> JS.dispatch("dpulc:scrollTop")
+          }
+        >
           <span class="cursor-pointer mb-2 grid grid-cols-1 grid-rows-1 rounded-sm bg-primary hover:bg-sage-200 px-6 py-2.5 text-xs font-medium uppercase leading-normal text-white shadow-md transition duration-150 ease-in-out hover:shadow-lg focus:shadow-lg focus:outline-hidden focus:ring-0 active:shadow-lg text-accent">
             <.icon name="hero-heart-solid" class="row-[1] col-[1] h-6 w-6 icon bg-accent" />
             <.icon name="hero-heart" class="row-[1] col-[1] h-6 w-6 icon bg-dark-text" />
