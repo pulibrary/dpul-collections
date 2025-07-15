@@ -73,7 +73,9 @@ defmodule DpulCollectionsWeb.BrowseLive do
       <.tabs id="browse-tabs" class="border-b-4 border-accent">
         {# coveralls-ignore-stop}
         <:tab>
-          <.icon name="hero-heart-solid" class="bg-accent" />My Liked Items ({length(@liked_items)})
+          <.icon name="hero-heart-solid" class="bg-accent" />{gettext("My Liked Items")} ({length(
+            @liked_items
+          )})
         </:tab>
         <:tab>{gettext("Recommended Items")}</:tab>
         <:tab active={true}>{gettext("Random Items")}</:tab>

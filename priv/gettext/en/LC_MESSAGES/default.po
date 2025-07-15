@@ -157,7 +157,7 @@ msgstr ""
 msgid "Digital Collections"
 msgstr ""
 
-#: lib/dpul_collections_web/live/browse_live.ex:131
+#: lib/dpul_collections_web/live/browse_live.ex:133
 #, elixir-autogen, elixir-format
 msgid "Randomize"
 msgstr ""
@@ -511,7 +511,7 @@ msgstr ""
 msgid "Similar Items outside this Collection"
 msgstr ""
 
-#: lib/dpul_collections_web/live/browse_live.ex:101
+#: lib/dpul_collections_web/live/browse_live.ex:103
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Check all items"
 msgstr ""
@@ -521,7 +521,7 @@ msgstr ""
 msgid "Liked Items"
 msgstr ""
 
-#: lib/dpul_collections_web/live/browse_live.ex:98
+#: lib/dpul_collections_web/live/browse_live.ex:99
 #, elixir-autogen, elixir-format
 msgid "Liked items can be used to make recommendations based on the items you have liked."
 msgstr ""
@@ -541,7 +541,12 @@ msgstr ""
 msgid "Recommended Items"
 msgstr ""
 
-#: lib/dpul_collections_web/live/browse_live.ex:104
+#: lib/dpul_collections_web/live/browse_live.ex:106
 #, elixir-autogen, elixir-format
 msgid "Remove checked items"
+msgstr ""
+
+#: lib/dpul_collections_web/live/browse_live.ex:76
+#, elixir-autogen, elixir-format, fuzzy
+msgid "My Liked Items"
 msgstr ""
