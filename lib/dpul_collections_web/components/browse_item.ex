@@ -41,17 +41,18 @@ defmodule DpulCollectionsWeb.BrowseItem do
   attr :item, Item, required: true
   attr :added?, :boolean, default: false
   attr :likeable?, :boolean, default: true
+  attr :id, :string, required: false, default: "browse-item"
 
   def browse_item(assigns) do
     ~H"""
     <div
-      id={"browse-item-#{@item.id}"}
-      class="flex bg-white flex-col overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_var(--color-sage-300)] min-w-[250px]"
+      id={"#{@id}-#{@item.id}"}
+      class="browse-item flex bg-white flex-col overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_var(--color-sage-300)] min-w-[250px]"
     >
       <!-- like -->
       <div
         :if={@likeable?}
-        id={"like-#{@item.id}"}
+        id={"#{@id}-like-#{@item.id}"}
         phx-click={
           JS.push("like")
           |> JS.toggle_class("hidden", to: {:inner, ".icon"})

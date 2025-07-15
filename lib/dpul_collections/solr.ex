@@ -89,6 +89,7 @@ defmodule DpulCollections.Solr do
         end)
       end)
       |> Enum.flat_map(fn task -> Task.await(task) end)
+      |> Enum.uniq()
       |> Enum.take_random(rows)
 
     %{"docs" => all_docs}

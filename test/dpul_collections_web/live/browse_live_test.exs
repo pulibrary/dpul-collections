@@ -42,6 +42,9 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
 
     assert document |> Floki.find("#browse-tabs-tab-header-1") |> Floki.text() =~ "(1)"
 
+    # Recommendations got generated.
+    assert document |> Floki.find("#recommended-items .browse-item") |> length > 0
+
     like_tracker =
       document
       |> Floki.find("#sticky-tools")
