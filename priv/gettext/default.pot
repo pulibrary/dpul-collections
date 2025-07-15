@@ -39,13 +39,13 @@ msgid "Success!"
 msgstr ""
 
 #: lib/dpul_collections_web/components/core_components.ex:61
-#: lib/dpul_collections_web/live/item_live.ex:228
-#: lib/dpul_collections_web/live/item_live.ex:298
+#: lib/dpul_collections_web/live/item_live.ex:229
+#: lib/dpul_collections_web/live/item_live.ex:308
 #, elixir-autogen, elixir-format
 msgid "close"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:527
+#: lib/dpul_collections_web/live/item_live.ex:552
 #, elixir-autogen, elixir-format
 msgid "Download"
 msgstr ""
@@ -157,7 +157,7 @@ msgstr ""
 msgid "Digital Collections"
 msgstr ""
 
-#: lib/dpul_collections_web/live/browse_live.ex:133
+#: lib/dpul_collections_web/live/browse_live.ex:135
 #, elixir-autogen, elixir-format
 msgid "Randomize"
 msgstr ""
@@ -202,7 +202,7 @@ msgstr ""
 msgid "Our collections are constantly growing. Discover something new!"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:490
+#: lib/dpul_collections_web/live/item_live.ex:515
 #, elixir-autogen, elixir-format
 msgid "View"
 msgstr ""
@@ -289,7 +289,7 @@ msgstr ""
 msgid "Subject"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:587
+#: lib/dpul_collections_web/live/item_live.ex:628
 #, elixir-autogen, elixir-format
 msgid "View all metadata for this item"
 msgstr ""
@@ -314,12 +314,12 @@ msgstr ""
 msgid "posters"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:535
+#: lib/dpul_collections_web/live/item_live.ex:560
 #, elixir-autogen, elixir-format
 msgid "No PDF Available"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:296
+#: lib/dpul_collections_web/live/item_live.ex:298
 #, elixir-autogen, elixir-format
 msgid "Viewer"
 msgstr ""
@@ -420,7 +420,7 @@ msgstr ""
 msgid "Institutional Information"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:238
+#: lib/dpul_collections_web/live/item_live.ex:239
 #, elixir-autogen, elixir-format
 msgid "Item Description"
 msgstr ""
@@ -430,7 +430,7 @@ msgstr ""
 msgid "Keywords"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:226
+#: lib/dpul_collections_web/live/item_live.ex:227
 #, elixir-autogen, elixir-format
 msgid "Metadata"
 msgstr ""
@@ -484,64 +484,64 @@ msgstr ""
 msgid "Width"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:147
+#: lib/dpul_collections_web/live/item_live.ex:148
 #, elixir-autogen, elixir-format
 msgid "%{file_min} of %{file_max} images"
 msgstr ""
 
 #: lib/dpul_collections_web/components/browse_item.ex:97
-#: lib/dpul_collections_web/live/item_live.ex:144
+#: lib/dpul_collections_web/live/item_live.ex:145
 #: lib/dpul_collections_web/live/search_live.ex:204
 #, elixir-autogen, elixir-format
 msgid "Images"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:158
+#: lib/dpul_collections_web/live/item_live.ex:159
 #, elixir-autogen, elixir-format
 msgid "View all images"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:199
+#: lib/dpul_collections_web/live/item_live.ex:200
 #, elixir-autogen, elixir-format
 msgid "Similar Items in this Collection"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:204
+#: lib/dpul_collections_web/live/item_live.ex:205
 #, elixir-autogen, elixir-format
 msgid "Similar Items outside this Collection"
 msgstr ""
 
-#: lib/dpul_collections_web/live/browse_live.ex:103
+#: lib/dpul_collections_web/live/browse_live.ex:105
 #, elixir-autogen, elixir-format
 msgid "Check all items"
 msgstr ""
 
-#: lib/dpul_collections_web/live/browse_live.ex:97
+#: lib/dpul_collections_web/live/browse_live.ex:99
 #, elixir-autogen, elixir-format
 msgid "Liked Items"
 msgstr ""
 
-#: lib/dpul_collections_web/live/browse_live.ex:99
+#: lib/dpul_collections_web/live/browse_live.ex:101
 #, elixir-autogen, elixir-format
 msgid "Liked items can be used to make recommendations based on the items you have liked."
 msgstr ""
 
-#: lib/dpul_collections_web/live/browse_live.ex:79
+#: lib/dpul_collections_web/live/browse_live.ex:81
 #, elixir-autogen, elixir-format
 msgid "Random Items"
 msgstr ""
 
-#: lib/dpul_collections_web/live/browse_live.ex:84
+#: lib/dpul_collections_web/live/browse_live.ex:86
 #, elixir-autogen, elixir-format
 msgid "Recommendations"
 msgstr ""
 
-#: lib/dpul_collections_web/live/browse_live.ex:78
+#: lib/dpul_collections_web/live/browse_live.ex:80
 #, elixir-autogen, elixir-format
 msgid "Recommended Items"
 msgstr ""
 
-#: lib/dpul_collections_web/live/browse_live.ex:106
+#: lib/dpul_collections_web/live/browse_live.ex:108
 #, elixir-autogen, elixir-format
 msgid "Remove checked items"
 msgstr ""
@@ -549,4 +549,25 @@ msgstr ""
 #: lib/dpul_collections_web/live/browse_live.ex:76
 #, elixir-autogen, elixir-format
 msgid "My Liked Items"
+msgstr ""
+
+#: lib/dpul_collections_web/live/item_live.ex:303
+#: lib/dpul_collections_web/live/item_live.ex:367
+#, elixir-autogen, elixir-format
+msgid "Share"
+msgstr ""
+
+#: lib/dpul_collections_web/live/item_live.ex:330
+#, elixir-autogen, elixir-format
+msgid "Share this image"
+msgstr ""
+
+#: lib/dpul_collections_web/live/item_live.ex:194
+#, elixir-autogen, elixir-format
+msgid "Share this item"
+msgstr ""
+
+#: lib/dpul_collections_web/live/item_live.ex:360
+#, elixir-autogen, elixir-format
+msgid "Size"
 msgstr ""
