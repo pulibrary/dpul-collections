@@ -41,6 +41,13 @@ defmodule DpulCollectionsWeb.BrowseLive do
     {:noreply, push_patch(socket, to: "/browse?r=#{Enum.random(1..1_000_000)}")}
   end
 
+  def handle_event("randomize_recommended", _map, socket) do
+    socket =
+      socket |> assign(recommended_items: generate_recommendations(socket.assigns.liked_items))
+
+    {:noreply, socket}
+  end
+
   def handle_event(
         "like",
         %{"item_id" => id},
@@ -109,7 +116,18 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def recommendations(assigns) do
     ~H"""
     <div class="flex flex-col gap-4">
-      <h2>{gettext("Recommendations")}</h2>
+      <div class="text-xl">
+        {gettext("Recommendations are generated randomly based on items you've liked while browsing.")}
+      </div>
+      <div class="grid grid-cols-3" id="browse-header" phx-hook="ToolbarHook">
+        <button
+          class="btn-primary tracking-wider text-xl
+              hover:bg-sage-200 transform transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
+          phx-click="randomize_recommended"
+        >
+          {gettext("Randomize")}
+        </button>
+      </div>
 
       <div
         id="recommended-items"

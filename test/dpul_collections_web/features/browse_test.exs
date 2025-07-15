@@ -31,7 +31,9 @@ defmodule DpulCollectionsWeb.BrowseTest do
       |> click("*[role='tab']", "My Liked Items (0)")
       |> assert_has("h2", text: "Liked items")
       |> click("*[role='tab']", "Recommended Items")
-      |> assert_has("h2", text: "Recommendations")
+      |> assert_has("div",
+        text: "Recommendations are generated randomly based on items you've liked while browsing."
+      )
     end
 
     test "clicking the liked items marker switches tabs", %{conn: conn} do

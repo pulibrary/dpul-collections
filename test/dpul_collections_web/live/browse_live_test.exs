@@ -15,7 +15,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
   end
 
   test "click like", %{conn: conn} do
-    Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+    Solr.add(SolrTestSupport.mock_solr_documents(100), active_collection())
     Solr.commit(active_collection())
 
     {:ok, view, html} = live(conn, "/browse?r=0")
@@ -44,12 +44,21 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
 
     # Recommendations got generated.
     assert document |> Floki.find("#recommended-items .browse-item") |> length > 0
+    first_recommended_items = document |> Floki.find("#recommended-items .browse-item")
 
     like_tracker =
       document
       |> Floki.find("#sticky-tools")
 
     assert like_tracker |> Floki.text() |> String.trim("\n") |> String.trim() == "1"
+
+    # Randomize recommendations
+    {:ok, document} =
+      view
+      |> render_click("randomize_recommended", %{})
+      |> Floki.parse_document()
+
+    assert Floki.find(document, "#recommended-items .browse-item") != first_recommended_items
 
     # Unpin it
     {:ok, document} =
