@@ -14,7 +14,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     assert redirected_to(conn, 302) =~ "/browse?r="
   end
 
-  test "click pin", %{conn: conn} do
+  test "click like", %{conn: conn} do
     Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
     Solr.commit(active_collection())
 
@@ -35,23 +35,23 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     # Pin one
     {:ok, document} =
       view
-      |> render_click("pin", %{"item_id" => "1"})
+      |> render_click("like", %{"item_id" => "1"})
       |> Floki.parse_document()
 
     assert document |> Floki.find("#liked-items .item") |> length == 1
 
     assert document |> Floki.find("#browse-tabs-tab-header-1") |> Floki.text() =~ "(1)"
 
-    pin_tracker =
+    like_tracker =
       document
       |> Floki.find("#sticky-tools")
 
-    assert pin_tracker |> Floki.text() |> String.trim("\n") |> String.trim() == "1"
+    assert like_tracker |> Floki.text() |> String.trim("\n") |> String.trim() == "1"
 
     # Unpin it
     {:ok, document} =
       view
-      |> render_click("pin", %{"item_id" => "1"})
+      |> render_click("like", %{"item_id" => "1"})
       |> Floki.parse_document()
 
     assert document |> Floki.find("#liked-items .item") |> length == 0

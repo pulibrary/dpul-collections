@@ -9,7 +9,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
       socket
       |> assign(
         items: [],
-        pinned_items: [],
+        liked_items: [],
         show_stickytools?: false,
         page_title: "Browse - Digital Collections"
       )
@@ -41,18 +41,18 @@ defmodule DpulCollectionsWeb.BrowseLive do
   end
 
   def handle_event(
-        "pin",
+        "like",
         %{"item_id" => id},
-        socket = %{assigns: %{items: items, pinned_items: pinned_items}}
+        socket = %{assigns: %{items: items, liked_items: liked_items}}
       ) do
     doc = items |> Enum.find(fn item -> item.id == id end)
 
-    case Enum.find_index(pinned_items, fn pinned_item -> doc.id == pinned_item.id end) do
+    case Enum.find_index(liked_items, fn liked_item -> doc.id == liked_item.id end) do
       nil ->
-        {:noreply, socket |> assign(pinned_items: Enum.concat(pinned_items, [doc]))}
+        {:noreply, socket |> assign(liked_items: Enum.concat(liked_items, [doc]))}
 
       idx ->
-        socket = socket |> assign(pinned_items: List.delete_at(pinned_items, idx))
+        socket = socket |> assign(liked_items: List.delete_at(liked_items, idx))
         {:noreply, socket}
     end
   end
@@ -73,7 +73,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
       <.tabs id="browse-tabs" class="border-b-4 border-accent">
         {# coveralls-ignore-stop}
         <:tab>
-          <.icon name="hero-heart-solid" class="bg-accent" />My Liked Items ({length(@pinned_items)})
+          <.icon name="hero-heart-solid" class="bg-accent" />My Liked Items ({length(@liked_items)})
         </:tab>
         <:tab>{gettext("Recommended Items")}</:tab>
         <:tab active={true}>{gettext("Random Items")}</:tab>
@@ -95,7 +95,9 @@ defmodule DpulCollectionsWeb.BrowseLive do
     ~H"""
     <div id="liked-items" class="flex flex-col gap-4">
       <h2>{gettext("Liked Items")}</h2>
-      <div>{gettext("Liked items can be used to make recommendations based on the items you have liked.")}</div>
+      <div>
+        {gettext("Liked items can be used to make recommendations based on the items you have liked.")}
+      </div>
       <div class="flex gap-4">
         <.primary_button class="px-4">
           <.icon name="hero-check-solid" />{gettext("Check all items")}
@@ -105,7 +107,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
         </.primary_button>
       </div>
       <div class="grid grid-flow-row auto-rows-max gap-8">
-        <div :for={item <- @pinned_items} class="grid grid-cols-[auto_minmax(0,1fr)] gap-4">
+        <div :for={item <- @liked_items} class="grid grid-cols-[auto_minmax(0,1fr)] gap-4">
           <hr class="mb-8 col-span-2" />
           <div>
             <input type="checkbox" />
@@ -122,7 +124,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def random_items(assigns) do
     ~H"""
     <div class="my-5 grid grid-cols-3" id="browse-header" phx-hook="ToolbarHook">
-      <.sticky_tools show_stickytools?={@show_stickytools?}>{length(@pinned_items)}</.sticky_tools>
+      <.sticky_tools show_stickytools?={@show_stickytools?}>{length(@liked_items)}</.sticky_tools>
       <button
         class="btn-primary tracking-wider text-xl
           hover:bg-sage-200 transform transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"

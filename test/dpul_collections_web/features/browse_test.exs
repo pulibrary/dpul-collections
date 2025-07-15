@@ -25,7 +25,7 @@ defmodule DpulCollectionsWeb.Features.BrowseViewTest do
       |> assert_has("h2", text: "Recommendations")
     end
 
-    test "clicking the pinned items marker switches tabs", %{conn: conn} do
+    test "clicking the liked items marker switches tabs", %{conn: conn} do
       conn
       |> visit("/browse")
       |> assert_has(".tab-content #browse-item-1")
