@@ -151,6 +151,14 @@
   @apply bg-primary cursor-pointer;
 }
 
+@utility item-action-icon {
+  @apply hover:text-white hover:bg-accent cursor-pointer w-10 h-10 p-2 bg-secondary rounded-full flex justify-center items-center;
+}
+
+@utility pane-action-icon {
+  @apply text-accent hover:bg-secondary cursor-pointer w-6 h-6 p-1 bg-background rounded-full flex justify-center items-center;
+}
+
 @utility skip-to-content {
   position: absolute;
   transform: translateY(-150%);

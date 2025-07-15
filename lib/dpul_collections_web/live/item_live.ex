@@ -97,6 +97,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     <.viewer_pane
       :if={@live_action == :viewer}
       item={@item}
+      current_canvas_idx={@current_canvas_idx}
       current_content_state_url={@current_content_state_url}
     />
     """
@@ -190,7 +191,7 @@ defmodule DpulCollectionsWeb.ItemLive do
           <.metadata_table item={@item} />
         </div>
       </div>
-      <.share_modal item={@item} />
+      <.share_modal path={@item.url} id="share-modal" heading={gettext("Share this item")} />
     </div>
     <.browse_item_row
       :if={@item.project}
@@ -293,7 +294,16 @@ defmodule DpulCollectionsWeb.ItemLive do
       phx-hook="ScrollTop"
     >
       <div class="header-x-padding page-y-padding bg-accent flex flex-row">
-        <h1 class="uppercase text-light-text flex-auto">{gettext("Viewer")}</h1>
+        <div class="flex-auto flex flex-row">
+          <h1 class="uppercase text-light-text flex-none">{gettext("Viewer")}</h1>
+          <.action_icon
+            icon="hero-share"
+            phx-click={JS.show(to: "#viewer-share-modal")}
+            utility="pane-action-icon"
+            aria-label={gettext("Share")}
+          >
+          </.action_icon>
+        </div>
         <.link
           aria-label={gettext("close")}
           class="flex-none cursor-pointer justify-end"
@@ -314,6 +324,11 @@ defmodule DpulCollectionsWeb.ItemLive do
           id: "viewer-component"
         )}
       </div>
+      <.share_modal
+        path={"#{@item.viewer_url}/#{@current_canvas_idx}"}
+        id="viewer-share-modal"
+        heading={gettext("Share this image")}
+      />
     </div>
     """
   end
@@ -336,11 +351,20 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div {@rest}>
       <div class="flex flex-row justify-left items-center">
-        <.action_icon :if={has_dimensions(@item)} icon="pepicons-pencil:ruler" phx-click="toggle_size">
-          Size
+        <.action_icon
+          :if={has_dimensions(@item)}
+          icon="pepicons-pencil:ruler"
+          utility="item-action-icon"
+          phx-click="toggle_size"
+        >
+          {gettext("Size")}
         </.action_icon>
-        <.action_icon icon="hero-share" phx-click={JS.show(to: "#share-modal")}>
-          Share
+        <.action_icon
+          icon="hero-share"
+          utility="item-action-icon"
+          phx-click={JS.show(to: "#share-modal")}
+        >
+          {gettext("Share")}
         </.action_icon>
         <div class="ml-auto h-full flex-grow pr-4">
           <.rights_icon rights_statement={@item.rights_statement} />
@@ -378,13 +402,14 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   attr :rest, :global
   attr :icon, :string, required: true
+  attr :utility, :string, required: true
   slot :inner_block, doc: "the optional inner block that renders the icon label"
 
   def action_icon(assigns) do
     ~H"""
     <div class="flex flex-col justify-center text-center text-sm mr-2 min-w-15 items-center">
       <button {@rest}>
-        <div class="hover:text-white hover:bg-accent cursor-pointer w-10 h-10 p-2 bg-secondary rounded-full flex justify-center items-center">
+        <div class={@utility}>
           <.icon class="w-full h-full" name={@icon} />
         </div>
         {render_slot(@inner_block)}
@@ -537,33 +562,32 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
-  def hide_modal(js \\ %JS{}) do
+  def hide_modal(id, js \\ %JS{}) do
     js
-    |> JS.hide(to: "#share-modal")
-    |> JS.remove_class("bg-accent", to: "#share-url-copy")
+    |> JS.hide(to: "##{id}")
+    |> JS.remove_class("bg-accent", to: "##{id}-value-copy")
   end
+
+  attr :id, :string, required: true
+  attr :heading, :string, required: true
+  attr :path, :string, required: true
 
   def share_modal(assigns) do
     ~H"""
-    <div id="share-modal" class="hidden">
+    <div id={@id} class="hidden">
       <div class="fixed inset-0 p-4 flex flex-wrap justify-center items-center w-full h-full z-[1000] before:fixed before:inset-0 before:w-full before:h-full before:bg-[rgba(0,0,0,0.5)] overflow-auto">
         <div
           class="w-full max-w-2xl bg-white shadow-lg rounded-lg p-8 relative"
-          phx-click-away={hide_modal()}
+          phx-click-away={hide_modal(@id)}
         >
           <div class="flex items-center pb-3 border-b border-gray-300">
-            <h3 class="text-xl font-semibold flex-1 text-slate-900">Share</h3>
-            <button
-              id="close-share"
-              aria-label="close"
-              phx-click={hide_modal()}
-              class="cursor-pointer"
-            >
+            <h3 class="text-xl font-semibold flex-1 text-slate-900">{@heading}</h3>
+            <button aria-label="close" phx-click={hide_modal(@id)} class="cursor-pointer">
               <.icon name="hero-x-mark" />
             </button>
           </div>
           <div class="mt-4">
-            <.copy_element value={"#{DpulCollectionsWeb.Endpoint.url()}#{@item.url}"} id="share-url" />
+            <.copy_element value={"#{DpulCollectionsWeb.Endpoint.url()}#{@path}"} id={"#{@id}-value"} />
           </div>
         </div>
       </div>
