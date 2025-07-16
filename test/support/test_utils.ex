@@ -11,13 +11,13 @@ defmodule TestUtils do
     |> String.trim()
   end
 
-  def assert_a11y(opts, filter) do
-    run_a11y(opts)
+  def assert_a11y(args, filter) do
+    run_a11y(args)
     |> A11yAudit.Assertions.assert_no_violations(filter: filter)
   end
 
-  def assert_a11y(opts) do
-    run_a11y(opts)
+  def assert_a11y(args) do
+    run_a11y(args)
     |> A11yAudit.Assertions.assert_no_violations()
   end
 
