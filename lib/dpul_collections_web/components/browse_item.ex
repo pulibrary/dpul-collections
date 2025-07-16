@@ -114,9 +114,15 @@ defmodule DpulCollectionsWeb.BrowseItem do
     """
   end
 
-  def thumb(assigns) do
+  attr :link, :string, required: true
+  attr :thumb, :string, required: false
+  attr :thumb_num, :string, required: false
+  attr :patch, :boolean, required: false, default: true
+  attr :rest, :global, default: %{}
+
+  def thumb(assigns = %{patch: true}) do
     ~H"""
-    <.link navigate={@link} class="thumb-link">
+    <.link patch={@link} class="thumb-link" {@rest}>
       <img
         class="thumbnail bg-slate-400 text-white h-full w-full object-cover"
         src={thumbnail_url(assigns)}
@@ -126,7 +132,19 @@ defmodule DpulCollectionsWeb.BrowseItem do
     """
   end
 
-  defp thumbnail_service_urls(max_thumbnails, image_service_urls) do
+  def thumb(assigns) do
+    ~H"""
+    <.link navigate={@link} class="thumb-link" {@rest}>
+      <img
+        class="thumbnail bg-slate-400 text-white h-full w-full object-cover"
+        src={thumbnail_url(assigns)}
+        alt="thumbnail image"
+      />
+    </.link>
+    """
+  end
+
+  def thumbnail_service_urls(max_thumbnails, image_service_urls) do
     # Truncate image service urls to max value
     image_service_urls
     |> Enum.slice(1, max_thumbnails)
@@ -141,17 +159,17 @@ defmodule DpulCollectionsWeb.BrowseItem do
     "#{thumb}/square/350,350/0/default.jpg"
   end
 
-  defp thumbnail_service_url(%{primary_thumbnail_service_url: thumbnail_url})
-       when is_binary(thumbnail_url) do
+  def thumbnail_service_url(%{primary_thumbnail_service_url: thumbnail_url})
+      when is_binary(thumbnail_url) do
     thumbnail_url
   end
 
-  defp thumbnail_service_url(%{image_service_urls: [url | _]}) do
+  def thumbnail_service_url(%{image_service_urls: [url | _]}) do
     url
   end
 
   # TODO: default image?
-  defp thumbnail_service_url(_), do: ""
+  def thumbnail_service_url(_), do: ""
 
   def time_ago(digitized_at) do
     {:ok, dt, _} = DateTime.from_iso8601(digitized_at)

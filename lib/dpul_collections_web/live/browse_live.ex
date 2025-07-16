@@ -1,4 +1,6 @@
 defmodule DpulCollectionsWeb.BrowseLive do
+  alias DpulCollectionsWeb.SearchLive.SearchState
+  alias DpulCollectionsWeb.BrowseItem
   use DpulCollectionsWeb, :live_view
   use Gettext, backend: DpulCollectionsWeb.Gettext
   import DpulCollectionsWeb.BrowseItem
@@ -12,7 +14,8 @@ defmodule DpulCollectionsWeb.BrowseLive do
         liked_items: [],
         recommended_items: [],
         show_stickytools?: false,
-        page_title: "Browse - Digital Collections"
+        page_title: "Browse - Digital Collections",
+        focused_item: nil
       )
 
     {:ok, socket}
@@ -28,12 +31,27 @@ defmodule DpulCollectionsWeb.BrowseLive do
         |> assign(
           items:
             Solr.random(90, given_seed)["docs"]
-            |> Enum.map(&Item.from_solr(&1))
+            |> Enum.map(&Item.from_solr(&1)),
+          focused_item: nil
         )
 
       {:noreply, socket}
     else
-      {:noreply, push_patch(socket, to: "/browse?r=#{Enum.random(1..1_000_000)}", replace: true)}
+      if params["focus_id"] do
+        item = Solr.find_by_id(params["focus_id"]) |> Item.from_solr()
+
+        recommended_items =
+          Solr.related_items(item, SearchState.from_params(%{}), 90)["docs"]
+          |> Enum.map(&Item.from_solr/1)
+
+        liked_items = [item | socket.assigns.liked_items] |> Enum.uniq_by(fn item -> item.id end)
+
+        {:noreply,
+         socket |> assign(items: recommended_items, focused_item: item, liked_items: liked_items)}
+      else
+        {:noreply,
+         push_patch(socket, to: "/browse?r=#{Enum.random(1..1_000_000)}", replace: true)}
+      end
     end
   end
 
@@ -46,6 +64,10 @@ defmodule DpulCollectionsWeb.BrowseLive do
       socket |> assign(recommended_items: generate_recommendations(socket.assigns.liked_items))
 
     {:noreply, socket}
+  end
+
+  def handle_event("like", %{"item_id" => id}, socket = %{assigns: %{liked_items: []}}) do
+    {:noreply, push_patch(socket, to: ~p"/browse/focus/#{id}", replace: true)}
   end
 
   def handle_event(
@@ -97,28 +119,14 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def render(assigns) do
     ~H"""
     <div id="browse" class="content-area">
-      <.sticky_tools show_stickytools?={@show_stickytools?}>{length(@liked_items)}</.sticky_tools>
-      <h1 id="browse-header" class="mb-2" phx-hook="ToolbarHook">{gettext("Browse")}</h1>
-      {# coveralls-ignore-start}
-      <.tabs id="browse-tabs" class="border-b-4 border-accent">
-        {# coveralls-ignore-stop}
-        <:tab>
-          <.icon name="hero-heart-solid" class="bg-accent" />{gettext("My Liked Items")} ({length(
-            @liked_items
-          )})
-        </:tab>
-        <:tab>{gettext("Recommended Items")}</:tab>
-        <:tab active={true}>{gettext("Random Items")}</:tab>
-        <:panel>
-          <.liked_items {assigns} />
-        </:panel>
-        <:panel>
-          <.recommendations {assigns} />
-        </:panel>
-        <:panel>
-          <.random_items {assigns} />
-        </:panel>
-      </.tabs>
+      <.sticky_tools liked_items={@liked_items} show_stickytools?={@show_stickytools?}>
+        {length(@liked_items)}
+      </.sticky_tools>
+      <h1 id="browse-header" class="mb-2">{gettext("Browse")}</h1>
+      <div :if={!@focused_item} class="text-2xl">
+        "Like" a random item below to begin browsing similar items. You can "like" an item to save it for browsing later.
+      </div>
+      <.random_items {assigns} />
     </div>
     """
   end
@@ -181,7 +189,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def random_items(assigns) do
     ~H"""
-    <div class="my-5 grid grid-cols-3">
+    <div :if={!@focused_item} class="my-5 grid grid-cols-3">
       <button
         class="btn-primary tracking-wider text-xl
           hover:bg-sage-200 transform transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
@@ -189,6 +197,9 @@ defmodule DpulCollectionsWeb.BrowseLive do
       >
         {gettext("Randomize")}
       </button>
+    </div>
+    <div :if={@focused_item} id="similar-header" class="my-5" phx-hook="ScrollTop">
+      <h3>Browsing items similar to: {@focused_item.title}</h3>
     </div>
     <div id="browse-items" class="grid grid-cols-[repeat(auto-fit,minmax(300px,_1fr))] gap-6 pt-5">
       <.browse_item :for={item <- @items} item={item} />
@@ -200,30 +211,24 @@ defmodule DpulCollectionsWeb.BrowseLive do
     ~H"""
     <div
       id="sticky-tools"
-      class={["fixed top-20 right-10 z-10", (@show_stickytools? && "visible") || "invisible"]}
+      class={["fixed top-20 right-10 z-10 max-w-[100px] flex flex-col gap-2 w-[100px]"]}
     >
+      <div :for={item <- @liked_items} class="grid grid-cols-[auto_minmax(0,1fr)] gap-4">
+        <BrowseItem.thumb
+          phx-click={JS.dispatch("dpulc:scrollTop")}
+          thumb={BrowseItem.thumbnail_service_url(item)}
+          patch={true}
+          link={~p"/browse/focus/#{item.id}"}
+        />
+      </div>
       <div class="relative inline-flex w-fit flex-col">
-        <div class="absolute bottom-auto left-auto right-0 top-0 z-10 inline-block -translate-y-1/2 translate-x-2/4 rotate-0 skew-x-0 skew-y-0 scale-x-100 scale-y-100 whitespace-nowrap rounded-full bg-red-600 px-1.5 py-1 text-center align-baseline text-xs font-bold leading-none text-white">
-          {render_slot(@inner_block)}
-        </div>
-        <.link
-          id="liked-button"
-          phx-click={
-            JS.exec("phx-show-tab", to: "#browse-tabs-tab-header-1") |> JS.dispatch("dpulc:scrollTop")
-          }
-        >
-          <span class="cursor-pointer mb-2 grid grid-cols-1 grid-rows-1 rounded-sm bg-primary hover:bg-sage-200 px-6 py-2.5 text-xs font-medium uppercase leading-normal text-white shadow-md transition duration-150 ease-in-out hover:shadow-lg focus:shadow-lg focus:outline-hidden focus:ring-0 active:shadow-lg text-accent">
-            <.icon name="hero-heart-solid" class="row-[1] col-[1] h-6 w-6 icon bg-accent" />
-            <.icon name="hero-heart" class="row-[1] col-[1] h-6 w-6 icon bg-dark-text" />
-          </span>
-        </.link>
         <.link
           phx-click={
             JS.push("randomize")
             |> JS.push("randomize_recommended")
-            |> JS.dispatch("dpulc:scrollTo", to: "#browse-header")
+            |> JS.dispatch("dpulc:scrollTop")
           }
-          class="w-full col-span-1 btn-primary hover:bg-sage-200 transform transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
+          class="w-full p-4 col-span-1 btn-primary hover:bg-sage-200 transform transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
         >
           <.icon name="hero-arrow-path" class="h-6 w-6 icon" />
         </.link>

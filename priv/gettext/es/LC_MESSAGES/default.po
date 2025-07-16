@@ -143,7 +143,7 @@ msgstr "Año (más reciente primero)"
 msgid "Year (oldest first)"
 msgstr "Año (más antigua primero)"
 
-#: lib/dpul_collections_web/live/browse_live.ex:101
+#: lib/dpul_collections_web/live/browse_live.ex:125
 #, elixir-autogen, elixir-format
 msgid "Browse"
 msgstr "navegar"
@@ -153,8 +153,8 @@ msgstr "navegar"
 msgid "Digital Collections"
 msgstr "Colecciones Digitales"
 
-#: lib/dpul_collections_web/live/browse_live.ex:138
-#: lib/dpul_collections_web/live/browse_live.ex:190
+#: lib/dpul_collections_web/live/browse_live.ex:146
+#: lib/dpul_collections_web/live/browse_live.ex:198
 #, elixir-autogen, elixir-format
 msgid "Randomize"
 msgstr "Aleatorizar"
@@ -508,40 +508,25 @@ msgstr "Artículos similares en esta colección"
 msgid "Similar Items outside this Collection"
 msgstr "Artículos similares fuera de esta colección"
 
-#: lib/dpul_collections_web/live/browse_live.ex:161
+#: lib/dpul_collections_web/live/browse_live.ex:169
 #, elixir-autogen, elixir-format, fuzzy
 msgid "Check all items"
 msgstr "Explorar todos los materiales"
 
-#: lib/dpul_collections_web/live/browse_live.ex:155
+#: lib/dpul_collections_web/live/browse_live.ex:163
 #, elixir-autogen, elixir-format
 msgid "Liked Items"
 msgstr "Artículos que te gustan"
 
-#: lib/dpul_collections_web/live/browse_live.ex:157
+#: lib/dpul_collections_web/live/browse_live.ex:165
 #, elixir-autogen, elixir-format
 msgid "Liked items can be used to make recommendations based on the items you have liked."
 msgstr "Los artículos que te gustan se pueden usar para hacer recomendaciones basadas en los artículos que te han gustado."
 
-#: lib/dpul_collections_web/live/browse_live.ex:111
-#, elixir-autogen, elixir-format
-msgid "Random Items"
-msgstr "Elementos aleatorios"
-
-#: lib/dpul_collections_web/live/browse_live.ex:110
-#, elixir-autogen, elixir-format
-msgid "Recommended Items"
-msgstr "Elementos recomendados"
-
-#: lib/dpul_collections_web/live/browse_live.ex:164
+#: lib/dpul_collections_web/live/browse_live.ex:172
 #, elixir-autogen, elixir-format
 msgid "Remove checked items"
 msgstr "Eliminar elementos marcados"
-
-#: lib/dpul_collections_web/live/browse_live.ex:106
-#, elixir-autogen, elixir-format, fuzzy
-msgid "My Liked Items"
-msgstr "Artículos que te gustan"
 
 #: lib/dpul_collections_web/live/item_live.ex:303
 #: lib/dpul_collections_web/live/item_live.ex:367
@@ -569,7 +554,7 @@ msgstr "Tamaño"
 msgid "Download PDF"
 msgstr "Descargar PDF"
 
-#: lib/dpul_collections_web/live/browse_live.ex:130
+#: lib/dpul_collections_web/live/browse_live.ex:138
 #, elixir-autogen, elixir-format
 msgid "Recommendations are generated randomly based on items you've liked while browsing."
 msgstr "Las recomendaciones se generan aleatoriamente en función de los artículos que te gustaron mientras navegabas."
