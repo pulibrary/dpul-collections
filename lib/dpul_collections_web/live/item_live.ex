@@ -299,7 +299,7 @@ defmodule DpulCollectionsWeb.ItemLive do
           <.action_icon
             icon="hero-share"
             phx-click={show_viewer_share_modal()}
-            utility="pane-action-icon"
+            variant="pane-action-icon"
             aria-label={gettext("Share")}
           >
           </.action_icon>
@@ -354,14 +354,14 @@ defmodule DpulCollectionsWeb.ItemLive do
         <.action_icon
           :if={has_dimensions(@item)}
           icon="pepicons-pencil:ruler"
-          utility="item-action-icon"
+          variant="item-action-icon"
           phx-click="toggle_size"
         >
           {gettext("Size")}
         </.action_icon>
         <.action_icon
           icon="hero-share"
-          utility="item-action-icon"
+          variant="item-action-icon"
           phx-click={JS.show(to: "#share-modal")}
         >
           {gettext("Share")}
@@ -403,10 +403,10 @@ defmodule DpulCollectionsWeb.ItemLive do
   attr :rest, :global
   attr :icon, :string, required: true
 
-  attr :utility, :string,
+  attr :variant, :string,
     required: true,
     doc:
-      "utilities group classes, are defined in app.css, and allow rendering the icon in different sizes and with different color combinations, for example."
+      "A variant should be defined in app.css as a tailwind utility. Variants allow rendering the icon in different sizes and with different color combinations."
 
   slot :inner_block, doc: "the optional inner block that renders the icon label"
 
@@ -414,7 +414,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div class="flex flex-col justify-center text-center text-sm mr-2 min-w-15 items-center">
       <button {@rest}>
-        <div class={@utility}>
+        <div class={@variant <> " cursor-pointer rounded-full flex justify-center items-center"}>
           <.icon class="w-full h-full" name={@icon} />
         </div>
         {render_slot(@inner_block)}
