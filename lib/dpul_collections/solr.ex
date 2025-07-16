@@ -121,7 +121,7 @@ defmodule DpulCollections.Solr do
     [mlt_focus(search_state), search_state[:q]] |> Enum.reject(&is_nil/1) |> Enum.join(" ")
   end
 
-  def mlt_focus(%{facet: %{"similar" => id}}) do
+  def mlt_focus(%{filter: %{"similar" => id}}) do
     mlt_query(id)
   end
 
@@ -146,7 +146,7 @@ defmodule DpulCollections.Solr do
     "-filter(#{solr_field}:\"#{filter_value}\")"
   end
 
-  # Similar facet - display, but handle in the q parameter instead.
+  # Similar filter - display, but handle in the q parameter instead.
   def generate_filter_query({"similar", _filter_value}) do
     nil
   end

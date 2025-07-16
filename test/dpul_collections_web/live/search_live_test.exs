@@ -359,15 +359,15 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   end
 
   test "items can be filtered by similarity", %{conn: conn} do
-    {:ok, view, html} = live(conn, "/search?facet[similar]=2")
+    {:ok, view, html} = live(conn, "/search?filter[similar]=2")
 
     {:ok, document} =
       html
       |> Floki.parse_document()
 
-    # There's a similarity facet.
+    # There's a similarity filter.
     assert document
-           |> Floki.find("#similar-facet")
+           |> Floki.find("#similar-filter")
            |> Floki.text()
            |> TestUtils.clean_string() == "Similar To Document-2"
 

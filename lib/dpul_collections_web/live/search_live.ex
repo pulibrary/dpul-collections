@@ -33,6 +33,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   def handle_params(params, _uri, socket) do
     search_state = SearchState.from_params(params |> Helpers.clean_params())
     solr_response = Solr.query(search_state)
+    IO.inspect(search_state)
 
     items =
       solr_response["docs"]
