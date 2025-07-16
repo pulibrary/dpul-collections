@@ -15,12 +15,12 @@
 @custom-variant phx-change-loading ([".phx-change-loading&", ".phx-change-loading &"]);
 
 @theme {
-  --color-taupe: #ede7e4;
+  --color-taupe: #f4f2f0;
   --color-wafer-pink: #e2d4c9;
   --color-sage: #d0d3ac;
   --color-dark-sage: #9fa06c;
   --color-cloud: #c1ccc3;
-  --color-rust: #ab6b47;
+  --color-rust: #a0562c;
   --color-dark-blue: #3a4151;
   /* Button Text on Dark Blue */
   --color-light-green: #ECF2CB;
