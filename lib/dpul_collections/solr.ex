@@ -125,7 +125,7 @@ defmodule DpulCollections.Solr do
     mlt_query(id)
   end
 
-  def mlt_focus(search_state) do
+  def mlt_focus(_search_state) do
     nil
   end
 
