@@ -155,6 +155,24 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
     |> assert_path("/i/document1/item/1/viewer/1")
   end
 
+  test "item page is accessible", %{conn: conn} do
+    conn
+    |> visit("/i/document-1/item/1")
+    |> unwrap(&TestUtils.assert_a11y/1)
+  end
+
+  test "metadata page is accessible", %{conn: conn} do
+    conn
+    |> visit("/i/document1/item/1/metadata")
+    |> unwrap(&TestUtils.assert_a11y/1)
+  end
+
+  test "viewer page is accessible", %{conn: conn} do
+    conn
+    |> visit("/i/document1/item/1/viewer/1")
+    |> unwrap(&TestUtils.assert_a11y(&1, CloverFilter))
+  end
+
   def go_back(conn) do
     conn
     |> unwrap(&Frame.evaluate(&1.frame_id, "window.history.back()"))

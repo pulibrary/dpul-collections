@@ -5,6 +5,8 @@ defmodule DpulCollectionsWeb.Features.LocaleTest do
   import SolrTestSupport
   alias DpulCollections.Solr
 
+  # Because the search button is only visible when the input is focused, we use
+  # type instead of fill_in
   test "locale persists between pages", %{conn: conn} do
     conn
     |> visit("/")
@@ -12,7 +14,7 @@ defmodule DpulCollectionsWeb.Features.LocaleTest do
     |> click_button("Language")
     |> Playwright.click("//div[text()='Español']")
     |> assert_has("a", text: "Explorar todos los materiales")
-    |> fill_in("Buscar", with: " ")
+    |> Playwright.type("input#q", " ")
     |> click_button("Buscar")
     |> assert_has("label", text: "filtrar por fecha:")
   end

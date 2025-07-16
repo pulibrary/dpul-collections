@@ -9,7 +9,7 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
       <div class="search-browse-container min-h-14 flex flex-wrap bg-search">
         <div class="search-box header-x-padding grow">
           <form id="search-form" class="w-full h-full" phx-submit="search" phx-target={@myself}>
-            <div class="flex items-center w-full h-full">
+            <div class="flex items-center w-full h-full" role="search">
               <span class="flex-none">
                 <.icon name="hero-magnifying-glass" class="h-10 w-10 icon" />
               </span>
@@ -33,7 +33,10 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
           </form>
         </div>
 
-        <div class="browse-link flex flex-none justify-end items-center header-e-padding bg-primary ml-auto">
+        <div
+          class="browse-link flex flex-none justify-end items-center header-e-padding bg-primary ml-auto"
+          role="navigation"
+        >
           <div class="w-full text-right heading text-xl font-bold">
             <span><.icon name="hero-square-3-stack-3d" class="p-1 h-10 w-10 icon" /></span>
             <.link navigate={~p"/browse"} class="pl-2">

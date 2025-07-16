@@ -116,7 +116,7 @@ defmodule DpulCollectionsWeb.SearchLive do
             <label class="col-span-1 self-center font-bold uppercase md:text-right" for="sort-by">
               {gettext("sort by")}:
             </label>
-            <select class="col-span-1" name="sort-by">
+            <select class="col-span-1" name="sort-by" aria-label={gettext("sort by")}>
               {Phoenix.HTML.Form.options_for_select(
                 sort_by_params(),
                 @search_state.sort_by
@@ -204,7 +204,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           {@item.file_count} {gettext("Images")}
         </div>
       </div>
-      <div data-field="genre" class="pt-4 text-gray-500 font-bold text-sm uppercase">
+      <div data-field="genre" class="pt-4 text-gray-600 font-bold text-sm uppercase">
         <.link navigate={self_route(@search_state, %{filter: %{"genre" => List.first(@item.genre)}})}>
           {@item.genre}
         </.link>
