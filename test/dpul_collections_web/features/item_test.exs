@@ -170,7 +170,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
   test "viewer page is accessible", %{conn: conn} do
     conn
     |> visit("/i/document1/item/1/viewer/1")
-    |> unwrap(&TestUtils.assert_a11y/1)
+    |> unwrap(&TestUtils.assert_a11y(&1, RoleImgAltFilter))
   end
 
   def go_back(conn) do
