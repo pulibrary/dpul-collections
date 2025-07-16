@@ -95,6 +95,11 @@ defmodule DpulCollections.Solr.Constants do
           solr_field: "subject_txtm",
           label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Subject"),
           value_function: &Function.identity/1
+        },
+        "year" => %{
+          solr_field: "years_is",
+          label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Year"),
+          value_function: &DpulCollections.Solr.Constants.date_value/1
         }
       }
 
