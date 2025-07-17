@@ -198,12 +198,15 @@ defmodule DpulCollectionsWeb.ItemLive do
       id="related-same-project"
       items={@related_items}
       title={gettext("Similar Items in this Collection")}
+      more_link={~p"/search?filter[similar]=#{@item.id}&filter[project]=#{@item.project}"}
     />
     <.browse_item_row
+      :if={@item.project}
       id="related-different-project"
       items={@different_project_related_items}
       title={gettext("Similar Items outside this Collection")}
       class="grid-row bg-background"
+      more_link={~p"/search?filter[similar]=#{@item.id}&filter[project]=-#{@item.project}"}
     />
     """
   end

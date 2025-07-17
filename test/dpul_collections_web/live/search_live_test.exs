@@ -358,6 +358,29 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Enum.empty?()
   end
 
+  test "items can be filtered by similarity", %{conn: conn} do
+    {:ok, view, html} = live(conn, "/search?filter[similar]=2")
+
+    {:ok, document} =
+      html
+      |> Floki.parse_document()
+
+    # There's a similarity filter.
+    assert document
+           |> Floki.find("#similar-filter")
+           |> Floki.text()
+           |> TestUtils.clean_string() == "Similar To Document-2"
+
+    # It finds the other folders - those are similar.
+    assert document
+           |> Floki.find(~s{a[href="/i/document4/item/4"]})
+           |> Enum.any?()
+
+    assert document
+           |> Floki.find(~s{a[href="/i/document6/item/6"]})
+           |> Enum.any?()
+  end
+
   test "paginator works as expected", %{conn: conn} do
     # Check that the previous link is hidden on the first page
     {:ok, view, _html} = live(conn, ~p"/search?page=1")

@@ -302,6 +302,9 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
 
       assert view
              |> has_element?("#related-different-project h2 a", "Similar Item Different Project")
+
+      assert view
+             |> has_element?("#related-different-project a.btn-arrow")
     end
 
     test "doesn't show collection related items for items without a collection", %{conn: conn} do
