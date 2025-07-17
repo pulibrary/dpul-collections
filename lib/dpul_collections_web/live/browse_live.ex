@@ -69,7 +69,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
     socket =
       case Enum.find_index(liked_items, fn liked_item -> doc.id == liked_item.id end) do
         nil ->
-          socket |> assign(liked_items: Enum.concat(liked_items, [doc]))
+          socket |> assign(liked_items: [doc | liked_items])
 
         idx ->
           socket |> assign(liked_items: List.delete_at(liked_items, idx))
@@ -85,7 +85,6 @@ defmodule DpulCollectionsWeb.BrowseLive do
       <div :if={!@focused_item} class="text-2xl">
         "Like" a random item below to begin browsing similar items. You can "like" an item to save it for browsing later.
       </div>
-      <.liked_items {assigns} />
       <.display_items {assigns} />
     </div>
     """
@@ -93,20 +92,14 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def display_items(assigns) do
     ~H"""
-    <div :if={!@focused_item} class="my-5 grid grid-cols-3">
-      <button
-        class="btn-primary tracking-wider text-xl
-          hover:bg-sage-200 transform transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
-        phx-click="randomize"
-      >
-        {gettext("Randomize")}
-      </button>
-    </div>
     <div :if={@focused_item} id="similar-header" class="my-5" phx-hook="ScrollTop">
       <h3>Browsing items similar to: {@focused_item.title}</h3>
     </div>
-    <div id="browse-items" class="grid grid-cols-[repeat(auto-fit,minmax(300px,_1fr))] gap-6 pt-5">
-      <.browse_item :for={item <- @items} item={item} />
+    <div>
+      <.liked_items {assigns} />
+      <div id="browse-items" class="grid grid-cols-[repeat(auto-fit,minmax(300px,_1fr))] gap-6 pt-5">
+        <.browse_item :for={item <- @items} item={item} />
+      </div>
     </div>
     """
   end
@@ -115,9 +108,9 @@ defmodule DpulCollectionsWeb.BrowseLive do
     ~H"""
     <div
       id="liked-items"
-      class={["fixed top-20 right-10 z-10 max-w-[100px] flex flex-col gap-2 w-[100px]"]}
+      class={["p-2 h-20 sticky top-0 left-0 bg-secondary z-10 justify-end flex gap-2"]}
     >
-      <div :for={item <- @liked_items} class=" liked-item grid grid-cols-[auto_minmax(0,1fr)] gap-4">
+      <div :for={item <- @liked_items} class="liked-item">
         <BrowseItem.thumb
           phx-click={JS.dispatch("dpulc:scrollTop")}
           thumb={BrowseItem.thumbnail_service_url(item)}
@@ -125,13 +118,13 @@ defmodule DpulCollectionsWeb.BrowseLive do
           link={~p"/browse/focus/#{item.id}"}
         />
       </div>
-      <div class="relative inline-flex w-fit flex-col">
+      <div class="h-full">
         <.link
           phx-click={
             JS.push("randomize")
             |> JS.dispatch("dpulc:scrollTop")
           }
-          class="w-full p-4 col-span-1 btn-primary hover:bg-sage-200 transform transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
+          class="h-full w-[64px] col-span-1 btn-primary hover:bg-sage-200 transform transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
           aria-label="View Random Items"
         >
           <.icon name="hero-arrow-path" class="h-6 w-6 icon" />

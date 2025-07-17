@@ -39,6 +39,8 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
 
     assert document |> Floki.find("#liked-items .liked-item") |> length == 1
 
+    # Make sure the items don't change.
+    # TODO
     # Make sure I can go to recommendations from the link that appeared after
     # clicking the heart.
     # TODO
