@@ -115,7 +115,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
       id="liked-items"
       class={["sticky top-0 left-0 bg-secondary z-10 justify-end grid grid-cols-[1fr_64px]"]}
     >
-      <div class="pt-2 text-right whitespace-nowrap h-full overflow-x-scroll overflow-y-hidden h-[64px] pr-2">
+      <div class="min-h-[94px] pt-2 text-right whitespace-nowrap h-full overflow-x-scroll overflow-y-hidden h-[64px] pr-2">
         <div
           :for={item <- @liked_items}
           class={[
