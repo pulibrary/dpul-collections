@@ -52,9 +52,9 @@ commands:
           command: mix deps.get
       - restore_cache:
           keys:
-            - v1-build-cache-<< parameters.include-assets >>-{{ .Branch }}-{{ checksum "mix.lock" }}
-            - v1-build-cache-<< parameters.include-assets >>-{{ .Branch }}
-            - v1-build-cache-<< parameters.include-assets >>
+            - v1-asset-cache-<< parameters.include-assets >>-{{ .Branch }}-{{ checksum "mix.lock" }}
+            - v1-asset-cache-<< parameters.include-assets >>-{{ .Branch }}
+            - v1-asset-cache-<< parameters.include-assets >>
       - when:
           condition: << parameters.include-assets >>
           steps:
@@ -79,15 +79,15 @@ commands:
             - "deps"
             - "_build"
       - save_cache:
-          key: v1-build-cache-<< parameters.include-assets >>-{{ .Branch }}-{{ checksum "mix.lock" }}
+          key: v1-asset-cache-<< parameters.include-assets >>-{{ .Branch }}-{{ checksum "mix.lock" }}
           paths:
             - "~/.cache/ms-playwright"
       - save_cache:
-          key: v1-build-cache-<< parameters.include-assets >>-{{ .Branch }}
+          key: v1-asset-cache-<< parameters.include-assets >>-{{ .Branch }}
           paths:
             - "~/.cache/ms-playwright"
       - save_cache:
-          key: v1-build-cache-<< parameters.include-assets >>
+          key: v1-asset-cache-<< parameters.include-assets >>
           paths:
             - "~/.cache/ms-playwright"
 
