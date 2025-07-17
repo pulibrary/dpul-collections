@@ -51,7 +51,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
       class="browse-item flex bg-white flex-col overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_var(--color-sage-300)] min-w-[250px]"
     >
       <!-- like -->
-      <div
+      <button
         :if={@likeable?}
         id={"#{@id}-like-#{@item.id}"}
         phx-click={
@@ -64,7 +64,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
       >
         <.icon name="hero-heart-solid" class="h-10 w-10 bg-accent icon selected hidden" />
         <.icon name="hero-heart" class="h-10 w-10 icon selected" />
-      </div>
+      </button>
       
     <!-- thumbs -->
       <div class="px-2 pt-2 bg-white">
