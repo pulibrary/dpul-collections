@@ -210,7 +210,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       assert view
              |> has_element?(
                ".thumbnail-buttons a[href='https://figgy.example.com/concern/ephemera_folders/3da68e1c-06af-4d17-8603-fc73152e1ef7/pdf']",
-               "Download"
+               "Download PDF"
              )
 
       # Page renders when there's no description
