@@ -1,4 +1,5 @@
 defmodule DpulCollectionsWeb.BrowseLive do
+  alias ElixirLS.LanguageServer.Providers.CodeLens.Test
   alias DpulCollectionsWeb.SearchLive.SearchState
   alias DpulCollectionsWeb.BrowseItem
   use DpulCollectionsWeb, :live_view
@@ -87,8 +88,27 @@ defmodule DpulCollectionsWeb.BrowseLive do
     ~H"""
     <div id="browse" class="content-area">
       <h1 id="browse-header" class="mb-2">{gettext("Browse")}</h1>
-      <div :if={!@focused_item} class="text-2xl">
-        "Like" a random item below to begin browsing similar items. You can "like" an item to save it for browsing later.
+      <div :if={!@focused_item} class="text-2xl mb-5">
+        "Like" a random item below to find items similar to it.
+      </div>
+      <div
+        :if={@focused_item}
+        class="mb-5 text-2xl gap-2 grid grid-cols-[12rem_1fr] h-[12rem] w-full items-center"
+      >
+        <div>
+          <BrowseItem.thumb
+            thumb={BrowseItem.thumbnail_service_url(@focused_item)}
+            patch={true}
+            link={~p"/browse/focus/#{@focused_item.id}"}
+            class="min-h-0"
+          />
+        </div>
+        <h3>
+          Because you liked
+          <.link href={@focused_item.url} class="font-bold" target="_blank">
+            {@focused_item.title}
+          </.link>
+        </h3>
       </div>
       <.display_items {assigns} />
     </div>
@@ -97,9 +117,6 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def display_items(assigns) do
     ~H"""
-    <div :if={@focused_item} id="similar-header" class="my-5" phx-hook="ScrollTop">
-      <h3>Browsing items similar to: {@focused_item.title}</h3>
-    </div>
     <div>
       <.liked_items {assigns} />
       <div id="browse-items" class="grid grid-cols-[repeat(auto-fit,minmax(300px,_1fr))] gap-6 pt-5">
@@ -133,10 +150,8 @@ defmodule DpulCollectionsWeb.BrowseLive do
       </div>
       <div class="h-full">
         <.link
-          phx-click={
-            JS.push("randomize")
-            |> JS.dispatch("dpulc:scrollTop")
-          }
+          phx-click={JS.dispatch("dpulc:scrollTop")}
+          patch="/browse"
           class="h-full w-[64px] col-span-1 btn-primary hover:bg-sage-200 transform transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
           aria-label="View Random Items"
         >

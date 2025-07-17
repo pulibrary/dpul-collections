@@ -51,20 +51,34 @@ defmodule DpulCollectionsWeb.BrowseItem do
       class="browse-item flex bg-white flex-col overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_var(--color-sage-300)] min-w-[250px]"
     >
       <!-- like -->
-      <button
-        :if={@likeable?}
-        id={"#{@id}-like-#{@item.id}"}
-        phx-click={
-          JS.push("like")
-          |> JS.toggle_class("hidden", to: {:inner, ".icon"})
+      <div
+        data-toggle={
+          JS.toggle_class("hidden", to: {:inner, ".icon"})
+          |> JS.toggle_class("hidden", to: {:inner, ".like-header"})
         }
-        phx-value-item_id={@item.id}
-        phx-value-browse_id={@id}
-        class="h-10 w-10 absolute left-2 top-2 cursor-pointer bg-white text-accent"
+        class="browse-header h-10 w-full absolute left-2 top-2 flex items-center"
       >
-        <.icon name="hero-heart-solid" class="h-10 w-10 bg-accent icon selected hidden" />
-        <.icon name="hero-heart" class="h-10 w-10 icon selected" />
-      </button>
+        <button
+          :if={@likeable?}
+          id={"#{@id}-like-#{@item.id}"}
+          phx-click={
+            JS.push("like")
+            |> JS.exec("data-toggle", to: {:closest, ".browse-header"})
+          }
+          phx-value-item_id={@item.id}
+          phx-value-browse_id={@id}
+          aria-label={"Like #{@item.title}"}
+          class="bg-white cursor-pointer bg-white text-accent h-10 w-10"
+        >
+          <.icon name="hero-heart-solid" class="h-10 w-10 bg-accent icon selected hidden" />
+          <.icon name="hero-heart" class="h-10 w-10 icon selected" />
+        </button>
+        <div class="pr-4 h-full w-full flex items-center flex-grow justify-end hidden like-header bg-white text-align-right">
+          <.link patch={~p"/browse/focus/#{@item.id}"} phx-click={JS.dispatch("dpulc:scrollTop")}>
+            Browse Similar Items
+          </.link>
+        </div>
+      </div>
       
     <!-- thumbs -->
       <div class="px-2 pt-2 bg-white">
@@ -123,18 +137,6 @@ defmodule DpulCollectionsWeb.BrowseItem do
   def thumb(assigns = %{patch: true}) do
     ~H"""
     <.link patch={@link} class="thumb-link" {@rest}>
-      <img
-        class="thumbnail bg-slate-400 text-white h-full w-full object-cover"
-        src={thumbnail_url(assigns)}
-        alt="thumbnail image"
-      />
-    </.link>
-    """
-  end
-
-  def thumb(assigns) do
-    ~H"""
-    <.link navigate={@link} class="thumb-link" {@rest}>
       <img
         class="thumbnail bg-slate-400 text-white h-full w-full object-cover"
         src={thumbnail_url(assigns)}

@@ -40,10 +40,18 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     assert document |> Floki.find("#liked-items .liked-item") |> length == 1
 
     # Make sure the items don't change.
-    # TODO
+    post_like_items = document |> Floki.find("#browse-items .browse-item")
+    assert post_like_items == random_items
+
     # Make sure I can go to recommendations from the link that appeared after
     # clicking the heart.
-    # TODO
+    {:ok, document} =
+      view
+      |> element("#browse-items .browse-item:first-child .like-header a")
+      |> render_click()
+      |> Floki.parse_document()
+
+    assert Floki.text(document) =~ "Because you liked"
 
     # Make sure clicking the element in likes builds recommendations
     {:ok, document} =
@@ -55,6 +63,8 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     selected_items = document |> Floki.find("#browse-items .browse-item")
 
     assert random_items != selected_items
+
+    assert Floki.text(document) =~ "Because you liked"
 
     # Add a second liked item.
     {:ok, document} =
@@ -69,6 +79,10 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     # TODO
 
     # Click randomize in liked items again
+    assert view
+           |> element("#liked-items *[aria-label=\"View Random Items\"]")
+           |> render_click() =~ "a random item below to find items"
+
     # TODO
   end
 
