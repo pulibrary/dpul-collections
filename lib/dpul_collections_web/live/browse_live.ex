@@ -42,7 +42,12 @@ defmodule DpulCollectionsWeb.BrowseLive do
           Solr.related_items(item, SearchState.from_params(%{}), 90)["docs"]
           |> Enum.map(&Item.from_solr/1)
 
-        liked_items = [item | socket.assigns.liked_items] |> Enum.uniq_by(fn item -> item.id end)
+        liked_items =
+          if item.id in Enum.map(socket.assigns.liked_items, fn item -> item.id end) do
+            socket.assigns.liked_items
+          else
+            [item | socket.assigns.liked_items]
+          end
 
         {:noreply,
          socket |> assign(items: recommended_items, focused_item: item, liked_items: liked_items)}
@@ -111,7 +116,13 @@ defmodule DpulCollectionsWeb.BrowseLive do
       class={["sticky top-0 left-0 bg-secondary z-10 justify-end grid grid-cols-[1fr_64px]"]}
     >
       <div class="pt-2 text-right whitespace-nowrap h-full overflow-x-scroll overflow-y-hidden h-[64px] pr-2">
-        <div :for={item <- @liked_items} class="liked-item w-[64px] h-[64px] inline-block pl-2">
+        <div
+          :for={item <- @liked_items}
+          class={[
+            "liked-item w-[64px] h-[64px] inline-block ml-2",
+            @focused_item && item.id == @focused_item.id && "border-accent border-2"
+          ]}
+        >
           <BrowseItem.thumb
             phx-click={JS.dispatch("dpulc:scrollTop")}
             thumb={BrowseItem.thumbnail_service_url(item)}
