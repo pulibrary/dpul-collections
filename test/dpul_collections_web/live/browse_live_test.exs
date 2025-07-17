@@ -75,6 +75,15 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
 
     assert document |> Floki.find("#liked-items .liked-item") |> length == 2
 
+    # Unlike an item from items UI
+    {:ok, document} =
+      view
+      |> element("#browse-items .browse-item:first-child *[phx-value-item_id]")
+      |> render_click()
+      |> Floki.parse_document()
+
+    assert document |> Floki.find("#liked-items .liked-item") |> length == 1
+
     # Unlike an item from liked items
     # TODO
 
