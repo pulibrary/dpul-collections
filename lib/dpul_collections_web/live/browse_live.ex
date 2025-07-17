@@ -47,6 +47,8 @@ defmodule DpulCollectionsWeb.BrowseLive do
         item.id in Enum.map(socket.assigns.liked_items, fn item -> item.id end) ->
           socket.assigns.liked_items
 
+        # When we come to this link directly liked_items is empty - add the one
+        # we're focusing.
         true ->
           [item | socket.assigns.liked_items]
       end
