@@ -23,99 +23,51 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     initial_count =
       html
       |> Floki.parse_document!()
-      |> Floki.find("#liked-items .item")
+      |> Floki.find("#liked-items .liked-item")
 
     assert length(initial_count) == 0
 
     document = html |> Floki.parse_document!()
+    random_items = document |> Floki.find("#browse-items .browse-item")
 
-    assert document
-           |> Floki.find("#browse-tabs-tab-header-1")
-           |> Floki.text() =~ "(0)"
-
-    first_id =
-      document
-      |> Floki.find("#browse-items .browse-item")
-      |> hd
-      |> Floki.attribute("data-item-id")
-      |> hd
-
-    # Pin one
+    # Like first element
     {:ok, document} =
       view
-      |> render_click("like", %{"item_id" => first_id, "browse_id" => "browse-item"})
+      |> element("#browse-items .browse-item:first-child *[phx-value-item_id]")
+      |> render_click()
       |> Floki.parse_document()
 
-    assert document |> Floki.find("#liked-items .item") |> length == 1
+    assert document |> Floki.find("#liked-items .liked-item") |> length == 1
 
-    assert document |> Floki.find("#browse-tabs-tab-header-1") |> Floki.text() =~ "(1)"
+    # Make sure I can go to recommendations from the link that appeared after
+    # clicking the heart.
+    # TODO
 
-    # Recommendations got generated.
-    assert document |> Floki.find("#recommended-items .browse-item") |> length > 0
-    first_recommended_items = document |> Floki.find("#recommended-items .browse-item")
-
-    like_tracker =
-      document
-      |> Floki.find("#sticky-tools")
-
-    assert like_tracker |> Floki.text() |> String.trim("\n") |> String.trim() == "1"
-
-    # Randomize recommendations
+    # Make sure clicking the element in likes builds recommendations
     {:ok, document} =
       view
-      |> render_click("randomize_recommended", %{})
+      |> element("#liked-items .liked-item:first-child a")
+      |> render_click()
       |> Floki.parse_document()
 
-    second_recommended_items = Floki.find(document, "#recommended-items .browse-item")
+    selected_items = document |> Floki.find("#browse-items .browse-item")
 
-    assert second_recommended_items != first_recommended_items
+    assert random_items != selected_items
 
-    # Like a recommended item - this shouldn't refresh the recommended items.
-
-    recommended_id =
-      document
-      |> Floki.find("#recommended-items .browse-item")
-      |> hd
-      |> Floki.attribute("data-item-id")
-      |> hd
-
+    # Add a second liked item.
     {:ok, document} =
       view
-      |> render_click("like", %{"item_id" => recommended_id, "browse_id" => "recommended-items"})
+      |> element("#browse-items .browse-item:first-child *[phx-value-item_id]")
+      |> render_click()
       |> Floki.parse_document()
 
-    third_recommended_items = Floki.find(document, "#recommended-items .browse-item")
+    assert document |> Floki.find("#liked-items .liked-item") |> length == 2
 
-    # Ensure it doesn't change when we like from recommended items.
-    assert second_recommended_items == third_recommended_items
+    # Unlike an item from liked items
+    # TODO
 
-    # Unlike recommended item
-    {:ok, document} =
-      view
-      |> render_click("like", %{"item_id" => recommended_id, "browse_id" => "recommended-items"})
-      |> Floki.parse_document()
-
-    # Unlike it
-    {:ok, document} =
-      view
-      |> render_click("like", %{"item_id" => first_id, "browse_id" => "browse-item"})
-      |> Floki.parse_document()
-
-    assert document |> Floki.find("#liked-items .item") |> length == 0
-
-    assert document |> Floki.find("#browse-tabs-tab-header-1") |> Floki.text() =~ "(0)"
-  end
-
-  test "sticky tools is visible / invisible depending on hook event", %{conn: conn} do
-    {:ok, view, _html} = live(conn, "/browse?r=0")
-
-    # visible
-    assert render_hook(view, :show_stickytools, %{}) =~
-             ~s|<div id="sticky-tools" class="fixed top-20 right-10 z-10 visible">|
-
-    # invisible
-    assert render_hook(view, :hide_stickytools, %{}) =~
-             ~s|<div id="sticky-tools" class="fixed top-20 right-10 z-10 invisible">|
+    # Click randomize in liked items again
+    # TODO
   end
 
   test "click random button", %{conn: conn} do

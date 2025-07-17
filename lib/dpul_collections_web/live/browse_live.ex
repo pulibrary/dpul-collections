@@ -57,10 +57,6 @@ defmodule DpulCollectionsWeb.BrowseLive do
     {:noreply, push_patch(socket, to: "/browse?r=#{Enum.random(1..1_000_000)}")}
   end
 
-  def handle_event("like", %{"item_id" => id}, socket = %{assigns: %{liked_items: []}}) do
-    {:noreply, push_patch(socket, to: ~p"/browse/focus/#{id}", replace: true)}
-  end
-
   def handle_event(
         "like",
         %{"item_id" => id},
@@ -85,13 +81,11 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def render(assigns) do
     ~H"""
     <div id="browse" class="content-area">
-      <.sticky_tools liked_items={@liked_items} show_stickytools?={true}>
-        {length(@liked_items)}
-      </.sticky_tools>
       <h1 id="browse-header" class="mb-2">{gettext("Browse")}</h1>
       <div :if={!@focused_item} class="text-2xl">
         "Like" a random item below to begin browsing similar items. You can "like" an item to save it for browsing later.
       </div>
+      <.liked_items {assigns} />
       <.display_items {assigns} />
     </div>
     """
@@ -117,13 +111,13 @@ defmodule DpulCollectionsWeb.BrowseLive do
     """
   end
 
-  def sticky_tools(assigns) do
+  def liked_items(assigns) do
     ~H"""
     <div
-      id="sticky-tools"
+      id="liked-items"
       class={["fixed top-20 right-10 z-10 max-w-[100px] flex flex-col gap-2 w-[100px]"]}
     >
-      <div :for={item <- @liked_items} class="grid grid-cols-[auto_minmax(0,1fr)] gap-4">
+      <div :for={item <- @liked_items} class=" liked-item grid grid-cols-[auto_minmax(0,1fr)] gap-4">
         <BrowseItem.thumb
           phx-click={JS.dispatch("dpulc:scrollTop")}
           thumb={BrowseItem.thumbnail_service_url(item)}
@@ -138,6 +132,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
             |> JS.dispatch("dpulc:scrollTop")
           }
           class="w-full p-4 col-span-1 btn-primary hover:bg-sage-200 transform transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
+          aria-label="View Random Items"
         >
           <.icon name="hero-arrow-path" class="h-6 w-6 icon" />
         </.link>

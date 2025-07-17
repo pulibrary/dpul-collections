@@ -21,31 +21,6 @@ defmodule DpulCollectionsWeb.BrowseTest do
     |> unwrap(&TestUtils.assert_a11y/1)
   end
 
-  describe "tab interface" do
-    test "clicking a tab switches to that content", %{conn: conn} do
-      conn
-      |> visit("/browse")
-      |> assert_has(".tab-content #browse-item-1")
-      # No header until it's displayed.
-      |> refute_has("h2", text: "Liked items")
-      |> click("*[role='tab']", "My Liked Items (0)")
-      |> assert_has("h2", text: "Liked items")
-      |> click("*[role='tab']", "Recommended Items")
-      |> assert_has("div",
-        text: "Recommendations are generated randomly based on items you've liked while browsing."
-      )
-    end
-
-    test "clicking the liked items marker switches tabs", %{conn: conn} do
-      conn
-      |> visit("/browse")
-      |> assert_has(".tab-content #browse-item-1")
-      |> scroll_down()
-      |> click("#sticky-tools #liked-button .bg-accent", "")
-      |> assert_has("h2", text: "Liked items")
-    end
-  end
-
   def scroll_down(conn) do
     conn
     |> unwrap(&Frame.evaluate(&1.frame_id, "window.scrollTo(0, document.body.scrollHeight);"))
