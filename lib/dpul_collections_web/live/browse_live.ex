@@ -108,15 +108,17 @@ defmodule DpulCollectionsWeb.BrowseLive do
     ~H"""
     <div
       id="liked-items"
-      class={["p-2 h-20 sticky top-0 left-0 bg-secondary z-10 justify-end flex gap-2"]}
+      class={["sticky top-0 left-0 bg-secondary z-10 justify-end grid grid-cols-[1fr_64px]"]}
     >
-      <div :for={item <- @liked_items} class="liked-item">
-        <BrowseItem.thumb
-          phx-click={JS.dispatch("dpulc:scrollTop")}
-          thumb={BrowseItem.thumbnail_service_url(item)}
-          patch={true}
-          link={~p"/browse/focus/#{item.id}"}
-        />
+      <div class="pt-2 text-right whitespace-nowrap h-full overflow-x-scroll overflow-y-hidden h-[64px] pr-2">
+        <div :for={item <- @liked_items} class="liked-item w-[64px] h-[64px] inline-block pl-2">
+          <BrowseItem.thumb
+            phx-click={JS.dispatch("dpulc:scrollTop")}
+            thumb={BrowseItem.thumbnail_service_url(item)}
+            patch={true}
+            link={~p"/browse/focus/#{item.id}"}
+          />
+        </div>
       </div>
       <div class="h-full">
         <.link
