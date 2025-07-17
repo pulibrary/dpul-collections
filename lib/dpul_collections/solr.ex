@@ -41,6 +41,7 @@ defmodule DpulCollections.Solr do
       sort: sort_param(search_state),
       rows: search_state[:per_page],
       start: pagination_offset(search_state),
+      # To do MLT in edismax we have to allow the keyword _query_
       uf: "* _query_"
     ]
 
