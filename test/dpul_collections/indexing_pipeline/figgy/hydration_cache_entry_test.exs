@@ -35,6 +35,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
                series_txtm: ["series"],
                sort_title_txtm: ["sort_title"],
                transliterated_title_txtm: ["transliterated_title"],
+               updated_at_dt: "2024-09-25T19:41:03.558595Z",
                width_txtm: ["200"]
              } = doc1
 
