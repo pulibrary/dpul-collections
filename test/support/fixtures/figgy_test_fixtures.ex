@@ -72,6 +72,7 @@ defmodule FiggyTestFixtures do
           "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
           "internal_resource" => "EphemeraFolder",
           "created_at" => "2023-05-11T18:45:18.994187Z",
+          "updated_at" => "2024-09-25T19:41:03.558595Z",
           "metadata" => %{
             "title" => ["test title 1"],
             "alternative_title" => ["Zaib-un-Nisa", "Zaibunnisa"],

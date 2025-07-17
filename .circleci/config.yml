@@ -52,43 +52,43 @@ commands:
           command: mix deps.get
       - restore_cache:
           keys:
-            - v1-build-cache-<< parameters.include-assets >>-{{ .Branch }}-{{ checksum "mix.lock" }}
-            - v1-build-cache-<< parameters.include-assets >>-{{ .Branch }}
-            - v1-build-cache-<< parameters.include-assets >>
+            - v1-asset-cache-<< parameters.include-assets >>-{{ .Branch }}-{{ checksum "mix.lock" }}
+            - v1-asset-cache-<< parameters.include-assets >>-{{ .Branch }}
+            - v1-asset-cache-<< parameters.include-assets >>
       - when:
           condition: << parameters.include-assets >>
           steps:
             - node/install:
                 node-version: '22.14.0'
             - run:
-                name: Install npm deps
+                name: Install elixir deps
                 command: mix assets.setup
       - save_cache:
           key: v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
           paths:
             - "deps"
+            - "_build"
       - save_cache:
           key: v1-mix-cache-{{ .Branch }}
           paths:
             - "deps"
+            - "_build"
       - save_cache:
           key: v1-mix-cache
           paths:
             - "deps"
-      - save_cache:
-          key: v1-build-cache-<< parameters.include-assets >>-{{ .Branch }}-{{ checksum "mix.lock" }}
-          paths:
             - "_build"
+      - save_cache:
+          key: v1-asset-cache-<< parameters.include-assets >>-{{ .Branch }}-{{ checksum "mix.lock" }}
+          paths:
             - "~/.cache/ms-playwright"
       - save_cache:
-          key: v1-build-cache-<< parameters.include-assets >>-{{ .Branch }}
+          key: v1-asset-cache-<< parameters.include-assets >>-{{ .Branch }}
           paths:
-            - "_build"
             - "~/.cache/ms-playwright"
       - save_cache:
-          key: v1-build-cache-<< parameters.include-assets >>
+          key: v1-asset-cache-<< parameters.include-assets >>
           paths:
-            - "_build"
             - "~/.cache/ms-playwright"
 
   mix-format:

@@ -80,6 +80,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
       subject_txtm: extract_term("subject", metadata, related_data),
       sort_title_txtm: get_in(metadata, ["sort_title"]),
       transliterated_title_txtm: get_in(metadata, ["transliterated_title"]),
+      updated_at_dt: updated_date(data),
       width_txtm: get_in(metadata, ["width"]),
       years_is: extract_years(data)
     }
@@ -97,6 +98,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   end
 
   defp digitized_date(_data), do: nil
+
+  defp updated_date(%{"updated_at" => updated_at}) when is_binary(updated_at) do
+    updated_at
+  end
+
+  defp updated_date(_data), do: nil
 
   defp primary_thumbnail(
          %{"thumbnail_id" => thumbnail_id} = metadata,
