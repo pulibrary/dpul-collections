@@ -14,7 +14,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     assert redirected_to(conn, 302) =~ "/browse?r="
   end
 
-  test "click like", %{conn: conn} do
+  test "browse from random", %{conn: conn} do
     Solr.add(SolrTestSupport.mock_solr_documents(200), active_collection())
     Solr.commit(active_collection())
 
@@ -91,8 +91,15 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     assert view
            |> element("#liked-items *[aria-label=\"View Random Items\"]")
            |> render_click() =~ "a random item below to find items"
+  end
 
-    # TODO
+  test "focused browse from link", %{conn: conn} do
+    Solr.add(SolrTestSupport.mock_solr_documents(90), active_collection())
+    Solr.commit(active_collection())
+
+    {:ok, view, html} = live(conn, "/browse/focus/1")
+
+    assert html =~ "Because you liked"
   end
 
   test "click random button", %{conn: conn} do

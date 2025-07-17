@@ -1,5 +1,4 @@
 defmodule DpulCollectionsWeb.BrowseLive do
-  alias ElixirLS.LanguageServer.Providers.CodeLens.Test
   alias DpulCollectionsWeb.SearchLive.SearchState
   alias DpulCollectionsWeb.BrowseItem
   use DpulCollectionsWeb, :live_view
@@ -21,42 +20,44 @@ defmodule DpulCollectionsWeb.BrowseLive do
   end
 
   @spec handle_params(nil | maybe_improper_list() | map(), any(), any()) :: {:noreply, any()}
-  def handle_params(params, _uri, socket) do
-    given_seed = params["r"]
+  # If we've been asked to randomize, do it.
+  def handle_params(%{"r" => given_seed}, _uri, socket) do
+    socket =
+      socket
+      |> assign(
+        items:
+          Solr.random(90, given_seed)["docs"]
+          |> Enum.map(&Item.from_solr(&1)),
+        focused_item: nil
+      )
 
-    if given_seed do
-      socket =
-        socket
-        |> assign(
-          items:
-            Solr.random(90, given_seed)["docs"]
-            |> Enum.map(&Item.from_solr(&1)),
-          focused_item: nil
-        )
+    {:noreply, socket}
+  end
 
-      {:noreply, socket}
-    else
-      if params["focus_id"] do
-        item = Solr.find_by_id(params["focus_id"]) |> Item.from_solr()
+  # If we're recommending items based on another item, do that.
+  def handle_params(%{"focus_id" => focus_id}, _uri, socket) do
+    item = Solr.find_by_id(focus_id) |> Item.from_solr()
 
-        recommended_items =
-          Solr.related_items(item, SearchState.from_params(%{}), 90)["docs"]
-          |> Enum.map(&Item.from_solr/1)
+    recommended_items =
+      Solr.related_items(item, SearchState.from_params(%{}), 90)["docs"]
+      |> Enum.map(&Item.from_solr/1)
 
-        liked_items =
-          if item.id in Enum.map(socket.assigns.liked_items, fn item -> item.id end) do
-            socket.assigns.liked_items
-          else
-            [item | socket.assigns.liked_items]
-          end
+    liked_items =
+      cond do
+        item.id in Enum.map(socket.assigns.liked_items, fn item -> item.id end) ->
+          socket.assigns.liked_items
 
-        {:noreply,
-         socket |> assign(items: recommended_items, focused_item: item, liked_items: liked_items)}
-      else
-        {:noreply,
-         push_patch(socket, to: "/browse?r=#{Enum.random(1..1_000_000)}", replace: true)}
+        true ->
+          [item | socket.assigns.liked_items]
       end
-    end
+
+    {:noreply,
+     socket |> assign(items: recommended_items, focused_item: item, liked_items: liked_items)}
+  end
+
+  # If neither, generate a random seed and display random items.
+  def handle_params(_params, _uri, socket) do
+    {:noreply, push_patch(socket, to: "/browse?r=#{Enum.random(1..1_000_000)}", replace: true)}
   end
 
   def handle_event("randomize", _map, socket) do
