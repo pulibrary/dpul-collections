@@ -45,11 +45,6 @@ msgstr ""
 msgid "close"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:552
-#, elixir-autogen, elixir-format
-msgid "Download"
-msgstr ""
-
 #: lib/dpul_collections_web/live/search_live.ex:112
 #, elixir-autogen, elixir-format
 msgid "Apply"
@@ -79,6 +74,7 @@ msgid "Previous"
 msgstr ""
 
 #: lib/dpul_collections_web/live/search_live.ex:117
+#: lib/dpul_collections_web/live/search_live.ex:119
 #, elixir-autogen, elixir-format
 msgid "sort by"
 msgstr ""
@@ -167,7 +163,7 @@ msgstr ""
 msgid "The Trustees of Princeton University"
 msgstr ""
 
-#: lib/dpul_collections_web/components/search_bar_component.ex:40
+#: lib/dpul_collections_web/components/search_bar_component.ex:43
 #: lib/dpul_collections_web/live/home_live.ex:187
 #, elixir-autogen, elixir-format
 msgid "Browse all items"
@@ -186,7 +182,7 @@ msgstr ""
 msgid "Recently Added"
 msgstr ""
 
-#: lib/dpul_collections_web/live/home_live.ex:216
+#: lib/dpul_collections_web/live/home_live.ex:217
 #, elixir-autogen, elixir-format
 msgid "Recently Added Items"
 msgstr ""
@@ -197,12 +193,12 @@ msgstr ""
 msgid "Added"
 msgstr ""
 
-#: lib/dpul_collections_web/live/home_live.ex:221
+#: lib/dpul_collections_web/live/home_live.ex:222
 #, elixir-autogen, elixir-format
 msgid "Our collections are constantly growing. Discover something new!"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:515
+#: lib/dpul_collections_web/live/item_live.ex:520
 #, elixir-autogen, elixir-format
 msgid "View"
 msgstr ""
@@ -289,7 +285,7 @@ msgstr ""
 msgid "Subject"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:628
+#: lib/dpul_collections_web/live/item_live.ex:633
 #, elixir-autogen, elixir-format
 msgid "View all metadata for this item"
 msgstr ""
@@ -314,7 +310,7 @@ msgstr ""
 msgid "posters"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:560
+#: lib/dpul_collections_web/live/item_live.ex:565
 #, elixir-autogen, elixir-format
 msgid "No PDF Available"
 msgstr ""
@@ -570,4 +566,9 @@ msgstr ""
 #: lib/dpul_collections_web/live/item_live.ex:360
 #, elixir-autogen, elixir-format
 msgid "Size"
+msgstr ""
+
+#: lib/dpul_collections_web/live/item_live.ex:557
+#, elixir-autogen, elixir-format
+msgid "Download PDF"
 msgstr ""

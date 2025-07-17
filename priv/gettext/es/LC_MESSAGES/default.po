@@ -45,11 +45,6 @@ msgstr "¡Éxito!"
 msgid "close"
 msgstr "cerrar"
 
-#: lib/dpul_collections_web/live/item_live.ex:552
-#, elixir-autogen, elixir-format
-msgid "Download"
-msgstr "Descargar"
-
 #: lib/dpul_collections_web/live/search_live.ex:112
 #, elixir-autogen, elixir-format
 msgid "Apply"
@@ -79,6 +74,7 @@ msgid "Previous"
 msgstr "Anterior"
 
 #: lib/dpul_collections_web/live/search_live.ex:117
+#: lib/dpul_collections_web/live/search_live.ex:119
 #, elixir-autogen, elixir-format
 msgid "sort by"
 msgstr "Ordenar por"
@@ -167,7 +163,7 @@ msgstr "Aleatorizar"
 msgid "The Trustees of Princeton University"
 msgstr "Los fideicomisarios de la Universidad de Princeton"
 
-#: lib/dpul_collections_web/components/search_bar_component.ex:40
+#: lib/dpul_collections_web/components/search_bar_component.ex:43
 #: lib/dpul_collections_web/live/home_live.ex:187
 #, elixir-autogen, elixir-format
 msgid "Browse all items"
@@ -186,7 +182,7 @@ msgstr "Resultados de la búsqueda por"
 msgid "Recently Added"
 msgstr "Añadido recientemente"
 
-#: lib/dpul_collections_web/live/home_live.ex:216
+#: lib/dpul_collections_web/live/home_live.ex:217
 #, elixir-autogen, elixir-format
 msgid "Recently Added Items"
 msgstr "Materiales Recientes"
@@ -197,12 +193,12 @@ msgstr "Materiales Recientes"
 msgid "Added"
 msgstr "Añadido"
 
-#: lib/dpul_collections_web/live/home_live.ex:221
+#: lib/dpul_collections_web/live/home_live.ex:222
 #, elixir-autogen, elixir-format
 msgid "Our collections are constantly growing. Discover something new!"
 msgstr "Nuestras colecciones están en constante crecimiento. ¡Descubre algo nuevo!"
 
-#: lib/dpul_collections_web/live/item_live.ex:515
+#: lib/dpul_collections_web/live/item_live.ex:520
 #, elixir-autogen, elixir-format
 msgid "View"
 msgstr "Abrir"
@@ -289,7 +285,7 @@ msgstr "Editor"
 msgid "Subject"
 msgstr "Tema"
 
-#: lib/dpul_collections_web/live/item_live.ex:628
+#: lib/dpul_collections_web/live/item_live.ex:633
 #, elixir-autogen, elixir-format
 msgid "View all metadata for this item"
 msgstr "Ver todos los metadatos de este ítem"
@@ -314,7 +310,7 @@ msgstr "fotografías"
 msgid "posters"
 msgstr "pósteres"
 
-#: lib/dpul_collections_web/live/item_live.ex:560
+#: lib/dpul_collections_web/live/item_live.ex:565
 #, elixir-autogen, elixir-format
 msgid "No PDF Available"
 msgstr "PDF no disponible"
@@ -512,7 +508,7 @@ msgid "Similar Items outside this Collection"
 msgstr "Artículos similares fuera de esta colección"
 
 #: lib/dpul_collections_web/live/browse_live.ex:105
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "Check all items"
 msgstr "Explorar todos los materiales"
 
@@ -547,7 +543,7 @@ msgid "Remove checked items"
 msgstr "Eliminar elementos marcados"
 
 #: lib/dpul_collections_web/live/browse_live.ex:76
-#, elixir-autogen, elixir-format, fuzzy
+#, elixir-autogen, elixir-format
 msgid "My Liked Items"
 msgstr "Artículos que te gustan"
 
@@ -571,3 +567,8 @@ msgstr "Comparte este artículo"
 #, elixir-autogen, elixir-format
 msgid "Size"
 msgstr "Tamaño"
+
+#: lib/dpul_collections_web/live/item_live.ex:557
+#, elixir-autogen, elixir-format
+msgid "Download PDF"
+msgstr "Descargar PDF"
