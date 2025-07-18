@@ -64,7 +64,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
           <.icon name="hero-heart" class="h-10 w-10 icon selected" />
         </div>
         
-      <!-- thumbs -->
+    <!-- thumbs -->
         <div class="px-2 pt-2 bg-white">
           <div class="grid grid-rows-[repeat(4, 25%)] gap-2 h-[24rem]">
             <!-- main thumbnail -->
@@ -76,7 +76,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
               <.thumb thumb={thumbnail_service_url(@item)} link={@item.url} />
             </div>
             
-      <!-- smaller thumbnails -->
+    <!-- smaller thumbnails -->
             <div :if={@item.file_count > 1} class="grid grid-cols-4 gap-2 h-[6rem]">
               <.thumb
                 :for={{thumb, thumb_num} <- thumbnail_service_urls(4, @item.image_service_urls)}
@@ -89,7 +89,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
           </div>
         </div>
         
-      <!-- card text area -->
+    <!-- card text area -->
         <div class="flex-1 px-6 py-5 bg-white relative">
           <div
             :if={@item.file_count > 4}
@@ -104,22 +104,22 @@ defmodule DpulCollectionsWeb.BrowseItem do
           <p class="text-gray-700 text-base">{@item.date}</p>
         </div>
         
-      <!-- "added on" note -->
+    <!-- "added on" note -->
         <div :if={@added?} class="digitized_at self-end w-full bg-light-secondary h-10 p-2 text-right">
           {"#{gettext("Added")} #{time_ago(@item.digitized_at)}"}
         </div>
       </div>
-    </.link>  
+    </.link>
     """
   end
 
   def thumb(assigns) do
     ~H"""
-      <img
-        class="thumbnail bg-slate-400 text-white h-full w-full object-cover"
-        src={thumbnail_url(assigns)}
-        alt="thumbnail image"
-      />
+    <img
+      class="thumbnail bg-slate-400 text-white h-full w-full object-cover"
+      src={thumbnail_url(assigns)}
+      alt="thumbnail image"
+    />
     """
   end
 
