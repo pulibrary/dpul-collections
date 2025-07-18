@@ -244,15 +244,15 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def thumbs(assigns) do
     ~H"""
-      <img
-        class="h-[350px] w-[350px] md:h-[225px] md:w-[225px] border border-solid border-gray-400"
-        src={"#{@thumb}/square/350,350/0/default.jpg"}
-        alt={"image #{@thumb_num}"}
-        style="
+    <img
+      class="h-[350px] w-[350px] md:h-[225px] md:w-[225px] border border-solid border-gray-400"
+      src={"#{@thumb}/square/350,350/0/default.jpg"}
+      alt={"image #{@thumb_num}"}
+      style="
           background-color: lightgray;"
-        width="350"
-        height="350"
-      />
+      width="350"
+      height="350"
+    />
     """
   end
 

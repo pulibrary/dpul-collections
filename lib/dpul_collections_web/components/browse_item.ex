@@ -133,11 +133,11 @@ defmodule DpulCollectionsWeb.BrowseItem do
 
   def thumb(assigns) do
     ~H"""
-      <img
-        class="thumbnail bg-slate-400 text-white h-full w-full object-cover"
-        src={thumbnail_url(assigns)}
-        alt="thumbnail image"
-      />
+    <img
+      class="thumbnail bg-slate-400 text-white h-full w-full object-cover"
+      src={thumbnail_url(assigns)}
+      alt="thumbnail image"
+    />
     """
   end
 
