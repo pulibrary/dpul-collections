@@ -130,9 +130,11 @@ defmodule DpulCollectionsWeb.BrowseItem do
     """
   end
 
-  attr :link, :string, required: true
   attr :thumb, :string, required: false
   attr :thumb_num, :string, required: false
+  attr :href, :string, required: false
+  attr :navigate, :string, required: false
+  attr :patch, :string, required: false
   attr :rest, :global, default: %{}
 
   def thumb(assigns) do
