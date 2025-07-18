@@ -73,7 +73,7 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
       first_href =
         html
         |> Floki.parse_document!()
-        |> Floki.find(".thumb-link")
+        |> Floki.find(".item-link")
         |> Enum.flat_map(&Floki.attribute(&1, "href"))
         |> Enum.at(0)
 
