@@ -44,82 +44,82 @@ defmodule DpulCollectionsWeb.BrowseItem do
 
   def browse_item(assigns) do
     ~H"""
-    <div
-      id={"browse-item-#{@item.id}"}
-      class="flex bg-white flex-col overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_var(--color-sage-300)] min-w-[250px]"
-    >
-      <!-- like -->
+    <.link navigate={@item.url} class="item-link">
       <div
-        :if={@likeable?}
-        id={"like-#{@item.id}"}
-        phx-click={
-          JS.push("like")
-          |> JS.toggle_class("hidden", to: {:inner, ".icon"})
-        }
-        phx-value-item_id={@item.id}
-        class="h-10 w-10 absolute left-2 top-2 cursor-pointer bg-white text-accent"
+        id={"browse-item-#{@item.id}"}
+        class="flex bg-white flex-col overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_var(--color-sage-300)] min-w-[250px]"
       >
-        <.icon name="hero-heart-solid" class="h-10 w-10 bg-accent icon selected hidden" />
-        <.icon name="hero-heart" class="h-10 w-10 icon selected" />
-      </div>
-      
-    <!-- thumbs -->
-      <div class="px-2 pt-2 bg-white">
-        <div class="grid grid-rows-[repeat(4, 25%)] gap-2 h-[24rem]">
-          <!-- main thumbnail -->
-          <div :if={@item.file_count == 1} class="row-span-4">
-            <.thumb thumb={thumbnail_service_url(@item)} link={@item.url} />
-          </div>
-
-          <div :if={@item.file_count > 1} class="row-span-3 overflow-hidden h-[18rem]">
-            <.thumb thumb={thumbnail_service_url(@item)} link={@item.url} />
-          </div>
-          
-    <!-- smaller thumbnails -->
-          <div :if={@item.file_count > 1} class="grid grid-cols-4 gap-2 h-[6rem]">
-            <.thumb
-              :for={{thumb, thumb_num} <- thumbnail_service_urls(4, @item.image_service_urls)}
-              :if={@item.file_count}
-              thumb={thumb}
-              thumb_num={thumb_num}
-              link={@item.url}
-            />
-          </div>
-        </div>
-      </div>
-      
-    <!-- card text area -->
-      <div class="flex-1 px-6 py-5 bg-white relative">
+        <!-- like -->
         <div
-          :if={@item.file_count > 4}
-          class="absolute bg-background right-2 top-0 z-10 pr-2 pb-1 diagonal-drop"
+          :if={@likeable?}
+          id={"like-#{@item.id}"}
+          phx-click={
+            JS.push("like")
+            |> JS.toggle_class("hidden", to: {:inner, ".icon"})
+          }
+          phx-value-item_id={@item.id}
+          class="h-10 w-10 absolute left-2 top-2 cursor-pointer bg-white text-accent"
         >
-          {@item.file_count} {gettext("Images")}
+          <.icon name="hero-heart-solid" class="h-10 w-10 bg-accent icon selected hidden" />
+          <.icon name="hero-heart" class="h-10 w-10 icon selected" />
         </div>
+        
+      <!-- thumbs -->
+        <div class="px-2 pt-2 bg-white">
+          <div class="grid grid-rows-[repeat(4, 25%)] gap-2 h-[24rem]">
+            <!-- main thumbnail -->
+            <div :if={@item.file_count == 1} class="row-span-4">
+              <.thumb thumb={thumbnail_service_url(@item)} link={@item.url} />
+            </div>
 
-        <h2 class="font-normal tracking-tight py-2" dir="auto">
-          <.link navigate={@item.url} class="item-link">{@item.title}</.link>
-        </h2>
-        <p class="text-gray-700 text-base">{@item.date}</p>
+            <div :if={@item.file_count > 1} class="row-span-3 overflow-hidden h-[18rem]">
+              <.thumb thumb={thumbnail_service_url(@item)} link={@item.url} />
+            </div>
+            
+      <!-- smaller thumbnails -->
+            <div :if={@item.file_count > 1} class="grid grid-cols-4 gap-2 h-[6rem]">
+              <.thumb
+                :for={{thumb, thumb_num} <- thumbnail_service_urls(4, @item.image_service_urls)}
+                :if={@item.file_count}
+                thumb={thumb}
+                thumb_num={thumb_num}
+                link={@item.url}
+              />
+            </div>
+          </div>
+        </div>
+        
+      <!-- card text area -->
+        <div class="flex-1 px-6 py-5 bg-white relative">
+          <div
+            :if={@item.file_count > 4}
+            class="absolute bg-background right-2 top-0 z-10 pr-2 pb-1 diagonal-drop"
+          >
+            {@item.file_count} {gettext("Images")}
+          </div>
+
+          <h2 class="font-normal tracking-tight py-2" dir="auto">
+            {@item.title}
+          </h2>
+          <p class="text-gray-700 text-base">{@item.date}</p>
+        </div>
+        
+      <!-- "added on" note -->
+        <div :if={@added?} class="digitized_at self-end w-full bg-light-secondary h-10 p-2 text-right">
+          {"#{gettext("Added")} #{time_ago(@item.digitized_at)}"}
+        </div>
       </div>
-      
-    <!-- "added on" note -->
-      <div :if={@added?} class="digitized_at self-end w-full bg-light-secondary h-10 p-2 text-right">
-        {"#{gettext("Added")} #{time_ago(@item.digitized_at)}"}
-      </div>
-    </div>
+    </.link>  
     """
   end
 
   def thumb(assigns) do
     ~H"""
-    <.link navigate={@link} class="thumb-link">
       <img
         class="thumbnail bg-slate-400 text-white h-full w-full object-cover"
         src={thumbnail_url(assigns)}
         alt="thumbnail image"
       />
-    </.link>
     """
   end
 
