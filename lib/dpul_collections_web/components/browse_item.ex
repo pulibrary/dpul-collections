@@ -132,14 +132,14 @@ defmodule DpulCollectionsWeb.BrowseItem do
 
   attr :thumb, :string, required: false
   attr :thumb_num, :string, required: false
-  attr :href, :string, required: false
-  attr :navigate, :string, required: false
-  attr :patch, :string, required: false
+  attr :href, :string, required: false, default: nil
+  attr :navigate, :string, required: false, default: nil
+  attr :patch, :string, required: false, default: nil
   attr :rest, :global, default: %{}
 
   def thumb(assigns) do
     ~H"""
-    <.link class="thumb-link" {@rest}>
+    <.link class="thumb-link" patch={@patch} navigate={@navigate} href={@href} {@rest}>
       <img
         class="thumbnail bg-slate-400 text-white h-full w-full object-cover"
         src={thumbnail_url(assigns)}
