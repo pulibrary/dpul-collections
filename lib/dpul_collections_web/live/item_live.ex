@@ -68,12 +68,13 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   attr :filter_name, :string, required: true
   attr :filter_value, :string, required: true
+  attr :class, :string, default: nil
   attr :rest, :global, doc: "the arbitrary HTML attributes to add to the link"
 
   def filter_link(assigns = %{filter_name: filter_name}) when filter_name in @filter_keys do
     ~H"""
     <.link
-      class="filter-link"
+      class={["filter-link", @class]}
       href={~p"/search?#{%{filter: %{@filter_name => @filter_value}} |> Helpers.clean_params()}"}
       {@rest}
     >
@@ -417,7 +418,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div class="flex flex-col justify-center text-center text-sm mr-2 min-w-15 items-center">
       <button {@rest}>
-        <div class={@variant <> " cursor-pointer rounded-full flex justify-center items-center"}>
+        <div class={["cursor-pointer rounded-full flex justify-center items-center", @variant]}>
           <.icon class="w-full h-full" name={@icon} />
         </div>
         {render_slot(@inner_block)}
