@@ -60,29 +60,29 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       |> Floki.parse_document()
 
     # There should be a maximum of 5 thumbnails on the search results page
-    assert document |> Floki.find("#item-1 > div > a > img") |> Enum.count() == 5
+    assert document |> Floki.find("#item-1 > a > div > img") |> Enum.count() == 5
 
     # Odd numbered documents in test data do not have a thumbnail id
     # so the order of thumbnails should be the same as the image member order
     assert document
-           |> Floki.attribute("#item-1 > div > :first-child > img", "src") == [
+           |> Floki.attribute("#item-1 > a > div > :first-child", "src") == [
              "https://example.com/iiif/2/image1/square/350,350/0/default.jpg"
            ]
 
     assert document
-           |> Floki.attribute("#item-1 > div > :nth-child(2) > img", "src") == [
+           |> Floki.attribute("#item-1 > a > div > :nth-child(2)", "src") == [
              "https://example.com/iiif/2/image2/square/350,350/0/default.jpg"
            ]
 
     # Even numbered documents in test data have a thumbnail id so the order
     # of thumbnails should be different from the image member order
     assert document
-           |> Floki.attribute("#item-2 > div > :first-child > img", "src") == [
+           |> Floki.attribute("#item-2 > a > div > :first-child", "src") == [
              "https://example.com/iiif/2/image2/square/350,350/0/default.jpg"
            ]
 
     assert document
-           |> Floki.attribute("#item-2 > div > :nth-child(2) > img", "src") == [
+           |> Floki.attribute("#item-2 > a > div > :nth-child(2)", "src") == [
              "https://example.com/iiif/2/image1/square/350,350/0/default.jpg"
            ]
   end

@@ -47,7 +47,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
 
   def browse_item(assigns) do
     ~H"""
-    <div
+      <div
       id={"#{@id}-#{@item.id}"}
       data-item-id={@item.id}
       class={[
@@ -70,7 +70,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
           </.link>
         </div>
       </div>
-      
+    <.link href={@item.url} target={@target} class="item-link"> 
     <!-- thumbs -->
       <div class="px-2 pt-2 bg-white">
         <div class="grid grid-rows-[repeat(4, 25%)] gap-2 h-[24rem]">
@@ -107,7 +107,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
         </div>
 
         <h2 class="font-normal tracking-tight py-2" dir="auto">
-          <.link href={@item.url} target={@target} class="item-link">{@item.title}</.link>
+          {@item.title}
         </h2>
         <p class="text-gray-700 text-base">{@item.date}</p>
       </div>
@@ -119,6 +119,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
       >
         {"#{gettext("Updated")} #{time_ago(@item.updated_at)}"}
       </div>
+      </.link>
     </div>
     """
   end
@@ -132,13 +133,11 @@ defmodule DpulCollectionsWeb.BrowseItem do
 
   def thumb(assigns) do
     ~H"""
-    <.link class="thumb-link" patch={@patch} navigate={@navigate} href={@href} {@rest}>
       <img
         class="thumbnail bg-slate-400 text-white h-full w-full object-cover"
         src={thumbnail_url(assigns)}
         alt="thumbnail image"
       />
-    </.link>
     """
   end
 

@@ -192,18 +192,20 @@ defmodule DpulCollectionsWeb.SearchLive do
       data-id={@item.id}
       data-filecount={@item.file_count}
     >
-      <div class="flex flex-wrap gap-5 md:max-h-60 max-h-[22rem] overflow-hidden justify-center md:justify-start relative">
-        <.thumbs
-          :for={{thumb, thumb_num} <- thumbnail_service_urls(5, @item)}
-          :if={@item.file_count}
-          thumb={thumb}
-          thumb_num={thumb_num}
-          link={@item.url}
-        />
-        <div id={"filecount-#{@item.id}"} class="hidden absolute right-0 top-0 bg-white px-4 py-2">
-          {@item.file_count} {gettext("Images")}
+      <.link navigate={@item.url} class="thumb-link">
+        <div class="flex flex-wrap gap-5 md:max-h-60 max-h-[22rem] overflow-hidden justify-center md:justify-start relative">
+          <.thumbs
+            :for={{thumb, thumb_num} <- thumbnail_service_urls(5, @item)}
+            :if={@item.file_count}
+            thumb={thumb}
+            thumb_num={thumb_num}
+            link={@item.url}
+          />
+          <div id={"filecount-#{@item.id}"} class="hidden absolute right-0 top-0 bg-white px-4 py-2">
+            {@item.file_count} {gettext("Images")}
+          </div>
         </div>
-      </div>
+      </.link>
       <div data-field="genre" class="pt-4 text-gray-600 font-bold text-sm uppercase">
         <.link navigate={self_route(@search_state, %{filter: %{"genre" => List.first(@item.genre)}})}>
           {@item.genre}
@@ -242,7 +244,6 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def thumbs(assigns) do
     ~H"""
-    <.link navigate={@link} class="thumb-link">
       <img
         class="h-[350px] w-[350px] md:h-[225px] md:w-[225px] border border-solid border-gray-400"
         src={"#{@thumb}/square/350,350/0/default.jpg"}
@@ -252,7 +253,6 @@ defmodule DpulCollectionsWeb.SearchLive do
         width="350"
         height="350"
       />
-    </.link>
     """
   end
 
