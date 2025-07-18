@@ -101,8 +101,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
         <div>
           <BrowseItem.thumb
             thumb={BrowseItem.thumbnail_service_url(@focused_item)}
-            patch={true}
-            link={~p"/browse/focus/#{@focused_item.id}"}
+            patch={~p"/browse/focus/#{@focused_item.id}"}
             class="min-h-0"
           />
         </div>
@@ -123,7 +122,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
     <div>
       <.liked_items {assigns} />
       <div id="browse-items" class="grid grid-cols-[repeat(auto-fit,minmax(300px,_1fr))] gap-6 pt-5">
-        <.browse_item :for={item <- @items} item={item} />
+        <.browse_item :for={item <- @items} item={item} target="_blank" />
       </div>
     </div>
     """
@@ -133,7 +132,9 @@ defmodule DpulCollectionsWeb.BrowseLive do
     ~H"""
     <div
       id="liked-items"
-      class={["sticky top-0 left-0 bg-secondary z-10 justify-end grid grid-cols-[1fr_64px]"]}
+      class={[
+        "sticky top-0 left-0 bg-secondary z-10 justify-end grid grid-cols-[1fr_64px]"
+      ]}
     >
       <div class="min-h-[94px] pt-2 text-right whitespace-nowrap h-full overflow-x-scroll overflow-y-hidden h-[64px] pr-2">
         <div
@@ -146,8 +147,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
           <BrowseItem.thumb
             phx-click={JS.dispatch("dpulc:scrollTop")}
             thumb={BrowseItem.thumbnail_service_url(item)}
-            patch={true}
-            link={~p"/browse/focus/#{item.id}"}
+            patch={~p"/browse/focus/#{item.id}"}
           />
         </div>
       </div>

@@ -42,6 +42,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
   attr :added?, :boolean, default: false
   attr :likeable?, :boolean, default: true
   attr :id, :string, required: false, default: "browse-item"
+  attr :target, :string, required: false, default: nil
 
   def browse_item(assigns) do
     ~H"""
@@ -85,11 +86,11 @@ defmodule DpulCollectionsWeb.BrowseItem do
         <div class="grid grid-rows-[repeat(4, 25%)] gap-2 h-[24rem]">
           <!-- main thumbnail -->
           <div :if={@item.file_count == 1} class="row-span-4">
-            <.thumb thumb={thumbnail_service_url(@item)} link={@item.url} />
+            <.thumb thumb={thumbnail_service_url(@item)} target={@target} href={@item.url} />
           </div>
 
           <div :if={@item.file_count > 1} class="row-span-3 overflow-hidden h-[18rem]">
-            <.thumb thumb={thumbnail_service_url(@item)} link={@item.url} />
+            <.thumb thumb={thumbnail_service_url(@item)} target={@target} href={@item.url} />
           </div>
           
     <!-- smaller thumbnails -->
@@ -99,7 +100,8 @@ defmodule DpulCollectionsWeb.BrowseItem do
               :if={@item.file_count}
               thumb={thumb}
               thumb_num={thumb_num}
-              link={@item.url}
+              href={@item.url}
+              target={@target}
             />
           </div>
         </div>
@@ -115,7 +117,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
         </div>
 
         <h2 class="font-normal tracking-tight py-2" dir="auto">
-          <.link navigate={@item.url} class="item-link">{@item.title}</.link>
+          <.link href={@item.url} target={@target} class="item-link">{@item.title}</.link>
         </h2>
         <p class="text-gray-700 text-base">{@item.date}</p>
       </div>
@@ -131,12 +133,11 @@ defmodule DpulCollectionsWeb.BrowseItem do
   attr :link, :string, required: true
   attr :thumb, :string, required: false
   attr :thumb_num, :string, required: false
-  attr :patch, :boolean, required: false, default: true
   attr :rest, :global, default: %{}
 
-  def thumb(assigns = %{patch: true}) do
+  def thumb(assigns) do
     ~H"""
-    <.link patch={@link} class="thumb-link" {@rest}>
+    <.link class="thumb-link" {@rest}>
       <img
         class="thumbnail bg-slate-400 text-white h-full w-full object-cover"
         src={thumbnail_url(assigns)}
