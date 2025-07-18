@@ -14,8 +14,8 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     assert redirected_to(conn, 302) =~ "/browse?r="
   end
 
-  test "click like", %{conn: conn} do
-    Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+  test "browse from random", %{conn: conn} do
+    Solr.add(SolrTestSupport.mock_solr_documents(200), active_collection())
     Solr.commit(active_collection())
 
     {:ok, view, html} = live(conn, "/browse?r=0")
@@ -23,52 +23,83 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     initial_count =
       html
       |> Floki.parse_document!()
-      |> Floki.find("#liked-items .item")
+      |> Floki.find("#liked-items .liked-item")
 
     assert length(initial_count) == 0
 
-    assert html
-           |> Floki.parse_document!()
-           |> Floki.find("#browse-tabs-tab-header-1")
-           |> Floki.text() =~ "(0)"
+    document = html |> Floki.parse_document!()
+    random_items = document |> Floki.find("#browse-items .browse-item")
 
-    # Pin one
+    # Like first element
     {:ok, document} =
       view
-      |> render_click("like", %{"item_id" => "1"})
+      |> element("#browse-items .browse-item:first-child *[phx-value-item_id]")
+      |> render_click()
       |> Floki.parse_document()
 
-    assert document |> Floki.find("#liked-items .item") |> length == 1
+    assert document |> Floki.find("#liked-items .liked-item") |> length == 1
 
-    assert document |> Floki.find("#browse-tabs-tab-header-1") |> Floki.text() =~ "(1)"
+    # Make sure the items don't change.
+    post_like_items = document |> Floki.find("#browse-items .browse-item")
+    assert post_like_items == random_items
 
-    like_tracker =
-      document
-      |> Floki.find("#sticky-tools")
-
-    assert like_tracker |> Floki.text() |> String.trim("\n") |> String.trim() == "1"
-
-    # Unpin it
+    # Make sure I can go to recommendations from the link that appeared after
+    # clicking the heart.
     {:ok, document} =
       view
-      |> render_click("like", %{"item_id" => "1"})
+      |> element("#browse-items .browse-item:first-child .like-header a")
+      |> render_click()
       |> Floki.parse_document()
 
-    assert document |> Floki.find("#liked-items .item") |> length == 0
+    assert Floki.text(document) =~ "Because you liked"
 
-    assert document |> Floki.find("#browse-tabs-tab-header-1") |> Floki.text() =~ "(0)"
+    # Make sure clicking the element in likes builds recommendations
+    {:ok, document} =
+      view
+      |> element("#liked-items .liked-item:first-child a")
+      |> render_click()
+      |> Floki.parse_document()
+
+    selected_items = document |> Floki.find("#browse-items .browse-item")
+
+    assert random_items != selected_items
+
+    assert Floki.text(document) =~ "Because you liked"
+
+    # Add a second liked item.
+    {:ok, document} =
+      view
+      |> element("#browse-items .browse-item:first-child *[phx-value-item_id]")
+      |> render_click()
+      |> Floki.parse_document()
+
+    assert document |> Floki.find("#liked-items .liked-item") |> length == 2
+
+    # Unlike an item from items UI
+    {:ok, document} =
+      view
+      |> element("#browse-items .browse-item:first-child *[phx-value-item_id]")
+      |> render_click()
+      |> Floki.parse_document()
+
+    assert document |> Floki.find("#liked-items .liked-item") |> length == 1
+
+    # Unlike an item from liked items
+    # TODO
+
+    # Click randomize in liked items again
+    assert view
+           |> element("#liked-items *[aria-label=\"View Random Items\"]")
+           |> render_click() =~ "a random item below to find items"
   end
 
-  test "sticky tools is visible / invisible depending on hook event", %{conn: conn} do
-    {:ok, view, _html} = live(conn, "/browse?r=0")
+  test "focused browse from link", %{conn: conn} do
+    Solr.add(SolrTestSupport.mock_solr_documents(90), active_collection())
+    Solr.commit(active_collection())
 
-    # visible
-    assert render_hook(view, :show_stickytools, %{}) =~
-             ~s|<div id="sticky-tools" class="fixed top-20 right-10 z-10 visible">|
+    {:ok, view, html} = live(conn, "/browse/focus/1")
 
-    # invisible
-    assert render_hook(view, :hide_stickytools, %{}) =~
-             ~s|<div id="sticky-tools" class="fixed top-20 right-10 z-10 invisible">|
+    assert html =~ "Because you liked"
   end
 
   test "click random button", %{conn: conn} do
