@@ -133,7 +133,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
     <div class="sticky top-0 left-0 z-10 flex w-full justify-end pointer-events-none">
       <div
         id="liked-items"
-        class="pointer-events-auto inline-flex max-w-full items-center rounded-bl-lg bg-background p-2 drop-shadow-2xl drop-shadow-red-200"
+        class="pointer-events-auto inline-flex max-w-full items-center rounded-bl-lg bg-background p-2 drop-shadow-2xl"
       >
         <div class="flex items-center overflow-y-hidden overflow-x-auto">
           <div
