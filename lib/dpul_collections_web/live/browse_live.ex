@@ -157,7 +157,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
             phx-click={JS.dispatch("dpulc:scrollTop")}
             patch="/browse"
             class={[
-              "h-[64px] w-[64px] flex flex-col justify-center text-xs p-1 hover:no-underline",
+              "rounded-md h-[64px] w-[64px] flex flex-col justify-center text-xs p-1 hover:no-underline",
               @focused_item == nil && "rounded-md border-4 border-accent h-[84px] w-[74px]"
             ]}
             aria-label="View Random Items"
