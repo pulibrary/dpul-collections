@@ -53,11 +53,8 @@ defmodule DpulCollectionsWeb.BrowseItem do
     >
       <!-- like -->
       <div
-        data-toggle={
-          JS.toggle_class("hidden", to: {:inner, ".icon"})
-          |> JS.toggle_class("hidden", to: {:inner, ".like-header"})
-        }
-        class="browse-header h-10 w-full absolute left-2 top-2 flex items-center"
+        data-toggle={JS.toggle_class("hidden", to: {:inner, ".icon"})}
+        class="browse-header mb-2 h-12 w-full bg-white absolute left-2 top-2 flex items-center"
       >
         <button
           :if={@likeable?}
@@ -69,13 +66,17 @@ defmodule DpulCollectionsWeb.BrowseItem do
           phx-value-item_id={@item.id}
           phx-value-browse_id={@id}
           aria-label={"Like #{@item.title}"}
-          class="bg-white cursor-pointer bg-white text-accent h-10 w-10"
+          class="bg-white cursor-pointer bg-white text-accent w-10 h-10"
         >
-          <.icon name="hero-heart-solid" class="h-10 w-10 bg-accent icon selected hidden" />
-          <.icon name="hero-heart" class="h-10 w-10 icon selected" />
+          <.icon name="hero-heart-solid" class="w-full h-full bg-accent icon selected hidden" />
+          <.icon name="hero-heart" class="w-full h-full icon selected" />
         </button>
-        <div class="pr-4 h-full w-full flex items-center flex-grow justify-end hidden like-header bg-white text-align-right">
-          <.link patch={~p"/browse/focus/#{@item.id}"} phx-click={JS.dispatch("dpulc:scrollTop")}>
+        <div class="h-full pl-2 w-full flex items-center flex-grow like-header bg-white">
+          <.link
+            class="flex-grow"
+            patch={~p"/browse/focus/#{@item.id}"}
+            phx-click={JS.dispatch("dpulc:scrollTop")}
+          >
             Browse Similar Items
           </.link>
         </div>

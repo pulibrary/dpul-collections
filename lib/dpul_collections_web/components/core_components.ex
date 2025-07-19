@@ -175,9 +175,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
   def primary_button(assigns = %{href: href, patch: patch}) when href != nil or patch != nil do
     ~H"""
     <.link href={@href} patch={@patch} class={["btn-primary", "flex gap-2 p-x-2", @class]} {@rest}>
-      <div>
-        {render_slot(@inner_block)}
-      </div>
+      {render_slot(@inner_block)}
     </.link>
     """
   end

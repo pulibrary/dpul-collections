@@ -139,9 +139,9 @@ defmodule DpulCollectionsWeb.BrowseLive do
           <div
             :for={item <- @liked_items}
             class={[
-              "h-[64px] w-[64px] flex-shrink-0 mx-1",
+              "h-[64px] w-[64px] flex-shrink-0 mx-1 last:pr-2",
               @focused_item && item.id == @focused_item.id &&
-                "rounded-md border-4 border-accent h-[84px] w-[74px]"
+                "rounded-md border-4 border-accent h-[84px] w-[84px]"
             ]}
           >
             <BrowseItem.thumb
@@ -152,17 +152,17 @@ defmodule DpulCollectionsWeb.BrowseLive do
           </div>
         </div>
 
-        <div class="flex-none pl-2">
+        <div class="flex-none">
           <.primary_button
             phx-click={JS.dispatch("dpulc:scrollTop")}
             patch="/browse"
             class={[
-              "h-[64px] w-[64px]",
+              "h-[64px] w-[64px] flex flex-col justify-center text-xs p-1 hover:no-underline",
               @focused_item == nil && "rounded-md border-4 border-accent h-[84px] w-[74px]"
             ]}
             aria-label="View Random Items"
           >
-            <.icon name="ion:dice" class="h-10 w-10" />
+            <.icon name="ion:dice" class="h-8 w-8" /> Random
           </.primary_button>
         </div>
       </div>
