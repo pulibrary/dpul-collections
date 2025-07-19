@@ -130,36 +130,37 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def liked_items(assigns) do
     ~H"""
-    <div
-      id="liked-items"
-      class={[
-        "sticky top-0 left-0 bg-secondary z-10 justify-end grid grid-cols-[1fr_64px]"
-      ]}
-    >
-      <div class="min-h-[94px] pt-2 text-right whitespace-nowrap h-full overflow-x-scroll overflow-y-hidden h-[64px] pr-2">
-        <div
-          :for={item <- @liked_items}
-          class={[
-            "liked-item w-[64px] h-[64px] inline-block ml-2",
-            @focused_item && item.id == @focused_item.id && "border-accent border-2"
-          ]}
-        >
-          <BrowseItem.thumb
-            phx-click={JS.dispatch("dpulc:scrollTop")}
-            thumb={BrowseItem.thumbnail_service_url(item)}
-            patch={~p"/browse/focus/#{item.id}"}
-          />
+    <div class="sticky top-0 left-0 z-10 flex w-full justify-end pointer-events-none">
+      <div
+        id="liked-items"
+        class="pointer-events-auto inline-flex max-w-full items-center rounded-bl-lg bg-background p-2 drop-shadow-2xl drop-shadow-red-200"
+      >
+        <div class="flex items-center overflow-y-hidden overflow-x-auto">
+          <div
+            :for={item <- @liked_items}
+            class={[
+              "h-[64px] w-[64px] flex-shrink-0 mx-1",
+              @focused_item && item.id == @focused_item.id && "rounded-md border-4 border-accent h-[84px] w-[74px]"
+            ]}
+          >
+            <BrowseItem.thumb
+              phx-click={JS.dispatch("dpulc:scrollTop")}
+              thumb={BrowseItem.thumbnail_service_url(item)}
+              patch={~p"/browse/focus/#{item.id}"}
+            />
+          </div>
         </div>
-      </div>
-      <div class="h-full">
-        <.link
-          phx-click={JS.dispatch("dpulc:scrollTop")}
-          patch="/browse"
-          class="h-full w-[64px] col-span-1 btn-primary hover:bg-sage-200 transform transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
-          aria-label="View Random Items"
-        >
-          <.icon name="hero-arrow-path" class="h-6 w-6 icon" />
-        </.link>
+
+        <div class="flex-none pl-2">
+          <.primary_button
+            phx-click={JS.dispatch("dpulc:scrollTop")}
+            patch="/browse"
+            class={["h-[64px] w-[64px]", @focused_item == nil && "rounded-md border-4 border-accent h-[84px] w-[74px]"]}
+            aria-label="View Random Items"
+          >
+            <.icon name="ion:dice" class="h-10 w-10" />
+          </.primary_button>
+        </div>
       </div>
     </div>
     """
