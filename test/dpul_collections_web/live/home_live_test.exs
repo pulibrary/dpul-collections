@@ -39,7 +39,7 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
       assert Enum.count(links) == 3
     end
 
-    test "link to recently added", %{conn: conn} do
+    test "link to recently updated", %{conn: conn} do
       Solr.add(SolrTestSupport.mock_solr_documents(100), active_collection())
       Solr.commit(active_collection())
 
@@ -49,7 +49,7 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
         view
         |> element("#recent-items .btn-arrow")
         |> render_click()
-        |> follow_redirect(conn, "/search?sort_by=recently_added")
+        |> follow_redirect(conn, "/search?sort_by=recently_updated")
         |> elem(2)
         |> Floki.parse_document()
 
@@ -62,7 +62,7 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
              |> Enum.any?()
     end
 
-    test "recently added thumbnails link to record", %{conn: conn} do
+    test "recently updated thumbnails link to record", %{conn: conn} do
       Solr.add(SolrTestSupport.mock_solr_documents(3), active_collection())
       Solr.commit(active_collection())
 

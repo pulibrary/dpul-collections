@@ -137,17 +137,17 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Enum.empty?()
   end
 
-  test "items can be sorted by recently added", %{conn: conn} do
+  test "items can be sorted by recently updated", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/search")
 
     {:ok, document} =
       view
-      |> render_click("sort", %{"sort-by" => "recently_added"})
+      |> render_click("sort", %{"sort-by" => "recently_updated"})
       |> Floki.parse_document()
 
     # Note: 100 items are generated in solr_test_support.ex from oldest to newest.
     # Because of this, the test expects the 100th item to be on the front page when 
-    # sorted by recently_added. 
+    # sorted by recently_updated. 
     assert document
            |> Floki.find(~s{a[href="/i/document1/item/1"]})
            |> Enum.empty?()
@@ -157,20 +157,20 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Enum.any?()
   end
 
-  test "items should display digitized_at information when sorted by recently_added", %{
+  test "items should display time ago when sorted by recently_updated", %{
     conn: conn
   } do
-    {:ok, _view, html} = live(conn, "/search?sort_by=recently_added")
+    {:ok, _view, html} = live(conn, "/search?sort_by=recently_updated")
 
     {:ok, document} =
       html
       |> Floki.parse_document()
 
     # Items should display digitized at information
-    assert document |> Floki.find(".digitized_at") |> Enum.any?()
+    assert document |> Floki.find(".updated-at") |> Enum.any?()
   end
 
-  test "items should not display digitized_at information when not sorted by recently_added", %{
+  test "items should not display time ago information when not sorted by recently_updated", %{
     conn: conn
   } do
     {:ok, _view, html} = live(conn, "/search?")
