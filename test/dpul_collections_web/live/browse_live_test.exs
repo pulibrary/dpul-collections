@@ -97,7 +97,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     Solr.add(SolrTestSupport.mock_solr_documents(90), active_collection())
     Solr.commit(active_collection())
 
-    {:ok, view, html} = live(conn, "/browse/focus/1")
+    {:ok, _view, html} = live(conn, "/browse/focus/1")
 
     assert html =~ "Because you liked"
   end
