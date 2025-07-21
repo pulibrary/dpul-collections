@@ -18,4 +18,4 @@ _see https://hexdocs.pm/gettext/Gettext.html for additional details_
 
 ## Adding a new language
 
-The relative time wording used in the recently added content area is implemented via Cldr, which provides its own translations. When we add new languages we should ensure the translations are working from upstream.
+The relative time wording used in the recently updated content area is implemented via Cldr, which provides its own translations. When we add new languages we should ensure the translations are working from upstream.

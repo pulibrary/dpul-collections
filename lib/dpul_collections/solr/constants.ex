@@ -21,9 +21,10 @@ defmodule DpulCollections.Solr.Constants do
           label:
             Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Year (oldest first)")
         },
-        recently_added: %{
+        recently_updated: %{
           solr_param: "updated_at_dt desc",
-          label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Recently Updated")
+          label:
+            Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Recently Updated")
         }
       }
       @sort_by_keys Enum.map(Map.keys(@valid_sort_by), &to_string/1)

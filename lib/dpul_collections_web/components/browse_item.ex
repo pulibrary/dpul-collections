@@ -124,7 +124,10 @@ defmodule DpulCollectionsWeb.BrowseItem do
       </div>
       
     <!-- "added on" note -->
-      <div :if={@added? && @item.updated_at} class="digitized_at self-end w-full bg-light-secondary h-10 p-2 text-right">
+      <div
+        :if={@added? && @item.updated_at}
+        class="digitized_at self-end w-full bg-light-secondary h-10 p-2 text-right"
+      >
         {"#{gettext("Updated")} #{time_ago(@item.updated_at)}"}
       </div>
     </div>

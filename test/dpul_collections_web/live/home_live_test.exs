@@ -49,7 +49,7 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
         view
         |> element("#recent-items .btn-arrow")
         |> render_click()
-        |> follow_redirect(conn, "/search?sort_by=recently_added")
+        |> follow_redirect(conn, "/search?sort_by=recently_updated")
         |> elem(2)
         |> Floki.parse_document()
 

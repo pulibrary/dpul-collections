@@ -215,7 +215,7 @@ defmodule DpulCollectionsWeb.HomeLive do
         class="grid-row bg-background"
         items={@recent_items}
         title={gettext("Recently Updated Items")}
-        more_link={~p"/search?sort_by=recently_added"}
+        more_link={~p"/search?sort_by=recently_updated"}
         added?={true}
       >
         <p class="my-2 font-regular">

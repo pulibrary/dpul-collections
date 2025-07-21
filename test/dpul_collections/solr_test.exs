@@ -146,8 +146,7 @@ defmodule DpulCollections.SolrTest do
     doc2 = %{
       "id" => "26713a31-d615-49fd-adfc-93770b4f66b3",
       "file_count_i" => 1,
-      "updated_at_dt" =>
-        DateTime.utc_now() |> DateTime.add(-5, :minute) |> DateTime.to_iso8601(),
+      "updated_at_dt" => DateTime.utc_now() |> DateTime.add(-5, :minute) |> DateTime.to_iso8601(),
       "title_txtm" => "Doc-2"
     }
 
