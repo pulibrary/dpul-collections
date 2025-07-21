@@ -41,26 +41,45 @@ defmodule DpulCollectionsWeb.BrowseItem do
   attr :item, Item, required: true
   attr :added?, :boolean, default: false
   attr :likeable?, :boolean, default: true
+  attr :id, :string, required: false, default: "browse-item"
+  attr :target, :string, required: false, default: nil
 
   def browse_item(assigns) do
     ~H"""
     <div
-      id={"browse-item-#{@item.id}"}
-      class="flex bg-white flex-col overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_var(--color-sage-300)] min-w-[250px]"
+      id={"#{@id}-#{@item.id}"}
+      data-item-id={@item.id}
+      class="browse-item flex bg-white flex-col overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_var(--color-sage-300)] min-w-[250px]"
     >
       <!-- like -->
       <div
         :if={@likeable?}
-        id={"like-#{@item.id}"}
-        phx-click={
-          JS.push("like")
-          |> JS.toggle_class("hidden", to: {:inner, ".icon"})
-        }
-        phx-value-item_id={@item.id}
-        class="h-10 w-10 absolute left-2 top-2 cursor-pointer bg-white text-accent"
+        data-toggle={JS.toggle_class("hidden", to: {:inner, ".icon"})}
+        class="browse-header mb-2 h-12 w-full bg-white absolute left-2 top-2 flex items-center"
       >
-        <.icon name="hero-heart-solid" class="h-10 w-10 bg-accent icon selected hidden" />
-        <.icon name="hero-heart" class="h-10 w-10 icon selected" />
+        <button
+          id={"#{@id}-like-#{@item.id}"}
+          phx-click={
+            JS.push("like")
+            |> JS.exec("data-toggle", to: {:closest, ".browse-header"})
+          }
+          phx-value-item_id={@item.id}
+          phx-value-browse_id={@id}
+          aria-label={"Like #{@item.title}"}
+          class="bg-white cursor-pointer bg-white text-accent w-10 h-10"
+        >
+          <.icon name="hero-heart-solid" class="w-full h-full bg-accent icon selected hidden" />
+          <.icon name="hero-heart" class="w-full h-full icon selected" />
+        </button>
+        <div class="h-full pl-2 w-full flex items-center flex-grow like-header bg-white">
+          <.link
+            class="flex-grow"
+            patch={~p"/browse/focus/#{@item.id}"}
+            phx-click={JS.dispatch("dpulc:scrollTop")}
+          >
+            Browse Similar Items
+          </.link>
+        </div>
       </div>
       
     <!-- thumbs -->
@@ -68,11 +87,11 @@ defmodule DpulCollectionsWeb.BrowseItem do
         <div class="grid grid-rows-[repeat(4, 25%)] gap-2 h-[24rem]">
           <!-- main thumbnail -->
           <div :if={@item.file_count == 1} class="row-span-4">
-            <.thumb thumb={thumbnail_service_url(@item)} link={@item.url} />
+            <.thumb thumb={thumbnail_service_url(@item)} target={@target} href={@item.url} />
           </div>
 
           <div :if={@item.file_count > 1} class="row-span-3 overflow-hidden h-[18rem]">
-            <.thumb thumb={thumbnail_service_url(@item)} link={@item.url} />
+            <.thumb thumb={thumbnail_service_url(@item)} target={@target} href={@item.url} />
           </div>
           
     <!-- smaller thumbnails -->
@@ -82,7 +101,8 @@ defmodule DpulCollectionsWeb.BrowseItem do
               :if={@item.file_count}
               thumb={thumb}
               thumb_num={thumb_num}
-              link={@item.url}
+              href={@item.url}
+              target={@target}
             />
           </div>
         </div>
@@ -98,7 +118,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
         </div>
 
         <h2 class="font-normal tracking-tight py-2" dir="auto">
-          <.link navigate={@item.url} class="item-link">{@item.title}</.link>
+          <.link href={@item.url} target={@target} class="item-link">{@item.title}</.link>
         </h2>
         <p class="text-gray-700 text-base">{@item.date}</p>
       </div>
@@ -111,9 +131,16 @@ defmodule DpulCollectionsWeb.BrowseItem do
     """
   end
 
+  attr :thumb, :string, required: false
+  attr :thumb_num, :string, required: false
+  attr :href, :string, required: false, default: nil
+  attr :navigate, :string, required: false, default: nil
+  attr :patch, :string, required: false, default: nil
+  attr :rest, :global, default: %{}
+
   def thumb(assigns) do
     ~H"""
-    <.link navigate={@link} class="thumb-link">
+    <.link class="thumb-link" patch={@patch} navigate={@navigate} href={@href} {@rest}>
       <img
         class="thumbnail bg-slate-400 text-white h-full w-full object-cover"
         src={thumbnail_url(assigns)}
@@ -123,7 +150,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
     """
   end
 
-  defp thumbnail_service_urls(max_thumbnails, image_service_urls) do
+  def thumbnail_service_urls(max_thumbnails, image_service_urls) do
     # Truncate image service urls to max value
     image_service_urls
     |> Enum.slice(1, max_thumbnails)
@@ -138,17 +165,17 @@ defmodule DpulCollectionsWeb.BrowseItem do
     "#{thumb}/square/350,350/0/default.jpg"
   end
 
-  defp thumbnail_service_url(%{primary_thumbnail_service_url: thumbnail_url})
-       when is_binary(thumbnail_url) do
+  def thumbnail_service_url(%{primary_thumbnail_service_url: thumbnail_url})
+      when is_binary(thumbnail_url) do
     thumbnail_url
   end
 
-  defp thumbnail_service_url(%{image_service_urls: [url | _]}) do
+  def thumbnail_service_url(%{image_service_urls: [url | _]}) do
     url
   end
 
   # TODO: default image?
-  defp thumbnail_service_url(_), do: ""
+  def thumbnail_service_url(_), do: ""
 
   def time_ago(digitized_at) do
     {:ok, dt, _} = DateTime.from_iso8601(digitized_at)

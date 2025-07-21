@@ -1,4 +1,6 @@
 defmodule DpulCollectionsWeb.BrowseLive do
+  alias DpulCollectionsWeb.SearchLive.SearchState
+  alias DpulCollectionsWeb.BrowseItem
   use DpulCollectionsWeb, :live_view
   use Gettext, backend: DpulCollectionsWeb.Gettext
   import DpulCollectionsWeb.BrowseItem
@@ -10,30 +12,54 @@ defmodule DpulCollectionsWeb.BrowseLive do
       |> assign(
         items: [],
         liked_items: [],
-        show_stickytools?: false,
-        page_title: "Browse - Digital Collections"
+        page_title: "Browse - Digital Collections",
+        focused_item: nil
       )
 
     {:ok, socket}
   end
 
   @spec handle_params(nil | maybe_improper_list() | map(), any(), any()) :: {:noreply, any()}
-  def handle_params(params, _uri, socket) do
-    given_seed = params["r"]
+  # If we've been asked to randomize, do it.
+  def handle_params(%{"r" => given_seed}, _uri, socket) do
+    socket =
+      socket
+      |> assign(
+        items:
+          Solr.random(90, given_seed)["docs"]
+          |> Enum.map(&Item.from_solr(&1)),
+        focused_item: nil
+      )
 
-    if given_seed do
-      socket =
-        socket
-        |> assign(
-          items:
-            Solr.random(90, given_seed)["docs"]
-            |> Enum.map(&Item.from_solr(&1))
-        )
+    {:noreply, socket}
+  end
 
-      {:noreply, socket}
-    else
-      {:noreply, push_patch(socket, to: "/browse?r=#{Enum.random(1..1_000_000)}", replace: true)}
-    end
+  # If we're recommending items based on another item, do that.
+  def handle_params(%{"focus_id" => focus_id}, _uri, socket) do
+    item = Solr.find_by_id(focus_id) |> Item.from_solr()
+
+    recommended_items =
+      Solr.related_items(item, SearchState.from_params(%{}), 90)["docs"]
+      |> Enum.map(&Item.from_solr/1)
+
+    liked_items =
+      cond do
+        item.id in Enum.map(socket.assigns.liked_items, fn item -> item.id end) ->
+          socket.assigns.liked_items
+
+        # When we come to this link directly liked_items is empty - add the one
+        # we're focusing.
+        true ->
+          [item | socket.assigns.liked_items]
+      end
+
+    {:noreply,
+     socket |> assign(items: recommended_items, focused_item: item, liked_items: liked_items)}
+  end
+
+  # If neither, generate a random seed and display random items.
+  def handle_params(_params, _uri, socket) do
+    {:noreply, push_patch(socket, to: "/browse?r=#{Enum.random(1..1_000_000)}", replace: true)}
   end
 
   def handle_event("randomize", _map, socket) do
@@ -43,128 +69,102 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def handle_event(
         "like",
         %{"item_id" => id},
-        socket = %{assigns: %{items: items, liked_items: liked_items}}
+        socket = %{
+          assigns: %{items: items, liked_items: liked_items}
+        }
       ) do
     doc = items |> Enum.find(fn item -> item.id == id end)
 
-    case Enum.find_index(liked_items, fn liked_item -> doc.id == liked_item.id end) do
-      nil ->
-        {:noreply, socket |> assign(liked_items: Enum.concat(liked_items, [doc]))}
+    socket =
+      case Enum.find_index(liked_items, fn liked_item -> doc.id == liked_item.id end) do
+        nil ->
+          socket |> assign(liked_items: [doc | liked_items])
 
-      idx ->
-        socket = socket |> assign(liked_items: List.delete_at(liked_items, idx))
-        {:noreply, socket}
-    end
-  end
+        idx ->
+          socket |> assign(liked_items: List.delete_at(liked_items, idx))
+      end
 
-  def handle_event("show_stickytools", _params, socket) do
-    {:noreply, assign(socket, :show_stickytools?, true)}
-  end
-
-  def handle_event("hide_stickytools", _params, socket) do
-    {:noreply, assign(socket, :show_stickytools?, false)}
+    {:noreply, socket}
   end
 
   def render(assigns) do
     ~H"""
-    <div class="content-area">
-      <h1 class="mb-2">{gettext("Browse")}</h1>
-      {# coveralls-ignore-start}
-      <.tabs id="browse-tabs" class="border-b-4 border-accent">
-        {# coveralls-ignore-stop}
-        <:tab>
-          <.icon name="hero-heart-solid" class="bg-accent" />{gettext("My Liked Items")} ({length(
-            @liked_items
-          )})
-        </:tab>
-        <:tab>{gettext("Recommended Items")}</:tab>
-        <:tab active={true}>{gettext("Random Items")}</:tab>
-        <:panel>
-          <.liked_items {assigns} />
-        </:panel>
-        <:panel>
-          <h2>{gettext("Recommendations")}</h2>
-        </:panel>
-        <:panel>
-          <.random_items {assigns} />
-        </:panel>
-      </.tabs>
+    <div id="browse" class="content-area">
+      <h1 id="browse-header" class="mb-2">{gettext("Browse")}</h1>
+      <div :if={!@focused_item} class="text-2xl mb-5">
+        "Like" a random item below to find items similar to it.
+      </div>
+      <div
+        :if={@focused_item}
+        class="mb-5 text-2xl gap-2 grid grid-cols-[12rem_1fr] h-[12rem] w-full items-center"
+      >
+        <div>
+          <BrowseItem.thumb
+            thumb={BrowseItem.thumbnail_service_url(@focused_item)}
+            patch={~p"/browse/focus/#{@focused_item.id}"}
+            class="min-h-0"
+          />
+        </div>
+        <h3>
+          Because you liked
+          <.link href={@focused_item.url} class="font-bold" target="_blank">
+            {@focused_item.title}
+          </.link>
+        </h3>
+      </div>
+      <.display_items {assigns} />
+    </div>
+    """
+  end
+
+  def display_items(assigns) do
+    ~H"""
+    <div>
+      <.liked_items {assigns} />
+      <div id="browse-items" class="grid grid-cols-[repeat(auto-fit,minmax(300px,_1fr))] gap-6 pt-5">
+        <.browse_item :for={item <- @items} item={item} target="_blank" />
+      </div>
     </div>
     """
   end
 
   def liked_items(assigns) do
     ~H"""
-    <div id="liked-items" class="flex flex-col gap-4">
-      <h2>{gettext("Liked Items")}</h2>
-      <div>
-        {gettext("Liked items can be used to make recommendations based on the items you have liked.")}
-      </div>
-      <div class="flex gap-4">
-        <.primary_button class="px-4">
-          <.icon name="hero-check-solid" />{gettext("Check all items")}
-        </.primary_button>
-        <.primary_button class="px-4">
-          <.icon name="hero-trash" />{gettext("Remove checked items")}
-        </.primary_button>
-      </div>
-      <div class="grid grid-flow-row auto-rows-max gap-8">
-        <div :for={item <- @liked_items} class="grid grid-cols-[auto_minmax(0,1fr)] gap-4">
-          <hr class="mb-8 col-span-2" />
-          <div>
-            <input type="checkbox" />
-          </div>
-          <div class="flex gap-4 flex-col">
-            <DpulCollectionsWeb.SearchLive.search_item search_state={%{}} item={item} />
-          </div>
-        </div>
-      </div>
-    </div>
-    """
-  end
-
-  def random_items(assigns) do
-    ~H"""
-    <div class="my-5 grid grid-cols-3" id="browse-header" phx-hook="ToolbarHook">
-      <.sticky_tools show_stickytools?={@show_stickytools?}>{length(@liked_items)}</.sticky_tools>
-      <button
-        class="btn-primary tracking-wider text-xl
-          hover:bg-sage-200 transform transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
-        phx-click="randomize"
+    <div class="sticky top-0 left-0 z-10 flex w-full justify-end pointer-events-none">
+      <div
+        id="liked-items"
+        class="pointer-events-auto inline-flex max-w-full items-center rounded-bl-lg bg-background p-2 drop-shadow-2xl"
       >
-        {gettext("Randomize")}
-      </button>
-    </div>
-    <div id="browse-items" class="grid grid-cols-[repeat(auto-fit,minmax(300px,_1fr))] gap-6 pt-5">
-      <.browse_item :for={item <- @items} item={item} />
-    </div>
-    """
-  end
-
-  def sticky_tools(assigns) do
-    ~H"""
-    <div
-      id="sticky-tools"
-      class={["fixed top-20 right-10 z-10", (@show_stickytools? && "visible") || "invisible"]}
-    >
-      <div class="relative inline-flex w-fit flex-col">
-        <div class="absolute bottom-auto left-auto right-0 top-0 z-10 inline-block -translate-y-1/2 translate-x-2/4 rotate-0 skew-x-0 skew-y-0 scale-x-100 scale-y-100 whitespace-nowrap rounded-full bg-red-600 px-1.5 py-1 text-center align-baseline text-xs font-bold leading-none text-white">
-          {render_slot(@inner_block)}
-        </div>
-        <.link id="liked-button" phx-click={JS.exec("phx-show-tab", to: "#browse-tabs-tab-header-1")}>
-          <span class="cursor-pointer mb-2 grid grid-cols-1 grid-rows-1 rounded-sm bg-primary hover:bg-sage-200 px-6 py-2.5 text-xs font-medium uppercase leading-normal text-white shadow-md transition duration-150 ease-in-out hover:shadow-lg focus:shadow-lg focus:outline-hidden focus:ring-0 active:shadow-lg text-accent">
-            <.icon name="hero-heart-solid" class="row-[1] col-[1] h-6 w-6 icon bg-accent" />
-            <.icon name="hero-heart" class="row-[1] col-[1] h-6 w-6 icon bg-dark-text" />
-          </span>
-        </.link>
-        <a href="#browse-items">
-          <button
-            class="w-full col-span-1 btn-primary hover:bg-sage-200 transform transition duration-5 active:shadow-none active:-translate-x-1 active:translate-y-1"
-            phx-click="randomize"
+        <div class="flex items-center overflow-y-hidden overflow-x-auto">
+          <div
+            :for={item <- @liked_items}
+            class={[
+              "liked-item h-[64px] w-[64px] flex-shrink-0 mx-1 last:mr-2",
+              @focused_item && item.id == @focused_item.id &&
+                "rounded-md border-4 border-accent h-[84px] w-[84px]"
+            ]}
           >
-            <.icon name="hero-arrow-path" class="h-6 w-6 icon" />
-          </button>
-        </a>
+            <BrowseItem.thumb
+              phx-click={JS.dispatch("dpulc:scrollTop")}
+              thumb={BrowseItem.thumbnail_service_url(item)}
+              patch={~p"/browse/focus/#{item.id}"}
+            />
+          </div>
+        </div>
+
+        <div class="flex-none">
+          <.primary_button
+            phx-click={JS.dispatch("dpulc:scrollTop")}
+            patch="/browse"
+            class={[
+              "rounded-md h-[64px] w-[64px] flex flex-col justify-center text-xs p-1 hover:no-underline",
+              @focused_item == nil && "rounded-md border-4 border-accent h-[84px] w-[84px]"
+            ]}
+            aria-label="View Random Items"
+          >
+            <.icon name="ion:dice" class="h-8 w-8" /> Random
+          </.primary_button>
+        </div>
       </div>
     </div>
     """

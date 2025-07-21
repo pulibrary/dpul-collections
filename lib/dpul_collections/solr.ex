@@ -56,13 +56,13 @@ defmodule DpulCollections.Solr do
 
   # Uses the more like this query parser
   # see: https://solr.apache.org/guide/solr/latest/query-guide/morelikethis.html#morelikethis-query-parser
-  def related_items(%{id: id}, search_state, collection \\ read_collection()) do
+  def related_items(%{id: id}, search_state, rows \\ 5, collection \\ read_collection()) do
     fl = Enum.join(@query_field_list, ",")
 
     solr_params = [
       fl: fl,
       q: mlt_query(id),
-      rows: 5,
+      rows: rows,
       indent: false,
       fq: filter_param(search_state),
       mm: 1
