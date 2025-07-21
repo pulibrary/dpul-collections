@@ -163,7 +163,7 @@ defmodule DpulCollectionsWeb.HomeLive do
           <div class="content-area text-center h-full w-full flex flex-col justify-evenly">
             <div class="page-y-padding text-xl flex-grow">
               {gettext(
-                "Discover %{photographs}, %{posters}, %{books}, and more to inspire your research",
+                "Discover %{photographs}, %{posters}, %{pamphlets}, and more to inspire your research",
                 photographs:
                   callout_link(%{
                     url: ~p"/search?#{%{filter: %{genre: "photographs"}}}",
@@ -174,10 +174,10 @@ defmodule DpulCollectionsWeb.HomeLive do
                     url: ~p"/search?#{%{filter: %{genre: "posters"}}}",
                     label: gettext("posters")
                   }),
-                books:
+                pamphlets:
                   callout_link(%{
-                    url: ~p"/search?#{%{filter: %{genre: "books"}}}",
-                    label: gettext("books")
+                    url: ~p"/search?#{%{filter: %{genre: "pamphlets"}}}",
+                    label: gettext("pamphlets")
                   })
               )
               |> Phoenix.HTML.raw()}
