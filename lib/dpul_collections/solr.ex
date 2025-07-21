@@ -24,7 +24,8 @@ defmodule DpulCollections.Solr do
     "image_canvas_ids_ss",
     "primary_thumbnail_service_url_s",
     "digitized_at_dt",
-    "genre_txtm"
+    "genre_txtm",
+    "updated_at_dt"
   ]
 
   @spec query(map(), String.t()) :: map()
@@ -81,13 +82,13 @@ defmodule DpulCollections.Solr do
     "{!mlt qf=genre_txtm,subject_txtm,geo_subject_txtm,geographic_origin_txtm,language_txtm,keywords_txtm,description_txtm mintf=1}#{id}"
   end
 
-  def recently_digitized(count, collection \\ read_collection()) do
+  def recently_updated(count, collection \\ read_collection()) do
     fl = Enum.join(@query_field_list, ",")
 
     solr_params = [
       fl: fl,
       rows: count,
-      sort: "digitized_at_dt desc",
+      sort: "updated_at_dt desc",
       fq: "file_count_i:[1 TO *]"
     ]
 

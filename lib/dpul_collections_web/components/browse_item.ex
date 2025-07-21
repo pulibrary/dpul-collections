@@ -124,8 +124,8 @@ defmodule DpulCollectionsWeb.BrowseItem do
       </div>
       
     <!-- "added on" note -->
-      <div :if={@added?} class="digitized_at self-end w-full bg-light-secondary h-10 p-2 text-right">
-        {"#{gettext("Added")} #{time_ago(@item.digitized_at)}"}
+      <div :if={@added? && @item.updated_at} class="digitized_at self-end w-full bg-light-secondary h-10 p-2 text-right">
+        {"#{gettext("Updated")} #{time_ago(@item.updated_at)}"}
       </div>
     </div>
     """
@@ -177,8 +177,8 @@ defmodule DpulCollectionsWeb.BrowseItem do
   # TODO: default image?
   def thumbnail_service_url(_), do: ""
 
-  def time_ago(digitized_at) do
-    {:ok, dt, _} = DateTime.from_iso8601(digitized_at)
+  def time_ago(updated_at) do
+    {:ok, dt, _} = DateTime.from_iso8601(updated_at)
 
     {:ok, str} =
       Cldr.DateTime.Relative.to_string(
