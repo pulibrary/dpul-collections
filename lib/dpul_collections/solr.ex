@@ -1,5 +1,4 @@
 defmodule DpulCollections.Solr do
-  alias DpulCollectionsWeb.SearchLive.SearchState
   require Logger
   use DpulCollections.Solr.Constants
 
