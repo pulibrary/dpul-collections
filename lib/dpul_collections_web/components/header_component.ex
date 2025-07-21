@@ -68,15 +68,6 @@ defmodule DpulCollectionsWeb.HeaderComponent do
             >
               <div phx-click={JS.dispatch("setLocale", detail: %{locale: "es"})}>Español</div>
             </li>
-            <li
-              role="menuitem"
-              tabindex="-1"
-              class="p-2 hover:bg-stone-200 focus:bg-stone-200 cursor-pointer"
-            >
-              <div phx-click={JS.dispatch("setLocale", detail: %{locale: "pt-BR"})}>
-                Português do Brasil
-              </div>
-            </li>
           </ul>
         </div>
       </nav>
