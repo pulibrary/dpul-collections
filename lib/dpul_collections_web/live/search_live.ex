@@ -30,6 +30,68 @@ defmodule DpulCollectionsWeb.SearchLive do
     {:ok, socket}
   end
 
+  def fetch_allsearch("dpul", query) do
+    {:ok,
+     %{
+       body:
+         response = %{
+           "more" => more_link,
+           "number" => count,
+           "records" => records
+         }
+     }} = Req.get("https://allsearch-api.princeton.edu/search/dpul", params: [query: query])
+
+    %{title: "Digital PUL", records: records, count: count, more_link: more_link}
+  end
+
+  def fetch_allsearch("catalog", query) do
+    {:ok,
+     %{
+       body:
+         response = %{
+           "more" => more_link,
+           "number" => count,
+           "records" => records
+         }
+     }} = Req.get("https://allsearch-api.princeton.edu/search/catalog", params: [query: query])
+
+    %{title: "Catalog", records: records, count: count, more_link: more_link}
+  end
+
+  def fetch_allsearch("findingaids", query) do
+    {:ok,
+     %{
+       body:
+         response = %{
+           "more" => more_link,
+           "number" => count,
+           "records" => records
+         }
+     }} =
+      Req.get("https://allsearch-api.princeton.edu/search/findingaids", params: [query: query])
+
+    %{title: "Finding Aids", records: records, count: count, more_link: more_link}
+  end
+
+  def load_allsearch(""), do: []
+  def load_allsearch(nil), do: []
+
+  def load_allsearch(query) do
+    [
+      fetch_allsearch("dpul", query),
+      fetch_allsearch("catalog", query),
+      fetch_allsearch("findingaids", query)
+    ]
+  end
+
+  def handle_info({ref, result}, socket) do
+    {:noreply, socket |> assign(allsearch_responses: result)}
+  end
+
+  def handle_info({:DOWN, ref, _, _, reason}, socket) do
+    {:noreply, socket}
+  end
+
   def handle_params(params, _uri, socket) do
     search_state = SearchState.from_params(params |> Helpers.clean_params())
     solr_response = Solr.query(search_state)
@@ -40,19 +102,26 @@ defmodule DpulCollectionsWeb.SearchLive do
 
     total_items = solr_response["numFound"]
 
+    if total_items == 0 do
+      Task.Supervisor.async_nolink(DpulCollections.TaskSupervisor, fn ->
+        load_allsearch(search_state.q)
+      end)
+    end
+
     socket =
       assign(socket,
         page_title: "Search Results - Digital Collections",
         search_state: search_state,
         item_counter: item_counter(search_state, total_items),
         items: items,
-        total_items: total_items
+        total_items: total_items,
+        allsearch_responses: []
       )
 
     {:noreply, socket}
   end
 
-  defp item_counter(_, 0), do: gettext("No items found")
+  defp item_counter(_, 0), do: ""
 
   defp item_counter(%{page: page, per_page: per_page}, total_items) do
     first_item = max(page - 1, 0) * per_page + 1
@@ -135,8 +204,28 @@ defmodule DpulCollectionsWeb.SearchLive do
             </div>
           </form>
         </div>
-        <div id="item-counter">
+        <div :if={length(@items) > 0} id="item-counter">
           <span>{@item_counter}</span>
+        </div>
+      </div>
+      <div :if={length(@items) == 0} class="">
+        <div class="w-full text-2xl pb-4">
+          Gee willikers! We didn't find anything for your query - you can either try another query, or maybe look at some other portals for material at Princeton:
+        </div>
+        <div class="grid gap-2 grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]">
+          <div :for={allsearch <- @allsearch_responses} class="">
+            <div class="flex flex-col min-w-80 gap-2 bg-secondary rounded-lg p-2">
+              <div class="border-b-2 border-accent p-2 text-2xl text-bold">
+                {allsearch.title} [{allsearch.count} results]
+              </div>
+              <div :for={record <- allsearch.records}>
+                <a href={record["url"]} target="_blank">{record["title"]}</a>
+              </div>
+              <.primary_button class="justify-self-end" href={allsearch.more_link} target="_blank">
+                View All
+              </.primary_button>
+            </div>
+          </div>
         </div>
       </div>
       <div class="grid grid-flow-row auto-rows-max gap-8">
