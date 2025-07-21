@@ -53,11 +53,11 @@ defmodule DpulCollectionsWeb.BrowseItem do
     >
       <!-- like -->
       <div
+        :if={@likeable?}
         data-toggle={JS.toggle_class("hidden", to: {:inner, ".icon"})}
         class="browse-header mb-2 h-12 w-full bg-white absolute left-2 top-2 flex items-center"
       >
         <button
-          :if={@likeable?}
           id={"#{@id}-like-#{@item.id}"}
           phx-click={
             JS.push("like")

@@ -82,24 +82,6 @@ defmodule DpulCollections.Solr do
     "{!mlt qf=genre_txtm,subject_txtm,geo_subject_txtm,geographic_origin_txtm,language_txtm,keywords_txtm,description_txtm mintf=1}#{id}"
   end
 
-  def random_recommended_from_items(items, rows \\ 90, collection \\ read_collection()) do
-    ids = Enum.map(items, fn item -> item.id end)
-
-    all_docs =
-      items
-      |> Enum.map(fn item ->
-        Task.async(fn ->
-          related_items(item, SearchState.from_params(%{}), 50, collection)["docs"]
-          |> Enum.reject(fn item -> item["id"] in ids end)
-        end)
-      end)
-      |> Enum.flat_map(fn task -> Task.await(task) end)
-      |> Enum.uniq()
-      |> Enum.take_random(rows)
-
-    %{"docs" => all_docs}
-  end
-
   def recently_digitized(count, collection \\ read_collection()) do
     fl = Enum.join(@query_field_list, ",")
 
