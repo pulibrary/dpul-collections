@@ -359,7 +359,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   end
 
   test "items can be filtered by similarity", %{conn: conn} do
-    {:ok, view, html} = live(conn, "/search?filter[similar]=2")
+    {:ok, _view, html} = live(conn, "/search?filter[similar]=2")
 
     {:ok, document} =
       html
