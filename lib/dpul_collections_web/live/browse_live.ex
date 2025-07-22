@@ -61,9 +61,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   # If neither, generate a random seed and display random items.
   def handle_params(_params, _uri, socket) do
-    r = Enum.random(1..1_000_000)
-    socket = socket |> assign(r: r)
-    {:noreply, push_patch(socket, to: "/browse?r=#{r}")}
+    {:noreply, push_patch(socket, to: "/browse?r=#{Enum.random(1..1_000_000)}", replace: true)}
   end
 
   def handle_event("randomize", _map, socket) do
@@ -134,8 +132,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
         <div class="flex-none">
           <.primary_button
-            phx-click={JS.dispatch("dpulc:scrollTop")}
-            patch="/browse"
+            phx-click="randomize"
             class={[
               "rounded-md h-[64px] w-[64px] flex flex-col justify-center text-xs p-1 hover:no-underline",
               @focused_item == nil && "rounded-md border-4 border-accent h-[84px] w-[84px]"
