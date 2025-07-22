@@ -143,7 +143,7 @@ msgstr "Año (más reciente primero)"
 msgid "Year (oldest first)"
 msgstr "Año (más antigua primero)"
 
-#: lib/dpul_collections_web/live/browse_live.ex:93
+#: lib/dpul_collections_web/live/browse_live.ex:74
 #, elixir-autogen, elixir-format
 msgid "Browse"
 msgstr "navegar"
@@ -456,7 +456,7 @@ msgstr "Anchura"
 msgid "%{file_min} of %{file_max} images"
 msgstr "%{file_min} de %{file_max} imágenes"
 
-#: lib/dpul_collections_web/components/browse_item.ex:117
+#: lib/dpul_collections_web/components/browse_item.ex:106
 #: lib/dpul_collections_web/live/item_live.ex:146
 #: lib/dpul_collections_web/live/search_live.ex:204
 #, elixir-autogen, elixir-format
@@ -522,7 +522,7 @@ msgstr "Actualizado recientemente"
 msgid "Recently Updated Items"
 msgstr "Materiales Recientes"
 
-#: lib/dpul_collections_web/components/browse_item.ex:131
+#: lib/dpul_collections_web/components/browse_item.ex:120
 #, elixir-autogen, elixir-format
 msgid "Updated"
 msgstr "Actualizado"
@@ -531,3 +531,18 @@ msgstr "Actualizado"
 #, elixir-autogen, elixir-format
 msgid "pamphlets"
 msgstr "panfletos"
+
+#: lib/dpul_collections_web/live/browse_live.ex:77
+#, elixir-autogen, elixir-format
+msgid "Exploring a random set of items from our collections."
+msgstr "Explorando un conjunto aleatorio de artículos de nuestras colecciones."
+
+#: lib/dpul_collections_web/live/browse_live.ex:142
+#, elixir-autogen, elixir-format
+msgid "Random"
+msgstr "Aleatorio"
+
+#: lib/dpul_collections_web/live/browse_live.ex:80
+#, elixir-autogen, elixir-format
+msgid "Exploring items similar to"
+msgstr "Explorando artículos similares a"

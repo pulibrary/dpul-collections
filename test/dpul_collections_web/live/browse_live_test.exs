@@ -37,7 +37,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
       |> render_click()
       |> Floki.parse_document()
 
-    assert Floki.text(document) =~ "Explore items similar to"
+    assert Floki.text(document) =~ "Exploring items similar to"
 
     # Make sure clicking the element in thumbnail list goes to recommendations
     {:ok, document} =
@@ -50,7 +50,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
 
     assert random_items != selected_items
 
-    assert Floki.text(document) =~ "Explore items similar to"
+    assert Floki.text(document) =~ "Exploring items similar to"
 
     # Add a second liked item.
     {:ok, document} =
@@ -66,7 +66,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     # Click randomize in liked items again
     assert view
            |> element("#liked-items *[aria-label=\"View Random Items\"]")
-           |> render_click() =~ "Explore a random set of items from our collections"
+           |> render_click() =~ "Exploring a random set of items from our collections"
   end
 
   test "focused browse from link", %{conn: conn} do
@@ -75,7 +75,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
 
     {:ok, _view, html} = live(conn, "/browse/focus/1")
 
-    assert html =~ "Explore items similar to"
+    assert html =~ "Exploring items similar to"
   end
 
   test "click random button", %{conn: conn} do

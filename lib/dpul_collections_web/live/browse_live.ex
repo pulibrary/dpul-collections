@@ -74,10 +74,10 @@ defmodule DpulCollectionsWeb.BrowseLive do
       <h1 id="browse-header" class="mb-2">{gettext("Browse")}</h1>
       <div class="mb-5 text-2xl w-full items-center">
         <div :if={!@focused_item} class="text-2xl mb-5">
-          Explore a random set of items from our collections.
+          {gettext("Exploring a random set of items from our collections.")}
         </div>
         <h3 :if={@focused_item}>
-          Explore items similar to
+          {gettext("Exploring items similar to")}
           <.link href={@focused_item.url} class="font-semibold text-accent" target="_blank">
             {@focused_item.title}
           </.link>
@@ -139,7 +139,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
             ]}
             aria-label="View Random Items"
           >
-            <.icon name="ion:dice" class="h-8 w-8" /> Random
+            <.icon name="ion:dice" class="h-8 w-8" /> {gettext("Random")}
           </.primary_button>
         </div>
       </div>
