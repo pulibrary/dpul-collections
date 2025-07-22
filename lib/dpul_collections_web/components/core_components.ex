@@ -182,7 +182,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
 
   def primary_button(assigns) do
     ~H"""
-    <button class={["btn-primary flex gap-2 p-4", @class]} disabled={@disabled} {@rest}>
+    <button class={["btn-primary flex gap-2 p-x-2", @class]} disabled={@disabled} {@rest}>
       {render_slot(@inner_block)}
     </button>
     """
