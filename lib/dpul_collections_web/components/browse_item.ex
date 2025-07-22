@@ -43,37 +43,26 @@ defmodule DpulCollectionsWeb.BrowseItem do
   attr :likeable?, :boolean, default: true
   attr :id, :string, required: false, default: "browse-item"
   attr :target, :string, required: false, default: nil
+  attr :class, :string, required: false, default: nil
 
   def browse_item(assigns) do
     ~H"""
     <div
       id={"#{@id}-#{@item.id}"}
       data-item-id={@item.id}
-      class="browse-item flex bg-white flex-col overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_var(--color-sage-300)] min-w-[250px]"
+      class={[
+        "browse-item flex bg-white flex-col overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_var(--color-sage-300)] min-w-[250px]",
+        @class
+      ]}
     >
-      <!-- like -->
+      <!-- similar -->
       <div
         :if={@likeable?}
-        data-toggle={JS.toggle_class("hidden", to: {:inner, ".icon"})}
         class="browse-header mb-2 h-12 w-full bg-white absolute left-2 top-2 flex items-center"
       >
-        <button
-          id={"#{@id}-like-#{@item.id}"}
-          phx-click={
-            JS.push("like")
-            |> JS.exec("data-toggle", to: {:closest, ".browse-header"})
-          }
-          phx-value-item_id={@item.id}
-          phx-value-browse_id={@id}
-          aria-label={"Like #{@item.title}"}
-          class="bg-white cursor-pointer bg-white text-accent w-10 h-10"
-        >
-          <.icon name="hero-heart-solid" class="w-full h-full bg-accent icon selected hidden" />
-          <.icon name="hero-heart" class="w-full h-full icon selected" />
-        </button>
         <div class="h-full pl-2 w-full flex items-center flex-grow like-header bg-white">
           <.link
-            class="flex-grow"
+            class="flex-grow text-accent font-semibold"
             patch={~p"/browse/focus/#{@item.id}"}
             phx-click={JS.dispatch("dpulc:scrollTop")}
           >

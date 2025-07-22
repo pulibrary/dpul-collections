@@ -30,30 +30,16 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     document = html |> Floki.parse_document!()
     random_items = document |> Floki.find("#browse-items .browse-item")
 
-    # Like first element
-    {:ok, document} =
-      view
-      |> element("#browse-items .browse-item:first-child *[phx-value-item_id]")
-      |> render_click()
-      |> Floki.parse_document()
-
-    assert document |> Floki.find("#liked-items .liked-item") |> length == 1
-
-    # Make sure the items don't change.
-    post_like_items = document |> Floki.find("#browse-items .browse-item")
-    assert post_like_items == random_items
-
-    # Make sure I can go to recommendations from the link that appeared after
-    # clicking the heart.
+    # Make sure I can go to recommendations from the link
     {:ok, document} =
       view
       |> element("#browse-items .browse-item:first-child .like-header a")
       |> render_click()
       |> Floki.parse_document()
 
-    assert Floki.text(document) =~ "Because you liked"
+    assert Floki.text(document) =~ "Exploring items similar to"
 
-    # Make sure clicking the element in likes builds recommendations
+    # Make sure clicking the element in thumbnail list goes to recommendations
     {:ok, document} =
       view
       |> element("#liked-items .liked-item:first-child a")
@@ -64,33 +50,23 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
 
     assert random_items != selected_items
 
-    assert Floki.text(document) =~ "Because you liked"
+    assert Floki.text(document) =~ "Exploring items similar to"
 
     # Add a second liked item.
     {:ok, document} =
       view
-      |> element("#browse-items .browse-item:first-child *[phx-value-item_id]")
+      |> element("#browse-items .browse-item:nth-child(2) .like-header a")
       |> render_click()
       |> Floki.parse_document()
 
     assert document |> Floki.find("#liked-items .liked-item") |> length == 2
 
-    # Unlike an item from items UI
-    {:ok, document} =
-      view
-      |> element("#browse-items .browse-item:first-child *[phx-value-item_id]")
-      |> render_click()
-      |> Floki.parse_document()
-
-    assert document |> Floki.find("#liked-items .liked-item") |> length == 1
-
-    # Unlike an item from liked items
-    # TODO
+    # TODO: unlike an item
 
     # Click randomize in liked items again
     assert view
            |> element("#liked-items *[aria-label=\"View Random Items\"]")
-           |> render_click() =~ "a random item below to find items"
+           |> render_click() =~ "Exploring a random set of items from our collections"
   end
 
   test "focused browse from link", %{conn: conn} do
@@ -99,7 +75,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
 
     {:ok, _view, html} = live(conn, "/browse/focus/1")
 
-    assert html =~ "Because you liked"
+    assert html =~ "Exploring items similar to"
   end
 
   test "click random button", %{conn: conn} do

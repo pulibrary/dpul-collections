@@ -38,8 +38,10 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def handle_params(%{"focus_id" => focus_id}, _uri, socket) do
     item = Solr.find_by_id(focus_id) |> Item.from_solr()
 
+    # In this view we're going to use one of the spots to show the focused item,
+    # so only get 89 random
     recommended_items =
-      Solr.related_items(item, SearchState.from_params(%{}), 90)["docs"]
+      Solr.related_items(item, SearchState.from_params(%{}), 89)["docs"]
       |> Enum.map(&Item.from_solr/1)
 
     liked_items =
@@ -66,48 +68,17 @@ defmodule DpulCollectionsWeb.BrowseLive do
     {:noreply, push_patch(socket, to: "/browse?r=#{Enum.random(1..1_000_000)}")}
   end
 
-  def handle_event(
-        "like",
-        %{"item_id" => id},
-        socket = %{
-          assigns: %{items: items, liked_items: liked_items}
-        }
-      ) do
-    doc = items |> Enum.find(fn item -> item.id == id end)
-
-    socket =
-      case Enum.find_index(liked_items, fn liked_item -> doc.id == liked_item.id end) do
-        nil ->
-          socket |> assign(liked_items: [doc | liked_items])
-
-        idx ->
-          socket |> assign(liked_items: List.delete_at(liked_items, idx))
-      end
-
-    {:noreply, socket}
-  end
-
   def render(assigns) do
     ~H"""
     <div id="browse" class="content-area">
       <h1 id="browse-header" class="mb-2">{gettext("Browse")}</h1>
-      <div :if={!@focused_item} class="text-2xl mb-5">
-        "Like" a random item below to find items similar to it.
-      </div>
-      <div
-        :if={@focused_item}
-        class="mb-5 text-2xl gap-2 grid grid-cols-[12rem_1fr] h-[12rem] w-full items-center"
-      >
-        <div>
-          <BrowseItem.thumb
-            thumb={BrowseItem.thumbnail_service_url(@focused_item)}
-            patch={~p"/browse/focus/#{@focused_item.id}"}
-            class="min-h-0"
-          />
+      <div class="mb-5 text-2xl w-full items-center">
+        <div :if={!@focused_item} class="text-2xl mb-5">
+          {gettext("Exploring a random set of items from our collections.")}
         </div>
-        <h3>
-          Because you liked
-          <.link href={@focused_item.url} class="font-bold" target="_blank">
+        <h3 :if={@focused_item}>
+          {gettext("Exploring items similar to")}
+          <.link href={@focused_item.url} class="font-semibold text-accent" target="_blank">
             {@focused_item.title}
           </.link>
         </h3>
@@ -122,6 +93,13 @@ defmodule DpulCollectionsWeb.BrowseLive do
     <div>
       <.liked_items {assigns} />
       <div id="browse-items" class="grid grid-cols-[repeat(auto-fit,minmax(300px,_1fr))] gap-6 pt-5">
+        <.browse_item
+          :if={@focused_item}
+          item={@focused_item}
+          likeable?={false}
+          target="_blank"
+          class="border-6 border-primary"
+        />
         <.browse_item :for={item <- @items} item={item} target="_blank" />
       </div>
     </div>
@@ -154,15 +132,14 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
         <div class="flex-none">
           <.primary_button
-            phx-click={JS.dispatch("dpulc:scrollTop")}
-            patch="/browse"
+            phx-click="randomize"
             class={[
               "rounded-md h-[64px] w-[64px] flex flex-col justify-center text-xs p-1 hover:no-underline",
               @focused_item == nil && "rounded-md border-4 border-accent h-[84px] w-[84px]"
             ]}
             aria-label="View Random Items"
           >
-            <.icon name="ion:dice" class="h-8 w-8" /> Random
+            <.icon name="ion:dice" class="h-8 w-8" /> {gettext("Random")}
           </.primary_button>
         </div>
       </div>
