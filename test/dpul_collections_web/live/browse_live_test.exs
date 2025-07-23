@@ -42,7 +42,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     # Make sure clicking the element in thumbnail list goes to recommendations
     {:ok, document} =
       view
-      |> element("#liked-items .liked-item:first-child a")
+      |> element("#liked-items .liked-item:first-child")
       |> render_click()
       |> Floki.parse_document()
 
@@ -209,7 +209,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     first_href =
       html
       |> Floki.parse_document!()
-      |> Floki.find(".thumb-link")
+      |> Floki.find(".item-link")
       |> Enum.flat_map(&Floki.attribute(&1, "href"))
       |> Enum.at(0)
 

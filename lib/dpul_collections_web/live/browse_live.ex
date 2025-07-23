@@ -114,20 +114,18 @@ defmodule DpulCollectionsWeb.BrowseLive do
         class="pointer-events-auto inline-flex max-w-full items-center rounded-bl-lg bg-background p-2 drop-shadow-2xl"
       >
         <div class="flex items-center overflow-y-hidden overflow-x-auto">
-          <div
+          <.link
             :for={item <- @liked_items}
+            phx-click={JS.dispatch("dpulc:scrollTop")}
+            patch={~p"/browse/focus/#{item.id}"}
             class={[
               "liked-item h-[64px] w-[64px] flex-shrink-0 mx-1 last:mr-2",
               @focused_item && item.id == @focused_item.id &&
                 "rounded-md border-4 border-accent h-[84px] w-[84px]"
             ]}
           >
-            <BrowseItem.thumb
-              phx-click={JS.dispatch("dpulc:scrollTop")}
-              thumb={BrowseItem.thumbnail_service_url(item)}
-              patch={~p"/browse/focus/#{item.id}"}
-            />
-          </div>
+            <BrowseItem.thumb thumb={BrowseItem.thumbnail_service_url(item)} />
+          </.link>
         </div>
 
         <div class="flex-none">

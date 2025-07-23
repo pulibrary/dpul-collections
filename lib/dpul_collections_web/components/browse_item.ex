@@ -70,52 +70,52 @@ defmodule DpulCollectionsWeb.BrowseItem do
           </.link>
         </div>
       </div>
-      
-    <!-- thumbs -->
-      <div class="px-2 pt-2 bg-white">
-        <div class="grid grid-rows-[repeat(4, 25%)] gap-2 h-[24rem]">
-          <!-- main thumbnail -->
-          <div :if={@item.file_count == 1} class="row-span-4">
-            <.thumb thumb={thumbnail_service_url(@item)} target={@target} href={@item.url} />
-          </div>
+      <.link href={@item.url} target={@target} class="flex-grow item-link">
+        <!-- thumbs -->
+        <div class="px-2 pt-2 bg-white">
+          <div class="grid grid-rows-[repeat(4, 25%)] gap-2 h-[24rem]">
+            <!-- main thumbnail -->
+            <div :if={@item.file_count == 1} class="row-span-4">
+              <.thumb thumb={thumbnail_service_url(@item)} target={@target} href={@item.url} />
+            </div>
 
-          <div :if={@item.file_count > 1} class="row-span-3 overflow-hidden h-[18rem]">
-            <.thumb thumb={thumbnail_service_url(@item)} target={@target} href={@item.url} />
-          </div>
-          
+            <div :if={@item.file_count > 1} class="row-span-3 overflow-hidden h-[18rem]">
+              <.thumb thumb={thumbnail_service_url(@item)} target={@target} href={@item.url} />
+            </div>
+            
     <!-- smaller thumbnails -->
-          <div :if={@item.file_count > 1} class="grid grid-cols-4 gap-2 h-[6rem]">
-            <.thumb
-              :for={{thumb, thumb_num} <- thumbnail_service_urls(4, @item.image_service_urls)}
-              :if={@item.file_count}
-              thumb={thumb}
-              thumb_num={thumb_num}
-              href={@item.url}
-              target={@target}
-            />
+            <div :if={@item.file_count > 1} class="grid grid-cols-4 gap-2 h-[6rem]">
+              <.thumb
+                :for={{thumb, thumb_num} <- thumbnail_service_urls(4, @item.image_service_urls)}
+                :if={@item.file_count}
+                thumb={thumb}
+                thumb_num={thumb_num}
+                href={@item.url}
+                target={@target}
+              />
+            </div>
           </div>
         </div>
-      </div>
-      
+        
     <!-- card text area -->
-      <div class="flex-1 px-6 py-5 bg-white relative">
-        <div
-          :if={@item.file_count > 4}
-          class="absolute bg-background right-2 top-0 z-10 pr-2 pb-1 diagonal-drop"
-        >
-          {@item.file_count} {gettext("Images")}
-        </div>
+        <div class="px-6 py-5 bg-white flex flex-col flex-grow">
+          <div
+            :if={@item.file_count > 4}
+            class="absolute bg-background right-2 top-0 z-10 pr-2 pb-1 diagonal-drop"
+          >
+            {@item.file_count} {gettext("Images")}
+          </div>
 
-        <h2 class="font-normal tracking-tight py-2" dir="auto">
-          <.link href={@item.url} target={@target} class="item-link">{@item.title}</.link>
-        </h2>
-        <p class="text-gray-700 text-base">{@item.date}</p>
-      </div>
-      
-    <!-- "added on" note -->
+          <h2 class="font-normal tracking-tight py-2 flex-grow" dir="auto">
+            {@item.title}
+          </h2>
+          <p class="text-gray-700 text-base">{@item.date}</p>
+        </div>
+      </.link>
+      <!-- "added on" note -->
       <div
         :if={@added? && @item.updated_at}
-        class="updated-at self-end w-full bg-light-secondary h-10 p-2 text-right"
+        class="updated-at justify-self-end-safe w-full bg-light-secondary h-10 p-2 text-right"
       >
         {"#{gettext("Updated")} #{time_ago(@item.updated_at)}"}
       </div>
@@ -132,13 +132,11 @@ defmodule DpulCollectionsWeb.BrowseItem do
 
   def thumb(assigns) do
     ~H"""
-    <.link class="thumb-link" patch={@patch} navigate={@navigate} href={@href} {@rest}>
-      <img
-        class="thumbnail bg-slate-400 text-white h-full w-full object-cover"
-        src={thumbnail_url(assigns)}
-        alt="thumbnail image"
-      />
-    </.link>
+    <img
+      class="thumbnail bg-slate-400 text-white h-full w-full object-cover"
+      src={thumbnail_url(assigns)}
+      alt="thumbnail image"
+    />
     """
   end
 
