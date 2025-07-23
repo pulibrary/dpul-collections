@@ -132,7 +132,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
         <div class="flex-none">
           <.primary_button
-            phx-click="randomize"
+            phx-click={JS.push("randomize") |> JS.dispatch("dpulc:scrollTop")}
             class={[
               "rounded-md h-[64px] w-[64px] flex flex-col justify-center text-xs p-1 hover:no-underline",
               @focused_item == nil && "rounded-md border-4 border-accent h-[84px] w-[84px]"
