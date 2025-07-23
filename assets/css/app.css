@@ -81,7 +81,7 @@
 
 .browse-link {
   padding-left: 60px;
-  clip-path: polygon(50.72px 0%, 100% 0%, 100% 100%, 0% 100%);
+  clip-path: polygon(0 50.72px,50.72px 0%, 100% 0%, 100% 100%, 0% 100%);
 }
 
 .diagonal-drop {
