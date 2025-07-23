@@ -70,7 +70,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
           </.link>
         </div>
       </div>
-      <.link href={@item.url} target={@target} class="item-link">
+      <.link href={@item.url} target={@target} class="flex-grow item-link">
         <!-- thumbs -->
         <div class="px-2 pt-2 bg-white">
           <div class="grid grid-rows-[repeat(4, 25%)] gap-2 h-[24rem]">
@@ -98,7 +98,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
         </div>
         
     <!-- card text area -->
-        <div class="flex-1 px-6 py-5 bg-white relative">
+        <div class="px-6 py-5 bg-white flex flex-col flex-grow">
           <div
             :if={@item.file_count > 4}
             class="absolute bg-background right-2 top-0 z-10 pr-2 pb-1 diagonal-drop"
@@ -106,20 +106,19 @@ defmodule DpulCollectionsWeb.BrowseItem do
             {@item.file_count} {gettext("Images")}
           </div>
 
-          <h2 class="font-normal tracking-tight py-2" dir="auto">
+          <h2 class="font-normal tracking-tight py-2 flex-grow" dir="auto">
             {@item.title}
           </h2>
           <p class="text-gray-700 text-base">{@item.date}</p>
         </div>
-        
-    <!-- "added on" note -->
-        <div
-          :if={@added? && @item.updated_at}
-          class="updated-at self-end w-full bg-light-secondary h-10 p-2 text-right absolute bottom-0"
-        >
-          {"#{gettext("Updated")} #{time_ago(@item.updated_at)}"}
-        </div>
       </.link>
+      <!-- "added on" note -->
+      <div
+        :if={@added? && @item.updated_at}
+        class="updated-at justify-self-end-safe w-full bg-light-secondary h-10 p-2 text-right"
+      >
+        {"#{gettext("Updated")} #{time_ago(@item.updated_at)}"}
+      </div>
     </div>
     """
   end
