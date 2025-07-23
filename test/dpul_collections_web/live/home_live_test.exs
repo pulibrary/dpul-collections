@@ -99,9 +99,9 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
     {:ok, view, _} = live(conn, "/")
 
     assert view
-           |> element("#main-content a", "Browse all items")
+           |> element("#main-content a", "Explore")
            |> render_click() ==
-             {:error, {:live_redirect, %{kind: :push, to: "/browse"}}}
+             {:error, {:redirect, %{to: "/browse"}}}
   end
 
   test "page title", %{conn: conn} do
