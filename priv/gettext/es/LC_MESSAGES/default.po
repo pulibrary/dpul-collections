@@ -158,12 +158,6 @@ msgstr "Colecciones Digitales"
 msgid "The Trustees of Princeton University"
 msgstr "Los fideicomisarios de la Universidad de Princeton"
 
-#: lib/dpul_collections_web/components/search_bar_component.ex:43
-#: lib/dpul_collections_web/live/home_live.ex:187
-#, elixir-autogen, elixir-format
-msgid "Browse all items"
-msgstr "Explorar todos los materiales"
-
 #: lib/dpul_collections_web/live/search_live.ex:231
 #, elixir-autogen, elixir-format
 msgid "Search Results for"
@@ -546,3 +540,9 @@ msgstr "Aleatorio"
 #, elixir-autogen, elixir-format
 msgid "Exploring items similar to"
 msgstr "Explorando artículos similares a"
+
+#: lib/dpul_collections_web/components/search_bar_component.ex:43
+#: lib/dpul_collections_web/live/home_live.ex:187
+#, elixir-autogen, elixir-format
+msgid "Explore"
+msgstr "Explorar"

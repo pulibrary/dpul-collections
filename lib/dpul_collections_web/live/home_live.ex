@@ -159,9 +159,9 @@ defmodule DpulCollectionsWeb.HomeLive do
     ~H"""
     <div class="grid grid-flow-row auto-rows-max">
       <div class="explore-header grid-row bg-background relative">
-        <div class="drop-shadow-[1px_1px_3rem_rgba(0,0,0,1)] bg-background absolute max-h-[600px] sm:min-w-[350px] w-full lg:max-w-1/2 2xl:max-w-1/3 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 p-8">
-          <div class="content-area text-center h-full w-full flex flex-col justify-evenly">
-            <div class="page-y-padding text-xl flex-grow">
+        <div class="drop-shadow-[1px_1px_3rem_rgba(0,0,0,1)] bg-primary absolute max-h-[600px] sm:min-w-[350px] w-full lg:max-w-1/2 2xl:max-w-1/3 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 p-4">
+          <div class="corner-cut content-area text-center h-full w-full flex flex-col justify-evenly bg-background p-8">
+            <div class="page-y-padding text-2xl flex-grow">
               {gettext(
                 "Discover %{photographs}, %{posters}, %{pamphlets}, and more to inspire your research",
                 photographs:
@@ -182,10 +182,10 @@ defmodule DpulCollectionsWeb.HomeLive do
               )
               |> Phoenix.HTML.raw()}
             </div>
-            <div class="content-area bg-primary text-light-text p-4 text-2xl">
-              <.link navigate={~p"/browse"}>
-                {gettext("Browse all items")}
-              </.link>
+            <div class="content-area bg-primary text-light-text p-x-4 text-2xl">
+              <.primary_button href={~p"/browse"}>
+                {gettext("Explore")}
+              </.primary_button>
             </div>
           </div>
         </div>
@@ -196,7 +196,7 @@ defmodule DpulCollectionsWeb.HomeLive do
                 <div class="h-[200px] w-auto min-w-px flex-shrink-0">
                   <.link navigate={~p"/item/#{id}"} aria-label="Link to item">
                     <img
-                      class="h-full w-auto opacity-60 select-none hover:opacity-100 cursor-pointer"
+                      class="h-full w-auto opacity-40 select-none hover:opacity-100 cursor-pointer"
                       draggable="false"
                       src={image_url}
                       aria-label="Item image"
@@ -228,7 +228,7 @@ defmodule DpulCollectionsWeb.HomeLive do
 
   defp callout_link(assigns) do
     Phoenix.HTML.Safe.to_iodata(~H"""
-    <.link href={@url} class="text-accent" target="_blank">{@label}</.link>
+    <.link href={@url} class="text-accent font-bold" target="_blank">{@label}</.link>
     """)
   end
 end

@@ -10,10 +10,10 @@ defmodule DpulCollectionsWeb.Features.LocaleTest do
   test "locale persists between pages", %{conn: conn} do
     conn
     |> visit("/")
-    |> assert_has("a", text: "Browse all items")
+    |> assert_has("a", text: "Explore")
     |> click_button("Language")
     |> Playwright.click("//div[text()='Español']")
-    |> assert_has("a", text: "Explorar todos los materiales")
+    |> assert_has("a", text: "Explorar")
     |> Playwright.type("input#q", " ")
     |> click_button("Buscar")
     |> assert_has("label", text: "filtrar por fecha:")

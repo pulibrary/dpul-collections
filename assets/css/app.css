@@ -80,8 +80,8 @@
 }
 
 .browse-link {
-  padding-left: 50px;
-  clip-path: polygon(40px 0%, 100% 0%, 100% 100%, 0% 100%);
+  padding-left: 60px;
+  clip-path: polygon(0 50.72px,50.72px 0%, 100% 0%, 100% 100%, 0% 100%);
 }
 
 .diagonal-drop {
@@ -256,3 +256,6 @@
   box-shadow: 0 0 10px var(--color-rust), 0 0 5px var(--color-rust);
 }
 
+.corner-cut {
+  clip-path: polygon(0 50.72px,50.72px 0,100% 0,100% 50.72px,100% calc(100% - 50.72px),calc(100% - 50.72px) 100%,0 100%,0 calc(100% - 50.72px));
+}
