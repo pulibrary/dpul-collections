@@ -2,21 +2,9 @@ variable "branch_or_sha" {
   type = string
   default = "main"
 }
-variable "host" {
+variable "branch" {
   type = string
-  default = "dpul-collections-staging.lib.princeton.edu"
-}
-variable "solr_read_collection" {
-  type = string
-  default = "dpulc-staging"
-}
-variable "index_cache_collections" {
-  type = string
-  default = "cache_version:5,write_collection:dpulc-staging5"
-}
-variable "solr_config_set" {
-  type = string
-  default = "dpulc-staging"
+  default = "main"
 }
 
 job "dpulc-staging" {
@@ -73,28 +61,16 @@ job "dpulc-staging" {
         args    = ["-c", "/app/bin/migrate"]
         force_pull = true
       }
+      artifact {
+        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/env/staging.tpl"
+        destination = "local/env.tpl"
+        mode = "file"
+      }
       template {
+        source = "local/env.tpl"
         destination = "${NOMAD_SECRETS_DIR}/env.vars"
         env = true
         change_mode = "restart"
-        data = <<EOF
-        {{- with nomadVar "nomad/jobs/dpulc-staging" -}}
-        DATABASE_URL = ecto://{{ .DB_USER }}:{{ .DB_PASSWORD }}@{{ .POSTGRES_HOST }}/{{ .DB_NAME }}
-        FIGGY_DATABASE_URL = {{ .FIGGY_DATABASE_URL }}
-        SOLR_BASE_URL = {{ .SOLR_BASE_URL }}
-        SOLR_READ_COLLECTION = ${ var.solr_read_collection }
-        INDEX_CACHE_COLLECTIONS = ${var.index_cache_collections}
-        SOLR_CONFIG_SET = ${ var.solr_config_set }
-        SECRET_KEY_BASE = {{ .SECRET_KEY_BASE }}
-        PHX_HOST = ${var.host}
-        BASIC_AUTH_USERNAME = {{ .BASIC_AUTH_USERNAME }}
-        BASIC_AUTH_PASSWORD = {{ .BASIC_AUTH_PASSWORD }}
-        DNS_CLUSTER_QUERY = "dpulc-staging-web.service.consul"
-        HONEYBADGER_API_KEY = {{ .HONEYBADGER_API_KEY }}
-        GRAFANA_SERVICE_TOKEN = {{ .GRAFANA_SERVICE_TOKEN }}
-        METRICS_AUTH_TOKEN = {{ .METRICS_AUTH_TOKEN }}
-        {{- end -}}
-        EOF
       }
     }
     task "webserver" {
@@ -112,29 +88,16 @@ job "dpulc-staging" {
         RELEASE_IP = "${NOMAD_IP_http}"
         ERL_DIST_PORT = 6789
       }
-
+      artifact {
+        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/env/staging.tpl"
+        destination = "local/env.tpl"
+        mode = "file"
+      }
       template {
+        source = "local/env.tpl"
         destination = "${NOMAD_SECRETS_DIR}/env.vars"
         env = true
         change_mode = "restart"
-        data = <<EOF
-        {{- with nomadVar "nomad/jobs/dpulc-staging" -}}
-        DATABASE_URL = ecto://{{ .DB_USER }}:{{ .DB_PASSWORD }}@{{ .POSTGRES_HOST }}/{{ .DB_NAME }}
-        FIGGY_DATABASE_URL = {{ .FIGGY_DATABASE_URL }}
-        SOLR_BASE_URL = {{ .SOLR_BASE_URL }}
-        SOLR_READ_COLLECTION = ${ var.solr_read_collection }
-        INDEX_CACHE_COLLECTIONS = ${var.index_cache_collections}
-        SOLR_CONFIG_SET = ${ var.solr_config_set }
-        SECRET_KEY_BASE = {{ .SECRET_KEY_BASE }}
-        PHX_HOST = ${var.host}
-        BASIC_AUTH_USERNAME = {{ .BASIC_AUTH_USERNAME }}
-        BASIC_AUTH_PASSWORD = {{ .BASIC_AUTH_PASSWORD }}
-        DNS_CLUSTER_QUERY = "dpulc-staging-web.service.consul"
-        HONEYBADGER_API_KEY = {{ .HONEYBADGER_API_KEY }}
-        GRAFANA_SERVICE_TOKEN = {{ .GRAFANA_SERVICE_TOKEN }}
-        METRICS_AUTH_TOKEN = {{ .METRICS_AUTH_TOKEN }}
-        {{- end -}}
-        EOF
       }
     }
   }
@@ -183,28 +146,23 @@ job "dpulc-staging" {
         cores = 6
         memory = 8000
       }
+      artifact {
+        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/env/staging.tpl"
+        destination = "local/env.tpl"
+        mode = "file"
+      }
       template {
+        source = "local/env.tpl"
         destination = "${NOMAD_SECRETS_DIR}/env.vars"
         env = true
         change_mode = "restart"
+      }
+      template {
+        destination = "${NOMAD_SECRETS_DIR}/indexer_env.vars"
+        env = true
+        change_mode = "restart"
         data = <<EOF
-        {{- with nomadVar "nomad/jobs/dpulc-staging" -}}
-        DATABASE_URL = ecto://{{ .DB_USER }}:{{ .DB_PASSWORD }}@{{ .POSTGRES_HOST }}/{{ .DB_NAME }}
-        FIGGY_DATABASE_URL = {{ .FIGGY_DATABASE_URL }}
-        SOLR_BASE_URL = {{ .SOLR_BASE_URL }}
-        SOLR_READ_COLLECTION = ${ var.solr_read_collection }
-        INDEX_CACHE_COLLECTIONS = ${var.index_cache_collections}
-        SOLR_CONFIG_SET = ${ var.solr_config_set }
-        SECRET_KEY_BASE = {{ .SECRET_KEY_BASE }}
-        PHX_HOST = ${var.host}
-        INDEXER = true
-        BASIC_AUTH_USERNAME = {{ .BASIC_AUTH_USERNAME }}
-        BASIC_AUTH_PASSWORD = {{ .BASIC_AUTH_PASSWORD }}
-        DNS_CLUSTER_QUERY = "dpulc-staging-web.service.consul"
-        HONEYBADGER_API_KEY = {{ .HONEYBADGER_API_KEY }}
-        GRAFANA_SERVICE_TOKEN = {{ .GRAFANA_SERVICE_TOKEN }}
-        METRICS_AUTH_TOKEN = {{ .METRICS_AUTH_TOKEN }}
-        {{- end -}}
+          INDEXER = true
         EOF
       }
     }
