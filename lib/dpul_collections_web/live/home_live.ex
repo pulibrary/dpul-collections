@@ -199,7 +199,7 @@ defmodule DpulCollectionsWeb.HomeLive do
                       class="h-full w-auto opacity-40 select-none hover:opacity-100 cursor-pointer"
                       draggable="false"
                       src={image_url}
-                      aria-label="Item image"
+                      role="presentation"
                     />
                   </.link>
                 </div>
