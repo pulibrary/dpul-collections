@@ -98,7 +98,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
         </div>
         
     <!-- card text area -->
-        <div class="px-6 py-5 bg-white flex flex-col flex-grow">
+        <div class="relative px-6 py-5 bg-white flex flex-col flex-grow">
           <div
             :if={@item.file_count > 4}
             class="absolute bg-background right-2 top-0 z-10 pr-2 pb-1 diagonal-drop"
