@@ -194,7 +194,7 @@ defmodule DpulCollectionsWeb.HomeLive do
             <div class="h-[200px] flex items-start overflow-hidden">
               <%= for {id, image_url} <- chunk do %>
                 <div class="h-[200px] w-auto min-w-px flex-shrink-0">
-                  <.link navigate={~p"/item/#{id}"} aria-label="Link to item">
+                  <.link tabindex="-1" navigate={~p"/item/#{id}"} aria-label="Link to item">
                     <img
                       class="h-full w-auto opacity-40 select-none hover:opacity-100 cursor-pointer"
                       draggable="false"
