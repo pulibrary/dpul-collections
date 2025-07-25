@@ -68,12 +68,12 @@ defmodule DpulCollections.Classifier do
   def handle_call(
         {:cached_embeddings},
         _from,
-        state = %{subject_embeddings: subject_embeddings, genre_embeddings: genre_embeddings}
+        state = %{subject_embeddings: _subject_embeddings, genre_embeddings: _genre_embeddings}
       ) do
     {:reply, state, state}
   end
 
-  def handle_call({:cached_embeddings}, from, state) do
+  def handle_call({:cached_embeddings}, _from, state) do
     {:reply, :not_loaded, state}
   end
 
@@ -115,7 +115,7 @@ defmodule DpulCollections.Classifier do
     {:noreply, state}
   end
 
-  def handle_info({:DOWN, ref, _, _, reason}, state) do
+  def handle_info({:DOWN, _ref, _, _, _reason}, state) do
     {:noreply, state}
   end
 

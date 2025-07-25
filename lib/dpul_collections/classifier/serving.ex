@@ -30,14 +30,10 @@ defmodule DpulCollections.Classifier.Serving do
   def last_token_pooling({{embeddings}, _meta}, client_info) do
     {input_size, token_embedding_count, embedding_dimension} = Nx.shape(embeddings)
 
-    input_mask_expanded = Nx.new_axis(client_info.attention_mask, -1)
-
     embeddings
     |> Nx.backend_transfer(Nx.default_backend())
-    |> Nx.multiply(input_mask_expanded)
     |> Nx.slice_along_axis(token_embedding_count, 1, axis: 1)
-    |> Nx.sum(axes: [1])
-    |> Nx.divide(Nx.sum(input_mask_expanded, axes: [1]))
+    |> Nx.reshape({input_size, embedding_dimension})
   end
 
   def build_embedding_inputs(inputs, tokenizer) do
