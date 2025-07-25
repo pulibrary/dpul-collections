@@ -1,4 +1,5 @@
 defmodule DpulCollectionsWeb.BrowseLive do
+  alias DpulCollections.Classifier
   alias DpulCollectionsWeb.SearchLive.SearchState
   alias DpulCollectionsWeb.BrowseItem
   use DpulCollectionsWeb, :live_view
@@ -13,7 +14,9 @@ defmodule DpulCollectionsWeb.BrowseLive do
         items: [],
         liked_items: [],
         page_title: "Browse - Digital Collections",
-        focused_item: nil
+        focused_item: nil,
+        auto_subjects: nil,
+        auto_genres: nil
       )
 
     {:ok, socket}
@@ -28,7 +31,9 @@ defmodule DpulCollectionsWeb.BrowseLive do
         items:
           Solr.random(90, given_seed)["docs"]
           |> Enum.map(&Item.from_solr(&1)),
-        focused_item: nil
+        focused_item: nil,
+        auto_subjects: nil,
+        auto_genres: nil
       )
 
     {:noreply, socket}
@@ -56,7 +61,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
       end
 
     {:noreply,
-     socket |> assign(items: recommended_items, focused_item: item, liked_items: liked_items)}
+     socket |> assign(auto_subjects: nil, auto_genres: nil, items: recommended_items, focused_item: item, liked_items: liked_items)}
   end
 
   # If neither, generate a random seed and display random items.
@@ -68,6 +73,37 @@ defmodule DpulCollectionsWeb.BrowseLive do
     {:noreply, push_patch(socket, to: "/browse?r=#{Enum.random(1..1_000_000)}")}
   end
 
+  def handle_event("search", %{"q" => search_query}, socket) do
+    %{subjects: subjects, genres: genres} = DpulCollections.Classifier.get_top_subjects(search_query)
+    subjects = Enum.filter(subjects, fn({score, _label}) -> score > 0.45 end)
+    genres = Enum.filter(genres, fn({score, _label}) -> score > 0.45 end)
+    search_state = DpulCollectionsWeb.SearchLive.SearchState.from_params(%{"per_page" => "100", "q" => [suggest_query("subject_txtm", subjects), suggest_query("genre_txtm", genres)] |> Enum.filter(fn(x) -> x != nil end) |> Enum.join(" ")})
+    solr_response = Solr.query(search_state)
+    items =
+      solr_response["docs"]
+      |> Enum.map(&Item.from_solr(&1))
+    socket =
+      socket
+      |> assign(items: items, auto_subjects: Enum.map(subjects, fn({_score, s}) -> s end), auto_genres: Enum.map(genres, fn({_score, s}) -> s end))
+    {:noreply, socket}
+  end
+
+  def suggest_query(_, []), do: nil
+  def suggest_query(field, matches) do
+    "#{field}:(#{matches |> weight_matches |> Enum.join(" OR ")})"
+  end
+
+  def weight_matches(matches) do
+    Enum.map(matches, fn({score, value}) ->
+      cond do
+        score > 0.65 -> "'#{value}'^4"
+        score > 0.6 -> "'#{value}'^3"
+        score > 0.5 -> "'#{value}'^2"
+        true        -> "'#{value}'"
+      end
+    end)
+  end
+
   def render(assigns) do
     ~H"""
     <div id="browse" class="content-area">
@@ -76,6 +112,35 @@ defmodule DpulCollectionsWeb.BrowseLive do
         <div :if={!@focused_item} class="text-2xl mb-5">
           {gettext("Exploring a random set of items from our collections.")}
         </div>
+          <form id="search-form" class="w-full h-full bg-secondary p-2 rounded-lg" phx-submit="search">
+            <div class="flex items-center w-full h-full" role="search">
+              <span class="flex-none">
+                <.icon name="hero-sparkles" class="h-8 w-8 icon" />
+              </span>
+              <label for="q" class="sr-only">{gettext("Tell us what you like and we'll suggest some things. e.g. I want some art I can paint on my wall")}</label>
+              <input
+                class="m-2 px-1 py-0 grow h-full placeholder:text-dark-text/40 bg-transparent border-none placeholder:text-xl text-xl placeholder:font-bold w-full"
+                type="text"
+                id="q"
+                name="q"
+                placeholder={gettext("Tell us what you like and we'll suggest some things. e.g. I want some art I can paint on my wall")}
+                dir="auto"
+              />
+              <button
+                id="search-button"
+                type="submit"
+                class="btn-secondary px-4 h-8 invisible flex-none"
+              >
+                {gettext("Suggest")}
+              </button>
+            </div>
+          </form>
+          <div :if={@auto_subjects} class="text-sm p-2">
+            Subjects we picked: {Enum.join(@auto_subjects, ", ")}
+          </div>
+          <div :if={@auto_genres} class="text-sm p-2">
+            Genres we picked: {Enum.join(@auto_genres, ", ")}
+          </div>
         <h3 :if={@focused_item}>
           {gettext("Exploring items similar to")}
           <.link href={@focused_item.url} class="font-semibold text-accent" target="_blank">
