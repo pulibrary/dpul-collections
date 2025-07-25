@@ -173,6 +173,14 @@ job "dpulc-staging" {
         change_mode = "restart"
       }
       template {
+        destination = "${NOMAD_SECRETS_DIR}/solr_env.vars"
+        env = true
+        change_mode = "restart"
+        data = <<EOF
+          NEW_SOLR_CONFIG = {{ file "local/solr.json" | toJSON }}
+        EOF
+      }
+      template {
         destination = "${NOMAD_SECRETS_DIR}/indexer_env.vars"
         env = true
         change_mode = "restart"
