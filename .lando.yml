@@ -30,20 +30,3 @@ services:
       ports:
         - "8985:8983"
       command: bin/solr -cloud -noprompt -f -p 8983
-  embedding_server:
-    type: lando
-    app_mount: false
-    services:
-      image: ollama/ollama:latest
-      ports:
-        - "11439:11434"
-      command: 
-        - "/bin/sh"
-        - "-c"
-        - "ollama serve & until ollama list >/dev/null 2>&1; do sleep 1; done; ollama pull hf.co/Qwen/Qwen3-Embedding-0.6B-GGUF:f16; wait"
-      environment:
-        OLLAMA_KEEP_ALIVE: -1
-    overrides:
-      shm_size: '12gb'
-      volumes:
-        - tmp/ollama:/root/.ollama
