@@ -90,7 +90,11 @@ defmodule DpulCollections.MixProject do
       {:sham, "~> 1.0", only: :test},
       {:oban, "~> 2.19"},
       {:oban_web, "~> 2.11"},
-      {:a11y_audit, "~> 0.2.3", only: :test}
+      {:a11y_audit, "~> 0.2.3", only: :test},
+      {:scholar, "~> 0.3.0"},
+      {:ortex, github: "elixir-nx/ortex"},
+      {:tokenizers, github: "elixir-nx/tokenizers"},
+      {:exla, ">= 0.0.0"}
     ]
   end
 
@@ -104,6 +108,7 @@ defmodule DpulCollections.MixProject do
     [
       setup: [
         "deps.get",
+        "model.download",
         "ecto.setup",
         "assets.setup",
         "assets.build",

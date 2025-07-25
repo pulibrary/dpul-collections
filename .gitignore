@@ -44,4 +44,4 @@ solr/conf/solr_config.zip
 
 # playwright screenshots
 screenshots/*
-
+models/

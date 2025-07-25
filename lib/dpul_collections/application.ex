@@ -9,6 +9,12 @@ defmodule DpulCollections.Application do
   def start(_type, _args) do
     children =
       [
+        {Nx.Serving,
+         serving: DpulCollections.Classifier.Serving.serving(),
+         name: DpulCollections.Classifier.Serving,
+         batch_size: 10,
+         batch_timeout: 100,
+         batch_keys: [:default, 8, 16, 32, 64, 128, 256, 512]},
         DpulCollections.PromEx,
         DpulCollectionsWeb.Telemetry,
         DpulCollections.Repo,
@@ -23,7 +29,8 @@ defmodule DpulCollections.Application do
         # {DpulCollections.Worker, arg},
         # Start to serve requests, typically the last entry
         DpulCollectionsWeb.Endpoint,
-        DpulCollections.IndexMetricsTracker
+        DpulCollections.IndexMetricsTracker,
+        DpulCollections.Classifier
       ] ++ filter_pipeline_children()
 
     # See https://hexdocs.pm/elixir/Supervisor.html

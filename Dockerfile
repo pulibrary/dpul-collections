@@ -14,9 +14,12 @@
 ARG ELIXIR_VERSION=1.18.4
 ARG OTP_VERSION=27.3.4
 ARG DEBIAN_VERSION=bookworm-20250520-slim
+ARG RUST_VERSION=1.87.0
 
 ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
 ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
+
+FROM rust:${RUST_VERSION}-slim as rust
 
 FROM ${BUILDER_IMAGE} as builder
 
@@ -45,6 +48,13 @@ RUN mix local.hex --force && \
 ENV MIX_ENV="prod"
 ENV NODE_ENV="production"
 
+# Install Rust
+ENV RUSTUP_HOME=/usr/local/rustup \
+    CARGO_HOME=/usr/local/cargo \
+    PATH=/usr/local/cargo/bin:$PATH
+COPY --from=rust /usr/local/cargo /usr/local/cargo
+COPY --from=rust /usr/local/rustup /usr/local/rustup
+
 # install mix dependencies
 COPY mix.exs mix.lock ./
 RUN mix deps.get --only $MIX_ENV
@@ -61,6 +71,9 @@ COPY priv priv
 COPY lib lib
 
 COPY assets assets
+
+# Download models
+RUN mix model.download
 
 # compile assets
 RUN mix assets.deploy
