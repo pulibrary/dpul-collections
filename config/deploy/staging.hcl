@@ -66,6 +66,11 @@ job "dpulc-staging" {
         destination = "local/env.tpl"
         mode = "file"
       }
+      artifact {
+        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/solr/staging.json"
+        destination = "local/solr.json"
+        mode = "file"
+      }
       template {
         source = "local/env.tpl"
         destination = "${NOMAD_SECRETS_DIR}/env.vars"
@@ -91,6 +96,11 @@ job "dpulc-staging" {
       artifact {
         source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/env/staging.tpl"
         destination = "local/env.tpl"
+        mode = "file"
+      }
+      artifact {
+        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/solr/staging.json"
+        destination = "local/solr.json"
         mode = "file"
       }
       template {
@@ -151,11 +161,24 @@ job "dpulc-staging" {
         destination = "local/env.tpl"
         mode = "file"
       }
+      artifact {
+        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/solr/staging.json"
+        destination = "local/solr.json"
+        mode = "file"
+      }
       template {
         source = "local/env.tpl"
         destination = "${NOMAD_SECRETS_DIR}/env.vars"
         env = true
         change_mode = "restart"
+      }
+      template {
+        destination = "${NOMAD_SECRETS_DIR}/solr_env.vars"
+        env = true
+        change_mode = "restart"
+        data = <<EOF
+          NEW_SOLR_CONFIG = {{ file "local/solr.json" | toJSON }}
+        EOF
       }
       template {
         destination = "${NOMAD_SECRETS_DIR}/indexer_env.vars"
