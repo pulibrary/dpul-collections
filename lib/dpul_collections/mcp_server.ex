@@ -5,5 +5,5 @@ defmodule DpulCollections.MCPServer do
     version: "1.0.0",
     capabilities: [:tools]
 
-  component(DpulCollections.Greeter)
+  component(DpulCollections.Searcher)
 end

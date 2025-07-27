@@ -25,7 +25,9 @@ defmodule DpulCollectionsWeb.Router do
 
   forward "/mcp",
           Hermes.Server.Transport.StreamableHTTP.Plug,
-          server: DpulCollections.MCPServer
+          server: DpulCollections.MCPServer,
+          request_timeout: 60_000,
+          timeout: 60_000
 
   scope "/", DpulCollectionsWeb do
     pipe_through :browser
