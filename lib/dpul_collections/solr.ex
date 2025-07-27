@@ -25,7 +25,8 @@ defmodule DpulCollections.Solr do
     "primary_thumbnail_service_url_s",
     "digitized_at_dt",
     "genre_txtm",
-    "updated_at_dt"
+    "updated_at_dt",
+    "description_txtm"
   ]
 
   @spec query(map(), String.t()) :: map()
@@ -36,7 +37,7 @@ defmodule DpulCollections.Solr do
       q: query_param(search_state),
       # https://solr.apache.org/docs/9_4_0/core/org/apache/solr/util/doc-files/min-should-match.html
       # If more than 6 clauses, only require 90%. Pulled from our catalog.
-      mm: "6<90%",
+      mm: "1",
       fq: filter_param(search_state),
       fl: fl,
       sort: sort_param(search_state),
