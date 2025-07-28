@@ -1,5 +1,6 @@
 import Viewer from "@samvera/clover-iiif/viewer";
 import React from 'react';
+import Loader from './loader';
 // DpulcViewer is a react component which acts as a wrapper for Clover with
 // all of our default settings and functionality.
 const handleCanvasIdCallback = (activeCanvasId, pushEvent) => {
@@ -17,6 +18,7 @@ export default function DpulcViewer(props) {
       options={
         {
           canvasHeight: "auto",
+          customLoadingComponent: () => <Loader />,
           openSeadragon: {
             mouseNavEnabled: true,
             gestureSettingsMouse: {
