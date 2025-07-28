@@ -634,7 +634,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       </dl>
     </div>
     <.primary_button id="metadata-link" class="right-arrow-box" patch={@item.metadata_url} replace>
-      <.icon name="hero-table-cells" />{gettext("View all metadata for this item")}
+      <span class="w-max flex gap-2"><.icon name="hero-table-cells" /> {gettext("View all metadata for this item")}</span>
     </.primary_button>
     """
   end

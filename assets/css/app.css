@@ -90,21 +90,19 @@
 }
 
 .left-arrow-box {
-  clip-path: polygon(100% 0%, 100% 100%, 15% 100%, 0% 50%, 15% 0%);
-  /* Add a 7.5% padding so items are centered in the square bit of the box */
-  @apply *:pl-[7.5%]
+  clip-path: polygon(100% 0%, 100% 100%, 40px 100%, 0% 50%, 40px 0%);
+  @apply pl-[20px];
 }
 
 .right-arrow-box {
   clip-path: polygon(
     0% 0%,
     0% 100%,
-    calc(100% - 50px) 100%,
+    calc(100% - 40px) 100%,
     100% 50%,
-    calc(100% - 50px) 0%
+    calc(100% - 40px) 0%
   );
-  @apply *:pl-[10px];
-  @apply *:pr-[60px];
+  @apply pr-[20px];
 }
 
 #search-form:focus-within #search-button {
