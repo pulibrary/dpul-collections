@@ -91,7 +91,7 @@ defmodule DpulCollections.MixProject do
       {:oban, "~> 2.19"},
       {:oban_web, "~> 2.11"},
       {:a11y_audit, "~> 0.2.3", only: :test},
-      {:hermes_mcp, "~> 0.13.0"}
+      {:hermes_mcp, git: "https://github.com/cloudwalk/hermes-mcp.git"}
     ]
   end
 

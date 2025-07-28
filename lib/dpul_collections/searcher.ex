@@ -27,11 +27,13 @@ defmodule DpulCollections.Searcher do
     items =
       solr_response["docs"]
       |> Enum.map(&Item.from_solr(&1))
+      |> Enum.map(fn(item) -> Task.async(fn() -> fetch_image(item) end) end)
+      |> Enum.map(&Task.await/1)
 
     response =
       Response.tool()
       |> Response.text(
-        "The following are search results. There's a JSON response of each item followed by an embedded image thumbnail of that item. When presenting these items to users ensure that you provide the title, description (if present), a generated caption of the thumbnail (ensuring to clarify that you've generated the thumbnail caption and it wasn't provided), and the URL to the item. The item URL being at localhost is okay - present it anyways.",
+        "The following are search results. There's a JSON response of each item followed by a link to embedded image thumbnail of that item. When presenting these items to users ensure that you provide the title, description (if present), a generated caption of the thumbnail (ensuring to clarify that you've generated the thumbnail caption and it wasn't provided), and the URL to the item. The item URL being at localhost is okay - present it anyways.",
         audience: [:assistant]
       )
 
@@ -44,7 +46,11 @@ defmodule DpulCollections.Searcher do
     {:reply, response, frame}
   end
 
-  def add_item(response, item) do
+  def fetch_image(item) do
+    {item, base64_image(item)}
+  end
+
+  def add_item(response, {item, base64_image}) do
     response
     |> Response.json(%{
       title: item.title,
@@ -53,16 +59,16 @@ defmodule DpulCollections.Searcher do
     })
     |> Response.embedded_resource(
       "#{item.primary_thumbnail_service_url}/square/100,100/0/default.jpg",
-      format_item(item)
+      format_item(item, base64_image)
     )
   end
 
-  def format_item(item) do
+  def format_item(item, base64_image) do
     [
       name: item.title,
       description: item.description,
       mime_type: "image/jpeg",
-      blob: base64_image(item)
+      blob: base64_image
     ]
   end
 
