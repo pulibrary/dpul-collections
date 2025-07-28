@@ -8,13 +8,15 @@ defmodule DpulCollectionsWeb.BrowseItem do
   attr :title, :string, required: true
   attr :added?, :boolean, default: false
   attr :more_link, :boolean, default: nil
-  attr :rest, :global, default: %{class: "grid-row bg-secondary"}
+  attr :color, :string, default: "bg-secondary"
+  attr :layout, :string, default: "content-area"
+  attr :rest, :global
   slot :inner_block, doc: "the optional inner block that renders above the images"
 
   def browse_item_row(assigns) do
     ~H"""
-    <div {@rest}>
-      <div class="content-area">
+    <div class={["grid-row", @color]} {@rest}>
+      <div class={@layout}>
         <div class="page-t-padding" />
         <h1>{@title}</h1>
         {render_slot(@inner_block)}
