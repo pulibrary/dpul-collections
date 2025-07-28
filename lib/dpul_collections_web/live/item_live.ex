@@ -206,7 +206,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       id="related-different-project"
       items={@different_project_related_items}
       title={gettext("Similar Items outside this Collection")}
-      class="grid-row bg-background"
+      color="bg-background"
       more_link={~p"/search?filter[similar]=#{@item.id}&filter[project]=-#{@item.project}"}
     />
     """

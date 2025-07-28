@@ -10,7 +10,7 @@ defmodule DpulCollectionsWeb.HomeLive do
         page_title: "Digital Collections",
         q_: nil,
         recent_items:
-          Solr.recently_updated(3)["docs"]
+          Solr.recently_updated(5)["docs"]
           |> Enum.map(&Item.from_solr(&1)),
         hero_images:
           Enum.chunk_every(hero_images() |> Enum.shuffle(), floor(length(hero_images()) / 3))
@@ -212,7 +212,8 @@ defmodule DpulCollectionsWeb.HomeLive do
 
       <.browse_item_row
         id="recent-items"
-        class="grid-row bg-background"
+        layout="home-content-area"
+        color="bg-background"
         items={@recent_items}
         title={gettext("Recently Updated Items")}
         more_link={~p"/search?sort_by=recently_updated"}
