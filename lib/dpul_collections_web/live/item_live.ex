@@ -507,7 +507,8 @@ defmodule DpulCollectionsWeb.ItemLive do
           >
             <div class="flex justify-center items-center z-1 w-full h-full backdrop-blur-xs bg-white/70 text-accent text-sm p-4">
               <div>
-                {gettext("Letter Paper")} 8.5" x 11" (21.59 x 27.94 cm) <.icon class="w-5 h-5" name="pepicons-pencil:ruler" />
+                {gettext("Letter Paper")} 8.5" x 11" (21.59 x 27.94 cm)
+                <.icon class="w-5 h-5" name="pepicons-pencil:ruler" />
               </div>
             </div>
           </div>

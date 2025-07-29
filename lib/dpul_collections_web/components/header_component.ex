@@ -29,7 +29,10 @@ defmodule DpulCollectionsWeb.HeaderComponent do
       </div>
       
     <!-- language -->
-      <nav class="menu flex flex-none justify-end w-10 sm:w-32 md:w-40" aria-label={gettext("Language menu")}>
+      <nav
+        class="menu flex flex-none justify-end w-10 sm:w-32 md:w-40"
+        aria-label={gettext("Language menu")}
+      >
         <div class="dropdown relative inline-block">
           <button
             id="dropdownButton"

@@ -240,7 +240,10 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def paginator(assigns) do
     ~H"""
-    <nav aria-label={gettext("Search Results Page Navigation")} class="paginator inline-flex -space-x-px text-sm">
+    <nav
+      aria-label={gettext("Search Results Page Navigation")}
+      class="paginator inline-flex -space-x-px text-sm"
+    >
       <.link
         :if={@page > 1}
         id="paginator-previous"
