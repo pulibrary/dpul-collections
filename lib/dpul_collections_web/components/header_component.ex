@@ -29,7 +29,7 @@ defmodule DpulCollectionsWeb.HeaderComponent do
       </div>
       
     <!-- language -->
-      <nav class="menu flex flex-none justify-end w-10 sm:w-32 md:w-40" aria-label="Language menu">
+      <nav class="menu flex flex-none justify-end w-10 sm:w-32 md:w-40" aria-label={gettext("Language menu")}>
         <div class="dropdown relative inline-block">
           <button
             id="dropdownButton"
@@ -55,14 +55,14 @@ defmodule DpulCollectionsWeb.HeaderComponent do
               tabindex="-1"
               class="p-2 hover:bg-stone-200 focus:bg-stone-200 cursor-pointer"
             >
-              <div phx-click={JS.dispatch("setLocale", detail: %{locale: "en"})}>{gettext("English")}</div>
+              <div phx-click={JS.dispatch("setLocale", detail: %{locale: "en"})}>English</div>
             </li>
             <li
               role="menuitem"
               tabindex="-1"
               class="p-2 hover:bg-stone-200 focus:bg-stone-200 cursor-pointer"
             >
-              <div phx-click={JS.dispatch("setLocale", detail: %{locale: "es"})}>{gettext("Español")}</div>
+              <div phx-click={JS.dispatch("setLocale", detail: %{locale: "es"})}>Español</div>
             </li>
           </ul>
         </div>
