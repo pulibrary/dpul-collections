@@ -53,8 +53,8 @@ msgstr "Aplicar"
 #: lib/dpul_collections/item.ex:55
 #: lib/dpul_collections/item.ex:73
 #: lib/dpul_collections/solr.ex:3
-#: lib/dpul_collections_web/components/header_component.ex:36
-#: lib/dpul_collections_web/components/header_component.ex:43
+#: lib/dpul_collections_web/components/header_component.ex:39
+#: lib/dpul_collections_web/components/header_component.ex:46
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:5
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -62,12 +62,12 @@ msgstr "Aplicar"
 msgid "Language"
 msgstr "Idioma"
 
-#: lib/dpul_collections_web/live/search_live.ex:281
+#: lib/dpul_collections_web/live/search_live.ex:284
 #, elixir-autogen, elixir-format
 msgid "Next"
 msgstr "Proxima"
 
-#: lib/dpul_collections_web/live/search_live.ex:251
+#: lib/dpul_collections_web/live/search_live.ex:254
 #, elixir-autogen, elixir-format
 msgid "Previous"
 msgstr "Anterior"
@@ -148,9 +148,9 @@ msgid "Browse"
 msgstr "navegar"
 
 #: lib/dpul_collections_web/components/header_component.ex:27
-#: lib/dpul_collections_web/live/item_live.ex:754
 #: lib/dpul_collections_web/live/item_live.ex:755
 #: lib/dpul_collections_web/live/item_live.ex:756
+#: lib/dpul_collections_web/live/item_live.ex:757
 #, elixir-autogen, elixir-format
 msgid "Digital Collections"
 msgstr "Colecciones Digitales"
@@ -175,7 +175,7 @@ msgstr "Añadido"
 msgid "Our collections are constantly growing. Discover something new!"
 msgstr "Nuestras colecciones están en constante crecimiento. ¡Descubre algo nuevo!"
 
-#: lib/dpul_collections_web/live/item_live.ex:524
+#: lib/dpul_collections_web/live/item_live.ex:525
 #, elixir-autogen, elixir-format
 msgid "View"
 msgstr "Abrir"
@@ -262,7 +262,7 @@ msgstr "Editor"
 msgid "Subject"
 msgstr "Tema"
 
-#: lib/dpul_collections_web/live/item_live.ex:638
+#: lib/dpul_collections_web/live/item_live.ex:639
 #, elixir-autogen, elixir-format
 msgid "View all metadata for this item"
 msgstr "Ver todos los metadatos de este ítem"
@@ -277,13 +277,13 @@ msgstr "fotografías"
 msgid "posters"
 msgstr "pósteres"
 
-#: lib/dpul_collections_web/live/item_live.ex:569
+#: lib/dpul_collections_web/live/item_live.ex:570
 #, elixir-autogen, elixir-format
 msgid "No PDF Available"
 msgstr "PDF no disponible"
 
 #: lib/dpul_collections_web/live/item_live.ex:302
-#: lib/dpul_collections_web/live/item_live.ex:755
+#: lib/dpul_collections_web/live/item_live.ex:756
 #, elixir-autogen, elixir-format
 msgid "Viewer"
 msgstr "Abrir"
@@ -395,7 +395,7 @@ msgid "Keywords"
 msgstr "Palabras clave"
 
 #: lib/dpul_collections_web/live/item_live.ex:231
-#: lib/dpul_collections_web/live/item_live.ex:754
+#: lib/dpul_collections_web/live/item_live.ex:755
 #, elixir-autogen, elixir-format
 msgid "Metadata"
 msgstr "Metadatos"
@@ -497,7 +497,7 @@ msgstr "Comparte este artículo"
 msgid "Size"
 msgstr "Tamaño"
 
-#: lib/dpul_collections_web/live/item_live.ex:561
+#: lib/dpul_collections_web/live/item_live.ex:562
 #, elixir-autogen, elixir-format
 msgid "Download PDF"
 msgstr "Descargar PDF"
@@ -561,20 +561,15 @@ msgstr "Explorar - Colecciones digitales"
 msgid "Browse Similar Items"
 msgstr "Explorar artículos similares"
 
-#: lib/dpul_collections_web/live/item_live.ex:728
+#: lib/dpul_collections_web/live/item_live.ex:729
 #, elixir-autogen, elixir-format
 msgid "Copied"
 msgstr "Copiado"
 
-#: lib/dpul_collections_web/live/item_live.ex:727
+#: lib/dpul_collections_web/live/item_live.ex:728
 #, elixir-autogen, elixir-format
 msgid "Copy"
 msgstr "Copiar"
-
-#: lib/dpul_collections_web/components/header_component.ex:58
-#, elixir-autogen, elixir-format
-msgid "English"
-msgstr "Inglés"
 
 #: lib/dpul_collections_web/live/item_live.ex:510
 #, elixir-autogen, elixir-format
@@ -601,3 +596,23 @@ msgstr "Ver elementos aleatorios"
 #, elixir-autogen, elixir-format
 msgid "main image display"
 msgstr "visualización de la imagen principal"
+
+#: lib/dpul_collections_web/components/header_component.ex:34
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Language menu"
+msgstr "Idioma"
+
+#: lib/dpul_collections_web/live/home_live.ex:197
+#, elixir-autogen, elixir-format
+msgid "Link to item"
+msgstr "Enlace al artículo"
+
+#: lib/dpul_collections_web/live/search_live.ex:244
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Search Results Page Navigation"
+msgstr "Resultados de la búsqueda por"
+
+#: lib/dpul_collections_web/components/browse_item.ex:31
+#, elixir-autogen, elixir-format
+msgid "more items"
+msgstr "más artículos"

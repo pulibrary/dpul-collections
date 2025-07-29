@@ -53,8 +53,8 @@ msgstr ""
 #: lib/dpul_collections/item.ex:55
 #: lib/dpul_collections/item.ex:73
 #: lib/dpul_collections/solr.ex:3
-#: lib/dpul_collections_web/components/header_component.ex:36
-#: lib/dpul_collections_web/components/header_component.ex:43
+#: lib/dpul_collections_web/components/header_component.ex:39
+#: lib/dpul_collections_web/components/header_component.ex:46
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:5
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -62,12 +62,12 @@ msgstr ""
 msgid "Language"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:281
+#: lib/dpul_collections_web/live/search_live.ex:284
 #, elixir-autogen, elixir-format
 msgid "Next"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:251
+#: lib/dpul_collections_web/live/search_live.ex:254
 #, elixir-autogen, elixir-format
 msgid "Previous"
 msgstr ""
@@ -148,9 +148,9 @@ msgid "Browse"
 msgstr ""
 
 #: lib/dpul_collections_web/components/header_component.ex:27
-#: lib/dpul_collections_web/live/item_live.ex:754
 #: lib/dpul_collections_web/live/item_live.ex:755
 #: lib/dpul_collections_web/live/item_live.ex:756
+#: lib/dpul_collections_web/live/item_live.ex:757
 #, elixir-autogen, elixir-format
 msgid "Digital Collections"
 msgstr ""
@@ -175,7 +175,7 @@ msgstr ""
 msgid "Our collections are constantly growing. Discover something new!"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:524
+#: lib/dpul_collections_web/live/item_live.ex:525
 #, elixir-autogen, elixir-format
 msgid "View"
 msgstr ""
@@ -262,7 +262,7 @@ msgstr ""
 msgid "Subject"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:638
+#: lib/dpul_collections_web/live/item_live.ex:639
 #, elixir-autogen, elixir-format
 msgid "View all metadata for this item"
 msgstr ""
@@ -277,13 +277,13 @@ msgstr ""
 msgid "posters"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:569
+#: lib/dpul_collections_web/live/item_live.ex:570
 #, elixir-autogen, elixir-format
 msgid "No PDF Available"
 msgstr ""
 
 #: lib/dpul_collections_web/live/item_live.ex:302
-#: lib/dpul_collections_web/live/item_live.ex:755
+#: lib/dpul_collections_web/live/item_live.ex:756
 #, elixir-autogen, elixir-format
 msgid "Viewer"
 msgstr ""
@@ -395,7 +395,7 @@ msgid "Keywords"
 msgstr ""
 
 #: lib/dpul_collections_web/live/item_live.ex:231
-#: lib/dpul_collections_web/live/item_live.ex:754
+#: lib/dpul_collections_web/live/item_live.ex:755
 #, elixir-autogen, elixir-format
 msgid "Metadata"
 msgstr ""
@@ -497,7 +497,7 @@ msgstr ""
 msgid "Size"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:561
+#: lib/dpul_collections_web/live/item_live.ex:562
 #, elixir-autogen, elixir-format
 msgid "Download PDF"
 msgstr ""
@@ -561,24 +561,14 @@ msgstr ""
 msgid "Browse Similar Items"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:728
+#: lib/dpul_collections_web/live/item_live.ex:729
 #, elixir-autogen, elixir-format
 msgid "Copied"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:727
+#: lib/dpul_collections_web/live/item_live.ex:728
 #, elixir-autogen, elixir-format
 msgid "Copy"
-msgstr ""
-
-#: lib/dpul_collections_web/components/header_component.ex:58
-#, elixir-autogen, elixir-format
-msgid "English"
-msgstr ""
-
-#: lib/dpul_collections_web/components/header_component.ex:65
-#, elixir-autogen, elixir-format
-msgid "Español"
 msgstr ""
 
 #: lib/dpul_collections_web/live/item_live.ex:510
@@ -605,4 +595,24 @@ msgstr ""
 #: lib/dpul_collections_web/live/item_live.ex:495
 #, elixir-autogen, elixir-format
 msgid "main image display"
+msgstr ""
+
+#: lib/dpul_collections_web/components/header_component.ex:34
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Language menu"
+msgstr ""
+
+#: lib/dpul_collections_web/live/home_live.ex:197
+#, elixir-autogen, elixir-format
+msgid "Link to item"
+msgstr ""
+
+#: lib/dpul_collections_web/live/search_live.ex:244
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Search Results Page Navigation"
+msgstr ""
+
+#: lib/dpul_collections_web/components/browse_item.ex:31
+#, elixir-autogen, elixir-format
+msgid "more items"
 msgstr ""
