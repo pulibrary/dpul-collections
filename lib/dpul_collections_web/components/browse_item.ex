@@ -68,7 +68,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
             patch={~p"/browse/focus/#{@item.id}"}
             phx-click={JS.dispatch("dpulc:scrollTop")}
           >
-            Browse Similar Items
+            {gettext("Browse Similar Items")}
           </.link>
         </div>
       </div>

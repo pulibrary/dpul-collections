@@ -492,7 +492,7 @@ defmodule DpulCollectionsWeb.ItemLive do
           <.link patch={"#{@item.viewer_url}/#{primary_thumbnail_idx(@item)}"} replace>
             <img
               src={"#{@item.primary_thumbnail_service_url}/full/!#{@item.primary_thumbnail_width},#{@item.primary_thumbnail_height}/0/default.jpg"}
-              alt="main image display"
+              alt={gettext("main image display")}
               style="
               background-color: lightgray;"
               width={@item.primary_thumbnail_width}
@@ -507,7 +507,7 @@ defmodule DpulCollectionsWeb.ItemLive do
           >
             <div class="flex justify-center items-center z-1 w-full h-full backdrop-blur-xs bg-white/70 text-accent text-sm p-4">
               <div>
-                Letter Paper 8.5" x 11" <.icon class="w-5 h-5" name="pepicons-pencil:ruler" />
+                {gettext("Letter Paper")} 8.5" x 11" (21.59 x 27.94 cm) <.icon class="w-5 h-5" name="pepicons-pencil:ruler" />
               </div>
             </div>
           </div>
@@ -724,8 +724,8 @@ defmodule DpulCollectionsWeb.ItemLive do
         phx-click={JS.dispatch("dpulc:clipcopy", to: "##{@id}") |> JS.add_class("bg-accent")}
         class="group btn-primary px-4 py-3 text-sm font-medium h-full"
       >
-        <span class="group-[.bg-accent]:hidden">Copy</span>
-        <span class="not-group-[.bg-accent]:hidden">Copied</span>
+        <span class="group-[.bg-accent]:hidden">{gettext("Copy")}</span>
+        <span class="not-group-[.bg-accent]:hidden">{gettext("Copied")}</span>
       </button>
     </div>
     """
@@ -751,9 +751,9 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   defp page_title(item, socket) do
     case socket.assigns.live_action do
-      :metadata -> "Metadata - #{item.title} - Digital Collections"
-      :viewer -> "Viewer - #{item.title} - Digital Collections"
-      _ -> "#{item.title} - Digital Collections"
+      :metadata -> "#{gettext("Metadata")} - #{item.title} - #{gettext("Digital Collections")}"
+      :viewer -> "#{gettext("Viewer")} - #{item.title} - #{gettext("Digital Collections")}"
+      _ -> "#{item.title} - #{gettext("Digital Collections")}"
     end
   end
 end

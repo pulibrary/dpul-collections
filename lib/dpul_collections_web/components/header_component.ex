@@ -11,10 +11,10 @@ defmodule DpulCollectionsWeb.HeaderComponent do
     <!-- logo -->
       <.link href="https://library.princeton.edu">
         <div class="logo flex-none w-9 sm:hidden">
-          <img src={~p"/images/local-svgs.svg"} alt="Princeton University Library Logo" />
+          <img src={~p"/images/local-svgs.svg"} alt={gettext("Princeton University Library Logo")} />
         </div>
         <div class="logo flex-none sm:w-32 md:w-40 hidden sm:flex">
-          <img src={~p"/images/pul-logo.svg"} alt="Princeton University Library Logo" />
+          <img src={~p"/images/pul-logo.svg"} alt={gettext("Princeton University Library Logo")} />
         </div>
       </.link>
       
@@ -55,14 +55,14 @@ defmodule DpulCollectionsWeb.HeaderComponent do
               tabindex="-1"
               class="p-2 hover:bg-stone-200 focus:bg-stone-200 cursor-pointer"
             >
-              <div phx-click={JS.dispatch("setLocale", detail: %{locale: "en"})}>English</div>
+              <div phx-click={JS.dispatch("setLocale", detail: %{locale: "en"})}>{gettext("English")}</div>
             </li>
             <li
               role="menuitem"
               tabindex="-1"
               class="p-2 hover:bg-stone-200 focus:bg-stone-200 cursor-pointer"
             >
-              <div phx-click={JS.dispatch("setLocale", detail: %{locale: "es"})}>Español</div>
+              <div phx-click={JS.dispatch("setLocale", detail: %{locale: "es"})}>{gettext("Español")}</div>
             </li>
           </ul>
         </div>

@@ -9,6 +9,7 @@ defmodule DpulCollectionsWeb.Layouts do
   `use DpulCollectionsWeb, :live_view`.
   """
   use DpulCollectionsWeb, :html
+  use Gettext, backend: DpulCollectionsWeb.Gettext
 
   embed_templates "layouts/*"
 end
