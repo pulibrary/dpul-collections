@@ -10,14 +10,13 @@ defmodule DpulCollectionsWeb.HeaderComponent do
       
     <!-- logo -->
       <.link href="https://library.princeton.edu">
+        <div class="logo flex-none w-9 sm:hidden">
+          <img src={~p"/images/local-svgs.svg"} alt="Princeton University Library Logo" />
+        </div>
         <div class="logo flex-none sm:w-32 md:w-40 hidden sm:flex">
           <img src={~p"/images/pul-logo.svg"} alt="Princeton University Library Logo" />
         </div>
       </.link>
-
-      <div class="logo flex-none w-9 sm:hidden">
-        <img src={~p"/images/local-svgs.svg"} alt="Princeton University Library Logo" />
-      </div>
       
     <!-- title -->
       <div class="app_name flex-1 w-auto text-center">
