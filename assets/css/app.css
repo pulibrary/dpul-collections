@@ -176,7 +176,7 @@
 }
 
 @utility home-content-area {
-  @apply content-area max-w-[80%];
+  @apply content-area max-w-screen sm:max-w-[80%];
 }
 
 @utility header-x-padding {
