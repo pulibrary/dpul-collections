@@ -389,7 +389,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     # Check that the previous and next links are displayed and work as expected
     {:ok, view, _html} = live(conn, ~p"/search?page=5")
-    assert(view |> element(".paginator > a.active", ~r(5)) |> has_element?())
+    assert(view |> element(".paginator > span.active", ~r(5)) |> has_element?())
 
     {:ok, document} =
       view

@@ -324,7 +324,7 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def page_link_or_span(assigns = %{current_page: true}) do
     ~H"""
-    <span class={[@class, "active bg-accent"]}>
+    <span class={[@class, "active bg-accent font-semibold"]}>
       {@text}
     </span>
     """
