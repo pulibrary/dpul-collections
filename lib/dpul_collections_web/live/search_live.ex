@@ -211,7 +211,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     ~H"""
     <h1 class="flex flex-wrap">
       <div>
-      {gettext("Search Results for")}:&nbsp;
+        {gettext("Search Results for")}:&nbsp;
       </div>
       <div dir="auto" class="normal-case flex-grow">
         <%= if @keywords do %>
