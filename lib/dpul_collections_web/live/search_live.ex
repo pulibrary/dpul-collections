@@ -1,25 +1,5 @@
-defmodule DpulCollectionsWeb.SearchComponents do
-  use Phoenix.Component
-  alias DpulCollections.Solr
-
-  attr :text, :string, doc: "the page number, or ellipsis"
-  attr :rest, :global, doc: "the arbitrary HTML attributes to add to the flash container"
-
-  def page_link_or_span(assigns) do
-    ~H"""
-    <a :if={@text != "..."} {@rest} href="#" phx-click="paginate" phx-value-page={@text}>
-      {@text}
-    </a>
-    <span :if={@text == "..."} {@rest}>
-      {@text}
-    </span>
-    """
-  end
-end
-
 defmodule DpulCollectionsWeb.SearchLive do
   use DpulCollectionsWeb, :live_view
-  import DpulCollectionsWeb.SearchComponents
   use Gettext, backend: DpulCollectionsWeb.Gettext
   alias DpulCollections.{Item, Solr}
   use Solr.Constants
@@ -286,22 +266,8 @@ defmodule DpulCollectionsWeb.SearchLive do
       <.page_link_or_span
         :for={{text, current_page?} <- pages(@page, @per_page, @total_items)}
         text={text}
-        class={"
-          flex
-          items-center
-          justify-center
-          px-3
-          h-8
-          leading-tight
-          #{if current_page?, do: "active", else: "
-              border-dark-blue
-              text-dark-text
-              bg-white border
-              hover:bg-gray-100
-              hover:text-gray-700
-              no-underline
-            "}
-        "}
+        current_page={current_page?}
+        class="flex items-center justify-center px-3 h-8 leading-tight border border-dark-blue"
       />
       <.link
         :if={more_pages?(@page, @per_page, @total_items)}
@@ -328,6 +294,39 @@ defmodule DpulCollectionsWeb.SearchLive do
         </svg>
       </.link>
     </nav>
+    """
+  end
+
+  attr :text, :string, doc: "the page number, or ellipsis"
+  attr :current_page, :boolean, default: false, doc: "whether this is the current page"
+  attr :class, :string
+
+  def page_link_or_span(assigns = %{current_page: false, text: "..."}) do
+    ~H"""
+    <span class={[@class, "text-dark-text bg-white"]}>
+      {@text}
+    </span>
+    """
+  end
+
+  def page_link_or_span(assigns = %{current_page: false}) do
+    ~H"""
+    <a
+      class={[@class, "no-underline hover:bg-gray-100 hover:text-gray-700 text-dark-text bg-white"]}
+      href="#"
+      phx-click="paginate"
+      phx-value-page={@text}
+    >
+      {@text}
+    </a>
+    """
+  end
+
+  def page_link_or_span(assigns = %{current_page: true}) do
+    ~H"""
+    <span class={[@class, "active bg-accent font-semibold"]}>
+      {@text}
+    </span>
     """
   end
 
