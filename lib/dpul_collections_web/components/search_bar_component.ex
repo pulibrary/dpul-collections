@@ -34,7 +34,7 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
         </div>
 
         <div
-          class="browse-link flex flex-none justify-end items-center header-e-padding bg-primary ml-auto"
+          class="browse-link min-h-10 flex flex-none justify-end items-center header-e-padding bg-primary ml-auto"
           role="navigation"
         >
           <div class="w-full text-right heading text-xl font-bold">
