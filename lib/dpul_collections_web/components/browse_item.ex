@@ -109,7 +109,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
           </div>
 
           <h2 class="font-normal tracking-tight py-2 flex-grow" dir="auto">
-            {@item.title}
+            {truncate_title(@item.title |> hd)}
           </h2>
           <p class="text-gray-700 text-base">{@item.date}</p>
         </div>
@@ -123,6 +123,14 @@ defmodule DpulCollectionsWeb.BrowseItem do
       </div>
     </div>
     """
+  end
+
+  defp truncate_title(title, length \\ 70) do
+    if String.length(title) > length do
+      (title |> String.slice(0, length) |> String.trim_trailing()) <> "..."
+    else
+      title
+    end
   end
 
   attr :thumb, :string, required: false
