@@ -216,6 +216,53 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     assert first_href == "/i/documentn/item/n"
   end
 
+  describe "item title truncation" do
+    test "truncates when the title is > 70 characters", %{conn: conn} do
+      Solr.add(
+        [
+          %{
+            id: "n",
+            title_txtm:
+              "A pamphlet full of clever and hilarious sea shanties in many different languages",
+            file_count_i: 3
+          },
+          %{
+            id: "x",
+            title_txtm: "A non-truncated title",
+            file_count_i: 3
+          },
+          %{
+            id: "y",
+            title_txtm:
+              "A title with enought words to truncate but happens to have a space as its 70th character",
+            file_count_i: 3
+          }
+        ],
+        active_collection()
+      )
+
+      Solr.commit(active_collection())
+
+      {:ok, view, html} = live(conn, "/browse?r=0")
+
+      assert view
+             |> element(
+               "h2",
+               "A pamphlet full of clever and hilarious sea shanties in many different..."
+             )
+             |> has_element?()
+
+      assert view
+             |> element(
+               "h2",
+               "A title with enought words to truncate but happens to have a space as..."
+             )
+             |> has_element?()
+
+      assert view |> element("h2", "A non-truncated title") |> has_element?()
+    end
+  end
+
   test "page title", %{conn: conn} do
     {:ok, _, html} = live(conn, "/browse?r=0")
 
