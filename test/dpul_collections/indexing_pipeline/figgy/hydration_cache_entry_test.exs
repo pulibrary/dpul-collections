@@ -634,5 +634,30 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
       assert %{genre_txtm: []} = HydrationCacheEntry.to_solr_document(entry)
     end
+
+    test "indexes content warning" do
+      {:ok, entry} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          cache_version: 0,
+          record_id: "d4292e58-25d7-4247-bf92-0a5e24ec75d1",
+          source_cache_order: ~U[2024-01-11 16:41:04.389944Z],
+          data: %{
+            "id" => "d4292e58-25d7-4247-bf92-0a5e24ec75d1",
+            "internal_resource" => "EphemeraFolder",
+            "metadata" => %{
+              "title" => ["Elham Azar"],
+              "date_created" => ["2022"],
+              "content_warning" => [
+                "This item depicts images that may be harmful in this specific way."
+              ]
+            }
+          }
+        })
+
+      assert %{
+               content_warning_s:
+                 "This item depicts images that may be harmful in this specific way."
+             } = HydrationCacheEntry.to_solr_document(entry)
+    end
   end
 end
