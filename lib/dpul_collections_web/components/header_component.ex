@@ -11,10 +11,10 @@ defmodule DpulCollectionsWeb.HeaderComponent do
     <!-- logo -->
       <.link href="https://library.princeton.edu">
         <div class="logo flex-none w-9 sm:hidden">
-          <img src={~p"/images/local-svgs.svg"} alt="Princeton University Library Logo" />
+          <img src={~p"/images/local-svgs.svg"} alt={gettext("Princeton University Library Logo")} />
         </div>
         <div class="logo flex-none sm:w-32 md:w-40 hidden sm:flex">
-          <img src={~p"/images/pul-logo.svg"} alt="Princeton University Library Logo" />
+          <img src={~p"/images/pul-logo.svg"} alt={gettext("Princeton University Library Logo")} />
         </div>
       </.link>
       
@@ -29,7 +29,10 @@ defmodule DpulCollectionsWeb.HeaderComponent do
       </div>
       
     <!-- language -->
-      <nav class="menu flex flex-none justify-end w-10 sm:w-32 md:w-40" aria-label="Language menu">
+      <nav
+        class="menu flex flex-none justify-end w-10 sm:w-32 md:w-40"
+        aria-label={gettext("Language menu")}
+      >
         <div class="dropdown relative inline-block">
           <button
             id="dropdownButton"

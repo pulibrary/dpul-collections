@@ -12,7 +12,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
       |> assign(
         items: [],
         liked_items: [],
-        page_title: "Browse - Digital Collections",
+        page_title: gettext("Browse - Digital Collections"),
         focused_item: nil
       )
 
@@ -135,7 +135,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
               "rounded-md h-[64px] w-[64px] flex flex-col justify-center text-xs p-1 hover:no-underline",
               @focused_item == nil && "rounded-md border-4 border-accent h-[84px] w-[84px]"
             ]}
-            aria-label="View Random Items"
+            aria-label={gettext("View Random Items")}
           >
             <.icon name="ion:dice" class="h-8 w-8" /> {gettext("Random")}
           </.primary_button>

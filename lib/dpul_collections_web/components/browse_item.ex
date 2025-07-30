@@ -28,7 +28,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
           <div :if={@more_link} class="w-12 flex-none content-center">
             <.link
               class="btn-arrow w-full h-14 w-full block"
-              aria-label="more items"
+              aria-label={gettext("more items")}
               navigate={@more_link}
             >
             </.link>
@@ -68,7 +68,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
             patch={~p"/browse/focus/#{@item.id}"}
             phx-click={JS.dispatch("dpulc:scrollTop")}
           >
-            Browse Similar Items
+            {gettext("Browse Similar Items")}
           </.link>
         </div>
       </div>
