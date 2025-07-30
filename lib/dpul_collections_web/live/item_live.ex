@@ -495,7 +495,7 @@ defmodule DpulCollectionsWeb.ItemLive do
               alt="main image display"
               style="
               background-color: lightgray;"
-              width={@item.primary_thumbnail_width}
+              width="100%" 
               height={@item.primary_thumbnail_height}
             />
           </.link>
