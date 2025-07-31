@@ -199,6 +199,10 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
                ".primary-thumbnail a[href='/i/învăţămîntul-trebuie-urmărească-dez/item/1/viewer/2'] img[src='https://example.com/iiif/2/image2/full/!453,600/0/default.jpg']"
              )
 
+      # Large thumbnail has default width
+      assert view
+             |> has_element?(".primary-thumbnail img[width='453']")
+
       # Large thumbnail has calculated height
       assert view
              |> has_element?(".primary-thumbnail img[height='600']")
