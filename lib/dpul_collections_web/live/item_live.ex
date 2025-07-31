@@ -742,6 +742,8 @@ defmodule DpulCollectionsWeb.ItemLive do
           alt={"image #{@thumb_num}"}
           style="
             background-color: lightgray;"
+          width="350"
+          height="465"
         />
       </.link>
     </div>
