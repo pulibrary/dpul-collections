@@ -52,7 +52,8 @@ defmodule DpulCollections.Workers.CacheHeroImages do
     options =
       [
         base_url: base_url,
-        url: url
+        url: url,
+        headers: %{"x-cache-iiif-request" => ["true"]}
       ]
       # Add plug option to facilitate http stubbing in tests
       |> Keyword.merge(Application.get_env(:dpul_collections, :hero_image_req_options, []))
