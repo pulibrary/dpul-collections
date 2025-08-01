@@ -62,7 +62,7 @@ job "dpulc-staging" {
         force_pull = true
       }
       artifact {
-        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/env/staging.tpl"
+        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch_or_sha}/config/deploy/env/staging.tpl"
         destination = "local/env.tpl"
         mode = "file"
       }
@@ -89,7 +89,7 @@ job "dpulc-staging" {
         ERL_DIST_PORT = 6789
       }
       artifact {
-        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/env/staging.tpl"
+        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch_or_sha}/config/deploy/env/staging.tpl"
         destination = "local/env.tpl"
         mode = "file"
       }
@@ -147,7 +147,7 @@ job "dpulc-staging" {
         memory = 8000
       }
       artifact {
-        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/env/staging.tpl"
+        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch_or_sha}/config/deploy/env/staging.tpl"
         destination = "local/env.tpl"
         mode = "file"
       }
