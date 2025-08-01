@@ -127,3 +127,7 @@ config :dpul_collections, DpulCollections.IndexingPipeline, [
 config :dpul_collections, :cache_thumbnails?, false
 
 config :honeybadger, api_key: ""
+
+config :opentelemetry_exporter,
+  otlp_protocol: :grpc,
+  otlp_endpoint: "http://localhost:4317"
