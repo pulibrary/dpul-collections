@@ -15,5 +15,5 @@ GRAFANA_SERVICE_TOKEN = {{ .GRAFANA_SERVICE_TOKEN }}
 METRICS_AUTH_TOKEN = {{ .METRICS_AUTH_TOKEN }}
 {{- end -}}
 {{- with service "signoz-collector-otel-agent~_agent" -}}
-OTLP_ENDPOINT = "{{ .Address }:{{ .Port }}"
+OTLP_ENDPOINT = "{{ .Address }}:{{ .Port }}"
 {{- end -}}
