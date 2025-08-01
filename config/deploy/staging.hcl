@@ -56,7 +56,7 @@ job "dpulc-staging" {
       }
       driver = "podman"
       config {
-        image = "ghcr.io/pulibrary/dpul-collections:${ var.branch_or_sha }"
+        image = "ghcr.io/pulibrary/dpul-collections:sha-${ var.branch_or_sha }"
         command = "bash"
         args    = ["-c", "/app/bin/migrate"]
         force_pull = true
@@ -76,7 +76,7 @@ job "dpulc-staging" {
     task "webserver" {
       driver = "podman"
       config {
-        image = "ghcr.io/pulibrary/dpul-collections:${ var.branch_or_sha }"
+        image = "ghcr.io/pulibrary/dpul-collections:sha-${ var.branch_or_sha }"
         ports = ["http", "epmd", "metrics"]
         force_pull = true
       }
@@ -133,7 +133,7 @@ job "dpulc-staging" {
     task "indexer" {
       driver = "podman"
       config {
-        image = "ghcr.io/pulibrary/dpul-collections:${ var.branch_or_sha }"
+        image = "ghcr.io/pulibrary/dpul-collections:sha-${ var.branch_or_sha }"
         ports = ["http", "epmd", "metrics"]
         force_pull = true
       }
