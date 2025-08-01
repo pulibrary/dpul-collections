@@ -16,5 +16,5 @@ METRICS_AUTH_TOKEN = {{ .METRICS_AUTH_TOKEN }}
 {{- end -}}
 {{ with service "signoz-collector-otel-agent~_agent" }}
 OTLP_ENDPOINT = "http://{{ (index . 0).Address }}:{{ (index . 0).Port }}"
-{{- end -}}
+{{ end }}
 OTEL_RESOURCE_ATTRIBUTES = "service.name=dpul-collections,environment=staging,application=dpul-collections,type=webserver,deployment.environment=staging"
