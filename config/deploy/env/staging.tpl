@@ -14,6 +14,6 @@ HONEYBADGER_API_KEY = {{ .HONEYBADGER_API_KEY }}
 GRAFANA_SERVICE_TOKEN = {{ .GRAFANA_SERVICE_TOKEN }}
 METRICS_AUTH_TOKEN = {{ .METRICS_AUTH_TOKEN }}
 {{- end -}}
-{{ range service "signoz-collector-otel-agent~_agent" }}
-OTLP_ENDPOINT = "{{ .Address }}:{{ .Port }}"
+{{ with service "signoz-collector-otel-agent~_agent" }}
+OTLP_ENDPOINT = "{{ (index . 0).Address }}:{{ (index . 0).Port }}"
 {{- end -}}
