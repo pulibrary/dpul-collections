@@ -23,7 +23,9 @@ defmodule DpulCollections.Application do
         # {DpulCollections.Worker, arg},
         # Start to serve requests, typically the last entry
         DpulCollectionsWeb.Endpoint,
-        DpulCollections.IndexMetricsTracker
+        DpulCollections.IndexMetricsTracker,
+        Hermes.Server.Registry,
+        {DpulCollections.MCPServer, transport: :streamable_http}
       ] ++ filter_pipeline_children()
 
     # See https://hexdocs.pm/elixir/Supervisor.html

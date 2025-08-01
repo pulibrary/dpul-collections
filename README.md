@@ -159,3 +159,29 @@ Run Docker Image: `docker run -t -p 4000:4000 -e INDEXER=true -e INDEX_CACHE_COL
 Commit Solr: `curl http://solr:SolrRocks@localhost:8985/solr/dpulc/update?commit=true`
 
 Available at http://localhost:4000
+
+### MCP
+
+This branch includes some tests for MCP. Claude desktop without a subscription doesn't support remote MCP, so we have to proxy to use it locally.
+
+To use this with Claude Desktop, modify your claude_desktop_config.json (probably at `~/Library/Application Support/Claude/claude_desktop_config.json`) to look like this:
+
+```
+{
+  "mcpServers": {
+    "dpulc-local": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "ghcr.io/sparfenyuk/mcp-proxy:v0.8.2",
+        "http://host.docker.internal:4000/mcp",
+        "--transport",
+        "streamablehttp",
+        "--debug"
+      ]
+    }
+  }
+}
+```

@@ -23,6 +23,12 @@ defmodule DpulCollectionsWeb.Router do
     Plug.BasicAuth.basic_auth(conn, username: username, password: password)
   end
 
+  forward "/mcp",
+          Hermes.Server.Transport.StreamableHTTP.Plug,
+          server: DpulCollections.MCPServer,
+          request_timeout: 60_000,
+          timeout: 60_000
+
   scope "/", DpulCollectionsWeb do
     pipe_through :browser
 
