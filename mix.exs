@@ -79,7 +79,7 @@ defmodule DpulCollections.MixProject do
       {:ecto_psql_extras, "~> 0.6"},
       # Sibyl adds a decorator that automatically wraps a method and makes it
       # send telemetry events.
-      {:sibyl, "~> 0.1.0"},
+      {:sibyl, "~> 0.1.0", git: "https://github.com/tpendragon/sibyl.git", branch: "process_propagator_3"},
       # Required to run metrics server
       {:plug_cowboy, "~> 2.0"},
       {:ex_cldr_dates_times, "~> 2.0"},
@@ -90,7 +90,15 @@ defmodule DpulCollections.MixProject do
       {:sham, "~> 1.0", only: :test},
       {:oban, "~> 2.19"},
       {:oban_web, "~> 2.11"},
-      {:a11y_audit, "~> 0.2.3", only: :test}
+      {:a11y_audit, "~> 0.2.3", only: :test},
+      {:opentelemetry, "~> 1.5"},
+      {:opentelemetry_api, "~> 1.4"},
+      {:opentelemetry_exporter, "~> 1.8"},
+      {:opentelemetry_phoenix, "~> 2.0"},
+      {:opentelemetry_cowboy, "~> 1.0"},
+      {:opentelemetry_ecto, "~> 1.2"},
+      {:opentelemetry_bandit, "~> 0.2"},
+      {:opentelemetry_process_propagator, "~> 0.3"}
     ]
   end
 
