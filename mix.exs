@@ -106,7 +106,8 @@ defmodule DpulCollections.MixProject do
       {:opentelemetry_process_propagator, "~> 0.3"},
       {:opentelemetry_oban, "~> 1.1.1"},
       {:opentelemetry_semantic_conventions, "~> 1.27", override: true},
-      {:opentelemetry_broadway, "~> 0.2.0"}
+      {:opentelemetry_broadway, "~> 0.2.0"},
+      {:opentelemetry_req, "~> 1.0.0"}
     ]
   end
 
