@@ -302,7 +302,7 @@ defmodule DpulCollections.Solr do
       base_url: url_hash[:base_url],
       auth: auth(url_hash)
     )
-    |> OpentelemetryReq.attach(opt_in_attrs: [SemConv.URLAttributes.url_template()])
+    |> OpentelemetryReq.attach(opt_in_attrs: [OpenTelemetry.SemConv.URLAttributes.url_full()])
   end
 
   defp auth(%{username: ""}), do: nil
