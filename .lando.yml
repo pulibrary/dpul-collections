@@ -30,3 +30,18 @@ services:
       ports:
         - "8985:8983"
       command: bin/solr -cloud -noprompt -f -p 8983
+  development_otel:
+    type: lando
+    services:
+      image: davetron5000/otel-desktop-viewer:alpine-3
+      ports:
+        - "4317:4317"
+        - "8999:8999"
+      command:
+        - "/root/otel-desktop-viewer"
+        - "--host"
+        - "0.0.0.0"
+        - "--grpc"
+        - "4317"
+        - "--browser"
+        - "8999"

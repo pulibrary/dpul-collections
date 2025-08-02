@@ -56,13 +56,13 @@ job "dpulc-staging" {
       }
       driver = "podman"
       config {
-        image = "ghcr.io/pulibrary/dpul-collections:${ var.branch_or_sha }"
+        image = "ghcr.io/pulibrary/dpul-collections:sha-${ var.branch_or_sha }"
         command = "bash"
         args    = ["-c", "/app/bin/migrate"]
         force_pull = true
       }
       artifact {
-        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/env/staging.tpl"
+        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch_or_sha}/config/deploy/env/staging.tpl"
         destination = "local/env.tpl"
         mode = "file"
       }
@@ -76,7 +76,7 @@ job "dpulc-staging" {
     task "webserver" {
       driver = "podman"
       config {
-        image = "ghcr.io/pulibrary/dpul-collections:${ var.branch_or_sha }"
+        image = "ghcr.io/pulibrary/dpul-collections:sha-${ var.branch_or_sha }"
         ports = ["http", "epmd", "metrics"]
         force_pull = true
       }
@@ -89,7 +89,7 @@ job "dpulc-staging" {
         ERL_DIST_PORT = 6789
       }
       artifact {
-        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/env/staging.tpl"
+        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch_or_sha}/config/deploy/env/staging.tpl"
         destination = "local/env.tpl"
         mode = "file"
       }
@@ -133,7 +133,7 @@ job "dpulc-staging" {
     task "indexer" {
       driver = "podman"
       config {
-        image = "ghcr.io/pulibrary/dpul-collections:${ var.branch_or_sha }"
+        image = "ghcr.io/pulibrary/dpul-collections:sha-${ var.branch_or_sha }"
         ports = ["http", "epmd", "metrics"]
         force_pull = true
       }
@@ -147,7 +147,7 @@ job "dpulc-staging" {
         memory = 8000
       }
       artifact {
-        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/env/staging.tpl"
+        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch_or_sha}/config/deploy/env/staging.tpl"
         destination = "local/env.tpl"
         mode = "file"
       }
