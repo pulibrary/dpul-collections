@@ -281,17 +281,17 @@ defmodule DpulCollections.Solr do
 
   defp select_url(collection) do
     client()
-    |> Req.merge(url: "/solr/#{collection}/select")
+    |> Req.merge(url: "/solr/:collection/select", path_params: [collection: collection])
   end
 
   defp update_url(collection) do
     client()
-    |> Req.merge(url: "/solr/#{collection}/update")
+    |> Req.merge(url: "/solr/:collection/update", path_params: [collection: collection])
   end
 
   defp query_url(collection) do
     client()
-    |> Req.merge(url: "/solr/#{collection}/query")
+    |> Req.merge(url: "/solr/:collection/query", path_params: [collection: collection])
   end
 
   @spec client() :: Req.Request.t()
@@ -302,7 +302,7 @@ defmodule DpulCollections.Solr do
       base_url: url_hash[:base_url],
       auth: auth(url_hash)
     )
-    |> OpentelemetryReq.attach()
+    |> OpentelemetryReq.attach(opt_in_attrs: [SemConv.URLAttributes.url_template()])
   end
 
   defp auth(%{username: ""}), do: nil
