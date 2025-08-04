@@ -124,7 +124,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
                 "rounded-md border-4 border-accent h-[84px] w-[84px]"
             ]}
           >
-            <BrowseItem.thumb thumb={BrowseItem.thumbnail_service_url(item)} />
+            <BrowseItem.thumb thumb={BrowseItem.thumbnail_service_url(item)} item={item} />
           </.link>
         </div>
 

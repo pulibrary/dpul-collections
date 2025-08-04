@@ -50,5 +50,12 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
     |> assert_has("img.obfuscate")
     |> click_button("Show images")
     |> refute_has("img.obfuscate")
+
+    # the item is obfuscated on the browse page
+    conn
+    |> visit("/browse/focus/d4292e58-25d7-4247-bf92-0a5e24ec75d1")
+    |> assert_has("img.obfuscate")
+    |> click_button("Show images")
+    |> refute_has("img.obfuscate")
   end
 end

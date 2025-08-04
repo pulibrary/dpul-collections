@@ -59,17 +59,19 @@ defmodule DpulCollectionsWeb.BrowseItem do
     >
       <!-- similar -->
       <div
-        :if={@likeable?}
+        :if={@likeable? || @item.content_warning}
         class="browse-header mb-2 h-12 w-full bg-white absolute left-2 top-2 flex items-center"
       >
-        <div class="h-full pl-2 w-full flex items-center flex-grow like-header bg-white">
+        <div class="h-full pl-2 w-full flex items-center flex-grow like-header bg-white z-50">
           <.link
+            :if={@likeable?}
             class="flex-grow text-accent font-semibold"
             patch={~p"/browse/focus/#{@item.id}"}
             phx-click={JS.dispatch("dpulc:scrollTop")}
           >
             {gettext("Browse Similar Items")}
           </.link>
+          <.show_images_button :if={@item.content_warning} item_id={@item.id} />
         </div>
       </div>
       <.link
@@ -83,11 +85,11 @@ defmodule DpulCollectionsWeb.BrowseItem do
           <div class="grid grid-rows-[repeat(4, 25%)] gap-2 h-[24rem]">
             <!-- main thumbnail -->
             <div :if={@item.file_count == 1} class="row-span-4">
-              <.thumb thumb={thumbnail_service_url(@item)} target={@target} href={@item.url} />
+              <.thumb thumb={thumbnail_service_url(@item)} href={@item.url} item={@item} />
             </div>
 
             <div :if={@item.file_count > 1} class="row-span-3 overflow-hidden h-[18rem]">
-              <.thumb thumb={thumbnail_service_url(@item)} target={@target} href={@item.url} />
+              <.thumb thumb={thumbnail_service_url(@item)} href={@item.url} item={@item} />
             </div>
             
     <!-- smaller thumbnails -->
@@ -98,7 +100,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
                 thumb={thumb}
                 thumb_num={thumb_num}
                 href={@item.url}
-                target={@target}
+                item={@item}
               />
             </div>
           </div>
@@ -140,15 +142,17 @@ defmodule DpulCollectionsWeb.BrowseItem do
 
   attr :thumb, :string, required: false
   attr :thumb_num, :string, required: false
+  attr :item, :map, required: false
   attr :href, :string, required: false, default: nil
-  attr :navigate, :string, required: false, default: nil
-  attr :patch, :string, required: false, default: nil
-  attr :rest, :global, default: %{}
 
   def thumb(assigns) do
     ~H"""
     <img
-      class="thumbnail bg-slate-400 text-white h-full w-full object-cover"
+      class={[
+        "thumbnail bg-slate-400 text-white h-full w-full object-cover",
+        @item.content_warning && "obfuscate",
+        "thumbnail-#{@item.id}"
+      ]}
       src={thumbnail_url(assigns)}
       alt="thumbnail image"
     />
