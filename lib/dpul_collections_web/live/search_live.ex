@@ -181,6 +181,7 @@ defmodule DpulCollectionsWeb.SearchLive do
             thumb_num={thumb_num}
             link={@item.url}
             class={@item.content_warning && "obfuscate"}
+            item_id={@item.id}
           />
           <div id={"filecount-#{@item.id}"} class="hidden absolute right-0 top-0 bg-white px-4 py-2">
             {@item.file_count} {gettext("Images")}
@@ -238,6 +239,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     <img
       class={[
         "h-[350px] w-[350px] md:h-[225px] md:w-[225px] border border-solid border-gray-400",
+        "thumbnail-#{@item_id}",
         @class
       ]}
       src={"#{@thumb}/square/350,350/0/default.jpg"}
