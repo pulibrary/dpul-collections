@@ -180,6 +180,7 @@ defmodule DpulCollectionsWeb.SearchLive do
             thumb={thumb}
             thumb_num={thumb_num}
             link={@item.url}
+            class={@item.content_warning && "obfuscate"}
           />
           <div id={"filecount-#{@item.id}"} class="hidden absolute right-0 top-0 bg-white px-4 py-2">
             {@item.file_count} {gettext("Images")}
@@ -227,7 +228,10 @@ defmodule DpulCollectionsWeb.SearchLive do
   def thumbs(assigns) do
     ~H"""
     <img
-      class="h-[350px] w-[350px] md:h-[225px] md:w-[225px] border border-solid border-gray-400"
+      class={[
+        "h-[350px] w-[350px] md:h-[225px] md:w-[225px] border border-solid border-gray-400",
+        @class
+      ]}
       src={"#{@thumb}/square/350,350/0/default.jpg"}
       alt={"image #{@thumb_num}"}
       style="

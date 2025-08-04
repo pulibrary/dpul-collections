@@ -120,7 +120,7 @@ defmodule DpulCollections.Item do
       barcode: doc["barcode_txtm"] || [],
       box_number: doc["box_number_txtm"] || [],
       collection: [],
-      content_warning: doc["content_warning_txtm"] || [],
+      content_warning: doc["content_warning_s"],
       contributor: doc["contributor_txtm"] || [],
       creator: doc["creator_txtm"] || [],
       date: doc["display_date_s"],

@@ -17,7 +17,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           alternative_title_txtm: "Alternative Title",
           barcode_txtm: ["barcode"],
           box_number_txtm: ["box 1"],
-          content_warning_txtm: ["content warning"],
+          content_warning_s: "content warning",
           contributor_txtm: ["contributor"],
           creator_txtm: ["creator"],
           description_txtm: ["This is a test description"],

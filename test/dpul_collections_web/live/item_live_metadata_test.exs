@@ -21,7 +21,7 @@ defmodule DpulCollectionsWeb.ItemLiveMetadataTest do
           language_txtm: ["Common", "Elvish"],
           display_date_s: "Durin",
           genre_txtm: ["Paintings"],
-          content_warning_txtm: ["Some people may not want to see this"],
+          content_warning_s: "Some people may not want to see this",
           series_txtm: ["Lord of the Rings"],
           provenance_txtm: ["Donation of Bilbo Baggins"],
           rights_statement_txtm: ["Copyright"],

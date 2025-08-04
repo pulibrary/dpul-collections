@@ -221,6 +221,11 @@
   @apply text-accent font-semibold;
 }
 
+@utility obfuscate {
+  @apply blur-xl;
+  clip-path: inset(0);
+}
+
 @layer base {
   a {
     @apply hover:link-hover cursor-pointer;
