@@ -39,13 +39,16 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
 
     Solr.commit()
 
-    conn
-    |> visit("/search?q=elham+azar")
-    |> assert_has("img.obfuscate")
-
     # an item without a content warning isn't obfuscated
     conn
     |> visit("/search?q=Document")
+    |> refute_has("img.obfuscate")
+
+    # an item with a content warning is obfuscated
+    conn
+    |> visit("/search?q=elham+azar")
+    |> assert_has("img.obfuscate")
+    |> click_button("Show images")
     |> refute_has("img.obfuscate")
   end
 end

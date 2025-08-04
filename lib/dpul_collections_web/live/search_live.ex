@@ -187,6 +187,14 @@ defmodule DpulCollectionsWeb.SearchLive do
           </div>
         </div>
       </.link>
+      <.primary_button
+        :if={@item.content_warning}
+        id={"show-images-#{@item.id}"}
+        phx-click={JS.dispatch("dpulc:showImages")}
+        data-id={@item.id}
+      >
+        {gettext("Show images")}
+      </.primary_button>
       <div data-field="genre" class="pt-4 text-gray-600 font-bold text-sm uppercase">
         <.link navigate={self_route(@search_state, %{filter: %{"genre" => List.first(@item.genre)}})}>
           {@item.genre}

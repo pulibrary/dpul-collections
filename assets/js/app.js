@@ -47,6 +47,16 @@ window.addEventListener("setLocale", e => {
   }
 )
 
+window.addEventListener("dpulc:showImages", e => {
+    let itemId = e.target.getAttribute("data-id")
+    const allImages = e.target.parentElement.querySelectorAll('img')
+
+    allImages.forEach(el => {
+      el.classList.remove("obfuscate")
+    })
+  }
+)
+
 // connect if there are any LiveViews on the page
 liveSocket.connect()
 
