@@ -7,6 +7,13 @@ defmodule DpulCollections.Application do
 
   @impl true
   def start(_type, _args) do
+    OpentelemetryOban.setup(trace: [:jobs])
+    OpentelemetryBroadway.setup()
+    DpulCollections.OpenTelemetryEcto.setup([:dpul_collections, :repo])
+    DpulCollections.OpenTelemetryEcto.setup([:dpul_collections, :figgy_repo])
+    OpentelemetryBandit.setup(opt_in_attrs: [])
+    OpentelemetryPhoenix.setup(adapter: :bandit)
+
     children =
       [
         DpulCollections.PromEx,

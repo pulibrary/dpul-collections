@@ -130,6 +130,10 @@ if config_env() == :prod do
     end
   end
 
+  config :opentelemetry_exporter,
+    otlp_protocol: :grpc,
+    otlp_endpoint: System.get_env("OTLP_ENDPOINT")
+
   # Configure basic auth
   config :dpul_collections, :basic_auth_username, System.get_env("BASIC_AUTH_USERNAME")
   config :dpul_collections, :basic_auth_password, System.get_env("BASIC_AUTH_PASSWORD")
