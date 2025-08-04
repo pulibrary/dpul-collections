@@ -49,7 +49,7 @@ window.addEventListener("setLocale", e => {
 
 window.addEventListener("dpulc:showImages", e => {
     let itemId = e.target.getAttribute("data-id")
-    const allImages = e.target.parentElement.querySelectorAll('img')
+    const allImages = document.querySelectorAll('.thumbnail-' + itemId)
 
     allImages.forEach(el => {
       el.classList.remove("obfuscate")
