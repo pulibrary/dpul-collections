@@ -184,23 +184,14 @@ defmodule DpulCollectionsWeb.SearchLive do
             :if={@item.file_count}
             thumb={thumb}
             thumb_num={thumb_num}
-            link={@item.url}
-            class={@item.content_warning && "obfuscate"}
-            item_id={@item.id}
+            item={@item}
           />
           <div id={"filecount-#{@item.id}"} class="hidden absolute right-0 top-0 bg-white px-4 py-2">
             {@item.file_count} {gettext("Images")}
           </div>
         </div>
       </.link>
-      <.primary_button
-        :if={@item.content_warning}
-        id={"show-images-#{@item.id}"}
-        phx-click={JS.dispatch("dpulc:showImages")}
-        data-id={@item.id}
-      >
-        {gettext("Show images")}
-      </.primary_button>
+      <.show_images_button :if={@item.content_warning} item_id={@item.id} />
       <div data-field="genre" class="pt-4 text-gray-600 font-bold text-sm uppercase">
         <.link
           aria-label={"#{gettext("filter by")} #{@item.genre}"}
@@ -247,8 +238,8 @@ defmodule DpulCollectionsWeb.SearchLive do
     <img
       class={[
         "h-[350px] w-[350px] md:h-[225px] md:w-[225px] border border-solid border-gray-400",
-        "thumbnail-#{@item_id}",
-        @class
+        @item.content_warning && "obfuscate",
+        "thumbnail-#{@item.id}"
       ]}
       src={"#{@thumb}/square/350,350/0/default.jpg"}
       alt={"image #{@thumb_num}"}
