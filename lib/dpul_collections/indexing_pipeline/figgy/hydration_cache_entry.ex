@@ -92,8 +92,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
     field_value |> Enum.reject(fn v -> v == "" end)
   end
 
-  defp remove_empty_strings(_), do: nil
-
   defp digitized_date(%{"created_at" => created_at}) when is_binary(created_at) do
     created_at
   end
