@@ -29,7 +29,21 @@ job "dpulc-staging" {
     service {
       port = "http"
       name = "dpulc-staging-web"
-      tags = ["frontend", "logging"]
+      tags = [
+        "frontend",
+        "logging",
+        # Enable traefik for bot protection.
+        "traefik.enable=true",
+        # Router 1: digital-collections-staging-skip-all-mw
+        # Skips middleware if it's an ajax request.
+        "traefik.http.routers.digital-collections-staging-skip-all-mw.rule=Header(`X-Forwarded-Host`, `dpul-collections-staging.lib.princeton.edu`) && Header(`Sec-Fetch-Dest`, `empty`)",
+        "traefik.http.routers.digital-collections-staging-skip-all-mw.priority=11",
+        # Router 2: digital-collections-staging-apply-mw
+        # Applies captcha-protect middleware if it's not ajax.
+        "traefik.http.routers.digital-collections-staging-apply-mw.rule=Header(`X-Forwarded-Host`, `dpul-collections-staging.lib.princeton.edu`)",
+        "traefik.http.routers.digital-collections-staging-apply-mw.middlewares=captcha-protect@file",
+        "traefik.http.routers.digital-collections-staging-apply-mw.priority=10"
+      ]
       check {
         type = "http"
         port = "http"
