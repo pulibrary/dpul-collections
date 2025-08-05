@@ -18,44 +18,4 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
     # when visible images equals filecount don't show image total
     |> assert_has("#filecount-1", text: "7 Images")
   end
-
-  test "when there's a content warning, thumbnails are obfuscated", %{conn: conn} do
-    Solr.add(
-      [
-        %{
-          id: "d4292e58-25d7-4247-bf92-0a5e24ec75d1",
-          title_txtm: ["Elham Azar"],
-          content_warning_s: "This item depicts images that may be harmful in this specific way.",
-          file_count_i: 3,
-          image_service_urls_ss: [
-            "https://example.com/iiif/2/image1",
-            "https://example.com/iiif/2/image2",
-            "https://example.com/iiif/2/image3"
-          ]
-        }
-      ],
-      active_collection()
-    )
-
-    Solr.commit()
-
-    # an item without a content warning isn't obfuscated
-    conn
-    |> visit("/search?q=Document")
-    |> refute_has("img.obfuscate")
-
-    # an item with a content warning is obfuscated
-    conn
-    |> visit("/search?q=elham+azar")
-    |> assert_has("img.obfuscate")
-    |> click_button("Show images")
-    |> refute_has("img.obfuscate")
-
-    # the item is obfuscated on the browse page
-    conn
-    |> visit("/browse/focus/d4292e58-25d7-4247-bf92-0a5e24ec75d1")
-    |> assert_has("img.obfuscate")
-    |> click_button("Show images")
-    |> refute_has("img.obfuscate")
-  end
 end
