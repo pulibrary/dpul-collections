@@ -34,7 +34,7 @@ defmodule DpulCollections.Workers.CacheHeroImages do
 
   def cache_iiif_image(image) do
     # Generate iiif image server base url from hero image tuple
-    {_, iiif_url} = image
+    {_, iiif_url, _} = image
 
     base_url =
       iiif_url
