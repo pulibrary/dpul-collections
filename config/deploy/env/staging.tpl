@@ -1,4 +1,5 @@
 {{- with nomadVar "nomad/jobs/dpulc-staging" -}}
+APP_ENV = "staging"
 DATABASE_URL = ecto://{{ .DB_USER }}:{{ .DB_PASSWORD }}@{{ .POSTGRES_HOST }}/{{ .DB_NAME }}
 FIGGY_DATABASE_URL = {{ .FIGGY_DATABASE_URL }}
 SOLR_BASE_URL = {{ .SOLR_BASE_URL }}
