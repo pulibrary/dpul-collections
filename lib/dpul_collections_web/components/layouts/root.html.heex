@@ -12,12 +12,14 @@
     </script>
   </head>
   <body class="bg-white antialiased">
-    <a
-      class="transition left-0 bg-primary bg-gray-200 text-primary-content absolute p-3 m-3 -translate-y-16 focus:translate-y-0"
-      href="#main-content"
-    >
-      {gettext("Skip To Content")}
-    </a>
+    <nav id="skip-link" role="navigation" aria-label="Skip links">
+      <a
+        class="transition left-0 bg-primary bg-gray-200 text-primary-content absolute p-3 m-3 -translate-y-16 focus:translate-y-0"
+        href="#main-content"
+      >
+        {gettext("Skip To Content")}
+      </a>
+    </nav>
     <div class="flex flex-col min-h-screen" id="app">
       {DpulCollectionsWeb.HeaderComponent.header(assigns)}
       <!-- "relative" here lets us have absolute layout elements that cover all parts of the page except the header. -->
