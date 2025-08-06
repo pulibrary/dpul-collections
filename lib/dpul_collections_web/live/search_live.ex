@@ -72,20 +72,24 @@ defmodule DpulCollectionsWeb.SearchLive do
             <label class="col-span-1 self-center font-bold uppercase" for="date-filter">
               {gettext("filter by year")}:
             </label>
+            <label class="sr-only" for="filter[year][from]">{gettext("From")}</label>
             <input
               class="col-span-1"
               type="text"
               placeholder={gettext("From")}
               form="date-filter"
               name="filter[year][from]"
+              id="filter[year][from]"
               value={@search_state.filter["year"]["from"]}
             />
+            <label class="sr-only" for="filter[year][to]">{gettext("To")}</label>
             <input
               class="col-span-1"
               type="text"
               placeholder={gettext("To")}
               form="date-filter"
               name="filter[year][to]"
+              id="filter[year][to]"
               value={@search_state.filter["year"]["to"]}
             />
             <button class="col-span-1 md:col-span-1 btn-primary" type="submit">
@@ -96,7 +100,7 @@ defmodule DpulCollectionsWeb.SearchLive do
             <label class="col-span-1 self-center font-bold uppercase md:text-right" for="sort-by">
               {gettext("sort by")}:
             </label>
-            <select class="col-span-1" name="sort-by" aria-label={gettext("sort by")}>
+            <select id="sort-by" class="col-span-1" name="sort-by" aria-label={gettext("sort by")}>
               {Phoenix.HTML.Form.options_for_select(
                 sort_by_params(),
                 @search_state.sort_by
