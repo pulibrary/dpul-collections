@@ -100,10 +100,11 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
        cache_version: cache_version,
        batch_size: 50,
        write_collection: active_collection(),
-       ecto_pid: self()},
+       extra_metadata: %{ecto_pid: self()}},
       {Figgy.TransformationConsumer,
-       cache_version: cache_version, batch_size: 50, ecto_pid: self()},
-      {Figgy.HydrationConsumer, cache_version: cache_version, batch_size: 50, ecto_pid: self()}
+       cache_version: cache_version, batch_size: 50, extra_metadata: %{ecto_pid: self()}},
+      {Figgy.HydrationConsumer,
+       cache_version: cache_version, batch_size: 50, extra_metadata: %{ecto_pid: self()}}
     ]
 
     test_pid = self()
