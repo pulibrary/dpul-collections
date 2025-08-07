@@ -22,7 +22,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     default = [
       cache_version: cache_version,
       producer_module: DatabaseProducer,
-      producer_options: {Figgy.HydrationProducerSource, cache_version},
+      producer_options: {Figgy.HydrationProducerSource, cache_version, options[:ecto_pid]},
       batch_size: 10
     ]
 

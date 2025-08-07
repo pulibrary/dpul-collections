@@ -76,8 +76,7 @@ defmodule FiggyTestSupport do
     solr_doc
   end
 
-  def index_record_id(id) do
-    cache_version = 1
+  def index_record_id(id, cache_version \\ 1) do
     # Get record with a description.
     record = IndexingPipeline.get_figgy_resource!(id)
     # Write a current hydration marker right before that marker.
@@ -100,11 +99,16 @@ defmodule FiggyTestSupport do
       Figgy.IndexingConsumer.start_link(
         cache_version: cache_version,
         batch_size: 50,
-        write_collection: SolrTestSupport.active_collection()
+        write_collection: SolrTestSupport.active_collection() |> dbg,
+        ecto_pid: self()
       )
 
     {:ok, transformer} =
-      Figgy.TransformationConsumer.start_link(cache_version: cache_version, batch_size: 50)
+      Figgy.TransformationConsumer.start_link(
+        cache_version: cache_version,
+        batch_size: 50,
+        ecto_pid: self()
+      )
 
     # Control hydration indexing.
     {:ok, hydrator} =
@@ -112,7 +116,8 @@ defmodule FiggyTestSupport do
         cache_version: cache_version,
         batch_size: 50,
         producer_module: MockFiggyHydrationProducer,
-        producer_options: {self(), 1}
+        producer_options: {self(), cache_version, self()},
+        ecto_pid: self()
       )
 
     # Index one.

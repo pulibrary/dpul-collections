@@ -117,7 +117,7 @@ defmodule DpulCollections.IndexMetricsTracker do
 
   # If there's a start, trigger for end time, and the unacked_count is 0, create the IndexMetric.
   defp handle_ack_received(
-         %{
+         metadata = %{
            processor_marker_key: processor_marker_key,
            acked_count: new_acked_count,
            unacked_count: 0,
@@ -141,7 +141,7 @@ defmodule DpulCollections.IndexMetricsTracker do
     :telemetry.execute(
       [:dpulc, :indexing_pipeline, event(processor_marker_key), :time_to_poll],
       %{duration: duration},
-      %{source: processor_marker_key, cache_version: cache_version}
+      %{source: processor_marker_key, cache_version: cache_version, ecto_pid: metadata[:ecto_pid]}
     )
 
     Metrics.create_index_metric(%{

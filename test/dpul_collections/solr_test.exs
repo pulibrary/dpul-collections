@@ -8,11 +8,23 @@ defmodule DpulCollections.SolrTest do
   setup_all do
     collection_name = "dpulc-#{Ecto.UUID.generate()}"
     Solr.create_collection(collection_name)
-    Process.put(:dpul_collections_solr, DpulCollections.Solr.solr_config() |> Map.merge(%{read_collection: "alias-#{collection_name}"}))
+
+    Process.put(
+      :dpul_collections_solr,
+      DpulCollections.Solr.solr_config()
+      |> Map.merge(%{read_collection: "alias-#{collection_name}"})
+    )
+
     Solr.set_alias(collection_name)
-    on_exit(fn -> Solr.delete_collection(collection_name) end)
+
+    on_exit(fn ->
+      Solr.delete_alias("alias-#{collection_name}")
+      Solr.delete_collection(collection_name)
+    end)
+
     [collection: collection_name]
   end
+
   setup do
     Solr.delete_all()
     on_exit(fn -> Solr.delete_all() end)

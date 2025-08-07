@@ -1,11 +1,31 @@
 defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
   alias DpulCollections.IndexingPipeline.Figgy.HydrationProducerSource
-  use DpulCollections.DataCase
+  use DpulCollections.DataCase, async: true
 
   alias DpulCollections.Repo
   alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.{IndexingPipeline, Solr, IndexMetricsTracker}
   import SolrTestSupport
+
+  setup_all do
+    collection_name = "dpulc-#{Ecto.UUID.generate()}"
+    Solr.create_collection(collection_name)
+
+    Process.put(
+      :dpul_collections_solr,
+      DpulCollections.Solr.solr_config()
+      |> Map.merge(%{read_collection: "alias-#{collection_name}"})
+    )
+
+    Solr.set_alias(collection_name)
+
+    on_exit(fn ->
+      Solr.delete_alias("alias-#{collection_name}")
+      Solr.delete_collection(collection_name)
+    end)
+
+    [collection: collection_name]
+  end
 
   setup do
     Solr.delete_all(active_collection())
@@ -65,7 +85,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
   test "a full pipeline run of all 3 stages, then re-run of each stage" do
     # Start the figgy pipeline in a way that mimics how it is started in
     # dev and prod (slightly simplified)
-    cache_version = 1
+    cache_version = 3
 
     # Pre-index records for testing deletes. DeletionMarkers in the test Figgy
     # database do not have related resources. We need to add the resources so we
@@ -73,13 +93,17 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     records_to_be_deleted =
       FiggyTestSupport.deletion_markers()
       |> FiggyTestFixtures.resources_from_deletion_markers()
-      |> Enum.map(&FiggyTestSupport.index_record/1)
+      |> Enum.map(&FiggyTestSupport.index_record(&1, cache_version))
 
     children = [
       {Figgy.IndexingConsumer,
-       cache_version: cache_version, batch_size: 50, write_collection: active_collection()},
-      {Figgy.TransformationConsumer, cache_version: cache_version, batch_size: 50},
-      {Figgy.HydrationConsumer, cache_version: cache_version, batch_size: 50}
+       cache_version: cache_version,
+       batch_size: 50,
+       write_collection: active_collection(),
+       ecto_pid: self()},
+      {Figgy.TransformationConsumer,
+       cache_version: cache_version, batch_size: 50, ecto_pid: self()},
+      {Figgy.HydrationConsumer, cache_version: cache_version, batch_size: 50, ecto_pid: self()}
     ]
 
     test_pid = self()
@@ -129,15 +153,18 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     end)
 
     # Ensure that the processor markers have the correct cache version
-    hydration_processor_marker = IndexingPipeline.get_processor_marker!("figgy_hydrator", 1)
+    hydration_processor_marker =
+      IndexingPipeline.get_processor_marker!("figgy_hydrator", cache_version)
 
     transformation_processor_marker =
-      IndexingPipeline.get_processor_marker!("figgy_transformer", 1)
+      IndexingPipeline.get_processor_marker!("figgy_transformer", cache_version)
 
-    indexing_processor_marker = IndexingPipeline.get_processor_marker!("figgy_indexer", 1)
-    assert hydration_processor_marker.cache_version == 1
-    assert transformation_processor_marker.cache_version == 1
-    assert indexing_processor_marker.cache_version == 1
+    indexing_processor_marker =
+      IndexingPipeline.get_processor_marker!("figgy_indexer", cache_version)
+
+    assert hydration_processor_marker.cache_version == cache_version
+    assert transformation_processor_marker.cache_version == cache_version
+    assert indexing_processor_marker.cache_version == cache_version
 
     # Reindex Test
     latest_document = Solr.latest_document()
@@ -216,7 +243,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
   describe "an Ephemera Folder with a parent EphemeraBox" do
     test "indexes expected fields" do
       {hydrator, transformer, indexer, document} =
-        FiggyTestSupport.index_record_id("26713a31-d615-49fd-adfc-93770b4f66b3")
+        FiggyTestSupport.index_record_id("26713a31-d615-49fd-adfc-93770b4f66b3", 4)
 
       hydrator |> Broadway.stop(:normal)
       transformer |> Broadway.stop(:normal)
@@ -291,7 +318,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
   describe "an Ephemera Folder with a parent EphemeraProject" do
     test "indexes expected fields" do
       {hydrator, transformer, indexer, document} =
-        FiggyTestSupport.index_record_id("bfe04832-e57b-4ad9-939c-6ca5b466fa68")
+        FiggyTestSupport.index_record_id("bfe04832-e57b-4ad9-939c-6ca5b466fa68", 4)
 
       hydrator |> Broadway.stop(:normal)
       transformer |> Broadway.stop(:normal)
@@ -308,7 +335,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
   describe "Ephemera Folder with a pdf type" do
     test "indexes expected fields" do
       {hydrator, transformer, indexer, document} =
-        FiggyTestSupport.index_record_id("3da68e1c-06af-4d17-8603-fc73152e1ef7")
+        FiggyTestSupport.index_record_id("3da68e1c-06af-4d17-8603-fc73152e1ef7", 4)
 
       hydrator |> Broadway.stop(:normal)
       transformer |> Broadway.stop(:normal)
