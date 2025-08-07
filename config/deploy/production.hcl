@@ -31,7 +31,7 @@ job "dpulc-production" {
       name = "dpulc-production-web"
       tags = [
         "frontend",
-        "logging"
+        "logging",
         # Enable traefik for bot protection.
         "traefik.enable=true",
         # Router 1: digital-collections-production-skip-all-mw
