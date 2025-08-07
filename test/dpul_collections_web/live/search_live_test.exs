@@ -515,10 +515,10 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
           %{
             id: "iran",
             title_txtm: "Women's Movement Art",
-            genre_txtm: "Ephemera",
+            genre_txt_sort: "Ephemera",
             display_date_s: "2024",
             years_is: [2024],
-            geographic_origin_txtm: "Iran"
+            geographic_origin_txt_sort: "Iran"
           }
         ],
         active_collection()

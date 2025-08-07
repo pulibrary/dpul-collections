@@ -31,7 +31,7 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
             "https://iiif.io/api/cookbook/recipe/0001-mvm-image/canvas/p1",
             "https://iiif.io/api/cookbook/recipe/0001-mvm-image/canvas/p2"
           ],
-          genre_txtm: "Ephemera",
+          genre_txt_sort: "Ephemera",
           primary_thumbnail_service_url_s: "https://example.com/iiif/2/image2"
         }
       ],
