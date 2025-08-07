@@ -45,7 +45,7 @@ msgstr ""
 msgid "close"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:92
+#: lib/dpul_collections_web/live/search_live.ex:96
 #, elixir-autogen, elixir-format
 msgid "Apply"
 msgstr ""
@@ -62,28 +62,30 @@ msgstr ""
 msgid "Language"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:284
+#: lib/dpul_collections_web/live/search_live.ex:292
 #, elixir-autogen, elixir-format
 msgid "Next"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:254
+#: lib/dpul_collections_web/live/search_live.ex:262
 #, elixir-autogen, elixir-format
 msgid "Previous"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:97
-#: lib/dpul_collections_web/live/search_live.ex:99
+#: lib/dpul_collections_web/live/search_live.ex:101
+#: lib/dpul_collections_web/live/search_live.ex:103
 #, elixir-autogen, elixir-format
 msgid "sort by"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:78
+#: lib/dpul_collections_web/live/search_live.ex:75
+#: lib/dpul_collections_web/live/search_live.ex:79
 #, elixir-autogen, elixir-format
 msgid "From"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:86
+#: lib/dpul_collections_web/live/search_live.ex:85
+#: lib/dpul_collections_web/live/search_live.ex:89
 #, elixir-autogen, elixir-format
 msgid "To"
 msgstr ""
@@ -148,9 +150,9 @@ msgid "Browse"
 msgstr ""
 
 #: lib/dpul_collections_web/components/header_component.ex:27
-#: lib/dpul_collections_web/live/item_live.ex:755
-#: lib/dpul_collections_web/live/item_live.ex:756
 #: lib/dpul_collections_web/live/item_live.ex:757
+#: lib/dpul_collections_web/live/item_live.ex:758
+#: lib/dpul_collections_web/live/item_live.ex:759
 #, elixir-autogen, elixir-format
 msgid "Digital Collections"
 msgstr ""
@@ -160,17 +162,17 @@ msgstr ""
 msgid "The Trustees of Princeton University"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:214
+#: lib/dpul_collections_web/live/search_live.ex:222
 #, elixir-autogen, elixir-format
 msgid "Search Results for"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:203
+#: lib/dpul_collections_web/live/search_live.ex:211
 #, elixir-autogen, elixir-format
 msgid "Added"
 msgstr ""
 
-#: lib/dpul_collections_web/live/home_live.ex:223
+#: lib/dpul_collections_web/live/home_live.ex:468
 #, elixir-autogen, elixir-format
 msgid "Our collections are constantly growing. Discover something new!"
 msgstr ""
@@ -180,7 +182,7 @@ msgstr ""
 msgid "View"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:220
+#: lib/dpul_collections_web/live/search_live.ex:228
 #, elixir-autogen, elixir-format
 msgid "All Possible Items"
 msgstr ""
@@ -267,12 +269,12 @@ msgstr ""
 msgid "View all metadata for this item"
 msgstr ""
 
-#: lib/dpul_collections_web/live/home_live.ex:170
+#: lib/dpul_collections_web/live/home_live.ex:411
 #, elixir-autogen, elixir-format
 msgid "photographs"
 msgstr ""
 
-#: lib/dpul_collections_web/live/home_live.ex:175
+#: lib/dpul_collections_web/live/home_live.ex:416
 #, elixir-autogen, elixir-format
 msgid "posters"
 msgstr ""
@@ -283,7 +285,7 @@ msgid "No PDF Available"
 msgstr ""
 
 #: lib/dpul_collections_web/live/item_live.ex:302
-#: lib/dpul_collections_web/live/item_live.ex:756
+#: lib/dpul_collections_web/live/item_live.ex:758
 #, elixir-autogen, elixir-format
 msgid "Viewer"
 msgstr ""
@@ -395,7 +397,7 @@ msgid "Keywords"
 msgstr ""
 
 #: lib/dpul_collections_web/live/item_live.ex:231
-#: lib/dpul_collections_web/live/item_live.ex:755
+#: lib/dpul_collections_web/live/item_live.ex:757
 #, elixir-autogen, elixir-format
 msgid "Metadata"
 msgstr ""
@@ -454,9 +456,9 @@ msgstr ""
 msgid "%{file_min} of %{file_max} images"
 msgstr ""
 
-#: lib/dpul_collections_web/components/browse_item.ex:108
+#: lib/dpul_collections_web/components/browse_item.ex:113
 #: lib/dpul_collections_web/live/item_live.ex:146
-#: lib/dpul_collections_web/live/search_live.ex:185
+#: lib/dpul_collections_web/live/search_live.ex:190
 #, elixir-autogen, elixir-format
 msgid "Images"
 msgstr ""
@@ -502,7 +504,7 @@ msgstr ""
 msgid "Download PDF"
 msgstr ""
 
-#: lib/dpul_collections_web/live/home_live.ex:165
+#: lib/dpul_collections_web/live/home_live.ex:406
 #, elixir-autogen, elixir-format
 msgid "Discover %{photographs}, %{posters}, %{pamphlets}, and more to inspire your research"
 msgstr ""
@@ -515,17 +517,17 @@ msgstr ""
 msgid "Recently Updated"
 msgstr ""
 
-#: lib/dpul_collections_web/live/home_live.ex:218
+#: lib/dpul_collections_web/live/home_live.ex:463
 #, elixir-autogen, elixir-format
 msgid "Recently Updated Items"
 msgstr ""
 
-#: lib/dpul_collections_web/components/browse_item.ex:122
+#: lib/dpul_collections_web/components/browse_item.ex:127
 #, elixir-autogen, elixir-format
 msgid "Updated"
 msgstr ""
 
-#: lib/dpul_collections_web/live/home_live.ex:180
+#: lib/dpul_collections_web/live/home_live.ex:421
 #, elixir-autogen, elixir-format
 msgid "pamphlets"
 msgstr ""
@@ -546,7 +548,7 @@ msgid "Exploring items similar to"
 msgstr ""
 
 #: lib/dpul_collections_web/components/search_bar_component.ex:43
-#: lib/dpul_collections_web/live/home_live.ex:187
+#: lib/dpul_collections_web/live/home_live.ex:428
 #, elixir-autogen, elixir-format
 msgid "Explore"
 msgstr ""
@@ -582,7 +584,7 @@ msgstr ""
 msgid "Princeton University Library Logo"
 msgstr ""
 
-#: lib/dpul_collections_web/components/layouts/root.html.heex:19
+#: lib/dpul_collections_web/components/layouts/root.html.heex:20
 #, elixir-autogen, elixir-format
 msgid "Skip To Content"
 msgstr ""
@@ -602,12 +604,7 @@ msgstr ""
 msgid "Language menu"
 msgstr ""
 
-#: lib/dpul_collections_web/live/home_live.ex:197
-#, elixir-autogen, elixir-format
-msgid "Link to item"
-msgstr ""
-
-#: lib/dpul_collections_web/live/search_live.ex:244
+#: lib/dpul_collections_web/live/search_live.ex:252
 #, elixir-autogen, elixir-format
 msgid "Search Results Page Navigation"
 msgstr ""
@@ -615,4 +612,14 @@ msgstr ""
 #: lib/dpul_collections_web/components/browse_item.ex:31
 #, elixir-autogen, elixir-format
 msgid "more items"
+msgstr ""
+
+#: lib/dpul_collections_web/components/layouts/root.html.heex:15
+#, elixir-autogen, elixir-format
+msgid "Skip links"
+msgstr ""
+
+#: lib/dpul_collections_web/live/search_live.ex:196
+#, elixir-autogen, elixir-format
+msgid "filter by"
 msgstr ""
