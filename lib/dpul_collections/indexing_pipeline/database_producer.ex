@@ -10,12 +10,12 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
 
   @spec start_link({source_module :: module(), cache_version :: integer()}) :: Broadway.on_start()
   def start_link({source_module, cache_version}),
-    do: start_link({source_module, cache_version, nil})
+    do: start_link({source_module, cache_version, %{}})
 
-  def start_link({source_module, cache_version, ecto_pid}) do
+  def start_link({source_module, cache_version, extra_metadata}) do
     GenStage.start_link(
       __MODULE__,
-      {source_module, cache_version, ecto_pid},
+      {source_module, cache_version, extra_metadata},
       name: String.to_atom("#{__MODULE__}_#{cache_version}")
     )
   end
@@ -29,16 +29,16 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
           stored_demand: Integer
         }
   @spec init(integer()) :: {:producer, state()}
-  def init({source_module, cache_version}), do: init({source_module, cache_version, nil})
+  def init({source_module, cache_version}), do: init({source_module, cache_version, %{}})
 
-  def init({source_module, cache_version, ecto_pid}) do
+  def init({source_module, cache_version, extra_metadata}) do
     # trap the exit so we can stop gracefully
     # see https://www.erlang.org/doc/apps/erts/erlang.html#process_flag/2
     Process.flag(:trap_exit, true)
 
     :telemetry.execute([:database_producer, :startup], %{latency: 0}, %{
       source_module: source_module,
-      ecto_pid: ecto_pid
+      extra_metadata: extra_metadata
     })
 
     last_queried_marker =
@@ -51,7 +51,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
       cache_version: cache_version,
       stored_demand: 0,
       source_module: source_module,
-      ecto_pid: ecto_pid
+      extra_metadata: extra_metadata
     }
 
     {:producer, initial_state}
@@ -101,11 +101,8 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
       Process.send_after(self(), :check_for_updates, 50)
     end
 
-    {:noreply, Enum.map(records, &wrap_record(&1, metadata(new_state.ecto_pid))), new_state}
+    {:noreply, Enum.map(records, &wrap_record(&1, new_state.extra_metadata)), new_state}
   end
-
-  def metadata(nil), do: %{}
-  def metadata(pid), do: %{ecto_sandbox: pid}
 
   defp calculate_stored_demand(total_demand, fulfilled_demand)
        when total_demand == fulfilled_demand do
@@ -163,7 +160,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
       new_state.pulled_records |> length(),
       state.source_module.processor_marker_key(),
       state.cache_version,
-      state.ecto_pid
+      state.extra_metadata
     )
 
     {:noreply, messages, new_state}
@@ -248,14 +245,14 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
           acked_count: integer(),
           unacked_count: integer(),
           processor_marker_key: String.t(),
-          ecto_pid: pid()
+          extra_metadata: map()
         }
   defp notify_ack(
          acked_message_count,
          unacked_count,
          processor_marker_key,
          cache_version,
-         ecto_pid
+         extra_metadata
        ) do
     :telemetry.execute(
       [:database_producer, :ack, :done],
@@ -265,7 +262,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
         unacked_count: unacked_count,
         processor_marker_key: processor_marker_key,
         cache_version: cache_version,
-        ecto_pid: ecto_pid
+        extra_metadata: extra_metadata
       }
     )
   end

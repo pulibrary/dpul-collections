@@ -16,11 +16,11 @@ defmodule MockFiggyIndexingProducer do
   @impl GenStage
   @type state :: %{consumer_pid: pid(), test_runner_pid: pid(), indexing_producer_pid: pid()}
   @spec init({pid(), integer}) :: {:producer, state()}
-  def init({test_runner_pid, cache_version}), do: init({test_runner_pid, cache_version, nil})
+  def init({test_runner_pid, cache_version}), do: init({test_runner_pid, cache_version, %{}})
 
-  def init({test_runner_pid, cache_version, ecto_pid}) do
+  def init({test_runner_pid, cache_version, extra_metadata}) do
     {:ok, indexing_producer_pid} =
-      DatabaseProducer.start_link({Figgy.IndexingProducerSource, cache_version, ecto_pid})
+      DatabaseProducer.start_link({Figgy.IndexingProducerSource, cache_version, extra_metadata})
 
     {:ok, consumer_pid} = MockConsumer.start_link(indexing_producer_pid)
 
@@ -28,7 +28,8 @@ defmodule MockFiggyIndexingProducer do
      %{
        consumer_pid: consumer_pid,
        test_runner_pid: test_runner_pid,
-       indexing_producer_pid: indexing_producer_pid
+       indexing_producer_pid: indexing_producer_pid,
+       extra_metadata: extra_metadata
      }}
   end
 

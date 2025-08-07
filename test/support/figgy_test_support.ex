@@ -99,15 +99,15 @@ defmodule FiggyTestSupport do
       Figgy.IndexingConsumer.start_link(
         cache_version: cache_version,
         batch_size: 50,
-        write_collection: SolrTestSupport.active_collection() |> dbg,
-        ecto_pid: self()
+        write_collection: SolrTestSupport.active_collection(),
+        extra_metadata: %{ecto_pid: self()}
       )
 
     {:ok, transformer} =
       Figgy.TransformationConsumer.start_link(
         cache_version: cache_version,
         batch_size: 50,
-        ecto_pid: self()
+        extra_metadata: %{ecto_pid: self()}
       )
 
     # Control hydration indexing.
@@ -116,8 +116,8 @@ defmodule FiggyTestSupport do
         cache_version: cache_version,
         batch_size: 50,
         producer_module: MockFiggyHydrationProducer,
-        producer_options: {self(), cache_version, self()},
-        ecto_pid: self()
+        producer_options: {self(), cache_version, %{ecto_pid: self()}},
+        extra_metadata: %{ecto_pid: self()}
       )
 
     # Index one.

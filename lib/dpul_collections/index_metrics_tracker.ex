@@ -141,7 +141,11 @@ defmodule DpulCollections.IndexMetricsTracker do
     :telemetry.execute(
       [:dpulc, :indexing_pipeline, event(processor_marker_key), :time_to_poll],
       %{duration: duration},
-      %{source: processor_marker_key, cache_version: cache_version, ecto_pid: metadata[:ecto_pid]}
+      %{
+        source: processor_marker_key,
+        cache_version: cache_version,
+        extra_metadata: metadata[:extra_metadata]
+      }
     )
 
     Metrics.create_index_metric(%{
