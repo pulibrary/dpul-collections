@@ -24,7 +24,7 @@ defmodule DpulCollections.Solr do
     "image_canvas_ids_ss",
     "primary_thumbnail_service_url_s",
     "digitized_at_dt",
-    "genre_txtm",
+    "genre_txt_sort",
     "updated_at_dt"
   ]
 
@@ -79,7 +79,7 @@ defmodule DpulCollections.Solr do
   end
 
   def mlt_query(id) do
-    "{!mlt qf=genre_txtm,subject_txtm,geo_subject_txtm,geographic_origin_txtm,language_txtm,keywords_txtm,description_txtm mintf=1}#{id}"
+    "{!mlt qf=genre_txt_sort,subject_txt_sort,geo_subject_txt_sort,geographic_origin_txt_sort,language_txt_sort,keywords_txt_sort,description_txtm mintf=1}#{id}"
   end
 
   def recently_updated(count, collection \\ read_collection()) do
