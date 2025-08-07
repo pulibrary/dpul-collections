@@ -27,7 +27,13 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     [collection: collection_name]
   end
 
-  setup do
+  setup %{collection: collection} do
+    Process.put(
+      :dpul_collections_solr,
+      DpulCollections.Solr.solr_config()
+      |> Map.merge(%{read_collection: collection})
+    )
+
     Solr.delete_all(active_collection())
     on_exit(fn -> Solr.delete_all(active_collection()) end)
   end

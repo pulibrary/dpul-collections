@@ -132,7 +132,7 @@ defmodule FiggyTestSupport do
   end
 
   def wait_for_indexed_count(count) do
-    collection = Application.fetch_env!(:dpul_collections, :solr)[:read_collection]
+    collection = SolrTestSupport.active_collection()
     DpulCollections.Solr.commit(collection)
 
     continue =
