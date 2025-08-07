@@ -38,6 +38,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
       ],
       batchers: [
         default: [batch_size: options[:batch_size]],
+        related: [batch_size: options[:batch_size]],
         noop: [batch_size: options[:batch_size]]
       ],
       context: %{cache_version: options[:cache_version]}
@@ -138,6 +139,19 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     end
   end
 
+  def handle_message(
+        _processor,
+        message = %Broadway.Message{
+          data: %{
+            internal_resource: internal_resource
+          }
+        },
+        _context
+      )
+      when internal_resource in ["EphemeraTerm"] do
+    message |> Broadway.Message.put_batcher(:related)
+  end
+
   # If it's not selected above, ack the message but don't do anything with it.
   def handle_message(_processor, message, _state) do
     message
@@ -180,12 +194,49 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     # - cache_order (datetime) - this is our own new timestamp for this table
     # - cache_version (this only changes manually, we have to hold onto it as state)
     # - record_id (varchar) - the figgy UUID
-    # - source_cache_order (datetime) - the figgy updated_at
+    # - source_cache_order (datetime) - most recent figgy or related resource updated_at
+    # - source_cache_order_record_id (varchar) - record id of the source_cache_order value
     {:ok, response} =
       IndexingPipeline.write_hydration_cache_entry(%{
         cache_version: cache_version,
         record_id: marker.id,
         source_cache_order: marker.timestamp,
+        source_cache_order_record_id: marker.id,
+        data: data,
+        related_data: related_data
+      })
+
+    {:ok, response}
+  end
+
+  defp update_related_hydration_cache_entries(
+         %Broadway.Message{data: %{id: id, updated_at: timestamp}},
+         cache_version
+       ) do
+    related_entries =
+      IndexingPipeline.get_related_hydration_cache_entries!(id, timestamp, cache_version)
+
+    related_entries
+    |> Enum.each(&update_related_hydration_cache_entry(&1, id, timestamp, cache_version))
+
+    {:ok, ""}
+  end
+
+  defp update_related_hydration_cache_entry(
+         %DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry{
+           data: %{"id" => resource_id} = data,
+           related_data: related_data
+         },
+         related_id,
+         related_timestamp,
+         cache_version
+       ) do
+    {:ok, response} =
+      IndexingPipeline.write_hydration_cache_entry(%{
+        cache_version: cache_version,
+        record_id: resource_id,
+        source_cache_order: related_timestamp,
+        source_cache_order_record_id: related_id,
         data: data,
         related_data: related_data
       })
@@ -196,6 +247,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   @impl Broadway
   def handle_batch(:default, messages, _batch_info, %{cache_version: cache_version}) do
     Enum.each(messages, &write_to_hydration_cache(&1, cache_version))
+    messages
+  end
+
+  def handle_batch(:related, messages, _batch_info, %{cache_version: cache_version}) do
+    Enum.each(messages, &update_related_hydration_cache_entries(&1, cache_version))
     messages
   end
 
