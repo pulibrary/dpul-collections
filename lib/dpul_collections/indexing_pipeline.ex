@@ -70,6 +70,7 @@ defmodule DpulCollections.IndexingPipeline do
           data: ^attrs.data,
           related_data: ^attrs[:related_data],
           source_cache_order: ^attrs.source_cache_order,
+          source_cache_order_record_id: ^attrs.source_cache_order_record_id,
           cache_order: ^DateTime.utc_now()
         ]
       )
@@ -120,6 +121,31 @@ defmodule DpulCollections.IndexingPipeline do
         where: r.cache_version == ^cache_version,
         limit: ^count,
         order_by: [asc: r.source_cache_order, asc: r.record_id]
+
+    Repo.all(query)
+  end
+
+  @spec get_related_hydration_cache_entries!(
+          related_id :: String.t(),
+          related_timestamp :: DateTime.t(),
+          cache_version :: integer
+        ) :: list(Figgy.HydrationCacheEntry)
+  def get_related_hydration_cache_entries!(related_id, related_timestamp, cache_version) do
+    query =
+      from r in Figgy.HydrationCacheEntry,
+        where: r.cache_version == ^cache_version,
+        where:
+          fragment(
+            """
+            EXISTS (
+            SELECT FROM json_object_keys(?->'resources') related_id
+            WHERE related_id = ?
+            )
+            """,
+            r.related_data,
+            ^related_id
+          ),
+        where: r.source_cache_order < ^related_timestamp
 
     Repo.all(query)
   end
