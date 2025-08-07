@@ -380,6 +380,16 @@ defmodule DpulCollections.Solr do
     response.body["aliases"][read_collection()]
   end
 
+  def delete_alias(alias) do
+    {:ok, response} =
+      client()
+      |> Req.merge(
+        url: "solr/admin/collections",
+        params: [action: "DELETEALIAS", name: alias]
+      )
+      |> Req.get()
+  end
+
   @spec set_alias(String.t()) :: Req.Response.t()
   def set_alias(collection) do
     client()

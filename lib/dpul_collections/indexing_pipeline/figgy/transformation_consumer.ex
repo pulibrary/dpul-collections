@@ -24,7 +24,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
     default = [
       cache_version: cache_version,
       producer_module: DatabaseProducer,
-      producer_options: {Figgy.TransformationProducerSource, cache_version},
+      producer_options: {Figgy.TransformationProducerSource, cache_version, options[:ecto_pid]},
       batch_size: 10
     ]
 
