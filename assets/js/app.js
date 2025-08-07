@@ -47,16 +47,6 @@ window.addEventListener("setLocale", e => {
   }
 )
 
-window.addEventListener("dpulc:showImages", e => {
-    let itemId = e.target.getAttribute("data-id")
-    const allImages = document.querySelectorAll('.thumbnail-' + itemId)
-
-    allImages.forEach(el => {
-      el.classList.remove("obfuscate")
-    })
-  }
-)
-
 // connect if there are any LiveViews on the page
 liveSocket.connect()
 
@@ -73,6 +63,17 @@ window.addEventListener("dpulc:clipcopy", (event) => {
     navigator.clipboard.writeText(text);
   }
 });
+
+window.addEventListener("phx:dpulc:showImages", (event) => {
+    // let itemId = e.target.getAttribute("data-id")
+    let itemId = event.detail.itemId
+    const allImages = document.querySelectorAll('.thumbnail-' + itemId)
+
+    allImages.forEach(el => {
+      el.classList.remove("obfuscate")
+    })
+  }
+)
 
 // Initialize react components.
 document.addEventListener("DOMContentLoaded", e => {

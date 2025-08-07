@@ -194,7 +194,8 @@ defmodule DpulCollectionsWeb.CoreComponents do
     ~H"""
     <.primary_button
       id={"show-images-#{@item_id}"}
-      phx-click={JS.dispatch("dpulc:showImages")}
+      phx-click="show-images"
+      phx-value-id={@item_id}
       data-id={@item_id}
     >
       {gettext("Show images")}

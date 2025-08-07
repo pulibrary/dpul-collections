@@ -1,5 +1,9 @@
 import LiveReact from "phoenix_live_react"
+import * as LocalStateStore from "./hooks/local_state_store"
+
 let Hooks = { LiveReact };
+
+Hooks.LocalStateStore = LocalStateStore.hooks
 
 Hooks.ToolbarHook = {
   mounted() {

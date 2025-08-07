@@ -26,8 +26,25 @@ defmodule DpulCollectionsWeb.SearchLive do
         search_state: search_state,
         item_counter: item_counter(search_state, total_items),
         items: items,
-        total_items: total_items
+        total_items: total_items,
+        dpulc_application_state: %{show_images: []}
       )
+
+    # Only try to talk to the client when the websocket
+    # is setup. Not on the initial "static" render.
+    # TODO: Add a version to the state
+    socket =
+      if connected?(socket) do
+        state_to_store =
+          get_in(socket, [Access.key(:assigns), :dpulc_application_state]) || %{show_images: []}
+
+        socket
+        |> assign(:dpulc_application_state, state_to_store)
+        # request the browser to restore any state it has for this key.
+        |> push_event("restore", %{key: "dpulc_application_state", event: "restoreSettings"})
+      else
+        socket
+      end
 
     {:noreply, socket}
   end
@@ -122,7 +139,12 @@ defmodule DpulCollectionsWeb.SearchLive do
       <div class="grid grid-flow-row auto-rows-max gap-8">
         <div :for={item <- @items}>
           <hr class="mb-8" />
-          <.search_item search_state={@search_state} item={item} sort_by={@search_state.sort_by} />
+          <.search_item
+            search_state={@search_state}
+            item={item}
+            sort_by={@search_state.sort_by}
+            dpulc_application_state={@dpulc_application_state}
+          />
         </div>
       </div>
       <div class="text-center max-w-5xl mx-auto text-lg py-8">
@@ -159,10 +181,6 @@ defmodule DpulCollectionsWeb.SearchLive do
     """
   end
 
-  attr :item, Item, required: true
-  attr :sort_by, :string, default: "relevance"
-  attr :search_state, :map
-
   def search_item(assigns) do
     ~H"""
     <div
@@ -180,6 +198,7 @@ defmodule DpulCollectionsWeb.SearchLive do
             thumb={thumb}
             thumb_num={thumb_num}
             item={@item}
+            dpulc_application_state={@dpulc_application_state}
           />
           <div id={"filecount-#{@item.id}"} class="hidden absolute right-0 top-0 bg-white px-4 py-2">
             {@item.file_count} {gettext("Images")}
@@ -230,7 +249,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     <img
       class={[
         "h-[350px] w-[350px] md:h-[225px] md:w-[225px] border border-solid border-gray-400",
-        @item.content_warning && "obfuscate",
+        obfuscate_item(assigns) && "obfuscate",
         "thumbnail-#{@item.id}"
       ]}
       src={"#{@thumb}/square/350,350/0/default.jpg"}
@@ -241,6 +260,11 @@ defmodule DpulCollectionsWeb.SearchLive do
       height="350"
     />
     """
+  end
+
+  def obfuscate_item(assigns) do
+    shown_list = get_in(assigns, [:dpulc_application_state, :show_images]) || []
+    assigns.item.content_warning && !Enum.member?(shown_list, assigns.item.id)
   end
 
   def paginator(assigns) do
@@ -365,6 +389,95 @@ defmodule DpulCollectionsWeb.SearchLive do
     params = %{socket.assigns.search_state | page: page} |> Helpers.clean_params()
     socket = push_navigate(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
+  end
+
+  # Pushed from JS hook. Server requests it to send up any
+  # stored settings for the key.
+  def handle_event("restoreSettings", token_data, socket) when is_binary(token_data) do
+    socket =
+      case restore_from_token(token_data) do
+        {:ok, nil} ->
+          # do nothing with the previous state
+          socket
+
+        {:ok, restored} ->
+          socket
+          |> assign(:dpulc_application_state, restored)
+
+        {:error, reason} ->
+          # We don't continue checking. Display error.
+          # Clear the token so it doesn't keep showing an error.
+          socket
+          |> put_flash(:error, reason)
+          |> clear_browser_storage()
+      end
+
+    {:noreply, socket}
+  end
+
+  def handle_event("restoreSettings", _token_data, socket) do
+    # No expected token data received from the client
+    {:noreply, socket}
+  end
+
+  # phx-click={JS.dispatch("dpulc:showImages")}
+  def handle_event("show-images", %{"id" => item_id}, socket) do
+    # This represents the special state you want to store. It may come from the
+    # socket.assigns. It's specific to your LiveView.
+    state_to_store =
+      %{
+        show_images:
+          [
+            item_id
+            | get_in(socket, [Access.key(:assigns), :dpulc_application_state, :show_images])
+          ]
+          |> Enum.dedup()
+      }
+
+    socket =
+      socket
+      |> assign(:dpulc_application_state, state_to_store)
+      |> push_event("store", %{
+        key: "dpulc_application_state",
+        data: serialize_to_token(state_to_store)
+      })
+      |> push_event("dpulc:showImages", %{itemId: item_id})
+
+    {:noreply, socket}
+  end
+
+  defp restore_from_token(nil), do: {:ok, nil}
+
+  defp restore_from_token(token) do
+    salt =
+      Application.get_env(:dpul_collections, DpulCollectionsWeb.Endpoint)[:live_view][
+        :signing_salt
+      ]
+
+    # Max age is 1 day. 86,400 seconds
+    case Phoenix.Token.decrypt(DpulCollectionsWeb.Endpoint, salt, token, max_age: 86_400) do
+      {:ok, data} ->
+        {:ok, data}
+
+      {:error, reason} ->
+        # handles `:invalid`, `:expired` and possibly other things?
+        {:error, "Failed to restore previous state. Reason: #{inspect(reason)}."}
+    end
+  end
+
+  defp serialize_to_token(state_data) do
+    salt =
+      Application.get_env(:dpul_collections, DpulCollectionsWeb.Endpoint)[:live_view][
+        :signing_salt
+      ]
+
+    Phoenix.Token.encrypt(DpulCollectionsWeb.Endpoint, salt, state_data)
+  end
+
+  # Push a websocket event down to the browser's JS hook.
+  # Clear any settings for the current my_storage_key.
+  defp clear_browser_storage(socket) do
+    push_event(socket, "clear", %{key: socket.assigns.dpulc_application_state})
   end
 
   def self_route(search_state, extra \\ %{}) do

@@ -36,6 +36,9 @@ config :dpul_collections, DpulCollectionsWeb.Endpoint,
   code_reloader: true,
   debug_errors: true,
   secret_key_base: "0SRtMTVbFVxGojwWaaVDQUu8diAcl+d6I+DUQeSsSZSG+7ESn2ac9Wnzl/gVYyUT",
+  live_view: [
+    signing_salt: "dev_salt"
+  ],
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:dpul_collections, ~w(--sourcemap=inline --watch)]},
     tailwind: {Tailwind, :install_and_run, [:dpul_collections, ~w(--watch)]}
