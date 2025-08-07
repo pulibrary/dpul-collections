@@ -297,7 +297,7 @@ defmodule DpulCollections.Solr do
 
   @spec client() :: Req.Request.t()
   def client() do
-    url_hash = Application.fetch_env!(:dpul_collections, :solr)
+    url_hash = solr_config()
 
     Req.new(
       base_url: url_hash[:base_url],
@@ -313,12 +313,17 @@ defmodule DpulCollections.Solr do
 
   @spec read_collection() :: String.t()
   def read_collection() do
-    Application.fetch_env!(:dpul_collections, :solr)[:read_collection]
+    solr_config()[:read_collection]
   end
 
   @spec config_set() :: String.t()
   def config_set() do
-    Application.fetch_env!(:dpul_collections, :solr)[:config_set]
+    solr_config()[:config_set]
+  end
+
+  def solr_config() do
+    default_value = Application.fetch_env!(:dpul_collections, :solr)
+    ProcessTree.get(:dpul_collections_solr, default: default_value)
   end
 
   ####

@@ -90,7 +90,8 @@ defmodule DpulCollections.MixProject do
       {:sham, "~> 1.0", only: :test},
       {:oban, "~> 2.19"},
       {:oban_web, "~> 2.11"},
-      {:a11y_audit, "~> 0.2.3", only: :test}
+      {:a11y_audit, "~> 0.2.3", only: :test},
+      {:process_tree, "~> 0.2.1"}
     ]
   end
 
