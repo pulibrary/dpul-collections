@@ -53,6 +53,9 @@ defmodule DpulCollectionsWeb do
     quote do
       use Phoenix.LiveView,
         layout: {DpulCollectionsWeb.Layouts, :app}
+      if Application.compile_env(:dpul_collections, :sql_sandbox) do
+        on_mount DpulCollections.LiveAcceptance
+      end
 
       alias DpulCollectionsWeb.SetLocaleHook
       import PhoenixLiveReact

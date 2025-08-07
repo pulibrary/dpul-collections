@@ -81,6 +81,8 @@ config :dpul_collections, :figgy_hydrator, poll_interval: 50
 
 config :dpul_collections, :web_connections, figgy_url: "https://figgy.example.com"
 
+config :dpul_collections, sql_sandbox: true
+
 # Stub http requests in CacheThumbnails Oban worker
 config :dpul_collections,
   thumbnail_req_options: [

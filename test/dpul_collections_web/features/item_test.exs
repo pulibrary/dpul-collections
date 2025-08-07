@@ -1,12 +1,11 @@
 defmodule DpulCollectionsWeb.Features.ItemViewTest do
-  use ExUnit.Case
-  use PhoenixTest.Playwright.Case
+  use PhoenixTest.Playwright.Case, async: true
   alias PhoenixTest.Playwright.Frame
   alias PhoenixTest.Playwright
   import SolrTestSupport
   alias DpulCollections.Solr
 
-  setup do
+  setup_all do
     sham = Sham.start()
     Solr.add(SolrTestSupport.mock_solr_documents(1, true, sham), active_collection())
     Solr.commit(active_collection())
