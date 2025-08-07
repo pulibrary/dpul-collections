@@ -9,6 +9,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
     field :cache_version, :integer
     field :record_id, :string
     field :source_cache_order, :utc_datetime_usec
+    field :source_cache_order_record_id, :string
 
     timestamps(updated_at: :cache_order, inserted_at: false, type: :utc_datetime_usec)
   end
