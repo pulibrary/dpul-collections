@@ -31,12 +31,12 @@ defmodule DpulCollections.Solr.Constants do
 
       @filters %{
         "contributor" => %{
-          solr_field: "contributor_txtm",
+          solr_field: "contributor_txt_sort",
           label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Contributor"),
           value_function: &Function.identity/1
         },
         "creator" => %{
-          solr_field: "creator_txtm",
+          solr_field: "creator_txt_sort",
           label:
             Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Creator of work"),
           value_function: &Function.identity/1
@@ -47,25 +47,25 @@ defmodule DpulCollections.Solr.Constants do
           value_function: &Function.identity/1
         },
         "genre" => %{
-          solr_field: "genre_txtm",
+          solr_field: "genre_txt_sort",
           label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Genre"),
           # Identity just returns whatever you gave it.
           value_function: &Function.identity/1
         },
         "geo_subject" => %{
-          solr_field: "geo_subject_txtm",
+          solr_field: "geo_subject_txt_sort",
           label:
             Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Geographic Subject"),
           value_function: &Function.identity/1
         },
         "geographic_origin" => %{
-          solr_field: "geographic_origin_txtm",
+          solr_field: "geographic_origin_txt_sort",
           label:
             Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Geographic Origin"),
           value_function: &Function.identity/1
         },
         "language" => %{
-          solr_field: "language_txtm",
+          solr_field: "language_txt_sort",
           label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Language"),
           value_function: &Function.identity/1
         },
@@ -77,7 +77,7 @@ defmodule DpulCollections.Solr.Constants do
           value_function: &Function.identity/1
         },
         "publisher" => %{
-          solr_field: "publisher_txtm",
+          solr_field: "publisher_txt_sort",
           label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Publisher"),
           value_function: &Function.identity/1
         },
@@ -93,7 +93,7 @@ defmodule DpulCollections.Solr.Constants do
           value_function: &DpulCollections.Solr.Constants.id_to_title/1
         },
         "subject" => %{
-          solr_field: "subject_txtm",
+          solr_field: "subject_txt_sort",
           label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Subject"),
           value_function: &Function.identity/1
         },
