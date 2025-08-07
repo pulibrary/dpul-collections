@@ -60,7 +60,7 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def render(assigns) do
     ~H"""
-    <div class="content-area">
+    <section class="content-area">
       <.results_for_keywords_heading keywords={@search_state.q} />
       <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
         <div id="filters" class="grid md:grid-cols-[auto_300px] gap-2">
@@ -72,20 +72,24 @@ defmodule DpulCollectionsWeb.SearchLive do
             <label class="col-span-1 self-center font-bold uppercase" for="date-filter">
               {gettext("filter by year")}:
             </label>
+            <label class="sr-only" for="filter[year][from]">{gettext("From")}</label>
             <input
               class="col-span-1"
               type="text"
               placeholder={gettext("From")}
               form="date-filter"
               name="filter[year][from]"
+              id="filter[year][from]"
               value={@search_state.filter["year"]["from"]}
             />
+            <label class="sr-only" for="filter[year][to]">{gettext("To")}</label>
             <input
               class="col-span-1"
               type="text"
               placeholder={gettext("To")}
               form="date-filter"
               name="filter[year][to]"
+              id="filter[year][to]"
               value={@search_state.filter["year"]["to"]}
             />
             <button class="col-span-1 md:col-span-1 btn-primary" type="submit">
@@ -96,7 +100,7 @@ defmodule DpulCollectionsWeb.SearchLive do
             <label class="col-span-1 self-center font-bold uppercase md:text-right" for="sort-by">
               {gettext("sort by")}:
             </label>
-            <select class="col-span-1" name="sort-by" aria-label={gettext("sort by")}>
+            <select id="sort-by" class="col-span-1" name="sort-by" aria-label={gettext("sort by")}>
               {Phoenix.HTML.Form.options_for_select(
                 sort_by_params(),
                 @search_state.sort_by
@@ -121,7 +125,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       </div>
       <div class="grid grid-flow-row auto-rows-max gap-8">
         <div :for={item <- @items}>
-          <hr class="mb-8" />
+          <hr aria-hidden="true" class="mb-8" />
           <.search_item search_state={@search_state} item={item} sort_by={@search_state.sort_by} />
         </div>
       </div>
@@ -132,7 +136,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           total_items={@total_items}
         />
       </div>
-    </div>
+    </section>
     """
   end
 
@@ -165,12 +169,13 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def search_item(assigns) do
     ~H"""
-    <div
+    <article
       id={"item-#{@item.id}"}
       class="item"
       phx-hook="ShowPageCount"
       data-id={@item.id}
       data-filecount={@item.file_count}
+      aria-label={@item.title |> hd}
     >
       <.link navigate={@item.url} class="thumb-link">
         <div class="flex flex-wrap gap-5 md:max-h-60 max-h-[22rem] overflow-hidden justify-center md:justify-start relative">
@@ -187,7 +192,10 @@ defmodule DpulCollectionsWeb.SearchLive do
         </div>
       </.link>
       <div data-field="genre" class="pt-4 text-gray-600 font-bold text-sm uppercase">
-        <.link navigate={self_route(@search_state, %{filter: %{"genre" => List.first(@item.genre)}})}>
+        <.link
+          aria-label={"#{gettext("filter by")} #{@item.genre}"}
+          navigate={self_route(@search_state, %{filter: %{"genre" => List.first(@item.genre)}})}
+        >
           {@item.genre}
         </.link>
       </div>
@@ -203,7 +211,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           {gettext("Added")} {DpulCollectionsWeb.BrowseItem.time_ago(@item.updated_at)}
         </div>
       </div>
-    </div>
+    </article>
     """
   end
 

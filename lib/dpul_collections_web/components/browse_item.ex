@@ -72,7 +72,12 @@ defmodule DpulCollectionsWeb.BrowseItem do
           </.link>
         </div>
       </div>
-      <.link href={@item.url} target={@target} class="flex-grow item-link">
+      <.link
+        href={@item.url}
+        target={@target}
+        class="flex-grow item-link"
+        aria-label={"View #{@item.title |> hd}"}
+      >
         <!-- thumbs -->
         <div class="px-2 pt-2 bg-white">
           <div class="grid grid-rows-[repeat(4, 25%)] gap-2 h-[24rem]">
