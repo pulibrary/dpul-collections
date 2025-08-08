@@ -7,11 +7,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
 
   import SolrTestSupport
 
-  setup do
-    Solr.delete_all(active_collection())
-    :ok
-  end
-
   def start_indexing_producer(cache_version \\ 0) do
     pid = self()
 
@@ -28,8 +23,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
         producer_module: MockFiggyIndexingProducer,
         producer_options: {self(), cache_version, %{ecto_pid: self()}},
         batch_size: 1,
-        write_collection: active_collection(),
-        name_append: :indexing_test
+        write_collection: active_collection()
       )
 
     indexer
@@ -51,13 +45,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
   end
 
   test "when cache version > 0, processor marker cache version is correct" do
-    FiggyTestFixtures.transformation_cache_markers(1)
+    FiggyTestFixtures.transformation_cache_markers(18)
 
-    cache_version = 1
+    cache_version = 18
     indexer = start_indexing_producer(cache_version)
     name = (indexer |> Process.info())[:registered_name]
 
-    MockFiggyIndexingProducer.process(name, 1, cache_version)
+    MockFiggyIndexingProducer.process(name, 1)
     assert_receive {:ack_done}, 500
 
     processor_marker = IndexingPipeline.get_processor_marker!("figgy_indexer", cache_version)
@@ -131,7 +125,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
         producer_module: MockFiggyIndexingProducer,
         producer_options: {self(), cache_version, %{ecto_pid: self()}},
         batch_size: 1,
-        write_collection: new_collection
+        write_collection: new_collection,
+        name_append: :create_collection_indexing_test
       )
 
     assert Solr.collection_exists?(new_collection) == true
