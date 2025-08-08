@@ -33,39 +33,48 @@ defmodule DpulCollections.DataCase do
     :ok
   end
 
-  setup_all %{async: true} do
-    collection_name = "dpulc-#{Ecto.UUID.generate()}"
-    Solr.create_collection(collection_name)
+  setup_all %{async: async} do
+    case async do
+      true ->
+        collection_name = "dpulc-#{Ecto.UUID.generate()}"
+        Solr.create_collection(collection_name)
 
-    Process.put(
-      :dpul_collections_solr,
-      DpulCollections.Solr.solr_config()
-      |> Map.merge(%{read_collection: "alias-#{collection_name}"})
-    )
+        Process.put(
+          :dpul_collections_solr,
+          DpulCollections.Solr.solr_config()
+          |> Map.merge(%{read_collection: "alias-#{collection_name}"})
+        )
 
-    Solr.set_alias(collection_name)
+        Solr.set_alias(collection_name)
 
-    on_exit(fn ->
-      Solr.delete_alias("alias-#{collection_name}")
-      Solr.delete_collection(collection_name)
-    end)
+        on_exit(fn ->
+          Solr.delete_alias("alias-#{collection_name}")
+          Solr.delete_collection(collection_name)
+        end)
 
-    [collection: collection_name]
+        [collection: collection_name]
+
+      false ->
+        :ok
+    end
   end
 
-  setup %{async: true, collection: collection} do
-    Process.put(
-      :dpul_collections_solr,
-      DpulCollections.Solr.solr_config()
-      |> Map.merge(%{read_collection: "alias-#{collection}"})
-    )
+  setup context do
+    case context do
+      %{async: true, collection: collection} ->
+        Process.put(
+          :dpul_collections_solr,
+          DpulCollections.Solr.solr_config()
+          |> Map.merge(%{read_collection: "alias-#{collection}"})
+        )
 
-    Solr.delete_all(collection)
-    on_exit(fn -> Solr.delete_all(collection) end)
-  end
+        Solr.delete_all(collection)
+        on_exit(fn -> Solr.delete_all(collection) end)
+        :ok
 
-  setup_all _context do
-    :ok
+      _ ->
+        :ok
+    end
   end
 
   @doc """
