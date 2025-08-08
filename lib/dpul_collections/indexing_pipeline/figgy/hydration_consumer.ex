@@ -148,7 +148,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         },
         _context
       )
-      when internal_resource in ["EphemeraTerm"] do
+      when internal_resource in ["EphemeraTerm", "FileSet"] do
     message |> Broadway.Message.put_batcher(:related)
   end
 
@@ -177,6 +177,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         cache_version: cache_version,
         record_id: id,
         source_cache_order: marker.timestamp,
+        source_cache_order_record_id: id,
         data: data
       })
 
