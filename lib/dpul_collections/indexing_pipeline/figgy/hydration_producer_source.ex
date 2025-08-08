@@ -3,7 +3,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerSource do
   @behaviour IndexingPipeline.DatabaseProducer.Source
 
   def init() do
-    {:ok, _listen_ref} = Postgrex.Notifications.listen(DpulCollections.FiggyNotifier, "orm_resources_change")
+    {:ok, _listen_ref} =
+      Postgrex.Notifications.listen(DpulCollections.FiggyNotifier, "orm_resources_change")
   end
 
   def processor_marker_key() do

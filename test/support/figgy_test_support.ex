@@ -33,7 +33,7 @@ defmodule FiggyTestSupport do
       },
       [:internal_resource, :updated_at, :created_at]
     )
-    |> FiggyRepo.insert
+    |> FiggyRepo.insert()
   end
 
   def ephemera_folder_count do
