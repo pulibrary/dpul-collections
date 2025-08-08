@@ -31,7 +31,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     Process.put(
       :dpul_collections_solr,
       DpulCollections.Solr.solr_config()
-      |> Map.merge(%{read_collection: collection})
+      |> Map.merge(%{read_collection: "alias-#{collection}"})
     )
 
     Solr.delete_all(active_collection())

@@ -29,7 +29,7 @@ defmodule DpulCollections.SolrTest do
     Process.put(
       :dpul_collections_solr,
       DpulCollections.Solr.solr_config()
-      |> Map.merge(%{read_collection: collection})
+      |> Map.merge(%{read_collection: "alias-#{collection}"})
     )
 
     Solr.delete_all(active_collection())
@@ -279,7 +279,7 @@ defmodule DpulCollections.SolrTest do
     assert response.body["responseHeader"]["status"] == 0
   end
 
-  test "create a new collection, set alias, delete a collection" do
+  test "create a new collection, set alias, delete a collection", %{collection: collection} do
     new_collection = "new_index#{Ecto.UUID.generate()}"
     assert Solr.collection_exists?(new_collection) == false
 
@@ -288,7 +288,7 @@ defmodule DpulCollections.SolrTest do
 
     # alias is pointing to the collection created during setup
     original_collection = Solr.get_alias()
-    assert original_collection == "dpulc1"
+    assert original_collection == "#{collection}"
     Solr.set_alias(new_collection)
     assert Solr.get_alias() == new_collection
     Solr.set_alias(original_collection)
