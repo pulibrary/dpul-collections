@@ -11,6 +11,7 @@ defmodule DpulCollectionsWeb.Router do
     plug :protect_from_forgery
     plug :put_secure_browser_headers
     plug DpulCollectionsWeb.LocalePlug, backend: DpulCollectionsWeb.Gettext
+    plug DpulCollectionsWeb.ShowImagesPlug
   end
 
   pipeline :dashboard_auth do

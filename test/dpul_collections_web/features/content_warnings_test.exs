@@ -2,6 +2,7 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
   use ExUnit.Case
   use PhoenixTest.Playwright.Case
   import SolrTestSupport
+  alias PhoenixTest.Playwright.Frame
   alias DpulCollections.Solr
 
   setup do
@@ -28,44 +29,67 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
     on_exit(fn -> Solr.delete_all(active_collection()) end)
   end
 
-  test "when there's a content warning, thumbnails are obfuscated", %{conn: conn} do
-    # an item without a content warning isn't obfuscated
-    conn
-    |> visit("/search?q=Document")
-    |> refute_has("img.obfuscate")
+  describe "when there's a content warning, thumbnails are obfuscated" do
+    test "on the search page", %{conn: conn} do
+      # an item without a content warning isn't obfuscated
+      conn
+      |> visit("/search?q=Document")
+      |> refute_has("img.obfuscate")
 
-    # an item with a content warning is obfuscated
-    conn
-    |> visit("/search?q=elham+azar")
-    |> assert_has(".thumbnail-d4292e58-25d7-4247-bf92-0a5e24ec75d1", count: 3)
-    |> assert_has("img.obfuscate", count: 3)
-    |> click_button("Show images")
-    |> refute_has("img.obfuscate")
+      # an item with a content warning is obfuscated
+      conn
+      |> visit("/search?q=elham+azar")
+      |> assert_has(".thumbnail-d4292e58-25d7-4247-bf92-0a5e24ec75d1", count: 3)
+      |> assert_has("img.obfuscate", count: 3)
+      |> click_button("Show images")
+      |> refute_has("img.obfuscate")
+    end
 
-    # the item is obfuscated on a standard browse page
-    conn
-    |> visit("/browse")
-    |> assert_has(".thumbnail-d4292e58-25d7-4247-bf92-0a5e24ec75d1", count: 3)
-    |> assert_has("img.obfuscate", count: 3)
-    |> click_button("Show images")
-    |> refute_has("img.obfuscate")
+    test "on the standardbrowse page", %{conn: conn} do
+      conn
+      |> visit("/browse")
+      |> assert_has(".thumbnail-d4292e58-25d7-4247-bf92-0a5e24ec75d1", count: 3)
+      |> assert_has("img.obfuscate", count: 3)
+      |> click_button("Show images")
+      |> refute_has("img.obfuscate")
+    end
 
-    # the item is obfuscated on its own focused browse page
-    conn
-    |> visit("/browse/focus/d4292e58-25d7-4247-bf92-0a5e24ec75d1")
-    # the tiny thumbnail in the toolbar is also obfuscated
-    |> assert_has(".thumbnail-d4292e58-25d7-4247-bf92-0a5e24ec75d1", count: 4)
-    |> assert_has("img.obfuscate", count: 4)
-    |> click_button("Show images")
-    |> refute_has("img.obfuscate")
+    test "on the focused browse page", %{conn: conn} do
+      conn
+      |> visit("/browse/focus/d4292e58-25d7-4247-bf92-0a5e24ec75d1")
+      # the tiny thumbnail in the toolbar is also obfuscated
+      |> assert_has(".thumbnail-d4292e58-25d7-4247-bf92-0a5e24ec75d1", count: 4)
+      |> assert_has("img.obfuscate", count: 4)
+      |> click_button("Show images")
+      |> refute_has("img.obfuscate")
+    end
 
-    # the item its obfuscated on its item detail page
-    conn
-    |> visit("/item/d4292e58-25d7-4247-bf92-0a5e24ec75d1")
-    # the large thumbnail is duplicated in the small thumbnail list
-    |> assert_has(".thumbnail-d4292e58-25d7-4247-bf92-0a5e24ec75d1", count: 4)
-    |> assert_has("img.obfuscate", count: 4)
-    |> click_button("Show images")
-    |> refute_has("img.obfuscate")
+    test "on the item detail page", %{conn: conn} do
+      conn
+      |> visit("/item/d4292e58-25d7-4247-bf92-0a5e24ec75d1")
+      # the large thumbnail is duplicated in the small thumbnail list
+      |> assert_has(".thumbnail-d4292e58-25d7-4247-bf92-0a5e24ec75d1", count: 4)
+      |> assert_has("img.obfuscate", count: 4)
+      |> click_button("Show images")
+      |> refute_has("img.obfuscate")
+    end
+  end
+
+  describe "once images have been shown on one page" do
+    test "they are still shown after reload, and on other pages", %{conn: conn} do
+      conn
+      |> visit("/search?q=elham+azar")
+      |> assert_has("img.obfuscate")
+      |> click_button("Show images")
+      |> refute_has("img.obfuscate")
+      |> unwrap(&Frame.evaluate(&1.frame_id, "window.location.reload()"))
+      |> refute_has("img.obfuscate")
+      |> visit("/item/d4292e58-25d7-4247-bf92-0a5e24ec75d1")
+      |> refute_has("img.obfuscate")
+      |> visit("/browse")
+      |> refute_has("img.obfuscate")
+      |> visit("/browse/focus/d4292e58-25d7-4247-bf92-0a5e24ec75d1")
+      |> refute_has("img.obfuscate")
+    end
   end
 end

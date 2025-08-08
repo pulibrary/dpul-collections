@@ -3,6 +3,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
   use Phoenix.Component
   use Gettext, backend: DpulCollectionsWeb.Gettext
   alias DpulCollections.Item
+  alias DpulCollectionsWeb.Live.Helpers
 
   attr :items, :list, required: true
   attr :title, :string, required: true
@@ -11,6 +12,11 @@ defmodule DpulCollectionsWeb.BrowseItem do
   attr :color, :string, default: "bg-secondary"
   attr :layout, :string, default: "content-area"
   attr :rest, :global
+
+  attr :show_images, :list,
+    default: [],
+    doc: "the list of images stored in session that should not be obfuscated"
+
   slot :inner_block, doc: "the optional inner block that renders above the images"
 
   def browse_item_row(assigns) do
@@ -46,6 +52,10 @@ defmodule DpulCollectionsWeb.BrowseItem do
   attr :id, :string, required: false, default: "browse-item"
   attr :target, :string, required: false, default: nil
   attr :class, :string, required: false, default: nil
+
+  attr :show_images, :list,
+    default: [],
+    doc: "the list of images stored in session that should not be obfuscated"
 
   def browse_item(assigns) do
     ~H"""
@@ -85,11 +95,21 @@ defmodule DpulCollectionsWeb.BrowseItem do
           <div class="grid grid-rows-[repeat(4, 25%)] gap-2 h-[24rem]">
             <!-- main thumbnail -->
             <div :if={@item.file_count == 1} class="row-span-4">
-              <.thumb thumb={thumbnail_service_url(@item)} href={@item.url} item={@item} />
+              <.thumb
+                thumb={thumbnail_service_url(@item)}
+                href={@item.url}
+                item={@item}
+                show_images={@show_images}
+              />
             </div>
 
             <div :if={@item.file_count > 1} class="row-span-3 overflow-hidden h-[18rem]">
-              <.thumb thumb={thumbnail_service_url(@item)} href={@item.url} item={@item} />
+              <.thumb
+                thumb={thumbnail_service_url(@item)}
+                href={@item.url}
+                item={@item}
+                show_images={@show_images}
+              />
             </div>
             
     <!-- smaller thumbnails -->
@@ -101,6 +121,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
                 thumb_num={thumb_num}
                 href={@item.url}
                 item={@item}
+                show_images={@show_images}
               />
             </div>
           </div>
@@ -145,12 +166,16 @@ defmodule DpulCollectionsWeb.BrowseItem do
   attr :item, :map, required: false
   attr :href, :string, required: false, default: nil
 
+  attr :show_images, :list,
+    default: [],
+    doc: "the list of images stored in session that should not be obfuscated"
+
   def thumb(assigns) do
     ~H"""
     <img
       class={[
         "thumbnail bg-slate-400 text-white h-full w-full object-cover",
-        @item.content_warning && "obfuscate",
+        Helpers.obfuscate_item?(assigns) && "obfuscate",
         "thumbnail-#{@item.id}"
       ]}
       src={thumbnail_url(assigns)}

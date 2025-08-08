@@ -51,6 +51,19 @@ window.addEventListener("dpulc:showImages", e => {
     let itemId = e.target.getAttribute("data-id")
     const allImages = document.querySelectorAll('.thumbnail-' + itemId)
 
+    const maxAge = 365 * 24 * 60 * 60
+    // update the cookie
+    const oldList = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("showImages="))
+        ?.split("=")[1]
+        .split(",")
+
+    let newList = oldList || []
+    newList.push(itemId)
+    document.cookie = `showImages=${Array.from(new Set(newList)).join(",")}; max-age=${maxAge}; path=/`
+
+    // show the images
     allImages.forEach(el => {
       el.classList.remove("obfuscate")
     })

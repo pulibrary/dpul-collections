@@ -6,7 +6,13 @@ defmodule DpulCollectionsWeb.ItemLive do
   use Gettext, backend: DpulCollectionsWeb.Gettext
   alias DpulCollections.{Item, Solr}
 
-  def mount(_params, _session, socket) do
+  def mount(_params, session, socket) do
+    show_images = session["show_images"]
+
+    socket =
+      socket
+      |> assign(:show_images, show_images)
+
     {:ok, socket, layout: {DpulCollectionsWeb.Layouts, :home}}
   end
 
@@ -138,7 +144,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         </div>
 
         <div class="thumbnails w-full sm:row-start-1 sm:col-start-1 sm:col-span-2 sm:row-span-full">
-          <.primary_thumbnail item={@item} display_size={@display_size} />
+          <.primary_thumbnail item={@item} display_size={@display_size} show_images={@show_images} />
 
           <.show_images_button :if={@item.content_warning} item_id={@item.id} />
           <.action_bar class="sm:hidden pt-4" item={@item} />
@@ -173,6 +179,7 @@ defmodule DpulCollectionsWeb.ItemLive do
                 thumb_num={thumb_num}
                 viewer_url={@item.viewer_url}
                 item={@item}
+                show_images={@show_images}
               />
             </div>
           </section>
@@ -500,7 +507,7 @@ defmodule DpulCollectionsWeb.ItemLive do
               width={@item.primary_thumbnail_width}
               height={@item.primary_thumbnail_height}
               class={[
-                @item.content_warning && "obfuscate",
+                Helpers.obfuscate_item?(assigns) && "obfuscate",
                 "thumbnail-#{@item.id}"
               ]}
             />
@@ -745,7 +752,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         <img
           class={[
             "h-full w-full object-cover",
-            @item.content_warning && "obfuscate",
+            Helpers.obfuscate_item?(assigns) && "obfuscate",
             "thumbnail-#{@item.id}"
           ]}
           src={"#{@thumb}/full/350,465/0/default.jpg"}
