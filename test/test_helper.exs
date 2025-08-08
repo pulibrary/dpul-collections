@@ -1,5 +1,4 @@
 Ecto.Adapters.SQL.Sandbox.mode(DpulCollections.Repo, :manual)
-Ecto.Adapters.SQL.Sandbox.mode(DpulCollections.FiggyRepo, :manual)
 
 defmodule BroadwayEctoSandbox do
   def attach(repo) do
@@ -44,7 +43,6 @@ defmodule BroadwayEctoSandbox do
 end
 
 BroadwayEctoSandbox.attach(DpulCollections.Repo)
-BroadwayEctoSandbox.attach(DpulCollections.FiggyRepo)
 
 Application.put_env(:phoenix_test, :base_url, DpulCollectionsWeb.Endpoint.url())
 ExUnit.start(exclude: [:skip])

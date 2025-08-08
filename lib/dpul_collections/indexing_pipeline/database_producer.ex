@@ -50,6 +50,8 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
       extra_metadata: extra_metadata
     }
 
+    source_module.init()
+
     {:producer, initial_state}
   end
 
@@ -129,6 +131,11 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
   end
 
   def handle_info(:check_for_updates, state) do
+    {:noreply, [], state}
+  end
+
+  def handle_info({:notification, _pid, _ref, "orm_resources_change", _id}, state) do
+    send(self(), :check_for_updates)
     {:noreply, [], state}
   end
 
