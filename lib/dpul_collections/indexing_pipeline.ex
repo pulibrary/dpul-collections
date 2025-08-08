@@ -138,7 +138,7 @@ defmodule DpulCollections.IndexingPipeline do
           fragment(
             """
             EXISTS (
-            SELECT FROM json_object_keys(?->'resources') related_id
+            SELECT FROM jsonb_object_keys(?->'resources') related_id
             WHERE related_id = ?
             )
             """,
