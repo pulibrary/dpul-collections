@@ -26,6 +26,15 @@ defmodule BroadwayEctoSandbox do
     :ok
   end
 
+  def handle_event(
+        _event_name,
+        _event_measurement,
+        metadata = %{extra_metadata: %{}},
+        %{repo: repo}
+      ) do
+    :ok
+  end
+
   def handle_event(_event_name, _event_measurement, %{messages: messages}, %{repo: repo}) do
     with [%Broadway.Message{metadata: metadata = %{ecto_pid: pid}} | _] <- messages do
       Ecto.Adapters.SQL.Sandbox.allow(repo, pid, self())
