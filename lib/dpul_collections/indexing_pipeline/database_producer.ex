@@ -9,9 +9,6 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
   @behaviour Broadway.Acknowledger
 
   @spec start_link({source_module :: module(), cache_version :: integer()}) :: Broadway.on_start()
-  def start_link({source_module, cache_version}),
-    do: start_link({source_module, cache_version, %{}})
-
   def start_link({source_module, cache_version, extra_metadata}) do
     GenStage.start_link(
       __MODULE__,

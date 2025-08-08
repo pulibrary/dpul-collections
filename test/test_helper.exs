@@ -19,7 +19,7 @@ defmodule BroadwayEctoSandbox do
   def handle_event(
         _event_name,
         _event_measurement,
-        metadata = %{extra_metadata: %{ecto_pid: pid}},
+        %{extra_metadata: %{ecto_pid: pid}},
         %{repo: repo}
       ) do
     Ecto.Adapters.SQL.Sandbox.allow(repo, pid, self())
@@ -29,14 +29,14 @@ defmodule BroadwayEctoSandbox do
   def handle_event(
         _event_name,
         _event_measurement,
-        metadata = %{extra_metadata: %{}},
-        %{repo: repo}
+        %{extra_metadata: _},
+        %{repo: _}
       ) do
     :ok
   end
 
   def handle_event(_event_name, _event_measurement, %{messages: messages}, %{repo: repo}) do
-    with [%Broadway.Message{metadata: metadata = %{ecto_pid: pid}} | _] <- messages do
+    with [%Broadway.Message{metadata: %{ecto_pid: pid}} | _] <- messages do
       Ecto.Adapters.SQL.Sandbox.allow(repo, pid, self())
     end
 

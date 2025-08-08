@@ -381,7 +381,7 @@ defmodule DpulCollections.Solr do
   end
 
   def delete_alias(alias) do
-    {:ok, response} =
+    {:ok, _response} =
       client()
       |> Req.merge(
         url: "solr/admin/collections",
