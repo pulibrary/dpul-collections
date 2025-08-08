@@ -83,12 +83,8 @@ defmodule DpulCollections.DataCase do
   def setup_sandbox(tags) do
     pid = Ecto.Adapters.SQL.Sandbox.start_owner!(DpulCollections.Repo, shared: not tags[:async])
 
-    pid_2 =
-      Ecto.Adapters.SQL.Sandbox.start_owner!(DpulCollections.FiggyRepo, shared: false)
-
     on_exit(fn ->
       Ecto.Adapters.SQL.Sandbox.stop_owner(pid)
-      Ecto.Adapters.SQL.Sandbox.stop_owner(pid_2)
     end)
   end
 

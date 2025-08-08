@@ -1,5 +1,6 @@
 defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
-  use DpulCollections.DataCase, async: true
+  alias DpulCollections.FiggyRepo
+  use DpulCollections.DataCase
 
   alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline
@@ -198,7 +199,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     hydrator |> Broadway.stop(:normal)
   end
 
-  test "returning new Figgy records via polling" do
+  test "returning new Figgy records via notifications" do
     # Jump us way in the future.
     IndexingPipeline.write_processor_marker(%{
       type: Figgy.HydrationProducerSource.processor_marker_key(),
@@ -206,18 +207,27 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
       cache_location: ~U[2042-03-09 20:19:33.414040Z],
       cache_record_id: "3cb7627b-defc-401b-9959-42ebc4488f74"
     })
+
     hydrator = start_producer()
     # It'll try to start polling, since there are none after 2040.
     MockFiggyHydrationProducer.process(1)
     pid = self()
+
     :telemetry.attach(
       "tracking-polling",
       [:database_producer, :polling, :started],
-      fn(_,_,_,_) -> send(pid, {:polling}) end,
+      fn _, _, _, _ -> send(pid, {:polling}) end,
       nil
     )
+
     assert_receive {:polling}
-    FiggyTestSupport.create_new_ephemera_folder(~U[2043-03-09 20:19:33.414040Z])
+
+    {:ok, record} = FiggyTestSupport.create_new_ephemera_folder(~U[2043-03-09 20:19:33.414040Z])
+
+    on_exit(fn ->
+      FiggyRepo.delete(record)
+    end)
+
     assert_receive {:ack_done}
   end
 end
