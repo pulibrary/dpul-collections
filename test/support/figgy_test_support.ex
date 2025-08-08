@@ -23,6 +23,19 @@ defmodule FiggyTestSupport do
     FiggyRepo.one(query)
   end
 
+  def create_new_ephemera_folder(date) do
+    %Figgy.Resource{}
+    |> Ecto.Changeset.cast(
+      %{
+        internal_resource: "EphemeraFolder",
+        created_at: date,
+        updated_at: date
+      },
+      [:internal_resource, :updated_at, :created_at]
+    )
+    |> FiggyRepo.insert()
+  end
+
   def ephemera_folder_count do
     query =
       from r in Figgy.Resource,
@@ -76,8 +89,7 @@ defmodule FiggyTestSupport do
     solr_doc
   end
 
-  def index_record_id(id) do
-    cache_version = 1
+  def index_record_id(id, cache_version \\ 1) do
     # Get record with a description.
     record = IndexingPipeline.get_figgy_resource!(id)
     # Write a current hydration marker right before that marker.
@@ -100,11 +112,16 @@ defmodule FiggyTestSupport do
       Figgy.IndexingConsumer.start_link(
         cache_version: cache_version,
         batch_size: 50,
-        write_collection: SolrTestSupport.active_collection()
+        write_collection: SolrTestSupport.active_collection(),
+        extra_metadata: %{ecto_pid: self()}
       )
 
     {:ok, transformer} =
-      Figgy.TransformationConsumer.start_link(cache_version: cache_version, batch_size: 50)
+      Figgy.TransformationConsumer.start_link(
+        cache_version: cache_version,
+        batch_size: 50,
+        extra_metadata: %{ecto_pid: self()}
+      )
 
     # Control hydration indexing.
     {:ok, hydrator} =
@@ -112,7 +129,8 @@ defmodule FiggyTestSupport do
         cache_version: cache_version,
         batch_size: 50,
         producer_module: MockFiggyHydrationProducer,
-        producer_options: {self(), 1}
+        producer_options: {self(), cache_version, %{ecto_pid: self()}},
+        extra_metadata: %{ecto_pid: self()}
       )
 
     # Index one.
@@ -127,7 +145,7 @@ defmodule FiggyTestSupport do
   end
 
   def wait_for_indexed_count(count) do
-    collection = Application.fetch_env!(:dpul_collections, :solr)[:read_collection]
+    collection = SolrTestSupport.active_collection()
     DpulCollections.Solr.commit(collection)
 
     continue =

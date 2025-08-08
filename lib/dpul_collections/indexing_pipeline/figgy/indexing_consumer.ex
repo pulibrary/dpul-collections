@@ -27,14 +27,16 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
     default = [
       cache_version: cache_version,
       producer_module: DatabaseProducer,
-      producer_options: {Figgy.IndexingProducerSource, cache_version},
-      batch_size: 10
+      producer_options: {Figgy.IndexingProducerSource, cache_version, options[:extra_metadata]},
+      batch_size: 10,
+      name_append: nil
     ]
 
     options = Keyword.merge(default, options)
+    name = String.to_atom("#{__MODULE__}_#{cache_version}#{options[:name_append]}")
 
     Broadway.start_link(__MODULE__,
-      name: String.to_atom("#{__MODULE__}_#{cache_version}"),
+      name: name,
       producer: [
         module: {options[:producer_module], options[:producer_options]}
       ],
