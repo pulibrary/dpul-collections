@@ -28,7 +28,13 @@ defmodule DpulCollectionsWeb.ShowImagesPlug do
   defp validate_ids(nil), do: nil
 
   defp validate_ids(ids) do
-    # TODO: ensure they're all UUIDs
-    String.split(ids, ",")
+    id_list =
+      String.split(ids, ",")
+      |> Enum.reject(fn s -> Ecto.UUID.cast(s) == :error end)
+
+    case id_list do
+      [] -> nil
+      _ -> id_list
+    end
   end
 end
