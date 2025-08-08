@@ -42,6 +42,21 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     })
   end
 
+  test "returning new Figgy records via polling" do
+    # Jump us way in the future.
+    IndexingPipeline.write_processor_marker(%{
+      type: Figgy.HydrationProducerSource.processor_marker_key(),
+      cache_version: 0,
+      cache_location: ~U[2040-03-09 20:19:33.414040Z],
+      cache_record_id: "3cb7627b-defc-401b-9959-42ebc4488f74"
+    })
+    hydrator = start_producer()
+    # It'll try to start polling, since there are none after 2040.
+    MockFiggyHydrationProducer.process(1)
+    FiggyTestSupport.create_new_ephemera_folder(~U[2041-03-09 20:19:33.414040Z])
+    assert_receive {:ack_done}
+  end
+
   test "ephemera folder cache entry creation" do
     jump_processor_to_ephemera_folder()
     marker1 = FiggyTestFixtures.ephemera_folder_marker()

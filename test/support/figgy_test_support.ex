@@ -14,6 +14,19 @@ defmodule FiggyTestSupport do
     FiggyRepo.aggregate(query, :count)
   end
 
+  def create_new_ephemera_folder(date) do
+    %Figgy.Resource{}
+    |> Ecto.Changeset.cast(
+      %{
+        internal_resource: "EphemeraFolder",
+        created_at: date,
+        updated_at: date
+      },
+      [:internal_resource, :updated_at, :created_at]
+    )
+    |> FiggyRepo.insert
+  end
+
   def first_ephemera_folder do
     query =
       from r in Figgy.Resource,

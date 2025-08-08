@@ -87,7 +87,12 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
     # Set a timer to try fulfilling demand again later
     if new_state.stored_demand > 0 do
       DpulCollections.IndexMetricsTracker.register_polling_started(source_module, cache_version)
-      Process.send_after(self(), :check_for_updates, 50)
+      if new_state.source_module != DpulCollections.IndexingPipeline.Figgy.HydrationProducerSource do
+        Process.send_after(self(), :check_for_updates, 50)
+      else
+        Process.send_after(self(), :check_for_updates, 50)
+        dbg("Oop")
+      end
     end
 
     {:noreply, Enum.map(records, &wrap_record/1), new_state}
