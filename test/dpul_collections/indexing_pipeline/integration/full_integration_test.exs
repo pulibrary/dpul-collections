@@ -7,37 +7,6 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
   alias DpulCollections.{IndexingPipeline, Solr, IndexMetricsTracker}
   import SolrTestSupport
 
-  setup_all do
-    collection_name = "dpulc-#{Ecto.UUID.generate()}"
-    Solr.create_collection(collection_name)
-
-    Process.put(
-      :dpul_collections_solr,
-      DpulCollections.Solr.solr_config()
-      |> Map.merge(%{read_collection: "alias-#{collection_name}"})
-    )
-
-    Solr.set_alias(collection_name)
-
-    on_exit(fn ->
-      Solr.delete_alias("alias-#{collection_name}")
-      Solr.delete_collection(collection_name)
-    end)
-
-    [collection: collection_name]
-  end
-
-  setup %{collection: collection} do
-    Process.put(
-      :dpul_collections_solr,
-      DpulCollections.Solr.solr_config()
-      |> Map.merge(%{read_collection: "alias-#{collection}"})
-    )
-
-    Solr.delete_all(active_collection())
-    on_exit(fn -> Solr.delete_all(active_collection()) end)
-  end
-
   def wait_for_index_completion() do
     transformation_cache_entries = IndexingPipeline.list_transformation_cache_entries() |> length
     ephemera_folder_count = FiggyTestSupport.ephemera_folder_count()
