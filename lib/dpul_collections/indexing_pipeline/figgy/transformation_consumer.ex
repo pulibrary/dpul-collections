@@ -31,7 +31,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
 
     options = Keyword.merge(default, options)
 
-    Broadway.start_link(__MODULE__,
+
+    result = Broadway.start_link(__MODULE__,
       name: String.to_atom("#{__MODULE__}_#{cache_version}"),
       producer: [
         module: {options[:producer_module], options[:producer_options]}
@@ -45,6 +46,24 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
       ],
       context: %{cache_version: options[:cache_version]}
     )
+    case result do
+      {:ok, pid} ->
+        :telemetry.attach(
+          "transformation-consumer-watcher-#{pid |> :erlang.pid_to_list()}",
+          [:broadway, :processor, :stop],
+          &on_startup(&1, &2, &3, &4, pid, %{cache_version: options[:cache_version]}),
+          nil
+        )
+        result
+      _ -> result
+    end
+  end
+
+  # When a hydration cache entry gets sent for this cache version, we should
+  # handle it.
+  def on_startup(first, second, %{context: %{type: :hydration, cache_version: cache_version}}, fourth, pid, %{cache_version: cache_version}) do
+    dbg("I should poll")
+    :ok
   end
 
   @impl Broadway

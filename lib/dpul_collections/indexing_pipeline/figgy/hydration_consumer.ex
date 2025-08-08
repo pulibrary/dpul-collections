@@ -40,7 +40,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         default: [batch_size: options[:batch_size]],
         noop: [batch_size: options[:batch_size]]
       ],
-      context: %{cache_version: options[:cache_version]}
+      context: %{cache_version: options[:cache_version], type: :hydration}
     )
   end
 
