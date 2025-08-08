@@ -1,5 +1,5 @@
 defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
-  use DpulCollections.DataCase
+  use DpulCollections.DataCase, async: true
 
   alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline
@@ -26,9 +26,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
       Figgy.IndexingConsumer.start_link(
         cache_version: cache_version,
         producer_module: MockFiggyIndexingProducer,
-        producer_options: {self(), cache_version},
+        producer_options: {self(), cache_version, %{ecto_pid: self()}},
         batch_size: 1,
-        write_collection: active_collection()
+        write_collection: active_collection(),
+        name_append: :indexing_test
       )
 
     indexer
@@ -38,8 +39,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
     FiggyTestFixtures.transformation_cache_markers()
 
     indexer = start_indexing_producer()
+    name = (indexer |> Process.info())[:registered_name]
 
-    MockFiggyIndexingProducer.process(1)
+    MockFiggyIndexingProducer.process(name, 1)
     assert_receive {:ack_done}, 500
 
     Solr.commit(active_collection())
@@ -53,8 +55,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
 
     cache_version = 1
     indexer = start_indexing_producer(cache_version)
+    name = (indexer |> Process.info())[:registered_name]
 
-    MockFiggyIndexingProducer.process(1, cache_version)
+    MockFiggyIndexingProducer.process(name, 1, cache_version)
     assert_receive {:ack_done}, 500
 
     processor_marker = IndexingPipeline.get_processor_marker!("figgy_indexer", cache_version)
@@ -82,7 +85,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
 
     # Process that past record.
     indexer = start_indexing_producer()
-    MockFiggyIndexingProducer.process(1)
+    name = (indexer |> Process.info())[:registered_name]
+    MockFiggyIndexingProducer.process(name, 1)
     assert_receive {:ack_done}, 500
     indexer |> Broadway.stop(:normal)
     # Ensure there's only one solr document
@@ -106,7 +110,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
 
     # Start the producer
     indexer = start_indexing_producer()
-    MockFiggyIndexingProducer.process(1)
+    name = (indexer |> Process.info())[:registered_name]
+    MockFiggyIndexingProducer.process(name, 1)
     assert_receive {:ack_done}, 500
     Solr.commit(active_collection())
     # Make sure the first record that comes back is what we expect
@@ -124,7 +129,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
       Figgy.IndexingConsumer.start_link(
         cache_version: cache_version,
         producer_module: MockFiggyIndexingProducer,
-        producer_options: {self(), cache_version},
+        producer_options: {self(), cache_version, %{ecto_pid: self()}},
         batch_size: 1,
         write_collection: new_collection
       )
