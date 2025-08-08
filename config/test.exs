@@ -29,8 +29,9 @@ config :dpul_collections, DpulCollections.FiggyRepo,
   pool_size: 10,
   # in ms, 30 min, allows dbg in tests
   ownership_timeout: 1_800_000
-  # pool: Ecto.Adapters.SQL.Sandbox,
-  # pool_size: System.schedulers_online() * 2
+
+# pool: Ecto.Adapters.SQL.Sandbox,
+# pool_size: System.schedulers_online() * 2
 
 # Playwright feature tests require the server to be running
 config :dpul_collections, DpulCollectionsWeb.Endpoint,
