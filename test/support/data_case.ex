@@ -13,6 +13,7 @@ defmodule DpulCollections.DataCase do
   by setting `use DpulCollections.DataCase, async: true`, although
   this option is not recommended for other databases.
   """
+  alias DpulCollections.Solr
 
   use ExUnit.CaseTemplate
 
@@ -29,6 +30,41 @@ defmodule DpulCollections.DataCase do
 
   setup tags do
     DpulCollections.DataCase.setup_sandbox(tags)
+    :ok
+  end
+
+  setup_all %{async: true} do
+    collection_name = "dpulc-#{Ecto.UUID.generate()}"
+    Solr.create_collection(collection_name)
+
+    Process.put(
+      :dpul_collections_solr,
+      DpulCollections.Solr.solr_config()
+      |> Map.merge(%{read_collection: "alias-#{collection_name}"})
+    )
+
+    Solr.set_alias(collection_name)
+
+    on_exit(fn ->
+      Solr.delete_alias("alias-#{collection_name}")
+      Solr.delete_collection(collection_name)
+    end)
+
+    [collection: collection_name]
+  end
+
+  setup %{async: true, collection: collection} do
+    Process.put(
+      :dpul_collections_solr,
+      DpulCollections.Solr.solr_config()
+      |> Map.merge(%{read_collection: "alias-#{collection}"})
+    )
+
+    Solr.delete_all(collection)
+    on_exit(fn -> Solr.delete_all(collection) end)
+  end
+
+  setup_all _context do
     :ok
   end
 
