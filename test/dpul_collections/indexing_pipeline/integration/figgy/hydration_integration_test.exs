@@ -18,7 +18,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
       Figgy.HydrationConsumer.start_link(
         cache_version: cache_version,
         producer_module: MockFiggyHydrationProducer,
-        producer_options: {self(), cache_version},
+        producer_options: {self(), cache_version, %{ecto_pid: self()}},
         batch_size: 1
       )
 
