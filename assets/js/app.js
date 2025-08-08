@@ -61,7 +61,7 @@ window.addEventListener("dpulc:showImages", e => {
 
     let newList = oldList || []
     newList.push(itemId)
-    document.cookie = `showImages=${Array.from(new Set(newList)).join(",")}; max-age=${maxAge}; path=/`
+    document.cookie = `showImages1=${Array.from(new Set(newList)).join(",")}; max-age=${maxAge}; path=/`
 
     // show the images
     allImages.forEach(el => {

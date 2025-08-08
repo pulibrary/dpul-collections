@@ -22,7 +22,7 @@ defmodule DpulCollectionsWeb.ShowImagesPlug do
   end
 
   defp fetch_cookie(conn) do
-    conn.cookies["showImages"] |> validate_ids()
+    conn.cookies["showImages1"] |> validate_ids()
   end
 
   defp validate_ids(nil), do: nil
