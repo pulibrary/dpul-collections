@@ -6,7 +6,13 @@ defmodule DpulCollectionsWeb.SearchLive do
   alias DpulCollectionsWeb.Live.Helpers
   alias DpulCollectionsWeb.SearchLive.SearchState
 
-  def mount(_params, _session, socket) do
+  def mount(_params, session, socket) do
+    show_images = session["show_images"]
+
+    socket =
+      socket
+      |> assign(:show_images, show_images)
+
     {:ok, socket}
   end
 
@@ -126,7 +132,12 @@ defmodule DpulCollectionsWeb.SearchLive do
       <div class="grid grid-flow-row auto-rows-max gap-8">
         <div :for={item <- @items}>
           <hr aria-hidden="true" class="mb-8" />
-          <.search_item search_state={@search_state} item={item} sort_by={@search_state.sort_by} />
+          <.search_item
+            search_state={@search_state}
+            item={item}
+            sort_by={@search_state.sort_by}
+            show_images={@show_images}
+          />
         </div>
       </div>
       <div class="text-center max-w-5xl mx-auto text-lg py-8">
@@ -163,10 +174,6 @@ defmodule DpulCollectionsWeb.SearchLive do
     """
   end
 
-  attr :item, Item, required: true
-  attr :sort_by, :string, default: "relevance"
-  attr :search_state, :map
-
   def search_item(assigns) do
     ~H"""
     <article
@@ -184,13 +191,15 @@ defmodule DpulCollectionsWeb.SearchLive do
             :if={@item.file_count}
             thumb={thumb}
             thumb_num={thumb_num}
-            link={@item.url}
+            item={@item}
+            show_images={@show_images}
           />
           <div id={"filecount-#{@item.id}"} class="hidden absolute right-0 top-0 bg-white px-4 py-2">
             {@item.file_count} {gettext("Images")}
           </div>
         </div>
       </.link>
+      <.show_images_button :if={@item.content_warning} item_id={@item.id} />
       <div data-field="genre" class="pt-4 text-gray-600 font-bold text-sm uppercase">
         <.link
           aria-label={"#{gettext("filter by")} #{@item.genre}"}
@@ -235,7 +244,11 @@ defmodule DpulCollectionsWeb.SearchLive do
   def thumbs(assigns) do
     ~H"""
     <img
-      class="h-[350px] w-[350px] md:h-[225px] md:w-[225px] border border-solid border-gray-400"
+      class={[
+        "h-[350px] w-[350px] md:h-[225px] md:w-[225px] border border-solid border-gray-400",
+        Helpers.obfuscate_item?(assigns) && "obfuscate",
+        "thumbnail-#{@item.id}"
+      ]}
       src={"#{@thumb}/square/350,350/0/default.jpg"}
       alt={"image #{@thumb_num}"}
       style="

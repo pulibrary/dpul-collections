@@ -27,4 +27,12 @@ defmodule DpulCollectionsWeb.Live.Helpers do
         {k, v}
     end
   end
+
+  def obfuscate_item?(%{show_images: nil, item: item}) do
+    item.content_warning
+  end
+
+  def obfuscate_item?(%{show_images: show_images, item: item}) do
+    item.content_warning && !Enum.member?(show_images, item.id)
+  end
 end

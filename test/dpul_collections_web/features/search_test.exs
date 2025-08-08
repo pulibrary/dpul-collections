@@ -1,4 +1,4 @@
-defmodule DpulCollectionsWeb.Features.RowImgCountTest do
+defmodule DpulCollectionsWeb.Features.SearchTest do
   use ExUnit.Case
   use PhoenixTest.Playwright.Case
   import SolrTestSupport

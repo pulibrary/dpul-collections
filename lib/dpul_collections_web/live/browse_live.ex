@@ -6,14 +6,17 @@ defmodule DpulCollectionsWeb.BrowseLive do
   import DpulCollectionsWeb.BrowseItem
   alias DpulCollections.{Item, Solr}
 
-  def mount(_params, _session, socket) do
+  def mount(_params, session, socket) do
+    show_images = session["show_images"]
+
     socket =
       socket
       |> assign(
         items: [],
         liked_items: [],
         page_title: gettext("Browse - Digital Collections"),
-        focused_item: nil
+        focused_item: nil,
+        show_images: show_images
       )
 
     {:ok, socket}
@@ -99,8 +102,9 @@ defmodule DpulCollectionsWeb.BrowseLive do
           likeable?={false}
           target="_blank"
           class="border-6 border-primary"
+          show_images={@show_images}
         />
-        <.browse_item :for={item <- @items} item={item} target="_blank" />
+        <.browse_item :for={item <- @items} item={item} target="_blank" show_images={@show_images} />
       </div>
     </div>
     """
@@ -124,7 +128,11 @@ defmodule DpulCollectionsWeb.BrowseLive do
                 "rounded-md border-4 border-accent h-[84px] w-[84px]"
             ]}
           >
-            <BrowseItem.thumb thumb={BrowseItem.thumbnail_service_url(item)} />
+            <BrowseItem.thumb
+              thumb={BrowseItem.thumbnail_service_url(item)}
+              item={item}
+              show_images={@show_images}
+            />
           </.link>
         </div>
 

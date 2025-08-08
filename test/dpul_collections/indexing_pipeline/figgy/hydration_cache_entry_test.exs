@@ -17,7 +17,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
       assert %{
                alternative_title_txtm: ["Zaib-un-Nisa", "Zaibunnisa"],
                barcode_txtm: ["barcode"],
-               content_warning_txtm: ["content warning"],
+               content_warning_s: "content warning",
                contributor_txtm: ["contributor"],
                creator_txtm: ["creator"],
                description_txtm: ["Asra-Panahi", "Berlin-Protest", "Elnaz-Rekabi"],
@@ -41,7 +41,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
       assert %{
                alternative_title_txtm: [],
-               content_warning_txtm: [],
+               content_warning_s: nil,
                description_txtm: [],
                digitized_at_dt: nil
              } = doc2
