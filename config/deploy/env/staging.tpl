@@ -14,4 +14,6 @@ DNS_CLUSTER_QUERY = "dpulc-staging-web.service.consul"
 HONEYBADGER_API_KEY = {{ .HONEYBADGER_API_KEY }}
 GRAFANA_SERVICE_TOKEN = {{ .GRAFANA_SERVICE_TOKEN }}
 METRICS_AUTH_TOKEN = {{ .METRICS_AUTH_TOKEN }}
-{{- end -}}
+{{ end }}
+OTLP_ENDPOINT = "http://{{ env "NOMAD_IP_http" }}:4320"
+OTEL_RESOURCE_ATTRIBUTES = "service.name=dpul-collections,environment=staging,application=dpul-collections,type=webserver,deployment.environment=staging"

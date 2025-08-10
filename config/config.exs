@@ -103,3 +103,8 @@ config :iconify_ex,
   mode: :css,
   generated_icon_static_path: "./assets/css",
   default_class: nil
+
+config :opentelemetry,
+  resource: %{service: %{name: "dpul-collections"}},
+  span_processor: :batch,
+  traces_exporter: :otlp
