@@ -69,6 +69,7 @@ defmodule DpulCollections.IndexingPipeline do
         set: [
           data: ^attrs.data,
           related_data: ^attrs[:related_data],
+          related_ids: ^attrs.related_ids,
           source_cache_order: ^attrs.source_cache_order,
           source_cache_order_record_id: ^attrs.source_cache_order_record_id,
           cache_order: ^DateTime.utc_now()
@@ -134,18 +135,8 @@ defmodule DpulCollections.IndexingPipeline do
     query =
       from r in Figgy.HydrationCacheEntry,
         where: r.cache_version == ^cache_version,
-        where:
-          fragment(
-            """
-            EXISTS (
-            SELECT FROM json_object_keys(?->'resources') related_id
-            WHERE related_id = ?
-            )
-            """,
-            r.related_data,
-            ^related_id
-          ),
-        where: r.source_cache_order < ^related_timestamp
+        where: r.source_cache_order < ^related_timestamp,
+        where: ^related_id in r.related_ids
 
     Repo.all(query)
   end

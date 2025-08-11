@@ -176,6 +176,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
       IndexingPipeline.write_hydration_cache_entry(%{
         cache_version: cache_version,
         record_id: id,
+        related_ids: [],
         source_cache_order: marker.timestamp,
         source_cache_order_record_id: id,
         data: data
@@ -186,7 +187,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
   defp write_to_hydration_cache(
          %Broadway.Message{
-           data: %{marker: marker, handled_data: data, related_data: related_data}
+           data: %{
+             marker: marker,
+             handled_data: data,
+             related_data: related_data,
+             related_ids: related_ids
+           }
          },
          cache_version
        ) do
@@ -201,6 +207,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
       IndexingPipeline.write_hydration_cache_entry(%{
         cache_version: cache_version,
         record_id: marker.id,
+        related_ids: related_ids,
         source_cache_order: marker.timestamp,
         source_cache_order_record_id: marker.id,
         data: data,
@@ -217,16 +224,22 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     related_entries =
       IndexingPipeline.get_related_hydration_cache_entries!(id, timestamp, cache_version)
 
+    # Enumerate related hydration cache entries
+    # Re-generate the cache attrs to pull in changes from related resource
+    # Update the hydration cache entry using the related resource timestamp and id
     related_entries
+    |> Enum.map(&Figgy.Resource.from_hydation_cache_entry(&1))
+    |> Enum.map(&Figgy.Resource.to_hydration_cache_attrs(&1))
     |> Enum.each(&update_related_hydration_cache_entry(&1, id, timestamp, cache_version))
 
     {:ok, ""}
   end
 
   defp update_related_hydration_cache_entry(
-         %DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry{
-           data: %{"id" => resource_id} = data,
-           related_data: related_data
+         %{
+           handled_data: data = %{id: resource_id},
+           related_data: related_data,
+           related_ids: related_ids
          },
          related_id,
          related_timestamp,
@@ -236,6 +249,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
       IndexingPipeline.write_hydration_cache_entry(%{
         cache_version: cache_version,
         record_id: resource_id,
+        related_ids: related_ids,
         source_cache_order: related_timestamp,
         source_cache_order_record_id: related_id,
         data: data,

@@ -163,7 +163,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
     IndexingPipeline.write_hydration_cache_entry(%{
       cache_version: 0,
       record_id: "some-other-id",
+      resource_ids: [],
       source_cache_order: ~U[2100-03-09 20:19:33.414040Z],
+      source_cache_order_record_id: "some-other-id",
       data: %{
         "non_figgy_property" => "stuff"
       }
