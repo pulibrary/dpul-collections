@@ -8,6 +8,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
     field :related_data, :map, default: %{}
     field :cache_version, :integer
     field :record_id, :string
+    field :related_ids, {:array, :string}, default: []
     field :source_cache_order, :utc_datetime_usec
     field :source_cache_order_record_id, :string
 
@@ -22,6 +23,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
       :related_data,
       :cache_version,
       :record_id,
+      :related_ids,
       :source_cache_order,
       :source_cache_order_record_id
     ])
@@ -29,6 +31,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
       :data,
       :cache_version,
       :record_id,
+      :related_ids,
       :source_cache_order,
       :source_cache_order_record_id
     ])

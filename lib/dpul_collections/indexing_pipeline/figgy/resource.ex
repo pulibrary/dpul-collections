@@ -31,7 +31,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   def to_hydration_cache_attrs(resource = %__MODULE__{internal_resource: "DeletionMarker"}) do
     %{
       handled_data: resource |> to_map,
-      related_data: %{}
+      related_data: %{},
+      related_ids: []
     }
   end
 
@@ -57,8 +58,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
 
     %{
       handled_data: handled_data,
-      related_data: related_data
+      related_data: related_data,
+      related_ids: related_ids(related_data)
     }
+  end
+
+  def from_hydation_cache_entry(entry) do
+    fields = for {key, val} <- entry.data, into: %{}, do: {String.to_atom(key), val}
+    struct(%__MODULE__{}, fields)
   end
 
   # Don't fetch related data when the state or visibilty are not correct.
@@ -145,6 +152,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     # Convert the list of tuples into a map with the form:
     # `%{"id-1" => %{ "name" => "value", ..}, %{"id-2" => {"name" => "value", ..}}, ..}`
     |> Map.new()
+  end
+
+  # Concat ids for all ancestors and related resources into a single list
+  @spec related_ids(related_data()) :: list(String.t())
+  defp related_ids(related_data) do
+    ancestor_ids = (related_data["ancestors"] || %{}) |> Map.keys()
+    resource_ids = (related_data["resources"] || %{}) |> Map.keys()
+    ancestor_ids ++ resource_ids
   end
 
   defp remove_non_displayable_filesets(resources) do
