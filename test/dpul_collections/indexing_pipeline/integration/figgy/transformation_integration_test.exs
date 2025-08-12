@@ -19,7 +19,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
       Figgy.TransformationConsumer.start_link(
         cache_version: cache_version,
         producer_module: MockFiggyTransformationProducer,
-        producer_options: {self(), cache_version},
+        producer_options: {self(), cache_version, %{ecto_pid: self()}},
         batch_size: 1
       )
 

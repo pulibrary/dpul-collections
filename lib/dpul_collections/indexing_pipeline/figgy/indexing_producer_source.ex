@@ -2,6 +2,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerSource do
   alias DpulCollections.IndexingPipeline
   @behaviour IndexingPipeline.DatabaseProducer.Source
 
+  def init() do
+  end
+
   def processor_marker_key() do
     "figgy_indexer"
   end

@@ -16,9 +16,11 @@ defmodule MockFiggyIndexingProducer do
   @impl GenStage
   @type state :: %{consumer_pid: pid(), test_runner_pid: pid(), indexing_producer_pid: pid()}
   @spec init({pid(), integer}) :: {:producer, state()}
-  def init({test_runner_pid, cache_version}) do
+  def init({test_runner_pid, cache_version}), do: init({test_runner_pid, cache_version, %{}})
+
+  def init({test_runner_pid, cache_version, extra_metadata}) do
     {:ok, indexing_producer_pid} =
-      DatabaseProducer.start_link({Figgy.IndexingProducerSource, cache_version})
+      DatabaseProducer.start_link({Figgy.IndexingProducerSource, cache_version, extra_metadata})
 
     {:ok, consumer_pid} = MockConsumer.start_link(indexing_producer_pid)
 
@@ -26,7 +28,8 @@ defmodule MockFiggyIndexingProducer do
      %{
        consumer_pid: consumer_pid,
        test_runner_pid: test_runner_pid,
-       indexing_producer_pid: indexing_producer_pid
+       indexing_producer_pid: indexing_producer_pid,
+       extra_metadata: extra_metadata
      }}
   end
 
@@ -62,11 +65,11 @@ defmodule MockFiggyIndexingProducer do
   @doc """
   Request Figgy.IndexingConsumer to process <demand> records.
   """
-  @spec process(Integer) :: :ok
-  def process(demand, cache_version \\ 0) do
+  @spec process(any(), Integer) :: :ok
+  def process(indexer, demand) do
     # Get the PID for TestFiggyProducer GenServer,
     # then cast fulfill message to itself
-    Broadway.producer_names(String.to_existing_atom("#{Figgy.IndexingConsumer}_#{cache_version}"))
+    Broadway.producer_names(indexer)
     |> hd
     |> GenServer.cast({:fulfill_messages, demand})
   end

@@ -13,6 +13,7 @@ defmodule DpulCollections.DataCase do
   by setting `use DpulCollections.DataCase, async: true`, although
   this option is not recommended for other databases.
   """
+  alias DpulCollections.Solr
 
   use ExUnit.CaseTemplate
 
@@ -32,12 +33,59 @@ defmodule DpulCollections.DataCase do
     :ok
   end
 
+  setup_all %{async: async} do
+    case async do
+      true ->
+        collection_name = "dpulc-#{Ecto.UUID.generate()}"
+        Solr.create_collection(collection_name)
+
+        Process.put(
+          :dpul_collections_solr,
+          DpulCollections.Solr.solr_config()
+          |> Map.merge(%{read_collection: "alias-#{collection_name}"})
+        )
+
+        Solr.set_alias(collection_name)
+
+        on_exit(fn ->
+          Solr.delete_alias("alias-#{collection_name}")
+          Solr.delete_collection(collection_name)
+        end)
+
+        [collection: collection_name]
+
+      false ->
+        :ok
+    end
+  end
+
+  setup context do
+    case context do
+      %{async: true, collection: collection} ->
+        Process.put(
+          :dpul_collections_solr,
+          DpulCollections.Solr.solr_config()
+          |> Map.merge(%{read_collection: "alias-#{collection}"})
+        )
+
+        Solr.delete_all(collection)
+        on_exit(fn -> Solr.delete_all(collection) end)
+        :ok
+
+      _ ->
+        :ok
+    end
+  end
+
   @doc """
   Sets up the sandbox based on the test tags.
   """
   def setup_sandbox(tags) do
     pid = Ecto.Adapters.SQL.Sandbox.start_owner!(DpulCollections.Repo, shared: not tags[:async])
-    on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
+
+    on_exit(fn ->
+      Ecto.Adapters.SQL.Sandbox.stop_owner(pid)
+    end)
   end
 
   @doc """

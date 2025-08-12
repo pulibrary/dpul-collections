@@ -1,14 +1,9 @@
 defmodule DpulCollections.SolrTest do
-  use DpulCollections.DataCase
+  use DpulCollections.DataCase, async: true
   alias DpulCollections.Item
   alias DpulCollections.Solr
   import SolrTestSupport
   import ExUnit.CaptureLog
-
-  setup do
-    Solr.delete_all(active_collection())
-    on_exit(fn -> Solr.delete_all(active_collection()) end)
-  end
 
   test ".document_count/0" do
     assert Solr.document_count() == 0
@@ -223,9 +218,7 @@ defmodule DpulCollections.SolrTest do
 
   setup context do
     if solr_settings = context[:solr_settings] do
-      existing_env = Application.fetch_env!(:dpul_collections, :solr)
-      Application.put_env(:dpul_collections, :solr, solr_settings)
-      on_exit(fn -> Application.put_env(:dpul_collections, :solr, existing_env) end)
+      Process.put(:dpul_collections_solr, solr_settings)
     end
 
     :ok
@@ -255,8 +248,8 @@ defmodule DpulCollections.SolrTest do
     assert response.body["responseHeader"]["status"] == 0
   end
 
-  test "create a new collection, set alias, delete a collection" do
-    new_collection = "new_index1"
+  test "create a new collection, set alias, delete a collection", %{collection: collection} do
+    new_collection = "new_index#{Ecto.UUID.generate()}"
     assert Solr.collection_exists?(new_collection) == false
 
     Solr.create_collection(new_collection)
@@ -264,7 +257,7 @@ defmodule DpulCollections.SolrTest do
 
     # alias is pointing to the collection created during setup
     original_collection = Solr.get_alias()
-    assert original_collection == "dpulc1"
+    assert original_collection == "#{collection}"
     Solr.set_alias(new_collection)
     assert Solr.get_alias() == new_collection
     Solr.set_alias(original_collection)
