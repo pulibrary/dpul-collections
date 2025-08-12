@@ -5,6 +5,7 @@ defmodule DpulCollections.IndexingPipeline do
   use Sibyl
 
   import Ecto.Query, warn: false
+  require Logger
   alias DpulCollections.{Repo, FiggyRepo}
 
   alias DpulCollections.IndexingPipeline.Figgy
@@ -139,7 +140,7 @@ defmodule DpulCollections.IndexingPipeline do
         where: r.source_cache_order < ^related_timestamp,
         where: ^related_id in r.related_ids
 
-    Repo.all(query)
+    Repo.all(query, timeout: 600_000)
   end
 
   alias DpulCollections.IndexingPipeline.ProcessorMarker
