@@ -164,6 +164,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
       cache_version: 0,
       record_id: "some-other-id",
       resource_ids: [],
+      related_ids: [],
       source_cache_order: ~U[2100-03-09 20:19:33.414040Z],
       source_cache_order_record_id: "some-other-id",
       data: %{

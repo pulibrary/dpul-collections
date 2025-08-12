@@ -126,14 +126,15 @@ defmodule DpulCollections.IndexingPipeline do
     Repo.all(query)
   end
 
-  @spec get_related_hydration_cache_entries!(
+  @spec get_related_hydration_cache_record_ids!(
           related_id :: String.t(),
           related_timestamp :: DateTime.t(),
           cache_version :: integer
-        ) :: list(Figgy.HydrationCacheEntry)
-  def get_related_hydration_cache_entries!(related_id, related_timestamp, cache_version) do
+        ) :: list(String.t())
+  def get_related_hydration_cache_record_ids!(related_id, related_timestamp, cache_version) do
     query =
       from r in Figgy.HydrationCacheEntry,
+        select: r.record_id,
         where: r.cache_version == ^cache_version,
         where: r.source_cache_order < ^related_timestamp,
         where: ^related_id in r.related_ids

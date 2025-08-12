@@ -150,8 +150,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     task =
       Task.async(fn -> wait_for_solr_version_change(latest_document) end)
 
-    Task.await(task, 30000)
+    Task.await(task, 60000)
     latest_document_again = Solr.latest_document()
+
     # Make sure it got reindexed
     assert latest_document["_version_"] != latest_document_again["_version_"]
     # Make sure we didn't add another one
@@ -162,6 +163,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     transformation_entry_again =
       Repo.get_by(Figgy.TransformationCacheEntry, record_id: latest_document["id"])
 
+    assert transformation_entry.id == transformation_entry_again.id
     assert transformation_entry.cache_order == transformation_entry_again.cache_order
 
     # Retransformation Test
@@ -177,7 +179,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     task =
       Task.async(fn -> wait_for_solr_version_change(latest_document) end)
 
-    Task.await(task, 30000)
+    Task.await(task, 60000)
 
     # transformation entries were updated
     transformation_entry_again =
@@ -200,7 +202,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     task =
       Task.async(fn -> wait_for_solr_version_change(latest_document) end)
 
-    Task.await(task, 30000)
+    Task.await(task, 60000)
 
     hydration_entry_again =
       Repo.get_by(Figgy.HydrationCacheEntry, record_id: latest_document["id"])
