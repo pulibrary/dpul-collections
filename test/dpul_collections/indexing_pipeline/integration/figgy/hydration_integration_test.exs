@@ -53,7 +53,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     cache_entry = IndexingPipeline.list_hydration_cache_entries() |> hd
     assert cache_entry.record_id == marker1.id
     assert cache_entry.cache_version == 0
-    assert cache_entry.source_cache_order == marker1.timestamp
     marker_1_id = marker1.id
 
     assert %{
@@ -93,7 +92,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     cache_entry = IndexingPipeline.list_hydration_cache_entries() |> hd
     assert cache_entry.record_id == marker1.id
     assert cache_entry.cache_version == 0
-    assert cache_entry.source_cache_order == marker1.timestamp
     marker_1_id = marker1.id
 
     assert %{
@@ -115,7 +113,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     cache_entry = IndexingPipeline.list_hydration_cache_entries() |> hd
     assert cache_entry.record_id == marker1.id
     assert cache_entry.cache_version == 1
-    assert cache_entry.source_cache_order == marker1.timestamp
     marker_1_id = marker1.id
 
     assert %{
@@ -135,7 +132,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     IndexingPipeline.write_hydration_cache_entry(%{
       cache_version: 0,
       record_id: "3da68e1c-06af-4d17-8603-fc73152e1ef7",
+      related_ids: [],
       source_cache_order: ~U[2200-03-09 20:19:33.414040Z],
+      source_cache_order_record_id: "3da68e1c-06af-4d17-8603-fc73152e1ef7",
       data: %{}
     })
 
@@ -159,7 +158,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     IndexingPipeline.write_hydration_cache_entry(%{
       cache_version: 0,
       record_id: "3da68e1c-06af-4d17-8603-fc73152e1ef7",
+      related_ids: [],
       source_cache_order: ~U[1900-03-09 20:19:33.414040Z],
+      source_cache_order_record_id: "3da68e1c-06af-4d17-8603-fc73152e1ef7",
       data: %{}
     })
 
@@ -171,9 +172,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     # Ensure there's only one hydration cache entry.
     entries = IndexingPipeline.list_hydration_cache_entries()
     assert length(entries) == 1
-    # Ensure that entry has the source_cache_order we set at the beginning.
+    # Ensure that entry has an updated source_cache_order
     entry = entries |> hd
-    assert entry.source_cache_order == marker1.timestamp
+    # The source cache order is calculated from the most recent date of the
+    # resource itself or the most recent date of it's related resources.
+    assert entry.source_cache_order == ~U[2024-12-11 14:22:21.927789Z]
+    assert entry.source_cache_order_record_id == "e65ab9c2-aab3-4063-9984-409949abe6d0"
   end
 
   test "loads a marker from the database on startup" do
@@ -194,7 +198,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     cache_entry = IndexingPipeline.list_hydration_cache_entries() |> hd
     assert cache_entry.record_id == marker2.id
     assert cache_entry.cache_version == 0
-    assert cache_entry.source_cache_order == marker2.timestamp
     hydrator |> Broadway.stop(:normal)
   end
 end

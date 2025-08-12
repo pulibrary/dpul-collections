@@ -81,7 +81,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
         IndexingPipeline.write_hydration_cache_entry(%{
           cache_version: 0,
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
-          source_cache_order: ~U[2018-03-09 20:19:35.465203Z],
+          related_ids: [],
+          source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
+          source_cache_order_record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           related_data: %{
             "resources" => %{
               "1" => %{
@@ -132,7 +134,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
         IndexingPipeline.write_hydration_cache_entry(%{
           cache_version: 0,
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
-          source_cache_order: ~U[2018-03-09 20:19:35.465203Z],
+          related_ids: [],
+          source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
+          source_cache_order_record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           related_data: %{
             "resources" => %{
               "1" => %{
@@ -188,7 +192,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
         IndexingPipeline.write_hydration_cache_entry(%{
           cache_version: 0,
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
+          related_ids: [],
           source_cache_order: ~U[2018-03-09 20:19:35.465203Z],
+          source_cache_order_record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           related_data: %{
             "ancestors" => %{
               "82624edb-c360-4d8a-b202-f103ee639e8e" => %{
@@ -221,7 +227,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
         IndexingPipeline.write_hydration_cache_entry(%{
           cache_version: 0,
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
-          source_cache_order: ~U[2018-03-09 20:19:35.465203Z],
+          related_ids: [],
+          source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
+          source_cache_order_record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           related_data: %{
             "resources" => %{
               "1" => %{
@@ -260,7 +268,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
         IndexingPipeline.write_hydration_cache_entry(%{
           cache_version: 0,
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
-          source_cache_order: ~U[2018-03-09 20:19:35.465203Z],
+          related_ids: [],
+          source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
+          source_cache_order_record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           related_data: %{
             "resources" => %{
               "1" => %{
@@ -312,7 +322,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
         IndexingPipeline.write_hydration_cache_entry(%{
           cache_version: 0,
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
-          source_cache_order: ~U[2018-03-09 20:19:35.465203Z],
+          related_ids: [],
+          source_cache_order: ~U[2024-01-11 16:41:04.389944Z],
+          source_cache_order_record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           related_data: %{
             "resources" => %{
               "1" => %{
@@ -365,7 +377,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
         IndexingPipeline.write_hydration_cache_entry(%{
           cache_version: 0,
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
-          source_cache_order: ~U[2018-03-09 20:19:35.465203Z],
+          related_ids: [],
+          source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
+          source_cache_order_record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           related_data: %{
             "resources" => %{}
           },
@@ -390,7 +404,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
         IndexingPipeline.write_hydration_cache_entry(%{
           cache_version: 0,
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
+          related_ids: [],
           source_cache_order: ~U[2018-03-09 20:19:35.465203Z],
+          source_cache_order_record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           related_data: %{
             "resources" => %{
               "1" => %{
@@ -437,7 +453,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
         IndexingPipeline.write_hydration_cache_entry(%{
           cache_version: 0,
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
-          source_cache_order: ~U[2018-03-09 20:19:35.465203Z],
+          related_ids: [],
+          source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
+          source_cache_order_record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           data: %{
             "id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
             "internal_resource" => "EphemeraFolder",
@@ -464,7 +482,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
         IndexingPipeline.write_hydration_cache_entry(%{
           cache_version: 0,
           record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
+          related_ids: [],
           source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
+          source_cache_order_record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
           data: %{
             "id" => "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
             "internal_resource" => "EphemeraFolder",
@@ -480,7 +500,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
         IndexingPipeline.write_hydration_cache_entry(%{
           cache_version: 0,
           record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
+          related_ids: [],
           source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
+          source_cache_order_record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
           data: %{
             "id" => "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
             "internal_resource" => "EphemeraFolder",
@@ -496,7 +518,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
         IndexingPipeline.write_hydration_cache_entry(%{
           cache_version: 0,
           record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
+          related_ids: [],
           source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
+          source_cache_order_record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
           data: %{
             "id" => "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
             "internal_resource" => "EphemeraFolder",
@@ -512,7 +536,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
         IndexingPipeline.write_hydration_cache_entry(%{
           cache_version: 0,
           record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
+          related_ids: [],
           source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
+          source_cache_order_record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
           data: %{
             "id" => "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
             "internal_resource" => "EphemeraFolder",
@@ -527,7 +553,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
         IndexingPipeline.write_hydration_cache_entry(%{
           cache_version: 0,
           record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
+          related_ids: [],
           source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
+          source_cache_order_record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
           data: %{
             "id" => "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
             "internal_resource" => "EphemeraFolder",
@@ -572,7 +600,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
         IndexingPipeline.write_hydration_cache_entry(%{
           cache_version: 0,
           record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
+          related_ids: [],
           source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
+          source_cache_order_record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
           data: %{
             "id" => "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
             "internal_resource" => "EphemeraFolder",
@@ -592,7 +622,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
         IndexingPipeline.write_hydration_cache_entry(%{
           cache_version: 0,
           record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
+          related_ids: [],
           source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
+          source_cache_order_record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
           data: %{
             "id" => "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
             "internal_resource" => "EphemeraFolder",
@@ -611,7 +643,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
         IndexingPipeline.write_hydration_cache_entry(%{
           cache_version: 0,
           record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
+          related_ids: [],
           source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
+          source_cache_order_record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
           related_data: %{
             "resources" => %{
               "1" => %{
@@ -640,7 +674,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
         IndexingPipeline.write_hydration_cache_entry(%{
           cache_version: 0,
           record_id: "d4292e58-25d7-4247-bf92-0a5e24ec75d1",
+          related_ids: [],
           source_cache_order: ~U[2024-01-11 16:41:04.389944Z],
+          source_cache_order_record_id: "d4292e58-25d7-4247-bf92-0a5e24ec75d1",
           data: %{
             "id" => "d4292e58-25d7-4247-bf92-0a5e24ec75d1",
             "internal_resource" => "EphemeraFolder",

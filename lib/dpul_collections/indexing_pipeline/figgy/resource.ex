@@ -56,16 +56,38 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
         resource |> to_map
       end
 
+    {source_cache_order, source_cache_order_record_id} =
+      calculate_source_cache_order(resource, related_data)
+
     %{
       handled_data: handled_data,
       related_data: related_data,
-      related_ids: related_ids(related_data)
+      related_ids: related_ids(related_data),
+      source_cache_order: source_cache_order,
+      source_cache_order_record_id: source_cache_order_record_id
     }
   end
 
-  def from_hydation_cache_entry(entry) do
-    fields = for {key, val} <- entry.data, into: %{}, do: {String.to_atom(key), val}
-    struct(%__MODULE__{}, fields)
+  def calculate_source_cache_order(resource, related_data) do
+    primary_resource = [{resource.updated_at, resource.id}]
+
+    related_resources =
+      (related_data["resources"] || %{})
+      |> Map.keys()
+      |> Enum.map(fn key -> related_data["resources"][key] end)
+      |> Enum.map(fn r -> {r[:updated_at], r[:id]} end)
+
+    ancestors =
+      (related_data["ancestors"] || %{})
+      |> Map.keys()
+      |> Enum.map(fn key -> related_data["ancestors"][key] end)
+      |> Enum.map(fn r -> {r[:updated_at], r[:id]} end)
+
+    # Combine and sort by date
+    # Return the most recent date, id tuple
+    (primary_resource ++ related_resources ++ ancestors)
+    |> Enum.sort_by(fn {date, _} -> date end, {:desc, Date})
+    |> Enum.at(0)
   end
 
   # Don't fetch related data when the state or visibilty are not correct.
