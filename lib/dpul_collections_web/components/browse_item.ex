@@ -73,6 +73,11 @@ defmodule DpulCollectionsWeb.BrowseItem do
         class="browse-header mb-2 h-12 w-full bg-white absolute left-2 top-2 flex items-center"
       >
         <div class="h-full pl-2 w-full flex items-center flex-grow like-header bg-white z-50">
+          <.show_images_banner
+            :if={Helpers.obfuscate_item?(assigns)}
+            item_id={@item.id}
+            content_warning={@item.content_warning}
+          />
           <.link
             :if={@likeable?}
             class="flex-grow text-accent font-semibold"
@@ -81,7 +86,6 @@ defmodule DpulCollectionsWeb.BrowseItem do
           >
             {gettext("Browse Similar Items")}
           </.link>
-          <.show_images_button :if={@item.content_warning} item_id={@item.id} />
         </div>
       </div>
       <.link
@@ -126,8 +130,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
             </div>
           </div>
         </div>
-        
-    <!-- card text area -->
+        <!-- card text area -->
         <div class="relative px-6 py-5 bg-white flex flex-col flex-grow">
           <div
             :if={@item.file_count > 4}

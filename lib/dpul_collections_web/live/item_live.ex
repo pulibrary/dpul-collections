@@ -146,7 +146,6 @@ defmodule DpulCollectionsWeb.ItemLive do
         <div class="thumbnails w-full sm:row-start-1 sm:col-start-1 sm:col-span-2 sm:row-span-full">
           <.primary_thumbnail item={@item} display_size={@display_size} show_images={@show_images} />
 
-          <.show_images_button :if={@item.content_warning} item_id={@item.id} />
           <.action_bar class="sm:hidden pt-4" item={@item} />
 
           <section class="image-thumbnails hidden sm:block md:col-span-2 py-4">
@@ -498,6 +497,11 @@ defmodule DpulCollectionsWeb.ItemLive do
           <span class="w-[11px] h-[1px] bg-accent"></span>
         </div>
         <div class="col-start-2 relative">
+          <.show_images_banner
+            :if={Helpers.obfuscate_item?(assigns)}
+            item_id={@item.id}
+            content_warning={@item.content_warning}
+          />
           <.link patch={"#{@item.viewer_url}/#{primary_thumbnail_idx(@item)}"} replace>
             <img
               src={"#{@item.primary_thumbnail_service_url}/full/!#{@item.primary_thumbnail_width},#{@item.primary_thumbnail_height}/0/default.jpg"}
@@ -608,13 +612,7 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def share_modal(assigns) do
     ~H"""
-    <div
-      id={@id}
-      class="hidden"
-      phx-hook="CloseModals"
-      phx-window-keydown={hide_modal(@id)}
-      phx-key="escape"
-    >
+    <div id={@id} class="hidden" phx-window-keydown={hide_modal(@id)} phx-key="escape">
       <div class="fixed inset-0 p-4 flex flex-wrap justify-center items-center w-full h-full z-[1000] before:fixed before:inset-0 before:w-full before:h-full before:bg-[rgba(0,0,0,0.5)] overflow-auto">
         <div
           class="w-full max-w-2xl bg-white shadow-lg rounded-lg p-8 relative"
