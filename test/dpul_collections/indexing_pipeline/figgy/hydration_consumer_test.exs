@@ -4,6 +4,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
 
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy
+  alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry
 
   describe "Figgy.HydrationConsumer" do
     test "handle_message/3 when a message is not a complete and visible EphemeraFolder, it is sent to noop batcher" do
@@ -570,6 +571,103 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
 
         assert hydration_cache_entry.source_cache_order_record_id ==
                  updated_file_set_message.data.id
+      end
+    end
+
+    test "handle_batch/3 updates an EphemeraFolder when a parent EphemeraBox changes" do
+      ephemera_folder_message = %Broadway.Message{
+        acknowledger: nil,
+        data: %Figgy.Resource{
+          id: "05092b7d-d33c-4d4d-885e-b6b8973deec4",
+          updated_at: ~U[2024-04-18 14:28:57.526110Z],
+          internal_resource: "EphemeraFolder",
+          state: ["complete"],
+          visibility: ["open"],
+          metadata: %{
+            "cached_parent_id" => [%{"id" => "7b87fdfa-a760-49b9-85e9-093f2519f2fc"}],
+            "state" => ["complete"],
+            "visibility" => ["open"],
+            "member_ids" => [%{"id" => "c42bca4b-02c9-44ad-b6bd-132ab27a8986"}],
+            "genre" => [%{"id" => "01e15ce8-1a11-4342-b7b5-82cbff248b4d"}],
+            "title" => ["Folder"]
+          }
+        }
+      }
+
+      updated_ephemera_box_resource = %Figgy.Resource{
+        id: "7b87fdfa-a760-49b9-85e9-093f2519f2fc",
+        internal_resource: "EphemeraBox",
+        updated_at: ~U[2025-07-09 20:19:35.340016Z],
+        created_at: ~U[2025-07-09 20:19:35.340016Z],
+        metadata: %{
+          "box_number" => ["different_box"],
+          "cached_parent_id" => [%{"id" => "cbdf1a60-1b5e-482a-a117-5cfa6643330a"}],
+          "member_ids" => [
+            %{"id" => "05092b7d-d33c-4d4d-885e-b6b8973deec4"}
+          ]
+        }
+      }
+
+      updated_ephemera_box_message = %Broadway.Message{
+        acknowledger: nil,
+        data: updated_ephemera_box_resource
+      }
+
+      # Create a hydration cache entry from ephemera folder messages
+      create_messages =
+        [ephemera_folder_message]
+        |> Enum.map(&Figgy.HydrationConsumer.handle_message(nil, &1, %{cache_version: 1}))
+
+      Figgy.HydrationConsumer.handle_batch(:default, create_messages, nil, %{cache_version: 1})
+
+      hydration_cache_entries = IndexingPipeline.list_hydration_cache_entries()
+      assert hydration_cache_entries |> length == 1
+      hydration_cache_entry = hydration_cache_entries |> Enum.at(0)
+      assert hydration_cache_entry.data["id"] == ephemera_folder_message.data.id
+
+      # Check un-updated box number
+      related_resource_entry =
+        hydration_cache_entry.related_data["ancestors"][updated_ephemera_box_resource.id]
+
+      assert related_resource_entry["metadata"]["box_number"] == ["39"]
+
+      # Mock IndexingPipeline.get_figgy_parents function so:
+      #   1. query for EphemeraFolder returns updated_ephemera_box
+      #   2. other queriea are passed through
+      with_mock IndexingPipeline, [:passthrough],
+        get_figgy_parents: fn
+          "05092b7d-d33c-4d4d-885e-b6b8973deec4" -> [updated_ephemera_box_resource]
+          id -> passthrough([id])
+        end do
+        # Process updated ephemera box message
+        messages =
+          [updated_ephemera_box_message]
+          |> Enum.map(&Figgy.HydrationConsumer.handle_message(nil, &1, %{cache_version: 1}))
+
+        # Test that message is routed to the correct batcher
+        message = messages |> Enum.at(0)
+        assert message.batcher == :related
+
+        Figgy.HydrationConsumer.handle_batch(:related, messages, nil, %{cache_version: 1})
+
+        hydration_cache_entries = IndexingPipeline.list_hydration_cache_entries()
+        assert hydration_cache_entries |> length == 1
+        hydration_cache_entry = hydration_cache_entries |> Enum.at(0)
+
+        assert hydration_cache_entry.data["id"] == ephemera_folder_message.data.id
+
+        # Test that the ephemera folder was updated
+        assert hydration_cache_entry.source_cache_order ==
+                 updated_ephemera_box_message.data.updated_at
+
+        assert hydration_cache_entry.source_cache_order_record_id ==
+                 updated_ephemera_box_message.data.id
+
+        # Check updated box number
+        related_resource_entry =
+          hydration_cache_entry.related_data["ancestors"][updated_ephemera_box_resource.id]
+
+        assert related_resource_entry["metadata"]["box_number"] == ["different_box"]
       end
     end
   end
