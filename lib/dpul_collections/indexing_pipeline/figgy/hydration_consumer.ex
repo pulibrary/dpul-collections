@@ -147,7 +147,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         },
         _context
       )
-      when internal_resource in ["EphemeraBox", "EphemeraTerm", "FileSet"] do
+      when internal_resource in ["EphemeraProject", "EphemeraBox", "EphemeraTerm", "FileSet"] do
     message_map = %{related_resource: message.data}
 
     message
