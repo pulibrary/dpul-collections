@@ -152,6 +152,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     Task.await(task, 30000)
     latest_document_again = Solr.latest_document()
+
     # Make sure it got reindexed
     assert latest_document["_version_"] != latest_document_again["_version_"]
     # Make sure we didn't add another one

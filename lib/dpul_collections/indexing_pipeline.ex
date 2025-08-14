@@ -5,6 +5,7 @@ defmodule DpulCollections.IndexingPipeline do
   use Sibyl
 
   import Ecto.Query, warn: false
+  require Logger
   alias DpulCollections.{Repo, FiggyRepo}
 
   alias DpulCollections.IndexingPipeline.Figgy
@@ -69,7 +70,9 @@ defmodule DpulCollections.IndexingPipeline do
         set: [
           data: ^attrs.data,
           related_data: ^attrs[:related_data],
+          related_ids: ^attrs.related_ids,
           source_cache_order: ^attrs.source_cache_order,
+          source_cache_order_record_id: ^attrs.source_cache_order_record_id,
           cache_order: ^DateTime.utc_now()
         ]
       )
@@ -122,6 +125,22 @@ defmodule DpulCollections.IndexingPipeline do
         order_by: [asc: r.source_cache_order, asc: r.record_id]
 
     Repo.all(query)
+  end
+
+  @spec get_related_hydration_cache_record_ids!(
+          related_id :: String.t(),
+          related_timestamp :: DateTime.t(),
+          cache_version :: integer
+        ) :: list(String.t())
+  def get_related_hydration_cache_record_ids!(related_id, related_timestamp, cache_version) do
+    query =
+      from r in Figgy.HydrationCacheEntry,
+        select: r.record_id,
+        where: r.cache_version == ^cache_version,
+        where: r.source_cache_order < ^related_timestamp,
+        where: ^related_id in r.related_ids
+
+    Repo.all(query, timeout: 600_000)
   end
 
   alias DpulCollections.IndexingPipeline.ProcessorMarker

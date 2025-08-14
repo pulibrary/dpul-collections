@@ -56,7 +56,9 @@ defmodule FiggyTestSupport do
       IndexingPipeline.write_hydration_cache_entry(%{
         cache_version: cache_version,
         record_id: marker.id,
+        related_ids: cache_attrs.related_ids,
         source_cache_order: marker.timestamp,
+        source_cache_order_record_id: marker.id,
         data: cache_attrs.handled_data
       })
 

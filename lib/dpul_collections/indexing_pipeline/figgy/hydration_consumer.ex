@@ -138,6 +138,22 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     end
   end
 
+  def handle_message(
+        _processor,
+        message = %Broadway.Message{
+          data: %{
+            internal_resource: internal_resource
+          }
+        },
+        _context
+      )
+      when internal_resource in ["EphemeraBox", "EphemeraTerm", "FileSet"] do
+    message_map = %{related_resource: message.data}
+
+    message
+    |> Broadway.Message.put_data(message_map)
+  end
+
   # If it's not selected above, ack the message but don't do anything with it.
   def handle_message(_processor, message, _state) do
     message
@@ -162,7 +178,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
       IndexingPipeline.write_hydration_cache_entry(%{
         cache_version: cache_version,
         record_id: id,
+        related_ids: [],
         source_cache_order: marker.timestamp,
+        source_cache_order_record_id: id,
         data: data
       })
 
@@ -171,7 +189,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
   defp write_to_hydration_cache(
          %Broadway.Message{
-           data: %{marker: marker, handled_data: data, related_data: related_data}
+           data: %{
+             marker: marker,
+             handled_data: data,
+             related_data: related_data,
+             related_ids: related_ids,
+             source_cache_order: source_cache_order,
+             source_cache_order_record_id: source_cache_order_record_id
+           }
          },
          cache_version
        ) do
@@ -180,12 +205,59 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     # - cache_order (datetime) - this is our own new timestamp for this table
     # - cache_version (this only changes manually, we have to hold onto it as state)
     # - record_id (varchar) - the figgy UUID
-    # - source_cache_order (datetime) - the figgy updated_at
+    # - source_cache_order (datetime) - most recent figgy or related resource updated_at
+    # - source_cache_order_record_id (varchar) - record id of the source_cache_order value
     {:ok, response} =
       IndexingPipeline.write_hydration_cache_entry(%{
         cache_version: cache_version,
         record_id: marker.id,
-        source_cache_order: marker.timestamp,
+        related_ids: related_ids,
+        source_cache_order: source_cache_order,
+        source_cache_order_record_id: source_cache_order_record_id,
+        data: data,
+        related_data: related_data
+      })
+
+    {:ok, response}
+  end
+
+  defp write_to_hydration_cache(
+         %Broadway.Message{
+           data: %{
+             related_resource: %{id: id, updated_at: timestamp}
+           }
+         },
+         cache_version
+       ) do
+    related_record_ids =
+      IndexingPipeline.get_related_hydration_cache_record_ids!(id, timestamp, cache_version)
+
+    related_records = IndexingPipeline.get_figgy_resources(related_record_ids)
+
+    related_records
+    |> Enum.map(&Figgy.Resource.to_hydration_cache_attrs(&1))
+    |> Enum.each(&update_related_hydration_cache_entry(&1, cache_version))
+
+    {:ok, ""}
+  end
+
+  defp update_related_hydration_cache_entry(
+         %{
+           handled_data: data = %{id: resource_id},
+           related_data: related_data,
+           related_ids: related_ids,
+           source_cache_order: source_cache_order,
+           source_cache_order_record_id: source_cache_order_record_id
+         },
+         cache_version
+       ) do
+    {:ok, response} =
+      IndexingPipeline.write_hydration_cache_entry(%{
+        cache_version: cache_version,
+        record_id: resource_id,
+        related_ids: related_ids,
+        source_cache_order: source_cache_order,
+        source_cache_order_record_id: source_cache_order_record_id,
         data: data,
         related_data: related_data
       })

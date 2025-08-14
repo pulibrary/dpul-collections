@@ -35,25 +35,31 @@ defmodule DpulCollections.IndexingPipelineTest do
       {:ok, first_write} =
         IndexingPipeline.write_hydration_cache_entry(%{
           data: %{},
-          source_cache_order: ~U[2024-07-23 20:05:00Z],
           cache_version: 0,
-          record_id: "some record_id"
+          record_id: "some record_id",
+          related_ids: [],
+          source_cache_order: ~U[2024-07-23 20:05:00Z],
+          source_cache_order_record_id: "some record_id"
         })
 
       {:ok, second_write} =
         IndexingPipeline.write_hydration_cache_entry(%{
           data: %{},
-          source_cache_order: ~U[2024-07-24 20:05:00Z],
           cache_version: 0,
-          record_id: "some record_id"
+          record_id: "some record_id",
+          related_ids: [],
+          source_cache_order: ~U[2024-07-24 20:05:00Z],
+          source_cache_order_record_id: "some record_id"
         })
 
       {:ok, nil} =
         IndexingPipeline.write_hydration_cache_entry(%{
           data: %{},
-          source_cache_order: ~U[2024-07-22 20:05:00Z],
           cache_version: 0,
-          record_id: "some record_id"
+          record_id: "some record_id",
+          related_ids: [],
+          source_cache_order: ~U[2024-07-22 20:05:00Z],
+          source_cache_order_record_id: "some record_id"
         })
 
       reloaded = IndexingPipeline.get_hydration_cache_entry!(second_write.id)

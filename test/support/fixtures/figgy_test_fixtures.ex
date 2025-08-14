@@ -67,7 +67,37 @@ defmodule FiggyTestFixtures do
       IndexingPipeline.write_hydration_cache_entry(%{
         cache_version: cache_version,
         record_id: "3cb7627b-defc-401b-9959-42ebc4488f74",
+        related_ids: [
+          "f60ce0c9-57fc-4820-b70d-49d1f2b248f9",
+          "d798d940-0740-4854-8f70-60217ec8c2e4",
+          "31d69702-4d4e-4e07-a65c-a30f62d096fd",
+          "899b015e-0e92-4b3d-a300-4a50fe641c11",
+          "39f54327-7739-4184-90ca-5b78fac3ca64",
+          "5e53e486-1bb8-45ee-bc35-adaa708f35ef",
+          "d13ad936-bf2c-4a53-8bc1-a20bf6841b74",
+          "86982ae7-3f95-4e77-aecb-14ad8e5710b7",
+          "725a3fac-820b-4333-9147-99790de6d1fe",
+          "ded111e0-26c2-4afc-89b8-4ad4ece3275a",
+          "f58a6245-6b83-4cff-a61f-cc6aa675a0ef",
+          "5437c9fe-e4c7-4f93-bf2c-ad9afee75bf5",
+          "ce66d035-5dd5-4df1-b825-d02746f9c11a",
+          "703c1ca1-2801-45fe-b2c5-607ec413f619",
+          "87dd1c80-3c94-4580-9273-dd54173a99f0",
+          "0eb9e3ae-fc5f-4902-8bbb-8706f081844e",
+          "171268c2-9565-4418-b5f8-a52c11ac00ec",
+          "6635328f-3b7e-4026-a0c5-4288e42254ed",
+          "4b8da379-2618-4aa4-8632-58e57dca0803",
+          "9887e5ab-2f82-4feb-be67-e2f726511c88",
+          "b6c8c6c3-5f0e-4334-82d1-cc39da657a25",
+          "9bbce8ac-a2e3-4200-8100-075273cf7d72",
+          "660a8add-ba14-445b-8371-73fba8704eb3",
+          "3f23a474-b08c-4b52-9ad8-930ff962a8cf",
+          "9b036f96-5080-48dc-9f32-cf9659bb0764",
+          "b38427c2-6126-41ce-8624-b1c435378f0c",
+          "994ee133-c117-40c2-89b5-0f6b7a705559"
+        ],
         source_cache_order: ~U[2018-03-09 20:19:33.414040Z],
+        source_cache_order_record_id: "3cb7627b-defc-401b-9959-42ebc4488f74",
         data: %{
           "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
           "internal_resource" => "EphemeraFolder",
@@ -147,7 +177,9 @@ defmodule FiggyTestFixtures do
       IndexingPipeline.write_hydration_cache_entry(%{
         cache_version: cache_version,
         record_id: "69990556-434c-476a-9043-bbf9a1bda5a4",
+        related_ids: [],
         source_cache_order: ~U[2018-03-09 20:19:34.465203Z],
+        source_cache_order_record_id: "69990556-434c-476a-9043-bbf9a1bda5a4",
         data: %{
           "id" => "69990556-434c-476a-9043-bbf9a1bda5a4",
           "internal_resource" => "EphemeraFolder",
@@ -178,7 +210,9 @@ defmodule FiggyTestFixtures do
       IndexingPipeline.write_hydration_cache_entry(%{
         cache_version: cache_version,
         record_id: "47276197-e223-471c-99d7-405c5f6c5285",
+        related_ids: [],
         source_cache_order: ~U[2018-03-09 20:19:34.486004Z],
+        source_cache_order_record_id: "47276197-e223-471c-99d7-405c5f6c5285",
         data: %{
           "id" => "47276197-e223-471c-99d7-405c5f6c5285",
           "internal_resource" => "EphemeraFolder",
