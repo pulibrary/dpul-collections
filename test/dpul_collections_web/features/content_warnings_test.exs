@@ -66,6 +66,9 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
       |> click_button("View content")
       |> refute_has("img.obfuscate")
       |> refute_has("a", text: "Why are the images blurred?")
+      # Ensure it carries through to browse.
+      |> click_link("Explore")
+      |> refute_has("img.obfuscate")
     end
 
     test "on the item detail page", %{conn: conn} do
