@@ -6,6 +6,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   use DpulCollectionsWeb, :live_view
   use Gettext, backend: DpulCollectionsWeb.Gettext
   alias DpulCollections.{Item, Solr}
+  alias DpulCollectionsWeb.ContentWarnings
 
   def mount(_params, session, socket) do
     show_images = session["show_images"]
@@ -329,8 +330,8 @@ defmodule DpulCollectionsWeb.ItemLive do
       </div>
       <!-- "relative" here lets Clover fill the full size of main-content. -->
       <!-- Ignore phoenix updates, since Clover manages switching the canvas. Without this it's jumpy on page switches. -->
-      <div id="clover-viewer" class="main-content grow relative" phx-update="ignore">
-        <div class="w-full h-full">
+      <div id="clover-viewer" class="main-content grow relative">
+        <div id="clover-viewer-container" class="w-full h-full" phx-update="ignore">
           {live_react_component(
             "Components.DpulcViewer",
             [
@@ -344,38 +345,10 @@ defmodule DpulCollectionsWeb.ItemLive do
           class="obfuscation-container flex items-center justify-center bg-background w-full h-full absolute top-0 left-0"
         >
           <div class="max-w-2xl">
-            <div class="p-6 space-y-4">
-              <h2 id={"show-image-modal-#{@item.id}-title"} class="text-3xl font-semibold">
-                Content Warning
-              </h2>
-              <h3 class="font-2xl font-semibold">{@item.content_warning}</h3>
-              <p>
-                Images are blurred because this item has been determined to contain images with sensitive content. To view the content in this item, click View Content below.
-              </p>
-              <p>
-                For more information, please see the PUL statement on <.link
-                  href="https://library.princeton.edu/about/responsible-collection-description"
-                  class="text-accent"
-                  target="_blank"
-                >Responsible Collection Description</.link>.
-              </p>
-            </div>
-            <!-- Modal footer -->
-            <div class="flex items-center p-6 pt-0 rounded-b dark:border-gray-600">
-              <.primary_button
-                id={"show-images-#{@item.id}"}
-                phx-click={
-                  JS.dispatch("dpulc:showImages")
-                  |> JS.push("show_images", value: %{id: @item.id})
-                  |> JS.add_class("hidden", to: {:closest, ".obfuscation-container"})
-                }
-                data-id={@item.id}
-                data-dialog-id={"show-image-banner-#{@item.id}-dialog"}
-                phx-hook="CloseDialogHook"
-              >
-                {gettext("View content")}
-              </.primary_button>
-            </div>
+            <ContentWarnings.content_warning_body
+              item_id={@item.id}
+              content_warning={@item.content_warning}
+            />
           </div>
         </div>
       </div>

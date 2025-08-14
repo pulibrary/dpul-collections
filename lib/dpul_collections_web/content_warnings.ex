@@ -82,35 +82,43 @@ defmodule DpulCollectionsWeb.ContentWarnings do
             <span class="sr-only">Close modal</span>
           </button>
         </div>
-        <!-- Modal body -->
-        <div class="p-6 space-y-4">
-          <h3 class="font-2xl font-semibold">{@content_warning}</h3>
-          <p>
-            Images are blurred because this item has been determined to contain images with sensitive content. To view the content in this item, click View Content below.
-          </p>
-          <p>
-            For more information, please see the PUL statement on <.link
-              href="https://library.princeton.edu/about/responsible-collection-description"
-              class="text-accent"
-              target="_blank"
-            >Responsible Collection Description</.link>.
-          </p>
-        </div>
-        <!-- Modal footer -->
-        <div class="flex items-center p-6 pt-0 rounded-b dark:border-gray-600">
-          <.primary_button
-            id={"show-images-#{@item_id}"}
-            phx-click={
-              JS.dispatch("dpulc:showImages")
-              |> JS.push("show_images", value: %{id: @item_id})
-            }
-            data-id={@item_id}
-            data-dialog-id={"show-image-banner-#{@item_id}-dialog"}
-          >
-            {gettext("View content")}
-          </.primary_button>
-        </div>
+        <.content_warning_body {assigns} />
       </dialog>
+    </div>
+    """
+  end
+
+  attr :item_id, :string, required: true
+  attr :content_warning, :string, required: true
+
+  def content_warning_body(assigns) do
+    ~H"""
+    <div class="p-6 space-y-4">
+      <h3 class="font-2xl font-semibold">{@content_warning}</h3>
+      <p>
+        Images are blurred because this item has been determined to contain images with sensitive content. To view the content in this item, click View Content below.
+      </p>
+      <p>
+        For more information, please see the PUL statement on <.link
+          href="https://library.princeton.edu/about/responsible-collection-description"
+          class="text-accent"
+          target="_blank"
+        >Responsible Collection Description</.link>.
+      </p>
+    </div>
+    <!-- Modal footer -->
+    <div class="flex items-center p-6 pt-0 rounded-b dark:border-gray-600">
+      <.primary_button
+        id={"show-images-#{@item_id}"}
+        phx-click={
+          JS.dispatch("dpulc:showImages")
+          |> JS.push("show_images", value: %{id: @item_id})
+        }
+        data-id={@item_id}
+        data-dialog-id={"show-image-banner-#{@item_id}-dialog"}
+      >
+        {gettext("View content")}
+      </.primary_button>
     </div>
     """
   end
