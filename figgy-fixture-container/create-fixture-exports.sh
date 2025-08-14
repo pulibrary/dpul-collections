@@ -4,7 +4,7 @@
 PROJECT_ID=2961c153-54ab-4c6a-b5cd-aa992f4c349b
 # First box in Women Life Freedom Movement
 BOX_ID=82624edb-c360-4d8a-b202-f103ee639e8e
-EXTRA_RESOURCE_IDS="('f134f41f-63c5-4fdf-b801-0774e3bc3b2d','65044ab4-8860-48f5-a0b1-efe06a1b4340','6c7c204f-be40-429d-8561-24b11ba0e6a5','32b45be9-257e-444c-bc3e-89535146ae2c')"
+EXTRA_RESOURCE_IDS="('f134f41f-63c5-4fdf-b801-0774e3bc3b2d','65044ab4-8860-48f5-a0b1-efe06a1b4340','6c7c204f-be40-429d-8561-24b11ba0e6a5','32b45be9-257e-444c-bc3e-89535146ae2c', '256df489-089d-473a-b9bb-c3585bb639af')"
 
 # Export the project
 ssh deploy@figgy-web-prod1.princeton.edu "cd /opt/figgy/current && PGPASSWORD=\$FIGGY_DB_RO_PASSWORD psql -d \$FIGGY_DB -U \$FIGGY_DB_RO_USERNAME -h \$FIGGY_DB_HOST -c \"\\copy (select * from orm_resources WHERE id = '$PROJECT_ID') TO '/tmp/project-export.binary' BINARY\""
