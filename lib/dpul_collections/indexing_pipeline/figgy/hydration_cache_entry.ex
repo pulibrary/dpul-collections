@@ -86,15 +86,24 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
     }
   end
 
-  def content_warning(%{"content_warning" => content_warning}) do
-    content_warning |> remove_empty_strings |> Enum.at(0)
+  def content_warning(metadata = %{"content_warning" => content_warning}) do
+    # Check to see if there's blank content warnings messing up the data.
+    case warning = remove_empty_strings(content_warning) do
+      # If it was all empty, re-process to check for notice_type
+      [] -> metadata |> Map.delete("content_warning") |> content_warning
+      _ -> warning |> Enum.at(0)
+    end
   end
 
   def content_warning(%{"notice_type" => ["explicit_content"]}) do
     "Explicit -- Nudity and/or Graphic Content"
   end
 
-  def content_warning(_), do: []
+  def content_warning(%{"notice_type" => ["harmful_content"]}) do
+    "Unspecified"
+  end
+
+  def content_warning(_), do: nil
 
   # Remove empty strings from list
   defp remove_empty_strings(field_value) when is_list(field_value) do
