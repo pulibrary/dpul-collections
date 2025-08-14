@@ -5,7 +5,7 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
   alias PhoenixTest.Playwright.Frame
   alias DpulCollections.Solr
 
-  setup do
+  setup_all do
     Solr.add(SolrTestSupport.mock_solr_documents(50), active_collection())
 
     Solr.add(
@@ -19,7 +19,8 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
             "https://example.com/iiif/2/image1",
             "https://example.com/iiif/2/image2",
             "https://example.com/iiif/2/image3"
-          ]
+          ],
+          updated_at_dt: DateTime.utc_now() |> DateTime.to_iso8601()
         }
       ],
       active_collection()
@@ -30,6 +31,15 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
   end
 
   describe "when there's a content warning, thumbnails are obfuscated" do
+    test "on the home page", %{conn: conn} do
+      conn
+      |> visit("/")
+      |> assert_has("img.obfuscate", count: 3)
+      |> click_link("Why are the images blurred?")
+      |> click_button("View content")
+      |> refute_has("img.obfuscate")
+    end
+
     test "on the search page", %{conn: conn} do
       # an item without a content warning isn't obfuscated
       conn
