@@ -38,7 +38,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
       ],
       batchers: [
         default: [batch_size: options[:batch_size]],
-        related: [batch_size: options[:batch_size]],
         noop: [batch_size: options[:batch_size]]
       ],
       context: %{cache_version: options[:cache_version]}
@@ -148,8 +147,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         },
         _context
       )
-      when internal_resource in ["EphemeraTerm", "FileSet"] do
-    message |> Broadway.Message.put_batcher(:related)
+      when internal_resource in ["EphemeraBox", "EphemeraTerm", "FileSet"] do
+    message_map = %{related_resource: message.data}
+
+    message
+    |> Broadway.Message.put_data(message_map)
   end
 
   # If it's not selected above, ack the message but don't do anything with it.
@@ -219,8 +221,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     {:ok, response}
   end
 
-  defp update_related_hydration_cache_entries(
-         %Broadway.Message{data: %{id: id, updated_at: timestamp}},
+  defp write_to_hydration_cache(
+         %Broadway.Message{
+           data: %{
+             related_resource: %{id: id, updated_at: timestamp}
+           }
+         },
          cache_version
        ) do
     related_record_ids =
@@ -262,11 +268,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   @impl Broadway
   def handle_batch(:default, messages, _batch_info, %{cache_version: cache_version}) do
     Enum.each(messages, &write_to_hydration_cache(&1, cache_version))
-    messages
-  end
-
-  def handle_batch(:related, messages, _batch_info, %{cache_version: cache_version}) do
-    Enum.each(messages, &update_related_hydration_cache_entries(&1, cache_version))
     messages
   end
 
