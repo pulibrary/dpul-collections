@@ -65,6 +65,7 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
       |> click_link("Why are the images blurred?")
       |> click_button("View content")
       |> refute_has("img.obfuscate")
+      |> refute_has("a", text: "Why are the images blurred?")
     end
 
     test "on the item detail page", %{conn: conn} do
@@ -76,6 +77,19 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
       |> click_link("Why are the images blurred?")
       |> click_button("View content")
       |> refute_has("img.obfuscate")
+      # Make sure the viewer also knows not to render this.
+      |> click_link("#viewer-link", "View")
+      |> refute_has("h2", text: "Content Warning")
+    end
+
+    test "in the viewer", %{conn: conn} do
+      conn
+      |> visit("/item/d4292e58-25d7-4247-bf92-0a5e24ec75d1")
+      |> click_link("#viewer-link", "View")
+      # the large thumbnail is duplicated in the small thumbnail list
+      |> assert_has("h2", text: "Content Warning")
+      |> click_button("View content")
+      |> refute_has("h2", text: "Content Warning")
     end
   end
 

@@ -1,6 +1,7 @@
 defmodule DpulCollectionsWeb.ItemLive do
   use DpulCollections.Solr.Constants
   alias DpulCollectionsWeb.Live.Helpers
+  alias DpulCollectionsWeb.ContentWarnings
   import DpulCollectionsWeb.BrowseItem
   use DpulCollectionsWeb, :live_view
   use Gettext, backend: DpulCollectionsWeb.Gettext
@@ -106,6 +107,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       item={@item}
       current_canvas_idx={@current_canvas_idx}
       current_content_state_url={@current_content_state_url}
+      {assigns}
     />
     """
   end
@@ -224,7 +226,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div
       id="metadata-pane"
-      class="bg-background min-w-full min-h-full translate-x-full col-start-1 row-start-1 absolute top-0"
+      class="z-3 bg-background min-w-full min-h-full translate-x-full col-start-1 row-start-1 absolute top-0"
       phx-mounted={
         JS.transition({"ease-out duration-250", "translate-x-full", "translate-x-0"})
         |> hide_covered_elements()
@@ -294,7 +296,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div
       id="viewer-pane"
-      class="bg-background flex flex-col min-h-full min-w-full -translate-x-full col-start-1 row-start-1 absolute top-0 dismissable"
+      class="z-3 bg-background flex flex-col min-h-full min-w-full -translate-x-full col-start-1 row-start-1 absolute top-0 dismissable"
       phx-mounted={
         JS.transition({"ease-out duration-250", "-translate-x-full", "translate-x-0"})
         |> hide_covered_elements()
@@ -328,13 +330,54 @@ defmodule DpulCollectionsWeb.ItemLive do
       <!-- "relative" here lets Clover fill the full size of main-content. -->
       <!-- Ignore phoenix updates, since Clover manages switching the canvas. Without this it's jumpy on page switches. -->
       <div id="clover-viewer" class="main-content grow relative" phx-update="ignore">
-        {live_react_component(
-          "Components.DpulcViewer",
-          [
-            iiifContent: unverified_url(DpulCollectionsWeb.Endpoint, @current_content_state_url)
-          ],
-          id: "viewer-component"
-        )}
+        <div class="w-full h-full">
+          {live_react_component(
+            "Components.DpulcViewer",
+            [
+              iiifContent: unverified_url(DpulCollectionsWeb.Endpoint, @current_content_state_url)
+            ],
+            id: "viewer-component"
+          )}
+        </div>
+        <div
+          :if={Helpers.obfuscate_item?(assigns)}
+          class="obfuscation-container flex items-center justify-center bg-background w-full h-full absolute top-0 left-0"
+        >
+          <div class="max-w-2xl">
+            <div class="p-6 space-y-4">
+              <h2 id={"show-image-modal-#{@item.id}-title"} class="text-3xl font-semibold">
+                Content Warning
+              </h2>
+              <h3 class="font-2xl font-semibold">{@item.content_warning}</h3>
+              <p>
+                Images are blurred because this item has been determined to contain images with sensitive content. To view the content in this item, click View Content below.
+              </p>
+              <p>
+                For more information, please see the PUL statement on <.link
+                  href="https://library.princeton.edu/about/responsible-collection-description"
+                  class="text-accent"
+                  target="_blank"
+                >Responsible Collection Description</.link>.
+              </p>
+            </div>
+            <!-- Modal footer -->
+            <div class="flex items-center p-6 pt-0 rounded-b dark:border-gray-600">
+              <.primary_button
+                id={"show-images-#{@item.id}"}
+                phx-click={
+                  JS.dispatch("dpulc:showImages")
+                  |> JS.push("show_images", value: %{id: @item.id})
+                  |> JS.add_class("hidden", to: {:closest, ".obfuscation-container"})
+                }
+                data-id={@item.id}
+                data-dialog-id={"show-image-banner-#{@item.id}-dialog"}
+                phx-hook="CloseDialogHook"
+              >
+                {gettext("View content")}
+              </.primary_button>
+            </div>
+          </div>
+        </div>
       </div>
       <.share_modal
         path={"#{@item.viewer_url}/#{@current_canvas_idx}"}
@@ -497,7 +540,7 @@ defmodule DpulCollectionsWeb.ItemLive do
           <span class="w-[11px] h-[1px] bg-accent"></span>
         </div>
         <div class="col-start-2 relative">
-          <.show_images_banner
+          <ContentWarnings.show_images_banner
             :if={Helpers.obfuscate_item?(assigns)}
             item_id={@item.id}
             content_warning={@item.content_warning}
@@ -519,10 +562,10 @@ defmodule DpulCollectionsWeb.ItemLive do
           <div
             :if={@display_size && relative_paper_dimension_style(@item)}
             id="letter-preview"
-            class="absolute bottom-0 right-0 z-1 border-2 border-accent"
+            class="absolute bottom-0 right-0 z-2 border-2 border-accent"
             style={relative_paper_dimension_style(@item)}
           >
-            <div class="flex justify-center items-center z-1 w-full h-full backdrop-blur-xs bg-white/70 text-accent text-sm p-4">
+            <div class="flex justify-center items-center z-2 w-full h-full backdrop-blur-xs bg-white/70 text-accent text-sm p-4">
               <div>
                 {gettext("Letter Paper")} 8.5" x 11" (21.59 x 27.94 cm)
                 <.icon class="w-5 h-5" name="pepicons-pencil:ruler" />

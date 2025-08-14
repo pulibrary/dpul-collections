@@ -4,6 +4,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
   use Gettext, backend: DpulCollectionsWeb.Gettext
   alias DpulCollections.Item
   alias DpulCollectionsWeb.Live.Helpers
+  alias DpulCollectionsWeb.ContentWarnings
 
   attr :items, :list, required: true
   attr :title, :string, required: true
@@ -73,7 +74,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
         class="browse-header mb-2 h-12 w-full bg-white absolute left-2 top-2 flex items-center"
       >
         <div class="h-full pl-2 w-full flex items-center flex-grow like-header bg-white z-50">
-          <.show_images_banner
+          <ContentWarnings.show_images_banner
             :if={Helpers.obfuscate_item?(assigns)}
             item_id={@item.id}
             content_warning={@item.content_warning}

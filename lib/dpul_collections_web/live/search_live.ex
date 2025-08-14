@@ -5,6 +5,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   use Solr.Constants
   alias DpulCollectionsWeb.Live.Helpers
   alias DpulCollectionsWeb.SearchLive.SearchState
+  alias DpulCollectionsWeb.ContentWarnings
 
   def mount(_params, session, socket) do
     show_images = session["show_images"]
@@ -242,7 +243,7 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def thumbs(assigns) do
     ~H"""
-    <.show_images_banner
+    <ContentWarnings.show_images_banner
       :if={Helpers.obfuscate_item?(assigns) && @thumb_num == 0}
       item_id={@item.id}
       content_warning={@item.content_warning}
