@@ -5,6 +5,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   use Solr.Constants
   alias DpulCollectionsWeb.Live.Helpers
   alias DpulCollectionsWeb.SearchLive.SearchState
+  alias DpulCollectionsWeb.ContentWarnings
 
   def mount(_params, session, socket) do
     show_images = session["show_images"]
@@ -199,7 +200,6 @@ defmodule DpulCollectionsWeb.SearchLive do
           </div>
         </div>
       </.link>
-      <.show_images_button :if={@item.content_warning} item_id={@item.id} />
       <div data-field="genre" class="pt-4 text-gray-600 font-bold text-sm uppercase">
         <.link
           aria-label={"#{gettext("filter by")} #{@item.genre}"}
@@ -243,6 +243,11 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def thumbs(assigns) do
     ~H"""
+    <ContentWarnings.show_images_banner
+      :if={Helpers.obfuscate_item?(assigns) && @thumb_num == 0}
+      item_id={@item.id}
+      content_warning={@item.content_warning}
+    />
     <img
       class={[
         "h-[350px] w-[350px] md:h-[225px] md:w-[225px] border border-solid border-gray-400",

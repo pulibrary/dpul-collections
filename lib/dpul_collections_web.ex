@@ -58,6 +58,7 @@ defmodule DpulCollectionsWeb do
       import PhoenixLiveReact
       import Iconify
       alias Iconify.Icon
+      use DpulCollectionsWeb.ContentWarnings
 
       on_mount SetLocaleHook
       unquote(html_helpers())

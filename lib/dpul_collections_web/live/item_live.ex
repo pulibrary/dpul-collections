@@ -1,10 +1,12 @@
 defmodule DpulCollectionsWeb.ItemLive do
   use DpulCollections.Solr.Constants
   alias DpulCollectionsWeb.Live.Helpers
+  alias DpulCollectionsWeb.ContentWarnings
   import DpulCollectionsWeb.BrowseItem
   use DpulCollectionsWeb, :live_view
   use Gettext, backend: DpulCollectionsWeb.Gettext
   alias DpulCollections.{Item, Solr}
+  alias DpulCollectionsWeb.ContentWarnings
 
   def mount(_params, session, socket) do
     show_images = session["show_images"]
@@ -106,6 +108,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       item={@item}
       current_canvas_idx={@current_canvas_idx}
       current_content_state_url={@current_content_state_url}
+      {assigns}
     />
     """
   end
@@ -146,7 +149,6 @@ defmodule DpulCollectionsWeb.ItemLive do
         <div class="thumbnails w-full sm:row-start-1 sm:col-start-1 sm:col-span-2 sm:row-span-full">
           <.primary_thumbnail item={@item} display_size={@display_size} show_images={@show_images} />
 
-          <.show_images_button :if={@item.content_warning} item_id={@item.id} />
           <.action_bar class="sm:hidden pt-4" item={@item} />
 
           <section class="image-thumbnails hidden sm:block md:col-span-2 py-4">
@@ -225,7 +227,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div
       id="metadata-pane"
-      class="bg-background min-w-full min-h-full translate-x-full col-start-1 row-start-1 absolute top-0"
+      class="z-3 bg-background min-w-full min-h-full translate-x-full col-start-1 row-start-1 absolute top-0"
       phx-mounted={
         JS.transition({"ease-out duration-250", "translate-x-full", "translate-x-0"})
         |> hide_covered_elements()
@@ -295,7 +297,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div
       id="viewer-pane"
-      class="bg-background flex flex-col min-h-full min-w-full -translate-x-full col-start-1 row-start-1 absolute top-0 dismissable"
+      class="z-3 bg-background flex flex-col min-h-full min-w-full -translate-x-full col-start-1 row-start-1 absolute top-0 dismissable"
       phx-mounted={
         JS.transition({"ease-out duration-250", "-translate-x-full", "translate-x-0"})
         |> hide_covered_elements()
@@ -328,14 +330,30 @@ defmodule DpulCollectionsWeb.ItemLive do
       </div>
       <!-- "relative" here lets Clover fill the full size of main-content. -->
       <!-- Ignore phoenix updates, since Clover manages switching the canvas. Without this it's jumpy on page switches. -->
-      <div id="clover-viewer" class="main-content grow relative" phx-update="ignore">
-        {live_react_component(
-          "Components.DpulcViewer",
-          [
-            iiifContent: unverified_url(DpulCollectionsWeb.Endpoint, @current_content_state_url)
-          ],
-          id: "viewer-component"
-        )}
+      <div id="clover-viewer" class="main-content grow relative">
+        <div id="clover-viewer-container" class="w-full h-full" phx-update="ignore">
+          {live_react_component(
+            "Components.DpulcViewer",
+            [
+              iiifContent: unverified_url(DpulCollectionsWeb.Endpoint, @current_content_state_url)
+            ],
+            id: "viewer-component"
+          )}
+        </div>
+        <div
+          :if={Helpers.obfuscate_item?(assigns)}
+          class="obfuscation-container flex items-center justify-center bg-background w-full h-full absolute top-0 left-0"
+        >
+          <div class="max-w-2xl">
+            <h2 class="text-3xl font-semibold">
+              {gettext("Content Warning")}
+            </h2>
+            <ContentWarnings.content_warning_body
+              item_id={@item.id}
+              content_warning={@item.content_warning}
+            />
+          </div>
+        </div>
       </div>
       <.share_modal
         path={"#{@item.viewer_url}/#{@current_canvas_idx}"}
@@ -498,6 +516,11 @@ defmodule DpulCollectionsWeb.ItemLive do
           <span class="w-[11px] h-[1px] bg-accent"></span>
         </div>
         <div class="col-start-2 relative">
+          <ContentWarnings.show_images_banner
+            :if={Helpers.obfuscate_item?(assigns)}
+            item_id={@item.id}
+            content_warning={@item.content_warning}
+          />
           <.link patch={"#{@item.viewer_url}/#{primary_thumbnail_idx(@item)}"} replace>
             <img
               src={"#{@item.primary_thumbnail_service_url}/full/!#{@item.primary_thumbnail_width},#{@item.primary_thumbnail_height}/0/default.jpg"}
@@ -515,10 +538,10 @@ defmodule DpulCollectionsWeb.ItemLive do
           <div
             :if={@display_size && relative_paper_dimension_style(@item)}
             id="letter-preview"
-            class="absolute bottom-0 right-0 z-1 border-2 border-accent"
+            class="absolute bottom-0 right-0 z-2 border-2 border-accent"
             style={relative_paper_dimension_style(@item)}
           >
-            <div class="flex justify-center items-center z-1 w-full h-full backdrop-blur-xs bg-white/70 text-accent text-sm p-4">
+            <div class="flex justify-center items-center z-2 w-full h-full backdrop-blur-xs bg-white/70 text-accent text-sm p-4">
               <div>
                 {gettext("Letter Paper")} 8.5" x 11" (21.59 x 27.94 cm)
                 <.icon class="w-5 h-5" name="pepicons-pencil:ruler" />
@@ -608,13 +631,7 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def share_modal(assigns) do
     ~H"""
-    <div
-      id={@id}
-      class="hidden"
-      phx-hook="CloseModals"
-      phx-window-keydown={hide_modal(@id)}
-      phx-key="escape"
-    >
+    <div id={@id} class="hidden" phx-window-keydown={hide_modal(@id)} phx-key="escape">
       <div class="fixed inset-0 p-4 flex flex-wrap justify-center items-center w-full h-full z-[1000] before:fixed before:inset-0 before:w-full before:h-full before:bg-[rgba(0,0,0,0.5)] overflow-auto">
         <div
           class="w-full max-w-2xl bg-white shadow-lg rounded-lg p-8 relative"
