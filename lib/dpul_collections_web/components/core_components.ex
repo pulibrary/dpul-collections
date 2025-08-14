@@ -187,18 +187,4 @@ defmodule DpulCollectionsWeb.CoreComponents do
     </button>
     """
   end
-
-  attr :item_id, :string, required: true
-
-  def show_images_button(assigns) do
-    ~H"""
-    <.primary_button
-      id={"show-images-#{@item_id}"}
-      phx-click={JS.dispatch("dpulc:showImages")}
-      data-id={@item_id}
-    >
-      {gettext("Show images")}
-    </.primary_button>
-    """
-  end
 end

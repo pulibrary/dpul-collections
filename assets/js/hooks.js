@@ -20,6 +20,26 @@ Hooks.ToolbarHook = {
   }
 };
 
+Hooks.OpenDialogHook = {
+  mounted() {
+    this.el.addEventListener('click', function(e) {
+      e.preventDefault()
+      dialog = e.currentTarget.getAttribute("data-dialog-id")
+      document.getElementById(dialog).showModal()
+    })
+  }
+}
+
+Hooks.CloseDialogHook = {
+  mounted() {
+    this.el.addEventListener('click', function(e) {
+      e.preventDefault()
+      dialog = e.currentTarget.getAttribute("data-dialog-id")
+      document.getElementById(dialog).close()
+    })
+  }
+}
+
 // Scrolls to the top of the page when an element is mounted. Usually
 // used for slide ins updated via patch.
 Hooks.ScrollTop = {
