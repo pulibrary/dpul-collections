@@ -6,17 +6,14 @@ defmodule DpulCollectionsWeb.BrowseLive do
   import DpulCollectionsWeb.BrowseItem
   alias DpulCollections.{Item, Solr}
 
-  def mount(_params, session, socket) do
-    show_images = session["show_images"]
-
+  def mount(_params, _session, socket) do
     socket =
       socket
       |> assign(
         items: [],
         liked_items: [],
         page_title: gettext("Browse - Digital Collections"),
-        focused_item: nil,
-        show_images: show_images
+        focused_item: nil
       )
 
     {:ok, socket}

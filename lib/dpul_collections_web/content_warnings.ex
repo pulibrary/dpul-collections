@@ -7,6 +7,7 @@ defmodule DpulCollectionsWeb.ContentWarnings do
 
   defmacro __using__(_) do
     quote do
+      on_mount DpulCollectionsWeb.ContentWarnings
       # Add a way to handle the show_images event to all live views.
       def handle_event(
             "show_images",
@@ -22,6 +23,15 @@ defmodule DpulCollectionsWeb.ContentWarnings do
         {:noreply, socket |> assign(show_images: new_show_images)}
       end
     end
+  end
+
+  # All our liveviews could display show_images, so set it.
+  def on_mount(:default, _params, %{"show_images" => show_images}, socket) do
+    {:cont, assign(socket, :show_images, show_images)}
+  end
+
+  def on_mount(:default, _params, _, socket) do
+    {:cont, assign(socket, :show_images, [])}
   end
 
   attr :item_id, :string, required: true
