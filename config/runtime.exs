@@ -81,6 +81,9 @@ if config_env() == :prod do
     password: System.get_env("SOLR_PASSWORD") || ""
   }
 
+  {:ok, solr_config_json} = File.read(Path.join(System.get_env("NOMAD_TASK_DIR"), "solr.json"))
+  config :dpul_collections, solr_config, Jason.decode(solr_config_json)
+
   index_cache_collections =
     System.get_env("INDEX_CACHE_COLLECTIONS")
     |> String.split(";")
@@ -154,6 +157,7 @@ if config_env() == :prod do
     # Upload pre-built dashboards to Grafana.
     grafana: [
       host: "https://grafana-nomad.lib.princeton.edu",
+
       auth_token: System.get_env("GRAFANA_SERVICE_TOKEN")
     ],
     # Run a standalone metrics server with a bearer token auth. Prometheus will
