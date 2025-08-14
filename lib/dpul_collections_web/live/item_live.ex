@@ -345,6 +345,9 @@ defmodule DpulCollectionsWeb.ItemLive do
           class="obfuscation-container flex items-center justify-center bg-background w-full h-full absolute top-0 left-0"
         >
           <div class="max-w-2xl">
+            <h2 class="text-3xl font-semibold">
+              Content Warning
+            </h2>
             <ContentWarnings.content_warning_body
               item_id={@item.id}
               content_warning={@item.content_warning}

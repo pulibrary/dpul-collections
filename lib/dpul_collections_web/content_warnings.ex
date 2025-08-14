@@ -7,6 +7,7 @@ defmodule DpulCollectionsWeb.ContentWarnings do
 
   defmacro __using__(_) do
     quote do
+      # Add a way to handle the show_images event to all live views.
       def handle_event(
             "show_images",
             %{"id" => id},
