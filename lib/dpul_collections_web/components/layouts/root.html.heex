@@ -7,6 +7,13 @@
     <.live_title>
       {assigns[:page_title]}
     </.live_title>
+    <script
+      :if={DpulCollections.is_production()}
+      defer
+      data-domain="dpul.princeton.edu"
+      src="https://plausible.io/js/script.file-downloads.outbound-links.pageview-props.tagged-events.js"
+    >
+    </script>
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
     </script>
