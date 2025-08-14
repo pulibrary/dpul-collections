@@ -43,7 +43,7 @@ defmodule DpulCollectionsWeb.ContentWarnings do
           <.icon name="hero-eye-slash" class="h-5 w-5 icon mb-[2px]" />
         </span>
         <span>
-          Why are the images blurred?
+          {gettext("Why are the images blurred?")}
         </span>
       </.link>
       <!-- Modal content -->
@@ -80,12 +80,24 @@ defmodule DpulCollectionsWeb.ContentWarnings do
                 d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
               />
             </svg>
-            <span class="sr-only">Close modal</span>
+            <span class="sr-only">{gettext("Close modal")}</span>
           </button>
         </div>
         <.content_warning_body {assigns} />
       </dialog>
     </div>
+    """
+  end
+
+  def responsible_collection_link(assigns) do
+    ~H"""
+    <.link
+      href="https://library.princeton.edu/about/responsible-collection-description"
+      class="text-accent"
+      target="_blank"
+    >
+      {gettext("Responsible Collection Description")}
+    </.link>
     """
   end
 
@@ -97,14 +109,17 @@ defmodule DpulCollectionsWeb.ContentWarnings do
     <div class="p-6 space-y-4">
       <h3 class="font-2xl font-semibold">{@content_warning}</h3>
       <p>
-        Images are blurred because this item has been determined to contain images with sensitive content. To view the content in this item, click View Content below.
+        {gettext(
+          "Images are blurred because this item has been determined to contain images with sensitive content. To view the content in this item, click View Content below."
+        )}
       </p>
       <p>
-        For more information, please see the PUL statement on <.link
-          href="https://library.princeton.edu/about/responsible-collection-description"
-          class="text-accent"
-          target="_blank"
-        >Responsible Collection Description</.link>.
+        {gettext(
+          "For more information, please see the PUL statement on %{responsible_collection_link}.",
+          responsible_collection_link:
+            responsible_collection_link(%{}) |> Phoenix.HTML.Safe.to_iodata() |> to_string()
+        )
+        |> raw}
       </p>
     </div>
     <!-- Modal footer -->

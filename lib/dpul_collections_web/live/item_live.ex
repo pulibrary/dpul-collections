@@ -346,7 +346,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         >
           <div class="max-w-2xl">
             <h2 class="text-3xl font-semibold">
-              Content Warning
+              {gettext("Content Warning")}
             </h2>
             <ContentWarnings.content_warning_body
               item_id={@item.id}
