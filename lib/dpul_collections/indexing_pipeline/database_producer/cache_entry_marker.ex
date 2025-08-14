@@ -43,6 +43,12 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker do
     marker
   end
 
+  def from(%Broadway.Message{
+        data: %{related_resource: %Resource{updated_at: updated_at, id: id}}
+      }) do
+    %__MODULE__{timestamp: updated_at, id: id}
+  end
+
   def from(%Broadway.Message{data: data}) do
     from(data)
   end

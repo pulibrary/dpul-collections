@@ -102,7 +102,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         transformed_messages
         |> Enum.map(&Map.get(&1, :batcher))
 
-      assert message_batchers == [:default, :noop, :noop, :related, :noop, :noop]
+      assert message_batchers == [:default, :noop, :noop, :default, :noop, :noop]
     end
 
     test "handle_batch/3 only processes deletion markers with related resources in the HydrationCache" do
@@ -380,11 +380,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           [updated_ephemera_term_message]
           |> Enum.map(&Figgy.HydrationConsumer.handle_message(nil, &1, %{cache_version: 1}))
 
-        # Test that message is routed to the correct batcher
-        message = messages |> Enum.at(0)
-        assert message.batcher == :related
-
-        Figgy.HydrationConsumer.handle_batch(:related, messages, nil, %{cache_version: 1})
+        Figgy.HydrationConsumer.handle_batch(:default, messages, nil, %{cache_version: 1})
 
         hydration_cache_entries = IndexingPipeline.list_hydration_cache_entries()
         assert hydration_cache_entries |> length == 1
@@ -467,11 +463,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           [updated_ephemera_term_message]
           |> Enum.map(&Figgy.HydrationConsumer.handle_message(nil, &1, %{cache_version: 1}))
 
-        # Test that message is routed to the correct batcher
-        message = messages |> Enum.at(0)
-        assert message.batcher == :related
-
-        Figgy.HydrationConsumer.handle_batch(:related, messages, nil, %{cache_version: 1})
+        Figgy.HydrationConsumer.handle_batch(:default, messages, nil, %{cache_version: 1})
 
         hydration_cache_entries = IndexingPipeline.list_hydration_cache_entries()
         assert hydration_cache_entries |> length == 1
@@ -564,11 +556,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           [updated_file_set_message]
           |> Enum.map(&Figgy.HydrationConsumer.handle_message(nil, &1, %{cache_version: 1}))
 
-        # Test that message is routed to the correct batcher
-        message = messages |> Enum.at(0)
-        assert message.batcher == :related
-
-        Figgy.HydrationConsumer.handle_batch(:related, messages, nil, %{cache_version: 1})
+        Figgy.HydrationConsumer.handle_batch(:default, messages, nil, %{cache_version: 1})
 
         hydration_cache_entries = IndexingPipeline.list_hydration_cache_entries()
         assert hydration_cache_entries |> length == 1
