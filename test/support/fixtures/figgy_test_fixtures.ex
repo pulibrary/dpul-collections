@@ -182,7 +182,7 @@ defmodule FiggyTestFixtures do
         data: %{
           "id" => "47276197-e223-471c-99d7-405c5f6c5285",
           "internal_resource" => "EphemeraFolder",
-          "metadata" => %{"title" => ["test title"]}
+          "metadata" => %{"title" => ["test title"], "notice_type" => ["explicit_content"]}
         }
       })
 
