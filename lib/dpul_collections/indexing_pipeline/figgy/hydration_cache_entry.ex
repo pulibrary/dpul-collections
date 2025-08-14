@@ -91,7 +91,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   end
 
   def content_warning(%{"notice_type" => ["explicit_content"]}) do
-    "Explicit -- Nudity and Graphic Content"
+    "Explicit -- Nudity and/or Graphic Content"
   end
 
   def content_warning(_), do: []

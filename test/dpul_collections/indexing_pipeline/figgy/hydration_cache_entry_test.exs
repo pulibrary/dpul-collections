@@ -50,7 +50,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
                alternative_title_txtm: nil,
                description_txtm: nil,
                digitized_at_dt: nil,
-               content_warning_s: "Explicit -- Nudity and Graphic Content"
+               content_warning_s: "Explicit -- Nudity and/or Graphic Content"
              } = doc3
     end
 
