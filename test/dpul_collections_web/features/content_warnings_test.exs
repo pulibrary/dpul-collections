@@ -15,11 +15,29 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
           title_txtm: ["Elham Azar"],
           content_warning_s: "This item depicts images that may be harmful in this specific way.",
           file_count_i: 3,
+          genre_txtm: ["pamphlets"],
+          subject_txtm: ["folk art", "museum exhibits"],
           image_service_urls_ss: [
             "https://example.com/iiif/2/image1",
             "https://example.com/iiif/2/image2",
             "https://example.com/iiif/2/image3"
           ],
+          ephemera_project_title_s: "LGBTQIA+ Ephemera",
+          updated_at_dt: DateTime.utc_now() |> DateTime.to_iso8601()
+        },
+        %{
+          id: "d4292e58-25d7-4247-bf92-0a5e24ec75d2",
+          title_txtm: ["Similar Thing"],
+          content_warning_s: "This item depicts images that may be harmful in this specific way.",
+          file_count_i: 3,
+          genre_txtm: ["pamphlets"],
+          subject_txtm: ["folk art", "museum exhibits"],
+          image_service_urls_ss: [
+            "https://example.com/iiif/2/image1",
+            "https://example.com/iiif/2/image2",
+            "https://example.com/iiif/2/image3"
+          ],
+          ephemera_project_title_s: "LGBTQIA+ Ephemera",
           updated_at_dt: DateTime.utc_now() |> DateTime.to_iso8601()
         }
       ],
@@ -83,11 +101,21 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
       conn
       |> visit("/item/d4292e58-25d7-4247-bf92-0a5e24ec75d1")
       # the large thumbnail is duplicated in the small thumbnail list
-      |> assert_has(".thumbnail-d4292e58-25d7-4247-bf92-0a5e24ec75d1", count: 4)
-      |> assert_has("img.obfuscate", count: 4)
-      |> click_link("Why are the images blurred?")
+      |> assert_has("img.thumbnail-d4292e58-25d7-4247-bf92-0a5e24ec75d1.obfuscate", count: 4)
+      |> click_link(
+        "#open-show-image-banner-d4292e58-25d7-4247-bf92-0a5e24ec75d1",
+        "Why are the images blurred?"
+      )
       |> click_button("View content")
-      |> refute_has("img.obfuscate")
+      |> refute_has("img.thumbnail-d4292e58-25d7-4247-bf92-0a5e24ec75d1.obfuscate")
+      # Make sure related items works.
+      |> assert_has("img.thumbnail-d4292e58-25d7-4247-bf92-0a5e24ec75d2.obfuscate", count: 3)
+      |> click_link(
+        "#open-show-image-banner-d4292e58-25d7-4247-bf92-0a5e24ec75d2",
+        "Why are the images blurred?"
+      )
+      |> click_button("View content")
+      |> refute_has("img.thumbnail-d4292e58-25d7-4247-bf92-0a5e24ec75d2.obfuscate")
       # Make sure the viewer also knows not to render this.
       |> click_link("#viewer-link", "View")
       |> refute_has("h2", text: "Content Warning")
