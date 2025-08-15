@@ -9,8 +9,9 @@ defmodule DpulCollections.Repo.Migrations.AddRelatedIdsToHydrationCacheEntry do
     create(
       index(
         :figgy_hydration_cache_entries,
-        [:related_ids, :cache_version],
-        name: :figgy_hydration_related_ids_cache_version_idx
+        [:related_ids],
+        name: :figgy_hydration_related_ids_idx,
+        using: :gin
       )
     )
   end

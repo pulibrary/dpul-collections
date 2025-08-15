@@ -675,7 +675,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
         IndexingPipeline.write_hydration_cache_entry(%{
           cache_version: 0,
           record_id: "d4292e58-25d7-4247-bf92-0a5e24ec75d1",
+          related_ids: [],
           source_cache_order: ~U[2024-01-11 16:41:04.389944Z],
+          source_cache_order_record_id: "d4292e58-25d7-4247-bf92-0a5e24ec75d1",
           data: %{
             "id" => "d4292e58-25d7-4247-bf92-0a5e24ec75d1",
             "internal_resource" => "EphemeraFolder",
