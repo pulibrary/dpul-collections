@@ -49,7 +49,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
       assert %{
                alternative_title_txtm: nil,
                description_txtm: nil,
-               digitized_at_dt: nil
+               digitized_at_dt: nil,
+               content_warning_s: "Explicit -- Nudity and/or Graphic Content"
              } = doc3
     end
 
@@ -667,6 +668,29 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
         })
 
       assert %{genre_txtm: []} = HydrationCacheEntry.to_solr_document(entry)
+    end
+
+    test "indexes harmful_content" do
+      {:ok, entry} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          cache_version: 0,
+          record_id: "d4292e58-25d7-4247-bf92-0a5e24ec75d1",
+          source_cache_order: ~U[2024-01-11 16:41:04.389944Z],
+          data: %{
+            "id" => "d4292e58-25d7-4247-bf92-0a5e24ec75d1",
+            "internal_resource" => "EphemeraFolder",
+            "metadata" => %{
+              "title" => ["Elham Azar"],
+              "date_created" => ["2022"],
+              "notice_type" => ["harmful_content"],
+              "content_warning" => [""]
+            }
+          }
+        })
+
+      assert %{
+               content_warning_s: "Unspecified"
+             } = HydrationCacheEntry.to_solr_document(entry)
     end
 
     test "indexes content warning" do

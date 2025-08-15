@@ -68,8 +68,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
       barcode_txtm: get_in(metadata, ["barcode"]),
       box_number_txtm: get_in(box_metadata, ["box_number"]),
       contributor_txtm: get_in(metadata, ["contributor"]),
-      content_warning_s:
-        Map.get(metadata, "content_warning", []) |> remove_empty_strings |> Enum.at(0),
+      content_warning_s: content_warning(metadata),
       creator_txtm: get_in(metadata, ["creator"]),
       description_txtm: get_in(metadata, ["description"]),
       digitized_at_dt: digitized_date(data),
@@ -103,6 +102,25 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
       years_is: extract_years(data)
     }
   end
+
+  def content_warning(metadata = %{"content_warning" => content_warning}) do
+    # Check to see if there's blank content warnings messing up the data.
+    case warning = remove_empty_strings(content_warning) do
+      # If it was all empty, re-process to check for notice_type
+      [] -> metadata |> Map.delete("content_warning") |> content_warning
+      _ -> warning |> Enum.at(0)
+    end
+  end
+
+  def content_warning(%{"notice_type" => ["explicit_content"]}) do
+    "Explicit -- Nudity and/or Graphic Content"
+  end
+
+  def content_warning(%{"notice_type" => ["harmful_content"]}) do
+    "Unspecified"
+  end
+
+  def content_warning(_), do: nil
 
   # Remove empty strings from list
   defp remove_empty_strings(field_value) when is_list(field_value) do
