@@ -49,58 +49,10 @@ if config_env() == :prod do
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "30"),
     socket_options: maybe_ipv6
 
-  solr_base_url =
-    System.get_env("SOLR_BASE_URL") ||
-      raise """
-      environment variable SOLR_BASE_URL is missing.
-      For example: http://localhost:8985
-      """
-
-  solr_read_collection =
-    System.get_env("SOLR_READ_COLLECTION") ||
-      raise """
-      environment variable SOLR_READ_COLLECTION is missing.
-      For example: dpul-collections-prod
-      Note: This must be implemented as an alias
-      """
-
-  solr_config_set =
-    System.get_env("SOLR_CONFIG_SET") ||
-      raise """
-      environment variable SOLR_CONFIG_SET is missing.
-      For example: dpulc-staging
-      Note: This must be deployed to the solr server via pul_solr
-      """
-
-  # Configure Solr connection
-  config :dpul_collections, :solr, %{
-    base_url: solr_base_url,
-    read_collection: solr_read_collection,
-    config_set: solr_config_set,
-    username: System.get_env("SOLR_USERNAME") || "",
-    password: System.get_env("SOLR_PASSWORD") || ""
-  }
-
-  index_cache_collections =
-    System.get_env("INDEX_CACHE_COLLECTIONS")
-    |> String.split(";")
-    |> Enum.map(&String.split(&1, ","))
-    |> Enum.map(fn list -> Enum.map(list, &String.split(&1, ":")) end)
-    |> Enum.map(fn list -> Enum.map(list, &List.to_tuple/1) end)
-    |> Enum.map(fn list ->
-      Enum.map(list, fn tuple -> {String.to_atom(elem(tuple, 0)), elem(tuple, 1)} end)
-    end) ||
-      raise """
-      environment variable INDEX_CACHE_COLLECTIONS is missing.
-      This value must be passed as a json string
-      For example: "cache_version:1,write_collection:dpulc-staging"
-      For example: "cache_version:1,write_collection:dpulc-staging1;cache_version:2,write_collection:dpulc-staging2"
-      Note: up to 2 collections can be specified. Code is untested beyond 2.
-      Note: never add a cache version that's lower in value than the current active cache version
-      """
-
-  # Configure indexing pipeline writes
-  config :dpul_collections, DpulCollections.IndexingPipeline, index_cache_collections
+  # Solr configuration
+  {:ok, solr_config_json} = File.read(Path.join(System.get_env("NOMAD_TASK_DIR"), "solr.json"))
+  {:ok, solr_config} = Jason.decode(solr_config_json, keys: :atoms)
+  config :dpul_collections, :solr_config, solr_config
 
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you

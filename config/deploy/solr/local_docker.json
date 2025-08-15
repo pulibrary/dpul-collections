@@ -1,0 +1,18 @@
+{
+  "read": {
+    "base_url": "http://host.docker.internal:8985",
+    "collection": "dpulc",
+    "username": "user",
+    "password": "pass"
+  },
+  "write": [
+    {
+      "cache_version": 1,
+      "base_url": "http://host.docker.internal:8985",
+      "collection": "dpulc",
+      "config_set": "dpul-collections",
+      "username": "user",
+      "password": "pass"
+    }
+  ]
+}

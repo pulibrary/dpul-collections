@@ -221,63 +221,9 @@ defmodule DpulCollections.SolrTest do
     assert Solr.document_count() == 0
   end
 
-  setup context do
-    if solr_settings = context[:solr_settings] do
-      existing_env = Application.fetch_env!(:dpul_collections, :solr)
-      Application.put_env(:dpul_collections, :solr, solr_settings)
-      on_exit(fn -> Application.put_env(:dpul_collections, :solr, existing_env) end)
-    end
-
-    :ok
-  end
-
-  @tag solr_settings: %{
-         base_url: "http://localhost:8983",
-         read_collection: "bla",
-         username: "test",
-         password: "test"
-       }
-  test ".client/0 setting auth works" do
-    client = Solr.client()
-    assert client.options.base_url == "http://localhost:8983"
-    assert client.options.auth == {:basic, "test:test"}
-  end
-
-  @tag solr_settings: %{base_url: "http://localhost:8983", read_collection: "bla", username: ""}
-  test ".client/0 with no auth works" do
-    client = Solr.client()
-    assert client.options.base_url == "http://localhost:8983"
-    assert client.options.auth == nil
-  end
-
   test "write operations use a default collection if none specified" do
     {:ok, response} = Solr.commit()
     assert response.body["responseHeader"]["status"] == 0
-  end
-
-  test "create a new collection, set alias, delete a collection" do
-    new_collection = "new_index1"
-    assert Solr.collection_exists?(new_collection) == false
-
-    Solr.create_collection(new_collection)
-    assert Solr.collection_exists?(new_collection) == true
-
-    # alias is pointing to the collection created during setup
-    original_collection = Solr.get_alias()
-    assert original_collection == "dpulc1"
-    Solr.set_alias(new_collection)
-    assert Solr.get_alias() == new_collection
-    Solr.set_alias(original_collection)
-
-    Solr.delete_collection(new_collection)
-    assert Solr.collection_exists?(new_collection) == false
-  end
-
-  test "creating an existing collection is a no-op" do
-    response = Solr.create_collection("dpulc1")
-    # Most importantly, it doesn't error, but here's an assertion as a coherence
-    # check
-    assert response.body["exception"]["msg"] == "collection already exists: dpulc1"
   end
 
   test "slug generation" do

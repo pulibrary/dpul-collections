@@ -44,14 +44,13 @@ defmodule DpulCollections.Application do
   end
 
   def indexing_pipeline_children() do
-    for pipeline <- Application.fetch_env!(:dpul_collections, DpulCollections.IndexingPipeline) do
-      cache_version = pipeline[:cache_version]
-      write_collection = pipeline[:write_collection]
+    for index <- DpulCollections.Solr.Index.write_indexes() do
+      cache_version = index.cache_version
 
       [
         Supervisor.child_spec(
           {DpulCollections.IndexingPipeline.Figgy.IndexingConsumer,
-           cache_version: cache_version, batch_size: 50, write_collection: write_collection},
+           cache_version: cache_version, batch_size: 50, solr_index: index},
           id: String.to_atom("figgy_indexer_#{cache_version}")
         ),
         Supervisor.child_spec(

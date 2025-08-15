@@ -77,7 +77,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     children = [
       {Figgy.IndexingConsumer,
-       cache_version: cache_version, batch_size: 50, write_collection: active_collection()},
+       cache_version: cache_version, batch_size: 50, solr_index: active_collection()},
       {Figgy.TransformationConsumer, cache_version: cache_version, batch_size: 50},
       {Figgy.HydrationConsumer, cache_version: cache_version, batch_size: 50}
     ]
