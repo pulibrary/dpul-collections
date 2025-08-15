@@ -5,11 +5,9 @@ defmodule DpulCollections.Solr do
 
   @spec document_count(%Index{}) :: integer()
   def document_count(index \\ Index.read_index()) do
-    connection = Index.connect(index)
-
     {:ok, response} =
       Req.get(
-        select_url(connection, index.collection),
+        select_url(index),
         params: [q: "*:*"]
       )
 
@@ -50,11 +48,9 @@ defmodule DpulCollections.Solr do
       uf: "* _query_"
     ]
 
-    connection = Index.connect(index)
-
     {:ok, response} =
       Req.get(
-        select_url(connection, index.collection),
+        select_url(index),
         params: solr_params
       )
 
@@ -75,11 +71,9 @@ defmodule DpulCollections.Solr do
       mm: 1
     ]
 
-    connection = Index.connect(index)
-
     {:ok, response} =
       Req.get(
-        query_url(connection, index.collection),
+        query_url(index),
         params: solr_params
       )
 
@@ -100,11 +94,9 @@ defmodule DpulCollections.Solr do
       fq: "file_count_i:[1 TO *]"
     ]
 
-    connection = Index.connect(index)
-
     {:ok, response} =
       Req.get(
-        select_url(connection, index.collection),
+        select_url(index),
         params: solr_params
       )
 
@@ -120,11 +112,9 @@ defmodule DpulCollections.Solr do
       sort: "random_#{seed} desc"
     ]
 
-    connection = Index.connect(index)
-
     {:ok, response} =
       Req.get(
-        select_url(connection, index.collection),
+        select_url(index),
         params: solr_params
       )
 
@@ -192,11 +182,9 @@ defmodule DpulCollections.Solr do
 
   @spec latest_document(String.t()) :: map()
   def latest_document(index \\ Index.read_index()) do
-    connection = Index.connect(index)
-
     {:ok, response} =
       Req.get(
-        select_url(connection, index.collection),
+        select_url(index),
         params: [q: "*:*", sort: "_version_ desc"]
       )
 
@@ -208,11 +196,9 @@ defmodule DpulCollections.Solr do
 
   @spec find_by_id(String.t(), String.t()) :: map()
   def find_by_id(id, index \\ Index.read_index()) do
-    connection = Index.connect(index)
-
     {:ok, response} =
       Req.get(
-        select_url(connection, index.collection),
+        select_url(index),
         params: [q: "id:#{id}"]
       )
 
@@ -227,11 +213,9 @@ defmodule DpulCollections.Solr do
   def add(docs, index \\ Index.read_index())
 
   def add(docs, index) when is_list(docs) do
-    connection = Index.connect(index)
-
     response =
       Req.post!(
-        update_url(connection, index.collection),
+        update_url(index),
         json: docs
       )
 
@@ -243,11 +227,9 @@ defmodule DpulCollections.Solr do
   end
 
   def add(doc, index) when not is_list(doc) do
-    connection = Index.connect(index)
-
     response =
       Req.post!(
-        update_url(connection, index.collection),
+        update_url(index),
         json: [doc]
       )
 
@@ -260,20 +242,16 @@ defmodule DpulCollections.Solr do
 
   @spec commit(String.t()) :: {:ok, Req.Response.t()} | {:error, Exception.t()}
   def commit(index \\ Index.read_index()) do
-    connection = Index.connect(index)
-
     Req.get(
-      update_url(connection, index.collection),
+      update_url(index),
       params: [commit: true]
     )
   end
 
   @spec soft_commit() :: {:ok, Req.Response.t()} | {:error, Exception.t()}
   def soft_commit(index \\ Index.read_index()) do
-    connection = Index.connect(index)
-
     Req.get(
-      update_url(connection, index.collection),
+      update_url(index),
       params: [commit: true, softCommit: true]
     )
   end
@@ -281,10 +259,8 @@ defmodule DpulCollections.Solr do
   @spec delete_all(%Index{}) ::
           {:ok, Req.Response.t()} | {:error, Exception.t()} | Exception.t()
   def delete_all(index \\ Index.read_index()) do
-    connection = Index.connect(index)
-
     Req.post!(
-      update_url(connection, index.collection),
+      update_url(index),
       json: %{delete: %{query: "*:*"}}
     )
 
@@ -294,12 +270,10 @@ defmodule DpulCollections.Solr do
   @spec delete_batch(list(), %Index{}) ::
           {:ok, Req.Response.t()} | {:error, Exception.t()} | Exception.t()
   def delete_batch(ids, index \\ Index.read_index()) do
-    connection = Index.connect(index)
-
     ids
     |> Enum.each(fn id ->
       Req.post!(
-        update_url(connection, index.collection),
+        update_url(index),
         json: %{delete: %{query: "id:#{id}"}}
       )
     end)
@@ -307,18 +281,18 @@ defmodule DpulCollections.Solr do
     soft_commit(index)
   end
 
-  defp select_url(connection, collection) do
-    connection
-    |> Req.merge(url: "/solr/#{collection}/select")
+  defp select_url(index) do
+    Index.connect(index)
+    |> Req.merge(url: "/solr/#{index.collection}/select")
   end
 
-  defp update_url(connection, collection) do
-    connection
-    |> Req.merge(url: "/solr/#{collection}/update")
+  defp update_url(index) do
+    Index.connect(index)
+    |> Req.merge(url: "/solr/#{index.collection}/update")
   end
 
-  defp query_url(connection, collection) do
-    connection
-    |> Req.merge(url: "/solr/#{collection}/query")
+  defp query_url(index) do
+    Index.connect(index)
+    |> Req.merge(url: "/solr/#{index.collection}/query")
   end
 end
