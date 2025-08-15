@@ -81,8 +81,8 @@ if config_env() == :prod do
     password: System.get_env("SOLR_PASSWORD") || ""
   }
 
-  {:ok, solr_config_json} = File.read(Path.join(System.get_env("NOMAD_TASK_DIR"), "solr.json"))
-  config :dpul_collections, solr_config, Jason.decode(solr_config_json)
+  # {:ok, solr_config_json} = File.read(Path.join(System.get_env("NOMAD_TASK_DIR"), "solr.json"))
+  # config :dpul_collections, solr_config, Jason.decode(solr_config_json)
 
   index_cache_collections =
     System.get_env("INDEX_CACHE_COLLECTIONS")

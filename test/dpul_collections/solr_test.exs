@@ -255,26 +255,37 @@ defmodule DpulCollections.SolrTest do
     assert response.body["responseHeader"]["status"] == 0
   end
 
+  # TODO MOVE TO NEW UNIT TEST
   test "create a new collection, set alias, delete a collection" do
-    new_collection = "new_index1"
-    assert Solr.collection_exists?(new_collection) == false
-
-    Solr.create_collection(new_collection)
-    assert Solr.collection_exists?(new_collection) == true
+    read_index = Solr.Index.read_index()
+    write_index = Solr.Index.write_indexes() |> hd
+    original_collection = Solr.Management.get_alias(read_index)
 
     # alias is pointing to the collection created during setup
-    original_collection = Solr.get_alias()
     assert original_collection == "dpulc1"
-    Solr.set_alias(new_collection)
-    assert Solr.get_alias() == new_collection
-    Solr.set_alias(original_collection)
 
-    Solr.delete_collection(new_collection)
-    assert Solr.collection_exists?(new_collection) == false
+    old_index = %Solr.Index{read_index | collection: original_collection}
+    new_index = %Solr.Index{read_index | collection: "new_index1", config_set: write_index.config_set}
+
+    # creating new collection
+    refute Solr.Management.collection_exists?(new_index)
+    Solr.Management.create_collection(new_index)
+    assert Solr.Management.collection_exists?(new_index)
+
+    # setting alias to new collection
+    Solr.Management.set_alias(new_index, read_index.collection)
+    assert Solr.Management.get_alias(read_index) == new_index.collection
+    Solr.Management.set_alias(old_index, read_index.collection)
+
+    # delete collection / clean up test
+    Solr.Management.delete_collection(new_index)
+    refute Solr.Management.collection_exists?(new_index)
   end
 
+  # TODO MOVE TO NEW UNIT TEST
   test "creating an existing collection is a no-op" do
-    response = Solr.create_collection("dpulc1")
+    write_index = Solr.Index.write_indexes() |> hd
+    response = Solr.Management.create_collection(write_index)
     # Most importantly, it doesn't error, but here's an assertion as a coherence
     # check
     assert response.body["exception"]["msg"] == "collection already exists: dpulc1"

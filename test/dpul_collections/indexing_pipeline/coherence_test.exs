@@ -1,6 +1,7 @@
 defmodule DpulCollections.IndexingPipeline.CoherenceTest do
   use DpulCollections.DataCase
   alias DpulCollections.Solr
+  alias DpulCollections.Solr.Index
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Coherence
 
@@ -9,14 +10,8 @@ defmodule DpulCollections.IndexingPipeline.CoherenceTest do
   setup do
     Solr.delete_all(active_collection())
 
-    Application.put_env(:dpul_collections, DpulCollections.IndexingPipeline, [
-      [cache_version: 1, write_collection: "dpulc1"],
-      [cache_version: 2, write_collection: "dpulc2"]
-    ])
-
     on_exit(fn ->
       Solr.delete_all(active_collection())
-      Application.delete_env(:dpul_collections, DpulCollections.IndexingPipeline)
     end)
   end
 
@@ -84,8 +79,10 @@ defmodule DpulCollections.IndexingPipeline.CoherenceTest do
   end
 
   test "document_count_report/0" do
-    new_collection = "dpulc2"
-    Solr.create_collection(new_collection)
+    [old_index, new_index] = Solr.Index.write_indexes()
+
+    Solr.Management.create_collection(new_index)
+    assert Solr.Management.collection_exists?(new_index)
 
     doc = %{
       "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
@@ -97,16 +94,16 @@ defmodule DpulCollections.IndexingPipeline.CoherenceTest do
       "title_txtm" => ["test title 2"]
     }
 
-    Solr.add([doc, doc2], active_collection())
-    Solr.commit(active_collection())
-    Solr.add([doc], new_collection)
-    Solr.commit(new_collection)
+    Solr.add([doc, doc2], old_index)
+    Solr.commit(old_index)
+    Solr.add([doc], new_index)
+    Solr.commit(new_index)
 
     assert Coherence.document_count_report() == [
              %{cache_version: 1, collection: "dpulc1", document_count: 2},
              %{cache_version: 2, collection: "dpulc2", document_count: 1}
            ]
 
-    Solr.delete_collection(new_collection)
+    Solr.Management.delete_collection(new_index)
   end
 end

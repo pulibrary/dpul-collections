@@ -72,6 +72,32 @@ config :dpul_collections, :solr, %{
   password: "SolrRocks"
 }
 
+config :dpul_collections, :solr_config, %{
+  read: %{
+    base_url: System.get_env("SOLR_BASE_URL") || "http://localhost:8985",
+    collection: "dpulc",
+    username: System.get_env("SOLR_USERNAME") || "user",
+    password: System.get_env("SOLR_PASSWORD") || "pass"
+  },
+  write: [
+    %{
+      cache_version: 1,
+      base_url: System.get_env("SOLR_BASE_URL") || "http://localhost:8985",
+      collection: "dpulc1",
+      config_set: "dpul-collections",
+      username: System.get_env("SOLR_USERNAME") || "user",
+      password: System.get_env("SOLR_PASSWORD") || "pass"
+    }, %{
+      cache_version: 2,
+      base_url: System.get_env("SOLR_BASE_URL") || "http://localhost:8985",
+      collection: "dpulc2",
+      config_set: "dpul-collections",
+      username: System.get_env("SOLR_USERNAME") || "user",
+      password: System.get_env("SOLR_PASSWORD") || "pass"
+    }
+  ]
+}
+
 # don't run indexing children
 # wrap this in a function b/c the dev implementation requires it
 config :dpul_collections, :start_indexing_pipeline?, fn -> false end

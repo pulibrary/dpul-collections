@@ -4,26 +4,26 @@ defmodule DpulCollections.IndexingPipeline.Coherence do
 
   @spec index_parity?() :: boolean()
   def index_parity?() do
-    Application.fetch_env!(:dpul_collections, DpulCollections.IndexingPipeline)
+    Solr.Index.write_indexes()
     |> Enum.map(&index_progress_summary/1)
     |> is_new_cache_caught_up?()
   end
 
-  @spec document_count_report() :: map()
+  @spec document_count_report() :: list()
   def document_count_report() do
-    Application.fetch_env!(:dpul_collections, DpulCollections.IndexingPipeline)
-    |> Enum.map(fn pipeline ->
+    Solr.Index.write_indexes()
+    |> Enum.map(fn index ->
       %{
-        cache_version: pipeline[:cache_version],
-        collection: pipeline[:write_collection],
-        document_count: Solr.document_count(pipeline[:write_collection])
+        cache_version: index.cache_version,
+        collection: index.collection,
+        document_count: Solr.document_count(index)
       }
     end)
   end
 
   # Check the processor marker for the most recently indexed record.
   # Get the figgy timestamp for that record from its hydration cache entry.
-  defp index_progress_summary(cache_version: cache_version, write_collection: _) do
+  defp index_progress_summary(%{cache_version: cache_version}) do
     marker = IndexingPipeline.get_processor_marker!("figgy_indexer", cache_version)
 
     hydration_entry =

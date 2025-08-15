@@ -13,11 +13,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
           | {:producer_module, Module}
           | {:producer_options, any()}
           | {:batch_size, Integer}
-          | {:write_collection, String.t()}
+          | {:solr_index, %Solr.Index{}}
   @spec start_link([start_opts()]) :: Broadway.on_start()
   def start_link(options \\ []) do
-    if !Solr.collection_exists?(options[:write_collection]) do
-      Solr.create_collection(options[:write_collection])
+    if !Solr.Management.collection_exists?(options[:solr_index]) do
+      Solr.Management.create_collection(options[:solr_index])
     end
 
     # Need to set cache version here so that the correct cache version is set and to
@@ -47,7 +47,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
       ],
       context: %{
         cache_version: options[:cache_version],
-        write_collection: options[:write_collection]
+        solr_index: options[:solr_index]
       }
     )
   end
@@ -74,7 +74,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
     messages
     |> Enum.map(&unwrap/1)
     |> Enum.map(& &1["id"])
-    |> Solr.delete_batch(context[:write_collection])
+    |> Solr.delete_batch(context[:solr_index])
 
     messages
   end
@@ -85,7 +85,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
   def handle_batch(_batcher, messages, _batch_info, context) do
     messages
     |> Enum.map(&unwrap/1)
-    |> Solr.add(context[:write_collection])
+    |> Solr.add(context[:solr_index])
 
     messages
   end
