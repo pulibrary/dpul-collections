@@ -226,42 +226,6 @@ defmodule DpulCollections.SolrTest do
     assert response.body["responseHeader"]["status"] == 0
   end
 
-  # TODO MOVE TO NEW UNIT TEST
-  test "create a new collection, set alias, delete a collection" do
-    read_index = Solr.Index.read_index()
-    write_index = Solr.Index.write_indexes() |> hd
-
-    original_collection = Solr.Management.get_alias(read_index)
-    # alias is pointing to the collection created during setup
-    assert original_collection == "dpulc1"
-
-    old_index = %Solr.Index{read_index | collection: original_collection}
-    new_index = %Solr.Index{write_index | collection: "new_index1"}
-
-    # creating new collection
-    refute Solr.Management.collection_exists?(new_index)
-    Solr.Management.create_collection(new_index)
-    assert Solr.Management.collection_exists?(new_index)
-
-    # setting alias to new collection
-    Solr.Management.set_alias(new_index, read_index.collection)
-    assert Solr.Management.get_alias(read_index) == "new_index1"
-
-    # delete new index / clean up test
-    Solr.Management.set_alias(old_index, read_index.collection)
-    Solr.Management.delete_collection(new_index)
-    refute Solr.Management.collection_exists?(new_index)
-  end
-
-  # TODO MOVE TO NEW UNIT TEST
-  test "creating an existing collection is a no-op" do
-    write_index = Solr.Index.write_indexes() |> hd
-    response = Solr.Management.create_collection(write_index)
-    # Most importantly, it doesn't error, but here's an assertion as a coherence
-    # check
-    assert response.body["exception"]["msg"] == "collection already exists: dpulc1"
-  end
-
   test "slug generation" do
     doc = %{
       "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
