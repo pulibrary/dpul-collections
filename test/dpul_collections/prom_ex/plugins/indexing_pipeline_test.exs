@@ -29,6 +29,16 @@ defmodule DpulCollections.PromEx.Plugins.IndexingPipelineTest do
       assert_query_received()
     end
 
+    test "get_related_hydration_cache_record_ids!() is observable" do
+      IndexingPipeline.get_related_hydration_cache_record_ids!(
+        "8b0631b7-e1e4-49c2-904f-cd3141167a80",
+        ~U[1018-03-09 20:19:33.414040Z],
+        0
+      )
+
+      assert_query_received()
+    end
+
     test "get_figgy_parents()" do
       IndexingPipeline.get_figgy_parents("8b0631b7-e1e4-49c2-904f-cd3141167a80")
 

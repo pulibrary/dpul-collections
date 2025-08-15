@@ -72,7 +72,8 @@ job "dpulc-production" {
       config {
         image = "ghcr.io/pulibrary/dpul-collections:${ var.branch_or_sha }"
         command = "bash"
-        args    = ["-c", "/app/bin/migrate"]
+        # Only run on one node.
+        args    = ["-c", "([ \"$NOMAD_ALLOC_INDEX\" -eq 0 ] && /app/bin/migrate) || true"]
         force_pull = true
       }
       artifact {
