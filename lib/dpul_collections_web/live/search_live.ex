@@ -7,13 +7,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   alias DpulCollectionsWeb.SearchLive.SearchState
   alias DpulCollectionsWeb.ContentWarnings
 
-  def mount(_params, session, socket) do
-    show_images = session["show_images"]
-
-    socket =
-      socket
-      |> assign(:show_images, show_images)
-
+  def mount(_params, _session, socket) do
     {:ok, socket}
   end
 
