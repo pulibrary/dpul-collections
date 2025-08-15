@@ -72,7 +72,7 @@ job "dpulc-staging" {
       config {
         image = "ghcr.io/pulibrary/dpul-collections:${ var.branch_or_sha }"
         command = "bash"
-        args    = ["-c", "/app/bin/migrate"]
+        args    = ["-c", "[ \"$NOMAD_ALLOC_INDEX\" -eq 0 ] && /app/bin/migrate"]
         force_pull = true
       }
       artifact {
