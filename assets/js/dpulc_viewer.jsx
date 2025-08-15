@@ -1,6 +1,7 @@
 import Viewer from "@samvera/clover-iiif/viewer";
 import React from 'react';
 import Loader from './loader';
+import { styled } from '@stitches/react';
 // DpulcViewer is a react component which acts as a wrapper for Clover with
 // all of our default settings and functionality.
 const handleCanvasIdCallback = (activeCanvasId, pushEvent) => {
@@ -10,9 +11,20 @@ const handleCanvasIdCallback = (activeCanvasId, pushEvent) => {
     pushEvent("changedCanvas", { "canvas_id": activeCanvasId })
   }
 };
+
+const StyledViewer = styled("section", {
+  ".clover-viewer-content > div": {
+    "display": "grid",
+    "grid-template-columns": "1fr min-content"
+  },
+  ".clover-viewer-media-wrapper > div[role='radiogroup']": {
+    "flex-direction": "column"
+  }
+})
 export default function DpulcViewer(props) {
   return (
     <>
+    <StyledViewer>
     <Viewer
     canvasIdCallback={(activeCanvasId) => { handleCanvasIdCallback(activeCanvasId, props.pushEvent) }}
       options={
@@ -36,6 +48,7 @@ export default function DpulcViewer(props) {
       }
       {...props}
     />
+    </StyledViewer>
     </>
   );
 }
