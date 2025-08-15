@@ -56,7 +56,11 @@ cd ..
 lando destroy -y && lando start && mix setup
 ```
 
-Then when you run the server, do a `DpulCollections.Solr.commit()`
+Then when you run the server, commit the index like
+```
+alias DpulCollections.Solr
+Solr.Index.read_index() |> Solr.commit()
+```
 
 
 ### Figgy Fixtures: Creating Synthetic Fixtures
@@ -126,7 +130,7 @@ Another way to connect to a shell or iex console is via the [nomad UI](nomad.lib
 
 Connect to the repl console (see above), then run:
 
-`Application.fetch_env!(:dpul_collections, DpulCollections.IndexingPipeline)`
+`DpulCollections.Solr.Index.write_indexes()`
 
 ### Restart Indexing Pipeline
 
