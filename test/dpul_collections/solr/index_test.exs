@@ -10,8 +10,6 @@ defmodule DpulCollections.Solr.IndexTest do
   end
 
   test ".connect/1 setting auth works" do
-    read_index = Index.read_index()
-
     index = %Index{
       base_url: "http://localhost:8983",
       collection: "bla",
@@ -25,8 +23,6 @@ defmodule DpulCollections.Solr.IndexTest do
   end
 
   test ".connect/1 with no auth works" do
-    read_index = Index.read_index()
-
     index = %Index{
       base_url: "http://localhost:8983",
       collection: "bla"
@@ -38,8 +34,6 @@ defmodule DpulCollections.Solr.IndexTest do
   end
 
   test ".connect/1 with empty strings auth works" do
-    read_index = Index.read_index()
-
     index = %Index{
       base_url: "http://localhost:8983",
       collection: "bla",
