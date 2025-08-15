@@ -1,4 +1,4 @@
-defmodule DpulCollections.SolrTest do
+defmodule DpulCollections.Solr.ManagementTest do
   use DpulCollections.DataCase
   alias DpulCollections.Solr
   alias DpulCollections.Solr.Index
