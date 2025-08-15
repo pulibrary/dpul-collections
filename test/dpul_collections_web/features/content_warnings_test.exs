@@ -57,7 +57,7 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
       |> refute_has("img.obfuscate")
     end
 
-    test "on the standardbrowse page", %{conn: conn} do
+    test "on the standard browse page", %{conn: conn} do
       conn
       |> visit("/browse")
       |> assert_has(".thumbnail-d4292e58-25d7-4247-bf92-0a5e24ec75d1", count: 3)
