@@ -8,7 +8,8 @@ defmodule DpulCollections.PromEx.Plugins.IndexingPipeline do
     :"get_figgy_resource!/1",
     :"get_figgy_parents/1",
     :"get_figgy_resources/1",
-    :"get_figgy_resources_since!/2"
+    :"get_figgy_resources_since!/2",
+    :"get_related_hydration_cache_record_ids!/3"
   ]
 
   @impl true

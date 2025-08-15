@@ -132,8 +132,10 @@ defmodule DpulCollections.IndexingPipeline do
           related_timestamp :: DateTime.t(),
           cache_version :: integer
         ) :: list(String.t())
+  @decorate trace()
   def get_related_hydration_cache_record_ids!(related_id, related_timestamp, cache_version) do
     arr = [related_id]
+
     query =
       from r in Figgy.HydrationCacheEntry,
         select: r.record_id,
