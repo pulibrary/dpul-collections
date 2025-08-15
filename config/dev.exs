@@ -109,6 +109,32 @@ config :dpul_collections, :solr, %{
   password: System.get_env("SOLR_PASSWORD") || "pass"
 }
 
+config :dpul_collections, :solr_config, %{
+  read: %{
+    base_url: System.get_env("SOLR_BASE_URL") || "http://localhost:8985",
+    collection: "dpulc",
+    username: System.get_env("SOLR_USERNAME") || "user",
+    password: System.get_env("SOLR_PASSWORD") || "pass"
+  },
+  write: [
+    %{
+      cache_version: 5,
+      base_url: System.get_env("SOLR_BASE_URL") || "http://localhost:8985",
+      collection: "dpulc5",
+      config_set: "dpul-collections",
+      username: System.get_env("SOLR_USERNAME") || "user",
+      password: System.get_env("SOLR_PASSWORD") || "pass"
+    }, %{
+      cache_version: 6,
+      base_url: System.get_env("SOLR_BASE_URL") || "http://localhost:8985",
+      collection: "dpulc6",
+      config_set: "dpul-collections",
+      username: System.get_env("SOLR_USERNAME") || "user",
+      password: System.get_env("SOLR_PASSWORD") || "pass"
+    }
+  ]
+}
+
 # only run indexing children if the webserver is running
 # wrap this in a function b/c Phoenix.Endpoint.server? is not defined at config time
 config :dpul_collections, :start_indexing_pipeline?, fn ->

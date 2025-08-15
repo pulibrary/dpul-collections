@@ -102,7 +102,7 @@ defmodule FiggyTestSupport do
       Figgy.IndexingConsumer.start_link(
         cache_version: cache_version,
         batch_size: 50,
-        write_collection: SolrTestSupport.active_collection()
+        solr_index: SolrTestSupport.active_collection()
       )
 
     {:ok, transformer} =
@@ -129,8 +129,8 @@ defmodule FiggyTestSupport do
   end
 
   def wait_for_indexed_count(count) do
-    collection = Application.fetch_env!(:dpul_collections, :solr)[:read_collection]
-    DpulCollections.Solr.commit(collection)
+    index = Solr.Index.read_index()
+    DpulCollections.Solr.commit(index)
 
     continue =
       if DpulCollections.Solr.document_count() == count do
