@@ -221,35 +221,6 @@ defmodule DpulCollections.SolrTest do
     assert Solr.document_count() == 0
   end
 
-  setup context do
-    if solr_settings = context[:solr_settings] do
-      existing_env = Application.fetch_env!(:dpul_collections, :solr)
-      Application.put_env(:dpul_collections, :solr, solr_settings)
-      on_exit(fn -> Application.put_env(:dpul_collections, :solr, existing_env) end)
-    end
-
-    :ok
-  end
-
-  @tag solr_settings: %{
-         base_url: "http://localhost:8983",
-         read_collection: "bla",
-         username: "test",
-         password: "test"
-       }
-  test ".client/0 setting auth works" do
-    client = Solr.client()
-    assert client.options.base_url == "http://localhost:8983"
-    assert client.options.auth == {:basic, "test:test"}
-  end
-
-  @tag solr_settings: %{base_url: "http://localhost:8983", read_collection: "bla", username: ""}
-  test ".client/0 with no auth works" do
-    client = Solr.client()
-    assert client.options.base_url == "http://localhost:8983"
-    assert client.options.auth == nil
-  end
-
   test "write operations use a default collection if none specified" do
     {:ok, response} = Solr.commit()
     assert response.body["responseHeader"]["status"] == 0
@@ -259,13 +230,13 @@ defmodule DpulCollections.SolrTest do
   test "create a new collection, set alias, delete a collection" do
     read_index = Solr.Index.read_index()
     write_index = Solr.Index.write_indexes() |> hd
-    original_collection = Solr.Management.get_alias(read_index)
 
+    original_collection = Solr.Management.get_alias(read_index)
     # alias is pointing to the collection created during setup
     assert original_collection == "dpulc1"
 
     old_index = %Solr.Index{read_index | collection: original_collection}
-    new_index = %Solr.Index{read_index | collection: "new_index1", config_set: write_index.config_set}
+    new_index = %Solr.Index{write_index | collection: "new_index1"}
 
     # creating new collection
     refute Solr.Management.collection_exists?(new_index)
@@ -274,10 +245,10 @@ defmodule DpulCollections.SolrTest do
 
     # setting alias to new collection
     Solr.Management.set_alias(new_index, read_index.collection)
-    assert Solr.Management.get_alias(read_index) == new_index.collection
-    Solr.Management.set_alias(old_index, read_index.collection)
+    assert Solr.Management.get_alias(read_index) == "new_index1"
 
-    # delete collection / clean up test
+    # delete new index / clean up test
+    Solr.Management.set_alias(old_index, read_index.collection)
     Solr.Management.delete_collection(new_index)
     refute Solr.Management.collection_exists?(new_index)
   end

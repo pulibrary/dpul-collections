@@ -44,7 +44,7 @@ defmodule DpulCollections.Application do
   end
 
   def indexing_pipeline_children() do
-    for index <- Solr.Index.write_indexes() do
+    for index <- DpulCollections.Solr.Index.write_indexes() do
       cache_version = index.cache_version
 
       [

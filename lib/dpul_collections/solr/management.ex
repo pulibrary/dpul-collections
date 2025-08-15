@@ -1,6 +1,5 @@
 defmodule DpulCollections.Solr.Management do
   alias DpulCollections.Solr.Index
-  alias DpulCollections.Solr
   ####
   # Solr management api wrappers
   ####
@@ -57,7 +56,7 @@ defmodule DpulCollections.Solr.Management do
       )
       |> Req.get()
 
-    response.body["aliases"][Solr.read_collection()]
+    response.body["aliases"][Index.read_index().collection]
   end
 
   @spec set_alias(%Index{}, String.t()) :: Req.Response.t()
