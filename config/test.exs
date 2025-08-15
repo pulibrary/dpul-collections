@@ -75,19 +75,22 @@ config :dpul_collections, :solr, %{
 config :dpul_collections, :solr_config, %{
   read: %{
     base_url: System.get_env("SOLR_BASE_URL") || "http://localhost:8985",
+    # this is the alias; dpulc1 is the collection created in bin/setup_solr.sh
     collection: "dpulc",
     username: System.get_env("SOLR_USERNAME") || "user",
     password: System.get_env("SOLR_PASSWORD") || "pass"
   },
   write: [
     %{
+      # this first write index is the read index
       cache_version: 1,
       base_url: System.get_env("SOLR_BASE_URL") || "http://localhost:8985",
       collection: "dpulc1",
       config_set: "dpul-collections",
       username: System.get_env("SOLR_USERNAME") || "user",
       password: System.get_env("SOLR_PASSWORD") || "pass"
-    }, %{
+    },
+    %{
       cache_version: 2,
       base_url: System.get_env("SOLR_BASE_URL") || "http://localhost:8985",
       collection: "dpulc2",

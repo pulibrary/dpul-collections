@@ -1,28 +1,23 @@
 defmodule DpulCollections.Solr.Index do
-  @enforce_keys [:base_url]
+  @enforce_keys [:base_url, :collection]
   defstruct [
-    :cache_version,
     :base_url,
+    :cache_version,
     :collection,
     :config_set,
     :username,
     :password
   ]
 
-  def connect(index = %__MODULE__{base_url: base_url, username: _username, password: _password}) do
+  def connect(index = %__MODULE__{base_url: base_url}) do
     Req.new(
       base_url: base_url,
       auth: auth(index)
     )
   end
 
-  def connect(%__MODULE__{base_url: base_url}) do
-    Req.new(
-      base_url: base_url
-    )
-  end
-
   defp auth(%{username: ""}), do: nil
+  defp auth(%{username: nil}), do: nil
 
   defp auth(%{username: username, password: password}) do
     {:basic, "#{username}:#{password}"}

@@ -157,7 +157,6 @@ if config_env() == :prod do
     # Upload pre-built dashboards to Grafana.
     grafana: [
       host: "https://grafana-nomad.lib.princeton.edu",
-
       auth_token: System.get_env("GRAFANA_SERVICE_TOKEN")
     ],
     # Run a standalone metrics server with a bearer token auth. Prometheus will

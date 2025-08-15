@@ -1,7 +1,6 @@
 defmodule DpulCollections.IndexingPipeline.CoherenceTest do
   use DpulCollections.DataCase
   alias DpulCollections.Solr
-  alias DpulCollections.Solr.Index
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Coherence
 
