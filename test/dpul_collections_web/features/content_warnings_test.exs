@@ -24,21 +24,6 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
           ],
           ephemera_project_title_s: "LGBTQIA+ Ephemera",
           updated_at_dt: DateTime.utc_now() |> DateTime.to_iso8601()
-        },
-        %{
-          id: "d4292e58-25d7-4247-bf92-0a5e24ec75d2",
-          title_txtm: ["Similar Thing"],
-          content_warning_s: "This item depicts images that may be harmful in this specific way.",
-          file_count_i: 3,
-          genre_txtm: ["pamphlets"],
-          subject_txtm: ["folk art", "museum exhibits"],
-          image_service_urls_ss: [
-            "https://example.com/iiif/2/image1",
-            "https://example.com/iiif/2/image2",
-            "https://example.com/iiif/2/image3"
-          ],
-          ephemera_project_title_s: "LGBTQIA+ Ephemera",
-          updated_at_dt: DateTime.utc_now() |> DateTime.to_iso8601()
         }
       ],
       active_collection()
@@ -97,7 +82,35 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
       |> refute_has("a", text: "Why are the images blurred?")
     end
 
-    test "on the item detail page", %{conn: conn} do
+    test "on the item detail page with related items", %{conn: conn} do
+      Solr.add(
+        [
+          %{
+            id: "d4292e58-25d7-4247-bf92-0a5e24ec75d2",
+            title_txtm: ["Similar Thing"],
+            content_warning_s:
+              "This item depicts images that may be harmful in this specific way.",
+            file_count_i: 3,
+            genre_txtm: ["pamphlets"],
+            subject_txtm: ["folk art", "museum exhibits"],
+            image_service_urls_ss: [
+              "https://example.com/iiif/2/image1",
+              "https://example.com/iiif/2/image2",
+              "https://example.com/iiif/2/image3"
+            ],
+            ephemera_project_title_s: "LGBTQIA+ Ephemera",
+            updated_at_dt: DateTime.utc_now() |> DateTime.to_iso8601()
+          }
+        ],
+        active_collection()
+      )
+
+      Solr.commit(active_collection())
+
+      on_exit(fn ->
+        Solr.delete_batch(["d4292e58-25d7-4247-bf92-0a5e24ec75d2"], active_collection())
+      end)
+
       conn
       |> visit("/item/d4292e58-25d7-4247-bf92-0a5e24ec75d1")
       # the large thumbnail is duplicated in the small thumbnail list

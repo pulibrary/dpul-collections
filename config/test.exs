@@ -102,7 +102,8 @@ config :phoenix_test,
     js_logger: false,
     screenshot: System.get_env("PW_SCREENSHOT", "false") in ~w(t true),
     trace: System.get_env("PW_TRACE", "false") in ~w(t true),
-    browser_launch_timeout: 10_000
+    browser_launch_timeout: 10_000,
+    timeout: 400
   ]
 
 config :honeybadger, api_key: ""

@@ -144,6 +144,7 @@ defmodule DpulCollectionsWeb.ContentWarnings do
     <div class="flex items-center p-6 pt-0 rounded-b dark:border-gray-600">
       <.primary_button
         id={"show-images-#{@item_id}"}
+        data-id={@item_id}
         phx-click={
           JS.dispatch("dpulc:showImages")
           |> JS.push("show_images", value: %{id: @item_id})
