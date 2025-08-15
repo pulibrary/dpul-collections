@@ -1,25 +1,19 @@
 {
   "read": {
     "base_url": "http://lib-solr8d-staging.princeton.edu:8983",
-    "collection": "dpulc",
-    "username": ""
-    "password": ""
+    "collection": "dpulc"
   },
   "write": [
     {
       "cache_version": 5,
       "base_url": "http://lib-solr8d-staging.princeton.edu:8983",
       "collection": "dpulc5",
-      "config_set": "dpulc-staging",
-      "username": ""
-      "password": ""
+      "config_set": "dpulc-staging"
     }, {
       "cache_version": 6,
       "base_url": "http://lib-solr9-staging.princeton.edu:8983",
       "collection": "dpulc6",
-      "config_set": "dpulc-staging",
-      "username": ""
-      "password": ""
+      "config_set": "dpulc-staging"
     }
   ]
 }

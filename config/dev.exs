@@ -126,14 +126,6 @@ config :dpul_collections, :start_indexing_pipeline?, fn ->
   Phoenix.Endpoint.server?(:dpul_collections, DpulCollectionsWeb.Endpoint)
 end
 
-# Configure indexing pipeline writes
-config :dpul_collections, DpulCollections.IndexingPipeline, [
-  [
-    cache_version: 1,
-    write_collection: "dpulc1"
-  ]
-]
-
 # Turn off thumbnail caching during local development
 config :dpul_collections, :cache_thumbnails?, false
 
