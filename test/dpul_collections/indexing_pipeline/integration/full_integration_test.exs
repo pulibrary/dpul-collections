@@ -65,8 +65,6 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
     assert FiggyTestSupport.total_resource_count() == entry_count
 
-    Solr.soft_commit()
-
     # The transformer processed ephemera folders and deletion markers
     # removed the transformation cache markers for the deletion marker deleted resource.
     transformation_cache_entry_count = Repo.aggregate(Figgy.TransformationCacheEntry, :count)

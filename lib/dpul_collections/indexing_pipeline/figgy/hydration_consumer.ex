@@ -222,7 +222,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   end
 
   defp write_to_hydration_cache(
-         msg = %Broadway.Message{
+         %Broadway.Message{
            data: %{
              related_resource: %{id: id, updated_at: timestamp}
            }

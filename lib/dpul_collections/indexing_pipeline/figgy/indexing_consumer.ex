@@ -3,7 +3,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
   Broadway consumer that demands Figgy.TransformationCacheEntry records and indexes
   them into Solr.
   """
-  alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
   alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline.DatabaseProducer
   alias DpulCollections.Solr
@@ -49,13 +48,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
       context: %{
         cache_version: options[:cache_version],
         solr_index: options[:solr_index]
-      },
-      partition_by: &partition/1
+      }
     )
-  end
-
-  def partition(msg) do
-    :erlang.phash2(CacheEntryMarker.from(msg).id)
   end
 
   @impl Broadway

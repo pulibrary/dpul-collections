@@ -42,13 +42,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
         default: [batch_size: options[:batch_size]],
         noop: [concurrency: 5, batch_size: options[:batch_size]]
       ],
-      context: %{cache_version: options[:cache_version]},
-      partition_by: &partition/1
+      context: %{cache_version: options[:cache_version]}
     )
-  end
-
-  def partition(msg) do
-    :erlang.phash2(CacheEntryMarker.from(msg).id)
   end
 
   @impl Broadway
