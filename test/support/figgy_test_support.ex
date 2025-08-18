@@ -126,7 +126,7 @@ defmodule FiggyTestSupport do
         cache_version: cache_version,
         batch_size: 50,
         producer_module: MockFiggyHydrationProducer,
-        producer_options: {self(), 1, %{type: "figgy_hydrator"}}
+        producer_options: {self(), 1}
       )
 
     # Index one.

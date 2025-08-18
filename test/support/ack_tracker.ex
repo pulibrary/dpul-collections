@@ -6,8 +6,6 @@ defmodule AckTracker do
   @impl true
   def init(pid) do
     ack_handler_id = "ack-waiter-#{pid |> :erlang.pid_to_list()}"
-    message_handler_id = "message-waiter-#{pid |> :erlang.pid_to_list()}"
-    processor_handler_id = "processor-waiter-#{pid |> :erlang.pid_to_list()}"
     tracker_pid = self()
 
     :telemetry.attach(
@@ -15,24 +13,6 @@ defmodule AckTracker do
       [:database_producer, :ack, :done],
       fn _, _measurements, metadata, _ ->
         GenServer.cast(tracker_pid, {:ack, metadata})
-      end,
-      nil
-    )
-
-    :telemetry.attach(
-      message_handler_id,
-      [:broadway, :batch_processor, :stop],
-      fn _, _measurements, metadata, _ ->
-        GenServer.cast(tracker_pid, {:processed, metadata})
-      end,
-      nil
-    )
-
-    :telemetry.attach(
-      processor_handler_id,
-      [:broadway, :processor, :start],
-      fn _, _measurements, metadata, _ ->
-        GenServer.cast(tracker_pid, {:processor, metadata})
       end,
       nil
     )
@@ -52,38 +32,6 @@ defmodule AckTracker do
   @impl true
   def handle_call({:reset_count}, _from, %{pid: pid}) do
     {:reply, :ok, %{pid: pid}}
-  end
-
-  @impl true
-  def handle_cast({:processed, %{producer: producer, successful_messages: success}}, state) do
-    {_producer_module, {_source, cache_version, %{type: type}}} = producer
-
-    {_, state} =
-      get_and_update_in(
-        state,
-        [Access.key(type, %{}), Access.key(cache_version, %{}), Access.key(:batched_count, 0)],
-        &{&1, &1 + length(success)}
-      )
-
-    {:noreply, state}
-  end
-
-  @impl true
-  def handle_cast({:processor, metadata = %{producer: producer, messages: messages}}, state) do
-    {_producer_module, {_source, cache_version, %{type: type}}} = producer
-
-    {_, state} =
-      get_and_update_in(
-        state,
-        [
-          Access.key(type, %{}),
-          Access.key(cache_version, %{}),
-          Access.key(:requested_for_processing_count, 0)
-        ],
-        &{&1, &1 + length(messages)}
-      )
-
-    {:noreply, state}
   end
 
   @impl true

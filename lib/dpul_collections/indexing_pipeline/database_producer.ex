@@ -9,13 +9,10 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
   @behaviour Broadway.Acknowledger
 
   @spec start_link({source_module :: module(), cache_version :: integer()}) :: Broadway.on_start()
-  def start_link({source_module, cache_version}),
-    do: start_link({source_module, cache_version, %{}})
-
-  def start_link({source_module, cache_version, extra_metadata}) do
+  def start_link({source_module, cache_version}) do
     GenStage.start_link(
       __MODULE__,
-      {source_module, cache_version, extra_metadata},
+      {source_module, cache_version},
       name: String.to_atom("#{__MODULE__}_#{cache_version}")
     )
   end
@@ -29,9 +26,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
           stored_demand: Integer
         }
   @spec init(integer()) :: {:producer, state()}
-  def init({source_module, cache_version}), do: init({source_module, cache_version, %{}})
-
-  def init({source_module, cache_version, extra_metadata}) do
+  def init({source_module, cache_version}) do
     # trap the exit so we can stop gracefully
     # see https://www.erlang.org/doc/apps/erts/erlang.html#process_flag/2
     Process.flag(:trap_exit, true)
@@ -45,8 +40,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
       acked_records: [],
       cache_version: cache_version,
       stored_demand: 0,
-      source_module: source_module,
-      extra_metadata: extra_metadata
+      source_module: source_module
     }
 
     {:producer, initial_state}
@@ -96,7 +90,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
       Process.send_after(self(), :check_for_updates, 50)
     end
 
-    {:noreply, Enum.map(records, &wrap_record(&1, new_state.extra_metadata)), new_state}
+    {:noreply, Enum.map(records, &wrap_record/1), new_state}
   end
 
   defp calculate_stored_demand(total_demand, fulfilled_demand)
@@ -253,12 +247,11 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
     )
   end
 
-  @spec wrap_record(record :: HydrationCacheEntry, metadata :: map()) :: Broadway.Message.t()
-  defp wrap_record(record, metadata) do
+  @spec wrap_record(record :: HydrationCacheEntry) :: Broadway.Message.t()
+  defp wrap_record(record) do
     %Broadway.Message{
       data: record,
-      acknowledger: {__MODULE__, {self(), :database_producer_ack}, nil},
-      metadata: metadata
+      acknowledger: {__MODULE__, {self(), :database_producer_ack}, nil}
     }
   end
 end

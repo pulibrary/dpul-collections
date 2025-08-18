@@ -58,10 +58,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     index_count =
       FiggyTestSupport.ephemera_folder_count() + 3 * FiggyTestSupport.deletion_marker_count()
 
-    assert_receive(
-      {:ack_status, %{"figgy_indexer" => %{1 => %{acked_count: ^index_count}}}},
-      30_000
-    )
+    AckTracker.wait_for_indexed_count(index_count)
 
     # The hydrator pulled all ephemera folders, terms, deletion markers and
     # removed the hydration cache markers for the deletion marker deleted resource.
