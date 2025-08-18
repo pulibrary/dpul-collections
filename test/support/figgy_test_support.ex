@@ -62,7 +62,17 @@ defmodule FiggyTestSupport do
         data: cache_attrs.handled_data
       })
 
-    hydration_cache_entry = IndexingPipeline.get_hydration_cache_entry!(cache_entry.id)
+    hydration_cache_entry =
+      IndexingPipeline.get_hydration_cache_entry!(cache_entry.id)
+      # Add a member_id so to_solr_document won't return a deletion marker and
+      # can index - but we don't want that in the hydration cache entry, because
+      # that makes hydration cache entries where a bunch of records have the
+      # same file set.
+      |> put_in([Access.key(:data), Access.key("metadata")], record.metadata)
+      |> put_in([Access.key(:data), Access.key("metadata"), Access.key("member_ids")], [
+        %{"id" => "06838583-59a4-4ab8-ac65-2b5ea9ee6425"}
+      ])
+
     solr_doc = Figgy.HydrationCacheEntry.to_solr_document(hydration_cache_entry)
 
     IndexingPipeline.write_transformation_cache_entry(%{
@@ -105,6 +115,8 @@ defmodule FiggyTestSupport do
         solr_index: SolrTestSupport.active_collection()
       )
 
+    {:ok, tracker_pid} = GenServer.start_link(AckTracker, self())
+
     {:ok, transformer} =
       Figgy.TransformationConsumer.start_link(cache_version: cache_version, batch_size: 50)
 
@@ -114,16 +126,14 @@ defmodule FiggyTestSupport do
         cache_version: cache_version,
         batch_size: 50,
         producer_module: MockFiggyHydrationProducer,
-        producer_options: {self(), 1}
+        producer_options: {self(), 1, %{type: "figgy_hydrator"}}
       )
 
     # Index one.
     MockFiggyHydrationProducer.process(1, cache_version)
 
-    task =
-      Task.async(fn -> wait_for_indexed_count(1) end)
+    AckTracker.wait_for_indexed_count(1)
 
-    Task.await(task, 15000)
     document = Solr.find_by_id(id)
     {hydrator, transformer, indexer, document}
   end

@@ -24,7 +24,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
     default = [
       cache_version: cache_version,
       producer_module: DatabaseProducer,
-      producer_options: {Figgy.TransformationProducerSource, cache_version},
+      producer_options:
+        {Figgy.TransformationProducerSource, cache_version, %{type: "figgy_transformer"}},
       batch_size: 10
     ]
 
@@ -42,8 +43,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
         default: [batch_size: options[:batch_size]],
         noop: [concurrency: 5, batch_size: options[:batch_size]]
       ],
-      context: %{cache_version: options[:cache_version]}
+      context: %{cache_version: options[:cache_version]},
+      partition_by: &partition/1
     )
+  end
+
+  def partition(msg) do
+    :erlang.phash2(CacheEntryMarker.from(msg).id)
   end
 
   @impl Broadway

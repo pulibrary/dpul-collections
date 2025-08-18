@@ -22,7 +22,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     default = [
       cache_version: cache_version,
       producer_module: DatabaseProducer,
-      producer_options: {Figgy.HydrationProducerSource, cache_version},
+      producer_options: {Figgy.HydrationProducerSource, cache_version, %{type: "figgy_hydrator"}},
       batch_size: 10
     ]
 
@@ -222,7 +222,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   end
 
   defp write_to_hydration_cache(
-         %Broadway.Message{
+         msg = %Broadway.Message{
            data: %{
              related_resource: %{id: id, updated_at: timestamp}
            }
