@@ -63,13 +63,33 @@ config :phoenix_live_view,
   # Enable helpful, but potentially expensive runtime checks
   enable_expensive_runtime_checks: true
 
-# Configure Solr connection
-config :dpul_collections, :solr, %{
-  base_url: System.get_env("SOLR_BASE_URL") || "http://localhost:8984",
-  read_collection: "dpulc",
-  config_set: "dpul-collections",
-  username: "solr",
-  password: "SolrRocks"
+config :dpul_collections, :solr_config, %{
+  read: %{
+    base_url: System.get_env("SOLR_BASE_URL") || "http://localhost:8984",
+    # this is the alias; dpulc1 is the collection created in bin/setup_solr.sh
+    collection: "dpulc",
+    username: "solr",
+    password: "SolrRocks"
+  },
+  write: [
+    %{
+      # this first write index is the read index
+      cache_version: 1,
+      base_url: System.get_env("SOLR_BASE_URL") || "http://localhost:8984",
+      collection: "dpulc1",
+      config_set: "dpul-collections",
+      username: "solr",
+      password: "SolrRocks"
+    },
+    %{
+      cache_version: 2,
+      base_url: System.get_env("SOLR_BASE_URL") || "http://localhost:8984",
+      collection: "dpulc2",
+      config_set: "dpul-collections",
+      username: "solr",
+      password: "SolrRocks"
+    }
+  ]
 }
 
 # don't run indexing children

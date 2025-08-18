@@ -81,6 +81,12 @@ job "dpulc-production" {
         destination = "local/env.tpl"
         mode = "file"
       }
+      artifact {
+        source =
+        "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/solr/production.json"
+        destination = "${NOMAD_TASK_DIR}/solr.json"
+        mode = "file"
+      }
       template {
         source = "local/env.tpl"
         destination = "${NOMAD_SECRETS_DIR}/env.vars"
@@ -106,6 +112,12 @@ job "dpulc-production" {
       artifact {
         source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/env/production.tpl"
         destination = "local/env.tpl"
+        mode = "file"
+      }
+      artifact {
+        source =
+        "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/solr/production.json"
+        destination = "${NOMAD_TASK_DIR}/solr.json"
         mode = "file"
       }
       template {
@@ -164,6 +176,12 @@ job "dpulc-production" {
       artifact {
         source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/env/production.tpl"
         destination = "local/env.tpl"
+        mode = "file"
+      }
+      artifact {
+        source =
+        "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/solr/production.json"
+        destination = "${NOMAD_TASK_DIR}/solr.json"
         mode = "file"
       }
       template {

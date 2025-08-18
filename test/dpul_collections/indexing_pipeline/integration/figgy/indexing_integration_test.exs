@@ -4,6 +4,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
   alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.Solr
+  alias DpulCollections.Solr.Index
 
   import SolrTestSupport
 
@@ -28,7 +29,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
         producer_module: MockFiggyIndexingProducer,
         producer_options: {self(), cache_version},
         batch_size: 1,
-        write_collection: active_collection()
+        solr_index: active_collection()
       )
 
     indexer
@@ -115,10 +116,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
     indexer |> Broadway.stop(:normal)
   end
 
-  test "solr collection creation" do
+  test "it creates the solr collection" do
     cache_version = 0
-    new_collection = "new_index1"
-    assert Solr.collection_exists?(new_collection) == false
+    new_index = %Index{active_collection() | collection: "new_index1"}
+    assert Solr.Management.collection_exists?(new_index) == false
 
     {:ok, indexer} =
       Figgy.IndexingConsumer.start_link(
@@ -126,12 +127,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
         producer_module: MockFiggyIndexingProducer,
         producer_options: {self(), cache_version},
         batch_size: 1,
-        write_collection: new_collection
+        solr_index: new_index
       )
 
-    assert Solr.collection_exists?(new_collection) == true
+    assert Solr.Management.collection_exists?(new_index) == true
 
     indexer |> Broadway.stop(:normal)
-    Solr.delete_collection(new_collection)
+    Solr.Management.delete_collection(new_index)
   end
 end

@@ -1,0 +1,14 @@
+{
+  "read": {
+    "base_url": "http://lib-solr8-prod.princeton.edu:8983",
+    "collection": "dpulc-production"
+  },
+  "write": [
+    {
+      "cache_version": 1,
+      "base_url": "http://lib-solr8-prod.princeton.edu:8983",
+      "collection": "dpulc-production1",
+      "config_set": "dpulc-production"
+    }
+  ]
+}

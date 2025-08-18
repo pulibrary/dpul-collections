@@ -100,13 +100,24 @@ config :phoenix_live_view,
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
 
-# Configure Solr connection
-config :dpul_collections, :solr, %{
-  base_url: System.get_env("SOLR_BASE_URL") || "http://localhost:8985",
-  read_collection: "dpulc",
-  config_set: "dpul-collections",
-  username: System.get_env("SOLR_USERNAME") || "user",
-  password: System.get_env("SOLR_PASSWORD") || "pass"
+config :dpul_collections, :solr_config, %{
+  read: %{
+    base_url: System.get_env("SOLR_BASE_URL") || "http://localhost:8985",
+    # this is the alias; dpulc1 is the collection created in bin/setup_solr.sh
+    collection: "dpulc",
+    username: System.get_env("SOLR_USERNAME") || "user",
+    password: System.get_env("SOLR_PASSWORD") || "pass"
+  },
+  write: [
+    %{
+      cache_version: 1,
+      base_url: System.get_env("SOLR_BASE_URL") || "http://localhost:8985",
+      collection: "dpulc1",
+      config_set: "dpul-collections",
+      username: System.get_env("SOLR_USERNAME") || "user",
+      password: System.get_env("SOLR_PASSWORD") || "pass"
+    }
+  ]
 }
 
 # only run indexing children if the webserver is running
@@ -114,14 +125,6 @@ config :dpul_collections, :solr, %{
 config :dpul_collections, :start_indexing_pipeline?, fn ->
   Phoenix.Endpoint.server?(:dpul_collections, DpulCollectionsWeb.Endpoint)
 end
-
-# Configure indexing pipeline writes
-config :dpul_collections, DpulCollections.IndexingPipeline, [
-  [
-    cache_version: 1,
-    write_collection: "dpulc1"
-  ]
-]
 
 # Turn off thumbnail caching during local development
 config :dpul_collections, :cache_thumbnails?, false

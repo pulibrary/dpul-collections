@@ -1,12 +1,13 @@
 defmodule DpulCollections.Solr do
   require Logger
   use DpulCollections.Solr.Constants
+  alias DpulCollections.Solr.Index
 
-  @spec document_count(String.t()) :: integer()
-  def document_count(collection \\ read_collection()) do
+  @spec document_count(%Index{}) :: integer()
+  def document_count(index \\ Index.read_index()) do
     {:ok, response} =
       Req.get(
-        select_url(collection),
+        select_url(index),
         params: [q: "*:*"]
       )
 
@@ -30,7 +31,7 @@ defmodule DpulCollections.Solr do
   ]
 
   @spec query(map(), String.t()) :: map()
-  def query(search_state, collection \\ read_collection()) do
+  def query(search_state, index \\ Index.read_index()) do
     fl = Enum.join(@query_field_list, ",")
 
     solr_params = [
@@ -49,7 +50,7 @@ defmodule DpulCollections.Solr do
 
     {:ok, response} =
       Req.get(
-        select_url(collection),
+        select_url(index),
         params: solr_params
       )
 
@@ -58,7 +59,7 @@ defmodule DpulCollections.Solr do
 
   # Uses the more like this query parser
   # see: https://solr.apache.org/guide/solr/latest/query-guide/morelikethis.html#morelikethis-query-parser
-  def related_items(%{id: id}, search_state, rows \\ 5, collection \\ read_collection()) do
+  def related_items(%{id: id}, search_state, rows \\ 5, index \\ Index.read_index()) do
     fl = Enum.join(@query_field_list, ",")
 
     solr_params = [
@@ -72,7 +73,7 @@ defmodule DpulCollections.Solr do
 
     {:ok, response} =
       Req.get(
-        query_url(collection),
+        query_url(index),
         params: solr_params
       )
 
@@ -83,7 +84,7 @@ defmodule DpulCollections.Solr do
     "{!mlt qf=genre_txtm,subject_txtm,geo_subject_txtm,geographic_origin_txtm,language_txtm,keywords_txtm,description_txtm mintf=1}#{id}"
   end
 
-  def recently_updated(count, collection \\ read_collection()) do
+  def recently_updated(count, index \\ Index.read_index()) do
     fl = Enum.join(@query_field_list, ",")
 
     solr_params = [
@@ -95,14 +96,14 @@ defmodule DpulCollections.Solr do
 
     {:ok, response} =
       Req.get(
-        select_url(collection),
+        select_url(index),
         params: solr_params
       )
 
     response.body["response"]
   end
 
-  def random(count, seed, collection \\ read_collection()) do
+  def random(count, seed, index \\ Index.read_index()) do
     fl = Enum.join(@query_field_list, ",")
 
     solr_params = [
@@ -113,7 +114,7 @@ defmodule DpulCollections.Solr do
 
     {:ok, response} =
       Req.get(
-        select_url(collection),
+        select_url(index),
         params: solr_params
       )
 
@@ -180,10 +181,10 @@ defmodule DpulCollections.Solr do
   end
 
   @spec latest_document(String.t()) :: map()
-  def latest_document(collection \\ read_collection()) do
+  def latest_document(index \\ Index.read_index()) do
     {:ok, response} =
       Req.get(
-        select_url(collection),
+        select_url(index),
         params: [q: "*:*", sort: "_version_ desc"]
       )
 
@@ -194,10 +195,10 @@ defmodule DpulCollections.Solr do
   end
 
   @spec find_by_id(String.t(), String.t()) :: map()
-  def find_by_id(id, collection \\ read_collection()) do
+  def find_by_id(id, index \\ Index.read_index()) do
     {:ok, response} =
       Req.get(
-        select_url(collection),
+        select_url(index),
         params: [q: "id:#{id}"]
       )
 
@@ -207,14 +208,14 @@ defmodule DpulCollections.Solr do
     end
   end
 
-  @spec add(list(map()) | String.t(), String.t()) ::
+  @spec add(list(map()) | String.t(), %Index{}) ::
           {:ok, Req.Response.t()} | {:error, Exception.t()}
-  def add(docs, collection \\ read_collection())
+  def add(docs, index \\ Index.read_index())
 
-  def add(docs, collection) when is_list(docs) do
+  def add(docs, index) when is_list(docs) do
     response =
       Req.post!(
-        update_url(collection),
+        update_url(index),
         json: docs
       )
 
@@ -225,10 +226,10 @@ defmodule DpulCollections.Solr do
     response
   end
 
-  def add(doc, collection) when not is_list(doc) do
+  def add(doc, index) when not is_list(doc) do
     response =
       Req.post!(
-        update_url(collection),
+        update_url(index),
         json: [doc]
       )
 
@@ -240,147 +241,58 @@ defmodule DpulCollections.Solr do
   end
 
   @spec commit(String.t()) :: {:ok, Req.Response.t()} | {:error, Exception.t()}
-  def commit(collection \\ read_collection()) do
+  def commit(index \\ Index.read_index()) do
     Req.get(
-      update_url(collection),
+      update_url(index),
       params: [commit: true]
     )
   end
 
-  @spec soft_commit(String.t()) :: {:ok, Req.Response.t()} | {:error, Exception.t()}
-  def soft_commit(collection \\ read_collection()) do
+  @spec soft_commit() :: {:ok, Req.Response.t()} | {:error, Exception.t()}
+  def soft_commit(index \\ Index.read_index()) do
     Req.get(
-      update_url(collection),
+      update_url(index),
       params: [commit: true, softCommit: true]
     )
   end
 
-  @spec delete_all(String.t()) ::
+  @spec delete_all(%Index{}) ::
           {:ok, Req.Response.t()} | {:error, Exception.t()} | Exception.t()
-  def delete_all(collection \\ read_collection()) do
+  def delete_all(index \\ Index.read_index()) do
     Req.post!(
-      update_url(collection),
+      update_url(index),
       json: %{delete: %{query: "*:*"}}
     )
 
-    commit(collection)
+    commit(index)
   end
 
-  @spec delete_batch(list(), String.t()) ::
+  @spec delete_batch(list(), %Index{}) ::
           {:ok, Req.Response.t()} | {:error, Exception.t()} | Exception.t()
-  def delete_batch(ids, collection \\ read_collection()) do
+  def delete_batch(ids, index \\ Index.read_index()) do
     ids
     |> Enum.each(fn id ->
       Req.post!(
-        update_url(collection),
+        update_url(index),
         json: %{delete: %{query: "id:#{id}"}}
       )
     end)
 
-    soft_commit(collection)
+    soft_commit(index)
   end
 
-  defp select_url(collection) do
-    client()
-    |> Req.merge(url: "/solr/#{collection}/select")
+  defp select_url(index) do
+    Index.connect(index)
+    |> Req.merge(url: "/solr/#{index.collection}/select")
   end
 
-  defp update_url(collection) do
-    client()
-    |> Req.merge(url: "/solr/#{collection}/update")
+  defp update_url(index) do
+    Index.connect(index)
+    |> Req.merge(url: "/solr/#{index.collection}/update")
   end
 
-  defp query_url(collection) do
-    client()
-    |> Req.merge(url: "/solr/#{collection}/query")
-  end
-
-  @spec client() :: Req.Request.t()
-  def client() do
-    url_hash = Application.fetch_env!(:dpul_collections, :solr)
-
-    Req.new(
-      base_url: url_hash[:base_url],
-      auth: auth(url_hash)
-    )
-  end
-
-  defp auth(%{username: ""}), do: nil
-
-  defp auth(%{username: username, password: password}) do
-    {:basic, "#{username}:#{password}"}
-  end
-
-  @spec read_collection() :: String.t()
-  def read_collection() do
-    Application.fetch_env!(:dpul_collections, :solr)[:read_collection]
-  end
-
-  @spec config_set() :: String.t()
-  def config_set() do
-    Application.fetch_env!(:dpul_collections, :solr)[:config_set]
-  end
-
-  ####
-  # Solr management api wrappers
-  ####
-  @spec list_collections() :: list(String.t())
-  def list_collections() do
-    {:ok, response} =
-      client()
-      |> Req.merge(url: "/api/collections")
-      |> Req.get()
-
-    response.body["collections"]
-  end
-
-  @spec collection_exists?(String.t()) :: boolean()
-  def collection_exists?(collection) do
-    collection in list_collections()
-  end
-
-  @spec create_collection(String.t()) :: Req.Response.t()
-  def create_collection(collection) do
-    client()
-    |> Req.merge(url: "/api/collections")
-    |> Req.Request.put_header("content-type", "application/json")
-    |> Req.post!(
-      json: %{
-        create: %{
-          name: collection,
-          config: config_set(),
-          numShards: 1,
-          waitForFinalState: true
-        }
-      }
-    )
-  end
-
-  @spec delete_collection(String.t()) :: Req.Response.t()
-  def delete_collection(collection) do
-    client()
-    |> Req.merge(url: "api/collections/#{collection}")
-    |> Req.delete!()
-  end
-
-  @spec get_alias() :: String.t()
-  def get_alias do
-    {:ok, response} =
-      client()
-      |> Req.merge(
-        url: "solr/admin/collections",
-        params: [action: "LISTALIASES"]
-      )
-      |> Req.get()
-
-    response.body["aliases"][read_collection()]
-  end
-
-  @spec set_alias(String.t()) :: Req.Response.t()
-  def set_alias(collection) do
-    client()
-    |> Req.merge(url: "api/c")
-    |> Req.Request.put_header("content-type", "application/json")
-    |> Req.post!(json: %{"create-alias": %{name: read_collection(), collections: [collection]}})
+  defp query_url(index) do
+    Index.connect(index)
+    |> Req.merge(url: "/solr/#{index.collection}/query")
   end
 end
