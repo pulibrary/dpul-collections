@@ -243,7 +243,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
 
       Solr.commit(active_collection())
 
-      {:ok, view, html} = live(conn, "/browse?r=0")
+      {:ok, view, _html} = live(conn, "/browse?r=0")
 
       assert view
              |> element(
