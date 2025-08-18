@@ -58,8 +58,7 @@ lando destroy -y && lando start && mix setup
 
 Then when you run the server, commit the index like
 ```
-alias DpulCollections.Solr
-Solr.Index.read_index() |> Solr.commit()
+DpulCollections.Solr.commit()
 ```
 
 
