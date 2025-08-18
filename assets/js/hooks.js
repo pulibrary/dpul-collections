@@ -20,22 +20,13 @@ Hooks.ToolbarHook = {
   }
 };
 
-Hooks.OpenDialogHook = {
+Hooks.Dialog = {
   mounted() {
-    this.el.addEventListener('click', function(e) {
-      e.preventDefault()
-      dialog = e.currentTarget.getAttribute("data-dialog-id")
-      document.getElementById(dialog).showModal()
+    this.el.addEventListener('dpulc:closeDialog', (e) =>  {
+      this.el.close()
     })
-  }
-}
-
-Hooks.CloseDialogHook = {
-  mounted() {
-    this.el.addEventListener('click', function(e) {
-      e.preventDefault()
-      dialog = e.currentTarget.getAttribute("data-dialog-id")
-      document.getElementById(dialog).close()
+    this.el.addEventListener('dpulc:showDialog', (e) =>  {
+      this.el.showModal()
     })
   }
 }

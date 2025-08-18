@@ -8,13 +8,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   alias DpulCollections.{Item, Solr}
   alias DpulCollectionsWeb.ContentWarnings
 
-  def mount(_params, session, socket) do
-    show_images = session["show_images"]
-
-    socket =
-      socket
-      |> assign(:show_images, show_images)
-
+  def mount(_params, _session, socket) do
     {:ok, socket, layout: {DpulCollectionsWeb.Layouts, :home}}
   end
 
@@ -211,6 +205,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       items={@related_items}
       title={gettext("Similar Items in this Collection")}
       more_link={~p"/search?filter[similar]=#{@item.id}&filter[project]=#{@item.project}"}
+      show_images={@show_images}
     />
     <.browse_item_row
       :if={@item.project}
@@ -219,6 +214,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       title={gettext("Similar Items outside this Collection")}
       color="bg-background"
       more_link={~p"/search?filter[similar]=#{@item.id}&filter[project]=-#{@item.project}"}
+      show_images={@show_images}
     />
     """
   end

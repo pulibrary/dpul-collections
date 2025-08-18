@@ -5,7 +5,7 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
   alias PhoenixTest.Playwright.Frame
   alias DpulCollections.Solr
 
-  setup do
+  setup_all do
     Solr.add(SolrTestSupport.mock_solr_documents(50), active_collection())
 
     Solr.add(
@@ -15,11 +15,15 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
           title_txtm: ["Elham Azar"],
           content_warning_s: "This item depicts images that may be harmful in this specific way.",
           file_count_i: 3,
+          genre_txtm: ["pamphlets"],
+          subject_txtm: ["folk art", "museum exhibits"],
           image_service_urls_ss: [
             "https://example.com/iiif/2/image1",
             "https://example.com/iiif/2/image2",
             "https://example.com/iiif/2/image3"
-          ]
+          ],
+          ephemera_project_title_s: "LGBTQIA+ Ephemera",
+          updated_at_dt: DateTime.utc_now() |> DateTime.to_iso8601()
         }
       ],
       active_collection()
@@ -30,6 +34,16 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
   end
 
   describe "when there's a content warning, thumbnails are obfuscated" do
+    test "on the home page", %{conn: conn} do
+      conn
+      |> visit("/")
+      |> assert_has("img.obfuscate", count: 3)
+      |> click_link("Why are the images blurred?")
+      |> click_button("View content")
+      |> refute_has("img.obfuscate")
+      |> refute_has(".browse-header")
+    end
+
     test "on the search page", %{conn: conn} do
       # an item without a content warning isn't obfuscated
       conn
@@ -46,7 +60,7 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
       |> refute_has("img.obfuscate")
     end
 
-    test "on the standardbrowse page", %{conn: conn} do
+    test "on the standard browse page", %{conn: conn} do
       conn
       |> visit("/browse")
       |> assert_has(".thumbnail-d4292e58-25d7-4247-bf92-0a5e24ec75d1", count: 3)
@@ -68,15 +82,53 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
       |> refute_has("a", text: "Why are the images blurred?")
     end
 
-    test "on the item detail page", %{conn: conn} do
+    test "on the item detail page with related items", %{conn: conn} do
+      Solr.add(
+        [
+          %{
+            id: "d4292e58-25d7-4247-bf92-0a5e24ec75d2",
+            title_txtm: ["Similar Thing"],
+            content_warning_s:
+              "This item depicts images that may be harmful in this specific way.",
+            file_count_i: 3,
+            genre_txtm: ["pamphlets"],
+            subject_txtm: ["folk art", "museum exhibits"],
+            image_service_urls_ss: [
+              "https://example.com/iiif/2/image1",
+              "https://example.com/iiif/2/image2",
+              "https://example.com/iiif/2/image3"
+            ],
+            ephemera_project_title_s: "LGBTQIA+ Ephemera",
+            updated_at_dt: DateTime.utc_now() |> DateTime.to_iso8601()
+          }
+        ],
+        active_collection()
+      )
+
+      Solr.commit(active_collection())
+
+      on_exit(fn ->
+        Solr.delete_batch(["d4292e58-25d7-4247-bf92-0a5e24ec75d2"], active_collection())
+      end)
+
       conn
       |> visit("/item/d4292e58-25d7-4247-bf92-0a5e24ec75d1")
       # the large thumbnail is duplicated in the small thumbnail list
-      |> assert_has(".thumbnail-d4292e58-25d7-4247-bf92-0a5e24ec75d1", count: 4)
-      |> assert_has("img.obfuscate", count: 4)
-      |> click_link("Why are the images blurred?")
+      |> assert_has("img.thumbnail-d4292e58-25d7-4247-bf92-0a5e24ec75d1.obfuscate", count: 4)
+      |> click_link(
+        "#open-show-image-banner-d4292e58-25d7-4247-bf92-0a5e24ec75d1",
+        "Why are the images blurred?"
+      )
       |> click_button("View content")
-      |> refute_has("img.obfuscate")
+      |> refute_has("img.thumbnail-d4292e58-25d7-4247-bf92-0a5e24ec75d1.obfuscate")
+      # Make sure related items works.
+      |> assert_has("img.thumbnail-d4292e58-25d7-4247-bf92-0a5e24ec75d2.obfuscate", count: 3)
+      |> click_link(
+        "#open-show-image-banner-d4292e58-25d7-4247-bf92-0a5e24ec75d2",
+        "Why are the images blurred?"
+      )
+      |> click_button("View content")
+      |> refute_has("img.thumbnail-d4292e58-25d7-4247-bf92-0a5e24ec75d2.obfuscate")
       # Make sure the viewer also knows not to render this.
       |> click_link("#viewer-link", "View")
       |> refute_has("h2", text: "Content Warning")

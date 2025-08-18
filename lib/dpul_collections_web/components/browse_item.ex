@@ -30,7 +30,13 @@ defmodule DpulCollectionsWeb.BrowseItem do
         <div class="flex gap-8 justify-stretch page-t-padding">
           <!-- cards -->
           <div class="w-full recent-container">
-            <.browse_item :for={item <- @items} item={item} added?={@added?} likeable?={false} />
+            <.browse_item
+              :for={item <- @items}
+              show_images={@show_images}
+              item={item}
+              added?={@added?}
+              likeable?={false}
+            />
           </div>
           <div :if={@more_link} class="w-12 flex-none content-center">
             <.link
@@ -70,7 +76,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
     >
       <!-- similar -->
       <div
-        :if={@likeable? || @item.content_warning}
+        :if={@likeable? || Helpers.obfuscate_item?(assigns)}
         class="browse-header mb-2 h-12 w-full bg-white absolute left-2 top-2 flex items-center"
       >
         <div class="h-full pl-2 w-full flex items-center flex-grow like-header bg-white z-50">
