@@ -10,8 +10,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
       ephemera_folder_message = %Broadway.Message{
         acknowledger: nil,
         data: %Figgy.Resource{
-          id: "47276197-e223-471c-99d7-405c5f6c5285",
-          updated_at: ~U[2018-03-09 20:19:34.486004Z],
+          id: "561ea64a-9cd1-4994-b2a7-ac169f33ba84",
+          updated_at: ~U[2024-04-18 14:28:57.526110Z],
           internal_resource: "EphemeraFolder",
           state: ["complete"],
           visibility: ["open"],
@@ -19,7 +19,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
             "title" => ["title"],
             "state" => ["complete"],
             "visibility" => ["open"],
-            "member_ids" => [%{"id" => "06838583-59a4-4ab8-ac65-2b5ea9ee6425"}]
+            "member_ids" => [%{"id" => "96f52803-f3d5-4cab-aba1-eceff648abdc"}]
           }
         }
       }
@@ -27,8 +27,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
       pending_ephemera_folder_message = %Broadway.Message{
         acknowledger: nil,
         data: %Figgy.Resource{
-          id: "47276197-e223-471c-99d7-405c5f6c5285",
-          updated_at: ~U[2018-03-09 20:19:34.486004Z],
+          id: "561ea64a-9cd1-4994-b2a7-ac169f33ba84",
+          updated_at: ~U[2024-04-18 14:28:57.526110Z],
           internal_resource: "EphemeraFolder",
           state: ["pending"],
           visibility: ["open"],
@@ -36,7 +36,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
             "title" => ["title"],
             "state" => ["pending"],
             "visibility" => ["open"],
-            "member_ids" => [%{"id" => "06838583-59a4-4ab8-ac65-2b5ea9ee6425"}]
+            "member_ids" => [%{"id" => "96f52803-f3d5-4cab-aba1-eceff648abdc"}]
           }
         }
       }
@@ -44,8 +44,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
       restricted_ephemera_folder_message = %Broadway.Message{
         acknowledger: nil,
         data: %Figgy.Resource{
-          id: "47276197-e223-471c-99d7-405c5f6c5285",
-          updated_at: ~U[2018-03-09 20:19:34.486004Z],
+          id: "561ea64a-9cd1-4994-b2a7-ac169f33ba84",
+          updated_at: ~U[2024-04-18 14:28:57.526110Z],
           internal_resource: "EphemeraFolder",
           state: ["complete"],
           visibility: ["restricted"],
@@ -53,7 +53,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
             "title" => ["title"],
             "state" => ["complete"],
             "visibility" => ["restricted"],
-            "member_ids" => [%{"id" => "06838583-59a4-4ab8-ac65-2b5ea9ee6425"}]
+            "member_ids" => [%{"id" => "96f52803-f3d5-4cab-aba1-eceff648abdc"}]
           }
         }
       }
@@ -70,8 +70,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
       scanned_resource_message = %Broadway.Message{
         acknowledger: nil,
         data: %Figgy.Resource{
-          id: "69990556-434c-476a-9043-bbf9a1bda5a4",
-          updated_at: ~U[2018-03-09 20:19:34.465203Z],
+          id: "2fa1b92b-9e62-4694-aeab-0c4fab72ac24",
+          updated_at: ~U[2025-08-18 20:19:34.465203Z],
           internal_resource: "ScannedResource"
         }
       }
@@ -109,8 +109,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
       ephemera_folder_message = %Broadway.Message{
         acknowledger: nil,
         data: %Figgy.Resource{
-          id: "47276197-e223-471c-99d7-405c5f6c5285",
-          updated_at: ~U[2018-03-09 20:19:34.486004Z],
+          id: "561ea64a-9cd1-4994-b2a7-ac169f33ba84",
+          updated_at: ~U[2024-04-18 14:28:57.526110Z],
           internal_resource: "EphemeraFolder",
           state: ["complete"],
           visibility: ["open"],
@@ -118,7 +118,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
             "title" => ["title"],
             "visibility" => ["open"],
             "state" => ["complete"],
-            "member_ids" => [%{"id" => "06838583-59a4-4ab8-ac65-2b5ea9ee6425"}]
+            "member_ids" => [%{"id" => "96f52803-f3d5-4cab-aba1-eceff648abdc"}]
           }
         }
       }
@@ -130,7 +130,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           id: "dced9109-6980-4035-9764-84c08ed5d7db",
           updated_at: ~U[2025-01-02 19:47:21.726083Z],
           internal_resource: "DeletionMarker",
-          metadata_resource_id: [%{"id" => "47276197-e223-471c-99d7-405c5f6c5285"}],
+          metadata_resource_id: [%{"id" => "561ea64a-9cd1-4994-b2a7-ac169f33ba84"}],
           metadata_resource_type: ["EphemeraFolder"]
         }
       }
