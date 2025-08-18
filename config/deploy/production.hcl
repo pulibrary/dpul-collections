@@ -82,8 +82,7 @@ job "dpulc-production" {
         mode = "file"
       }
       artifact {
-        source =
-        "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/solr/production.json"
+        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/solr/production.json"
         destination = "${NOMAD_TASK_DIR}/solr.json"
         mode = "file"
       }
@@ -115,8 +114,7 @@ job "dpulc-production" {
         mode = "file"
       }
       artifact {
-        source =
-        "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/solr/production.json"
+        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/solr/production.json"
         destination = "${NOMAD_TASK_DIR}/solr.json"
         mode = "file"
       }
@@ -179,8 +177,7 @@ job "dpulc-production" {
         mode = "file"
       }
       artifact {
-        source =
-        "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/solr/production.json"
+        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/solr/production.json"
         destination = "${NOMAD_TASK_DIR}/solr.json"
         mode = "file"
       }
