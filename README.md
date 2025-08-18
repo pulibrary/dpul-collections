@@ -157,22 +157,10 @@ Build Docker Image
 Set up database
 `mix setup`
 
-Remove previously-created temp container
-`docker rm dpulc-local-tmp`
-
-Create a container from the image
-`docker create --name dpulc-local-tmp dpul-collections`
-
-Copy the solr config file
-`docker cp config/deploy/solr/local_docker.json dpulc-local-tmp:/solr.json`
-
-# Commit the container as a new image
-`docker commit dpulc-local-tmp dpulc-local`
-
 The SECRET_KEY_BASE below is just a filler one for the purpose of testing locally.
 
 Run Docker Image
-`docker run -t -p 4000:4000 -e INDEXER=true -e APP_ENV=local -e PHX_HOST=localhost -e RELEASE_IP=127.0.0.1 -e NOMAD_TASK_DIR='/' -e FIGGY_DATABASE_URL='ecto://postgres:postgres@host.docker.internal:5435/postgres' -e DATABASE_URL='ecto://postgres:@host.docker.internal:5434/dpul_collections_dev' -e SECRET_KEY_BASE='B8rwzeX3DFLveiJ4cP28lRGc0PWdEr8ZF/hDoPRucw95Nzf2IPnu7lhEB+Yldx6Z' dpulc-local`
+`docker run -v $PWD/config/deploy/solr/local_docker.json:/solr.json -t -p 4000:4000 -e INDEXER=true -e APP_ENV=staging -e PHX_HOST=localhost -e RELEASE_IP=127.0.0.1 -e NOMAD_TASK_DIR='/' -e FIGGY_DATABASE_URL='ecto://postgres:postgres@host.docker.internal:5435/postgres' -e DATABASE_URL='ecto://postgres:@host.docker.internal:5434/dpul_collections_dev' -e SECRET_KEY_BASE='B8rwzeX3DFLveiJ4cP28lRGc0PWdEr8ZF/hDoPRucw95Nzf2IPnu7lhEB+Yldx6Z' dpul-collections`
 
 
 Commit Solr: `curl http://solr:SolrRocks@localhost:8985/solr/dpulc/update?commit=true`
