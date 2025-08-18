@@ -53,60 +53,59 @@ defmodule DpulCollectionsWeb.HomeLive do
                 )
                 |> Phoenix.HTML.raw()}
               </div>
-              <div class="content-area bg-primary text-light-text p-x-4 text-2xl">
-                <.primary_button href={~p"/browse"}>
+              <div class="content-area bg-primary text-light-text px-0 text-2xl">
+                <.primary_button href={~p"/browse"} class="px-8">
                   {gettext("Explore")}
                 </.primary_button>
               </div>
             </div>
+            <div
+              id="hero-mosaic"
+              class="h-[600px] overflow-hidden"
+              phx-update="ignore"
+              aria-hidden="true"
+            >
+              <%= for chunk <- random_mosaic_images() do %>
+                <div class="h-[200px] flex items-start overflow-hidden">
+                  <%= for {id, image_url, item} <- chunk do %>
+                    <div class="h-[200px] min-w-px flex-shrink-0">
+                      <.link tabindex="-1" navigate={~p"/item/#{id}"}>
+                        <img
+                          class="h-full w-auto opacity-40 select-none hover:opacity-100 cursor-pointer"
+                          draggable="false"
+                          width={
+                            (200 * item.primary_thumbnail_width / item.primary_thumbnail_height)
+                            |> round
+                          }
+                          height="200"
+                          src={image_url}
+                          alt={item.title |> hd}
+                        />
+                      </.link>
+                    </div>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
           </div>
-          <div
-            id="hero-mosaic"
-            class="h-[600px] overflow-hidden"
-            phx-update="ignore"
-            aria-hidden="true"
-          >
-            <%= for chunk <- random_mosaic_images() do %>
-              <div class="h-[200px] flex items-start overflow-hidden">
-                <%= for {id, image_url, item} <- chunk do %>
-                  <div class="h-[200px] min-w-px flex-shrink-0">
-                    <.link tabindex="-1" navigate={~p"/item/#{id}"}>
-                      <img
-                        class="h-full w-auto opacity-40 select-none hover:opacity-100 cursor-pointer"
-                        draggable="false"
-                        width={
-                          (200 * item.primary_thumbnail_width / item.primary_thumbnail_height)
-                          |> round
-                        }
-                        height="200"
-                        src={image_url}
-                        alt={item.title |> hd}
-                      />
-                    </.link>
-                  </div>
-                <% end %>
-              </div>
-            <% end %>
-          </div>
-        </div>
-        <.content_separator />
+          <.content_separator />
 
-        <.browse_item_row
-          id="recent-items"
-          layout="home-content-area"
-          color="bg-background"
-          items={@recent_items}
-          title={gettext("Recently Updated Items")}
-          more_link={~p"/search?sort_by=recently_updated"}
-          show_images={@show_images}
-          added?={true}
-        >
-          <p class="my-2 font-regular">
-            {gettext("Our collections are constantly growing. Discover something new!")}
-          </p>
-        </.browse_item_row>
-      </div>
-    </Layouts.app>
+          <.browse_item_row
+            id="recent-items"
+            layout="home-content-area"
+            color="bg-background"
+            items={@recent_items}
+            title={gettext("Recently Updated Items")}
+            more_link={~p"/search?sort_by=recently_updated"}
+            show_images={@show_images}
+            added?={true}
+          >
+            <p class="my-2 font-regular">
+              {gettext("Our collections are constantly growing. Discover something new!")}
+            </p>
+          </.browse_item_row>
+        </div>
+      </Layouts.app>
     """
   end
 
