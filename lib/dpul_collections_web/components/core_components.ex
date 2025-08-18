@@ -174,7 +174,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
 
   def primary_button(assigns = %{href: href, patch: patch}) when href != nil or patch != nil do
     ~H"""
-    <.link href={@href} patch={@patch} class={["btn-primary", "flex gap-2 px-2", @class]} {@rest}>
+    <.link href={@href} patch={@patch} class={["btn-primary", @class]} {@rest}>
       {render_slot(@inner_block)}
     </.link>
     """
@@ -182,7 +182,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
 
   def primary_button(assigns) do
     ~H"""
-    <button class={["btn-primary flex gap-2 px-2", @class]} disabled={@disabled} {@rest}>
+    <button class={["btn-primary", @class]} disabled={@disabled} {@rest}>
       {render_slot(@inner_block)}
     </button>
     """

@@ -134,9 +134,20 @@
 }
 
 @utility btn-primary {
-  @apply flex items-center justify-center cursor-pointer font-bold *:font-bold uppercase bg-primary text-dark-text h-14 disabled:cursor-not-allowed;
-  &.active {
-    @apply bg-accent text-light-text;
+  @apply border-1 border-solid border-(--color-princeton-black) flex items-center text-dark-text font-bold *:font-bold h-14 text-nowrap uppercase cursor-pointer disabled:cursor-not-allowed;
+  &:hover {
+    @apply shadow-[0_3px_3px_1px_rgba(18,18,18,0.5)] no-underline;
+    background-color: #c5c6b5;
+  }
+  &:focus {
+    @apply border-4 border-accent;
+  }
+  &:focus-visible {
+    @apply outline-accent;
+  }
+  &:active {
+    @apply outline-0 border-1 border-solid border-(--color-princeton-black) text-white;
+    box-shadow: inset 0 2px 4px 0 rgb(18,18,18,0.8);
   }
 }
 
