@@ -38,13 +38,14 @@ defmodule DpulCollectionsWeb.BrowseItem do
               likeable?={false}
             />
           </div>
-          <div :if={@more_link} class="w-12 flex-none content-center">
-            <.link
-              class="btn-arrow w-full h-14 w-full block"
-              aria-label={gettext("more items")}
+          <div :if={@more_link} class="w-16 flex-none content-center">
+            <.transparent_button
+              class="w-16 h-16"
+              aria_label={gettext("more items")}
               navigate={@more_link}
             >
-            </.link>
+              <div class="btn-arrow h-12 w-12"></div>
+            </.transparent_button>
           </div>
         </div>
         <div class="page-b-padding" />

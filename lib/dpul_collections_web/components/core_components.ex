@@ -174,7 +174,16 @@ defmodule DpulCollectionsWeb.CoreComponents do
 
   def primary_button(assigns = %{href: href, patch: patch}) when href != nil or patch != nil do
     ~H"""
-    <.link href={@href} patch={@patch} class={["btn-primary", @class]} {@rest}>
+    <span
+      :if={@disabled}
+      class={[
+        "disabled",
+        @class
+      ]}
+    >
+      {render_slot(@inner_block)}
+    </span>
+    <.link :if={!@disabled} href={@href} patch={@patch} class={["btn-primary", @class]} {@rest}>
       {render_slot(@inner_block)}
     </.link>
     """
@@ -185,6 +194,198 @@ defmodule DpulCollectionsWeb.CoreComponents do
     <button class={["btn-primary", @class]} disabled={@disabled} {@rest}>
       {render_slot(@inner_block)}
     </button>
+    """
+  end
+
+  slot :inner_block
+  attr :class, :any, default: nil
+  attr :navigate, :string, default: nil, doc: "link - if set makes an anchor tag"
+  attr :aria_label, :string, default: nil
+  attr :disabled, :boolean, default: false
+  attr :rest, :global, include: ~w(replace), doc: "the arbitrary HTML attributes to add link"
+
+  def transparent_button(assigns = %{navigate: navigate}) when navigate != nil do
+    ~H"""
+    <span
+      :if={@disabled}
+      class={[
+        "disabled",
+        @class
+      ]}
+    >
+      {render_slot(@inner_block)}
+    </span>
+    <.link
+      :if={!@disabled}
+      navigate={@navigate}
+      aria-label={@aria_label}
+      class={["btn-transparent align-content", @class]}
+      {@rest}
+    >
+      {render_slot(@inner_block)}
+    </.link>
+    """
+  end
+
+  def transparent_button(assigns) do
+    ~H"""
+    <button class={["btn-transparent", @class]} disabled={@disabled} {@rest}>
+      {render_slot(@inner_block)}
+    </button>
+    """
+  end
+
+  slot :inner_block
+  attr :class, :any, default: nil
+  attr :href, :string, default: nil, doc: "link - if set it makes an anchor tag"
+  attr :patch, :string, default: nil, doc: "link - if set makes an anchor tag"
+  attr :disabled, :boolean, default: false
+  attr :rest, :global, include: ~w(replace), doc: "the arbitrary HTML attributes to add link"
+
+  def secondary_button(assigns = %{href: href, patch: patch}) when href != nil or patch != nil do
+    ~H"""
+    <span
+      :if={@disabled}
+      class={[
+        "btn-secondary",
+        "disabled",
+        @class
+      ]}
+    >
+      {render_slot(@inner_block)}
+    </span>
+    <.link :if={!@disabled} href={@href} patch={@patch} class={["btn-secondary", @class]} {@rest}>
+      {render_slot(@inner_block)}
+    </.link>
+    """
+  end
+
+  def secondary_button(assigns) do
+    ~H"""
+    <button disabled={@disabled} class={["btn-secondary", @class]} {@rest}>
+      {render_slot(@inner_block)}
+    </button>
+    """
+  end
+
+  slot :inner_block
+  attr :class, :any, default: nil
+  attr :href, :string, default: nil, doc: "link - if set it makes an anchor tag"
+  attr :patch, :string, default: nil, doc: "link - if set makes an anchor tag"
+  attr :disabled, :boolean, default: false
+  attr :rest, :global, include: ~w(replace), doc: "the arbitrary HTML attributes to add link"
+
+  def danger_button(assigns = %{href: href, patch: patch}) when href != nil or patch != nil do
+    ~H"""
+    <span
+      :if={@disabled}
+      class={[
+        "btn-danger",
+        "disabled",
+        @class
+      ]}
+    >
+      {render_slot(@inner_block)}
+    </span>
+    <.link :if={!@disabled} href={@href} patch={@patch} class={["btn-danger", @class]} {@rest}>
+      {render_slot(@inner_block)}
+    </.link>
+    """
+  end
+
+  def danger_button(assigns) do
+    ~H"""
+    <button class={["btn-danger", @class]} disabled={@disabled} {@rest}>
+      {render_slot(@inner_block)}
+    </button>
+    """
+  end
+
+  slot :inner_block
+  attr :class, :any, default: nil
+  attr :patch, :string, default: nil, doc: "link - if set makes an anchor tag"
+  attr :disabled, :boolean, default: false
+  attr :rest, :global, include: ~w(replace), doc: "the arbitrary HTML attributes to add link"
+
+  def arrow_button_left(assigns = %{patch: patch}) when patch != nil do
+    ~H"""
+    <span
+      :if={@disabled}
+      class={[
+        "left-arrow-box",
+        "disabled",
+        @class
+      ]}
+    >
+      {render_slot(@inner_block)}
+    </span>
+    <.link :if={!@disabled} patch={@patch} class={["h-14 btn-transparent", @class]} {@rest}>
+      <div class="left-arrow-box">
+        {render_slot(@inner_block)}
+      </div>
+    </.link>
+    """
+  end
+
+  slot :inner_block
+  attr :class, :any, default: nil
+  attr :patch, :string, default: nil, doc: "link - if set makes an anchor tag"
+  attr :disabled, :boolean, default: false
+  attr :rest, :global, include: ~w(replace), doc: "the arbitrary HTML attributes to add link"
+
+  def arrow_button_right(assigns = %{patch: patch}) when patch != nil do
+    ~H"""
+    <span
+      :if={@disabled}
+      class={[
+        "right-arrow-box hover:opacity-50",
+        "disabled",
+        @class
+      ]}
+    >
+      {render_slot(@inner_block)}
+    </span>
+    <.link :if={!@disabled} patch={@patch} class={["h-14 btn-transparent", @class]} {@rest}>
+      <div class="right-arrow-box">
+        {render_slot(@inner_block)}
+      </div>
+    </.link>
+    """
+  end
+
+  attr :class, :any, default: nil
+  attr :disabled, :boolean, default: false
+  attr :navigate, :string, default: nil
+  attr :href, :string, default: nil
+  attr :patch, :string, default: nil
+  attr :icon, :string, default: nil
+  attr :button_text, :string, default: nil
+  attr :aria_label, :string, default: nil
+
+  def icon_button(assigns) do
+    ~H"""
+    <span
+      :if={@disabled}
+      class={[
+        "btn-icon",
+        "disabled",
+        @class
+      ]}
+    >
+      <.icon name={@icon} class="mt-1 h-8 w-8 icon" />
+      <div class="mt-[-.25rem]">{@button_text}</div>
+    </span>
+    <.link
+      :if={!@disabled}
+      href={@href}
+      patch={@patch}
+      navigate={@navigate}
+      aria-label={@aria_label}
+      class={["btn-icon", @class]}
+    >
+      <.icon name={@icon} class="mt-1 h-8 w-8 icon" />
+      <div class="mt-[-.25rem]">{@button_text}</div>
+    </.link>
     """
   end
 
