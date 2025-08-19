@@ -103,3 +103,5 @@ config :iconify_ex,
   mode: :css,
   generated_icon_static_path: "./assets/css",
   default_class: nil
+
+config :dpul_collections, environment_name: Mix.env() |> to_string()

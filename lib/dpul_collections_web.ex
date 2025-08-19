@@ -93,6 +93,7 @@ defmodule DpulCollectionsWeb do
       # Core UI components and translation
       import DpulCollectionsWeb.CoreComponents
       import DpulCollectionsWeb.Gettext
+      import DpulCollectionsWeb.Analytics
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS

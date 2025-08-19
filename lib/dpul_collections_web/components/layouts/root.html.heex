@@ -7,11 +7,13 @@
     <.live_title>
       {assigns[:page_title]}
     </.live_title>
+    <.google_tag_manager />
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
     </script>
   </head>
   <body class="bg-white antialiased">
+    <.google_tag_manager_noscript />
     <nav id="skip-link" role="navigation" aria-label={gettext("Skip links")}>
       <a
         class="transition left-0 bg-primary bg-gray-200 text-primary-content absolute p-3 m-3 -translate-y-16 focus:translate-y-0"

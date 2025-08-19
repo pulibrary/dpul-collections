@@ -14,6 +14,20 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
     assert html_response(conn, 200) =~ "Digital Collections"
   end
 
+  test "GET / sets up GTM in production", %{conn: conn} do
+    initial_env = Application.get_env(:dpul_collections, :environment_name)
+    on_exit(fn -> Application.put_env(:dpul_collections, :environment_name, initial_env) end)
+    Application.put_env(:dpul_collections, :environment_name, "production")
+    {:ok, _view, html} = live(conn, "/")
+    assert html =~ "https://www.googletagmanager.com/gtm.js?id="
+  end
+
+  test "GET / doesn't set up plausible in other environemnts", %{conn: conn} do
+    {:ok, _view, html} = live(conn, "/")
+
+    refute html =~ "https://www.googletagmanager.com/gtm.js?id="
+  end
+
   test "search form redirect", %{conn: conn} do
     {:ok, view, _} = live(conn, "/")
 
