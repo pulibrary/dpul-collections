@@ -15,6 +15,7 @@ job "dpulc-production" {
   update {
     auto_revert       = true
   }
+  priority = 55
   group "web" {
     count = 2
     network {
