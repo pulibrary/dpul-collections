@@ -134,7 +134,7 @@
 }
 
 @utility btn-primary {
-  @apply border-1 border-solid border-(--color-princeton-black) flex items-center text-dark-text font-bold *:font-bold h-14 text-nowrap uppercase cursor-pointer disabled:cursor-not-allowed;
+  @apply bg-primary border-1 border-solid border-(--color-princeton-black) flex items-center text-dark-text font-bold *:font-bold h-14 text-nowrap uppercase cursor-pointer disabled:cursor-not-allowed;
   &:hover {
     @apply shadow-[0_3px_3px_1px_rgba(18,18,18,0.5)] no-underline;
     background-color: #c5c6b5;
@@ -151,13 +151,30 @@
   }
 }
 
-@utility btn-secondary {
+@utility btn-secondary-old {
   @apply cursor-pointer uppercase border bg-sage text-black;
 }
 
-.btn-arrow {
-  clip-path: polygon(0% 0%, 100% 50%, 0% 100%);
-  @apply bg-primary cursor-pointer;
+@utility btn-secondary {
+  @apply bg-cloud border-1 border-solid border-(--color-princeton-black) flex items-center text-dark-text font-bold *:font-bold h-14 text-nowrap uppercase cursor-pointer disabled:cursor-not-allowed;
+  &:hover {
+    @apply shadow-[0_3px_3px_1px_rgba(18,18,18,0.5)] no-underline;
+    background-color: #c5c6b5;
+  }
+  &:focus {
+    @apply border-0;
+  }
+  &:focus-visible {
+    @apply border-4 border-accent outline-accent;
+  }
+  &:active {
+    @apply outline-0 border-1 border-solid border-(--color-princeton-black) text-rust;
+    box-shadow: inset 0 2px 4px 0 rgb(18,18,18,0.8);
+  }
+}
+
+@utility btn-arrow {
+  @apply bg-primary border-1 border-solid border-(--color-princeton-black) text-dark-text text-nowrap uppercase cursor-pointer disabled:cursor-not-allowed;
 }
 
 /* action_icon utilities */

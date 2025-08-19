@@ -188,15 +188,53 @@ defmodule DpulCollectionsWeb.CoreComponents do
     """
   end
 
-  attr :properties, :map, default: %{}
+  slot :inner_block
+  attr :class, :any, default: nil
+  attr :href, :string, default: nil, doc: "link - if set it makes an anchor tag"
+  attr :patch, :string, default: nil, doc: "link - if set makes an anchor tag"
+  attr :disabled, :boolean, default: false
+  attr :rest, :global, include: ~w(replace), doc: "the arbitrary HTML attributes to add link"
 
-  def meta_properties(assigns) do
+  def secondary_button(assigns) do
     ~H"""
-    <meta
-      :for={{property_key, property_value} <- @properties}
-      property={property_key}
-      content={property_value}
-    />
+    <button class={["btn-secondary", @class]} {@rest}>
+      {render_slot(@inner_block)}
+    </button>
     """
   end
+
+  def arrow_left_button(assigns = %{navigate: navigate}) when navigate != nil do
+    ~H"""
+    <.link href={@href} class={["btn-arrow", @class]}>
+      <span><.icon name="arrow-circle-left" class="p-1 h-8 w-8 icon" /></span>
+      {render_slot(@inner_block)}
+    </.link>
+    """
+  end
+
+  def arrow_right_button(assigns = %{navigate: navigate}) when navigate != nil do
+    ~H"""
+    <.link navigate={@navigate} class={["btn-arrow", @class]}>
+      <span><.icon name="arrow-circle-right" class="p-1 h-8 w-8 icon" /></span>
+      {render_slot(@inner_block)}
+    </.link>
+    """
+  end
+end
+
+attr :properties, :map, default: %{}
+
+def meta_properties(assigns) do
+  ~H"""
+  <meta
+    :for={{property_key, property_value} <- @properties}
+    property={property_key}
+    content={property_value}
+  />
+def secondary_button(assigns = %{href: href, patch: patch}) when href != nil or patch != nil do
+  ~H"""
+  <.link href={@href} patch={@patch} class={["btn-secondary", @class]} {@rest}>
+    {render_slot(@inner_block)}
+  </.link>
+  """
 end
