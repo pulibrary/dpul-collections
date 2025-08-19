@@ -86,7 +86,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     # Combine and sort by date
     # Return the most recent date, id tuple
     (primary_resource ++ related_resources ++ ancestors)
-    |> Enum.sort_by(fn {date, _} -> date end, {:desc, Date})
+    |> Enum.sort_by(fn {date, _} -> date end, {:desc, DateTime})
     |> Enum.at(0)
   end
 

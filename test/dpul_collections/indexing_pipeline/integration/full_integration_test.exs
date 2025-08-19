@@ -12,60 +12,12 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     on_exit(fn -> Solr.delete_all(active_collection()) end)
   end
 
-  def wait_for_index_completion() do
-    transformation_cache_entries = IndexingPipeline.list_transformation_cache_entries() |> length
-    ephemera_folder_count = FiggyTestSupport.ephemera_folder_count()
-
-    # Count of resources to be deleted. In this test there is one added per
-    # DeletionMarker. A transformation cache entry with the key `deleted: true`
-    # stays in the transformation cache so the total number of records must take
-    # this into account.
-    deleted_resource_count = FiggyTestSupport.deletion_marker_count()
-    total_records = ephemera_folder_count + deleted_resource_count
-    # Empty resources are resources with no image file sets
-    empty_resource_count = 1
-
-    if System.get_env("DEBUG_INTEGRATION") do
-      IO.puts(
-        "tranformation_cache_entries: #{transformation_cache_entries} / total_records: #{total_records}"
-      )
-    end
-
-    continue =
-      if transformation_cache_entries == total_records do
-        DpulCollections.Solr.commit(active_collection())
-        solr_doc_count = DpulCollections.Solr.document_count()
-
-        expected_doc_count =
-          transformation_cache_entries - deleted_resource_count - empty_resource_count
-
-        if System.get_env("DEBUG_INTEGRATION") do
-          IO.puts("solr_count: #{solr_doc_count} / expected_doc_count: #{expected_doc_count}")
-        end
-
-        if solr_doc_count == expected_doc_count do
-          true
-        end
-      end
-
-    continue || (:timer.sleep(100) && wait_for_index_completion())
-  end
-
-  def wait_for_solr_version_change(doc = %{"_version_" => version, "id" => id}) do
-    Solr.commit(active_collection())
-    %{"_version_" => new_version} = Solr.find_by_id(id)
-
-    if new_version == version do
-      :timer.sleep(100) && wait_for_solr_version_change(doc)
-    else
-      true
-    end
-  end
-
   test "a full pipeline run of all 3 stages, then re-run of each stage" do
     # Start the figgy pipeline in a way that mimics how it is started in
     # dev and prod (slightly simplified)
     cache_version = 1
+
+    {:ok, tracker_pid} = GenServer.start_link(AckTracker, self())
 
     # Pre-index records for testing deletes. DeletionMarkers in the test Figgy
     # database do not have related resources. We need to add the resources so we
@@ -98,10 +50,15 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       start_supervised(child)
     end)
 
-    task =
-      Task.async(fn -> wait_for_index_completion() end)
+    # Transformation cache processes 98 ephemera folders, 3 fake records we
+    # inserted into the hydration cache, then 3 real deletion markers.
+    # Indexing pipeline does 98 ephemera folders, 3 fake records we inserted
+    # into transformation cache, result of 3 fake records we put in hydration
+    # cache, then 3 real deletion markers.
+    index_count =
+      FiggyTestSupport.ephemera_folder_count() + 3 * FiggyTestSupport.deletion_marker_count()
 
-    Task.await(task, 30000)
+    AckTracker.wait_for_indexed_count(index_count)
 
     # The hydrator pulled all ephemera folders, terms, deletion markers and
     # removed the hydration cache markers for the deletion marker deleted resource.
@@ -145,12 +102,16 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     transformation_entry =
       Repo.get_by(Figgy.TransformationCacheEntry, record_id: latest_document["id"])
 
+    AckTracker.reset_count!(tracker_pid)
+
     Figgy.IndexingConsumer.start_over!(cache_version)
 
-    task =
-      Task.async(fn -> wait_for_solr_version_change(latest_document) end)
+    # The fake records are out of the caches.
+    index_count =
+      FiggyTestSupport.ephemera_folder_count() + FiggyTestSupport.deletion_marker_count()
 
-    Task.await(task, 30000)
+    AckTracker.wait_for_indexed_count(index_count)
+
     latest_document_again = Solr.latest_document()
 
     # Make sure it got reindexed
@@ -173,12 +134,13 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     hydration_entry = Repo.get_by(Figgy.HydrationCacheEntry, record_id: latest_document["id"])
 
+    AckTracker.reset_count!(tracker_pid)
+
     Figgy.TransformationConsumer.start_over!(cache_version)
 
-    task =
-      Task.async(fn -> wait_for_solr_version_change(latest_document) end)
+    AckTracker.wait_for_indexed_count(index_count)
 
-    Task.await(task, 30000)
+    Repo.aggregate(Figgy.TransformationCacheEntry, :count)
 
     # transformation entries were updated
     transformation_entry_again =
@@ -196,12 +158,11 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     latest_document = Solr.latest_document()
     hydration_entry = Repo.get_by(Figgy.HydrationCacheEntry, record_id: latest_document["id"])
 
+    AckTracker.reset_count!(tracker_pid)
+
     Figgy.HydrationConsumer.start_over!(cache_version)
 
-    task =
-      Task.async(fn -> wait_for_solr_version_change(latest_document) end)
-
-    Task.await(task, 30000)
+    AckTracker.wait_for_indexed_count(index_count)
 
     hydration_entry_again =
       Repo.get_by(Figgy.HydrationCacheEntry, record_id: latest_document["id"])

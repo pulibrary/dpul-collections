@@ -122,7 +122,7 @@ defmodule DpulCollections.IndexingPipeline do
       from r in Figgy.HydrationCacheEntry,
         where: r.cache_version == ^cache_version,
         limit: ^count,
-        order_by: [asc: r.source_cache_order, asc: r.record_id]
+        order_by: [asc: r.cache_order, asc: r.record_id]
 
     Repo.all(query)
   end
