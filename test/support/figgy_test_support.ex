@@ -134,6 +134,8 @@ defmodule FiggyTestSupport do
 
     AckTracker.wait_for_indexed_count(1)
 
+    GenServer.stop(tracker_pid)
+
     document = Solr.find_by_id(id)
     {hydrator, transformer, indexer, document}
   end

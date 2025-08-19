@@ -1,6 +1,5 @@
 defmodule AckTracker do
   alias DpulCollections.Solr
-  alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
   use GenServer
   import ExUnit.Assertions
   @impl true
