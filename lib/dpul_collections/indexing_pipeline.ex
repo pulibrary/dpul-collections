@@ -5,7 +5,6 @@ defmodule DpulCollections.IndexingPipeline do
   use Sibyl
 
   import Ecto.Query, warn: false
-  require Logger
   alias DpulCollections.{Repo, FiggyRepo}
 
   alias DpulCollections.IndexingPipeline.Figgy

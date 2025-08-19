@@ -152,7 +152,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
   end
 
   test "updates existing hydration cache entries" do
-    {marker1, _marker2, _marker3} = FiggyTestFixtures.markers()
     # Create a hydration cache entry for a record that has a source_cache_order
     # in the past.
     IndexingPipeline.write_hydration_cache_entry(%{
