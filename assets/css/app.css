@@ -140,13 +140,13 @@
     background-color: #c5c6b5;
   }
   &:focus {
-    @apply border-4 border-accent;
+    @apply border-0;
   }
   &:focus-visible {
-    @apply outline-accent;
+    @apply border-4 border-accent outline-accent;
   }
   &:active {
-    @apply outline-0 border-1 border-solid border-(--color-princeton-black) text-white;
+    @apply outline-0 border-1 border-solid border-(--color-princeton-black) text-rust;
     box-shadow: inset 0 2px 4px 0 rgb(18,18,18,0.8);
   }
 }
