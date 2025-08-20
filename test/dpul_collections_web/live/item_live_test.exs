@@ -87,7 +87,9 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           genre_txtm: ["genre"],
           subject_txtm: ["subject"],
           width_txtm: ["10"],
-          height_txtm: ["20"]
+          height_txtm: ["20"],
+          description_txtm:
+            "This is a really really really long description that has a bunch of information which is too much for a bluesky tweet and so probably we should truncate it. I'm going to keep on rambling here, so that my stream of consciousness is caught in this test."
         },
         %{
           id: "similar-to-1-diff-project",
@@ -143,6 +145,68 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       assert_error_sent 404, fn ->
         get(conn, "/item/badid1")
       end
+    end
+  end
+
+  describe "og:metadata" do
+    test "displays og:metadata fields in the header", %{conn: conn} do
+      {:ok, _view, html} = live(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
+
+      {:ok, document} = Floki.parse_document(html)
+
+      assert document
+             |> Floki.find(
+               ~s{meta[property="og:title"][content="Învăţămîntul trebuie să urmărească dezvoltarea deplină a personalităţii"]}
+             )
+             |> Enum.any?()
+
+      assert document
+             |> Floki.find(
+               ~s{meta[property="og:image"][content="https://example.com/iiif/2/image2/full/!453,600/0/default.jpg"]}
+             )
+             |> Enum.any?()
+
+      assert document
+             |> Floki.find(
+               ~s{meta[property="og:description"][content="This is a test description"]}
+             )
+             |> Enum.any?()
+
+      assert document
+             |> Floki.find(~s{meta[property="og:url"][content="http://localhost:4002/item/1"]})
+             |> Enum.any?()
+    end
+
+    test "can handle no description", %{conn: conn} do
+      {:ok, _view, html} = live(conn, "/i/زلزلہ/item/2")
+
+      {:ok, document} = Floki.parse_document(html)
+
+      assert document |> Floki.find(~s{meta[property="og:title"][content="زلزلہ"]}) |> Enum.any?()
+
+      assert document
+             |> Floki.find(
+               ~s{meta[property="og:image"][content="https://example.com/iiif/2/image1/full/!453,800/0/default.jpg"]}
+             )
+             |> Enum.any?()
+
+      refute document |> Floki.find(~s{meta[property="og:description"]}) |> Enum.any?()
+
+      assert document
+             |> Floki.find(~s{meta[property="og:url"][content="http://localhost:4002/item/2"]})
+             |> Enum.any?()
+    end
+
+    test "can handle long descriptions", %{conn: conn} do
+      {:ok, _view, html} = live(conn, "/i/similar-item-same-project/item/similar-to-1")
+
+      {:ok, document} = Floki.parse_document(html)
+
+      assert document
+             |> Floki.find(
+               ~s{meta[property="og:description"][content="This is a really really really long description that has a bunch of information which is too much for a bluesky tweet and so probably we should truncate it. I'm going to keep on rambling here, so t..."]}
+             )
+             |> Enum.any?()
     end
   end
 

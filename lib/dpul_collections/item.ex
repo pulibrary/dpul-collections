@@ -1,4 +1,6 @@
 defmodule DpulCollections.Item do
+  alias DpulCollectionsWeb.Live.Helpers
+  alias DpulCollectionsWeb.BrowseItem
   use DpulCollectionsWeb, :verified_routes
   use Gettext, backend: DpulCollectionsWeb.Gettext
 
@@ -182,5 +184,24 @@ defmodule DpulCollections.Item do
       end
 
     {width, height}
+  end
+
+  def meta_properties(item = %{title: [title], description: description}) do
+    %{
+      "og:title" => title,
+      "og:description" => meta_description(description),
+      "og:image" =>
+        "#{item.primary_thumbnail_service_url}/full/!#{item.primary_thumbnail_width},#{item.primary_thumbnail_height}/0/default.jpg",
+      "og:url" => url(~p"/item/#{item.id}")
+    }
+    |> Helpers.clean_params()
+  end
+
+  def meta_properties(_item), do: %{}
+
+  def meta_description([]), do: nil
+
+  def meta_description([description | _rest]) do
+    description |> Helpers.truncate(200)
   end
 end
