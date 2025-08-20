@@ -1,6 +1,5 @@
 defmodule DpulCollections.Item do
   alias DpulCollectionsWeb.Live.Helpers
-  alias DpulCollectionsWeb.BrowseItem
   use DpulCollectionsWeb, :verified_routes
   use Gettext, backend: DpulCollectionsWeb.Gettext
 
