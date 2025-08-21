@@ -174,7 +174,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
 
   def primary_button(assigns = %{href: href, patch: patch}) when href != nil or patch != nil do
     ~H"""
-    <.link href={@href} patch={@patch} class={["btn-primary", @class]} {@rest}>
+    <.link href={@href} patch={@patch} disabled={@disabled} class={["btn-primary", @class]} {@rest}>
       {render_slot(@inner_block)}
     </.link>
     """
@@ -197,7 +197,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
 
   def secondary_button(assigns = %{href: href, patch: patch}) when href != nil or patch != nil do
     ~H"""
-    <.link href={@href} patch={@patch} class={["btn-secondary", @class]} {@rest}>
+    <.link href={@href} patch={@patch} disabled={@disabled} class={["btn-secondary", @class]} {@rest}>
       {render_slot(@inner_block)}
     </.link>
     """
@@ -205,15 +205,40 @@ defmodule DpulCollectionsWeb.CoreComponents do
 
   def secondary_button(assigns) do
     ~H"""
-    <button class={["btn-secondary", @class]} {@rest}>
+    <button disabled={@disabled} class={["btn-secondary", @class]} {@rest}>
       {render_slot(@inner_block)}
     </button>
     """
   end
 
+  slot :inner_block
+  attr :class, :any, default: nil
+  attr :href, :string, default: nil, doc: "link - if set it makes an anchor tag"
+  attr :patch, :string, default: nil, doc: "link - if set makes an anchor tag"
+  attr :disabled, :boolean, default: false
+  attr :rest, :global, include: ~w(replace), doc: "the arbitrary HTML attributes to add link"
+
+  def danger_button(assigns = %{href: href, patch: patch}) when href != nil or patch != nil do
+    ~H"""
+    <.link href={@href} patch={@patch} class={["btn-danger", @class]} disabled={@disabled} {@rest}>
+      {render_slot(@inner_block)}
+    </.link>
+    """
+  end
+
+  def danger_button(assigns) do
+    ~H"""
+    <button class={["btn-danger", @class]} disabled={@disabled} {@rest}>
+      {render_slot(@inner_block)}
+    </button>
+    """
+  end
+
+  attr :disabled, :boolean, default: false
+  
   def icon_button(assigns = %{navigate: navigate, icon: icon, button_text: button_text}) when navigate != nil do
     ~H"""
-    <.link navigate={@navigate} class={["btn-icon", @class]}>
+    <.link navigate={@navigate} disabled={@disabled} class={["btn-icon", @class]}>
       <.icon name={@icon} class="mt-1 h-8 w-8 icon" />
       <div class="mt-[-.25rem]">{@button_text}</div>
     </.link>
