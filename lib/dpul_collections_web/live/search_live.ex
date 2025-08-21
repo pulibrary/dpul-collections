@@ -94,7 +94,6 @@ defmodule DpulCollectionsWeb.SearchLive do
               value={@search_state.filter["year"]["to"]}
             />
             <.primary_button
-              name="apply_daterange_button"
               class="col-span-1 md:col-span-1"
               type="submit"
             >

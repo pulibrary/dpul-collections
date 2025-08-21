@@ -234,12 +234,17 @@ defmodule DpulCollectionsWeb.CoreComponents do
     """
   end
 
+  attr :class, :any, default: nil
   attr :disabled, :boolean, default: false
+  attr :navigate, :string, default: nil
+  attr :icon, :string, default: nil
+  attr :button_text, :string, default: nil
+  attr :aria_label, :string, default: nil
 
   def icon_button(assigns = %{navigate: navigate, icon: icon, button_text: button_text})
       when navigate != nil do
     ~H"""
-    <.link navigate={@navigate} disabled={@disabled} class={["btn-icon", @class]}>
+    <.link navigate={@navigate} aria-label={@aria_label} disabled={@disabled} class={["btn-icon", @class]}>
       <.icon name={@icon} class="mt-1 h-8 w-8 icon" />
       <div class="mt-[-.25rem]">{@button_text}</div>
     </.link>
