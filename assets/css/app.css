@@ -96,7 +96,7 @@
 
 .left-arrow-box {
   clip-path: polygon(100% 0%, 100% 100%, 40px 100%, 0% 50%, 40px 0%);
-  @apply pl-[20px] border-none;
+  @apply pl-[20px] border-none hover:bg-[#c5c6b5];
 }
 
 .right-arrow-box {
@@ -107,7 +107,7 @@
     100% 50%,
     calc(100% - 40px) 0%
   );
-  @apply pr-[20px] border-none;
+  @apply pr-[20px] border-none hover:bg-[#c5c6b5];
 }
 
 #search-form:focus-within #search-button {

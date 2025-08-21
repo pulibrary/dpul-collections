@@ -43,7 +43,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
               class="w-full h-14 w-full block"
               aria-label={gettext("more items")}
               navigate={@more_link}
-              icon={"hero-arrow-right-circle-solid"} 
+              icon="hero-arrow-right-circle-solid"
               button_text={gettext("more")}
             >
             </.icon_button>

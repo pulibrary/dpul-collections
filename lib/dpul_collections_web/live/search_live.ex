@@ -93,7 +93,11 @@ defmodule DpulCollectionsWeb.SearchLive do
               id="filter[year][to]"
               value={@search_state.filter["year"]["to"]}
             />
-            <.primary_button name="apply_daterange_button" class="col-span-1 md:col-span-1" type="submit">
+            <.primary_button
+              name="apply_daterange_button"
+              class="col-span-1 md:col-span-1"
+              type="submit"
+            >
               {gettext("Apply")}
             </.primary_button>
           </form>

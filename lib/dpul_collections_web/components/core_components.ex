@@ -235,8 +235,9 @@ defmodule DpulCollectionsWeb.CoreComponents do
   end
 
   attr :disabled, :boolean, default: false
-  
-  def icon_button(assigns = %{navigate: navigate, icon: icon, button_text: button_text}) when navigate != nil do
+
+  def icon_button(assigns = %{navigate: navigate, icon: icon, button_text: button_text})
+      when navigate != nil do
     ~H"""
     <.link navigate={@navigate} disabled={@disabled} class={["btn-icon", @class]}>
       <.icon name={@icon} class="mt-1 h-8 w-8 icon" />
