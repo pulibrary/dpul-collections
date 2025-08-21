@@ -195,6 +195,14 @@ defmodule DpulCollectionsWeb.CoreComponents do
   attr :disabled, :boolean, default: false
   attr :rest, :global, include: ~w(replace), doc: "the arbitrary HTML attributes to add link"
 
+  def secondary_button(assigns = %{href: href, patch: patch}) when href != nil or patch != nil do
+    ~H"""
+    <.link href={@href} patch={@patch} class={["btn-secondary", @class]} {@rest}>
+      {render_slot(@inner_block)}
+    </.link>
+    """
+  end
+
   def secondary_button(assigns) do
     ~H"""
     <button class={["btn-secondary", @class]} {@rest}>
@@ -203,20 +211,11 @@ defmodule DpulCollectionsWeb.CoreComponents do
     """
   end
 
-  def arrow_left_button(assigns = %{navigate: navigate}) when navigate != nil do
+  def icon_button(assigns = %{navigate: navigate, icon: icon, button_text: button_text}) when navigate != nil do
     ~H"""
-    <.link href={@href} class={["btn-arrow", @class]}>
-      <span><.icon name="arrow-circle-left" class="p-1 h-8 w-8 icon" /></span>
-      {render_slot(@inner_block)}
-    </.link>
-    """
-  end
-
-  def arrow_right_button(assigns = %{navigate: navigate}) when navigate != nil do
-    ~H"""
-    <.link navigate={@navigate} class={["btn-arrow", @class]}>
-      <span><.icon name="arrow-circle-right" class="p-1 h-8 w-8 icon" /></span>
-      {render_slot(@inner_block)}
+    <.link navigate={@navigate} class={["btn-icon", @class]}>
+      <.icon name={@icon} class="mt-1 h-8 w-8 icon" />
+      <div class="mt-[-.25rem]">{@button_text}</div>
     </.link>
     """
   end

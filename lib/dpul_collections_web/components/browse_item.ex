@@ -39,12 +39,14 @@ defmodule DpulCollectionsWeb.BrowseItem do
             />
           </div>
           <div :if={@more_link} class="w-12 flex-none content-center">
-            <.arrow_right_button
-              class="btn-arrow w-full h-14 w-full block"
+            <.icon_button
+              class="w-full h-14 w-full block"
               aria-label={gettext("more items")}
               navigate={@more_link}
+              icon={"hero-arrow-right-circle-solid"} 
+              button_text={gettext("more")}
             >
-            </.arrow_right_button>
+            </.icon_button>
           </div>
         </div>
         <div class="page-b-padding" />
