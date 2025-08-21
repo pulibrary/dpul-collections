@@ -15,10 +15,28 @@ const handleCanvasIdCallback = (activeCanvasId, pushEvent) => {
 const StyledViewer = styled("section", {
   ".clover-viewer-content > div": {
     "display": "grid",
-    "grid-template-columns": "1fr min-content"
+    "grid-template-columns": "min-content 1fr",
+    "gap": "1rem"
   },
   ".clover-viewer-media-wrapper > div[role='radiogroup']": {
-    "flex-direction": "column"
+    "flex-direction": "column",
+    "height": 0,
+    "overflow-x": "hidden",
+    "overflow-y": "scroll"
+  },
+  ".clover-viewer-painting": {
+    "grid-column-start": 2,
+    "grid-row-start": 1,
+  },
+  ".clover-viewer-media-wrapper": {
+    "grid-column-start": 1,
+    "grid-row-start": 1,
+    "display": "flex",
+    "flex-direction": "column",
+    "gap": "1rem"
+  },
+  ".clover-viewer-media-wrapper > div:first-child > div": {
+    "position": "unset",
   }
 })
 export default function DpulcViewer(props) {
