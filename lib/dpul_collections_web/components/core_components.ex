@@ -241,8 +241,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
   attr :button_text, :string, default: nil
   attr :aria_label, :string, default: nil
 
-  def icon_button(assigns = %{navigate: navigate, icon: icon, button_text: button_text})
-      when navigate != nil do
+  def icon_button(assigns) do
     ~H"""
     <.link
       navigate={@navigate}
