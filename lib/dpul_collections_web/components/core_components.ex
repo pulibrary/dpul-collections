@@ -244,27 +244,27 @@ defmodule DpulCollectionsWeb.CoreComponents do
   def icon_button(assigns = %{navigate: navigate, icon: icon, button_text: button_text})
       when navigate != nil do
     ~H"""
-    <.link navigate={@navigate} aria-label={@aria_label} disabled={@disabled} class={["btn-icon", @class]}>
+    <.link
+      navigate={@navigate}
+      aria-label={@aria_label}
+      disabled={@disabled}
+      class={["btn-icon", @class]}
+    >
       <.icon name={@icon} class="mt-1 h-8 w-8 icon" />
       <div class="mt-[-.25rem]">{@button_text}</div>
     </.link>
     """
   end
-end
 
-attr :properties, :map, default: %{}
+  attr :properties, :map, default: %{}
 
-def meta_properties(assigns) do
-  ~H"""
-  <meta
-    :for={{property_key, property_value} <- @properties}
-    property={property_key}
-    content={property_value}
-  />
-def secondary_button(assigns = %{href: href, patch: patch}) when href != nil or patch != nil do
-  ~H"""
-  <.link href={@href} patch={@patch} class={["btn-secondary", @class]} {@rest}>
-    {render_slot(@inner_block)}
-  </.link>
-  """
+  def meta_properties(assigns) do
+    ~H"""
+    <meta
+      :for={{property_key, property_value} <- @properties}
+      property={property_key}
+      content={property_value}
+    />
+    """
+  end
 end
