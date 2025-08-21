@@ -187,4 +187,16 @@ defmodule DpulCollectionsWeb.CoreComponents do
     </button>
     """
   end
+
+  attr :properties, :map, default: %{}
+
+  def meta_properties(assigns) do
+    ~H"""
+    <meta
+      :for={{property_key, property_value} <- @properties}
+      property={property_key}
+      content={property_value}
+    />
+    """
+  end
 end
