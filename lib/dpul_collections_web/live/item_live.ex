@@ -305,7 +305,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       phx-key="escape"
       phx-hook="ScrollTop"
     >
-      <div class="header-x-padding page-y-padding bg-accent flex flex-row">
+      <div id="viewer-header" class="header-x-padding page-y-padding bg-accent flex flex-row">
         <div class="flex-auto flex flex-row">
           <h1 class="uppercase text-light-text flex-none">{gettext("Viewer")}</h1>
           <.action_icon
