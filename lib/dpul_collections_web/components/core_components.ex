@@ -174,13 +174,23 @@ defmodule DpulCollectionsWeb.CoreComponents do
 
   def primary_button(assigns = %{href: href, patch: patch}) when href != nil or patch != nil do
     ~H"""
-    <span :if={@disabled} class={[
-      "disabled",
-      @class
-    ]}>
+    <span
+      :if={@disabled}
+      class={[
+        "disabled",
+        @class
+      ]}
+    >
       {render_slot(@inner_block)}
     </span>
-    <.link :if={!@disabled} href={@href} patch={@patch} disabled={@disabled} class={["btn-primary", @class]} {@rest}>
+    <.link
+      :if={!@disabled}
+      href={@href}
+      patch={@patch}
+      disabled={@disabled}
+      class={["btn-primary", @class]}
+      {@rest}
+    >
       {render_slot(@inner_block)}
     </.link>
     """
@@ -203,14 +213,24 @@ defmodule DpulCollectionsWeb.CoreComponents do
 
   def secondary_button(assigns = %{href: href, patch: patch}) when href != nil or patch != nil do
     ~H"""
-    <span :if={@disabled} class={[
-      "btn-secondary",
-      "disabled",
-      @class
-    ]}>
+    <span
+      :if={@disabled}
+      class={[
+        "btn-secondary",
+        "disabled",
+        @class
+      ]}
+    >
       {render_slot(@inner_block)}
     </span>
-    <.link :if={!@disabled} href={@href} patch={@patch} disabled={@disabled} class={["btn-secondary", @class]} {@rest}>
+    <.link
+      :if={!@disabled}
+      href={@href}
+      patch={@patch}
+      disabled={@disabled}
+      class={["btn-secondary", @class]}
+      {@rest}
+    >
       {render_slot(@inner_block)}
     </.link>
     """
@@ -233,14 +253,24 @@ defmodule DpulCollectionsWeb.CoreComponents do
 
   def danger_button(assigns = %{href: href, patch: patch}) when href != nil or patch != nil do
     ~H"""
-    <span :if={@disabled} class={[
-      "btn-danger",
-      "disabled",
-      @class
-    ]}>
+    <span
+      :if={@disabled}
+      class={[
+        "btn-danger",
+        "disabled",
+        @class
+      ]}
+    >
       {render_slot(@inner_block)}
     </span>
-    <.link :if={!@disabled} href={@href} patch={@patch} class={["btn-danger", @class]} disabled={@disabled} {@rest}>
+    <.link
+      :if={!@disabled}
+      href={@href}
+      patch={@patch}
+      class={["btn-danger", @class]}
+      disabled={@disabled}
+      {@rest}
+    >
       {render_slot(@inner_block)}
     </.link>
     """
@@ -257,13 +287,29 @@ defmodule DpulCollectionsWeb.CoreComponents do
   attr :class, :any, default: nil
   attr :disabled, :boolean, default: false
   attr :navigate, :string, default: nil
+  attr :href, :string, default: nil
+  attr :patch, :string, default: nil
   attr :icon, :string, default: nil
   attr :button_text, :string, default: nil
   attr :aria_label, :string, default: nil
 
   def icon_button(assigns) do
     ~H"""
+    <span
+      :if={@disabled}
+      class={[
+        "btn-icon",
+        "disabled",
+        @class
+      ]}
+    >
+      <.icon name={@icon} class="mt-1 h-8 w-8 icon" />
+      <div class="mt-[-.25rem]">{@button_text}</div>
+    </span>
     <.link
+      :if={!@disabled}
+      href={@href}
+      patch={@patch}
       navigate={@navigate}
       aria-label={@aria_label}
       disabled={@disabled}
