@@ -283,7 +283,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     Solr.commit()
 
-    {:ok, view, _html} = live(conn, "/search?sort_by=date_desc&page=11")
+    {:ok, view, _html} = live(conn, "/search?sort_by=date_desc&page=3")
 
     assert view
            |> has_element?(~s{a[href="/i/documentnildate/item/nildate"]})
@@ -291,7 +291,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert view
            |> has_element?(~s{a[href="/i/documentemptydate/item/emptydate"]})
 
-    {:ok, view, _document} = live(conn, "/search?sort_by=date_asc&page=11")
+    {:ok, view, _document} = live(conn, "/search?sort_by=date_asc&page=3")
 
     assert view
            |> has_element?(~s{a[href="/i/documentnildate/item/nildate"]})
@@ -388,7 +388,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert view |> has_element?("#paginator-next")
 
     # Check that the previous and next links are displayed and work as expected
-    {:ok, view, _html} = live(conn, ~p"/search?page=5")
+    {:ok, view, _html} = live(conn, ~p"/search?page=5&per_page=10")
     assert(view |> element(".paginator > span.active", ~r(5)) |> has_element?())
 
     {:ok, document} =
@@ -403,7 +403,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Floki.find(~s{a[href="/i/document40/item/40"]})
            |> Enum.any?()
 
-    {:ok, view, _html} = live(conn, ~p"/search?page=4")
+    {:ok, view, _html} = live(conn, ~p"/search?page=4&per_page=10")
 
     {:ok, document} =
       view
@@ -418,7 +418,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Enum.any?()
 
     # Check that the next link is hidden on the last page
-    {:ok, view, _html} = live(conn, ~p"/search?page=10")
+    {:ok, view, _html} = live(conn, ~p"/search?page=10&per_page=10")
     assert view |> has_element?("#paginator-previous")
     assert !(view |> has_element?("#paginator-next"))
 
@@ -426,7 +426,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert view |> has_element?("span", "...")
 
     # Check that changing the sort order resets the paginator
-    {:ok, view, _html} = live(conn, ~p"/search?page=10")
+    {:ok, view, _html} = live(conn, ~p"/search?page=10&per_page=10")
 
     {:ok, document} =
       view |> render() |> Floki.parse_document()
@@ -453,7 +453,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Enum.empty?()
 
     # Check that changing search query resets the paginator
-    {:ok, view, _html} = live(conn, ~p"/search?page=10")
+    {:ok, view, _html} = live(conn, ~p"/search?page=10&per_page=10")
 
     {:ok, document} =
       view
@@ -472,7 +472,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Enum.empty?()
 
     # Check that updating the date query resets the paginator
-    {:ok, view, _html} = live(conn, ~p"/search?page=10")
+    {:ok, view, _html} = live(conn, ~p"/search?page=10&per_page=10")
 
     {:ok, document} =
       view
