@@ -13,4 +13,29 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerSource do
       cache_version
     )
   end
+
+  def init(%{cache_version: cache_version}) do
+    # Listen for batch_processor stops, so we know when a transformer we care about
+    # is done.
+    producer_pid = self()
+
+    :telemetry.attach(
+      "transformation-listener-#{producer_pid |> :erlang.pid_to_list()}",
+      [:broadway, :batch_processor, :stop],
+      &handle_batch_closed(&1, &2, &3, &4, cache_version),
+      %{producer_pid: producer_pid}
+    )
+  end
+
+  defp handle_batch_closed(
+         _event,
+         _measurements,
+         %{context: %{type: :figgy_transformer, cache_version: cache_version}},
+         %{producer_pid: producer_pid},
+         cache_version
+       ) do
+    send(producer_pid, :check_for_updates)
+  end
+
+  defp handle_batch_closed(_event, _measurements, _metadata, _config, _cache_version), do: nil
 end
