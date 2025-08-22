@@ -174,7 +174,13 @@ defmodule DpulCollectionsWeb.CoreComponents do
 
   def primary_button(assigns = %{href: href, patch: patch}) when href != nil or patch != nil do
     ~H"""
-    <.link href={@href} patch={@patch} disabled={@disabled} class={["btn-primary", @class]} {@rest}>
+    <span :if={@disabled} class={[
+      "disabled",
+      @class
+    ]}>
+      {render_slot(@inner_block)}
+    </span>
+    <.link :if={!@disabled} href={@href} patch={@patch} disabled={@disabled} class={["btn-primary", @class]} {@rest}>
       {render_slot(@inner_block)}
     </.link>
     """
@@ -197,7 +203,14 @@ defmodule DpulCollectionsWeb.CoreComponents do
 
   def secondary_button(assigns = %{href: href, patch: patch}) when href != nil or patch != nil do
     ~H"""
-    <.link href={@href} patch={@patch} disabled={@disabled} class={["btn-secondary", @class]} {@rest}>
+    <span :if={@disabled} class={[
+      "btn-secondary",
+      "disabled",
+      @class
+    ]}>
+      {render_slot(@inner_block)}
+    </span>
+    <.link :if={!@disabled} href={@href} patch={@patch} disabled={@disabled} class={["btn-secondary", @class]} {@rest}>
       {render_slot(@inner_block)}
     </.link>
     """
@@ -220,7 +233,14 @@ defmodule DpulCollectionsWeb.CoreComponents do
 
   def danger_button(assigns = %{href: href, patch: patch}) when href != nil or patch != nil do
     ~H"""
-    <.link href={@href} patch={@patch} class={["btn-danger", @class]} disabled={@disabled} {@rest}>
+    <span :if={@disabled} class={[
+      "btn-danger",
+      "disabled",
+      @class
+    ]}>
+      {render_slot(@inner_block)}
+    </span>
+    <.link :if={!@disabled} href={@href} patch={@patch} class={["btn-danger", @class]} disabled={@disabled} {@rest}>
       {render_slot(@inner_block)}
     </.link>
     """

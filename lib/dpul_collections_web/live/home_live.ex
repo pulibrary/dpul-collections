@@ -424,9 +424,9 @@ defmodule DpulCollectionsWeb.HomeLive do
               |> Phoenix.HTML.raw()}
             </div>
             <div class="content-area bg-primary text-light-text px-0 text-2xl">
-              <.primary_button href={~p"/browse"} class="px-8">
+              <.secondary_button href={~p"/browse"} class="px-8">
                 {gettext("Explore")}
-              </.primary_button>
+              </.secondary_button>
             </div>
           </div>
         </div>

@@ -84,6 +84,10 @@
   @apply text-dark-text;
 }
 
+.disabled {
+  @apply border-1 border-solid border-(--color-princeton-black) flex justify-center items-center text-center font-bold *:font-bold h-14 text-nowrap uppercase cursor-not-allowed opacity-50 shadow-none;
+}
+
 .browse-link {
   padding-left: 60px;
   clip-path: polygon(0 50.72px,50.72px 0%, 100% 0%, 100% 100%, 0% 100%);
@@ -139,7 +143,7 @@
 }
 
 @utility btn-base { 
-  @apply border-1 border-solid border-(--color-princeton-black) flex justify-center items-center text-center text-dark-text font-bold *:font-bold h-14 text-nowrap uppercase cursor-pointer active:enabled:text-rust;
+  @apply border-1 border-solid border-(--color-princeton-black) flex justify-center items-center text-center font-bold *:font-bold h-14 text-nowrap uppercase cursor-pointer active:enabled:text-rust;
   &:hover {
     @apply shadow-[0_3px_3px_1px_rgba(18,18,18,0.5)] no-underline;
   }
@@ -150,27 +154,30 @@
     @apply border-4 border-accent outline-accent;
   }
   &:active {
-    @apply outline-0 border-1 border-solid border-(--color-princeton-black) text-rust;
+    @apply outline-0 border-1 border-solid border-(--color-princeton-black);
     box-shadow: inset 0 2px 4px 0 rgb(18,18,18,0.8);
   }
   &:disabled {
-    @apply cursor-not-allowed opacity-50 shadow-none text-[#333333];
+    @apply cursor-not-allowed opacity-50 shadow-none;
   }
 }
 
 @utility btn-primary {
-  @apply btn-base bg-primary;
+  @apply btn-base bg-primary text-dark-text disabled:text-[#333333];
   &:hover {
     @apply enabled:bg-[#c5c6b5]
   }
 }
 
 @utility btn-secondary {
-  @apply btn-base bg-cloud hover:enabled:bg-[#e1e2e5];
+  @apply btn-base bg-cloud text-dark-text hover:enabled:bg-[#e1e2e5] disabled:text-[#333333];
 }
 
 @utility btn-danger {
-  @apply btn-base bg-rust text-light-text hover:enabled:bg-[#c67355] active:enabled:text-light-text active:enabled:bg-rust disabled:text-light-text;
+  @apply btn-base bg-rust text-light-text hover:enabled:bg-[#c67355] active:enabled:bg-rust;
+  &:disabled {
+    @apply cursor-not-allowed opacity-50 shadow-none;
+  }
 }
 
 @utility btn-icon {
