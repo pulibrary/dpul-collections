@@ -57,6 +57,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
       |> visit("/i/document1/item/1/viewer/1")
       |> stub_clipboard
       |> assert_has("h1", text: "Viewer")
+      |> assert_has("title", text: "Viewer")
       |> refute_has("#viewer-share-modal")
       |> refute_has("#item-wrap")
       |> within("#viewer-header", fn session ->
@@ -84,7 +85,9 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
       |> assert_path("/i/document1/item/1/viewer/1")
       # can still also close the viewer pane
       |> Playwright.press("#viewer-pane", "Escape")
+      |> assert_has("title", text: "Document-1 - Digital Collections", exact: true)
       |> refute_has("#viewer-pane")
+      |> assert_has("#item-wrap")
       |> assert_path("/i/document1/item/1")
     end
 
