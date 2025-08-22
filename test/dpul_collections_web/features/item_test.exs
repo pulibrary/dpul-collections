@@ -56,6 +56,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
       conn
       |> visit("/i/document1/item/1/viewer")
       |> stub_clipboard
+      |> assert_path("/i/document1/item/1/viewer/1")
       |> refute_has("#viewer-share-modal")
       # opens the modal
       |> click_button("Share")
