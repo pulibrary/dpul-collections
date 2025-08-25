@@ -183,14 +183,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
     >
       {render_slot(@inner_block)}
     </span>
-    <.link
-      :if={!@disabled}
-      href={@href}
-      patch={@patch}
-      disabled={@disabled}
-      class={["btn-primary", @class]}
-      {@rest}
-    >
+    <.link :if={!@disabled} href={@href} patch={@patch} class={["btn-primary", @class]} {@rest}>
       {render_slot(@inner_block)}
     </.link>
     """
@@ -223,14 +216,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
     >
       {render_slot(@inner_block)}
     </span>
-    <.link
-      :if={!@disabled}
-      href={@href}
-      patch={@patch}
-      disabled={@disabled}
-      class={["btn-secondary", @class]}
-      {@rest}
-    >
+    <.link :if={!@disabled} href={@href} patch={@patch} class={["btn-secondary", @class]} {@rest}>
       {render_slot(@inner_block)}
     </.link>
     """
@@ -263,14 +249,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
     >
       {render_slot(@inner_block)}
     </span>
-    <.link
-      :if={!@disabled}
-      href={@href}
-      patch={@patch}
-      class={["btn-danger", @class]}
-      disabled={@disabled}
-      {@rest}
-    >
+    <.link :if={!@disabled} href={@href} patch={@patch} class={["btn-danger", @class]} {@rest}>
       {render_slot(@inner_block)}
     </.link>
     """
@@ -312,7 +291,6 @@ defmodule DpulCollectionsWeb.CoreComponents do
       patch={@patch}
       navigate={@navigate}
       aria-label={@aria_label}
-      disabled={@disabled}
       class={["btn-icon", @class]}
     >
       <.icon name={@icon} class="mt-1 h-8 w-8 icon" />

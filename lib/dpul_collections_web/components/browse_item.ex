@@ -45,8 +45,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
               navigate={@more_link}
               icon="hero-arrow-right-circle-solid"
               button_text={gettext("more")}
-            >
-            </.icon_button>
+            />
           </div>
         </div>
         <div class="page-b-padding" />
