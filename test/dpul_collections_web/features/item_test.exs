@@ -54,11 +54,17 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
 
     test "viewer pane can copy current url", %{conn: conn} do
       conn
-      |> visit("/i/document1/item/1/viewer")
+      |> visit("/i/document1/item/1/viewer/1")
       |> stub_clipboard
+      |> assert_has("h1", text: "Viewer")
+      |> assert_has("title", text: "Viewer")
       |> refute_has("#viewer-share-modal")
+      |> refute_has("#item-wrap")
+      |> within("#viewer-header", fn session ->
+        session
+        |> click_button("Share")
+      end)
       # opens the modal
-      |> click_button("Share")
       |> assert_has("#viewer-share-modal h3", text: "Share this image")
       |> assert_has("#viewer-share-modal-value",
         text: "http://localhost:4002/i/document1/item/1/viewer/1"
@@ -68,14 +74,20 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
       |> click_button("close")
       |> refute_has("#viewer-share-modal")
       # Escape closes the modal
-      |> click_button("Share")
+      |> within("#viewer-header", fn session ->
+        session
+        |> click_button("Share")
+      end)
       |> assert_has("#viewer-share-modal h3", text: "Share this image")
       |> Playwright.press("#viewer-share-modal", "Escape")
-      |> refute_has("#viewer-share-modal")
-      |> assert_path("/i/document1/item/1/viewer/1")
+      |> refute_has("#viewer-share-modal h3")
       |> assert_has("#viewer-pane")
+      |> assert_path("/i/document1/item/1/viewer/1")
       # can still also close the viewer pane
       |> Playwright.press("#viewer-pane", "Escape")
+      |> assert_has("title", text: "Document-1 - Digital Collections", exact: true)
+      |> refute_has("#viewer-pane")
+      |> assert_has("#item-wrap")
       |> assert_path("/i/document1/item/1")
     end
 
