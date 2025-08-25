@@ -555,7 +555,9 @@ defmodule DpulCollectionsWeb.ItemLive do
             patch={"#{@item.viewer_url}/1"}
             replace
           >
-            <.icon name="hero-eye" /> {gettext("View")}
+            <span class="w-max flex gap-2 text-sm sm:text-base">
+              <.icon name="hero-eye" /> {gettext("View")}
+            </span>
           </.primary_button>
 
           <.download_button item={@item} />
