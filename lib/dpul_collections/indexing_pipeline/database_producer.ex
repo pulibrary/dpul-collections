@@ -43,6 +43,8 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
       source_module: source_module
     }
 
+    source_module.init(initial_state)
+
     {:producer, initial_state}
   end
 
@@ -85,9 +87,11 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
       |> Map.put(:stored_demand, calculate_stored_demand(total_demand, length(records)))
 
     # Set a timer to try fulfilling demand again later
+    # This shouldn't be necessary with the notifications, but is a useful
+    # fallback.
     if new_state.stored_demand > 0 do
       DpulCollections.IndexMetricsTracker.register_polling_started(source_module, cache_version)
-      Process.send_after(self(), :check_for_updates, 50)
+      Process.send_after(self(), :check_for_updates, 60000)
     end
 
     {:noreply, Enum.map(records, &wrap_record/1), new_state}

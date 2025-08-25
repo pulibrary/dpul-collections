@@ -47,7 +47,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
       ],
       context: %{
         cache_version: options[:cache_version],
-        solr_index: options[:solr_index]
+        solr_index: options[:solr_index],
+        type: :figgy_indexer
       }
     )
   end

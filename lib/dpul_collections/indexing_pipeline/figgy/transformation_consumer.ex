@@ -42,7 +42,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
         default: [batch_size: options[:batch_size]],
         noop: [concurrency: 5, batch_size: options[:batch_size]]
       ],
-      context: %{cache_version: options[:cache_version]}
+      context: %{cache_version: options[:cache_version], type: :figgy_transformer}
     )
   end
 

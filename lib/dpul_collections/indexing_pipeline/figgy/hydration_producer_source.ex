@@ -8,4 +8,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationProducerSource do
   def get_cache_entries_since!(last_queried_marker, total_demand, _cache_version) do
     IndexingPipeline.get_figgy_resources_since!(last_queried_marker, total_demand)
   end
+
+  def init(_producer_state) do
+  end
 end
