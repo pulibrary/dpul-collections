@@ -332,7 +332,8 @@ defmodule DpulCollectionsWeb.ItemLive do
           {live_react_component(
             "Components.DpulcViewer",
             [
-              iiifContent: unverified_url(DpulCollectionsWeb.Endpoint, @current_content_state_url)
+              iiifContent: unverified_url(DpulCollectionsWeb.Endpoint, @current_content_state_url),
+              contentCanvasIndex: @current_canvas_idx
             ],
             id: "viewer-component"
           )}
