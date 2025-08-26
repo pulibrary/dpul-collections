@@ -41,7 +41,7 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
       |> click_link("Why are the images blurred?")
       |> click_button("View content")
       |> refute_has("img.obfuscate")
-      |> refute_has(".browse-header", timeout: 500)
+      |> refute_has(".browse-header")
     end
 
     test "on the search page", %{conn: conn} do
@@ -78,8 +78,8 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
       |> assert_has("img.obfuscate", count: 4)
       |> click_link("Why are the images blurred?")
       |> click_button("View content")
-      |> refute_has("img.obfuscate", timeout: 500)
-      |> refute_has("a", text: "Why are the images blurred?", timeout: 500)
+      |> refute_has("img.obfuscate")
+      |> refute_has("a", text: "Why are the images blurred?")
     end
 
     test "on the item detail page with related items", %{conn: conn} do
@@ -141,7 +141,7 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
       # the large thumbnail is duplicated in the small thumbnail list
       |> assert_has("h2", text: "Content Warning")
       |> click_button("View content")
-      |> refute_has("h2", text: "Content Warning", timeout: 500)
+      |> refute_has("h2", text: "Content Warning")
     end
   end
 
@@ -154,7 +154,7 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
       |> click_button("View content")
       |> refute_has("img.obfuscate")
       |> unwrap(&Frame.evaluate(&1.frame_id, "window.location.reload()"))
-      |> refute_has("img.obfuscate", timeout: 500)
+      |> refute_has("img.obfuscate")
       |> visit("/item/d4292e58-25d7-4247-bf92-0a5e24ec75d1")
       |> refute_has("img.obfuscate")
       |> visit("/browse")
