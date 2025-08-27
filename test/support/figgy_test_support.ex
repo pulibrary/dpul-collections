@@ -111,20 +111,20 @@ defmodule FiggyTestSupport do
     {:ok, indexer} =
       Figgy.IndexingConsumer.start_link(
         cache_version: cache_version,
-        batch_size: 50,
+        batch_size: 1,
         solr_index: SolrTestSupport.active_collection()
       )
 
     {:ok, tracker_pid} = GenServer.start_link(AckTracker, self())
 
     {:ok, transformer} =
-      Figgy.TransformationConsumer.start_link(cache_version: cache_version, batch_size: 50)
+      Figgy.TransformationConsumer.start_link(cache_version: cache_version, batch_size: 1)
 
     # Control hydration indexing.
     {:ok, hydrator} =
       Figgy.HydrationConsumer.start_link(
         cache_version: cache_version,
-        batch_size: 50,
+        batch_size: 1,
         producer_module: MockFiggyHydrationProducer,
         producer_options: {self(), 1}
       )
