@@ -2,6 +2,7 @@ import Viewer from "@samvera/clover-iiif/viewer";
 import React from 'react';
 import Loader from './loader';
 import { createStitches } from '@stitches/react';
+import DownloadButton from "./download_button"
 const { styled } = createStitches({
   media: {
     sm: '(min-width: 640px)',
@@ -50,6 +51,12 @@ const scrollThumbnail = (activeCanvasId, loadedCanvasIdx) => {
 }
 
 const StyledViewer = styled("section", {
+  ".clover-viewer-header": {
+    "display": "none"
+  },
+  ".clover-viewer-media-wrapper": {
+    "padding-top": "10px"
+  },
   "@sm": {
     ".clover-viewer-content > div": {
       "display": "grid",
@@ -83,12 +90,23 @@ const StyledViewer = styled("section", {
     }
   }
 })
+
+const downloadPlugin = {
+  id: "download-button",
+  imageViewer: {
+    controls: {
+      component: DownloadButton,
+    },
+  },
+};
+
 export default function DpulcViewer(props) {
   return (
     <>
     <StyledViewer>
     <Viewer
-    canvasIdCallback={(activeCanvasId) => { handleCanvasIdCallback(activeCanvasId, props.contentCanvasIndex, props.pushEvent) }}
+      canvasIdCallback={(activeCanvasId) => { handleCanvasIdCallback(activeCanvasId, props.contentCanvasIndex, props.pushEvent) }}
+      plugins={[downloadPlugin]}
       options={
         {
           canvasHeight: "auto",

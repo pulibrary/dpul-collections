@@ -8,6 +8,7 @@
   "main": "tailwind_heroicons.js",
   "dependencies": {
     "@samvera/clover-iiif": "^2.16.9",
+    "@samvera/image-downloader": "^1.1.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

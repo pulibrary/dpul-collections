@@ -307,7 +307,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     >
       <div id="viewer-header" class="header-x-padding page-y-padding bg-accent flex flex-row">
         <div class="flex-auto flex flex-row">
-          <h1 class="uppercase text-light-text flex-none">{gettext("Viewer")}</h1>
+          <h1 class="uppercase text-light-text flex-none">{gettext("Viewer")} - {@item.title}</h1>
           <.action_icon
             icon="hero-share"
             phx-click={show_viewer_share_modal()}
