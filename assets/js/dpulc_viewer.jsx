@@ -23,6 +23,7 @@ const handleCanvasIdCallback = (activeCanvasId, loadedCanvasIdx, pushEvent) => {
   }
 };
 
+// Clover scrolls the thumbnail bar horizontally already in https://github.com/samvera-labs/clover-iiif/blob/03d6a9292a4d60ff2b6524a5579af34ad30dc3b2/src/components/Viewer/Media/Media.tsx#L76-L81, but we need to handle vertical scroll.
 const scrollThumbnail = (activeCanvasId, loadedCanvasIdx) => {
   const canvasThumbnail = document.querySelector(`button[value='${activeCanvasId}']`)
   if(canvasThumbnail) {
