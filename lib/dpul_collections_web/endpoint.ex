@@ -22,7 +22,7 @@ defmodule DpulCollectionsWeb.Endpoint do
   plug Plug.Static,
     at: "/",
     from: :dpul_collections,
-    gzip: false,
+    gzip: not code_reloading?,
     only: DpulCollectionsWeb.static_paths()
 
   # Code reloading can be explicitly enabled under the

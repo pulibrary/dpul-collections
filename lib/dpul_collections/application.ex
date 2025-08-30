@@ -16,8 +16,6 @@ defmodule DpulCollections.Application do
         {DNSCluster,
          query: Application.get_env(:dpul_collections, :dns_cluster_query) || :ignore},
         {Phoenix.PubSub, name: DpulCollections.PubSub},
-        # Start the Finch HTTP client for sending emails
-        {Finch, name: DpulCollections.Finch},
         {Oban, Application.fetch_env!(:dpul_collections, Oban)},
         # Start a worker by calling: DpulCollections.Worker.start_link(arg)
         # {DpulCollections.Worker, arg},

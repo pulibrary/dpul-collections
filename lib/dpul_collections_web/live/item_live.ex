@@ -9,7 +9,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   alias DpulCollectionsWeb.ContentWarnings
 
   def mount(_params, _session, socket) do
-    {:ok, socket, layout: {DpulCollectionsWeb.Layouts, :home}}
+    {:ok, socket}
   end
 
   def handle_params(params = %{"id" => id}, uri, socket) do
@@ -94,17 +94,19 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def render(assigns) do
     ~H"""
-    <div id="item-wrap" class="grid grid-rows-[1fr/1fr] grid-cols-[1fr/1fr]">
-      <.item_page {assigns} />
-    </div>
-    <.metadata_pane :if={@live_action == :metadata} item={@item} />
-    <.viewer_pane
-      :if={@live_action == :viewer}
-      item={@item}
-      current_canvas_idx={@current_canvas_idx}
-      current_content_state_url={@current_content_state_url}
-      {assigns}
-    />
+    <Layouts.app flash={@flash} content_class={}>
+      <div id="item-wrap" class="grid grid-rows-[1fr/1fr] grid-cols-[1fr/1fr]">
+        <.item_page {assigns} />
+      </div>
+      <.metadata_pane :if={@live_action == :metadata} item={@item} />
+      <.viewer_pane
+        :if={@live_action == :viewer}
+        item={@item}
+        current_canvas_idx={@current_canvas_idx}
+        current_content_state_url={@current_content_state_url}
+        {assigns}
+      />
+    </Layouts.app>
     """
   end
 

@@ -42,12 +42,16 @@ config :esbuild,
   version: "0.17.11",
   dpul_collections: [
     args:
-      ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
+      ~w(js/app.js --bundle --target=es2022 --outdir=../priv/static/assets/js --external:/fonts/* --external:/images/* --alias:@=.),
     cd: Path.expand("../assets", __DIR__),
     env: %{
       "NODE_PATH" =>
         Enum.join(
-          [Path.expand("../deps", __DIR__), Path.expand("../assets/node_modules", __DIR__)],
+          [
+            Path.expand("../deps", __DIR__),
+            Path.expand("../assets/node_modules", __DIR__),
+            Mix.Project.build_path()
+          ],
           ":"
         )
     }
@@ -55,17 +59,17 @@ config :esbuild,
 
 # Configure tailwind (the version is required)
 config :tailwind,
-  version: "4.0.9",
+  version: "4.1.7",
   dpul_collections: [
     args: ~w(
       --input=assets/css/app.css
-      --output=priv/static/assets/app.css
+      --output=priv/static/assets/css/app.css
     ),
     cd: Path.expand("..", __DIR__)
   ]
 
 # Configures Elixir's Logger
-config :logger, :console,
+config :logger, :default_formatter,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 

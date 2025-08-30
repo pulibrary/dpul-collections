@@ -61,88 +61,90 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def render(assigns) do
     ~H"""
-    <section class="content-area">
-      <.results_for_keywords_heading keywords={@search_state.q} />
-      <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
-        <div id="filters" class="grid md:grid-cols-[auto_300px] gap-2">
-          <form
-            id="date-filter"
-            phx-submit="filter-date"
-            class="grid md:grid-cols-[150px_200px_200px_200px] gap-2"
-          >
-            <label class="col-span-1 self-center font-bold uppercase" for="date-filter">
-              {gettext("filter by year")}:
-            </label>
-            <label class="sr-only" for="filter[year][from]">{gettext("From")}</label>
-            <input
-              class="col-span-1"
-              type="text"
-              placeholder={gettext("From")}
-              form="date-filter"
-              name="filter[year][from]"
-              id="filter[year][from]"
-              value={@search_state.filter["year"]["from"]}
-            />
-            <label class="sr-only" for="filter[year][to]">{gettext("To")}</label>
-            <input
-              class="col-span-1"
-              type="text"
-              placeholder={gettext("To")}
-              form="date-filter"
-              name="filter[year][to]"
-              id="filter[year][to]"
-              value={@search_state.filter["year"]["to"]}
-            />
-            <button class="col-span-1 md:col-span-1 btn-primary" type="submit">
-              {gettext("Apply")}
-            </button>
-          </form>
-          <form id="sort-form" class="grid md:grid-cols-[auto_200px] gap-2" phx-change="sort">
-            <label class="col-span-1 self-center font-bold uppercase md:text-right" for="sort-by">
-              {gettext("sort by")}:
-            </label>
-            <select id="sort-by" class="col-span-1" name="sort-by" aria-label={gettext("sort by")}>
-              {Phoenix.HTML.Form.options_for_select(
-                sort_by_params(),
-                @search_state.sort_by
-              )}
-            </select>
-          </form>
-          <form id="filter-pills">
-            <div class="my-8 select-none flex flex-wrap gap-4">
-              <.filter
-                :for={{filter_field, filter_settings} <- filter_configuration()}
-                search_state={@search_state}
-                field={filter_field}
-                label={filter_settings.label}
-                filter_value={filter_settings.value_function.(@search_state.filter[filter_field])}
+    <Layouts.app flash={@flash}>
+      <section class="content-area">
+        <.results_for_keywords_heading keywords={@search_state.q} />
+        <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
+          <div id="filters" class="grid md:grid-cols-[auto_300px] gap-2">
+            <form
+              id="date-filter"
+              phx-submit="filter-date"
+              class="grid md:grid-cols-[150px_200px_200px_200px] gap-2"
+            >
+              <label class="col-span-1 self-center font-bold uppercase" for="date-filter">
+                {gettext("filter by year")}:
+              </label>
+              <label class="sr-only" for="filter[year][from]">{gettext("From")}</label>
+              <input
+                class="col-span-1"
+                type="text"
+                placeholder={gettext("From")}
+                form="date-filter"
+                name="filter[year][from]"
+                id="filter[year][from]"
+                value={@search_state.filter["year"]["from"]}
               />
-            </div>
-          </form>
+              <label class="sr-only" for="filter[year][to]">{gettext("To")}</label>
+              <input
+                class="col-span-1"
+                type="text"
+                placeholder={gettext("To")}
+                form="date-filter"
+                name="filter[year][to]"
+                id="filter[year][to]"
+                value={@search_state.filter["year"]["to"]}
+              />
+              <button class="col-span-1 md:col-span-1 btn-primary" type="submit">
+                {gettext("Apply")}
+              </button>
+            </form>
+            <form id="sort-form" class="grid md:grid-cols-[auto_200px] gap-2" phx-change="sort">
+              <label class="col-span-1 self-center font-bold uppercase md:text-right" for="sort-by">
+                {gettext("sort by")}:
+              </label>
+              <select id="sort-by" class="col-span-1" name="sort-by" aria-label={gettext("sort by")}>
+                {Phoenix.HTML.Form.options_for_select(
+                  sort_by_params(),
+                  @search_state.sort_by
+                )}
+              </select>
+            </form>
+            <form id="filter-pills">
+              <div class="my-8 select-none flex flex-wrap gap-4">
+                <.filter
+                  :for={{filter_field, filter_settings} <- filter_configuration()}
+                  search_state={@search_state}
+                  field={filter_field}
+                  label={filter_settings.label}
+                  filter_value={filter_settings.value_function.(@search_state.filter[filter_field])}
+                />
+              </div>
+            </form>
+          </div>
+          <div id="item-counter">
+            <span>{@item_counter}</span>
+          </div>
         </div>
-        <div id="item-counter">
-          <span>{@item_counter}</span>
+        <div class="grid grid-flow-row auto-rows-max gap-8">
+          <div :for={item <- @items}>
+            <hr aria-hidden="true" class="mb-8" />
+            <.search_item
+              search_state={@search_state}
+              item={item}
+              sort_by={@search_state.sort_by}
+              show_images={@show_images}
+            />
+          </div>
         </div>
-      </div>
-      <div class="grid grid-flow-row auto-rows-max gap-8">
-        <div :for={item <- @items}>
-          <hr aria-hidden="true" class="mb-8" />
-          <.search_item
-            search_state={@search_state}
-            item={item}
-            sort_by={@search_state.sort_by}
-            show_images={@show_images}
+        <div class="text-center max-w-5xl mx-auto text-lg py-8">
+          <.paginator
+            page={@search_state.page}
+            per_page={@search_state.per_page}
+            total_items={@total_items}
           />
         </div>
-      </div>
-      <div class="text-center max-w-5xl mx-auto text-lg py-8">
-        <.paginator
-          page={@search_state.page}
-          per_page={@search_state.per_page}
-          total_items={@total_items}
-        />
-      </div>
-    </section>
+      </section>
+    </Layouts.app>
     """
   end
 

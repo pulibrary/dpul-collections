@@ -5,11 +5,13 @@ defmodule DpulCollections.MixProject do
     [
       app: :dpul_collections,
       version: "0.1.0",
-      elixir: "~> 1.14",
+      elixir: "~> 1.18",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
+      compilers: [:phoenix_live_view] ++ Mix.compilers(),
+      listeners: [Phoenix.CodeReloader],
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
         coveralls: :test,
@@ -19,6 +21,12 @@ defmodule DpulCollections.MixProject do
         "coveralls.cobertura": :test,
         spec: :test
       ]
+    ]
+  end
+
+  def cli do
+    [
+      preferred_envs: [precommit: :test]
     ]
   end
 
@@ -41,26 +49,25 @@ defmodule DpulCollections.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.7.20"},
+      {:phoenix, "~> 1.8.0"},
       {:phoenix_ecto, "~> 4.6"},
-      {:ecto_sql, "~> 3.12"},
+      {:ecto_sql, "~> 3.13"},
       {:postgrex, ">= 0.20.0"},
       {:phoenix_html, "~> 4.2"},
       {:phoenix_live_reload, "~> 1.5", only: :dev},
-      {:phoenix_live_view, "~> 1.0"},
+      {:phoenix_live_view, "~> 1.1.0"},
       {:floki, "~> 0.37", only: :test},
       {:phoenix_live_dashboard, "~> 0.8.6"},
-      {:esbuild, "~> 0.9", runtime: Mix.env() == :dev},
+      {:esbuild, "~> 0.10", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.3", runtime: Mix.env() == :dev},
       {:heroicons,
        github: "tailwindlabs/heroicons",
-       tag: "v2.1.1",
+       tag: "v2.2.0",
        sparse: "optimized",
        app: false,
        compile: false,
        depth: 1},
       {:swoosh, "~> 1.18"},
-      {:finch, "~> 0.19"},
       {:telemetry_metrics, "~> 1.1"},
       {:telemetry_poller, "~> 1.1"},
       {:gettext, "~> 0.26"},
