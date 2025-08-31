@@ -109,3 +109,5 @@ config :iconify_ex,
   default_class: nil
 
 config :dpul_collections, environment_name: Mix.env() |> to_string()
+
+config :nx, default_backend: EXLA.Backend
