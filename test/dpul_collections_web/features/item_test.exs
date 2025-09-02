@@ -31,7 +31,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
       |> refute_has("#share-modal")
       # opens the modal
       |> click_button("Share")
-      |> assert_has("#share-modal h3", text: "Share this item")
+      |> assert_has("#share-modal h2", text: "Share this item")
       |> click_button("Copy")
       # changes the button text
       |> assert_has("#share-modal button", text: "Copied")
@@ -65,7 +65,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
         |> click_button("Share")
       end)
       # opens the modal
-      |> assert_has("#viewer-share-modal h3", text: "Share this image")
+      |> assert_has("#viewer-share-modal h2", text: "Share this image")
       |> assert_has("#viewer-share-modal-value",
         text: "http://localhost:4002/i/document1/item/1/viewer/1"
       )
@@ -78,9 +78,9 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
         session
         |> click_button("Share")
       end)
-      |> assert_has("#viewer-share-modal h3", text: "Share this image")
+      |> assert_has("#viewer-share-modal h2", text: "Share this image")
       |> Playwright.press("#viewer-share-modal", "Escape")
-      |> refute_has("#viewer-share-modal h3")
+      |> refute_has("#viewer-share-modal h2")
       |> assert_has("#viewer-pane")
       |> assert_path("/i/document1/item/1/viewer/1")
       # can still also close the viewer pane
