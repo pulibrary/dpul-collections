@@ -199,4 +199,28 @@ defmodule DpulCollectionsWeb.CoreComponents do
     />
     """
   end
+
+  attr :id, :string, required: true
+  attr :afterClose, :any, required: false, default: %JS{}
+
+  slot :inner_block, doc: "the modal content"
+
+  def modal(assigns) do
+    ~H"""
+    <dialog
+      id={@id}
+      phx-hook="Dialog"
+      phx-open={JS.dispatch("dpulc:showDialog")}
+      phx-close={JS.dispatch("dpulc:closeDialog") |> JS.exec("phx-after-close")}
+      phx-after-close={@afterClose}
+      phx-remove={JS.exec("phx-close")}
+      closedBy="any"
+      class="modal max-w-2xl backdrop:bg-black/50 open:fixed open:top-[50%] open:left-[50%] open:-translate-x-[50%] open:-translate-y-[50%] fixed bg-white rounded-lg shadow-sm text-dark-text"
+    >
+      <div class="w-full max-w-2xl bg-white shadow-lg rounded-lg p-8 relative">
+        {render_slot(@inner_block)}
+      </div>
+    </dialog>
+    """
+  end
 end

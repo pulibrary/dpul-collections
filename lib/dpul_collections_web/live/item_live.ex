@@ -630,27 +630,17 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def share_modal(assigns) do
     ~H"""
-    <dialog
-      id={@id}
-      phx-hook="Dialog"
-      phx-open={JS.dispatch("dpulc:showDialog")}
-      phx-close={JS.dispatch("dpulc:closeDialog") |> JS.add_class("dismissable", to: "#viewer-pane")}
-      phx-remove={JS.exec("phx-close")}
-      closedBy="any"
-      class="modal max-w-2xl backdrop:bg-black/50 open:fixed open:top-[50%] open:left-[50%] open:-translate-x-[50%] open:-translate-y-[50%] fixed bg-white rounded-lg shadow-sm text-dark-text"
-    >
-      <div class="w-full max-w-2xl bg-white shadow-lg rounded-lg p-8 relative">
-        <div class="flex items-center pb-3 border-b border-gray-300">
-          <h3 class="text-xl font-semibold flex-1 text-slate-900">{@heading}</h3>
-          <button aria-label="close" phx-click={hide_modal(@id)} class="cursor-pointer">
-            <.icon name="hero-x-mark" />
-          </button>
-        </div>
-        <div class="mt-4">
-          <.copy_element value={"#{DpulCollectionsWeb.Endpoint.url()}#{@path}"} id={"#{@id}-value"} />
-        </div>
+    <.modal id={@id} afterClose={JS.add_class("dismissable", to: "#viewer-pane")}>
+      <div class="flex items-center pb-3 border-b border-gray-300">
+        <h3 class="text-xl font-semibold flex-1 text-slate-900">{@heading}</h3>
+        <button aria-label="close" phx-click={hide_modal(@id)} class="cursor-pointer">
+          <.icon name="hero-x-mark" />
+        </button>
       </div>
-    </dialog>
+      <div class="mt-4">
+        <.copy_element value={"#{DpulCollectionsWeb.Endpoint.url()}#{@path}"} id={"#{@id}-value"} />
+      </div>
+    </.modal>
     """
   end
 

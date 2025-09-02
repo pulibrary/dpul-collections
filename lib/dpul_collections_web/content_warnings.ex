@@ -56,23 +56,14 @@ defmodule DpulCollectionsWeb.ContentWarnings do
         </span>
       </.link>
     </div>
-    <.modal {assigns} />
+    <.content_modal {assigns} />
     """
   end
 
-  def modal(assigns) do
+  def content_modal(assigns) do
+    # aria-labelledby={"show-image-modal-#{@item_id}-title"}
     ~H"""
-    <!-- Modal content -->
-    <dialog
-      id={"show-image-banner-#{@item_id}-dialog"}
-      class="modal max-w-2xl backdrop:bg-black/50 open:top-[50%] open:left-[50%] open:-translate-x-50 open:-translate-y-50 fixed bg-white rounded-lg shadow-sm text-dark-text"
-      aria-labelledby={"show-image-modal-#{@item_id}-title"}
-      closedBy="any"
-      phx-open={JS.dispatch("dpulc:showDialog")}
-      phx-close={JS.dispatch("dpulc:closeDialog")}
-      phx-remove={JS.exec("phx-close")}
-      phx-hook="Dialog"
-    >
+    <.modal id={"show-image-banner-#{@item_id}-dialog"}>
       <!-- Modal header -->
       <div class="flex items-center justify-between p-6 pb-0 rounded-t">
         <h2 id={"show-image-modal-#{@item_id}-title"} class="text-3xl font-semibold">
@@ -103,7 +94,7 @@ defmodule DpulCollectionsWeb.ContentWarnings do
         </button>
       </div>
       <.content_warning_body {assigns} />
-    </dialog>
+    </.modal>
     """
   end
 
