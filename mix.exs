@@ -110,6 +110,7 @@ defmodule DpulCollections.MixProject do
       {:exla, "~> 0.10"},
       {:nx_image, "~> 0.1.2"},
       {:tokenizers, "~> 0.5.1"},
+      {:scholar, "~> 0.4.0"}
     ]
   end
 
