@@ -39,8 +39,7 @@ defmodule DpulCollectionsWeb do
   def controller do
     quote do
       use Phoenix.Controller,
-        formats: [:html, :json],
-        layouts: [html: DpulCollectionsWeb.Layouts]
+        formats: [:html, :json]
 
       import Plug.Conn
       import DpulCollectionsWeb.Gettext
@@ -51,8 +50,7 @@ defmodule DpulCollectionsWeb do
 
   def live_view do
     quote do
-      use Phoenix.LiveView,
-        layout: {DpulCollectionsWeb.Layouts, :app}
+      use Phoenix.LiveView
 
       alias DpulCollectionsWeb.SetLocaleHook
       import PhoenixLiveReact
@@ -97,6 +95,7 @@ defmodule DpulCollectionsWeb do
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS
+      alias DpulCollectionsWeb.Layouts
 
       # Routes generation with the ~p sigil
       unquote(verified_routes())

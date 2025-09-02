@@ -70,21 +70,23 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def render(assigns) do
     ~H"""
-    <div id="browse" class="content-area">
-      <h1 id="browse-header" class="mb-2">{gettext("Browse")}</h1>
-      <div class="mb-5 text-2xl w-full items-center">
-        <div :if={!@focused_item} class="text-2xl mb-5">
-          {gettext("Exploring a random set of items from our collections.")}
+    <Layouts.app flash={@flash}>
+      <div id="browse" class="content-area">
+        <h1 id="browse-header" class="mb-2">{gettext("Browse")}</h1>
+        <div class="mb-5 text-2xl w-full items-center">
+          <div :if={!@focused_item} class="text-2xl mb-5">
+            {gettext("Exploring a random set of items from our collections.")}
+          </div>
+          <h3 :if={@focused_item}>
+            {gettext("Exploring items similar to")}
+            <.link href={@focused_item.url} class="font-semibold text-accent" target="_blank">
+              {@focused_item.title}
+            </.link>
+          </h3>
         </div>
-        <h3 :if={@focused_item}>
-          {gettext("Exploring items similar to")}
-          <.link href={@focused_item.url} class="font-semibold text-accent" target="_blank">
-            {@focused_item.title}
-          </.link>
-        </h3>
+        <.display_items {assigns} />
       </div>
-      <.display_items {assigns} />
-    </div>
+    </Layouts.app>
     """
   end
 
