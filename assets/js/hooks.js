@@ -29,6 +29,9 @@ Hooks.Dialog = {
     this.el.addEventListener('dpulc:showDialog', (e) =>  {
       this.el.showModal()
     })
+    this.el.addEventListener('close', (e) => {
+      this.js().exec(this.el.getAttribute('phx-close'))
+    })
   }
 }
 
