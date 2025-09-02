@@ -30,6 +30,8 @@ Hooks.Dialog = {
       this.el.showModal()
     })
     this.el.addEventListener('close', (e) => {
+      // If the user hits "escape" then JS closes the modal, we still want
+      // after-close to render.
       this.js().exec(this.el.getAttribute('phx-after-close'))
     })
   }
