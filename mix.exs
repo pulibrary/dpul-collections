@@ -92,7 +92,7 @@ defmodule DpulCollections.MixProject do
       # React for Clover Viewer
       {:phoenix_live_react, "~> 0.6"},
       {:sham, "~> 1.0", only: :test},
-      {:oban, "~> 2.19"},
+      {:oban, "~> 2.20.1"},
       {:oban_web, "~> 2.11"},
       {:a11y_audit, "~> 0.2.3", only: :test},
       {:mock, "~> 0.3.0", only: :test},
