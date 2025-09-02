@@ -616,21 +616,22 @@ defmodule DpulCollectionsWeb.ItemLive do
     |> JS.exec("phx-open", to: "#viewer-share-modal")
   end
 
-  # When we hide the modal we have to re-set the copy button and make "Escape"
-  # work again for dismissing the viewer pane.
-  def hide_modal(id, js \\ %JS{}) do
-    js
-    |> JS.exec("phx-close", to: "##{id}")
-    |> JS.remove_class("bg-accent", to: "##{id}-value-copy")
-  end
-
   attr :id, :string, required: true
   attr :heading, :string, required: true
   attr :path, :string, required: true
 
   def share_modal(assigns) do
     ~H"""
-    <.modal id={@id} label={@heading} afterClose={JS.add_class("dismissable", to: "#viewer-pane")}>
+    <.modal
+      id={@id}
+      label={@heading}
+      afterClose={
+        # When we hide the modal we have to re-set the copy button and make "Escape"
+        # work again for dismissing the viewer pane.
+        JS.add_class("dismissable", to: "#viewer-pane")
+        |> JS.remove_class("bg-accent", to: "##{@id}-value-copy")
+      }
+    >
       <div class="mt-4">
         <.copy_element value={"#{DpulCollectionsWeb.Endpoint.url()}#{@path}"} id={"#{@id}-value"} />
       </div>

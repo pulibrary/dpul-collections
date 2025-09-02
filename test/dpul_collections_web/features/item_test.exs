@@ -79,9 +79,10 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
         |> click_button("Share")
       end)
       |> assert_has("#viewer-share-modal h2", text: "Share this image")
+      |> refute_has("#viewer-pane.dismissable")
       |> Playwright.press("#viewer-share-modal", "Escape")
       |> refute_has("#viewer-share-modal h2")
-      |> assert_has("#viewer-pane")
+      |> assert_has("#viewer-pane.dismissable")
       |> assert_path("/i/document1/item/1/viewer/1")
       # can still also close the viewer pane
       |> Playwright.press("#viewer-pane", "Escape")

@@ -30,7 +30,7 @@ Hooks.Dialog = {
       this.el.showModal()
     })
     this.el.addEventListener('close', (e) => {
-      this.js().exec(this.el.getAttribute('phx-close'))
+      this.js().exec(this.el.getAttribute('phx-after-close'))
     })
   }
 }
