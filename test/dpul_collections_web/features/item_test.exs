@@ -73,6 +73,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
       |> assert_has("button#viewer-share-modal-value-copy", text: "Copied")
       |> click_button("close")
       |> refute_has("#viewer-share-modal")
+      |> refute_has("#viewer-modal.dismissable")
       # Escape closes the modal
       |> within("#viewer-header", fn session ->
         session
