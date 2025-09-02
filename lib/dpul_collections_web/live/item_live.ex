@@ -630,13 +630,7 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def share_modal(assigns) do
     ~H"""
-    <.modal id={@id} afterClose={JS.add_class("dismissable", to: "#viewer-pane")}>
-      <div class="flex items-center pb-3 border-b border-gray-300">
-        <h3 class="text-xl font-semibold flex-1 text-slate-900">{@heading}</h3>
-        <button aria-label="close" phx-click={hide_modal(@id)} class="cursor-pointer">
-          <.icon name="hero-x-mark" />
-        </button>
-      </div>
+    <.modal id={@id} label={@heading} afterClose={JS.add_class("dismissable", to: "#viewer-pane")}>
       <div class="mt-4">
         <.copy_element value={"#{DpulCollectionsWeb.Endpoint.url()}#{@path}"} id={"#{@id}-value"} />
       </div>

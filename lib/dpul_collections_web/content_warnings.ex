@@ -61,38 +61,8 @@ defmodule DpulCollectionsWeb.ContentWarnings do
   end
 
   def content_modal(assigns) do
-    # aria-labelledby={"show-image-modal-#{@item_id}-title"}
     ~H"""
-    <.modal id={"show-image-banner-#{@item_id}-dialog"}>
-      <!-- Modal header -->
-      <div class="flex items-center justify-between p-6 pb-0 rounded-t">
-        <h2 id={"show-image-modal-#{@item_id}-title"} class="text-3xl font-semibold">
-          Content Warning
-        </h2>
-        <button
-          id={"show-image-banner-close-button-#{@item_id}"}
-          type="button"
-          class="bg-transparent hover:bg-gray-200 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-          phx-click={JS.exec("phx-close", to: {:closest, "dialog"})}
-        >
-          <svg
-            class="w-3 h-3"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 14 14"
-          >
-            <path
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-            />
-          </svg>
-          <span class="sr-only">{gettext("Close modal")}</span>
-        </button>
-      </div>
+    <.modal id={"show-image-banner-#{@item_id}-dialog"} label="Content Warning">
       <.content_warning_body {assigns} />
     </.modal>
     """
