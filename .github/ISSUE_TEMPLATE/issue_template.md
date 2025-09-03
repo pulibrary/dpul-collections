@@ -14,10 +14,11 @@ assignees: ''
 ### Acceptance Criteria
 
 This section can be completed by the DLS team. Some requirements to consider
-including:
+include:
 
 - [ ] The UI implemented for this issue meets accessibility requirements
 - [ ] New functionality is documented
+- [ ]
 
 
 ### First step
