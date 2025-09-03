@@ -107,10 +107,10 @@ config :dpul_collections,
     plug: {Req.Test, DpulCollections.Workers.CacheThumbnails}
   ]
 
-# Stub http requests in CacheHeroImages Oban worker
+# Stub http requests in CacheMosaicImages Oban worker
 config :dpul_collections,
-  hero_image_req_options: [
-    plug: {Req.Test, DpulCollections.Workers.CacheHeroImages}
+  mosaic_image_req_options: [
+    plug: {Req.Test, DpulCollections.Workers.CacheMosaicImages}
   ]
 
 config :phoenix_test,
