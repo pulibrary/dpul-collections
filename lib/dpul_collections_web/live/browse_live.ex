@@ -73,8 +73,8 @@ defmodule DpulCollectionsWeb.BrowseLive do
     <Layouts.app flash={@flash}>
       <div id="browse" class="content-area">
         <h1 id="browse-header" class="mb-2">{gettext("Browse")}</h1>
-        <div class="mb-5 text-2xl w-full items-center">
-          <div :if={!@focused_item} class="text-2xl mb-5">
+        <div class="mb-5 text-lg w-full items-center">
+          <div :if={!@focused_item} class="mb-5">
             {gettext("Exploring a random set of items from our collections.")}
           </div>
           <h3 :if={@focused_item}>
