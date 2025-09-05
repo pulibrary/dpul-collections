@@ -44,7 +44,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     )
   end
 
-  def filter_and_process(message, resource = %Figgy.Resource{id: id}, cache_version) do
+  def filter_and_process(resource = %Figgy.Resource{id: id}, cache_version) do
     case resource do
       # Process open/complete EphemeraFolders
       %{internal_resource: "EphemeraFolder", state: ["complete"], visibility: ["open"]} ->
@@ -122,7 +122,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
              "EphemeraTerm",
              "FileSet"
            ] do
-    case filter_and_process(message, message.data, cache_version) do
+    case filter_and_process(message.data, cache_version) do
       {:ok, record} ->
         message |> Broadway.Message.put_data(record)
 
