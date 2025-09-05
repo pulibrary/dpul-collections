@@ -255,26 +255,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     MapSet.disjoint?(member_ids_set, related_ids_set)
   end
 
-  defp resource_empty?(_, _), do: true
-
-  @spec to_map(resource :: %__MODULE__{}) :: map()
-  def to_map(
-        resource = %__MODULE__{
-          internal_resource: "DeletionMarker",
-          metadata_resource_id: [%{"id" => deleted_resource_id}],
-          metadata_resource_type: [deleted_resource_type]
-        }
-      ) do
-    %{
-      id: deleted_resource_id,
-      internal_resource: deleted_resource_type,
-      lock_version: resource.lock_version,
-      created_at: resource.created_at,
-      updated_at: resource.updated_at,
-      metadata: %{"deleted" => true}
-    }
-  end
-
   def to_map(resource = %__MODULE__{}) do
     resource
     |> Map.from_struct()
