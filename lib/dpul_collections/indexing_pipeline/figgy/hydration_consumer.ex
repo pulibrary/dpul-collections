@@ -44,7 +44,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     )
   end
 
-  def filter_and_process(message, resource = %Figgy.Resource{id: id}, cache_version) do
+  def filter_and_process(resource = %Figgy.Resource{id: id}, cache_version) do
     case resource do
       # Process open/complete EphemeraFolders
       %{internal_resource: "EphemeraFolder", state: ["complete"], visibility: ["open"]} ->
@@ -56,7 +56,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         existing_resource = IndexingPipeline.get_hydration_cache_entry!(id, cache_version)
 
         if existing_resource do
-          {:delete, marker_record(resource)}
+          {:delete,
+           %Figgy.DeletionRecord{
+             marker: CacheEntryMarker.from(resource),
+             internal_resource: "EphemeraFolder",
+             id: resource.id
+           }}
         else
           {:skip, resource}
         end
@@ -71,7 +76,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
         # Same as above branch..
         if existing_resource do
-          {:delete, marker_record(resource)}
+          {:delete,
+           %Figgy.DeletionRecord{
+             marker: CacheEntryMarker.from(resource),
+             internal_resource: "EphemeraFolder",
+             id: resource_id
+           }}
         else
           {:skip, resource}
         end
@@ -112,7 +122,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
              "EphemeraTerm",
              "FileSet"
            ] do
-    case filter_and_process(message, message.data, cache_version) do
+    case filter_and_process(message.data, cache_version) do
       {:ok, record} ->
         message |> Broadway.Message.put_data(record)
 
@@ -134,20 +144,16 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     |> Broadway.Message.put_batcher(:noop)
   end
 
-  # Hyrdation cache entries for deleted records.
-  # Uses the deleted record id as the record_id rather than the cache marker id
   defp write_to_hydration_cache(
          %Broadway.Message{
-           data: %{marker: marker, handled_data: data = %{id: id, metadata: %{"deleted" => true}}}
+           data: %Figgy.DeletionRecord{
+             marker: marker,
+             id: id,
+             internal_resource: internal_resource
+           }
          },
          cache_version
        ) do
-    # store in HydrationCache:
-    # - data (blob) - this is the record
-    # - cache_order (datetime) - this is our own new timestamp for this table
-    # - cache_version (this only changes manually, we have to hold onto it as state)
-    # - record_id (varchar) - the figgy UUID of the deleted record
-    # - source_cache_order (datetime) - the figgy updated_at
     {:ok, response} =
       IndexingPipeline.write_hydration_cache_entry(%{
         cache_version: cache_version,
@@ -155,7 +161,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         related_ids: [],
         source_cache_order: marker.timestamp,
         source_cache_order_record_id: id,
-        data: data
+        data: %{internal_resource: internal_resource, id: id, metadata: %{"deleted" => true}}
       })
 
     {:ok, response}
