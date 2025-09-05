@@ -24,6 +24,24 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   @type related_resource_map() :: %{
           optional(resource_id :: String.t()) => resource_struct :: map()
         }
+
+  # def to_combined_figgy_resource(resource) do
+  #   hydration_cache_attrs = to_hydration_cache_attrs(resource)
+  #   # data hydration cache entry needs...
+  #   %{
+  #     # handled_data is either a deletion map or the resource converted to a
+  #     # map, with special handling for DeletionMarkers.
+  #     handled_data: handled_data,
+  #     # A list of all the related resources.
+  #     related_data: related_data,
+  #     # All the related IDs
+  #     related_ids: related_ids(related_data),
+  #     # The latest timestamp used to build this resource.
+  #     source_cache_order: source_cache_order,
+  #     source_cache_order_record_id: source_cache_order_record_id
+  #   }
+  # end
+
   @spec to_hydration_cache_attrs(%__MODULE__{}) :: %{
           handled_data: map(),
           related_data: related_data()
