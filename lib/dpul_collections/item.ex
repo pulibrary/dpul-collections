@@ -55,6 +55,7 @@ defmodule DpulCollections.Item do
       {:publisher, gettext("Publisher")},
       {:language, gettext("Language")},
       {:geographic_origin, gettext("Geographic Origin")},
+      {:geo_subject, gettext("Geographic Subject")},
       {:subject, gettext("Subject")}
     ]
   end

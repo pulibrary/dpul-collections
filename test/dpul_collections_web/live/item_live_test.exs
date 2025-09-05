@@ -226,6 +226,12 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
              |> Floki.find(~s{.metadata *:fl-contains("geographic origin")})
              |> Enum.any?()
 
+      assert document |> Floki.find(~s{dt:fl-contains("Geographic Subject")}) |> Enum.any?()
+
+      assert document
+             |> Floki.find(~s{.metadata *:fl-contains("geo subject")})
+             |> Enum.any?()
+
       assert document |> Floki.find(~s{dt:fl-contains("Language")}) |> Enum.any?()
       assert document |> Floki.find(~s{.metadata *:fl-contains("language")}) |> Enum.any?()
       assert document |> Floki.find(~s{dt:fl-contains("Publisher")}) |> Enum.any?()
