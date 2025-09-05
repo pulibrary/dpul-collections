@@ -56,7 +56,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         existing_resource = IndexingPipeline.get_hydration_cache_entry!(id, cache_version)
 
         if existing_resource do
-          {:delete, marker_record(resource)}
+          {:delete,
+           %Figgy.DeletionRecord{
+             marker: CacheEntryMarker.from(resource),
+             internal_resource: "EphemeraFolder",
+             id: resource.id
+           }}
         else
           {:skip, resource}
         end
@@ -71,7 +76,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
         # Same as above branch..
         if existing_resource do
-          {:delete, marker_record(resource)}
+          {:delete,
+           %Figgy.DeletionRecord{
+             marker: CacheEntryMarker.from(resource),
+             internal_resource: "EphemeraFolder",
+             id: resource_id
+           }}
         else
           {:skip, resource}
         end
@@ -132,6 +142,29 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   def handle_message(_processor, message, _state) do
     message
     |> Broadway.Message.put_batcher(:noop)
+  end
+
+  defp write_to_hydration_cache(
+         %Broadway.Message{
+           data: %Figgy.DeletionRecord{
+             marker: marker,
+             id: id,
+             internal_resource: internal_resource
+           }
+         },
+         cache_version
+       ) do
+    {:ok, response} =
+      IndexingPipeline.write_hydration_cache_entry(%{
+        cache_version: cache_version,
+        record_id: id,
+        related_ids: [],
+        source_cache_order: marker.timestamp,
+        source_cache_order_record_id: id,
+        data: %{internal_resource: internal_resource, id: id, metadata: %{"deleted" => true}}
+      })
+
+    {:ok, response}
   end
 
   # Hyrdation cache entries for deleted records.

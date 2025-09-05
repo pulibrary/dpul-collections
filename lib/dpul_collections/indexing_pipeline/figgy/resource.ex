@@ -46,14 +46,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
           handled_data: map(),
           related_data: related_data()
         }
-  def to_hydration_cache_attrs(resource = %__MODULE__{internal_resource: "DeletionMarker"}) do
-    %{
-      handled_data: resource |> to_map,
-      related_data: %{},
-      related_ids: []
-    }
-  end
-
   # We haven't pulled the full resource yet, so grab it.
   def to_hydration_cache_attrs(%__MODULE__{
         id: id,
@@ -106,17 +98,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     (primary_resource ++ related_resources ++ ancestors)
     |> Enum.sort_by(fn {date, _} -> date end, {:desc, DateTime})
     |> Enum.at(0)
-  end
-
-  # Don't fetch related data when the state or visibilty are not correct.
-  # Note that when an empty related data map is returned these resources will
-  # be marked for deletion.
-  @spec extract_related_data(resource :: %__MODULE__{}) :: related_data()
-  def extract_related_data(%__MODULE__{
-        metadata: %{"state" => [state], "visibility" => [visibility]}
-      })
-      when state != "complete" or visibility != "open" do
-    %{}
   end
 
   def extract_related_data(resource) do
@@ -277,13 +258,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   defp resource_empty?(_, _), do: true
 
   @spec to_map(resource :: %__MODULE__{}) :: map()
-  defp to_map(
-         resource = %__MODULE__{
-           internal_resource: "DeletionMarker",
-           metadata_resource_id: [%{"id" => deleted_resource_id}],
-           metadata_resource_type: [deleted_resource_type]
-         }
-       ) do
+  def to_map(
+        resource = %__MODULE__{
+          internal_resource: "DeletionMarker",
+          metadata_resource_id: [%{"id" => deleted_resource_id}],
+          metadata_resource_type: [deleted_resource_type]
+        }
+      ) do
     %{
       id: deleted_resource_id,
       internal_resource: deleted_resource_type,
@@ -294,14 +275,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     }
   end
 
-  defp to_map(resource = %__MODULE__{}) do
+  def to_map(resource = %__MODULE__{}) do
     resource
     |> Map.from_struct()
     |> Map.delete(:__meta__)
   end
 
   @spec to_map(resource :: %__MODULE__{}, boolean()) :: map()
-  defp to_map(resource = %__MODULE__{}, delete: true) do
+  def to_map(resource = %__MODULE__{}, delete: true) do
     %{
       id: resource.id,
       internal_resource: resource.internal_resource,
