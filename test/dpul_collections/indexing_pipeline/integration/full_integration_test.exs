@@ -19,6 +19,13 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     {:ok, tracker_pid} = GenServer.start_link(AckTracker, self())
 
+    # Create an index record to be deleted since it has zero members.
+    DpulCollections.Solr.add(
+      SolrTestSupport.mock_solr_documents(1)
+      |> hd
+      |> Map.put(:id, "f134f41f-63c5-4fdf-b801-0774e3bc3b2d")
+    )
+
     # Pre-index records for testing deletes. DeletionMarkers in the test Figgy
     # database do not have related resources. We need to add the resources so we
     # can test that they get deleted.
