@@ -168,15 +168,15 @@
 }
 
 @utility btn-primary {
-  @apply btn-base bg-primary text-dark-text disabled:text-[#333333] hover:bg-[#c5c6b5];
+  @apply btn-base bg-primary text-dark-text disabled:text-[#333333] hover:bg-[#c5c6b5] px-8;
 }
 
 @utility btn-secondary {
-  @apply btn-base bg-cloud text-dark-text hover:enabled:bg-[#e1e2e5] disabled:text-[#333333];
+  @apply btn-base bg-cloud text-dark-text hover:enabled:bg-[#e1e2e5] disabled:text-[#333333] px-8;
 }
 
 @utility btn-danger {
-  @apply btn-base bg-rust text-light-text hover:enabled:bg-[#c67355] active:enabled:bg-rust;
+  @apply btn-base bg-rust text-light-text hover:enabled:bg-[#c67355] active:enabled:bg-rust px-8;
   &:disabled {
     @apply cursor-not-allowed opacity-50 shadow-none;
   }
