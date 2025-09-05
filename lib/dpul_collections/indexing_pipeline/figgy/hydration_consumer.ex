@@ -44,114 +44,88 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     )
   end
 
+  def filter_and_process(message, resource = %Figgy.Resource{id: id}, cache_version) do
+    case resource do
+      # Process open/complete EphemeraFolders
+      %{internal_resource: "EphemeraFolder", state: ["complete"], visibility: ["open"]} ->
+        {:ok, marker_record(resource)}
+
+      # Process EphemeraFolders that were processed before otherwise - we wanna
+      # delete them.
+      %{internal_resource: "EphemeraFolder"} ->
+        existing_resource = IndexingPipeline.get_hydration_cache_entry!(id, cache_version)
+
+        if existing_resource do
+          {:delete, marker_record(resource)}
+        else
+          {:skip, resource}
+        end
+
+      %{
+        internal_resource: "DeletionMarker",
+        metadata_resource_id: [%{"id" => resource_id}],
+        metadata_resource_type: ["EphemeraFolder"]
+      } ->
+        existing_resource =
+          IndexingPipeline.get_hydration_cache_entry!(resource_id, cache_version)
+
+        # Same as above branch..
+        if existing_resource do
+          {:delete, marker_record(resource)}
+        else
+          {:skip, resource}
+        end
+
+      # For related resources, send a special key.
+      %{internal_resource: internal_resource}
+      when internal_resource in ["EphemeraProject", "EphemeraBox", "EphemeraTerm", "FileSet"] ->
+        {:related_resource, resource}
+
+      _ ->
+        {:skip, resource}
+    end
+  end
+
+  def marker_record(resource) do
+    marker = CacheEntryMarker.from(resource)
+
+    %{marker: marker}
+    |> Map.merge(Figgy.Resource.to_hydration_cache_attrs(resource))
+  end
+
   @impl Broadway
   # pass through messages and write to cache in batcher to avoid race condition
   def handle_message(
         _processor,
         message = %Broadway.Message{
           data: %{
-            internal_resource: internal_resource,
-            state: state,
-            visibility: visibility
-          }
-        },
-        %{cache_version: _cache_version}
-      )
-      when internal_resource in ["EphemeraFolder"] and state == ["complete"] and
-             visibility == ["open"] do
-    marker = CacheEntryMarker.from(message)
-
-    message_map =
-      %{marker: marker}
-      |> Map.merge(Figgy.Resource.to_hydration_cache_attrs(message.data))
-
-    message
-    |> Broadway.Message.put_data(message_map)
-  end
-
-  @impl Broadway
-  # Check if EphemeraFolders records that are not complete or open have an entry
-  # in the hydration cache. If so, pass through message so the entry can be deleted.
-  # Otherwise, send the message to noop.
-  def handle_message(
-        _processor,
-        message = %Broadway.Message{
-          data: %{
-            id: id,
             internal_resource: internal_resource
           }
         },
         %{cache_version: cache_version}
       )
-      when internal_resource in ["EphemeraFolder"] do
-    resource = IndexingPipeline.get_hydration_cache_entry!(id, cache_version)
+      when internal_resource in [
+             "EphemeraFolder",
+             "DeletionMarker",
+             "EphemeraProject",
+             "EphemeraBox",
+             "EphemeraTerm",
+             "FileSet"
+           ] do
+    case filter_and_process(message, message.data, cache_version) do
+      {:ok, record} ->
+        message |> Broadway.Message.put_data(record)
 
-    cond do
-      resource ->
-        marker = CacheEntryMarker.from(message)
+      {:related_resource, record} ->
+        message |> Broadway.Message.put_data(%{related_resource: record})
 
-        message_map =
-          %{marker: marker}
-          |> Map.merge(Figgy.Resource.to_hydration_cache_attrs(message.data))
+      # Not sure why we just pass this through...
+      {:delete, record} ->
+        message |> Broadway.Message.put_data(record)
 
-        message
-        |> Broadway.Message.put_data(message_map)
-
-      true ->
-        message
-        |> Broadway.Message.put_batcher(:noop)
+      {:skip, _record} ->
+        message |> Broadway.Message.put_batcher(:noop)
     end
-  end
-
-  def handle_message(
-        _processor,
-        message = %Broadway.Message{
-          data: %{
-            internal_resource: internal_resource,
-            metadata_resource_id: [%{"id" => resource_id}],
-            metadata_resource_type: [resource_type]
-          }
-        },
-        %{cache_version: cache_version}
-      )
-      when internal_resource in ["DeletionMarker"] and resource_type in ["EphemeraFolder"] do
-    # Only process messages where the deleted resource has an existing
-    # hydration cache entry. If one does not exist, it means that the resource
-    # has not been indexed into DPUL-C.
-    hydration_cache_entry =
-      IndexingPipeline.get_hydration_cache_entry!(resource_id, cache_version)
-
-    cond do
-      hydration_cache_entry ->
-        marker = CacheEntryMarker.from(message)
-
-        message_map =
-          %{marker: marker}
-          |> Map.merge(Figgy.Resource.to_hydration_cache_attrs(message.data))
-
-        message
-        |> Broadway.Message.put_data(message_map)
-
-      true ->
-        message
-        |> Broadway.Message.put_batcher(:noop)
-    end
-  end
-
-  def handle_message(
-        _processor,
-        message = %Broadway.Message{
-          data: %{
-            internal_resource: internal_resource
-          }
-        },
-        _context
-      )
-      when internal_resource in ["EphemeraProject", "EphemeraBox", "EphemeraTerm", "FileSet"] do
-    message_map = %{related_resource: message.data}
-
-    message
-    |> Broadway.Message.put_data(message_map)
   end
 
   # If it's not selected above, ack the message but don't do anything with it.
