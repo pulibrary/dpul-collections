@@ -76,11 +76,7 @@
   @apply text-light-text;
 }
 
-.bg-rust {
-  @apply text-light-text;
-}
-
-.bg-brand #dropdownMenu{
+.bg-brand .dropdown-menu{
   @apply text-dark-text;
 }
 
