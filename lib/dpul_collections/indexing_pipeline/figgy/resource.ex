@@ -24,18 +24,28 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   @type related_resource_map() :: %{
           optional(resource_id :: String.t()) => resource_struct :: map()
         }
+
+  # def to_combined_figgy_resource(resource) do
+  #   hydration_cache_attrs = to_hydration_cache_attrs(resource)
+  #   # data hydration cache entry needs...
+  #   %{
+  #     # handled_data is either a deletion map or the resource converted to a
+  #     # map, with special handling for DeletionMarkers.
+  #     handled_data: handled_data,
+  #     # A list of all the related resources.
+  #     related_data: related_data,
+  #     # All the related IDs
+  #     related_ids: related_ids(related_data),
+  #     # The latest timestamp used to build this resource.
+  #     source_cache_order: source_cache_order,
+  #     source_cache_order_record_id: source_cache_order_record_id
+  #   }
+  # end
+
   @spec to_hydration_cache_attrs(%__MODULE__{}) :: %{
           handled_data: map(),
           related_data: related_data()
         }
-  def to_hydration_cache_attrs(resource = %__MODULE__{internal_resource: "DeletionMarker"}) do
-    %{
-      handled_data: resource |> to_map,
-      related_data: %{},
-      related_ids: []
-    }
-  end
-
   # We haven't pulled the full resource yet, so grab it.
   def to_hydration_cache_attrs(%__MODULE__{
         id: id,
@@ -88,17 +98,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     (primary_resource ++ related_resources ++ ancestors)
     |> Enum.sort_by(fn {date, _} -> date end, {:desc, DateTime})
     |> Enum.at(0)
-  end
-
-  # Don't fetch related data when the state or visibilty are not correct.
-  # Note that when an empty related data map is returned these resources will
-  # be marked for deletion.
-  @spec extract_related_data(resource :: %__MODULE__{}) :: related_data()
-  def extract_related_data(%__MODULE__{
-        metadata: %{"state" => [state], "visibility" => [visibility]}
-      })
-      when state != "complete" or visibility != "open" do
-    %{}
   end
 
   def extract_related_data(resource) do
@@ -254,26 +253,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     # If the set of related ids doesn't contain any of the member ids,
     # then the resource is considered empty
     MapSet.disjoint?(member_ids_set, related_ids_set)
-  end
-
-  defp resource_empty?(_, _), do: true
-
-  @spec to_map(resource :: %__MODULE__{}) :: map()
-  defp to_map(
-         resource = %__MODULE__{
-           internal_resource: "DeletionMarker",
-           metadata_resource_id: [%{"id" => deleted_resource_id}],
-           metadata_resource_type: [deleted_resource_type]
-         }
-       ) do
-    %{
-      id: deleted_resource_id,
-      internal_resource: deleted_resource_type,
-      lock_version: resource.lock_version,
-      created_at: resource.created_at,
-      updated_at: resource.updated_at,
-      metadata: %{"deleted" => true}
-    }
   end
 
   defp to_map(resource = %__MODULE__{}) do
