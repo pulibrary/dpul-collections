@@ -156,7 +156,7 @@
     @apply enabled:border-0;
   }
   &:focus-visible {
-    @apply border-4 border-accent outline-accent;
+    @apply border-4;
   }
   &:active {
     @apply outline-0 border-1 border-solid border-(--color-princeton-black);
@@ -189,7 +189,7 @@
 @utility btn-transparent {
   @apply btn-base bg-none text-center;
   &:focus-visible {
-    @apply border-4 border-accent outline-accent;
+    @apply border-4;
   }
 }
 
