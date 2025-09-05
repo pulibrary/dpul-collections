@@ -12,11 +12,30 @@ defmodule DpulCollectionsWeb.Features.LocaleTest do
     |> visit("/")
     |> assert_has("a", text: "Explore")
     |> click_button("Language")
-    |> Playwright.click("//div[text()='Español']")
+    |> click_link("Español")
     |> assert_has("a", text: "Explorar")
     |> Playwright.type("input#q", " ")
     |> click_button("Buscar")
     |> assert_has("label", text: "filtrar por fecha:")
+  end
+
+  test "the language dropdown is accessible", %{conn: conn} do
+    conn
+    |> visit("/")
+    |> assert_has("#language-nav button[aria-expanded='false']")
+    |> refute_has("#language-nav li a")
+    |> click_button("Language")
+    |> assert_has("#language-nav button[aria-expanded='true']")
+    |> assert_has("#language-nav li a")
+    # Click away
+    |> Playwright.click("input")
+    |> refute_has("#language-nav li a")
+    |> assert_has("#language-nav button[aria-expanded='false']")
+    # Click twice
+    |> click_button("Language")
+    |> assert_has("#language-nav button[aria-expanded='true']")
+    |> click_button("Language")
+    |> assert_has("#language-nav button[aria-expanded='false']")
   end
 
   # Testing because these translations happen in a separate library and are not handled by Gettext
@@ -28,7 +47,7 @@ defmodule DpulCollectionsWeb.Features.LocaleTest do
     |> visit("/")
     |> assert_has("#browse-item-9", text: "Updated 3 months ago")
     |> click_button("Language")
-    |> Playwright.click("//div[text()='Español']")
+    |> click_link("Español")
     |> assert_has("#browse-item-9", text: "Actualizado hace 3 meses")
 
     Solr.delete_all(active_collection())
