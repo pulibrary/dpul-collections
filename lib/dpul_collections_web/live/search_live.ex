@@ -94,9 +94,9 @@ defmodule DpulCollectionsWeb.SearchLive do
                 id="filter[year][to]"
                 value={@search_state.filter["year"]["to"]}
               />
-              <button class="col-span-1 md:col-span-1 btn-primary" type="submit">
+              <.primary_button class="col-span-1 md:col-span-1" type="submit">
                 {gettext("Apply")}
-              </button>
+              </.primary_button>
             </form>
             <form id="sort-form" class="grid md:grid-cols-[auto_200px] gap-2" phx-change="sort">
               <label class="col-span-1 self-center font-bold uppercase md:text-right" for="sort-by">

@@ -552,14 +552,11 @@ defmodule DpulCollectionsWeb.ItemLive do
       </div>
       <div class="w-full col-span-2 gap-2">
         <div class="thumbnail-buttons grid grid-cols-2 gap-2">
-          <.primary_button
-            id="viewer-link"
-            class="left-arrow-box"
-            patch={"#{@item.viewer_url}/1"}
-            replace
-          >
-            <.icon name="hero-eye" /> {gettext("View")}
-          </.primary_button>
+          <.arrow_button_left id="viewer-link" patch={"#{@item.viewer_url}/1"} replace>
+            <span class="w-max flex gap-2 text-sm sm:text-base">
+              <.icon name="hero-eye" /> {gettext("View")}
+            </span>
+          </.arrow_button_left>
 
           <.download_button item={@item} />
         </div>
@@ -664,13 +661,13 @@ defmodule DpulCollectionsWeb.ItemLive do
         />
       </dl>
     </div>
-    <.primary_button id="metadata-link" class="right-arrow-box" patch={@item.metadata_url} replace>
+    <.arrow_button_right id="metadata-link" patch={@item.metadata_url} replace>
       <span class="w-max flex gap-2 text-sm sm:text-base">
         <.icon name="hero-table-cells h-5 w-5 sm:h-6 sm:w-6" /> {gettext(
           "View all metadata for this item"
         )}
       </span>
-    </.primary_button>
+    </.arrow_button_right>
     """
   end
 

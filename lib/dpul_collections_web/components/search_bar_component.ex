@@ -22,13 +22,13 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
                 placeholder={gettext("Search")}
                 dir="auto"
               />
-              <button
+              <.primary_button
                 id="search-button"
                 type="submit"
-                class="btn-secondary px-4 h-8 invisible flex-none"
+                class="btn-primary px-4 h-8 invisible flex-none"
               >
                 {gettext("Search")}
-              </button>
+              </.primary_button>
             </div>
           </form>
         </div>
