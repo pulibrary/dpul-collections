@@ -255,14 +255,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     MapSet.disjoint?(member_ids_set, related_ids_set)
   end
 
-  def to_map(resource = %__MODULE__{}) do
+  defp to_map(resource = %__MODULE__{}) do
     resource
     |> Map.from_struct()
     |> Map.delete(:__meta__)
   end
 
   @spec to_map(resource :: %__MODULE__{}, boolean()) :: map()
-  def to_map(resource = %__MODULE__{}, delete: true) do
+  defp to_map(resource = %__MODULE__{}, delete: true) do
     %{
       id: resource.id,
       internal_resource: resource.internal_resource,
