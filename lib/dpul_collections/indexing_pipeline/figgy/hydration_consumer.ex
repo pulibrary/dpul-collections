@@ -62,7 +62,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     marker = CacheEntryMarker.from(message)
 
     message_map =
-      %{marker: marker, incoming_message_data: message.data}
+      %{marker: marker}
       |> Map.merge(Figgy.Resource.to_hydration_cache_attrs(message.data))
 
     message
@@ -91,7 +91,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         marker = CacheEntryMarker.from(message)
 
         message_map =
-          %{marker: marker, incoming_message_data: message.data}
+          %{marker: marker}
           |> Map.merge(Figgy.Resource.to_hydration_cache_attrs(message.data))
 
         message
@@ -126,7 +126,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         marker = CacheEntryMarker.from(message)
 
         message_map =
-          %{marker: marker, incoming_message_data: message.data}
+          %{marker: marker}
           |> Map.merge(Figgy.Resource.to_hydration_cache_attrs(message.data))
 
         message
