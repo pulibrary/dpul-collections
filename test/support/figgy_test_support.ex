@@ -47,6 +47,14 @@ defmodule FiggyTestSupport do
     FiggyRepo.all(query)
   end
 
+  def flush_messages(timeout \\ 100) do
+    receive do
+      _ -> flush_messages()
+    after
+      timeout -> nil
+    end
+  end
+
   def index_record(record, cache_version \\ 1) do
     # Write a current hydration marker right before that marker.
     marker = IndexingPipeline.DatabaseProducer.CacheEntryMarker.from(record)

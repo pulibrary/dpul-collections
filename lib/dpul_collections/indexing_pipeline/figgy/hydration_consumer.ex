@@ -87,6 +87,20 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     end
   end
 
+  # If it's a related resource, get and process all records dependent on this
+  # one.
+  def enrich({:related_resource, %Figgy.Resource{id: id, updated_at: timestamp}}, cache_version) do
+    related_record_ids =
+      IndexingPipeline.get_related_hydration_cache_record_ids!(id, timestamp, cache_version)
+
+    related_records = IndexingPipeline.get_figgy_resources(related_record_ids)
+
+    related_records
+    # We need to populate the virtual attributes so that classification works.
+    |> Enum.map(&Figgy.Resource.populate_virtual/1)
+    |> Enum.map(&to_message_data(&1, cache_version))
+  end
+
   # Resources we're updating need to become combined figgy resources.
   def enrich({:update, resource}, _cache_version) do
     marker = CacheEntryMarker.from(resource)
@@ -131,10 +145,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   def handle_message(
         _processor,
         message = %Broadway.Message{
-          data:
-            resource = %{
-              internal_resource: internal_resource
-            }
+          data: resource = %Figgy.Resource{}
         },
         %{cache_version: cache_version}
       ) do
@@ -156,20 +167,24 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     |> initial_classification(cache_version)
     # Add or convert resource
     |> enrich(cache_version)
+
     # |> post_classification # Determine if after enrichment we should continue updating, delete, or skip.
     # |> convert for persistence
   end
 
-  def store_result({:related_resource, record}, message),
-    do: Broadway.Message.put_data(message, {:related_resource, record})
+  # There's a bunch of them, filter out the skips and put it in the message.
+  def store_result(records, message) when is_list(records) do
+    data =
+      records
+      |> Enum.filter(fn {action, _} -> action != :skip end)
+
+    Broadway.Message.put_data(message, data)
+  end
 
   def store_result({:skip, _record}, message), do: Broadway.Message.put_batcher(message, :noop)
 
-  def store_result({:update, record}, message),
-    do: Broadway.Message.put_data(message, {:update, record})
-
-  def store_result({:delete, record}, message),
-    do: Broadway.Message.put_data(message, {:delete, record})
+  def store_result(data = {_action, _resource}, message),
+    do: Broadway.Message.put_data(message, data)
 
   @impl Broadway
   def handle_batch(:default, messages, _batch_info, %{cache_version: cache_version}) do
@@ -197,7 +212,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
           }},
          cache_version
        ) do
-    {:ok, response} =
+    {:ok, _response} =
       IndexingPipeline.write_hydration_cache_entry(%{
         cache_version: cache_version,
         record_id: id,
@@ -239,23 +254,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
       })
 
     {:ok, response}
-  end
-
-  defp persist(
-         {:related_resource, %Figgy.Resource{id: id, updated_at: timestamp}},
-         cache_version
-       ) do
-    related_record_ids =
-      IndexingPipeline.get_related_hydration_cache_record_ids!(id, timestamp, cache_version)
-
-    related_records = IndexingPipeline.get_figgy_resources(related_record_ids)
-
-    related_records
-    |> Enum.map(&Figgy.Resource.populate_virtual/1)
-    |> Enum.map(&to_message_data(&1, cache_version))
-    |> Enum.map(&persist(&1, cache_version))
-
-    {:ok, ""}
   end
 
   def start_over!(cache_version) do

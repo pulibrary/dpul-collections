@@ -256,6 +256,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
     %Broadway.Message{
       data: record,
       acknowledger: {__MODULE__, {self(), :database_producer_ack}, nil},
+      # We store the marker here so we know what record to acknowledge.
       metadata: %{marker: CacheEntryMarker.from(record)}
     }
   end

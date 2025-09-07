@@ -34,16 +34,11 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker do
   end
 
   @spec from(%HydrationCacheEntry{}) :: t()
-  def from(msg = %HydrationCacheEntry{cache_order: timestamp, record_id: id}) do
+  def from(%HydrationCacheEntry{cache_order: timestamp, record_id: id}) do
     %__MODULE__{timestamp: timestamp, id: id}
   end
 
   def from(%Broadway.Message{metadata: %{marker: marker}}) do
-    marker
-  end
-
-  @spec from(%Broadway.Message{}) :: t()
-  def from(%Broadway.Message{data: %{marker: marker}}) do
     marker
   end
 
