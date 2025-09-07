@@ -25,6 +25,20 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
           optional(resource_id :: String.t()) => resource_struct :: map()
         }
 
+  def populate_virtual(
+        resource = %__MODULE__{
+          metadata: metadata = %{"state" => state, "visibility" => visibility}
+        }
+      ) do
+    %{
+      resource
+      | state: state,
+        visibility: visibility,
+        metadata_resource_id: metadata[:resource_id],
+        metadata_resource_type: metadata[:resource_type]
+    }
+  end
+
   # def to_combined_figgy_resource(resource) do
   #   hydration_cache_attrs = to_hydration_cache_attrs(resource)
   #   # data hydration cache entry needs...

@@ -255,7 +255,8 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
   defp wrap_record(record) do
     %Broadway.Message{
       data: record,
-      acknowledger: {__MODULE__, {self(), :database_producer_ack}, nil}
+      acknowledger: {__MODULE__, {self(), :database_producer_ack}, nil},
+      metadata: %{marker: CacheEntryMarker.from(record)}
     }
   end
 end
