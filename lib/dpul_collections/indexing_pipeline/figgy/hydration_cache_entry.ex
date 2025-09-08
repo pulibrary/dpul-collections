@@ -1,4 +1,6 @@
 defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
+  alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry
+  alias DpulCollections.IndexingPipeline.Figgy
   use Ecto.Schema
   import Ecto.Changeset
   require Logger
@@ -52,11 +54,37 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
     }
   end
 
-  def to_solr_document(%{
-        record_id: id,
-        data: data = %{"metadata" => metadata},
-        related_data: related_data
+  def to_combined_figgy_resource(%__MODULE__{
+        data: data,
+        related_data: related_data,
+        related_ids: related_ids
       }) do
+    %Figgy.CombinedFiggyResource{
+      resource: data_to_figgy_resource(data),
+      related_data: related_data,
+      related_ids: related_ids
+    }
+  end
+
+  def data_to_figgy_resource(data) do
+    # We have to convert all the top level keys to symbols.
+    map =
+      for {key, value} <- data, into: %{} do
+        {String.to_existing_atom(key), value}
+      end
+
+    struct!(Figgy.Resource, map)
+  end
+
+  def to_solr_document(
+        cache_entry = %{
+          record_id: id,
+          data: data = %{"metadata" => metadata},
+          related_data: related_data
+        }
+      ) do
+    combined_figgy_resource = HydrationCacheEntry.to_combined_figgy_resource(cache_entry)
+    # solr_doc = CombinedFiggyResource.to_solr_document(combined_figgy_resource)
     box_metadata = extract_box_metadata(related_data)
     project_metadata = extract_project_metadata(related_data)
     thumbnail = primary_thumbnail(metadata, related_data)

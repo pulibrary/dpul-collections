@@ -342,6 +342,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         data: updated_ephemera_term_resource
       }
 
+      file_set = IndexingPipeline.get_figgy_resource!("c42bca4b-02c9-44ad-b6bd-132ab27a8986")
+
       # Create a hydration cache entry from ephemera folder messages
       create_messages =
         [ephemera_folder_message]
@@ -373,7 +375,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
             passthrough([[]])
 
           _ ->
-            [updated_ephemera_term_resource]
+            [updated_ephemera_term_resource, file_set]
         end do
         # Process updated ephemera term message
         messages =

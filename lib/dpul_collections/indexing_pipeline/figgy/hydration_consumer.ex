@@ -45,6 +45,55 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     )
   end
 
+  @impl Broadway
+  # pass through messages and write to cache in batcher to avoid race condition
+  def handle_message(
+        _processor,
+        message = %Broadway.Message{
+          data: resource = %Figgy.Resource{}
+        },
+        %{cache_version: cache_version}
+      ) do
+    resource
+    |> process(cache_version)
+    |> store_result(message)
+  end
+
+  @impl Broadway
+  def handle_batch(:default, messages, _batch_info, %{cache_version: cache_version}) do
+    messages
+    # Get all the resources from the processing steps
+    |> Enum.map(&Map.get(&1, :data))
+    |> List.flatten()
+    # Persist each of them to the HydrationCache.
+    |> Enum.each(&persist(&1, cache_version))
+
+    messages
+  end
+
+  def handle_batch(:noop, messages, _batch_info, _state) do
+    messages
+  end
+
+  # If given a resource that has no virtual attributes and should, then populate
+  # them - it probably came from get_figgy_resource!
+  def process(
+        resource = %Figgy.Resource{metadata: %{"visibility" => _visibility}, visibility: nil},
+        cache_version
+      ) do
+    process(Figgy.Resource.populate_virtual(resource), cache_version)
+  end
+
+  def process(resource, cache_version) do
+    resource
+    # Determine early on if we're deleting, skipping, or updating.
+    |> initial_classification(cache_version)
+    # Add extra data
+    |> enrich(cache_version)
+    # Determine if after enrichment we should continue updating, delete, or skip.
+    |> post_classification(cache_version)
+  end
+
   def initial_classification(resource = %Figgy.Resource{id: id}, cache_version) do
     case resource do
       # Process open/complete EphemeraFolders
@@ -96,18 +145,18 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     related_records = IndexingPipeline.get_figgy_resources(related_record_ids)
 
     related_records
-    # We need to populate the virtual attributes so that classification works.
-    |> Enum.map(&Figgy.Resource.populate_virtual/1)
-    |> Enum.map(&to_message_data(&1, cache_version))
+    |> Enum.map(&process(&1, cache_version))
+  end
+
+  # We don't have the full resource yet, fetch it and re-enrich.
+  def enrich({:update, %Figgy.Resource{id: id, metadata: nil}}, cache_version) do
+    enrich({:update, IndexingPipeline.get_figgy_resource!(id)}, cache_version)
   end
 
   # Resources we're updating need to become combined figgy resources.
   def enrich({:update, resource}, _cache_version) do
-    marker = CacheEntryMarker.from(resource)
-
-    {:update,
-     %{marker: marker}
-     |> Map.merge(Figgy.Resource.to_hydration_cache_attrs(resource))}
+    combined_resource = Figgy.Resource.to_combined(resource)
+    {:update, combined_resource}
   end
 
   # Deletion markers need to become DeletionRecords
@@ -140,39 +189,28 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
   def enrich(resource_and_classification, _cache_version), do: resource_and_classification
 
-  @impl Broadway
-  # pass through messages and write to cache in batcher to avoid race condition
-  def handle_message(
-        _processor,
-        message = %Broadway.Message{
-          data: resource = %Figgy.Resource{}
-        },
-        %{cache_version: cache_version}
+  # Delete things which have no persisted members.
+  def post_classification(
+        {:update,
+         %Figgy.CombinedFiggyResource{
+           resource: resource,
+           persisted_member_ids: [],
+           latest_updated_marker: marker
+         }},
+        _cache_version
       ) do
-    resource
-    |> to_message_data(cache_version)
-    |> store_result(message)
+    {:delete,
+     %Figgy.DeletionRecord{
+       marker: marker,
+       internal_resource: resource.internal_resource,
+       id: resource.id
+     }}
   end
 
-  # Described as a sentence, the hydration consumer, for each resource:
-  # Classify (Update/Delete/Skip)
-  # Enriches (Add data to the record before conversion)
-  # Post-Classification (If the extra data changes the classification, do it
-  #   here.)
-  # Converts for storage
-  # Stores in message
-  def to_message_data(resource, cache_version) do
-    resource
-    # Determine early on if we're deleting, skipping, or updating.
-    |> initial_classification(cache_version)
-    # Add or convert resource
-    |> enrich(cache_version)
+  def post_classification(resource_and_classification, _cache_version),
+    do: resource_and_classification
 
-    # |> post_classification # Determine if after enrichment we should continue updating, delete, or skip.
-    # |> convert for persistence
-  end
-
-  # There's a bunch of them, filter out the skips and put it in the message.
+  # There's a bunch of records, filter out the skips and put it in the message.
   def store_result(records, message) when is_list(records) do
     data =
       records
@@ -186,73 +224,52 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   def store_result(data = {_action, _resource}, message),
     do: Broadway.Message.put_data(message, data)
 
-  @impl Broadway
-  def handle_batch(:default, messages, _batch_info, %{cache_version: cache_version}) do
-    messages
-    |> Enum.map(&Map.get(&1, :data))
-    # Just in case we move to related resources being enriched to multiple
-    # resource operations in a list.
-    |> List.flatten()
-    |> Enum.each(&persist(&1, cache_version))
+  defp persist({action, resource}, cache_version) when action in [:delete, :update] do
+    # Maybe move to HydrationCacheEntry.from?
+    attributes = hydration_cache_attributes(resource, cache_version)
 
-    messages
-  end
-
-  def handle_batch(:noop, messages, _batch_info, _state) do
-    messages
-  end
-
-  defp persist(
-         {:delete,
-          %Figgy.DeletionRecord{
-            marker: marker,
-            id: id,
-            internal_resource: internal_resource
-          }},
-         cache_version
-       ) do
     {:ok, _response} =
-      IndexingPipeline.write_hydration_cache_entry(%{
-        cache_version: cache_version,
-        record_id: id,
-        related_ids: [],
-        source_cache_order: marker.timestamp,
-        source_cache_order_record_id: id,
-        data: %{internal_resource: internal_resource, id: id, metadata: %{"deleted" => true}}
-      })
+      IndexingPipeline.write_hydration_cache_entry(attributes)
   end
 
-  defp persist(
-         {:update,
-          %{
-            marker: marker,
-            handled_data: data,
-            related_data: related_data,
-            related_ids: related_ids,
-            source_cache_order: source_cache_order,
-            source_cache_order_record_id: source_cache_order_record_id
-          }},
-         cache_version
-       ) do
-    # store in HydrationCache:
-    # - data (blob) - this is the record
-    # - cache_order (datetime) - this is our own new timestamp for this table
-    # - cache_version (this only changes manually, we have to hold onto it as state)
-    # - record_id (varchar) - the figgy UUID
-    # - source_cache_order (datetime) - most recent figgy or related resource updated_at
-    # - source_cache_order_record_id (varchar) - record id of the source_cache_order value
-    {:ok, response} =
-      IndexingPipeline.write_hydration_cache_entry(%{
-        cache_version: cache_version,
-        record_id: marker.id,
-        related_ids: related_ids,
-        source_cache_order: source_cache_order,
-        source_cache_order_record_id: source_cache_order_record_id,
-        data: data,
-        related_data: related_data
-      })
+  def hydration_cache_attributes(
+        %Figgy.DeletionRecord{
+          marker: marker,
+          id: id,
+          internal_resource: internal_resource
+        },
+        cache_version
+      ) do
+    %{
+      cache_version: cache_version,
+      record_id: id,
+      related_ids: [],
+      source_cache_order: marker.timestamp,
+      source_cache_order_record_id: marker.id,
+      data: %{internal_resource: internal_resource, id: id, metadata: %{"deleted" => true}}
+    }
+  end
 
-    {:ok, response}
+  # store in HydrationCache:
+  # - data (blob) - this is the record
+  # - cache_order (datetime) - this is our own new timestamp for this table
+  # - cache_version (this only changes manually, we have to hold onto it as state)
+  # - record_id (varchar) - the figgy UUID
+  # - source_cache_order (datetime) - most recent figgy or related resource updated_at
+  # - source_cache_order_record_id (varchar) - record id of the source_cache_order value
+  def hydration_cache_attributes(
+        combined_resource = %Figgy.CombinedFiggyResource{resource: resource},
+        cache_version
+      ) do
+    %{
+      cache_version: cache_version,
+      record_id: resource.id,
+      data: resource,
+      related_data: combined_resource.related_data,
+      related_ids: combined_resource.related_ids,
+      source_cache_order: combined_resource.latest_updated_marker.timestamp,
+      source_cache_order_record_id: combined_resource.latest_updated_marker.id
+    }
   end
 
   def start_over!(cache_version) do

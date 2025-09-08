@@ -67,7 +67,7 @@ defmodule FiggyTestSupport do
         related_ids: cache_attrs.related_ids,
         source_cache_order: marker.timestamp,
         source_cache_order_record_id: marker.id,
-        data: cache_attrs.handled_data
+        data: cache_attrs.data
       })
 
     hydration_cache_entry =
