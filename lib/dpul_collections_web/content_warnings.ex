@@ -46,7 +46,7 @@ defmodule DpulCollectionsWeb.ContentWarnings do
       <.link
         id={"open-show-image-banner-#{@item_id}"}
         class="flex gap-2 align-center text-rust"
-        phx-click={JS.exec("phx-open", to: "#show-image-banner-#{@item_id}-dialog")}
+        phx-click={JS.exec("dcjs-open", to: "#show-image-banner-#{@item_id}-dialog")}
       >
         <span class="flex-none">
           <.icon name="hero-eye-slash" class="h-5 w-5 icon mb-[2px]" />

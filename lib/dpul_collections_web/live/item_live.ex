@@ -393,7 +393,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         <.action_icon
           icon="hero-share"
           variant="item-action-icon"
-          phx-click={JS.exec("phx-open", to: "#share-modal")}
+          phx-click={JS.exec("dcjs-open", to: "#share-modal")}
         >
           {gettext("Share")}
         </.action_icon>
@@ -613,7 +613,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def show_viewer_share_modal(js \\ %JS{}) do
     js
     |> JS.remove_class("dismissable", to: "#viewer-pane")
-    |> JS.exec("phx-open", to: "#viewer-share-modal")
+    |> JS.exec("dcjs-open", to: "#viewer-share-modal")
   end
 
   attr :id, :string, required: true

@@ -211,10 +211,10 @@ defmodule DpulCollectionsWeb.CoreComponents do
     <dialog
       id={@id}
       phx-hook="Dialog"
-      phx-open={JS.dispatch("dpulc:showDialog")}
-      phx-close={JS.dispatch("dpulc:closeDialog") |> JS.exec("phx-after-close")}
-      phx-after-close={@afterClose}
-      phx-remove={JS.exec("phx-close")}
+      dcjs-open={JS.dispatch("dpulc:showDialog")}
+      dcjs-close={JS.dispatch("dpulc:closeDialog") |> JS.exec("phx-after-close")}
+      dcjs-after-close={@afterClose}
+      phx-remove={JS.exec("dcjs-close")}
       aria-labelledby={"#{@id}-label"}
       closedBy="any"
       class="modal max-w-2xl backdrop:bg-black/50 open:fixed open:top-[50%] open:left-[50%] open:-translate-x-[50%] open:-translate-y-[50%] fixed bg-white rounded-lg shadow-sm text-dark-text"
@@ -228,7 +228,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
           <button
             type="button"
             class="cursor-pointer"
-            phx-click={JS.exec("phx-close", to: {:closest, "dialog"})}
+            phx-click={JS.exec("dcjs-close", to: {:closest, "dialog"})}
           >
             <.icon name="hero-x-mark" />
             <span class="sr-only">{gettext("Close modal")}</span>
