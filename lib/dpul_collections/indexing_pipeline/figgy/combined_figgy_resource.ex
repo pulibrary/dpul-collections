@@ -1,7 +1,4 @@
 defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
-  alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
-  alias DpulCollections.IndexingPipeline
-  alias DpulCollections.IndexingPipeline.Figgy
   require Logger
 
   @enforce_keys [

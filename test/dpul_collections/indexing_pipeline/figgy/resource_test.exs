@@ -1,7 +1,26 @@
 defmodule DpulCollections.IndexingPipeline.Figgy.ResourceTest do
   use DpulCollections.DataCase
   alias DpulCollections.IndexingPipeline
+  alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline.Figgy.Resource
+
+  describe "converting to solr" do
+    test "it's possible to convert a folder to a solr document without the pipeline" do
+      folder = IndexingPipeline.get_figgy_resource!("be12221a-6461-4aae-a6c6-c1defc8717dd")
+
+      doc =
+        folder
+        |> Figgy.Resource.to_combined()
+
+      # Okay ran into a casting problem - 
+      # When HydrationCacheEntry has related_data, it's a bunch of maps. When
+      # Figgy.CombinedResource has it right from a Figgy.Resource, it's a bunch
+      # of Figgy.Resources.
+      #   |> Figgy.CombinedFiggyResource.to_solr_document()
+      #
+      # assert doc[:genre_txtm] == ["Ephemera"]
+    end
+  end
 
   describe "to_hydration_cache_attrs/1" do
     test "it doesn't error when the related resource id is an empty string" do
