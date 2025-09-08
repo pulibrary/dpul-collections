@@ -30,45 +30,47 @@ defmodule DpulCollectionsWeb.HeaderComponent do
       
     <!-- language -->
       <nav
+        id="language-nav"
         class="menu flex flex-none justify-end w-10 sm:w-32 md:w-40"
-        aria-label={gettext("Language menu")}
+        aria-label={gettext("Main Navigation")}
+        dcjs-toggle-menu={JS.toggle(to: {:inner, "ul[role='menu']"})}
+        dcjs-hide-menu={JS.hide(to: {:inner, "ul[role='menu']"})}
       >
-        <div class="dropdown relative inline-block">
-          <button
-            id="dropdownButton"
-            name={gettext("Language")}
-            class="text-white hover:link-hover font-medium"
-            aria-haspopup="true"
-            aria-expanded="false"
-            phx-click={JS.toggle(to: "#dropdownMenu")}
-          >
-            <span class="hover:link-hover font-normal sm:font-medium text-sm sm:text-md cursor-pointer">
-              {gettext("Language")}&nbsp;<span class="font-normal">&gt;</span>
-            </span>
-          </button>
-          <ul
-            id="dropdownMenu"
-            phx-click-away={JS.hide(to: "#dropdownMenu")}
-            class="dropdown-menu aria-hidden hidden absolute left-auto right-0 list-none bg-white min-w-3xs py-2 px-0 mt-2 shadow-md rounded-md z-100"
-            role="menu"
-            aria-hidden="true"
-          >
-            <li
-              role="menuitem"
-              tabindex="-1"
-              class="p-2 hover:bg-stone-200 focus:bg-stone-200 cursor-pointer"
+        <ul
+          class="dropdown relative inline-block"
+          dcjs-toggle-menu={JS.toggle(to: {:inner, "ul"})}
+          dcjs-hide-menu={JS.hide(to: {:inner, "ul"})}
+        >
+          <li>
+            <button
+              name={gettext("Language")}
+              class="text-white hover:link-hover font-medium"
+              aria-label={gettext("Language")}
+              aria-expanded="false"
+              aria-haspopup="true"
+              phx-click={
+                JS.toggle_attribute({"aria-expanded", "false", "true"})
+                |> JS.exec("dcjs-toggle-menu", to: {:closest, "ul"})
+              }
+              phx-click-away={
+                JS.set_attribute({"aria-expanded", "false"})
+                |> JS.exec("dcjs-hide-menu", to: {:closest, "ul"})
+              }
             >
-              <div phx-click={JS.dispatch("setLocale", detail: %{locale: "en"})}>English</div>
-            </li>
-            <li
-              role="menuitem"
-              tabindex="-1"
-              class="p-2 hover:bg-stone-200 focus:bg-stone-200 cursor-pointer"
-            >
-              <div phx-click={JS.dispatch("setLocale", detail: %{locale: "es"})}>Español</div>
-            </li>
-          </ul>
-        </div>
+              <span class="hover:link-hover font-normal sm:font-medium text-sm sm:text-md cursor-pointer">
+                {gettext("Language")}&nbsp;<span class="font-normal">&gt;</span>
+              </span>
+            </button>
+            <ul class="dropdown-menu hidden absolute left-auto right-0 list-none bg-white min-w-3xs py-2 px-0 mt-2 shadow-md rounded-md z-100">
+              <li class="p-2 hover:bg-stone-200 focus:bg-stone-200 cursor-pointer">
+                <.link phx-click={JS.dispatch("setLocale", detail: %{locale: "en"})}>English</.link>
+              </li>
+              <li class="p-2 hover:bg-stone-200 focus:bg-stone-200 cursor-pointer">
+                <.link phx-click={JS.dispatch("setLocale", detail: %{locale: "es"})}>Español</.link>
+              </li>
+            </ul>
+          </li>
+        </ul>
       </nav>
     </header>
     """
