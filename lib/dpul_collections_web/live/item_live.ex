@@ -237,7 +237,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       phx-key="escape"
       phx-hook="ScrollTop"
     >
-      <div class="header-x-padding page-y-padding bg-accent flex flex-row">
+      <div class="header-x-padding heading-y-padding bg-accent flex flex-row">
         <h1 class="uppercase text-light-text flex-auto">{gettext("Metadata")}</h1>
         <.link
           aria-label={gettext("close")}
@@ -307,7 +307,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       phx-key="escape"
       phx-hook="ScrollTop"
     >
-      <div id="viewer-header" class="header-x-padding page-y-padding bg-accent flex flex-row">
+      <div id="viewer-header" class="header-x-padding heading-y-padding bg-accent flex flex-row">
         <div class="flex-auto flex flex-row">
           <h1 class="uppercase text-light-text flex-none">{gettext("Viewer")}</h1>
           <.action_icon

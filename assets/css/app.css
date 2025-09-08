@@ -227,6 +227,14 @@
   @apply px-4 sm:px-8 lg:px-10;
 }
 
+@utility header-y-padding {
+  @apply py-4;
+}
+
+@utility heading-y-padding {
+  @apply py-3;
+}
+
 @utility header-s-padding {
   @apply ps-6 sm:ps-8 lg:ps-10;
 }
@@ -276,11 +284,11 @@
   }
 
   h1 {
-    @apply heading text-3xl;
+    @apply heading text-2xl;
   }
 
   h2 {
-    @apply text-2xl font-bold;
+    @apply text-xl font-bold;
   }
 
   p {
