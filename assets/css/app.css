@@ -90,7 +90,7 @@
 }
 
 .diagonal-drop {
-  padding-left: 25px;
+  padding-left: 30px;
   clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 25px 100%);
 }
 
@@ -320,3 +320,13 @@
     width: 100%;
     height: auto;
 }
+
+.card {
+  @apply drop-shadow-[0.25rem_0.25rem_0.25rem_var(--color-sage-300)];
+  @apply hover:drop-shadow-[0_0_0.7rem_var(--color-sage-600)];
+
+  * {
+    @apply no-underline;
+  }
+}
+

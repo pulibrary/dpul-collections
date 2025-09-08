@@ -56,14 +56,20 @@ defmodule DpulCollectionsWeb.ContentWarnings do
         </span>
       </.link>
     </div>
-    <.content_modal {assigns} />
+    <.content_modal
+      item_id={@item_id}
+      content_warning={@content_warning}
+    />
     """
   end
 
   def content_modal(assigns) do
     ~H"""
     <.modal id={"show-image-banner-#{@item_id}-dialog"} label="Content Warning">
-      <.content_warning_body {assigns} />
+      <.content_warning_body
+        item_id={@item_id}
+        content_warning={@content_warning}
+      />
     </.modal>
     """
   end

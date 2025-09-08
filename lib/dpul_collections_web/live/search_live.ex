@@ -127,7 +127,6 @@ defmodule DpulCollectionsWeb.SearchLive do
         </div>
         <div class="grid grid-flow-row auto-rows-max gap-8">
           <div :for={item <- @items}>
-            <hr aria-hidden="true" class="mb-8" />
             <.search_item
               search_state={@search_state}
               item={item}
@@ -171,51 +170,90 @@ defmodule DpulCollectionsWeb.SearchLive do
     """
   end
 
+  def num_rows(file_count) when file_count > 1 do
+    "row-span-3"
+  end
+
+  def num_rows(_file_count) do
+    "row-span-2"
+  end
+
   def search_item(assigns) do
     ~H"""
     <article
       id={"item-#{@item.id}"}
-      class="item"
+      class="item card"
+      aria-label={@item.title |> hd}
       phx-hook="ShowPageCount"
       data-id={@item.id}
       data-filecount={@item.file_count}
-      aria-label={@item.title |> hd}
     >
-      <.link navigate={@item.url} class="thumb-link">
-        <div class="flex flex-wrap gap-5 md:max-h-60 max-h-[22rem] overflow-hidden justify-center md:justify-start relative">
-          <.thumbs
-            :for={{thumb, thumb_num} <- thumbnail_service_urls(5, @item)}
-            :if={@item.file_count}
-            thumb={thumb}
-            thumb_num={thumb_num}
-            item={@item}
-            show_images={@show_images}
-          />
-          <div id={"filecount-#{@item.id}"} class="hidden absolute right-0 top-0 bg-white px-4 py-2">
-            {@item.file_count} {gettext("Images")}
+      <div
+        :if={Helpers.obfuscate_item?(assigns)}
+        class="h-[2.5rem]"
+      >
+        <ContentWarnings.show_images_banner
+          item_id={@item.id}
+          content_warning={@item.content_warning}
+        />
+      </div>
+      <.link navigate={@item.url}>
+        <div class="grid-rows-2 bg-sage-100 grid sm:grid-rows-1 sm:grid-cols-3 gap-0">
+          <div class={[
+            "large-thumbnail",
+            "col-span-1",
+            num_rows(@item.file_count),
+            "search-thumbnail bg-search flex justify-center"
+          ]}>
+            <.large_thumb
+              :if={@item.file_count}
+              thumb={elem(hd(thumbnail_service_urls(0, 1, @item)), 0)}
+              thumb_num={0}
+              item={@item}
+              show_images={@show_images}
+            />
+          </div>
+          <div
+            class="metadata sm:col-span-2 flex flex-col gap-2 p-4"
+            id={"item-metadata-#{@item.id}"}
+          >
+            <div
+              data-field="genre"
+              class="flex-none text-gray-600 font-bold text-base uppercase text-right"
+            >
+              {@item.genre}
+            </div>
+            <h2 dir="auto">
+              {@item.title}
+            </h2>
+            <div class="flex-auto flex flex-row">
+              <div class="text-xl">{@item.date}</div>
+              <div
+                :if={@sort_by == :recently_updated && @item.updated_at}
+                class="updated-at self-end w-full pb-2 text-right"
+              >
+                {gettext("Added")} {DpulCollectionsWeb.BrowseItem.time_ago(@item.updated_at)}
+              </div>
+            </div>
+            <div class="small-thumbnails flex-none flex flex-row flex-wrap gap-5 max-h-[170px] max-w-[740px] justify-start relative overflow-hidden">
+              <.thumbs
+                :for={{thumb, thumb_num} <- thumbnail_service_urls(1, 4, @item)}
+                :if={@item.file_count > 1}
+                thumb={thumb}
+                thumb_num={thumb_num + 1}
+                item={@item}
+                show_images={@show_images}
+              />
+              <div
+                id={"filecount-#{@item.id}"}
+                class="hidden absolute diagonal-drop right-0 top-0 bg-background pr-4 py-2"
+              >
+                {@item.file_count} {gettext("Images")}
+              </div>
+            </div>
           </div>
         </div>
       </.link>
-      <div data-field="genre" class="pt-4 text-gray-600 font-bold text-sm uppercase">
-        <.link
-          aria-label={"#{gettext("filter by")} #{@item.genre}"}
-          navigate={self_route(@search_state, %{filter: %{"genre" => List.first(@item.genre)}})}
-        >
-          {@item.genre}
-        </.link>
-      </div>
-      <h2 dir="auto">
-        <.link navigate={@item.url}>{@item.title}</.link>
-      </h2>
-      <div class="flex items-start">
-        <div class="text-xl">{@item.date}</div>
-        <div
-          :if={@sort_by == :recently_updated && @item.updated_at}
-          class="updated-at self-end w-full pb-2 text-right"
-        >
-          {gettext("Added")} {DpulCollectionsWeb.BrowseItem.time_ago(@item.updated_at)}
-        </div>
-      </div>
     </article>
     """
   end
@@ -237,25 +275,37 @@ defmodule DpulCollectionsWeb.SearchLive do
     """
   end
 
+  def large_thumb(assigns) do
+    ~H"""
+    <img
+      class={
+        [
+          "h-[350px] w-[350px]",
+          # "md:h-[225px] md:w-[225px]",
+          "bg-search object-contain p-2",
+          Helpers.obfuscate_item?(assigns) && "obfuscate",
+          "thumbnail-#{@item.id}"
+        ]
+      }
+      src={"#{@thumb}/full/!350,350/0/default.jpg"}
+      alt={"image #{@thumb_num}"}
+    />
+    """
+  end
+
   def thumbs(assigns) do
     ~H"""
-    <ContentWarnings.show_images_banner
-      :if={Helpers.obfuscate_item?(assigns) && @thumb_num == 0}
-      item_id={@item.id}
-      content_warning={@item.content_warning}
-    />
     <img
       class={[
-        "h-[350px] w-[350px] md:h-[225px] md:w-[225px] border border-solid border-gray-400",
+        "h-[170px] w-[170px] md:h-[170px] md:w-[170px] border border-solid border-gray-400",
         Helpers.obfuscate_item?(assigns) && "obfuscate",
         "thumbnail-#{@item.id}"
       ]}
-      src={"#{@thumb}/square/350,350/0/default.jpg"}
+      src={"#{@thumb}/square/170,170/0/default.jpg"}
       alt={"image #{@thumb_num}"}
-      style="
-          background-color: lightgray;"
-      width="350"
-      height="350"
+      style="background-color: lightgray;"
+      width="170"
+      height="170"
     />
     """
   end
@@ -425,27 +475,33 @@ defmodule DpulCollectionsWeb.SearchLive do
     end
   end
 
-  defp thumbnail_service_urls(max_thumbnails, item) do
+  defp thumbnail_service_urls(start, max_thumbnails, item) do
     thumbnail_service_urls(
+      start,
       max_thumbnails,
       item.image_service_urls,
       item.primary_thumbnail_service_url
     )
   end
 
-  defp thumbnail_service_urls(max_thumbnails, image_service_urls, nil) do
+  defp thumbnail_service_urls(start, max_thumbnails, image_service_urls, nil) do
     # Truncate image service urls to max value
     image_service_urls
-    |> Enum.slice(0, max_thumbnails)
+    |> Enum.slice(start, max_thumbnails)
     |> Enum.with_index()
   end
 
-  defp thumbnail_service_urls(max_thumbnails, image_service_urls, primary_thumbnail_service_url) do
+  defp thumbnail_service_urls(
+         start,
+         max_thumbnails,
+         image_service_urls,
+         primary_thumbnail_service_url
+       ) do
     # Move thumbnail url to front of list and then truncate to max value
     image_service_urls
     |> Enum.filter(&(&1 != primary_thumbnail_service_url))
     |> List.insert_at(0, primary_thumbnail_service_url)
-    |> Enum.slice(0, max_thumbnails)
+    |> Enum.slice(start, max_thumbnails)
     |> Enum.with_index()
   end
 end
