@@ -393,7 +393,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         <.action_icon
           icon="hero-share"
           variant="item-action-icon"
-          phx-click={JS.show(to: "#share-modal")}
+          phx-click={JS.exec("dcjs-open", to: "#share-modal")}
         >
           {gettext("Share")}
         </.action_icon>
@@ -610,16 +610,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def show_viewer_share_modal(js \\ %JS{}) do
     js
     |> JS.remove_class("dismissable", to: "#viewer-pane")
-    |> JS.show(to: "#viewer-share-modal")
-  end
-
-  # When we hide the modal we have to re-set the copy button and make "Escape"
-  # work again for dismissing the viewer pane.
-  def hide_modal(id, js \\ %JS{}) do
-    js
-    |> JS.hide(to: "##{id}")
-    |> JS.remove_class("bg-accent", to: "##{id}-value-copy")
-    |> JS.add_class("dismissable", to: "#viewer-pane")
+    |> JS.exec("dcjs-open", to: "#viewer-share-modal")
   end
 
   attr :id, :string, required: true
@@ -628,24 +619,20 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def share_modal(assigns) do
     ~H"""
-    <div id={@id} class="hidden" phx-window-keydown={hide_modal(@id)} phx-key="escape">
-      <div class="fixed inset-0 p-4 flex flex-wrap justify-center items-center w-full h-full z-[1000] before:fixed before:inset-0 before:w-full before:h-full before:bg-[rgba(0,0,0,0.5)] overflow-auto">
-        <div
-          class="w-full max-w-2xl bg-white shadow-lg rounded-lg p-8 relative"
-          phx-click-away={hide_modal(@id)}
-        >
-          <div class="flex items-center pb-3 border-b border-gray-300">
-            <h3 class="text-xl font-semibold flex-1 text-slate-900">{@heading}</h3>
-            <button aria-label="close" phx-click={hide_modal(@id)} class="cursor-pointer">
-              <.icon name="hero-x-mark" />
-            </button>
-          </div>
-          <div class="mt-4">
-            <.copy_element value={"#{DpulCollectionsWeb.Endpoint.url()}#{@path}"} id={"#{@id}-value"} />
-          </div>
-        </div>
+    <.modal
+      id={@id}
+      label={@heading}
+      afterClose={
+        # When we hide the modal we have to re-set the copy button and make "Escape"
+        # work again for dismissing the viewer pane.
+        JS.add_class("dismissable", to: "#viewer-pane")
+        |> JS.remove_class("bg-accent", to: "##{@id}-value-copy")
+      }
+    >
+      <div class="mt-4">
+        <.copy_element value={"#{DpulCollectionsWeb.Endpoint.url()}#{@path}"} id={"#{@id}-value"} />
       </div>
-    </div>
+    </.modal>
     """
   end
 

@@ -400,4 +400,44 @@ defmodule DpulCollectionsWeb.CoreComponents do
     />
     """
   end
+
+  attr :id, :string, required: true
+  attr :afterClose, :any, required: false, default: %JS{}
+  attr :label, :string, required: true
+
+  slot :inner_block, doc: "the modal content"
+
+  def modal(assigns) do
+    ~H"""
+    <dialog
+      id={@id}
+      phx-hook="Dialog"
+      dcjs-open={JS.dispatch("dpulc:showDialog")}
+      dcjs-close={JS.dispatch("dpulc:closeDialog") |> JS.exec("phx-after-close")}
+      dcjs-after-close={@afterClose}
+      phx-remove={JS.exec("dcjs-close")}
+      aria-labelledby={"#{@id}-label"}
+      closedBy="any"
+      class="modal max-w-2xl backdrop:bg-black/50 open:fixed open:top-[50%] open:left-[50%] open:-translate-x-[50%] open:-translate-y-[50%] fixed bg-white rounded-lg shadow-sm text-dark-text"
+    >
+      <div class="w-full max-w-2xl bg-white shadow-lg rounded-lg p-8 relative">
+        <!-- Modal header -->
+        <div class="flex items-center justify-between border-b border-gray-300 pb-3">
+          <h2 id={"#{@id}-label"} class="text-xl font-semibold">
+            {@label}
+          </h2>
+          <button
+            type="button"
+            class="cursor-pointer"
+            phx-click={JS.exec("dcjs-close", to: {:closest, "dialog"})}
+          >
+            <.icon name="hero-x-mark" />
+            <span class="sr-only">{gettext("Close modal")}</span>
+          </button>
+        </div>
+        {render_slot(@inner_block)}
+      </div>
+    </dialog>
+    """
+  end
 end
