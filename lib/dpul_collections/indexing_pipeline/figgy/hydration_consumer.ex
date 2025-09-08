@@ -195,7 +195,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     |> List.flatten()
     |> Enum.each(&persist(&1, cache_version))
 
-    # Enum.each(messages, &write_to_hydration_cache(&1, cache_version))
     messages
   end
 

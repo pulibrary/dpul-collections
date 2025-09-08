@@ -25,7 +25,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ResourceTest do
         folder
         |> Resource.to_hydration_cache_attrs()
         |> get_in([:handled_data])
-        |> get_in([:metadata])
+        |> get_in([Access.key!(:metadata)])
 
       assert(metadata["deleted"] == true)
     end
@@ -37,7 +37,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ResourceTest do
         %Resource{folder | metadata: %{folder.metadata | "member_ids" => []}}
         |> Resource.to_hydration_cache_attrs()
         |> get_in([:handled_data])
-        |> get_in([:metadata])
+        |> get_in([Access.key!(:metadata)])
 
       assert(metadata["deleted"] == true)
     end
