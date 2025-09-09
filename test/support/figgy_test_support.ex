@@ -58,7 +58,11 @@ defmodule FiggyTestSupport do
   def index_record(record, cache_version \\ 1) do
     # Write a current hydration marker right before that marker.
     marker = IndexingPipeline.DatabaseProducer.CacheEntryMarker.from(record)
-    cache_attrs = Figgy.Resource.to_hydration_cache_attrs(record)
+
+    cache_attrs =
+      Figgy.HydrationConsumer.process(record, 1)
+      |> elem(1)
+      |> Figgy.HydrationConsumer.hydration_cache_attributes(1)
 
     {:ok, cache_entry} =
       IndexingPipeline.write_hydration_cache_entry(%{

@@ -238,21 +238,25 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
   @spec store_result(process_return(), cache_version :: integer) ::
           {:ok, %Figgy.HydrationCacheEntry{}}
-  defp persist({action, resource}, cache_version) when action in [:delete, :update] do
+  defp persist(process_return = {action, _resource}, cache_version)
+       when action in [:delete, :update] do
     # Maybe move to HydrationCacheEntry.from?
-    attributes = hydration_cache_attributes(resource, cache_version)
+    attributes = hydration_cache_attributes(process_return, cache_version)
 
     {:ok, _response} =
       IndexingPipeline.write_hydration_cache_entry(attributes)
   end
 
   @spec hydration_cache_attributes(
-          %Figgy.DeletionRecord{} | %Figgy.CombinedFiggyResource{},
+          %Figgy.DeletionRecord{} | %Figgy.CombinedFiggyResource{} | process_return(),
           cache_version :: integer
         ) :: %{
           :handled_data => map(),
           :related_data => Figgy.CombinedFiggyResource.related_data()
         }
+  def hydration_cache_attributes({_action, resource}, cache_version),
+    do: hydration_cache_attributes(resource, cache_version)
+
   def hydration_cache_attributes(
         %Figgy.DeletionRecord{
           marker: marker,
