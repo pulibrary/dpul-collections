@@ -413,7 +413,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
       id={@id}
       phx-hook="Dialog"
       dcjs-open={JS.dispatch("dpulc:showDialog")}
-      dcjs-close={JS.dispatch("dpulc:closeDialog") |> JS.exec("phx-after-close")}
+      dcjs-close={JS.dispatch("dpulc:closeDialog") |> JS.exec("dcjs-after-close")}
       dcjs-after-close={@afterClose}
       phx-remove={JS.exec("dcjs-close")}
       aria-labelledby={"#{@id}-label"}
