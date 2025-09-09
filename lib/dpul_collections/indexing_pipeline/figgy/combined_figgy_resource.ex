@@ -32,6 +32,17 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
   end
 
   def to_solr_document(%__MODULE__{
+        resource: %{"id" => id, "metadata" => %{"deleted" => true}}
+      }) do
+    # Generate a small json document for deleted resources that indicates that
+    # the Solr record with that id should be deleted from the index.
+    %{
+      id: id,
+      deleted: true
+    }
+  end
+
+  def to_solr_document(%__MODULE__{
         related_data: related_data,
         resource: data = %{"id" => id, "metadata" => metadata}
       }) do
