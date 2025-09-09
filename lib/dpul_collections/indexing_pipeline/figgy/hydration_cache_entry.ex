@@ -65,19 +65,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
         related_ids: related_ids
       }) do
     %Figgy.CombinedFiggyResource{
-      resource: data_to_figgy_resource(data),
+      resource: data,
       related_data: related_data,
       related_ids: related_ids
     }
-  end
-
-  def data_to_figgy_resource(data) do
-    # We have to convert all the top level keys to symbols.
-    map =
-      for {key, value} <- data, into: %{} do
-        {String.to_existing_atom(key), value}
-      end
-
-    struct!(Figgy.Resource, map)
   end
 end

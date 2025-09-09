@@ -1,4 +1,5 @@
 defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
+  alias DpulCollections.IndexingPipeline.Figgy
   require Logger
 
   @enforce_keys [
@@ -13,9 +14,26 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
           optional(resource_id :: String.t()) => resource_struct :: map()
         }
 
+  # Normally this is set from a HydrationCacheEntry, so data and related_data
+  # are maps, not resources. When it's a resource, convert our data.
+  # TODO: Have a consistent data and casting mechanism here.
+  def to_solr_document(
+        combined = %__MODULE__{
+          resource: resource = %Figgy.Resource{},
+          related_data: related_data
+        }
+      ) do
+    %{
+      combined
+      | resource: resource |> Jason.encode!() |> Jason.decode!(),
+        related_data: related_data |> Jason.encode!() |> Jason.decode!()
+    }
+    |> to_solr_document
+  end
+
   def to_solr_document(%__MODULE__{
         related_data: related_data,
-        resource: data = %{id: id, metadata: metadata}
+        resource: data = %{"id" => id, "metadata" => metadata}
       }) do
     box_metadata = extract_box_metadata(related_data)
     project_metadata = extract_project_metadata(related_data)
@@ -87,13 +105,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
     field_value |> Enum.reject(fn v -> v == "" end)
   end
 
-  defp digitized_date(%{created_at: created_at}) when is_binary(created_at) do
+  defp digitized_date(%{"created_at" => created_at}) when is_binary(created_at) do
     created_at
   end
 
   defp digitized_date(_data), do: nil
 
-  defp updated_date(%{updated_at: updated_at}) when is_binary(updated_at) do
+  defp updated_date(%{"updated_at" => updated_at}) when is_binary(updated_at) do
     updated_at
   end
 
@@ -225,9 +243,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
   defp extract_service_url(nil), do: nil
 
   defp extract_pdf_url(%{
-         id: id,
-         internal_resource: internal_resource,
-         metadata: %{
+         "id" => id,
+         "internal_resource" => internal_resource,
+         "metadata" => %{
            "pdf_type" => [pdf_type]
          }
        })
@@ -372,19 +390,19 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
   end
 
   defp extract_years(%{
-         metadata: %{"date_range" => [%{"start" => [start_year], "end" => [end_year]}]}
+         "metadata" => %{"date_range" => [%{"start" => [start_year], "end" => [end_year]}]}
        }) do
     Enum.to_list(String.to_integer(start_year)..String.to_integer(end_year))
   end
 
-  defp extract_years(%{metadata: %{"date_created" => []}}) do
+  defp extract_years(%{"metadata" => %{"date_created" => []}}) do
     nil
   end
 
   # This will be single value from figgy, stored as an array.
   # If somehow we get more than 1 value, just take the first
   # It goes into a multi-valued index field, so keep it looking that way
-  defp extract_years(%{metadata: %{"date_created" => [date | _tail]}, id: id}) do
+  defp extract_years(%{"metadata" => %{"date_created" => [date | _tail]}, "id" => id}) do
     result = extract_year(date) |> year_string_to_integer()
 
     case result do

@@ -11,14 +11,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ResourceTest do
       doc =
         folder
         |> Figgy.Resource.to_combined()
+        |> Figgy.CombinedFiggyResource.to_solr_document()
 
-      # Okay ran into a casting problem - 
-      # When HydrationCacheEntry has related_data, it's a bunch of maps. When
-      # Figgy.CombinedResource has it right from a Figgy.Resource, it's a bunch
-      # of Figgy.Resources.
-      #   |> Figgy.CombinedFiggyResource.to_solr_document()
-      #
-      # assert doc[:genre_txtm] == ["Ephemera"]
+      assert doc[:genre_txtm] == ["Ephemera"]
     end
   end
 
