@@ -77,6 +77,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
   # If given a resource that has no virtual attributes and should, then populate
   # them - it probably came from get_figgy_resource!
+  @type process_return() ::
+          {:update | :delete | :skip | :related_records,
+           %Figgy.Resource{} | %Figgy.DeletionRecord{}}
+  @spec process(resource :: %Figgy.Resource{}, cache_version :: integer) :: process_return()
   def process(
         resource = %Figgy.Resource{metadata: %{"visibility" => _visibility}, visibility: nil},
         cache_version
@@ -94,6 +98,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     |> post_classification(cache_version)
   end
 
+  @spec initial_classification(resource :: %Figgy.Resource{}, cache_version :: integer) ::
+          process_return()
   def initial_classification(resource = %Figgy.Resource{id: id}, cache_version) do
     case resource do
       # Process open/complete EphemeraFolders
@@ -138,6 +144,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
   # If it's a related resource, get and process all records dependent on this
   # one.
+  @spec enrich(process_return(), cache_version :: integer) ::
+          process_return() | list(process_return())
   def enrich({:related_resource, %Figgy.Resource{id: id, updated_at: timestamp}}, cache_version) do
     related_record_ids =
       IndexingPipeline.get_related_hydration_cache_record_ids!(id, timestamp, cache_version)
@@ -190,6 +198,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   def enrich(resource_and_classification, _cache_version), do: resource_and_classification
 
   # Delete things which have no persisted members.
+  @spec post_classification(process_return() | any(), cache_version :: integer) ::
+          process_return()
   def post_classification(
         {:update,
          %Figgy.CombinedFiggyResource{
@@ -211,6 +221,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     do: resource_and_classification
 
   # There's a bunch of records, filter out the skips and put it in the message.
+  @spec store_result(process_return() | list(process_return()), message :: Broadway.Message.t()) ::
+          Broadway.Message.t()
   def store_result(records, message) when is_list(records) do
     data =
       records
@@ -224,6 +236,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   def store_result(data = {_action, _resource}, message),
     do: Broadway.Message.put_data(message, data)
 
+  @spec store_result(process_return(), cache_version :: integer) ::
+          {:ok, %Figgy.HydrationCacheEntry{}}
   defp persist({action, resource}, cache_version) when action in [:delete, :update] do
     # Maybe move to HydrationCacheEntry.from?
     attributes = hydration_cache_attributes(resource, cache_version)
@@ -232,6 +246,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
       IndexingPipeline.write_hydration_cache_entry(attributes)
   end
 
+  @spec hydration_cache_attributes(
+          %Figgy.DeletionRecord{} | %Figgy.CombinedFiggyResource{},
+          cache_version :: integer
+        ) :: map()
   def hydration_cache_attributes(
         %Figgy.DeletionRecord{
           marker: marker,
