@@ -57,6 +57,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
         nil
       )
 
+    AckTracker.reset_count!(tracker_pid)
+
     Enum.each(children, fn child ->
       start_supervised(child)
     end)
