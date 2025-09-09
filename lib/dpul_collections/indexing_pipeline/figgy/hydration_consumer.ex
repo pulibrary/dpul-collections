@@ -79,7 +79,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   # them - it probably came from get_figgy_resource!
   @type process_return() ::
           {:update | :delete | :skip | :related_records,
-           %Figgy.Resource{} | %Figgy.DeletionRecord{}}
+           %Figgy.Resource{} | %Figgy.DeletionRecord{} | %Figgy.CombinedFiggyResource{}}
   @spec process(resource :: %Figgy.Resource{}, cache_version :: integer) :: process_return()
   def process(
         resource = %Figgy.Resource{metadata: %{"visibility" => _visibility}, visibility: nil},
@@ -249,7 +249,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   @spec hydration_cache_attributes(
           %Figgy.DeletionRecord{} | %Figgy.CombinedFiggyResource{},
           cache_version :: integer
-        ) :: map()
+        ) :: %{
+          :handled_data => map(),
+          :related_data => Figgy.CombinedFiggyResource.related_data()
+        }
   def hydration_cache_attributes(
         %Figgy.DeletionRecord{
           marker: marker,

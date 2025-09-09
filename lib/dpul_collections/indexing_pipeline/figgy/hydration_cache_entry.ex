@@ -40,7 +40,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
   end
 
   @spec to_solr_document(%__MODULE__{}) :: %{}
-  def to_solr_document(%{
+  def to_solr_document(%HydrationCacheEntry{
         record_id: id,
         data: %{
           "metadata" => %{"deleted" => true}
@@ -59,6 +59,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
     Figgy.CombinedFiggyResource.to_solr_document(combined_figgy_resource)
   end
 
+  @spec to_combined_figgy_resource(%HydrationCacheEntry{}) :: %Figgy.CombinedFiggyResource{}
   def to_combined_figgy_resource(%__MODULE__{
         data: data,
         related_data: related_data,
