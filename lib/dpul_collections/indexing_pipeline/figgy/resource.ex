@@ -42,18 +42,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     }
   end
 
-  # @spec to_hydration_cache_attrs(%__MODULE__{}) :: %{
-  #         handled_data: map(),
-  #         related_data: Figgy.CombinedFiggyResource.related_data()
-  #       }
-  # # TODO: Remove this
-  # def to_hydration_cache_attrs(resource = %__MODULE__{}) do
-  #   resource
-  #   |> HydrationConsumer.process(1)
-  #   |> elem(1)
-  #   |> HydrationConsumer.hydration_cache_attributes(1)
-  # end
-
   @spec to_combined(%__MODULE__{}) :: %Figgy.CombinedFiggyResource{}
   def to_combined(resource = %Figgy.Resource{metadata: %{"member_ids" => member_ids}}) do
     related_data = extract_related_data(resource)
