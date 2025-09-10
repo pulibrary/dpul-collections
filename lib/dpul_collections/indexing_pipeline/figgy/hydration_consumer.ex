@@ -88,6 +88,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     process(Figgy.Resource.populate_virtual(resource), cache_version)
   end
 
+  @related_record_types ["EphemeraProject", "EphemeraBox", "EphemeraTerm", "FileSet"]
   def process(resource, cache_version) do
     resource
     # Determine early on if we're deleting, skipping, or updating.
@@ -104,6 +105,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     case resource do
       # Process open/complete EphemeraFolders
       %{internal_resource: "EphemeraFolder", state: ["complete"], visibility: ["open"]} ->
+        {:update, resource}
+
+      # Process things that could be related records
+      %{internal_resource: internal_resource} when internal_resource in @related_record_types ->
         {:update, resource}
 
       # Process EphemeraFolders that were processed before otherwise - we wanna
@@ -132,11 +137,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
           {:skip, resource}
         end
 
-      # For related resources, send a special key.
-      %{internal_resource: internal_resource}
-      when internal_resource in ["EphemeraProject", "EphemeraBox", "EphemeraTerm", "FileSet"] ->
-        {:related_resource, resource}
-
       _ ->
         {:skip, resource}
     end
@@ -144,9 +144,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
   # If it's a related resource, get and process all records dependent on this
   # one.
-  @spec enrich(process_return(), cache_version :: integer) ::
-          process_return() | list(process_return())
-  def enrich({:related_resource, %Figgy.Resource{id: id, updated_at: timestamp}}, cache_version) do
+  def enrich(
+        {:update,
+         %Figgy.Resource{id: id, updated_at: timestamp, internal_resource: internal_resource}},
+        cache_version
+      )
+      when internal_resource in @related_record_types do
     related_record_ids =
       IndexingPipeline.get_related_hydration_cache_record_ids!(id, timestamp, cache_version)
 
@@ -154,6 +157,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
     related_records
     |> Enum.map(&process(&1, cache_version))
+    # Don't include skips.
+    |> Enum.filter(fn {action, _} -> action != :skip end)
   end
 
   # We don't have the full resource yet, fetch it and re-enrich.
@@ -217,18 +222,19 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
      }}
   end
 
+  # A related resource returned an empty list, skip.
+  def post_classification([], _cache_version) do
+    {:skip, []}
+  end
+
   def post_classification(resource_and_classification, _cache_version),
     do: resource_and_classification
 
-  # There's a bunch of records, filter out the skips and put it in the message.
+  # One message resulted in many actions, store the list.
   @spec store_result(process_return() | list(process_return()), message :: Broadway.Message.t()) ::
           Broadway.Message.t()
   def store_result(records, message) when is_list(records) do
-    data =
-      records
-      |> Enum.filter(fn {action, _} -> action != :skip end)
-
-    Broadway.Message.put_data(message, data)
+    Broadway.Message.put_data(message, records)
   end
 
   def store_result({:skip, _record}, message), do: Broadway.Message.put_batcher(message, :noop)

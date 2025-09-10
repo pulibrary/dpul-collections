@@ -7,6 +7,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
   alias DpulCollections.IndexingPipeline.Figgy.{Resource, HydrationConsumer}
 
   describe "Figgy.HydrationConsumer" do
+    test "process/1 returns a skip for ephemera terms that don't have any related IDs" do
+      # This is "Washo", which we don't have anything labeled with in our test
+      # set.
+      ephemera_term = IndexingPipeline.get_figgy_resource!("1ebf9915-d865-4dc0-8f6f-56e19ce07248")
+      assert {:skip, _} = Figgy.HydrationConsumer.process(ephemera_term, 1)
+    end
+
     test "handle_message/3 when a message is not a complete and visible EphemeraFolder, it is sent to noop batcher" do
       ephemera_folder_message = %Broadway.Message{
         acknowledger: nil,
@@ -103,7 +110,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         transformed_messages
         |> Enum.map(&Map.get(&1, :batcher))
 
-      assert message_batchers == [:default, :noop, :noop, :default, :noop, :noop]
+      assert message_batchers == [:default, :noop, :noop, :noop, :noop, :noop]
     end
 
     test "handle_batch/3 only processes deletion markers with related resources in the HydrationCache" do
@@ -465,8 +472,15 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         messages =
           [updated_ephemera_term_message]
           |> Enum.map(&Figgy.HydrationConsumer.handle_message(nil, &1, %{cache_version: 1}))
+          |> Enum.group_by(&Map.get(&1, :batcher))
 
-        Figgy.HydrationConsumer.handle_batch(:default, messages, nil, %{cache_version: 1})
+        Figgy.HydrationConsumer.handle_batch(:default, messages[:batcher] || [], nil, %{
+          cache_version: 1
+        })
+
+        Figgy.HydrationConsumer.handle_batch(:noop, messages[:noop] || [], nil, %{
+          cache_version: 1
+        })
 
         hydration_cache_entries = IndexingPipeline.list_hydration_cache_entries()
         assert hydration_cache_entries |> length == 1
