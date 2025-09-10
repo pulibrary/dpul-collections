@@ -214,7 +214,7 @@ defmodule DpulCollectionsWeb.SearchLive do
             />
           </div>
           <div
-            class="metadata sm:col-span-2 flex flex-col gap-2 p-4"
+            class="metadata sm:col-span-2 flex flex-col gap-4 p-4"
             id={"item-metadata-#{@item.id}"}
           >
             <div
@@ -226,13 +226,26 @@ defmodule DpulCollectionsWeb.SearchLive do
             <h2 dir="auto">
               {@item.title}
             </h2>
-            <div class="flex-auto flex flex-row">
-              <div class="text-xl">{@item.date}</div>
+            <div
+              :if={@sort_by == :recently_updated && @item.updated_at}
+              class="updated-at w-full"
+            >
+              {gettext("Added")} {DpulCollectionsWeb.BrowseItem.time_ago(@item.updated_at)}
+            </div>
+            <div class="brief-metadata flex-auto flex flex-row gap-4">
               <div
-                :if={@sort_by == :recently_updated && @item.updated_at}
-                class="updated-at self-end w-full pb-2 text-right"
+                :if={@item.date}
+                class="date flex flex-col gap-0 pe-4 py-0 h-min"
               >
-                {gettext("Added")} {DpulCollectionsWeb.BrowseItem.time_ago(@item.updated_at)}
+                <div class="text-lg">{@item.date}</div>
+                <div class="text-base">Date</div>
+              </div>
+              <div
+                :if={@item.geographic_origin}
+                class="origin flex flex-col gap-0 pe-4 py-0 h-min"
+              >
+                <div class="text-lg">{@item.geographic_origin}</div>
+                <div class="text-base">Origin</div>
               </div>
             </div>
             <div class="small-thumbnails flex-none flex flex-row flex-wrap gap-5 max-h-[170px] max-w-[740px] justify-start relative overflow-hidden">
@@ -284,7 +297,8 @@ defmodule DpulCollectionsWeb.SearchLive do
           # "md:h-[225px] md:w-[225px]",
           "bg-search object-contain p-2",
           Helpers.obfuscate_item?(assigns) && "obfuscate",
-          "thumbnail-#{@item.id}"
+          "thumbnail-#{@item.id}",
+          "place-self-center"
         ]
       }
       src={"#{@thumb}/full/!350,350/0/default.jpg"}

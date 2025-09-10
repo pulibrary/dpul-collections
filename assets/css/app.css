@@ -330,3 +330,6 @@
   }
 }
 
+.brief-metadata > div:not(:last-child) {
+  @apply border-e-1 border-search;
+}
