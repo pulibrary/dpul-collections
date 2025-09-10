@@ -78,8 +78,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   # If given a resource that has no virtual attributes and should, then populate
   # them - it probably came from get_figgy_resource!
   @type process_return() ::
-          {:update | :delete | :skip | :related_records,
-           %Figgy.Resource{} | %Figgy.DeletionRecord{} | %Figgy.CombinedFiggyResource{}}
+          {:update | :delete | :skip,
+           [process_return()]
+           | %Figgy.Resource{}
+           | %Figgy.DeletionRecord{}
+           | %Figgy.CombinedFiggyResource{}}
   @spec process(resource :: %Figgy.Resource{}, cache_version :: integer) :: process_return()
   def process(
         resource = %Figgy.Resource{metadata: %{"visibility" => _visibility}, visibility: nil},
@@ -155,10 +158,16 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
     related_records = IndexingPipeline.get_figgy_resources(related_record_ids)
 
-    related_records
-    |> Enum.map(&process(&1, cache_version))
-    # Don't include skips.
-    |> Enum.filter(fn {action, _} -> action != :skip end)
+    record_actions =
+      related_records
+      |> Enum.map(&process(&1, cache_version))
+      # Don't include skips.
+      |> Enum.filter(fn {action, _} -> action != :skip end)
+
+    {
+      :update,
+      record_actions
+    }
   end
 
   # We don't have the full resource yet, fetch it and re-enrich.
@@ -203,7 +212,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   def enrich(resource_and_classification, _cache_version), do: resource_and_classification
 
   # Delete things which have no persisted members.
-  @spec post_classification(process_return() | any(), cache_version :: integer) ::
+  @spec post_classification(process_return(), cache_version :: integer) ::
           process_return()
   def post_classification(
         {:update,
@@ -223,7 +232,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   end
 
   # A related resource returned an empty list, skip.
-  def post_classification([], _cache_version) do
+  def post_classification({:update, []}, _cache_version) do
     {:skip, []}
   end
 
@@ -231,12 +240,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     do: resource_and_classification
 
   # One message resulted in many actions, store the list.
-  @spec store_result(process_return() | list(process_return()), message :: Broadway.Message.t()) ::
+  @spec store_result(process_return(), message :: Broadway.Message.t()) ::
           Broadway.Message.t()
-  def store_result(records, message) when is_list(records) do
-    Broadway.Message.put_data(message, records)
-  end
-
   def store_result({:skip, _record}, message), do: Broadway.Message.put_batcher(message, :noop)
 
   def store_result(data = {_action, _resource}, message),
@@ -244,6 +249,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
   @spec store_result(process_return(), cache_version :: integer) ::
           {:ok, %Figgy.HydrationCacheEntry{}}
+  # If we're asked to update several nested actions, iterate over each.
+  defp persist({:update, nested_actions}, cache_version) when is_list(nested_actions) do
+    nested_actions
+    |> Enum.each(&persist(&1, cache_version))
+  end
+
   defp persist(process_return = {action, _resource}, cache_version)
        when action in [:delete, :update] do
     # Maybe move to HydrationCacheEntry.from?
