@@ -199,18 +199,20 @@ defmodule DpulCollectionsWeb.SearchLive do
             show_images={@show_images}
           />
           <div
-            class="metadata sm:col-span-2 flex flex-col gap-4 p-4"
+            class="metadata sm:col-span-2 flex flex-col gap-2 sm:gap-4 p-4"
             id={"item-metadata-#{@item.id}"}
           >
-            <div
-              data-field="genre"
-              class="flex-none text-gray-600 font-bold text-base uppercase sm:text-right"
-            >
-              {@item.genre}
+            <div class="flex flex-wrap flex-row sm:flex-row justify-between">
+              <h2 dir="auto w-full flex-grow sm:w-fit">
+                {@item.title}
+              </h2>
+              <div
+                data-field="genre"
+                class="w-full sm:w-fit flex-grow sm:flex-none text-gray-600 font-bold text-base uppercase sm:text-right"
+              >
+                {@item.genre}
+              </div>
             </div>
-            <h2 dir="auto">
-              {@item.title}
-            </h2>
             <div
               :if={@sort_by == :recently_updated && @item.updated_at}
               class="updated-at w-full"
