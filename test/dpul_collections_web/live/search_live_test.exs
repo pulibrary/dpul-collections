@@ -477,7 +477,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
              ]
 
       assert document
-             |> Floki.attribute("#item-1 .small-thumbnails > :first-child", "src") == [
+             |> Floki.attribute("#item-1 .small-thumbnails > :first-child > img", "src") == [
                "https://example.com/iiif/2/image2/square/170,170/0/default.jpg"
              ]
 
@@ -489,7 +489,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
              ]
 
       assert document
-             |> Floki.attribute("#item-2 .small-thumbnails > :first-child", "src") == [
+             |> Floki.attribute("#item-2 .small-thumbnails > :first-child > img", "src") == [
                "https://example.com/iiif/2/image1/square/170,170/0/default.jpg"
              ]
     end

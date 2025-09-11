@@ -65,6 +65,19 @@ Hooks.ShowPageCount = {
       return true
     }
 
+    function getLastVisibleImg(container) {
+      const allImages = container.querySelectorAll('img')
+      let lastImg = null
+
+      allImages.forEach(el => {
+        if (!isElementHiddenByOverflow(el, container)) {
+          lastImg = el
+        }
+      })
+      console.log(lastImg)
+      return lastImg
+    }
+
     function isElementHiddenByOverflow(element, container) {
       const elementRect = element.getBoundingClientRect()
       const containerRect = container.getBoundingClientRect()
@@ -84,6 +97,9 @@ Hooks.ShowPageCount = {
     // Handle Resize
     this.handleResize = () => {
       if(showPageCount(containerEl, elFilecount) && fileCountLabelEl !== null){
+        let lastImg = getLastVisibleImg(containerEl)
+        console.log(lastImg)
+        lastImg.parentElement.append(fileCountLabelEl)
         fileCountLabelEl.style.display = "block"
       } else {
         fileCountLabelEl.style.display = "none"

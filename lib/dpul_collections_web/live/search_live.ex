@@ -233,7 +233,7 @@ defmodule DpulCollectionsWeb.SearchLive do
                 <div class="text-base">Origin</div>
               </div>
             </div>
-            <div class="small-thumbnails flex-none hidden sm:flex flex-row flex-wrap gap-5 max-h-[170px] max-w-[740px] justify-start relative overflow-hidden">
+            <div class="small-thumbnails hidden sm:flex flex-row flex-wrap gap-5 max-h-[170px] justify-start overflow-hidden">
               <.thumbs
                 :for={{thumb, thumb_num} <- thumbnail_service_urls(1, 4, @item)}
                 :if={@item.file_count > 1}
@@ -244,7 +244,7 @@ defmodule DpulCollectionsWeb.SearchLive do
               />
               <div
                 id={"filecount-#{@item.id}"}
-                class="hidden absolute diagonal-drop right-0 top-0 bg-background pr-4 py-2"
+                class="hidden absolute diagonal-rise right-0 bottom-0 bg-sage-100 pr-4 py-2"
               >
                 {@item.file_count} {gettext("Images")}
               </div>
@@ -306,18 +306,20 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def thumbs(assigns) do
     ~H"""
-    <img
-      class={[
-        "h-[170px] w-[170px] md:h-[170px] md:w-[170px] border border-solid border-gray-400",
-        Helpers.obfuscate_item?(assigns) && "obfuscate",
-        "thumbnail-#{@item.id}"
-      ]}
-      src={"#{@thumb}/square/170,170/0/default.jpg"}
-      alt={"image #{@thumb_num}"}
-      style="background-color: lightgray;"
-      width="170"
-      height="170"
-    />
+    <div class="relative">
+      <img
+        class={[
+          "h-[170px] w-[170px] md:h-[170px] md:w-[170px] border border-solid border-gray-400",
+          Helpers.obfuscate_item?(assigns) && "obfuscate",
+          "thumbnail-#{@item.id}"
+        ]}
+        src={"#{@thumb}/square/170,170/0/default.jpg"}
+        alt={"image #{@thumb_num}"}
+        style="background-color: lightgray;"
+        width="170"
+        height="170"
+      />
+    </div>
     """
   end
 
