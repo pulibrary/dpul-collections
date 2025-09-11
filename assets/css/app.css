@@ -90,8 +90,13 @@
 }
 
 .diagonal-drop {
-  padding-left: 25px;
+  padding-left: 30px;
   clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 25px 100%);
+}
+
+.diagonal-rise {
+  padding-left: 30px;
+  clip-path: polygon(25px 0%, 100% 0%, 100% 100%, 0 100%);
 }
 
 .left-arrow-box {
@@ -319,4 +324,17 @@
 .primary-thumbnail img {
     width: 100%;
     height: auto;
+}
+
+.card {
+  @apply drop-shadow-[0.25rem_0.25rem_0.25rem_var(--color-sage-300)];
+  @apply hover:drop-shadow-[0_0_0.7rem_var(--color-sage-600)];
+
+  * {
+    @apply no-underline;
+  }
+}
+
+.brief-metadata > div:not(:last-child) {
+  @apply border-e-1 border-search;
 }

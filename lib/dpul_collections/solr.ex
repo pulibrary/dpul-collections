@@ -27,7 +27,8 @@ defmodule DpulCollections.Solr do
     "digitized_at_dt",
     "genre_txtm",
     "updated_at_dt",
-    "content_warning_s"
+    "content_warning_s",
+    "geographic_origin_txtm"
   ]
 
   @spec query(map(), String.t()) :: map()

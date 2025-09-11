@@ -69,17 +69,17 @@ Hooks.ShowPageCount = {
       const elementRect = element.getBoundingClientRect()
       const containerRect = container.getBoundingClientRect()
       // Check if the element is outside the container boundaries
-      // There is a 92 px offset to account for
       return (
-        elementRect.top >= containerRect.bottom - 92
+        elementRect.bottom >= containerRect.bottom
       )
     }
 
     // Get Elements
     let elID = this.el.getAttribute("data-id")
-    let elFilecount = this.el.getAttribute("data-filecount")
+    // subtract large thumbnail from total file count; it has separate layout
+    let elFilecount = this.el.getAttribute("data-filecount") - 1
     let fileCountLabelEl = window.document.getElementById('filecount-'+elID)
-    let containerEl = window.document.getElementById('item-'+elID)
+    let containerEl = window.document.getElementById('item-metadata-'+elID)
 
     // Handle Resize
     this.handleResize = () => {

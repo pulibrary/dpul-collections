@@ -52,41 +52,6 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            )
   end
 
-  test "GET /search renders thumbnails for each resource", %{conn: conn} do
-    {:ok, _view, html} = live(conn, "/search?")
-
-    {:ok, document} =
-      html
-      |> Floki.parse_document()
-
-    # There should be a maximum of 5 thumbnails on the search results page
-    assert document |> Floki.find("#item-1 > a > div > img") |> Enum.count() == 5
-
-    # Odd numbered documents in test data do not have a thumbnail id
-    # so the order of thumbnails should be the same as the image member order
-    assert document
-           |> Floki.attribute("#item-1 > a > div > :first-child", "src") == [
-             "https://example.com/iiif/2/image1/square/350,350/0/default.jpg"
-           ]
-
-    assert document
-           |> Floki.attribute("#item-1 > a > div > :nth-child(2)", "src") == [
-             "https://example.com/iiif/2/image2/square/350,350/0/default.jpg"
-           ]
-
-    # Even numbered documents in test data have a thumbnail id so the order
-    # of thumbnails should be different from the image member order
-    assert document
-           |> Floki.attribute("#item-2 > a > div > :first-child", "src") == [
-             "https://example.com/iiif/2/image2/square/350,350/0/default.jpg"
-           ]
-
-    assert document
-           |> Floki.attribute("#item-2 > a > div > :nth-child(2)", "src") == [
-             "https://example.com/iiif/2/image1/square/350,350/0/default.jpg"
-           ]
-  end
-
   test "searching filters results", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/search?")
 
@@ -332,32 +297,6 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Enum.empty?()
   end
 
-  test "items can be filtered by genre", %{conn: conn} do
-    {:ok, view, _html} = live(conn, "/search")
-
-    {:ok, document} =
-      view
-      |> element("#item-2 a", "Folders")
-      |> render_click()
-      |> follow_redirect(conn)
-      |> elem(2)
-      |> Floki.parse_document()
-
-    # Only folders
-    assert document
-           |> Floki.find(~s{a[href="/i/document2/item/2"]})
-           |> Enum.any?()
-
-    assert document
-           |> Floki.find(~s{a[href="/i/document4/item/4"]})
-           |> Enum.any?()
-
-    # Odd numbered ones are pamphlets.
-    assert document
-           |> Floki.find(~s{a[href="/i/document1/item/1"]})
-           |> Enum.empty?()
-  end
-
   test "items can be filtered by similarity", %{conn: conn} do
     {:ok, _view, html} = live(conn, "/search?filter[similar]=2")
 
@@ -505,21 +444,6 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert view |> has_element?("#item-counter", "No items found")
   end
 
-  test "thumbnails link to record page", %{conn: conn} do
-    {:ok, view, _html} = live(conn, ~p"/search?q=")
-
-    html = render(view)
-
-    first_href =
-      html
-      |> Floki.parse_document!()
-      |> Floki.find(".thumb-link")
-      |> Enum.flat_map(&Floki.attribute(&1, "href"))
-      |> Enum.at(0)
-
-    assert first_href == "/i/document1/item/1"
-  end
-
   test "page title", %{conn: conn} do
     {:ok, _, html} = live(conn, ~p"/search?q=")
 
@@ -532,5 +456,95 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       |> String.trim_trailing()
 
     assert title == "Search Results - Digital Collections"
+  end
+
+  describe "results" do
+    test "display large and small thumbnails", %{conn: conn} do
+      {:ok, _view, html} = live(conn, "/search?")
+
+      {:ok, document} =
+        html
+        |> Floki.parse_document()
+
+      # There should be a maximum of 5 thumbnails on the search results page
+      assert document |> Floki.find("#item-1 img") |> Enum.count() == 5
+
+      # Odd numbered documents in test data do not have a thumbnail id
+      # so the order of thumbnails should be the same as the image member order
+      assert document
+             |> Floki.attribute("#item-1 .search-thumbnail img", "src") == [
+               "https://example.com/iiif/2/image1/full/!350,350/0/default.jpg"
+             ]
+
+      assert document
+             |> Floki.attribute("#item-1 .small-thumbnails > :first-child", "src") == [
+               "https://example.com/iiif/2/image2/square/170,170/0/default.jpg"
+             ]
+
+      # Even numbered documents in test data have a thumbnail id so the order
+      # of thumbnails should be different from the image member order
+      assert document
+             |> Floki.attribute("#item-2 .search-thumbnail img", "src") == [
+               "https://example.com/iiif/2/image2/full/!350,350/0/default.jpg"
+             ]
+
+      assert document
+             |> Floki.attribute("#item-2 .small-thumbnails > :first-child", "src") == [
+               "https://example.com/iiif/2/image1/square/170,170/0/default.jpg"
+             ]
+    end
+
+    test "link to record page", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/search?q=")
+
+      html = render(view)
+
+      first_href =
+        html
+        |> Floki.parse_document!()
+        |> Floki.find("article > a")
+        |> Enum.flat_map(&Floki.attribute(&1, "href"))
+        |> Enum.at(0)
+
+      assert first_href == "/i/document1/item/1"
+    end
+
+    test "show some metadata", %{conn: conn} do
+      Solr.add(
+        [
+          %{
+            id: "iran",
+            title_txtm: "Women's Movement Art",
+            genre_txtm: "Ephemera",
+            display_date_s: "2024",
+            years_is: [2024],
+            geographic_origin_txtm: "Iran"
+          }
+        ],
+        active_collection()
+      )
+
+      Solr.commit()
+
+      {:ok, view, _html} = live(conn, "/search?q=movement")
+
+      assert view
+             |> has_element?(
+               "#item-iran .metadata",
+               "Ephemera"
+             )
+
+      assert view
+             |> has_element?(
+               "#item-iran .metadata",
+               "2024"
+             )
+
+      assert view
+             |> has_element?(
+               "#item-iran .metadata",
+               "Iran"
+             )
+    end
   end
 end

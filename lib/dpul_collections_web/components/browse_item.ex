@@ -71,7 +71,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
       id={"#{@id}-#{@item.id}"}
       data-item-id={@item.id}
       class={[
-        "browse-item flex bg-white flex-col overflow-hidden drop-shadow-[0.5rem_0.5rem_0.5rem_var(--color-sage-300)] min-w-[250px]",
+        "browse-item card flex bg-white flex-col overflow-hidden min-w-[250px]",
         @class
       ]}
     >
