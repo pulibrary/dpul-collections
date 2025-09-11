@@ -170,14 +170,6 @@ defmodule DpulCollectionsWeb.SearchLive do
     """
   end
 
-  def num_rows(file_count) when file_count > 1 do
-    "row-span-3"
-  end
-
-  def num_rows(_file_count) do
-    "row-span-2"
-  end
-
   def search_item(assigns) do
     ~H"""
     <article
@@ -199,27 +191,20 @@ defmodule DpulCollectionsWeb.SearchLive do
       </div>
       <.link navigate={@item.url}>
         <div class="grid-rows-2 bg-sage-100 grid sm:grid-rows-1 sm:grid-cols-3 gap-0">
-          <div class={[
-            "large-thumbnail",
-            "col-span-1",
-            num_rows(@item.file_count),
-            "search-thumbnail bg-search flex justify-center"
-          ]}>
-            <.large_thumb
-              :if={@item.file_count}
-              thumb={elem(hd(thumbnail_service_urls(0, 1, @item)), 0)}
-              thumb_num={0}
-              item={@item}
-              show_images={@show_images}
-            />
-          </div>
+          <.large_thumb
+            :if={@item.file_count}
+            thumb={elem(hd(thumbnail_service_urls(0, 1, @item)), 0)}
+            thumb_num={0}
+            item={@item}
+            show_images={@show_images}
+          />
           <div
             class="metadata sm:col-span-2 flex flex-col gap-4 p-4"
             id={"item-metadata-#{@item.id}"}
           >
             <div
               data-field="genre"
-              class="flex-none text-gray-600 font-bold text-base uppercase text-right"
+              class="flex-none text-gray-600 font-bold text-base uppercase sm:text-right"
             >
               {@item.genre}
             </div>
@@ -248,7 +233,7 @@ defmodule DpulCollectionsWeb.SearchLive do
                 <div class="text-base">Origin</div>
               </div>
             </div>
-            <div class="small-thumbnails flex-none flex flex-row flex-wrap gap-5 max-h-[170px] max-w-[740px] justify-start relative overflow-hidden">
+            <div class="small-thumbnails flex-none hidden sm:flex flex-row flex-wrap gap-5 max-h-[170px] max-w-[740px] justify-start relative overflow-hidden">
               <.thumbs
                 :for={{thumb, thumb_num} <- thumbnail_service_urls(1, 4, @item)}
                 :if={@item.file_count > 1}
@@ -290,20 +275,32 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def large_thumb(assigns) do
     ~H"""
-    <img
-      class={
-        [
-          "h-[350px] w-[350px]",
-          # "md:h-[225px] md:w-[225px]",
-          "bg-search object-contain p-2",
-          Helpers.obfuscate_item?(assigns) && "obfuscate",
-          "thumbnail-#{@item.id}",
-          "place-self-center"
-        ]
-      }
-      src={"#{@thumb}/full/!350,350/0/default.jpg"}
-      alt={"image #{@thumb_num}"}
-    />
+    <div class={[
+      "search-thumbnail",
+      "row-span-2 col-span-1",
+      "bg-search flex justify-center relative"
+    ]}>
+      <img
+        class={
+          [
+            "h-[350px] w-[350px]",
+            # "md:h-[225px] md:w-[225px]",
+            "bg-search object-contain p-2",
+            Helpers.obfuscate_item?(assigns) && "obfuscate",
+            "thumbnail-#{@item.id}",
+            "place-self-center"
+          ]
+        }
+        src={"#{@thumb}/full/!350,350/0/default.jpg"}
+        alt={"image #{@thumb_num}"}
+      />
+      <div
+        :if={@item.file_count > 1}
+        class="absolute sm:hidden diagonal-rise right-0 bottom-0 bg-sage-100 pr-4 py-2"
+      >
+        {@item.file_count} {gettext("Images")}
+      </div>
+    </div>
     """
   end
 

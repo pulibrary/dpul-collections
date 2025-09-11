@@ -472,7 +472,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       # Odd numbered documents in test data do not have a thumbnail id
       # so the order of thumbnails should be the same as the image member order
       assert document
-             |> Floki.attribute("#item-1 .large-thumbnail img", "src") == [
+             |> Floki.attribute("#item-1 .search-thumbnail img", "src") == [
                "https://example.com/iiif/2/image1/full/!350,350/0/default.jpg"
              ]
 
@@ -484,7 +484,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       # Even numbered documents in test data have a thumbnail id so the order
       # of thumbnails should be different from the image member order
       assert document
-             |> Floki.attribute("#item-2 .large-thumbnail img", "src") == [
+             |> Floki.attribute("#item-2 .search-thumbnail img", "src") == [
                "https://example.com/iiif/2/image2/full/!350,350/0/default.jpg"
              ]
 

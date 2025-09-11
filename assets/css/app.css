@@ -94,6 +94,11 @@
   clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 25px 100%);
 }
 
+.diagonal-rise {
+  padding-left: 30px;
+  clip-path: polygon(25px 0%, 100% 0%, 100% 100%, 0 100%);
+}
+
 .left-arrow-box {
   clip-path: polygon(100% 0%, 100% 100%, 40px 100%, 0% 50%, 40px 0%);
   @apply pl-[20px] bg-primary border-none hover:bg-[#c5c6b5] flex justify-center items-center w-full h-14;
