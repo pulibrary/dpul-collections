@@ -7,6 +7,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
   alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
   use GenStage
   @behaviour Broadway.Acknowledger
+  @max_records_per_pull 50
 
   @spec start_link({source_module :: module(), cache_version :: integer()}) :: Broadway.on_start()
   def start_link({source_module, cache_version}) do
@@ -64,7 +65,11 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
     total_demand = stored_demand + demand
 
     records =
-      source_module.get_cache_entries_since!(last_queried_marker, total_demand, cache_version)
+      source_module.get_cache_entries_since!(
+        last_queried_marker,
+        min(total_demand, @max_records_per_pull),
+        cache_version
+      )
 
     if last_queried_marker == nil && length(records) > 0 do
       DpulCollections.IndexMetricsTracker.register_fresh_start(source_module, cache_version)
@@ -90,8 +95,14 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
     # This shouldn't be necessary with the notifications, but is a useful
     # fallback.
     if new_state.stored_demand > 0 do
-      DpulCollections.IndexMetricsTracker.register_polling_started(source_module, cache_version)
-      Process.send_after(self(), :check_for_updates, 60000)
+      if length(records) != @max_records_per_pull do
+        DpulCollections.IndexMetricsTracker.register_polling_started(source_module, cache_version)
+        Process.send_after(self(), :check_for_updates, 60000)
+      else
+        # If we just didn't pull enough because we wanna keep the query small,
+        # check again.
+        send(self(), :check_for_updates)
+      end
     end
 
     {:noreply, Enum.map(records, &wrap_record/1), new_state}
