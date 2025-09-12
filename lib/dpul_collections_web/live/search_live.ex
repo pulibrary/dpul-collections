@@ -313,7 +313,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           Helpers.obfuscate_item?(assigns) && "obfuscate",
           "thumbnail-#{@item.id}"
         ]}
-        src={"#{@thumb}/square/125,125/0/default.jpg"}
+        src={"#{@thumb}/square/350,350/0/default.jpg"}
         alt={"image #{@thumb_num}"}
         style="background-color: lightgray;"
         width="125"

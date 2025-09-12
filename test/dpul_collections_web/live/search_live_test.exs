@@ -478,7 +478,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
       assert document
              |> Floki.attribute("#item-1 .small-thumbnails > :first-child > img", "src") == [
-               "https://example.com/iiif/2/image2/square/125,125/0/default.jpg"
+               "https://example.com/iiif/2/image2/square/350,350/0/default.jpg"
              ]
 
       # Even numbered documents in test data have a thumbnail id so the order
@@ -490,7 +490,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
       assert document
              |> Floki.attribute("#item-2 .small-thumbnails > :first-child > img", "src") == [
-               "https://example.com/iiif/2/image1/square/125,125/0/default.jpg"
+               "https://example.com/iiif/2/image1/square/350,350/0/default.jpg"
              ]
     end
 
