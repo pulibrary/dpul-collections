@@ -25,6 +25,7 @@ defmodule AckTracker do
   end
 
   def reset_count!(pid) do
+    FiggyTestSupport.flush_messages()
     GenServer.call(pid, {:reset_count})
   end
 

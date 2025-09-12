@@ -47,10 +47,21 @@ defmodule FiggyTestSupport do
     FiggyRepo.all(query)
   end
 
+  def flush_messages(timeout \\ 100) do
+    receive do
+      _ -> flush_messages()
+    after
+      timeout -> nil
+    end
+  end
+
   def index_record(record, cache_version \\ 1) do
     # Write a current hydration marker right before that marker.
     marker = IndexingPipeline.DatabaseProducer.CacheEntryMarker.from(record)
-    cache_attrs = Figgy.Resource.to_hydration_cache_attrs(record)
+
+    cache_attrs =
+      Figgy.HydrationConsumer.process(record, 1)
+      |> Figgy.HydrationConsumer.hydration_cache_attributes(1)
 
     {:ok, cache_entry} =
       IndexingPipeline.write_hydration_cache_entry(%{
@@ -59,7 +70,7 @@ defmodule FiggyTestSupport do
         related_ids: cache_attrs.related_ids,
         source_cache_order: marker.timestamp,
         source_cache_order_record_id: marker.id,
-        data: cache_attrs.handled_data
+        data: cache_attrs.data
       })
 
     hydration_cache_entry =

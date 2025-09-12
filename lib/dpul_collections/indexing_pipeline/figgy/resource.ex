@@ -3,7 +3,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   Schema for a resource in the Figgy database
   """
   use Ecto.Schema
+  alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
   alias DpulCollections.IndexingPipeline
+  alias DpulCollections.IndexingPipeline.Figgy
+  @derive {Jason.Encoder, except: [:__meta__]}
 
   @primary_key {:id, :binary_id, autogenerate: true}
   schema "orm_resources" do
@@ -24,84 +27,48 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   @type related_resource_map() :: %{
           optional(resource_id :: String.t()) => resource_struct :: map()
         }
-  @spec to_hydration_cache_attrs(%__MODULE__{}) :: %{
-          handled_data: map(),
-          related_data: related_data()
+
+  def populate_virtual(
+        resource = %__MODULE__{
+          metadata: metadata = %{"state" => state, "visibility" => visibility}
         }
-  def to_hydration_cache_attrs(resource = %__MODULE__{internal_resource: "DeletionMarker"}) do
+      ) do
     %{
-      handled_data: resource |> to_map,
-      related_data: %{},
-      related_ids: []
+      resource
+      | state: state,
+        visibility: visibility,
+        metadata_resource_id: metadata[:resource_id],
+        metadata_resource_type: metadata[:resource_type]
     }
   end
 
-  # We haven't pulled the full resource yet, so grab it.
-  def to_hydration_cache_attrs(%__MODULE__{
-        id: id,
-        internal_resource: "EphemeraFolder",
-        metadata: nil
-      }) do
-    IndexingPipeline.get_figgy_resource!(id)
-    |> to_hydration_cache_attrs
-  end
-
-  def to_hydration_cache_attrs(resource = %__MODULE__{internal_resource: "EphemeraFolder"}) do
+  @spec to_combined(%__MODULE__{}) :: %Figgy.CombinedFiggyResource{}
+  def to_combined(resource = %Figgy.Resource{metadata: %{"member_ids" => member_ids}}) do
     related_data = extract_related_data(resource)
 
-    handled_data =
-      if resource_empty?(resource, related_data) do
-        resource |> to_map(delete: true)
-      else
-        resource |> to_map
-      end
+    related_data_markers =
+      (Map.values(related_data["ancestors"]) ++ Map.values(related_data["resources"]))
+      |> List.flatten()
+      |> Enum.map(&CacheEntryMarker.from/1)
 
-    {source_cache_order, source_cache_order_record_id} =
-      calculate_source_cache_order(resource, related_data)
+    all_markers =
+      [CacheEntryMarker.from(resource) | related_data_markers]
+      |> Enum.sort(CacheEntryMarker)
 
-    %{
-      handled_data: handled_data,
+    related_ids = Enum.map(related_data_markers, &Map.get(&1, :id))
+    flattened_member_ids = member_ids |> Enum.map(&extract_ids_from_value/1) |> MapSet.new()
+
+    %Figgy.CombinedFiggyResource{
+      resource: resource,
       related_data: related_data,
-      related_ids: related_ids(related_data),
-      source_cache_order: source_cache_order,
-      source_cache_order_record_id: source_cache_order_record_id
+      related_ids: related_ids,
+      persisted_member_ids:
+        MapSet.intersection(flattened_member_ids, MapSet.new(related_ids)) |> MapSet.to_list(),
+      latest_updated_marker: Enum.at(all_markers, -1)
     }
   end
 
-  def calculate_source_cache_order(resource, related_data) do
-    primary_resource = [{resource.updated_at, resource.id}]
-
-    related_resources =
-      (related_data["resources"] || %{})
-      |> Map.keys()
-      |> Enum.map(fn key -> related_data["resources"][key] end)
-      |> Enum.map(fn r -> {r[:updated_at], r[:id]} end)
-
-    ancestors =
-      (related_data["ancestors"] || %{})
-      |> Map.keys()
-      |> Enum.map(fn key -> related_data["ancestors"][key] end)
-      |> Enum.map(fn r -> {r[:updated_at], r[:id]} end)
-
-    # Combine and sort by date
-    # Return the most recent date, id tuple
-    (primary_resource ++ related_resources ++ ancestors)
-    |> Enum.sort_by(fn {date, _} -> date end, {:desc, DateTime})
-    |> Enum.at(0)
-  end
-
-  # Don't fetch related data when the state or visibilty are not correct.
-  # Note that when an empty related data map is returned these resources will
-  # be marked for deletion.
-  @spec extract_related_data(resource :: %__MODULE__{}) :: related_data()
-  def extract_related_data(%__MODULE__{
-        metadata: %{"state" => [state], "visibility" => [visibility]}
-      })
-      when state != "complete" or visibility != "open" do
-    %{}
-  end
-
-  def extract_related_data(resource) do
+  defp extract_related_data(resource) do
     %{
       "ancestors" => extract_ancestors(resource),
       "resources" => fetch_related(resource)
@@ -151,7 +118,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   #   }
   # ```
   @spec fetch_related(%__MODULE__{}) :: related_data()
-  defp fetch_related(%__MODULE__{metadata: metadata}) do
+  defp fetch_related(%Figgy.Resource{metadata: metadata}) do
     metadata
     # Get the metadata property names
     |> Map.keys()
@@ -169,49 +136,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     |> IndexingPipeline.get_figgy_resources()
     |> remove_non_displayable_filesets()
     # Map the returned Figgy.Resources into tuples of this form:
-    # `{resource_id, %{"name" => value, ..}}`
-    |> Enum.map(fn m -> {m.id, to_map(m)} end)
+    # `{resource_id, %Figgy.Resource{}}`
+    |> Enum.map(fn m -> {m.id, m} end)
     # Convert the list of tuples into a map with the form:
-    # `%{"id-1" => %{ "name" => "value", ..}, %{"id-2" => {"name" => "value", ..}}, ..}`
+    # `%{"id-1" => %Figgy.Resource{ "name" => "value", ..}, %{"id-2" => %Figgy.Resource{"name" => "value", ..}}, ..}`
     |> Map.new()
   end
-
-  # Concat ids for all ancestors and related resources into a single list
-  @spec related_ids(related_data()) :: list(String.t())
-  defp related_ids(related_data) do
-    ancestor_ids = (related_data["ancestors"] || %{}) |> Map.keys()
-    resource_ids = (related_data["resources"] || %{}) |> Map.keys()
-    ancestor_ids ++ resource_ids
-  end
-
-  defp remove_non_displayable_filesets(resources) do
-    resources
-    |> Enum.reject(fn r -> removable_resource?(r) end)
-  end
-
-  defp removable_resource?(%__MODULE__{metadata: %{"file_metadata" => file_metadata}}) do
-    # Dig through file metadata and determine if FileSet is an image
-    image? = Enum.find(file_metadata, false, fn fm -> is_image_file?(fm) end)
-
-    if image? do
-      false
-    else
-      true
-    end
-  end
-
-  defp removable_resource?(_), do: false
-
-  defp is_image_file?(%{"mime_type" => [mime_type]}) do
-    String.contains?(mime_type, "image")
-  end
-
-  # Extract an id string from a value map.
-  # Exclude values that have more than one key. These are field like
-  # pending_upload which should not be extracted a related resources.
-  defp extract_ids_from_value(value = %{"id" => id}) when map_size(value) == 1, do: id
-
-  defp extract_ids_from_value(_), do: nil
 
   @spec extract_ancestors(related_resource_map(), resource :: %__MODULE__{}) ::
           related_resource_map()
@@ -229,68 +159,39 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
 
       true ->
         resource_map
-        |> Map.put(parent.id, to_map(parent))
+        |> Map.put(parent.id, parent)
         |> extract_ancestors(parent)
     end
   end
 
   defp extract_ancestors(resource_map, _resource), do: resource_map
 
-  # Determine if a resource has no related member FileSets
-  @spec to_map(%__MODULE__{}, related_data()) :: map()
-  defp resource_empty?(%__MODULE__{metadata: %{"member_ids" => member_ids}}, %{
-         "resources" => related_resources
-       }) do
-    member_ids_set =
-      member_ids
-      |> Enum.map(&extract_ids_from_value/1)
-      |> MapSet.new()
+  # Extract an id string from a value map.
+  # Exclude values that have more than one key. These are field like
+  # pending_upload which should not be extracted a related resources.
+  defp extract_ids_from_value(value = %{"id" => id}) when map_size(value) == 1, do: id
 
-    related_ids_set =
-      related_resources
-      |> Map.keys()
-      |> MapSet.new()
+  defp extract_ids_from_value(_), do: nil
 
-    # If the set of related ids doesn't contain any of the member ids,
-    # then the resource is considered empty
-    MapSet.disjoint?(member_ids_set, related_ids_set)
+  defp remove_non_displayable_filesets(resources) do
+    resources
+    |> Enum.reject(fn r -> removable_resource?(r) end)
   end
 
-  defp resource_empty?(_, _), do: true
+  defp removable_resource?(%Figgy.Resource{metadata: %{"file_metadata" => file_metadata}}) do
+    # Dig through file metadata and determine if FileSet is an image
+    image? = Enum.find(file_metadata, false, fn fm -> is_image_file?(fm) end)
 
-  @spec to_map(resource :: %__MODULE__{}) :: map()
-  defp to_map(
-         resource = %__MODULE__{
-           internal_resource: "DeletionMarker",
-           metadata_resource_id: [%{"id" => deleted_resource_id}],
-           metadata_resource_type: [deleted_resource_type]
-         }
-       ) do
-    %{
-      id: deleted_resource_id,
-      internal_resource: deleted_resource_type,
-      lock_version: resource.lock_version,
-      created_at: resource.created_at,
-      updated_at: resource.updated_at,
-      metadata: %{"deleted" => true}
-    }
+    if image? do
+      false
+    else
+      true
+    end
   end
 
-  defp to_map(resource = %__MODULE__{}) do
-    resource
-    |> Map.from_struct()
-    |> Map.delete(:__meta__)
-  end
+  defp removable_resource?(_), do: false
 
-  @spec to_map(resource :: %__MODULE__{}, boolean()) :: map()
-  defp to_map(resource = %__MODULE__{}, delete: true) do
-    %{
-      id: resource.id,
-      internal_resource: resource.internal_resource,
-      lock_version: resource.lock_version,
-      created_at: resource.created_at,
-      updated_at: resource.updated_at,
-      metadata: %{"deleted" => true}
-    }
+  defp is_image_file?(%{"mime_type" => [mime_type]}) do
+    String.contains?(mime_type, "image")
   end
 end

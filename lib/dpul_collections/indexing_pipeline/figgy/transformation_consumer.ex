@@ -57,7 +57,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
         %{cache_version: _cache_version}
       )
       when internal_resource in ["EphemeraFolder"] do
-    solr_doc = Figgy.HydrationCacheEntry.to_solr_document(hydration_cache_entry)
+    solr_doc =
+      hydration_cache_entry
+      |> Figgy.HydrationCacheEntry.to_solr_document()
 
     # Cache solr document thumbnails
     %{solr_document: solr_doc}

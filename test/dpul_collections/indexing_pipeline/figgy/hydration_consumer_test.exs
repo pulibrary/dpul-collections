@@ -4,8 +4,16 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
 
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy
+  alias DpulCollections.IndexingPipeline.Figgy.{Resource, HydrationConsumer}
 
   describe "Figgy.HydrationConsumer" do
+    test "process/1 returns a skip for ephemera terms that don't have any related IDs" do
+      # This is "Washo", which we don't have anything labeled with in our test
+      # set.
+      ephemera_term = IndexingPipeline.get_figgy_resource!("1ebf9915-d865-4dc0-8f6f-56e19ce07248")
+      assert {:skip, _} = Figgy.HydrationConsumer.process(ephemera_term, 1)
+    end
+
     test "handle_message/3 when a message is not a complete and visible EphemeraFolder, it is sent to noop batcher" do
       ephemera_folder_message = %Broadway.Message{
         acknowledger: nil,
@@ -102,7 +110,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         transformed_messages
         |> Enum.map(&Map.get(&1, :batcher))
 
-      assert message_batchers == [:default, :noop, :noop, :default, :noop, :noop]
+      assert message_batchers == [:default, :noop, :noop, :noop, :noop, :noop]
     end
 
     test "handle_batch/3 only processes deletion markers with related resources in the HydrationCache" do
@@ -342,6 +350,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         data: updated_ephemera_term_resource
       }
 
+      file_set = IndexingPipeline.get_figgy_resource!("c42bca4b-02c9-44ad-b6bd-132ab27a8986")
+
       # Create a hydration cache entry from ephemera folder messages
       create_messages =
         [ephemera_folder_message]
@@ -373,7 +383,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
             passthrough([[]])
 
           _ ->
-            [updated_ephemera_term_resource]
+            [updated_ephemera_term_resource, file_set]
         end do
         # Process updated ephemera term message
         messages =
@@ -462,8 +472,15 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         messages =
           [updated_ephemera_term_message]
           |> Enum.map(&Figgy.HydrationConsumer.handle_message(nil, &1, %{cache_version: 1}))
+          |> Enum.group_by(&Map.get(&1, :batcher))
 
-        Figgy.HydrationConsumer.handle_batch(:default, messages, nil, %{cache_version: 1})
+        Figgy.HydrationConsumer.handle_batch(:default, messages[:batcher] || [], nil, %{
+          cache_version: 1
+        })
+
+        Figgy.HydrationConsumer.handle_batch(:noop, messages[:noop] || [], nil, %{
+          cache_version: 1
+        })
 
         hydration_cache_entries = IndexingPipeline.list_hydration_cache_entries()
         assert hydration_cache_entries |> length == 1
@@ -758,6 +775,84 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
 
         assert related_resource_entry["metadata"]["title"] == ["Updated EphemeraProject Title"]
       end
+    end
+  end
+
+  describe "hydration_cache_attributes/1" do
+    test "it doesn't error when the related resource id is an empty string" do
+      folder = FiggyTestSupport.first_ephemera_folder()
+
+      related_resource_count =
+        %Resource{folder | metadata: %{folder.metadata | "genre" => [%{"id" => ""}]}}
+        |> HydrationConsumer.process(1)
+        |> HydrationConsumer.hydration_cache_attributes(1)
+        |> get_in([:related_data])
+        |> get_in(["resources"])
+        |> Map.keys()
+        |> length()
+
+      assert(related_resource_count == 19)
+    end
+
+    test "when there are no image members, the resource is marked for deletion" do
+      folder = IndexingPipeline.get_figgy_resource!("f134f41f-63c5-4fdf-b801-0774e3bc3b2d")
+
+      metadata =
+        folder
+        |> HydrationConsumer.process(1)
+        |> HydrationConsumer.hydration_cache_attributes(1)
+        |> get_in([:data])
+        |> get_in([Access.key!(:metadata)])
+
+      assert(metadata["deleted"] == true)
+    end
+
+    test "when there are no members at all, the resource is marked for deletion" do
+      folder = IndexingPipeline.get_figgy_resource!("f134f41f-63c5-4fdf-b801-0774e3bc3b2d")
+
+      metadata =
+        %Resource{folder | metadata: %{folder.metadata | "member_ids" => []}}
+        |> HydrationConsumer.process(1)
+        |> HydrationConsumer.hydration_cache_attributes(1)
+        |> get_in([:data])
+        |> get_in([Access.key!(:metadata)])
+
+      assert(metadata["deleted"] == true)
+    end
+
+    test "it filters out non-image members" do
+      folder = IndexingPipeline.get_figgy_resource!("f134f41f-63c5-4fdf-b801-0774e3bc3b2d")
+
+      member_ids = [
+        # Video FileSet
+        %{"id" => "e55355f9-a410-4f96-83d2-cfa165203d01"},
+        # Image FileSet
+        %{"id" => "06838583-59a4-4ab8-ac65-2b5ea9ee6425"}
+      ]
+
+      resource_ids =
+        %Resource{folder | metadata: %{folder.metadata | "member_ids" => member_ids}}
+        |> HydrationConsumer.process(1)
+        |> HydrationConsumer.hydration_cache_attributes(1)
+        |> get_in([:related_data])
+        |> get_in(["resources"])
+        |> Map.keys()
+
+      assert("e55355f9-a410-4f96-83d2-cfa165203d01" not in resource_ids)
+    end
+
+    test "it filters out parent resources in related resources map" do
+      folder = IndexingPipeline.get_figgy_resource!("26713a31-d615-49fd-adfc-93770b4f66b3")
+
+      resource_ids =
+        folder
+        |> HydrationConsumer.process(1)
+        |> HydrationConsumer.hydration_cache_attributes(1)
+        |> get_in([:related_data])
+        |> get_in(["resources"])
+        |> Map.keys()
+
+      assert("82624edb-c360-4d8a-b202-f103ee639e8e" not in resource_ids)
     end
   end
 end

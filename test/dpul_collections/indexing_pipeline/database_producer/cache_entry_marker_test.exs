@@ -28,9 +28,14 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarkerTest
   end
 
   describe ".from/1" do
-    test "it can take a broadway message that has a marker and a handled_data key" do
+    test "it can take a broadway message that has a marker in the metadata" do
       {marker1, _, _} = FiggyTestFixtures.hydration_cache_markers()
-      message = %Broadway.Message{acknowledger: nil, data: %{marker: marker1, handled_data: %{}}}
+
+      message = %Broadway.Message{
+        acknowledger: nil,
+        metadata: %{marker: marker1},
+        data: %{handled_data: %{}}
+      }
 
       assert CacheEntryMarker.from(message) == marker1
     end
