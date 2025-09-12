@@ -145,7 +145,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     end
   end
 
-  # If it's a related resource, get and process all records dependent on this
+  # If it's a related resource, get ids of all records dependent on this one
   # one.
   def enrich(
         {:update,
@@ -156,17 +156,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     related_record_ids =
       IndexingPipeline.get_related_hydration_cache_record_ids!(id, timestamp, cache_version)
 
-    related_records = IndexingPipeline.get_figgy_resources(related_record_ids)
-
-    record_actions =
-      related_records
-      |> Enum.map(&process(&1, cache_version))
-      # Don't include skips.
-      |> Enum.filter(fn {action, _} -> action != :skip end)
-
     {
       :update,
-      record_actions
+      related_record_ids
     }
   end
 
@@ -249,10 +241,17 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
   @spec store_result(process_return(), cache_version :: integer) ::
           {:ok, %Figgy.HydrationCacheEntry{}}
-  # If we're asked to update several nested actions, iterate over each.
-  defp persist({:update, nested_actions}, cache_version) when is_list(nested_actions) do
-    nested_actions
-    |> Enum.each(&persist(&1, cache_version))
+  # If we're passed several IDs, process them in order and persist.
+  defp persist(update = {:update, id_list = [id | _]}, cache_version) when is_binary(id) do
+    # Do one at a time to prevent memory ballooning.
+    id_list
+    |> Enum.each(fn id ->
+      IndexingPipeline.get_figgy_resource!(id)
+      |> process(cache_version)
+      |> persist(cache_version)
+    end)
+
+    update
   end
 
   defp persist(process_return = {action, _resource}, cache_version)
@@ -260,8 +259,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     # Maybe move to HydrationCacheEntry.from?
     attributes = hydration_cache_attributes(process_return, cache_version)
 
-    {:ok, _response} =
-      IndexingPipeline.write_hydration_cache_entry(attributes)
+    {:ok, _response} = IndexingPipeline.write_hydration_cache_entry(attributes)
   end
 
   @spec hydration_cache_attributes(
