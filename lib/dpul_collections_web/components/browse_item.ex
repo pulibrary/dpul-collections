@@ -9,7 +9,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
   attr :items, :list, required: true
   attr :title, :string, required: true
   attr :added?, :boolean, default: false
-  attr :more_link, :boolean, default: nil
+  attr :more_link, :string, default: nil
   attr :color, :string, default: "bg-secondary"
   attr :layout, :string, default: "content-area"
   attr :rest, :global
