@@ -143,7 +143,7 @@ defmodule DpulCollectionsWeb.SouthAsianEphemeraLive do
     <Layouts.app flash={@flash} content_class={}>
       <div class="grid grid-flow-row auto-rows-max">
         <!-- Hero Section -->
-        <div class="bg-sage-100 relative overflow-hidden">
+        <div class="bg-background relative overflow-hidden">
           <div class="content-area py-12">
             <div class="grid lg:grid-cols-2 gap-8 items-center">
               <!-- Left Column: Content -->
@@ -157,7 +157,7 @@ defmodule DpulCollectionsWeb.SouthAsianEphemeraLive do
                   </h1>
                 </div>
 
-                <p class="text-xl font-serif leading-relaxed">
+                <p class="text-xl leading-relaxed">
                   Discover voices of change across South Asia through contemporary pamphlets,
                   flyers, and documents that capture the region's social movements, politics,
                   and cultural expressions.
@@ -180,10 +180,12 @@ defmodule DpulCollectionsWeb.SouthAsianEphemeraLive do
                 </div>
 
                 <div class="flex flex-wrap gap-2 text-sm">
-                  <span class="bg-sage-200 px-3 py-1 rounded-full">Politics</span>
-                  <span class="bg-sage-200 px-3 py-1 rounded-full">Culture</span>
-                  <span class="bg-sage-200 px-3 py-1 rounded-full">Social Issues</span>
-                  <span class="bg-sage-200 px-3 py-1 rounded-full">20+ Languages</span>
+                  <span class="bg-sage-200 px-3 py-1 rounded-full"><.link href="#politics-and-government">Politics and government (1,166)</.link></span>
+                  <span class="bg-sage-200 px-3 py-1 rounded-full">Religion (767)</span>
+                  <span class="bg-sage-200 px-3 py-1 rounded-full">Socioeconomic conditions and development (527)</span>
+                  <span class="bg-sage-200 px-3 py-1 rounded-full">Gender and sexuality (473)</span>
+                  <span class="bg-sage-200 px-3 py-1 rounded-full">35 Languages</span>
+                  <span class="w-full text-l text-accent font-semibold"><.link href="#more">more...</.link></span>
                 </div>
               </div>
               <!-- Right Column: Featured Items Mosaic -->
@@ -224,7 +226,7 @@ defmodule DpulCollectionsWeb.SouthAsianEphemeraLive do
           "bg-background transition-all duration-500 overflow-hidden",
           if(@show_description, do: "max-h-200", else: "max-h-0")
         ]}>
-          <div class="content-area py-8 w-full text-lg mb-4">
+          <div class="content-area pb-4 w-full text-lg mb-4">
             <div class="">
               <p class="leading-relaxed mb-4">
                 The South Asian Ephemera Collection complements Princeton's already robust Digital Archive of Latin American and Caribbean Ephemera. The goal of the collection is to provide a diverse selection of resources that span a variety of subjects and languages and support interdisciplinary scholarship in South Asian Studies.
@@ -268,22 +270,33 @@ defmodule DpulCollectionsWeb.SouthAsianEphemeraLive do
         <.browse_item_row
           id="recent-sae-items"
           layout="content-area"
-          color="bg-background"
+          color="bg-secondary"
           items={@recent_items}
           title="Recently Updated Items"
           more_link="/search?filter[project]=South+Asian+Ephemera&sort_by=recently_updated"
           show_images={[]}
           added?={true}
         >
-          <p class="my-2 font-serif">
+          <p class="my-2">
             Explore the latest additions to our growing collection of South Asian ephemera.
           </p>
+        </.browse_item_row>
+        <!-- Politics and government -->
+        <.browse_item_row
+          id="politics-and-government"
+          layout="content-area"
+          color="bg-background"
+          items={@recent_items}
+          title="Top Subject: Politics and government"
+          more_link="/search?filter[project]=South+Asian+Ephemera&filter[category]=Politics+and+government&sort_by=recently_updated"
+          show_images={[]}
+        >
         </.browse_item_row>
         <!-- Browse All Section -->
         <div class="bg-secondary text-dark-text w-full page-y-padding page-x-padding">
           <div class="content-area text-center">
             <h2 class="text-3xl font-bold mb-4">Ready to Explore?</h2>
-            <p class="text-xl mb-8 font-serif">
+            <p class="text-xl mb-8">
               Dive deep into thousands of documents that tell the story of South Asian societies.
             </p>
             <.primary_button
