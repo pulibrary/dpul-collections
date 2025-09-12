@@ -149,10 +149,10 @@ defmodule DpulCollectionsWeb.SouthAsianEphemeraLive do
               <!-- Left Column: Content -->
               <div class="space-y-6">
                 <div class="space-y-2">
-                  <p class="text-accent font-semibold text-sm uppercase tracking-wider">
+                  <p class="text-accent font-semibold text-xl uppercase tracking-wide">
                     Digital Collection
                   </p>
-                  <h1 class="text-4xl lg:text-5xl font-bold text-princeton-black">
+                  <h1 class="text-4xl lg:text-4xl font-bold">
                     South Asian Ephemera
                   </h1>
                 </div>
