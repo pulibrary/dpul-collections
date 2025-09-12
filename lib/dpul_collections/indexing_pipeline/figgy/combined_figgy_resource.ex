@@ -25,7 +25,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
       ) do
     %{
       combined
-      | resource: resource |> Jason.encode!() |> Jason.decode!(),
+      | # We need string keys everywhere and no atom keys, this is what
+        # HydrationCacheEntry does as part of Ecto, so replicate it here.
+        resource: resource |> Jason.encode!() |> Jason.decode!(),
         related_data: related_data |> Jason.encode!() |> Jason.decode!()
     }
     |> to_solr_document

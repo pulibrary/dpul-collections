@@ -136,10 +136,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     |> IndexingPipeline.get_figgy_resources()
     |> remove_non_displayable_filesets()
     # Map the returned Figgy.Resources into tuples of this form:
-    # `{resource_id, %{"name" => value, ..}}`
+    # `{resource_id, %Figgy.Resource{}}`
     |> Enum.map(fn m -> {m.id, m} end)
     # Convert the list of tuples into a map with the form:
-    # `%{"id-1" => %{ "name" => "value", ..}, %{"id-2" => {"name" => "value", ..}}, ..}`
+    # `%{"id-1" => %Figgy.Resource{ "name" => "value", ..}, %{"id-2" => %Figgy.Resource{"name" => "value", ..}}, ..}`
     |> Map.new()
   end
 

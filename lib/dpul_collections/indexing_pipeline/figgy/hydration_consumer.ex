@@ -75,11 +75,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     messages
   end
 
-  # If given a resource that has no virtual attributes and should, then populate
-  # them - it probably came from get_figgy_resource!
+  # Classification requires all figgy resources to have the virtual attributes
+  # set. Resources pulled by the hydrator via `get_figgy_resources_since!` have
+  # them, but related records fetched via `get_figgy_resource!` do not, so add
+  # them first then recurse.
   @type process_return() ::
           {:update | :delete | :skip,
-           [process_return()]
+           [String]
            | %Figgy.Resource{}
            | %Figgy.DeletionRecord{}
            | %Figgy.CombinedFiggyResource{}}
@@ -114,8 +116,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
       %{internal_resource: internal_resource} when internal_resource in @related_record_types ->
         {:update, resource}
 
-      # Process EphemeraFolders that were processed before otherwise - we wanna
-      # delete them.
+      # Delete other EphemeraFolders that are already cached, otherwise we can
+      # skip them.
       %{internal_resource: "EphemeraFolder"} ->
         existing_resource = IndexingPipeline.get_hydration_cache_entry!(id, cache_version)
 
@@ -125,6 +127,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
           {:skip, resource}
         end
 
+      # Delete EphemeraFolders with DeletionMarkers if they're cached, otherwise
+      # we can skip them.
       %{
         internal_resource: "DeletionMarker",
         metadata_resource_id: [%{"id" => resource_id}],
@@ -133,7 +137,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         existing_resource =
           IndexingPipeline.get_hydration_cache_entry!(resource_id, cache_version)
 
-        # Same as above branch..
         if existing_resource do
           {:delete, resource}
         else
@@ -147,6 +150,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
   # If it's a related resource, get ids of all records dependent on this one
   # one.
+  @spec process(process_return(), cache_version :: integer) :: process_return()
   def enrich(
         {:update,
          %Figgy.Resource{id: id, updated_at: timestamp, internal_resource: internal_resource}},
@@ -231,7 +235,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   def post_classification(resource_and_classification, _cache_version),
     do: resource_and_classification
 
-  # One message resulted in many actions, store the list.
   @spec store_result(process_return(), message :: Broadway.Message.t()) ::
           Broadway.Message.t()
   def store_result({:skip, _record}, message), do: Broadway.Message.put_batcher(message, :noop)
@@ -239,9 +242,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   def store_result(data = {_action, _resource}, message),
     do: Broadway.Message.put_data(message, data)
 
-  @spec store_result(process_return(), cache_version :: integer) ::
-          {:ok, %Figgy.HydrationCacheEntry{}}
   # If we're passed several IDs, process them in order and persist.
+  @spec persist(process_return(), cache_version :: integer) ::
+          {:ok, %Figgy.HydrationCacheEntry{}}
   defp persist(update = {:update, id_list = [id | _]}, cache_version) when is_binary(id) do
     # Do one at a time to prevent memory ballooning.
     id_list
@@ -263,7 +266,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   end
 
   @spec hydration_cache_attributes(
-          %Figgy.DeletionRecord{} | %Figgy.CombinedFiggyResource{} | process_return(),
+          %Figgy.DeletionRecord{} | %Figgy.CombinedFiggyResource{},
           cache_version :: integer
         ) :: %{
           :handled_data => map(),
@@ -272,6 +275,15 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   def hydration_cache_attributes({_action, resource}, cache_version),
     do: hydration_cache_attributes(resource, cache_version)
 
+  # store in HydrationCache:
+  # - cache_version (this only changes manually, we have to hold onto it as state)
+  # - record_id (varchar) - the figgy UUID
+  # - data (blob) - this is the record
+  # - related_data (blob) - map of related data
+  # - related_ids (array<string>) - array of IDs that are contained in
+  #   related_data
+  # - source_cache_order (datetime) - most recent figgy or related resource updated_at
+  # - source_cache_order_record_id (varchar) - record id of the source_cache_order value
   def hydration_cache_attributes(
         %Figgy.DeletionRecord{
           marker: marker,
@@ -290,13 +302,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     }
   end
 
-  # store in HydrationCache:
-  # - data (blob) - this is the record
-  # - cache_order (datetime) - this is our own new timestamp for this table
-  # - cache_version (this only changes manually, we have to hold onto it as state)
-  # - record_id (varchar) - the figgy UUID
-  # - source_cache_order (datetime) - most recent figgy or related resource updated_at
-  # - source_cache_order_record_id (varchar) - record id of the source_cache_order value
   def hydration_cache_attributes(
         combined_resource = %Figgy.CombinedFiggyResource{resource: resource},
         cache_version
