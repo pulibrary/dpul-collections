@@ -64,8 +64,8 @@ defmodule DpulCollectionsWeb.SearchLive do
     <Layouts.app flash={@flash}>
       <section class="content-area">
         <.results_for_keywords_heading keywords={@search_state.q} />
-        <div class="my-5 grid grid-flow-row auto-rows-max gap-10">
-          <div id="filters" class="grid md:grid-cols-[auto_300px] gap-2">
+        <div class="my-4 grid grid-flow-row auto-rows-max gap-6">
+          <div id="filters" class="grid md:grid-cols-[auto_300px] gap-4">
             <form
               id="date-filter"
               phx-submit="filter-date"
@@ -109,8 +109,8 @@ defmodule DpulCollectionsWeb.SearchLive do
                 )}
               </select>
             </form>
-            <form id="filter-pills">
-              <div class="my-8 select-none flex flex-wrap gap-4">
+            <form id="filter-pills" class="md:col-span-2">
+              <div class="select-none flex flex-wrap gap-4">
                 <.filter
                   :for={{filter_field, filter_settings} <- filter_configuration()}
                   search_state={@search_state}
@@ -159,7 +159,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       role="button"
       id={"#{@field}-filter"}
       navigate={self_route(@search_state, %{filter: %{@field => nil}})}
-      class="filter mb-2 focus:border-3 focus:visible:border-rust focus:border-rust py-2 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue text-white font-sans font-semibold text-sm btn-primary hover:text-white hover:bg-accent focus:outline-none active:shadow-none"
+      class="filter focus:border-3 focus:visible:border-accent focus:border-accent py-1 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue font-sans font-bold text-sm btn-primary hover:text-white hover:bg-accent focus:outline-none active:shadow-none"
     >
       {# These labels are defined explicitly in Solr.Constants, but have to be called here because Constants is defined at compile time.}
       {Gettext.gettext(DpulCollectionsWeb.Gettext, @label)}
@@ -190,7 +190,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         />
       </div>
       <.link navigate={@item.url}>
-        <div class="grid-rows-2 bg-sage-100 grid sm:grid-rows-1 sm:grid-cols-3 gap-0">
+        <div class="grid-rows-2 bg-sage-100 grid sm:grid-rows-1 sm:grid-cols-4 gap-0">
           <.large_thumb
             :if={@item.file_count}
             thumb={elem(hd(thumbnail_service_urls(0, 1, @item)), 0)}
@@ -199,7 +199,7 @@ defmodule DpulCollectionsWeb.SearchLive do
             show_images={@show_images}
           />
           <div
-            class="metadata sm:col-span-2 flex flex-col gap-2 sm:gap-4 p-4"
+            class="metadata sm:col-span-3 flex flex-col gap-2 sm:gap-4 p-4"
             id={"item-metadata-#{@item.id}"}
           >
             <div class="flex flex-wrap flex-row sm:flex-row justify-between">
@@ -235,9 +235,9 @@ defmodule DpulCollectionsWeb.SearchLive do
                 <div class="text-base">Origin</div>
               </div>
             </div>
-            <div class="small-thumbnails hidden sm:flex flex-row flex-wrap gap-5 max-h-[170px] justify-start overflow-hidden">
+            <div class="small-thumbnails hidden sm:flex flex-row flex-wrap gap-5 max-h-[125px] justify-start overflow-hidden">
               <.thumbs
-                :for={{thumb, thumb_num} <- thumbnail_service_urls(1, 4, @item)}
+                :for={{thumb, thumb_num} <- thumbnail_service_urls(1, 6, @item)}
                 :if={@item.file_count > 1}
                 thumb={thumb}
                 thumb_num={thumb_num + 1}
@@ -246,7 +246,7 @@ defmodule DpulCollectionsWeb.SearchLive do
               />
               <div
                 id={"filecount-#{@item.id}"}
-                class="hidden absolute diagonal-rise right-0 bottom-0 bg-sage-100 pr-4 py-2"
+                class="hidden absolute diagonal-rise -right-px bottom-0 bg-sage-100 pr-4 py-2 text-sm"
               >
                 {@item.file_count} {gettext("Images")}
               </div>
@@ -283,16 +283,14 @@ defmodule DpulCollectionsWeb.SearchLive do
       "bg-search flex justify-center relative"
     ]}>
       <img
-        class={
-          [
-            "h-[350px] w-[350px]",
-            # "md:h-[225px] md:w-[225px]",
-            "bg-search object-contain p-2",
-            Helpers.obfuscate_item?(assigns) && "obfuscate",
-            "thumbnail-#{@item.id}",
-            "place-self-center"
-          ]
-        }
+        class={[
+          "h-[350px] w-[350px]",
+          "sm:h-[225px] md:w-[225px]",
+          "bg-search object-contain p-2",
+          Helpers.obfuscate_item?(assigns) && "obfuscate",
+          "thumbnail-#{@item.id}",
+          "place-self-center"
+        ]}
         src={"#{@thumb}/full/!350,350/0/default.jpg"}
         alt={"image #{@thumb_num}"}
       />
@@ -311,15 +309,15 @@ defmodule DpulCollectionsWeb.SearchLive do
     <div class="relative">
       <img
         class={[
-          "h-[170px] w-[170px] md:h-[170px] md:w-[170px] border border-solid border-gray-400",
+          "h-[125px] w-[125px] md:h-[125px] md:w-[125px] border border-solid border-gray-400",
           Helpers.obfuscate_item?(assigns) && "obfuscate",
           "thumbnail-#{@item.id}"
         ]}
-        src={"#{@thumb}/square/170,170/0/default.jpg"}
+        src={"#{@thumb}/square/350,350/0/default.jpg"}
         alt={"image #{@thumb_num}"}
         style="background-color: lightgray;"
-        width="170"
-        height="170"
+        width="125"
+        height="125"
       />
     </div>
     """
