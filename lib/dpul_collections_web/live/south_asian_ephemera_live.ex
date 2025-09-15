@@ -140,125 +140,125 @@ defmodule DpulCollectionsWeb.SouthAsianEphemeraLive do
 
   defp get_categories do
     [
-      {"Politics and government", 1166, "#politics-and-government"},
-      {"Religion", 767, nil},
-      {"Socioeconomic conditions and development", 527, nil},
-      {"Gender and sexuality", 473, nil},
-      {"Human and Civil Rights", 432, nil},
-      {"Arts and culture", 372, nil},
-      {"Minorities, ethnic and racial groups", 321, nil},
-      {"Economics", 284, nil},
-      {"Environment and ecology", 262, nil},
-      {"Education", 254, nil},
-      {"Agrarian and rural issues", 249, nil},
-      {"History", 220, nil},
-      {"Children and youth", 182, nil},
-      {"Health", 168, nil},
-      {"Labor", 158, nil},
-      {"Tourism", 82, nil}
+      {"Politics and government", 1166},
+      {"Religion", 767},
+      {"Socioeconomic conditions and development", 527},
+      {"Gender and sexuality", 473},
+      {"Human and Civil Rights", 432},
+      {"Arts and culture", 372},
+      {"Minorities, ethnic and racial groups", 321},
+      {"Economics", 284},
+      {"Environment and ecology", 262},
+      {"Education", 254},
+      {"Agrarian and rural issues", 249},
+      {"History", 220},
+      {"Children and youth", 182},
+      {"Health", 168},
+      {"Labor", 158},
+      {"Tourism", 82}
     ]
   end
 
   defp get_genres do
     [
-      {"Booklets", 758, nil},
-      {"Reports", 559, nil},
-      {"Serials", 447, nil},
-      {"Pamphlets", 334, nil},
-      {"News clippings", 279, nil},
-      {"Posters", 260, nil},
-      {"Brochures", 182, nil},
-      {"Flyers", 54, nil},
-      {"Leaflets", 44, nil},
-      {"Manuscripts", 41, nil},
-      {"Pedagogical materials", 37, nil},
-      {"Electoral paraphernalia", 17, nil},
-      {"Stickers", 11, nil},
-      {"Correspondence", 8, nil},
-      {"Postcards", 6, nil},
-      {"Advertisements", 4, nil},
-      {"Maps", 3, nil},
-      {"Calendars", 2, nil},
-      {"Forms", 2, nil},
-      {"Games", 1, nil}
+      {"Booklets", 758},
+      {"Reports", 559},
+      {"Serials", 447},
+      {"Pamphlets", 334},
+      {"News clippings", 279},
+      {"Posters", 260},
+      {"Brochures", 182},
+      {"Flyers", 54},
+      {"Leaflets", 44},
+      {"Manuscripts", 41},
+      {"Pedagogical materials", 37},
+      {"Electoral paraphernalia", 17},
+      {"Stickers", 11},
+      {"Correspondence", 8},
+      {"Postcards", 6},
+      {"Advertisements", 4},
+      {"Maps", 3},
+      {"Calendars", 2},
+      {"Forms", 2},
+      {"Games", 1}
     ]
   end
 
   defp get_languages do
     [
-      {"English", 2015, nil},
-      {"Urdu", 320, nil},
-      {"Hindi", 226, nil},
-      {"Sinhala", 143, nil},
-      {"Nepali", 129, nil},
-      {"Telugu", 118, nil},
-      {"Assamese", 72, nil},
-      {"Tamil", 67, nil},
-      {"Bengali", 54, nil},
-      {"Arabic", 47, nil},
-      {"Gujarati", 26, nil},
-      {"Oriya", 25, nil},
-      {"Sanskrit", 14, nil},
-      {"Marathi", 12, nil},
-      {"Persian", 12, nil},
-      {"Kannada", 8, nil},
-      {"Sinhala | Sinhalese", 7, nil},
-      {"Dzongkha", 4, nil},
-      {"Esperanto", 4, nil},
-      {"Malayalam", 4, nil},
-      {"Pushto", 4, nil},
-      {"Italian", 3, nil},
-      {"Sino-Tibetan languages", 3, nil},
-      {"French", 2, nil},
-      {"Pali", 2, nil},
-      {"Panjabi", 2, nil},
-      {"Spanish", 2, nil},
-      {"Chhattisgarhi", 1, nil},
-      {"Divehi", 1, nil},
-      {"Divehi | Dhivehi | Maldivian", 1, nil},
-      {"German", 1, nil},
-      {"Indic languages", 1, nil},
-      {"Nepal Bhasa", 1, nil},
-      {"Panjabi | Punjabi", 1, nil},
-      {"Pushto | Pashto", 1, nil}
+      {"English", 2015},
+      {"Urdu", 320},
+      {"Hindi", 226},
+      {"Sinhala", 143},
+      {"Nepali", 129},
+      {"Telugu", 118},
+      {"Assamese", 72},
+      {"Tamil", 67},
+      {"Bengali", 54},
+      {"Arabic", 47},
+      {"Gujarati", 26},
+      {"Oriya", 25},
+      {"Sanskrit", 14},
+      {"Marathi", 12},
+      {"Persian", 12},
+      {"Kannada", 8},
+      {"Sinhala | Sinhalese", 7},
+      {"Dzongkha", 4},
+      {"Esperanto", 4},
+      {"Malayalam", 4},
+      {"Pushto", 4},
+      {"Italian", 3},
+      {"Sino-Tibetan languages", 3},
+      {"French", 2},
+      {"Pali", 2},
+      {"Panjabi", 2},
+      {"Spanish", 2},
+      {"Chhattisgarhi", 1},
+      {"Divehi", 1},
+      {"Divehi | Dhivehi | Maldivian", 1},
+      {"German", 1},
+      {"Indic languages", 1},
+      {"Nepal Bhasa", 1},
+      {"Panjabi | Punjabi", 1},
+      {"Pushto | Pashto", 1}
     ]
   end
 
   defp get_geographic_origins do
     [
-      {"India", 1433, nil},
-      {"Sri Lanka", 610, nil},
-      {"Pakistan", 561, nil},
-      {"Nepal", 240, nil},
-      {"Bangladesh", 47, nil},
-      {"United States", 36, nil},
-      {"Afghanistan", 27, nil},
-      {"Maldives", 17, nil},
-      {"Bhutan", 14, nil},
-      {"United Kingdom", 9, nil},
-      {"Switzerland", 5, nil},
-      {"India--Delhi", 4, nil},
-      {"India--West Bengal", 4, nil},
-      {"Italy", 3, nil},
-      {"Netherlands", 3, nil},
-      {"India--Maharashtra", 2, nil},
-      {"India--Punjab", 2, nil},
-      {"Japan", 2, nil},
-      {"No place, unknown, or undetermined", 2, nil},
-      {"Australia", 1, nil},
-      {"China", 1, nil},
-      {"Denmark", 1, nil},
-      {"France", 1, nil},
-      {"Germany", 1, nil},
-      {"India--Andhra Pradesh", 1, nil},
-      {"India--Chhattīsgarh", 1, nil},
-      {"India--Jharkhand", 1, nil},
-      {"India--Karnataka", 1, nil},
-      {"India--Rajasthan", 1, nil},
-      {"India--Telangana", 1, nil},
-      {"India--Uttar Pradesh", 1, nil},
-      {"South Africa", 1, nil},
-      {"Tarai (India and Nepal)", 1, nil}
+      {"India", 1433},
+      {"Sri Lanka", 610},
+      {"Pakistan", 561},
+      {"Nepal", 240},
+      {"Bangladesh", 47},
+      {"United States", 36},
+      {"Afghanistan", 27},
+      {"Maldives", 17},
+      {"Bhutan", 14},
+      {"United Kingdom", 9},
+      {"Switzerland", 5},
+      {"India--Delhi", 4},
+      {"India--West Bengal", 4},
+      {"Italy", 3},
+      {"Netherlands", 3},
+      {"India--Maharashtra", 2},
+      {"India--Punjab", 2},
+      {"Japan", 2},
+      {"No place, unknown, or undetermined", 2},
+      {"Australia", 1},
+      {"China", 1},
+      {"Denmark", 1},
+      {"France", 1},
+      {"Germany", 1},
+      {"India--Andhra Pradesh", 1},
+      {"India--Chhattīsgarh", 1},
+      {"India--Jharkhand", 1},
+      {"India--Karnataka", 1},
+      {"India--Rajasthan", 1},
+      {"India--Telangana", 1},
+      {"India--Uttar Pradesh", 1},
+      {"South Africa", 1},
+      {"Tarai (India and Nepal)", 1}
     ]
   end
 
@@ -276,22 +276,13 @@ defmodule DpulCollectionsWeb.SouthAsianEphemeraLive do
           aria-labelledby={"#{@container_id}-header"}
           class="group max-h-[2.5rem] [&.expanded]:max-h-none flex flex-wrap gap-2 overflow-hidden"
         >
-          <%= for {{name, count, href}, idx} <- Enum.with_index(@items) do %>
+          <%= for {{name, count}, idx} <- Enum.with_index(@items) do %>
             <li
               aria-setsize={length(@items) + 2}
               aria-posinset={idx + 1}
               class={"pill-item #{@pill_class} group-[.expanded]:block hover:bg-sage-300 px-3 py-1.5 rounded-full duration-200"}
             >
-              <%= if href do %>
-                <.link
-                  href={href}
-                  class="text-xs"
-                >
-                  {name} ({count})
-                </.link>
-              <% else %>
-                <span class="text-xs">{name} ({count})</span>
-              <% end %>
+              <span class="text-xs">{name} ({count})</span>
             </li>
           <% end %>
           <li class="hidden group-[.expanded]:block less-button">
@@ -442,17 +433,6 @@ defmodule DpulCollectionsWeb.SouthAsianEphemeraLive do
           <p class="my-2">
             Explore the latest additions to our growing collection of South Asian ephemera.
           </p>
-        </.browse_item_row>
-        <!-- Politics and government -->
-        <.browse_item_row
-          id="politics-and-government"
-          layout="home-content-area"
-          color="bg-background"
-          items={@recent_items}
-          title="Top Subject: Politics and government"
-          more_link="/search?filter[project]=South+Asian+Ephemera&filter[category]=Politics+and+government&sort_by=recently_updated"
-          show_images={[]}
-        >
         </.browse_item_row>
         <!-- Browse All Section -->
         <div class="bg-secondary text-dark-text w-full page-y-padding page-x-padding">
