@@ -376,7 +376,7 @@ defmodule DpulCollectionsWeb.SouthAsianEphemeraLive do
                 </div>
               </div>
               <!-- Right Column: Featured Items Mosaic -->
-              <div class="">
+              <div class="self-start">
                 <div class="py-4 grid grid-cols-2 gap-2 transform rotate-2 hover:rotate-0 transition-transform duration-500">
                   <%= for {item, index} <- Enum.with_index(Enum.take(@featured_items, 4)) do %>
                     <div class={[
@@ -420,30 +420,6 @@ defmodule DpulCollectionsWeb.SouthAsianEphemeraLive do
                   <p class="leading-relaxed mb-4">
                     Every effort is being made to represent each country in the region. As the collection grows over time, PUL will provide increasingly balanced coverage of the area.
                   </p>
-                  <div class="grid md:grid-cols-1 gap-6 mt-6">
-                    <div>
-                      <h3 class="text-lg font-semibold text-princeton-black mb-3">
-                        Subject Areas Include:
-                      </h3>
-                      <ul class="text-sm space-y-1 columns-3">
-                        <li>Agrarian and rural issues</li>
-                        <li>Arts and culture</li>
-                        <li>Children and youth</li>
-                        <li>Economics</li>
-                        <li>Education</li>
-                        <li>Environment and ecology</li>
-                        <li>Gender</li>
-                        <li>Health</li>
-                        <li>Human and civil rights</li>
-                        <li>Labor</li>
-                        <li>Minorities</li>
-                        <li>Politics and government</li>
-                        <li>Religion</li>
-                        <li>Science and Technology</li>
-                        <li>Urban issues</li>
-                      </ul>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
