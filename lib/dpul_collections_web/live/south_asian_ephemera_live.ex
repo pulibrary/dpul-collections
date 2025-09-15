@@ -267,9 +267,6 @@ defmodule DpulCollectionsWeb.SouthAsianEphemeraLive do
     <div>
       <div class="flex items-center gap-3 mb-2">
         <h3 id={"#{@container_id}-header"} class="text-sm font-medium">{@title}</h3>
-        <span class="text-xs">
-          {length(@items)} {@unit}
-        </span>
       </div>
       <div
         phx-hook="ResponsivePills"
@@ -359,6 +356,24 @@ defmodule DpulCollectionsWeb.SouthAsianEphemeraLive do
                     Learn More
                   </button>
                 </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-1 gap-6">
+                  <.pill_section
+                    title="Subject Areas"
+                    unit="categories"
+                    items={get_categories()}
+                    container_id="categories-container"
+                    pill_class="bg-sage-200"
+                  />
+
+                  <.pill_section
+                    title="Genres"
+                    unit="genres"
+                    items={get_genres()}
+                    container_id="genres-container"
+                    pill_class="bg-cloud"
+                  />
+                </div>
               </div>
               <!-- Right Column: Featured Items Mosaic -->
               <div class="">
@@ -376,7 +391,7 @@ defmodule DpulCollectionsWeb.SouthAsianEphemeraLive do
                         <img
                           src={item.image_url}
                           alt={item.title}
-                          class="w-full h-40 object-cover rounded-t"
+                          class="w-full h-40 object-cover object-top rounded-t"
                         />
                         <div class="p-2 bg-background">
                           <p class="text-xs font-medium truncate">{item.title}</p>
@@ -388,41 +403,7 @@ defmodule DpulCollectionsWeb.SouthAsianEphemeraLive do
               </div>
             </div>
             <!-- Collection At a Glance Section -->
-            <div class="w-full text-sm page-y-padding">
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <.pill_section
-                  title="Subject Areas"
-                  unit="categories"
-                  items={get_categories()}
-                  container_id="categories-container"
-                  pill_class="bg-sage-200"
-                />
-
-                <.pill_section
-                  title="Genres"
-                  unit="genres"
-                  items={get_genres()}
-                  container_id="genres-container"
-                  pill_class="bg-cloud"
-                />
-
-                <.pill_section
-                  title="Languages"
-                  unit="languages"
-                  items={get_languages()}
-                  container_id="languages-container"
-                  pill_class="bg-wafer-pink"
-                />
-
-                <.pill_section
-                  title="Geographic Origin"
-                  unit="regions"
-                  items={get_geographic_origins()}
-                  container_id="geographic-origins-container"
-                  pill_class="bg-sage-100"
-                />
-              </div>
-            </div>
+            <div class="w-full text-sm page-y-padding"></div>
 
             <div class={[
               "bg-background transition-all duration-500 overflow-hidden",
