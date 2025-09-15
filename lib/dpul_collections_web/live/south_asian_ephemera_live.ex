@@ -416,8 +416,6 @@ defmodule DpulCollectionsWeb.SouthAsianEphemeraLive do
             </div>
           </div>
         </div>
-        <!-- Collection Description (Collapsible) -->
-
         <.content_separator />
         <!-- Recently Updated Items -->
         <.browse_item_row
@@ -435,7 +433,7 @@ defmodule DpulCollectionsWeb.SouthAsianEphemeraLive do
           </p>
         </.browse_item_row>
         <!-- Browse All Section -->
-        <div class="bg-secondary text-dark-text w-full page-y-padding page-x-padding">
+        <div class="bg-background text-dark-text w-full page-y-padding page-x-padding">
           <div class="home-content-area text-center">
             <h2 class="text-3xl font-bold mb-4">Ready to Explore?</h2>
             <p class="text-xl mb-8">
