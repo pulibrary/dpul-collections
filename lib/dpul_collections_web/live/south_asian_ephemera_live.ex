@@ -327,12 +327,14 @@ defmodule DpulCollectionsWeb.SouthAsianEphemeraLive do
                   <p class="text-accent font-semibold text-xl uppercase tracking-wide">
                     Digital Collection
                   </p>
-                  <div class="flex gap-4">
-                    <h1 class="text-4xl lg:text-4xl font-bold">
+                  <div class="flex flex-wrap gap-4">
+                    <h1 class="flex-grow-1 text-4xl lg:text-4xl font-bold">
                       South Asian Ephemera
                     </h1>
-                    <div class="flex items-center bg-accent/20 rounded-full px-3 py-1 text-dark-text">
-                      3,087 Items
+                    <div class="flex items-center text-dark-text">
+                      <div class="bg-accent/20 rounded-full px-3 py-1">
+                        3,087 Items
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -359,9 +361,9 @@ defmodule DpulCollectionsWeb.SouthAsianEphemeraLive do
                 </div>
               </div>
               <!-- Right Column: Featured Items Mosaic -->
-              <div class="relative align-self-start">
-                <div class="grid grid-cols-3 gap-2 transform rotate-2 hover:rotate-0 transition-transform duration-500">
-                  <%= for {item, index} <- Enum.with_index(@featured_items) do %>
+              <div class="">
+                <div class="py-4 grid grid-cols-2 gap-2 transform rotate-2 hover:rotate-0 transition-transform duration-500">
+                  <%= for {item, index} <- Enum.with_index(Enum.take(@featured_items, 4)) do %>
                     <div class={[
                       "card hover:scale-105 transition-transform duration-300 cursor-pointer",
                       case rem(index, 3) do
@@ -374,7 +376,7 @@ defmodule DpulCollectionsWeb.SouthAsianEphemeraLive do
                         <img
                           src={item.image_url}
                           alt={item.title}
-                          class="w-full h-24 object-cover rounded-t"
+                          class="w-full h-40 object-cover rounded-t"
                         />
                         <div class="p-2 bg-background">
                           <p class="text-xs font-medium truncate">{item.title}</p>
@@ -472,7 +474,7 @@ defmodule DpulCollectionsWeb.SouthAsianEphemeraLive do
         <!-- Recently Updated Items -->
         <.browse_item_row
           id="recent-sae-items"
-          layout="content-area"
+          layout="home-content-area"
           color="bg-secondary"
           items={@recent_items}
           title="Recently Updated Items"
@@ -487,7 +489,7 @@ defmodule DpulCollectionsWeb.SouthAsianEphemeraLive do
         <!-- Politics and government -->
         <.browse_item_row
           id="politics-and-government"
-          layout="content-area"
+          layout="home-content-area"
           color="bg-background"
           items={@recent_items}
           title="Top Subject: Politics and government"
@@ -497,7 +499,7 @@ defmodule DpulCollectionsWeb.SouthAsianEphemeraLive do
         </.browse_item_row>
         <!-- Browse All Section -->
         <div class="bg-secondary text-dark-text w-full page-y-padding page-x-padding">
-          <div class="content-area text-center">
+          <div class="home-content-area text-center">
             <h2 class="text-3xl font-bold mb-4">Ready to Explore?</h2>
             <p class="text-xl mb-8">
               Dive deep into thousands of documents that tell the story of South Asian societies.
