@@ -213,7 +213,7 @@ Hooks.ResponsivePills = {
     // Hide every pill that doesn't fit so that "more" will slide into place.
     Array.from(allPillItems).slice(visibleCount).forEach(item => item.classList.add('hidden'))
 
-    // Remove expand
+    // Remove expand so the pills will contract again, it was only temporary to get widths.
     ul.classList.remove("expanded")
 
     // Update the more count
