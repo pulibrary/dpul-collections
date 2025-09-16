@@ -138,7 +138,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
          cache_version
        )
        when action in [:delete, :update] do
-    # Maybe move to HydrationCacheEntry.from?
     {:ok, _} =
       IndexingPipeline.write_transformation_cache_entry(%{
         cache_version: cache_version,
