@@ -1,4 +1,4 @@
-defmodule DpulCollectionsWeb.SouthAsianEphemeraLive do
+defmodule DpulCollectionsWeb.CollectionsLive do
   use DpulCollectionsWeb, :live_view
   use Gettext, backend: DpulCollectionsWeb.Gettext
   import DpulCollectionsWeb.BrowseItem
