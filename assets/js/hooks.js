@@ -130,7 +130,6 @@ Hooks.ResponsivePills = {
   mounted() {
     this.totalCount = this.el.querySelectorAll('.pill-item').length
     this.isExpanded = false
-    // Set up event listeners for toggle buttons
     this.setupToggleListeners()
     this.calculateVisibleItems()
     // Handle resize with debouncing
