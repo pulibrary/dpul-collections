@@ -2,13 +2,15 @@ defmodule DpulCollectionsWeb.CollectionsLive do
   use DpulCollectionsWeb, :live_view
   use Gettext, backend: DpulCollectionsWeb.Gettext
   import DpulCollectionsWeb.BrowseItem
-  alias DpulCollections.Item
+  alias DpulCollections.{Item, Collection}
 
   def mount(_params, _session, socket) do
+    collection = get_collection("sae")
+
     socket =
       assign(socket,
-        page_title: "South Asian Ephemera",
-        show_description: false,
+        page_title: collection.title,
+        collection: collection,
         recent_items: get_recent_collection_items(),
         featured_items: get_featured_items()
       )
@@ -16,13 +18,30 @@ defmodule DpulCollectionsWeb.CollectionsLive do
     {:ok, socket}
   end
 
-  def handle_event("toggle_description", _, socket) do
-    {:noreply, assign(socket, show_description: !socket.assigns.show_description)}
+  def get_collection(_slug) do
+    %Collection{
+      id: "f99af4de-fed4-4baa-82b1-6e857b230306",
+      slug: "sae",
+      title: "South Asian Ephemera",
+      tagline:
+        "Discover voices of change across South Asia through contemporary pamphlets, flyers, and documents that capture the region's social movements, politics, and cultural expressions.",
+      description: """
+      The South Asian Ephemera Collection complements Princeton's already robust Digital Archive of Latin American and Caribbean Ephemera. The goal of the collection is to provide a diverse selection of resources that span a variety of subjects and languages and support interdisciplinary scholarship in South Asian Studies.
+      At present, the collection is primarily composed of contemporary ephemera and items from the latter half of the twentieth century, though users will also find items originating from earlier dates. Common genres in the collection include booklets, pamphlets, leaflets, and flyers. These items were produced by a variety of individuals and organizations including political parties, non-governmental organizations, public policy think tanks, activists, and others and were meant to promote their views, positions, agendas, policies, events, and activities.
+      Every effort is being made to represent each country in the region. As the collection grows over time, PUL will provide increasingly balanced coverage of the area.
+      """,
+      # I don't really know if these should be in here, but for now it's probably fine.
+      item_count: 3_087,
+      # These should probably come from facet data.
+      categories: get_categories(),
+      genres: get_genres(),
+      languages: get_languages(),
+      geographic_origins: get_geographic_origins()
+    }
   end
 
+  # Implement filters into Solr.recently_updated
   defp get_recent_collection_items do
-    # Simulate getting recent items from the South Asian Ephemera collection
-    # In a real implementation, this would query Solr with collection filters
     [
       %{
         id: "sae001",
@@ -307,7 +326,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
       <div class="grid grid-flow-row auto-rows-max">
         <!-- Hero Section -->
         <div class="bg-background relative overflow-hidden">
-          <div class="home-content-area py-12">
+          <div class="home-content-area page-y-padding">
             <div class="grid lg:grid-cols-2 gap-8 items-center">
               <!-- Left Column: Content -->
               <div class="space-y-6">
@@ -315,33 +334,44 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                   <p class="text-accent font-semibold text-xl uppercase tracking-wide">
                     Digital Collection
                   </p>
+                  <h1 class="flex-grow-1 text-4xl lg:text-4xl font-bold">
+                    {@collection.title}
+                  </h1>
                   <div class="flex flex-wrap gap-4">
-                    <h1 class="flex-grow-1 text-4xl lg:text-4xl font-bold">
-                      South Asian Ephemera
-                    </h1>
-                    <div class="flex items-center text-dark-text">
+                    <div class="flex items-center text-dark-text gap-2">
                       <div class="bg-accent/20 rounded-full px-3 py-1">
-                        3,087 Items
+                        {@collection.item_count} Items
+                      </div>
+                      <div class="bg-accent/20 rounded-full px-3 py-1">
+                        {length(@collection.languages)} Languages
+                      </div>
+                      <div class="bg-accent/20 rounded-full px-3 py-1">
+                        {length(@collection.geographic_origins)} Locations
                       </div>
                     </div>
                   </div>
                 </div>
                 <p class="text-xl leading-relaxed">
-                  Discover voices of change across South Asia through contemporary pamphlets,
-                  flyers, and documents that capture the region's social movements, politics,
-                  and cultural expressions.
+                  {@collection.tagline}
                 </p>
 
                 <div class="flex flex-wrap gap-4 pt-4">
                   <.primary_button
-                    href="/search?filter[project]=South+Asian+Ephemera"
+                    href={~p"/search?#{%{filter: %{project: @collection.title}}}"}
                     class="btn-primary"
                   >
                     Browse Collection
                   </.primary_button>
 
                   <button
-                    phx-click="toggle_description"
+                    phx-click={
+                      JS.toggle(
+                        to: "#collection-description",
+                        time: 500,
+                        in: {"duration-500", "max-h-0", "max-h-300"},
+                        out: {"duration-500 block", "max-h-300", "max-h-0"}
+                      )
+                    }
                     class="btn-secondary text-dark-text hover:bg-cloud"
                   >
                     Learn More
@@ -352,7 +382,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                   <.pill_section
                     title="Subject Areas"
                     unit="categories"
-                    items={get_categories()}
+                    items={@collection.categories}
                     container_id="categories-container"
                     pill_class="bg-sage-200"
                   />
@@ -360,7 +390,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                   <.pill_section
                     title="Genres"
                     unit="genres"
-                    items={get_genres()}
+                    items={@collection.genres}
                     container_id="genres-container"
                     pill_class="bg-cloud"
                   />
@@ -393,23 +423,18 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 </div>
               </div>
             </div>
-            <!-- Collection At a Glance Section -->
-            <div class="w-full text-sm page-y-padding"></div>
 
-            <div class={[
-              "bg-background transition-all duration-500 overflow-hidden",
-              if(@show_description, do: "max-h-200", else: "max-h-0")
-            ]}>
+            <div
+              id="collection-description"
+              class="transition-[max-height] bg-background page-t-padding overflow-hidden hidden"
+            >
               <div class="w-full text-lg">
                 <div class="">
-                  <p class="leading-relaxed mb-4">
-                    The South Asian Ephemera Collection complements Princeton's already robust Digital Archive of Latin American and Caribbean Ephemera. The goal of the collection is to provide a diverse selection of resources that span a variety of subjects and languages and support interdisciplinary scholarship in South Asian Studies.
-                  </p>
-                  <p class="leading-relaxed mb-4">
-                    At present, the collection is primarily composed of contemporary ephemera and items from the latter half of the twentieth century, though users will also find items originating from earlier dates. Common genres in the collection include booklets, pamphlets, leaflets, and flyers. These items were produced by a variety of individuals and organizations including political parties, non-governmental organizations, public policy think tanks, activists, and others and were meant to promote their views, positions, agendas, policies, events, and activities.
-                  </p>
-                  <p class="leading-relaxed mb-4">
-                    Every effort is being made to represent each country in the region. As the collection grows over time, PUL will provide increasingly balanced coverage of the area.
+                  <p
+                    :for={description_paragraph <- String.split(@collection.description, "\n")}
+                    class="leading-relaxed not-first:mt-4"
+                  >
+                    {description_paragraph}
                   </p>
                 </div>
               </div>
@@ -424,12 +449,14 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           color="bg-secondary"
           items={@recent_items}
           title="Recently Updated Items"
-          more_link="/search?filter[project]=South+Asian+Ephemera&sort_by=recently_updated"
+          more_link={
+            ~p"/search?#{%{filter: %{project: @collection.title}, sort_by: "recently_updated"}}"
+          }
           show_images={[]}
           added?={true}
         >
           <p class="my-2">
-            Explore the latest additions to our growing collection of South Asian ephemera.
+            Explore the latest additions to our growing collection for {@collection.title}.
           </p>
         </.browse_item_row>
         <!-- Browse All Section -->
@@ -437,10 +464,10 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           <div class="home-content-area text-center">
             <h2 class="text-3xl font-bold mb-4">Ready to Explore?</h2>
             <p class="text-xl mb-8">
-              Dive deep into thousands of documents that tell the story of South Asian societies.
+              Sort, filter, and search through the entirety of {@collection.title}.
             </p>
             <.primary_button
-              href="/search?filter[project]=South+Asian+Ephemera"
+              href={~p"/search?#{%{filter: %{project: @collection.title}}}"}
               class="btn-primary text-lg px-8 py-4"
             >
               Browse All Items
