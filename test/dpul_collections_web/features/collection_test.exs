@@ -35,5 +35,11 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
         "a[href='/search?filter[project]=South+Asian+Ephemera&sort_by=recently_updated']"
       )
     end
+
+    test "collection page is accessible", %{conn: conn} do
+      conn
+      |> visit("/collections/sae")
+      |> unwrap(&TestUtils.assert_a11y/1)
+    end
   end
 end

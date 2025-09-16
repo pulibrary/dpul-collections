@@ -247,7 +247,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
     ~H"""
     <div>
       <div class="flex items-center gap-3 mb-2">
-        <h3 id={"#{@container_id}-header"} class="text-sm font-medium">{@title}</h3>
+        <h2 id={"#{@container_id}-header"} class="text-sm font-medium">{@title}</h2>
       </div>
       <div
         phx-hook="ResponsivePills"
