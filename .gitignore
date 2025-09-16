@@ -44,6 +44,3 @@ solr/conf/solr_config.zip
 
 # playwright screenshots
 screenshots/*
-
-# AI
-.claude
