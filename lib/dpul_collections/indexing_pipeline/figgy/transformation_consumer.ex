@@ -62,10 +62,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
   @impl Broadway
   def handle_batch(:default, messages, _batch_info, %{cache_version: cache_version}) do
     messages
-    # Get all the resources from the processing steps
-    |> Enum.map(&Map.get(&1, :data))
-    |> List.flatten()
-    # Persist each of them to the HydrationCache.
     |> Enum.each(&persist(&1, cache_version))
 
     messages
@@ -118,11 +114,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
     |> DpulCollections.Workers.CacheThumbnails.new()
     |> Oban.insert()
 
-    {:update,
-     %{
-       incoming_message_data: hydration_cache_entry,
-       handled_data: solr_doc
-     }}
+    {:update, solr_doc}
   end
 
   def enrich(resource_and_classification, _cache_version) do
@@ -139,7 +131,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
     do: Broadway.Message.put_data(message, data)
 
   defp persist(
-         {action, %{incoming_message_data: hydration_cache_entry, handled_data: solr_doc}},
+         %Broadway.Message{
+           data: {action, solr_doc},
+           metadata: %{marker: marker}
+         },
          cache_version
        )
        when action in [:delete, :update] do
@@ -147,8 +142,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
     {:ok, _} =
       IndexingPipeline.write_transformation_cache_entry(%{
         cache_version: cache_version,
-        record_id: hydration_cache_entry |> Map.get(:record_id),
-        source_cache_order: hydration_cache_entry |> Map.get(:cache_order),
+        record_id: solr_doc[:id],
+        source_cache_order: marker.timestamp,
         data: solr_doc
       })
   end
