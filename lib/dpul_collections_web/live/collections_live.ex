@@ -267,12 +267,12 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             </li>
           <% end %>
           <li class="hidden group-[.expanded]:block less-button">
-            <button class="bg-sage-100 hover:bg-sage-200 px-3 py-1.5 rounded-full text-xs h-full">
+            <button class="cursor-pointer bg-sage-100 hover:bg-sage-200 px-3 py-1.5 rounded-full text-xs h-full">
               Show less
             </button>
           </li>
           <li class="more-button group-[.expanded]:invisible">
-            <button class="bg-sage-100 hover:bg-sage-200 px-3 py-1.5 rounded-full text-xs h-full">
+            <button class="cursor-pointer bg-sage-100 hover:bg-sage-200 px-3 py-1.5 rounded-full text-xs h-full">
               +<span class="more-count">{length(@items)}</span> more
             </button>
           </li>
