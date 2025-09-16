@@ -105,6 +105,15 @@ defmodule DpulCollections.IndexingPipeline do
           r.cache_version == ^cache_version and
             ((r.cache_order == ^cache_order and r.record_id > ^id) or
                r.cache_order > ^cache_order),
+        # Don't pull data or related_data, they're too big to parse in bulk.
+        select: [
+          :id,
+          :cache_version,
+          :record_id,
+          :source_cache_order,
+          :source_cache_order_record_id,
+          :cache_order
+        ],
         limit: ^count,
         order_by: [asc: r.cache_order, asc: r.record_id]
 
@@ -120,6 +129,15 @@ defmodule DpulCollections.IndexingPipeline do
     query =
       from r in Figgy.HydrationCacheEntry,
         where: r.cache_version == ^cache_version,
+        # Don't pull data or related_data, they're too big to parse in bulk.
+        select: [
+          :id,
+          :cache_version,
+          :record_id,
+          :source_cache_order,
+          :source_cache_order_record_id,
+          :cache_order
+        ],
         limit: ^count,
         order_by: [asc: r.cache_order, asc: r.record_id]
 

@@ -86,12 +86,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
   end
 
   # # We don't have the full resource yet, fetch it and re-classify.
-  # def initial_classification(%HydrationCacheEntry{id: id, data: nil}, cache_version) do
-  #   initial_classification(
-  #     IndexingPipeline.get_hydration_cache_entry!(id, cache_version),
-  #     cache_version
-  #   )
-  # end
+  def initial_classification(%HydrationCacheEntry{id: id, data: nil}, cache_version) do
+    initial_classification(
+      IndexingPipeline.get_hydration_cache_entry!(id),
+      cache_version
+    )
+  end
 
   def initial_classification(
         resource = %HydrationCacheEntry{data: %{"internal_resource" => internal_resource}},
