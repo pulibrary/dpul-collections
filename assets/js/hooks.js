@@ -1,5 +1,5 @@
 import LiveReact from "phoenix_live_react"
-import { hooks as colocatedHooks } from "phoenix-colocated/dpul_collections"
+import {hooks as colocatedHooks} from "phoenix-colocated/dpul_collections"
 let Hooks = { LiveReact, colocatedHooks };
 
 Hooks.ToolbarHook = {
@@ -23,10 +23,10 @@ Hooks.ToolbarHook = {
 
 Hooks.Dialog = {
   mounted() {
-    this.el.addEventListener('dpulc:closeDialog', (e) => {
+    this.el.addEventListener('dpulc:closeDialog', (e) =>  {
       this.el.close()
     })
-    this.el.addEventListener('dpulc:showDialog', (e) => {
+    this.el.addEventListener('dpulc:showDialog', (e) =>  {
       this.el.showModal()
     })
     this.el.addEventListener('close', (e) => {
@@ -41,7 +41,7 @@ Hooks.Dialog = {
 // used for slide ins updated via patch.
 Hooks.ScrollTop = {
   mounted() {
-    window.scrollTo(0, 0)
+    window.scrollTo(0,0)
   }
 }
 
@@ -61,7 +61,7 @@ Hooks.ShowPageCount = {
 
       if ((totalFiles == containerFileCount && hiddenCount == 0)) {
         return false
-      }
+      } 
       return true
     }
 
@@ -91,12 +91,12 @@ Hooks.ShowPageCount = {
     let elID = this.el.getAttribute("data-id")
     // subtract large thumbnail from total file count; it has separate layout
     let elFilecount = this.el.getAttribute("data-filecount") - 1
-    let fileCountLabelEl = window.document.getElementById('filecount-' + elID)
-    let containerEl = window.document.getElementById('item-metadata-' + elID)
+    let fileCountLabelEl = window.document.getElementById('filecount-'+elID)
+    let containerEl = window.document.getElementById('item-metadata-'+elID)
 
     // Handle Resize
     this.handleResize = () => {
-      if (showPageCount(containerEl, elFilecount) && fileCountLabelEl !== null) {
+      if(showPageCount(containerEl, elFilecount) && fileCountLabelEl !== null){
         let lastImg = getLastVisibleImg(containerEl)
         console.log(lastImg)
         lastImg.parentElement.append(fileCountLabelEl)
