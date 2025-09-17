@@ -62,12 +62,16 @@ defmodule DpulCollectionsWeb.HeaderComponent do
               </span>
             </button>
             <ul class="dropdown-menu hidden absolute left-auto right-0 list-none bg-white min-w-3xs py-2 px-0 mt-2 shadow-md rounded-md z-100">
-              <li class="p-2 hover:bg-stone-200 focus:bg-stone-200 cursor-pointer">
-                <.link phx-click={JS.dispatch("setLocale", detail: %{locale: "en"})}>English</.link>
-              </li>
-              <li class="p-2 hover:bg-stone-200 focus:bg-stone-200 cursor-pointer">
-                <.link phx-click={JS.dispatch("setLocale", detail: %{locale: "es"})}>Español</.link>
-              </li>
+              <.link phx-click={JS.dispatch("setLocale", detail: %{locale: "en"})}>
+                <li class="p-2 hover:bg-stone-200 focus:bg-stone-200 cursor-pointer">
+                  English
+                </li>
+              </.link>
+              <.link phx-click={JS.dispatch("setLocale", detail: %{locale: "es"})}>
+                <li class="p-2 hover:bg-stone-200 focus:bg-stone-200 cursor-pointer">
+                  Español
+                </li>
+              </.link>
             </ul>
           </li>
         </ul>
