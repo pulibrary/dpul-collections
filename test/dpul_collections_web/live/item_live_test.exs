@@ -317,6 +317,21 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     end
   end
 
+  describe "similar button" do
+    test "jumps to the similar items section", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
+
+      assert view
+             |> has_element?(
+               "a[href='#similar-items']",
+               "Similar"
+             )
+
+      assert view
+             |> has_element?("#similar-items")
+    end
+  end
+
   describe "size toggle" do
     test "displays size when using the button", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
