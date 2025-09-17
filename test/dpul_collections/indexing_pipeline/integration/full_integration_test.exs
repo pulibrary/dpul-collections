@@ -234,12 +234,12 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
                "Revolutions"
              ]
 
-      # assert document["categories_txtm"] == [
-      #          "Arts and culture",
-      #          "Human and civil rights",
-      #          "Minorities, ethnic and racial groups",
-      #          "Politics and government"
-      #        ]
+      assert document["categories_txtm"] == [
+               "Arts and culture",
+               "Human and civil rights",
+               "Minorities, ethnic and racial groups",
+               "Politics and government"
+             ]
 
       # Parent EphemeraProject
       assert document["ephemera_project_title_s"] == "Woman Life Freedom Movement: Iran 2022"

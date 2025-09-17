@@ -90,9 +90,20 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
       transliterated_title_txtm: get_in(metadata, ["transliterated_title"]),
       updated_at_dt: updated_date(data),
       width_txtm: get_in(metadata, ["width"]),
-      years_is: extract_years(data)
+      years_is: extract_years(data),
+      categories_txtm: extract_categories(metadata, related_data)
     }
   end
+
+  def extract_categories(%{"subject" => subjects}, %{"resources" => resources}) do
+    extract_term_ids(subjects, resources)
+    |> Enum.map(&get_in(&1, ["metadata", "member_of_vocabulary_id"]))
+    |> List.flatten()
+    |> Enum.uniq()
+    |> extract_term(resources)
+  end
+
+  def extract_categories(_, _), do: nil
 
   def content_warning(metadata = %{"content_warning" => content_warning}) do
     # Check to see if there's blank content warnings messing up the data.
@@ -326,17 +337,21 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
   end
 
   defp extract_term(values, resources) when is_list(values) do
-    values
-    |> Enum.map(&extract_id_from_map/1)
-    |> Enum.map(fn id -> id end)
-    |> Enum.map(fn id -> resources[id] end)
-    |> Enum.filter(fn resource -> resource end)
+    extract_term_ids(values, resources)
     |> Enum.map(&extract_term_label/1)
     |> Enum.filter(fn label -> label end)
   end
 
   defp extract_term(_, _) do
     nil
+  end
+
+  defp extract_term_ids(values, resources) when is_list(values) do
+    values
+    |> Enum.map(&extract_id_from_map/1)
+    |> Enum.map(fn id -> id end)
+    |> Enum.map(fn id -> resources[id] end)
+    |> Enum.filter(fn resource -> resource end)
   end
 
   defp extract_id_from_map(%{"id" => id}), do: id
