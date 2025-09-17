@@ -56,18 +56,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
       ) do
     resource
     |> process(cache_version)
+    |> persist(cache_version)
     |> store_result(message)
   end
 
   @impl Broadway
-  def handle_batch(:default, messages, _batch_info, %{cache_version: cache_version}) do
-    messages
-    # Get all the resources from the processing steps
-    |> Enum.map(&Map.get(&1, :data))
-    |> List.flatten()
-    # Persist each of them to the HydrationCache.
-    |> Enum.each(&persist(&1, cache_version))
-
+  def handle_batch(:default, messages, _batch_info, _state) do
     messages
   end
 
@@ -239,8 +233,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
           Broadway.Message.t()
   def store_result({:skip, _record}, message), do: Broadway.Message.put_batcher(message, :noop)
 
-  def store_result(data = {_action, _resource}, message),
-    do: Broadway.Message.put_data(message, data)
+  def store_result(_, message),
+    do: message
 
   # If we're passed several IDs, process them in order and persist.
   @spec persist(process_return(), cache_version :: integer) ::
@@ -264,6 +258,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
     {:ok, _response} = IndexingPipeline.write_hydration_cache_entry(attributes)
   end
+
+  defp persist({:skip, _}, _cache_version), do: {:skip, nil}
 
   @spec hydration_cache_attributes(
           %Figgy.DeletionRecord{} | %Figgy.CombinedFiggyResource{},
