@@ -3,8 +3,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
   Broadway consumer that demands Figgy.HydrationCacheEntry records, transforms
   them into Solr documents, and caches them in a database.
   """
-  alias Broadway.Message
-  alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
+  alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline.DatabaseProducer
@@ -47,16 +46,65 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
   end
 
   @impl Broadway
-  @spec handle_message(any(), any(), %{required(:cache_version) => integer()}) ::
-          Broadway.Message.t()
+  # pass through messages and write to cache in batcher to avoid race condition
   def handle_message(
         _processor,
         message = %Broadway.Message{
-          data: hydration_cache_entry = %{data: %{"internal_resource" => internal_resource}}
+          data: resource = %HydrationCacheEntry{}
         },
-        %{cache_version: _cache_version}
+        %{cache_version: cache_version}
+      ) do
+    resource
+    |> process(cache_version)
+    |> store_result(message)
+  end
+
+  @impl Broadway
+  def handle_batch(:default, messages, _batch_info, %{cache_version: cache_version}) do
+    messages
+    |> Enum.each(&persist(&1, cache_version))
+
+    messages
+  end
+
+  def handle_batch(:noop, messages, _batch_info, _state) do
+    messages
+  end
+
+  def process(resource, cache_version) do
+    resource
+    # Determine early on if we're deleting, skipping, or updating.
+    |> initial_classification(cache_version)
+    # Add extra data
+    |> enrich(cache_version)
+    # Determine if after enrichment we should continue updating, delete, or skip.
+    |> post_classification(cache_version)
+  end
+
+  # # We don't have the full resource yet, fetch it and re-classify.
+  def initial_classification(%HydrationCacheEntry{id: id, data: nil}, cache_version) do
+    initial_classification(
+      IndexingPipeline.get_hydration_cache_entry!(id),
+      cache_version
+    )
+  end
+
+  def initial_classification(
+        resource = %HydrationCacheEntry{data: %{"internal_resource" => internal_resource}},
+        _cache_version
       )
       when internal_resource in ["EphemeraFolder"] do
+    {:update, resource}
+  end
+
+  def initial_classification(resource, _cache_version) do
+    {:skip, resource}
+  end
+
+  def enrich(
+        {:update, hydration_cache_entry = %HydrationCacheEntry{}},
+        _cache_version
+      ) do
     solr_doc =
       hydration_cache_entry
       |> Figgy.HydrationCacheEntry.to_solr_document()
@@ -66,54 +114,35 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
     |> DpulCollections.Workers.CacheThumbnails.new()
     |> Oban.insert()
 
-    marker = CacheEntryMarker.from(message)
-
-    message
-    |> Message.put_data(%{
-      marker: marker,
-      incoming_message_data: hydration_cache_entry,
-      handled_data: solr_doc
-    })
+    {:update, solr_doc}
   end
 
-  # If it's not matched above, put it in the no-op batcher - we want to ack it
-  # but not save it.
-  def handle_message(_processor, message, _) do
-    message
-    |> Message.put_batcher(:noop)
+  def enrich(resource_and_classification, _cache_version) do
+    resource_and_classification
   end
 
-  @impl Broadway
-  @spec handle_batch(any(), list(Broadway.Message.t()), any(), any()) ::
-          list(Broadway.Message.t())
-  def handle_batch(:noop, messages, _, _) do
-    messages
+  def post_classification(resource_and_classification, _cache_version) do
+    resource_and_classification
   end
 
-  def handle_batch(:default, messages, _batch_info, %{cache_version: cache_version}) do
-    Enum.each(messages, &write_to_transformation_cache(&1, cache_version))
-    messages
-  end
+  def store_result({:skip, _record}, message), do: Broadway.Message.put_batcher(message, :noop)
 
-  @spec write_to_transformation_cache(Broadway.Message.t(), integer()) ::
-          {:ok, %Figgy.TransformationCacheEntry{} | nil}
-  defp write_to_transformation_cache(
+  def store_result(data = {_action, _resource}, message),
+    do: Broadway.Message.put_data(message, data)
+
+  defp persist(
          %Broadway.Message{
-           data: %{incoming_message_data: hydration_cache_entry, handled_data: solr_doc}
+           data: {action, solr_doc},
+           metadata: %{marker: marker}
          },
          cache_version
-       ) do
-    # store in TransformationCache:
-    # - data (map) - this is the transformed solr document map
-    # - cache_order (datetime) - this is our own new timestamp for this table
-    # - cache_version (this only changes manually, we have to hold onto it as state)
-    # - record_id (varchar) - the figgy UUID
-    # - source_cache_order (datetime) - the hyrdation cache entry source_cache_order
+       )
+       when action in [:delete, :update] do
     {:ok, _} =
       IndexingPipeline.write_transformation_cache_entry(%{
         cache_version: cache_version,
-        record_id: hydration_cache_entry |> Map.get(:record_id),
-        source_cache_order: hydration_cache_entry |> Map.get(:cache_order),
+        record_id: solr_doc[:id],
+        source_cache_order: marker.timestamp,
         data: solr_doc
       })
   end
