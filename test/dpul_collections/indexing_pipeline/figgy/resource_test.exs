@@ -12,7 +12,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ResourceTest do
         |> Figgy.Resource.to_combined()
         |> Figgy.CombinedFiggyResource.to_solr_document()
 
-      assert doc[:genre_txtm] == ["Ephemera"]
+      assert doc[:genre_txt_sort] == ["Ephemera"]
     end
   end
 

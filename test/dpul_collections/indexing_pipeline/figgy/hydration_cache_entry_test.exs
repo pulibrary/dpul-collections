@@ -18,21 +18,21 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
                alternative_title_txtm: ["Zaib-un-Nisa", "Zaibunnisa"],
                barcode_txtm: ["barcode"],
                content_warning_s: "content warning",
-               contributor_txtm: ["contributor"],
-               creator_txtm: ["creator"],
+               contributor_txt_sort: ["contributor"],
+               creator_txt_sort: ["creator"],
                description_txtm: ["Asra-Panahi", "Berlin-Protest", "Elnaz-Rekabi"],
                digitized_at_dt: "2023-05-11T18:45:18.994187Z",
                folder_number_txtm: ["1"],
                height_txtm: ["200"],
-               holding_location_txtm: ["holding location"],
+               holding_location_txt_sort: ["holding location"],
                iiif_manifest_url_s:
                  "https://figgy.princeton.edu/concern/ephemera_folders/3cb7627b-defc-401b-9959-42ebc4488f74/manifest",
-               keywords_txtm: ["keyword"],
+               keywords_txt_sort: ["keyword"],
                page_count_txtm: ["4"],
                provenance_txtm: ["provenance"],
-               publisher_txtm: ["publisher"],
+               publisher_txt_sort: ["publisher"],
                rights_statement_txtm: ["No Known Copyright"],
-               series_txtm: ["series"],
+               series_txt_sort: ["series"],
                sort_title_txtm: ["sort_title"],
                transliterated_title_txtm: ["transliterated_title"],
                updated_at_dt: "2024-09-25T19:41:03.558595Z",
@@ -261,7 +261,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
       doc = HydrationCacheEntry.to_solr_document(entry)
 
-      assert doc[:genre_txtm] == ["Term2"]
+      assert doc[:genre_txt_sort] == ["Term2"]
     end
 
     test "uses first image service url when there is no thumbnail_id property" do
@@ -667,7 +667,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      assert %{genre_txtm: []} = HydrationCacheEntry.to_solr_document(entry)
+      assert %{genre_txt_sort: []} = HydrationCacheEntry.to_solr_document(entry)
     end
 
     test "indexes harmful_content" do

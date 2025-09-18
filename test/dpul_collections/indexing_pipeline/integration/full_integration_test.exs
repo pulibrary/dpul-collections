@@ -215,12 +215,12 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       assert document["display_date_s"] == "2022"
 
       # Controlled Vocabulary
-      assert document["genre_txtm"] == ["Ephemera"]
-      assert document["geo_subject_txtm"] == ["Iran"]
-      assert document["geographic_origin_txtm"] == ["Iran"]
-      assert document["language_txtm"] == ["Persian"]
+      assert document["genre_txt_sort"] == ["Ephemera"]
+      assert document["geo_subject_txt_sort"] == ["Iran"]
+      assert document["geographic_origin_txt_sort"] == ["Iran"]
+      assert document["language_txt_sort"] == ["Persian"]
 
-      assert document["subject_txtm"] == [
+      assert document["subject_txt_sort"] == [
                "Arts",
                "Arts--Political aspects",
                "Collective memory",
