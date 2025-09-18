@@ -46,12 +46,13 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> assert_has("p", text: "The South Asian Ephemera Collection complements Princeton's")
       |> click_button("Learn More")
       |> refute_has("p", text: "The South Asian Ephemera Collection complements Princeton's")
+      |> assert_has("li", text: "Politics and government")
       # Subject tag expansion
-      |> refute_has("li", text: "Tourism")
-      |> click_button("+14 more")
-      |> assert_has("li", text: "Tourism")
+      |> refute_has("li", text: "Socioeconomic conditions and development")
+      |> click_button("+6 more")
+      |> assert_has("li", text: "Socioeconomic conditions and development")
       |> click_button("Show less")
-      |> refute_has("li", text: "Tourism")
+      |> refute_has("li", text: "Socioeconomic conditions and development")
       # Recently updated more link
       |> assert_has(
         "a[href='/search?filter[project]=South+Asian+Ephemera&sort_by=recently_updated']"
