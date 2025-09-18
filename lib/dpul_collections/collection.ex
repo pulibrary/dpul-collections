@@ -15,7 +15,7 @@ defmodule DpulCollections.Collection do
     geographic_origins: []
   ]
 
-  def from_slug(_slug) do
+  def from_slug("sae") do
     summary = project_summary("South Asian Ephemera")
 
     %__MODULE__{
@@ -29,11 +29,9 @@ defmodule DpulCollections.Collection do
       At present, the collection is primarily composed of contemporary ephemera and items from the latter half of the twentieth century, though users will also find items originating from earlier dates. Common genres in the collection include booklets, pamphlets, leaflets, and flyers. These items were produced by a variety of individuals and organizations including political parties, non-governmental organizations, public policy think tanks, activists, and others and were meant to promote their views, positions, agendas, policies, events, and activities.
       Every effort is being made to represent each country in the region. As the collection grows over time, PUL will provide increasingly balanced coverage of the area.
       """,
-      # I don't really know if these should be in here, but for now it's probably fine.
       item_count: summary.count,
-      # These should probably come from facet data.
       categories: summary.categories,
-      genres: get_genres(),
+      genres: summary.genres,
       languages: summary.languages,
       geographic_origins: summary.geographic_origins
     }
@@ -46,32 +44,8 @@ defmodule DpulCollections.Collection do
       count: summary["numFound"],
       languages: summary["facets"]["language_txt_sort"],
       geographic_origins: summary["facets"]["geographic_origin_txt_sort"],
-      categories: summary["facets"]["categories_txt_sort"]
+      categories: summary["facets"]["categories_txt_sort"],
+      genres: summary["facets"]["genre_txt_sort"]
     }
-  end
-
-  defp get_genres do
-    [
-      {"Booklets", 758},
-      {"Reports", 559},
-      {"Serials", 447},
-      {"Pamphlets", 334},
-      {"News clippings", 279},
-      {"Posters", 260},
-      {"Brochures", 182},
-      {"Flyers", 54},
-      {"Leaflets", 44},
-      {"Manuscripts", 41},
-      {"Pedagogical materials", 37},
-      {"Electoral paraphernalia", 17},
-      {"Stickers", 11},
-      {"Correspondence", 8},
-      {"Postcards", 6},
-      {"Advertisements", 4},
-      {"Maps", 3},
-      {"Calendars", 2},
-      {"Forms", 2},
-      {"Games", 1}
-    ]
   end
 end

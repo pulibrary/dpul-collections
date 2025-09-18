@@ -27,7 +27,9 @@ defmodule DpulCollections.Solr do
         "facet.field": "language_txt_sort",
         "facet.field": "geographic_origin_txt_sort",
         "facet.field": "categories_txt_sort",
+        "facet.field": "genre_txt_sort",
         "facet.sort": "count",
+        "facet.mincount": 1,
         "facet.limit": -1
       )
 

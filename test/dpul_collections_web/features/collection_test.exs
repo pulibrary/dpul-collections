@@ -16,7 +16,10 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       "8ac0a23b-8c51-4e1c-8bc0-ae307264b895"
     ]
 
-    sae_ids
+    # Add another ID so we know it doesn't include counts from other collections.
+    other_ids = ["3da68e1c-06af-4d17-8603-fc73152e1ef7"]
+
+    (sae_ids ++ other_ids)
     |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
 
     Solr.soft_commit(active_collection())
@@ -53,6 +56,8 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> assert_has("li", text: "Socioeconomic conditions and development")
       |> click_button("Show less")
       |> refute_has("li", text: "Socioeconomic conditions and development")
+      # Genres
+      |> assert_has("li", text: "Posters")
       # Recently updated more link
       |> assert_has(
         "a[href='/search?filter[project]=South+Asian+Ephemera&sort_by=recently_updated']"
