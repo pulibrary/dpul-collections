@@ -98,7 +98,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
   end
 
   defp calculate_stored_demand(total_demand, fulfilled_demand)
-       when total_demand == fulfilled_demand do
+       when total_demand <= fulfilled_demand do
     0
   end
 
