@@ -35,7 +35,7 @@ defmodule DpulCollections.Collection do
       categories: get_categories(),
       genres: get_genres(),
       languages: summary.languages,
-      geographic_origins: get_geographic_origins()
+      geographic_origins: summary.geographic_origins
     }
   end
 
@@ -44,7 +44,8 @@ defmodule DpulCollections.Collection do
 
     %{
       count: summary["numFound"],
-      languages: summary["facets"]["language_txt_sort"]
+      languages: summary["facets"]["language_txt_sort"],
+      geographic_origins: summary["facets"]["geographic_origin_txt_sort"]
     }
   end
 
@@ -91,44 +92,6 @@ defmodule DpulCollections.Collection do
       {"Calendars", 2},
       {"Forms", 2},
       {"Games", 1}
-    ]
-  end
-
-  defp get_geographic_origins do
-    [
-      {"India", 1433},
-      {"Sri Lanka", 610},
-      {"Pakistan", 561},
-      {"Nepal", 240},
-      {"Bangladesh", 47},
-      {"United States", 36},
-      {"Afghanistan", 27},
-      {"Maldives", 17},
-      {"Bhutan", 14},
-      {"United Kingdom", 9},
-      {"Switzerland", 5},
-      {"India--Delhi", 4},
-      {"India--West Bengal", 4},
-      {"Italy", 3},
-      {"Netherlands", 3},
-      {"India--Maharashtra", 2},
-      {"India--Punjab", 2},
-      {"Japan", 2},
-      {"No place, unknown, or undetermined", 2},
-      {"Australia", 1},
-      {"China", 1},
-      {"Denmark", 1},
-      {"France", 1},
-      {"Germany", 1},
-      {"India--Andhra Pradesh", 1},
-      {"India--Chhattīsgarh", 1},
-      {"India--Jharkhand", 1},
-      {"India--Karnataka", 1},
-      {"India--Rajasthan", 1},
-      {"India--Telangana", 1},
-      {"India--Uttar Pradesh", 1},
-      {"South Africa", 1},
-      {"Tarai (India and Nepal)", 1}
     ]
   end
 end

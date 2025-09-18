@@ -23,12 +23,11 @@ defmodule DpulCollections.Solr do
       })
       |> Map.put(
         :extra_params,
-        %{
-          facet: true,
-          "facet.field": "language_txt_sort",
-          "facet.sort": "count",
-          "facet.limit": -1
-        }
+        facet: true,
+        "facet.field": "language_txt_sort",
+        "facet.field": "geographic_origin_txt_sort",
+        "facet.sort": "count",
+        "facet.limit": -1
       )
 
     response = raw_query(params, index)
@@ -89,7 +88,7 @@ defmodule DpulCollections.Solr do
         # To do MLT in edismax we have to allow the keyword _query_
         uf: "* _query_"
       ]
-      |> Keyword.merge(Map.to_list(search_state[:extra_params] || %{}))
+      |> Keyword.merge(search_state[:extra_params] || [])
 
     {:ok, response} =
       Req.get(
