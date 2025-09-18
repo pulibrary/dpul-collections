@@ -9,7 +9,7 @@ defmodule DpulCollectionsWeb.SearchLive.SearchState do
       page: (params["page"] || "1") |> String.to_integer(),
       per_page: (params["per_page"] || "50") |> String.to_integer(),
       filter: params["filter"] || %{},
-      extra_params: %{}
+      extra_params: []
     }
   end
 
