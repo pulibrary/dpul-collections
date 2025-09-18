@@ -118,7 +118,18 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   #   }
   # ```
   @spec fetch_related(%__MODULE__{}) :: related_data()
-  defp fetch_related(%Figgy.Resource{metadata: metadata}) do
+  defp fetch_related(resource = %Figgy.Resource{metadata: _metadata}) do
+    resource
+    |> related_list()
+    # Map the returned Figgy.Resources into tuples of this form:
+    # `{resource_id, %Figgy.Resource{}}`
+    |> Enum.map(fn m -> {m.id, m} end)
+    # Convert the list of tuples into a map with the form:
+    # `%{"id-1" => %Figgy.Resource{ "name" => "value", ..}, %{"id-2" => %Figgy.Resource{"name" => "value", ..}}, ..}`
+    |> Map.new()
+  end
+
+  defp related_list(%Figgy.Resource{metadata: metadata}) do
     metadata
     # Get the metadata property names
     |> Map.keys()
@@ -127,7 +138,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     # Map the values of each property into a list
     |> Enum.map(fn key -> metadata[key] end)
     # Flatten nested lists into a single list
-    |> Enum.concat()
+    |> List.flatten()
     # If the value has the form `%{"id" => id}`, then extract the id string from map
     |> Enum.map(&extract_ids_from_value/1)
     # Remove nil and empty string values
@@ -135,13 +146,22 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     # Query figgy using the resulting list of ids
     |> IndexingPipeline.get_figgy_resources()
     |> remove_non_displayable_filesets()
-    # Map the returned Figgy.Resources into tuples of this form:
-    # `{resource_id, %Figgy.Resource{}}`
-    |> Enum.map(fn m -> {m.id, m} end)
-    # Convert the list of tuples into a map with the form:
-    # `%{"id-1" => %Figgy.Resource{ "name" => "value", ..}, %{"id-2" => %Figgy.Resource{"name" => "value", ..}}, ..}`
-    |> Map.new()
+    # Get child resources recursively if we want them.
+    |> Enum.map(&fetch_deep/1)
+    |> List.flatten()
   end
+
+  # Grab vocabularies if it's an EphemeraTerm
+  defp fetch_deep(
+         resource = %Figgy.Resource{
+           internal_resource: "EphemeraTerm",
+           metadata: %{"member_of_vocabulary_id" => _id}
+         }
+       ) do
+    [resource | related_list(resource)]
+  end
+
+  defp fetch_deep(resource), do: resource
 
   @spec extract_ancestors(related_resource_map(), resource :: %__MODULE__{}) ::
           related_resource_map()

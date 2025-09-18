@@ -791,7 +791,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         |> Map.keys()
         |> length()
 
-      assert(related_resource_count == 19)
+      assert(related_resource_count == 24)
     end
 
     test "when there are no image members, the resource is marked for deletion" do
