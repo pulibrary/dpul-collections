@@ -34,7 +34,7 @@ defmodule DpulCollections.Collection do
       # These should probably come from facet data.
       categories: get_categories(),
       genres: get_genres(),
-      languages: get_languages(),
+      languages: summary.languages,
       geographic_origins: get_geographic_origins()
     }
   end
@@ -43,7 +43,8 @@ defmodule DpulCollections.Collection do
     summary = Solr.project_summary(label)
 
     %{
-      count: summary["numFound"]
+      count: summary["numFound"],
+      languages: summary["facets"]["language_txt_sort"]
     }
   end
 
@@ -90,46 +91,6 @@ defmodule DpulCollections.Collection do
       {"Calendars", 2},
       {"Forms", 2},
       {"Games", 1}
-    ]
-  end
-
-  defp get_languages do
-    [
-      {"English", 2015},
-      {"Urdu", 320},
-      {"Hindi", 226},
-      {"Sinhala", 143},
-      {"Nepali", 129},
-      {"Telugu", 118},
-      {"Assamese", 72},
-      {"Tamil", 67},
-      {"Bengali", 54},
-      {"Arabic", 47},
-      {"Gujarati", 26},
-      {"Oriya", 25},
-      {"Sanskrit", 14},
-      {"Marathi", 12},
-      {"Persian", 12},
-      {"Kannada", 8},
-      {"Sinhala | Sinhalese", 7},
-      {"Dzongkha", 4},
-      {"Esperanto", 4},
-      {"Malayalam", 4},
-      {"Pushto", 4},
-      {"Italian", 3},
-      {"Sino-Tibetan languages", 3},
-      {"French", 2},
-      {"Pali", 2},
-      {"Panjabi", 2},
-      {"Spanish", 2},
-      {"Chhattisgarhi", 1},
-      {"Divehi", 1},
-      {"Divehi | Dhivehi | Maldivian", 1},
-      {"German", 1},
-      {"Indic languages", 1},
-      {"Nepal Bhasa", 1},
-      {"Panjabi | Punjabi", 1},
-      {"Pushto | Pashto", 1}
     ]
   end
 

@@ -21,8 +21,35 @@ defmodule DpulCollections.Solr do
         "filter" => %{"project" => label},
         "per_page" => "0"
       })
+      |> Map.put(
+        :extra_params,
+        %{
+          facet: true,
+          "facet.field": "language_txt_sort",
+          "facet.sort": "count",
+          "facet.limit": -1
+        }
+      )
 
-    query(params, index)
+    response = raw_query(params, index)
+    # Returns something like
+    # %{ "response" => solr_response, "facets" => %{"solr_field" => [{"Value", count}, {"Value 2", count}]}}
+    response["response"] |> Map.merge(%{"facets" => extract_facets(response["facet_counts"])})
+  end
+
+  defp extract_facets(%{"facet_fields" => facet_fields}) do
+    # facet_fields looks like %{"field" => ["Label", count]}
+    facet_fields
+    |> Enum.map(fn {field, field_values} ->
+      {
+        field,
+        # Split into pairs
+        Enum.chunk_every(field_values, 2)
+        # Convert sub-lists to tuples
+        |> Enum.map(&List.to_tuple/1)
+      }
+    end)
+    |> Map.new()
   end
 
   @query_field_list [
@@ -45,8 +72,7 @@ defmodule DpulCollections.Solr do
     "tagline_txt_sort"
   ]
 
-  @spec query(map(), String.t()) :: map()
-  def query(search_state, index \\ Index.read_index()) do
+  def raw_query(search_state, index \\ Index.read_index()) do
     fl = Enum.join(@query_field_list, ",")
 
     solr_params =
@@ -63,7 +89,7 @@ defmodule DpulCollections.Solr do
         # To do MLT in edismax we have to allow the keyword _query_
         uf: "* _query_"
       ]
-      |> Keyword.merge(Map.to_list(search_state.extra_params) || [])
+      |> Keyword.merge(Map.to_list(search_state[:extra_params] || %{}))
 
     {:ok, response} =
       Req.get(
@@ -71,7 +97,12 @@ defmodule DpulCollections.Solr do
         params: solr_params
       )
 
-    response.body["response"]
+    response.body
+  end
+
+  @spec query(map(), String.t()) :: map()
+  def query(search_state, index \\ Index.read_index()) do
+    raw_query(search_state, index)["response"]
   end
 
   # Uses the more like this query parser
