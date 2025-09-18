@@ -32,7 +32,7 @@ defmodule DpulCollections.Collection do
       # I don't really know if these should be in here, but for now it's probably fine.
       item_count: summary.count,
       # These should probably come from facet data.
-      categories: get_categories(),
+      categories: summary.categories,
       genres: get_genres(),
       languages: summary.languages,
       geographic_origins: summary.geographic_origins
@@ -45,29 +45,9 @@ defmodule DpulCollections.Collection do
     %{
       count: summary["numFound"],
       languages: summary["facets"]["language_txt_sort"],
-      geographic_origins: summary["facets"]["geographic_origin_txt_sort"]
+      geographic_origins: summary["facets"]["geographic_origin_txt_sort"],
+      categories: summary["facets"]["categories_txt_sort"]
     }
-  end
-
-  defp get_categories do
-    [
-      {"Politics and government", 1166},
-      {"Religion", 767},
-      {"Socioeconomic conditions and development", 527},
-      {"Gender and sexuality", 473},
-      {"Human and Civil Rights", 432},
-      {"Arts and culture", 372},
-      {"Minorities, ethnic and racial groups", 321},
-      {"Economics", 284},
-      {"Environment and ecology", 262},
-      {"Education", 254},
-      {"Agrarian and rural issues", 249},
-      {"History", 220},
-      {"Children and youth", 182},
-      {"Health", 168},
-      {"Labor", 158},
-      {"Tourism", 82}
-    ]
   end
 
   defp get_genres do
