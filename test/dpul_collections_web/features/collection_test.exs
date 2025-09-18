@@ -34,7 +34,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> assert_has("li", text: "Politics and government")
       # Count summary
       |> assert_has("div", text: "8 items")
-      |> assert_has("div", text: "35 Languages")
+      |> assert_has("div", text: "2 Languages")
       |> assert_has("div", text: "33 Locations")
       # Browse button
       |> assert_has("a[href='/search?filter[project]=South+Asian+Ephemera']",
