@@ -39,7 +39,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
       ],
       batchers: [
         default: [batch_size: options[:batch_size]],
-        noop: [concurrency: 5, batch_size: options[:batch_size]]
+        noop: [batch_size: options[:batch_size]]
       ],
       context: %{cache_version: options[:cache_version], type: :figgy_transformer}
     )
@@ -50,20 +50,19 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
   def handle_message(
         _processor,
         message = %Broadway.Message{
-          data: resource = %HydrationCacheEntry{}
+          data: resource = %HydrationCacheEntry{},
+          metadata: %{marker: marker}
         },
         %{cache_version: cache_version}
       ) do
     resource
     |> process(cache_version)
+    |> persist(marker, cache_version)
     |> store_result(message)
   end
 
   @impl Broadway
-  def handle_batch(:default, messages, _batch_info, %{cache_version: cache_version}) do
-    messages
-    |> Enum.each(&persist(&1, cache_version))
-
+  def handle_batch(:default, messages, _batch_info, _state) do
     messages
   end
 
@@ -127,16 +126,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
 
   def store_result({:skip, _record}, message), do: Broadway.Message.put_batcher(message, :noop)
 
-  def store_result(data = {_action, _resource}, message),
-    do: Broadway.Message.put_data(message, data)
+  def store_result(_, message),
+    do: message
 
-  defp persist(
-         %Broadway.Message{
-           data: {action, solr_doc},
-           metadata: %{marker: marker}
-         },
-         cache_version
-       )
+  defp persist({action, solr_doc}, marker, cache_version)
        when action in [:delete, :update] do
     {:ok, _} =
       IndexingPipeline.write_transformation_cache_entry(%{
@@ -145,6 +138,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
         source_cache_order: marker.timestamp,
         data: solr_doc
       })
+  end
+
+  defp persist(resource_and_classification = {:skip, _}, _marker, _cache_version) do
+    resource_and_classification
   end
 
   def start_over!(cache_version) do

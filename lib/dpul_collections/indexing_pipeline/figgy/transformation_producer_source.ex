@@ -9,7 +9,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationProducerSource do
   def get_cache_entries_since!(last_queried_marker, total_demand, cache_version) do
     IndexingPipeline.get_hydration_cache_entries_since!(
       last_queried_marker,
-      total_demand,
+      max(total_demand, 500),
       cache_version
     )
   end

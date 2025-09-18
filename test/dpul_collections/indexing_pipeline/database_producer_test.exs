@@ -8,7 +8,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducerTest do
 
   describe "DatabaseProducer" do
     test "handle_demand/2 with initial state and demand > 1 returns hydration cache entries" do
-      {marker1, marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers()
+      {marker1, marker2, marker3} = FiggyTestFixtures.hydration_cache_markers()
 
       {:producer, initial_state} = DatabaseProducer.init({Figgy.TransformationProducerSource, 0})
 
@@ -20,13 +20,15 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducerTest do
           id
         end)
 
-      assert ids == [marker1.id, marker2.id]
+      # Transformation pulls up to 500 now and buffers.
+      assert ids == [marker1.id, marker2.id, marker3.id]
 
       assert %{
-               last_queried_marker: ^marker2,
+               last_queried_marker: ^marker3,
                pulled_records: [
                  ^marker1,
-                 ^marker2
+                 ^marker2,
+                 ^marker3
                ],
                acked_records: [],
                cache_version: 0,
