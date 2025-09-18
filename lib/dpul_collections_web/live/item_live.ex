@@ -202,23 +202,25 @@ defmodule DpulCollectionsWeb.ItemLive do
       </div>
       <.share_modal path={@item.url} id="share-modal" heading={gettext("Share this item")} />
     </div>
-    <.browse_item_row
-      :if={@item.project}
-      id="related-same-project"
-      items={@related_items}
-      title={gettext("Similar Items in this Collection")}
-      more_link={~p"/search?filter[similar]=#{@item.id}&filter[project]=#{@item.project}"}
-      show_images={@show_images}
-    />
-    <.browse_item_row
-      :if={@item.project}
-      id="related-different-project"
-      items={@different_project_related_items}
-      title={gettext("Similar Items outside this Collection")}
-      color="bg-background"
-      more_link={~p"/search?filter[similar]=#{@item.id}&filter[project]=-#{@item.project}"}
-      show_images={@show_images}
-    />
+    <div id="similar-items">
+      <.browse_item_row
+        :if={@item.project}
+        id="related-same-project"
+        items={@related_items}
+        title={gettext("Similar Items in this Collection")}
+        more_link={~p"/search?filter[similar]=#{@item.id}&filter[project]=#{@item.project}"}
+        show_images={@show_images}
+      />
+      <.browse_item_row
+        :if={@item.project}
+        id="related-different-project"
+        items={@different_project_related_items}
+        title={gettext("Similar Items outside this Collection")}
+        color="bg-background"
+        more_link={~p"/search?filter[similar]=#{@item.id}&filter[project]=-#{@item.project}"}
+        show_images={@show_images}
+      />
+    </div>
     """
   end
 
@@ -391,6 +393,13 @@ defmodule DpulCollectionsWeb.ItemLive do
           {gettext("Size")}
         </.action_icon>
         <.action_icon
+          icon="iconoir:binocular"
+          variant="item-action-icon"
+          href="#similar-items"
+        >
+          {gettext("Similar")}
+        </.action_icon>
+        <.action_icon
           icon="hero-share"
           variant="item-action-icon"
           phx-click={JS.exec("dcjs-open", to: "#share-modal")}
@@ -433,6 +442,7 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   attr :rest, :global
   attr :icon, :string, required: true
+  attr :href, :string, required: false
 
   attr :variant, :string,
     required: true,
@@ -441,10 +451,27 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   slot :inner_block, doc: "the optional inner block that renders the icon label"
 
+  def action_icon(assigns = %{href: _href}) do
+    ~H"""
+    <div class="text-sm mr-2 min-w-15 items-center">
+      <a
+        href={@href}
+        class="no-underline justify-center items-center flex flex-col text-center"
+        {@rest}
+      >
+        <div class={["cursor-pointer rounded-full flex justify-center items-center", @variant]}>
+          <.icon class="w-full h-full" name={@icon} />
+        </div>
+        {render_slot(@inner_block)}
+      </a>
+    </div>
+    """
+  end
+
   def action_icon(assigns) do
     ~H"""
-    <div class="flex flex-col justify-center text-center text-sm mr-2 min-w-15 items-center">
-      <button {@rest}>
+    <div class="text-sm mr-2 min-w-15 items-center">
+      <button class="justify-center items-center flex flex-col text-center" {@rest}>
         <div class={["cursor-pointer rounded-full flex justify-center items-center", @variant]}>
           <.icon class="w-full h-full" name={@icon} />
         </div>
