@@ -1,6 +1,7 @@
 defmodule DpulCollections.Solr do
   require Logger
   use DpulCollections.Solr.Constants
+  alias DpulCollectionsWeb.SearchLive.SearchState
   alias DpulCollections.Solr.Index
 
   @spec document_count(%Index{}) :: integer()
@@ -12,6 +13,16 @@ defmodule DpulCollections.Solr do
       )
 
     response.body["response"]["numFound"]
+  end
+
+  def project_summary(label, index \\ Index.read_index()) do
+    params =
+      SearchState.from_params(%{
+        "filter" => %{"project" => label},
+        "per_page" => "0"
+      })
+
+    query(params, index)
   end
 
   @query_field_list [
@@ -38,19 +49,21 @@ defmodule DpulCollections.Solr do
   def query(search_state, index \\ Index.read_index()) do
     fl = Enum.join(@query_field_list, ",")
 
-    solr_params = [
-      q: query_param(search_state),
-      # https://solr.apache.org/docs/9_4_0/core/org/apache/solr/util/doc-files/min-should-match.html
-      # If more than 6 clauses, only require 90%. Pulled from our catalog.
-      mm: "6<90%",
-      fq: filter_param(search_state),
-      fl: fl,
-      sort: sort_param(search_state),
-      rows: search_state[:per_page],
-      start: pagination_offset(search_state),
-      # To do MLT in edismax we have to allow the keyword _query_
-      uf: "* _query_"
-    ]
+    solr_params =
+      [
+        q: query_param(search_state),
+        # https://solr.apache.org/docs/9_4_0/core/org/apache/solr/util/doc-files/min-should-match.html
+        # If more than 6 clauses, only require 90%. Pulled from our catalog.
+        mm: "6<90%",
+        fq: filter_param(search_state),
+        fl: fl,
+        sort: sort_param(search_state),
+        rows: search_state[:per_page],
+        start: pagination_offset(search_state),
+        # To do MLT in edismax we have to allow the keyword _query_
+        uf: "* _query_"
+      ]
+      |> Keyword.merge(Map.to_list(search_state.extra_params) || [])
 
     {:ok, response} =
       Req.get(
