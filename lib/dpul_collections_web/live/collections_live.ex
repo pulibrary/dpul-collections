@@ -266,12 +266,12 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             </li>
           <% end %>
           <li class={"hidden group-[.expanded]:block less-button px-3 py-1.5 rounded-full #{@button_class}"}>
-            <button class="cursor-pointer text-xs">
+            <button class="w-full h-full cursor-pointer text-xs">
               Show less
             </button>
           </li>
           <li class={"more-button group-[.expanded]:invisible less-button px-3 py-1.5 rounded-full #{@button_class}"}>
-            <button class="cursor-pointer text-xs">
+            <button class="w-full h-full cursor-pointer text-xs">
               +<span class="more-count">{length(@items)}</span> more
             </button>
           </li>
@@ -331,7 +331,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                         to: "#collection-description"
                       )
                     }
-                    class="btn-secondary text-dark-text hover:bg-cloud"
+                    class="btn-secondary"
                   >
                     Learn More
                   </button>
