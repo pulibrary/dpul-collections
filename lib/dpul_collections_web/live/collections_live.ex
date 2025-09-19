@@ -360,8 +360,8 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 </div>
               </div>
               <!-- Right Column: Featured Items Mosaic -->
-              <div class="self-start h-160">
-                <div class="grid grid-cols-2 gap-2 w-full h-full">
+              <div class="self-start h-120 relative">
+                <div class="absolute inset-0 grid grid-cols-2 gap-2 w-full h-full">
                   <.link
                     :for={item <- @featured_items}
                     href={item.url}
