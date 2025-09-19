@@ -372,6 +372,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                         width={item.primary_thumbnail_width}
                         height={item.primary_thumbnail_height}
                         class="object-cover object-start-top h-full w-full"
+                        alt={item.title |> hd}
                       />
                     </div>
                   </.link>
