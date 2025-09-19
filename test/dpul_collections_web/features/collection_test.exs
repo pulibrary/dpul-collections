@@ -52,12 +52,14 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> assert_has("li", text: "Politics and government")
       # Subject tag expansion
       |> refute_has("li", text: "Socioeconomic conditions and development")
-      |> click_button("+6 more")
+      |> click_button("+5 more")
       |> assert_has("li", text: "Socioeconomic conditions and development")
       |> click_button("Show less")
       |> refute_has("li", text: "Socioeconomic conditions and development")
       # Genres
       |> assert_has("li", text: "Posters")
+      # No more link if it's displaying them all
+      |> refute_has("li", text: "+0 more")
       # Recently updated more link
       |> assert_has(
         "a[href='/search?filter[project]=South+Asian+Ephemera&sort_by=recently_updated']"
