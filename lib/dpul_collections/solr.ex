@@ -1,6 +1,7 @@
 defmodule DpulCollections.Solr do
   require Logger
   use DpulCollections.Solr.Constants
+  alias DpulCollectionsWeb.SearchLive.SearchState
   alias DpulCollections.Solr.Index
 
   @spec document_count(%Index{}) :: integer()
@@ -12,6 +13,45 @@ defmodule DpulCollections.Solr do
       )
 
     response.body["response"]["numFound"]
+  end
+
+  def project_summary(label, index \\ Index.read_index()) do
+    params =
+      SearchState.from_params(%{
+        "filter" => %{"project" => label},
+        "per_page" => "0"
+      })
+      |> Map.put(
+        :extra_params,
+        facet: true,
+        "facet.field": "language_txt_sort",
+        "facet.field": "geographic_origin_txt_sort",
+        "facet.field": "categories_txt_sort",
+        "facet.field": "genre_txt_sort",
+        "facet.sort": "count",
+        "facet.mincount": 1,
+        "facet.limit": -1
+      )
+
+    response = raw_query(params, index)
+    # Returns something like
+    # %{ "response" => solr_response, "facets" => %{"solr_field" => [{"Value", count}, {"Value 2", count}]}}
+    response["response"] |> Map.merge(%{"facets" => extract_facets(response["facet_counts"])})
+  end
+
+  defp extract_facets(%{"facet_fields" => facet_fields}) do
+    # facet_fields looks like %{"field" => ["Label", count]}
+    facet_fields
+    |> Enum.map(fn {field, field_values} ->
+      {
+        field,
+        # Split into pairs
+        Enum.chunk_every(field_values, 2)
+        # Convert sub-lists to tuples
+        |> Enum.map(&List.to_tuple/1)
+      }
+    end)
+    |> Map.new()
   end
 
   @query_field_list [
@@ -31,23 +71,24 @@ defmodule DpulCollections.Solr do
     "geographic_origin_txt_sort"
   ]
 
-  @spec query(map(), String.t()) :: map()
-  def query(search_state, index \\ Index.read_index()) do
+  def raw_query(search_state, index \\ Index.read_index()) do
     fl = Enum.join(@query_field_list, ",")
 
-    solr_params = [
-      q: query_param(search_state),
-      # https://solr.apache.org/docs/9_4_0/core/org/apache/solr/util/doc-files/min-should-match.html
-      # If more than 6 clauses, only require 90%. Pulled from our catalog.
-      mm: "6<90%",
-      fq: filter_param(search_state),
-      fl: fl,
-      sort: sort_param(search_state),
-      rows: search_state[:per_page],
-      start: pagination_offset(search_state),
-      # To do MLT in edismax we have to allow the keyword _query_
-      uf: "* _query_"
-    ]
+    solr_params =
+      [
+        q: query_param(search_state),
+        # https://solr.apache.org/docs/9_4_0/core/org/apache/solr/util/doc-files/min-should-match.html
+        # If more than 6 clauses, only require 90%. Pulled from our catalog.
+        mm: "6<90%",
+        fq: filter_param(search_state),
+        fl: fl,
+        sort: sort_param(search_state),
+        rows: search_state[:per_page],
+        start: pagination_offset(search_state),
+        # To do MLT in edismax we have to allow the keyword _query_
+        uf: "* _query_"
+      ]
+      |> Keyword.merge(search_state[:extra_params] || [])
 
     {:ok, response} =
       Req.get(
@@ -55,7 +96,12 @@ defmodule DpulCollections.Solr do
         params: solr_params
       )
 
-    response.body["response"]
+    response.body
+  end
+
+  @spec query(map(), String.t()) :: map()
+  def query(search_state, index \\ Index.read_index()) do
+    raw_query(search_state, index)["response"]
   end
 
   # Uses the more like this query parser

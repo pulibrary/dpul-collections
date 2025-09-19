@@ -126,4 +126,100 @@ Hooks.ShowPageCount = {
   }
 }
 
+Hooks.ResponsivePills = {
+  mounted() {
+    this.totalCount = this.el.querySelectorAll('.pill-item').length
+    this.isExpanded = false
+    this.moreButton = this.el.querySelector('.more-button button')
+    this.lessButton = this.el.querySelector('.less-button button')
+    this.setupToggleListeners()
+    this.calculateVisibleItems()
+    // Handle resize with debouncing
+    this.resizeTimeout = null
+    this.boundResizeListener = () => {
+      clearTimeout(this.resizeTimeout)
+      this.resizeTimeout = setTimeout(() => {
+        if (!this.isExpanded) {
+          this.calculateVisibleItems()
+        }
+      }, 250)
+    }
+    window.addEventListener("resize", this.boundResizeListener)
+  },
+
+  setupToggleListeners() {
+    this.moreButton.addEventListener('click', () => this.expand())
+    this.lessButton.addEventListener('click', () => this.collapse())
+  },
+
+  expand() {
+    this.isExpanded = true
+    const ul = this.el.querySelector('.group')
+    ul.classList.add('expanded')
+  },
+
+  collapse() {
+    this.isExpanded = false
+    const ul = this.el.querySelector('.group')
+    ul.classList.add('expanded')
+
+    // Recalculate visible items for current viewport
+    this.calculateVisibleItems()
+  },
+
+  calculateVisibleItems() {
+    // Don't recalculate if expanded
+    if (this.isExpanded) return
+
+    const ul = this.el.querySelector('.group')
+    // Temporarily show all items and remove constraints to measure
+    ul.classList.add("expanded")
+    const allPillItems = this.el.querySelectorAll('.pill-item')
+
+    // Temporarily show all pills for measurement
+    allPillItems.forEach(item => item.classList.remove('hidden'))
+
+    // Get container width
+    const containerWidth = ul.offsetWidth
+    let currentWidth = 0
+    let visibleCount = 0
+
+    // Gap between pills is 8px
+    const gap = 8
+
+    // Reserve space for the more button
+    // The more button is invisible rather than hidden, so we can get its
+    // height/width.
+    const moreButtonWidth = this.moreButton.offsetWidth + gap
+
+    // Calculate how many items fit on one line
+    for (let i = 0; i < allPillItems.length; i++) {
+      const itemWidth = allPillItems[i].offsetWidth + gap
+
+      // Check if this item plus the more button would fit
+      if (currentWidth + itemWidth + moreButtonWidth <= containerWidth) {
+        currentWidth += itemWidth
+        visibleCount++
+      } else {
+        break
+      }
+    }
+    // Hide every pill that doesn't fit so that "more" will slide into place.
+    Array.from(allPillItems).slice(visibleCount).forEach(item => item.classList.add('hidden'))
+
+    // Remove expand so the pills will contract again, it was only temporary to get widths.
+    ul.classList.remove("expanded")
+
+    // Update the more count
+    const moreCountSpan = this.el.querySelector('.more-count')
+    const remainingCount = this.totalCount - visibleCount
+    moreCountSpan.textContent = remainingCount
+    if (remainingCount == 0) {
+      this.moreButton.parentElement.classList.add("invisible")
+    } else {
+      this.moreButton.parentElement.classList.remove("invisible")
+    }
+  }
+}
+
 export default Hooks;

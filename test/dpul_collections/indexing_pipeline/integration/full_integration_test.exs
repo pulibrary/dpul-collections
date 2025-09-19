@@ -234,7 +234,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
                "Revolutions"
              ]
 
-      assert document["categories_txtm"] == [
+      assert document["categories_txt_sort"] == [
                "Arts and culture",
                "Human and civil rights",
                "Minorities, ethnic and racial groups",

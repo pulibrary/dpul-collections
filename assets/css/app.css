@@ -21,7 +21,7 @@
   --color-dark-sage: #9fa06c;
   --color-cloud: #c1ccc3;
   --color-rust: #a0562c;
-  --color-dark-blue: #3a4151;
+  --color-dark-blue: hsl(22, 57%, 40%);
   /* Button Text on Dark Blue */
   --color-light-green: #ECF2CB;
 
@@ -55,6 +55,8 @@
    * Images/highlights/hyperlinks/boxes/cards/etc.
    */
   --color-accent: var(--color-rust);
+  /* Light accents, currently for tags */
+  --color-light-accent: --alpha(var(--color-accent) / 20%);
   --color-search: var(--color-sage-200);
 
   /* just add poppins on the front of the tailwind default */
