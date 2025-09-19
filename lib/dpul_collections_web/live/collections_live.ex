@@ -284,9 +284,9 @@ defmodule DpulCollectionsWeb.CollectionsLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} content_class={}>
-      <div class="grid grid-flow-row auto-rows-max">
+      <div class="[&>*:nth-child(odd)]:bg-background [&>*:nth-child(event)]:bg-secondary grid grid-flow-row auto-rows-max">
         <!-- Hero Section -->
-        <div class="bg-background relative overflow-hidden">
+        <div class="relative overflow-hidden">
           <div class="home-content-area page-y-padding">
             <div class="grid lg:grid-cols-2 gap-8 items-center">
               <!-- Left Column: Content -->
@@ -395,13 +395,12 @@ defmodule DpulCollectionsWeb.CollectionsLive do
               </div>
             </div>
           </div>
+          <.content_separator />
         </div>
-        <.content_separator />
         <!-- Recently Updated Items -->
         <.browse_item_row
           id="recent-sae-items"
           layout="home-content-area"
-          color="bg-secondary"
           items={@recent_items}
           title="Recently Updated Items"
           more_link={
@@ -415,7 +414,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           </p>
         </.browse_item_row>
         <!-- Browse All Section -->
-        <div class="bg-background text-dark-text w-full page-y-padding page-x-padding">
+        <div class="text-dark-text w-full page-y-padding page-x-padding">
           <div class="home-content-area text-center">
             <h2 class="text-3xl font-bold mb-4">Ready to Explore?</h2>
             <p class="text-xl mb-8">
