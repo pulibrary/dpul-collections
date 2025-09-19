@@ -300,13 +300,13 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                   </h1>
                   <div class="flex flex-wrap gap-4">
                     <div class="flex items-center text-dark-text gap-2">
-                      <div class="bg-accent/20 rounded-full px-3 py-1">
+                      <div class="bg-secondary/80 rounded-full px-3 py-1">
                         {@collection.item_count} Items
                       </div>
-                      <div class="bg-accent/20 rounded-full px-3 py-1">
+                      <div class="bg-secondary/80 rounded-full px-3 py-1">
                         {length(@collection.languages)} Languages
                       </div>
-                      <div class="bg-accent/20 rounded-full px-3 py-1">
+                      <div class="bg-secondary/80 rounded-full px-3 py-1">
                         {length(@collection.geographic_origins)} Locations
                       </div>
                     </div>
