@@ -117,6 +117,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   #     }
   #   }
   # ```
+  defp fetch_related(%Figgy.Resource{internal_resource: "EphemeraProject"}) do
+    %{}
+  end
+
   @spec fetch_related(%__MODULE__{}) :: related_data()
   defp fetch_related(resource = %Figgy.Resource{metadata: _metadata}) do
     resource
