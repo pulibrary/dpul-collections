@@ -326,11 +326,9 @@ defmodule DpulCollectionsWeb.CollectionsLive do
 
                   <button
                     phx-click={
-                      JS.toggle(
-                        to: "#collection-description",
-                        time: 500,
-                        in: {"duration-500", "max-h-0", "max-h-300"},
-                        out: {"duration-500 block", "max-h-300", "max-h-0"}
+                      JS.toggle_class(
+                        "expanded",
+                        to: "#collection-description"
                       )
                     }
                     class="btn-secondary text-dark-text hover:bg-cloud"
@@ -383,9 +381,9 @@ defmodule DpulCollectionsWeb.CollectionsLive do
 
             <div
               id="collection-description"
-              class="transition-[max-height] bg-background page-t-padding overflow-hidden hidden"
+              class="bg-background page-t-padding overflow-hidden group"
             >
-              <div class="w-full text-lg">
+              <div class="transition-all duration-500 w-full text-lg max-h-0 invisible group-[.expanded]:visible group-[.expanded]:max-h-300">
                 <div class="">
                   <p
                     :for={description_paragraph <- String.split(@collection.description, "\n")}
