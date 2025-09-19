@@ -1,5 +1,4 @@
 defmodule DpulCollectionsWeb.CollectionsLive do
-  alias DpulCollectionsWeb.BrowseItem
   use DpulCollectionsWeb, :live_view
   use Gettext, backend: DpulCollectionsWeb.Gettext
   import DpulCollectionsWeb.BrowseItem
@@ -261,18 +260,18 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             <li
               aria-setsize={length(@items) + 2}
               aria-posinset={idx + 1}
-              class={"pill-item #{@pill_class} group-[.expanded]:block hover:bg-sage-300 px-3 py-1.5 rounded-full duration-200"}
+              class={"pill-item #{@pill_class} group-[.expanded]:block px-3 py-1.5 rounded-full"}
             >
               <span class="text-xs">{name} ({count})</span>
             </li>
           <% end %>
-          <li class="hidden group-[.expanded]:block less-button">
-            <button class="cursor-pointer bg-sage-100 hover:bg-sage-200 px-3 py-1.5 rounded-full text-xs h-full">
+          <li class={"hidden group-[.expanded]:block less-button px-3 py-1.5 rounded-full #{@button_class}"}>
+            <button class="cursor-pointer text-xs">
               Show less
             </button>
           </li>
-          <li class="more-button group-[.expanded]:invisible">
-            <button class="cursor-pointer bg-sage-100 hover:bg-sage-200 px-3 py-1.5 rounded-full text-xs h-full">
+          <li class={"more-button group-[.expanded]:invisible less-button px-3 py-1.5 rounded-full #{@button_class}"}>
+            <button class="cursor-pointer text-xs">
               +<span class="more-count">{length(@items)}</span> more
             </button>
           </li>
@@ -346,7 +345,8 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                     unit="categories"
                     items={@collection.categories}
                     container_id="categories-container"
-                    pill_class="bg-sage-200"
+                    pill_class="bg-secondary"
+                    button_class="bg-secondary/80 hover:bg-secondary/60"
                   />
 
                   <.pill_section
@@ -355,6 +355,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                     items={@collection.genres}
                     container_id="genres-container"
                     pill_class="bg-cloud"
+                    button_class="bg-cloud/80 hover:bg-cloud/60"
                   />
                 </div>
               </div>
