@@ -128,7 +128,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
               Show less
             </button>
           </li>
-          <li class={"more-button group-[.expanded]:invisible less-button px-3 py-1.5 rounded-full #{@button_class}"}>
+          <li class={"more-button invisible group-[.expanded]:invisible less-button px-3 py-1.5 rounded-full #{@button_class}"}>
             <button class="w-full h-full cursor-pointer text-xs">
               +<span class="more-count">{length(@items)}</span> more
             </button>
