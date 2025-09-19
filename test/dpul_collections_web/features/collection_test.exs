@@ -52,7 +52,10 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> assert_has("li", text: "Politics and government")
       # Subject tag expansion
       |> refute_has("li", text: "Socioeconomic conditions and development")
-      |> click_button("+5 more")
+      |> within("#categories-container", fn conn ->
+        conn
+        |> click_button("more")
+      end)
       |> assert_has("li", text: "Socioeconomic conditions and development")
       |> click_button("Show less")
       |> refute_has("li", text: "Socioeconomic conditions and development")
