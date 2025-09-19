@@ -359,30 +359,23 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 </div>
               </div>
               <!-- Right Column: Featured Items Mosaic -->
-              <div class="self-start">
-                <div class="py-4 grid grid-cols-2 gap-2 transform rotate-2 hover:rotate-0 transition-transform duration-500">
-                  <%= for {item, index} <- Enum.with_index(Enum.take(@featured_items, 4)) do %>
-                    <div class={[
-                      "card hover:scale-105 transition-transform duration-300 cursor-pointer",
-                      case rem(index, 3) do
-                        0 -> "translate-y-4"
-                        1 -> "-translate-y-2"
-                        2 -> "translate-y-6"
-                      end
-                    ]}>
-                      <.link navigate={item.url}>
-                        <div class="w-full h-40 object-cover object-top rounded-t overflow-hidden">
-                          <BrowseItem.thumb
-                            item={item}
-                            thumb={BrowseItem.thumbnail_service_url(item)}
-                          />
-                        </div>
-                        <div class="p-2 bg-background">
-                          <p class="text-xs font-medium truncate">{item.title}</p>
-                        </div>
-                      </.link>
+              <div class="self-start h-160">
+                <div class="grid grid-cols-2 gap-2 w-full h-full">
+                  <.link
+                    :for={item <- @featured_items}
+                    href={item.url}
+                    class="card p-2 bg-background min-h-0 min-w-0"
+                    aria-label={"View #{item.title |> hd}"}
+                  >
+                    <div class="h-full w-full">
+                      <img
+                        src={"#{item.primary_thumbnail_service_url}/full/!#{item.primary_thumbnail_width},#{item.primary_thumbnail_height}/0/default.jpg"}
+                        width={item.primary_thumbnail_width}
+                        height={item.primary_thumbnail_height}
+                        class="object-cover object-start-top h-full w-full"
+                      />
                     </div>
-                  <% end %>
+                  </.link>
                 </div>
               </div>
             </div>
