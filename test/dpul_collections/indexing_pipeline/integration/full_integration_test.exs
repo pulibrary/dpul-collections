@@ -300,4 +300,17 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
                "https://figgy.example.com/concern/ephemera_folders/3da68e1c-06af-4d17-8603-fc73152e1ef7/pdf"
     end
   end
+
+  describe "ephemera project" do
+    test "indexes everything" do
+      {hydrator, transformer, indexer, document} =
+        FiggyTestSupport.index_record_id("f99af4de-fed4-4baa-82b1-6e857b230306")
+
+      hydrator |> Broadway.stop(:normal)
+      transformer |> Broadway.stop(:normal)
+      indexer |> Broadway.stop(:normal)
+
+      assert document["title_txtm"] == ["South Asian Ephemera"]
+    end
+  end
 end
