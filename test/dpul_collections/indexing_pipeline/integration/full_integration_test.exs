@@ -67,9 +67,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # inserted into the hydration cache, then 3 real deletion markers.
     # Indexing pipeline does 98 ephemera folders, 3 fake records we inserted
     # into transformation cache, result of 3 fake records we put in hydration
-    # cache, then 3 real deletion markers.
+    # cache, then 3 real deletion markers, then an EphmeraProject
     index_count =
-      FiggyTestSupport.ephemera_folder_count() + 3 * FiggyTestSupport.deletion_marker_count()
+      FiggyTestSupport.ephemera_folder_count() + 3 * FiggyTestSupport.deletion_marker_count() + 1
 
     AckTracker.wait_for_indexed_count(index_count)
 
@@ -82,7 +82,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # removed the transformation cache markers for the deletion marker deleted resource.
     transformation_cache_entry_count = Repo.aggregate(Figgy.TransformationCacheEntry, :count)
     deletion_marker_count = FiggyTestSupport.deletion_marker_count()
-    total_transformed_count = FiggyTestSupport.ephemera_folder_count() + deletion_marker_count
+    total_transformed_count = FiggyTestSupport.ephemera_folder_count() + deletion_marker_count + 1
 
     # Empty resources are resources with no image file sets
     empty_resource_count = 1
@@ -121,7 +121,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     # The fake records are out of the caches.
     index_count =
-      FiggyTestSupport.ephemera_folder_count() + FiggyTestSupport.deletion_marker_count()
+      FiggyTestSupport.ephemera_folder_count() + FiggyTestSupport.deletion_marker_count() + 1
 
     AckTracker.wait_for_indexed_count(index_count)
 
