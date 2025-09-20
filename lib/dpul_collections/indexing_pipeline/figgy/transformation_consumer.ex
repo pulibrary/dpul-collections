@@ -92,7 +92,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
         resource = %HydrationCacheEntry{data: %{"internal_resource" => internal_resource}},
         _cache_version
       )
-      when internal_resource in ["EphemeraFolder"] do
+      when internal_resource in ["EphemeraFolder", "EphemeraProject"] do
     {:update, resource}
   end
 

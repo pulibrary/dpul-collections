@@ -67,9 +67,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # inserted into the hydration cache, then 3 real deletion markers.
     # Indexing pipeline does 98 ephemera folders, 3 fake records we inserted
     # into transformation cache, result of 3 fake records we put in hydration
-    # cache, then 3 real deletion markers.
+    # cache, then 3 real deletion markers, then an EphmeraProject
     index_count =
-      FiggyTestSupport.ephemera_folder_count() + 3 * FiggyTestSupport.deletion_marker_count()
+      FiggyTestSupport.ephemera_folder_count() + 3 * FiggyTestSupport.deletion_marker_count() + 1
 
     AckTracker.wait_for_indexed_count(index_count)
 
@@ -82,7 +82,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # removed the transformation cache markers for the deletion marker deleted resource.
     transformation_cache_entry_count = Repo.aggregate(Figgy.TransformationCacheEntry, :count)
     deletion_marker_count = FiggyTestSupport.deletion_marker_count()
-    total_transformed_count = FiggyTestSupport.ephemera_folder_count() + deletion_marker_count
+    total_transformed_count = FiggyTestSupport.ephemera_folder_count() + deletion_marker_count + 1
 
     # Empty resources are resources with no image file sets
     empty_resource_count = 1
@@ -121,7 +121,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     # The fake records are out of the caches.
     index_count =
-      FiggyTestSupport.ephemera_folder_count() + FiggyTestSupport.deletion_marker_count()
+      FiggyTestSupport.ephemera_folder_count() + FiggyTestSupport.deletion_marker_count() + 1
 
     AckTracker.wait_for_indexed_count(index_count)
 
@@ -298,6 +298,19 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
       assert document["pdf_url_s"] ==
                "https://figgy.example.com/concern/ephemera_folders/3da68e1c-06af-4d17-8603-fc73152e1ef7/pdf"
+    end
+  end
+
+  describe "ephemera project" do
+    test "indexes everything" do
+      {hydrator, transformer, indexer, document} =
+        FiggyTestSupport.index_record_id("f99af4de-fed4-4baa-82b1-6e857b230306")
+
+      hydrator |> Broadway.stop(:normal)
+      transformer |> Broadway.stop(:normal)
+      indexer |> Broadway.stop(:normal)
+
+      assert document["title_txtm"] == ["South Asian Ephemera"]
     end
   end
 end
