@@ -344,6 +344,7 @@ defmodule DpulCollections.IndexingPipeline do
   @decorate trace()
   def get_figgy_resources_since!(marker, count, max_time \\ nil)
 
+  @decorate trace()
   def get_figgy_resources_since!(%CacheEntryMarker{timestamp: updated_at, id: id}, count, nil) do
     query =
       from r in Figgy.Resource,
@@ -363,6 +364,7 @@ defmodule DpulCollections.IndexingPipeline do
     FiggyRepo.all(query)
   end
 
+  @decorate trace()
   def get_figgy_resources_since!(
         %CacheEntryMarker{timestamp: updated_at, id: id},
         count,
@@ -409,6 +411,7 @@ defmodule DpulCollections.IndexingPipeline do
     FiggyRepo.all(query)
   end
 
+  @decorate trace()
   def get_figgy_resources_since!(nil, count, max_time) do
     query =
       from r in Figgy.Resource,
