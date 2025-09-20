@@ -6,6 +6,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline.DatabaseProducer
+  use __MODULE__.Constants
   use Broadway
 
   @type start_opts ::
@@ -87,7 +88,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     process(Figgy.Resource.populate_virtual(resource), cache_version)
   end
 
-  @related_record_types ["EphemeraProject", "EphemeraBox", "EphemeraTerm", "FileSet"]
   def process(resource, cache_version) do
     resource
     # Determine early on if we're deleting, skipping, or updating.

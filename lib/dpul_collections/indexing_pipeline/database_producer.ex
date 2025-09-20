@@ -40,7 +40,8 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
       acked_records: [],
       cache_version: cache_version,
       stored_demand: 0,
-      source_module: source_module
+      source_module: source_module,
+      max_time: nil
     }
 
     source_module.init(initial_state)
@@ -63,8 +64,45 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
       ) do
     total_demand = stored_demand + demand
 
-    records =
-      source_module.get_cache_entries_since!(last_queried_marker, total_demand, cache_version)
+    # If we're in a fresh run we can optimize our queries by bounding ourself to a max time if our source supports it.
+    state =
+      case last_queried_marker do
+        nil ->
+          state |> Map.put(:max_time, source_module.get_max_bound_timestamp())
+
+        _ ->
+          state
+      end
+
+    {records, state} =
+      case state.max_time do
+        nil ->
+          {source_module.get_cache_entries_since!(
+             last_queried_marker,
+             total_demand,
+             cache_version
+           ), state}
+
+        _ ->
+          bounded_records =
+            source_module.get_cache_entries_since!(
+              last_queried_marker,
+              total_demand,
+              cache_version,
+              state.max_time
+            )
+
+          # We've hit the end of our bound, remove it.
+          if length(bounded_records) < total_demand do
+            {source_module.get_cache_entries_since!(
+               last_queried_marker,
+               total_demand,
+               cache_version
+             ), Map.put(state, :max_time, nil)}
+          else
+            {bounded_records, state}
+          end
+      end
 
     if last_queried_marker == nil && length(records) > 0 do
       DpulCollections.IndexMetricsTracker.register_fresh_start(source_module, cache_version)

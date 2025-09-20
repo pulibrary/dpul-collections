@@ -9,6 +9,7 @@ defmodule DpulCollections.IndexingPipeline do
 
   alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
+  use DpulCollections.IndexingPipeline.Figgy.HydrationConsumer.Constants
 
   @doc """
   Returns the list of hydration_cache_entries.
@@ -248,6 +249,16 @@ defmodule DpulCollections.IndexingPipeline do
   @decorate trace()
   def get_figgy_resource!(id), do: FiggyRepo.get!(Figgy.Resource, id)
 
+  def get_latest_figgy_resource_marker!() do
+    query =
+      from r in Figgy.Resource,
+        select: [:id, :updated_at],
+        order_by: [desc: r.updated_at, desc: r.id],
+        limit: 1
+
+    FiggyRepo.one(query) |> CacheEntryMarker.from()
+  end
+
   @decorate trace()
   def get_figgy_parents(id) do
     json = %{"member_ids" => [%{"id" => id}]}
@@ -331,11 +342,37 @@ defmodule DpulCollections.IndexingPipeline do
           count :: integer
         ) :: list(Figgy.Resource)
   @decorate trace()
-  def get_figgy_resources_since!(%CacheEntryMarker{timestamp: updated_at, id: id}, count) do
+  def get_figgy_resources_since!(marker, count, max_time \\ nil)
+
+  def get_figgy_resources_since!(%CacheEntryMarker{timestamp: updated_at, id: id}, count, nil) do
     query =
       from r in Figgy.Resource,
         where:
           r.internal_resource != "Event" and r.internal_resource != "PreservationObject" and
+            (r.updated_at >= ^updated_at and (r.updated_at > ^updated_at or r.id > ^id)),
+        select: %{
+          struct(r, [:id, :updated_at, :internal_resource])
+          | visibility: fragment("metadata->'visibility'"),
+            state: fragment("metadata->'state'"),
+            metadata_resource_id: fragment("metadata->'resource_id'"),
+            metadata_resource_type: fragment("metadata->'resource_type'")
+        },
+        limit: ^count,
+        order_by: [asc: r.updated_at, asc: r.id]
+
+    FiggyRepo.all(query)
+  end
+
+  def get_figgy_resources_since!(
+        %CacheEntryMarker{timestamp: updated_at, id: id},
+        count,
+        max_time
+      ) do
+    query =
+      from r in Figgy.Resource,
+        where:
+          r.updated_at <= ^max_time and
+            r.internal_resource in @update_record_types and
             (r.updated_at >= ^updated_at and (r.updated_at > ^updated_at or r.id > ^id)),
         select: %{
           struct(r, [:id, :updated_at, :internal_resource])
@@ -355,10 +392,27 @@ defmodule DpulCollections.IndexingPipeline do
           count :: integer
         ) :: list(Figgy.Resource)
   @decorate trace()
-  def get_figgy_resources_since!(nil, count) do
+  def get_figgy_resources_since!(nil, count, nil) do
     query =
       from r in Figgy.Resource,
         where: r.internal_resource != "Event" and r.internal_resource != "PreservationObject",
+        select: %{
+          struct(r, [:id, :updated_at, :internal_resource])
+          | visibility: fragment("metadata->'visibility'"),
+            state: fragment("metadata->'state'"),
+            metadata_resource_id: fragment("metadata->'resource_id'"),
+            metadata_resource_type: fragment("metadata->'resource_type'")
+        },
+        limit: ^count,
+        order_by: [asc: r.updated_at, asc: r.id]
+
+    FiggyRepo.all(query)
+  end
+
+  def get_figgy_resources_since!(nil, count, max_time) do
+    query =
+      from r in Figgy.Resource,
+        where: r.updated_at <= ^max_time and r.internal_resource in @update_record_types,
         select: %{
           struct(r, [:id, :updated_at, :internal_resource])
           | visibility: fragment("metadata->'visibility'"),

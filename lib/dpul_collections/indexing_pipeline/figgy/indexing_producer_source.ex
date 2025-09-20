@@ -6,13 +6,17 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerSource do
     "figgy_indexer"
   end
 
-  def get_cache_entries_since!(last_queried_marker, total_demand, cache_version) do
+  def get_cache_entries_since!(last_queried_marker, total_demand, cache_version, max_time \\ nil)
+
+  def get_cache_entries_since!(last_queried_marker, total_demand, cache_version, _max_time) do
     IndexingPipeline.get_transformation_cache_entries_since!(
       last_queried_marker,
       total_demand,
       cache_version
     )
   end
+
+  def get_max_bound_timestamp, do: nil
 
   def init(%{cache_version: cache_version}) do
     # Listen for batch_processor stops, so we know when a transformer we care about
