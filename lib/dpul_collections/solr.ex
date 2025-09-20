@@ -20,6 +20,8 @@ defmodule DpulCollections.Solr do
     "display_date_s",
     "file_count_i",
     "detectlang_ss",
+    "authoritative_slug_s",
+    "resource_type_s",
     "slug_s",
     "image_service_urls_ss",
     "image_canvas_ids_ss",

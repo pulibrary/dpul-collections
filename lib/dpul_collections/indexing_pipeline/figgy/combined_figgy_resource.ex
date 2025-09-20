@@ -45,6 +45,23 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
   end
 
   def to_solr_document(%__MODULE__{
+        resource: %{
+          "id" => id,
+          "internal_resource" => "EphemeraProject",
+          "metadata" => metadata
+        }
+      }) do
+    %{
+      id: id,
+      title_txtm: metadata["title"],
+      description_txtm: metadata["description"],
+      resource_type_s: "collection",
+      tagline_txt_sort: metadata["tagline"],
+      authoritative_slug_s: Map.get(metadata, "slug", []) |> Enum.at(0)
+    }
+  end
+
+  def to_solr_document(%__MODULE__{
         related_data: related_data,
         resource: data = %{"id" => id, "metadata" => metadata}
       }) do
