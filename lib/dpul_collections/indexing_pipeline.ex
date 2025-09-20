@@ -372,7 +372,7 @@ defmodule DpulCollections.IndexingPipeline do
       from r in Figgy.Resource,
         where:
           r.updated_at <= ^max_time and
-            r.internal_resource in @update_record_types and
+            (r.internal_resource == "EphemeraFolder" or r.internal_resource == "DeletionMarker") and
             (r.updated_at >= ^updated_at and (r.updated_at > ^updated_at or r.id > ^id)),
         select: %{
           struct(r, [:id, :updated_at, :internal_resource])
@@ -412,7 +412,9 @@ defmodule DpulCollections.IndexingPipeline do
   def get_figgy_resources_since!(nil, count, max_time) do
     query =
       from r in Figgy.Resource,
-        where: r.updated_at <= ^max_time and r.internal_resource in @update_record_types,
+        where:
+          r.updated_at <= ^max_time and
+            (r.internal_resource == "EphemeraFolder" or r.internal_resource == "DeletionMarker"),
         select: %{
           struct(r, [:id, :updated_at, :internal_resource])
           | visibility: fragment("metadata->'visibility'"),
