@@ -28,7 +28,7 @@ defmodule DpulCollections.ItemTest do
 
       item = Item.from_solr(Solr.find_by_id("f99af4de-fed4-4baa-82b1-6e857b230306"))
 
-      assert item.title == "South Asian Ephemera"
+      assert item.title == ["South Asian Ephemera"]
       assert item.slug == "sae"
       assert item.url == "/collections/sae"
     end
