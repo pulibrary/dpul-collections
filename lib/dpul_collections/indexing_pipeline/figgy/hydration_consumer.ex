@@ -106,9 +106,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
       %{internal_resource: "EphemeraFolder", state: ["complete"], visibility: ["open"]} ->
         {:update, resource}
 
+      # Projects need to both update and get related.
+      %{internal_resource: "EphemeraProject"} ->
+        [{:update, resource}, {:update_related, resource}]
+
       # Process things that could be related records
       %{internal_resource: internal_resource} when internal_resource in @related_record_types ->
-        {:update, resource}
+        {:update_related, resource}
 
       # Delete other EphemeraFolders that are already cached, otherwise we can
       # skip them.
@@ -142,11 +146,17 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     end
   end
 
+  # If we got a list of them, enrich each one.
+  def enrich(process_list = [{_, _} | _], cache_version) do
+    process_list
+    |> Enum.map(&enrich(&1, cache_version))
+  end
+
   # If it's a related resource, get ids of all records dependent on this one
   # one.
   @spec process(process_return(), cache_version :: integer) :: process_return()
   def enrich(
-        {:update,
+        {:update_related,
          %Figgy.Resource{id: id, updated_at: timestamp, internal_resource: internal_resource}},
         cache_version
       )
@@ -155,7 +165,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
       IndexingPipeline.get_related_hydration_cache_record_ids!(id, timestamp, cache_version)
 
     {
-      :update,
+      :update_related,
       related_record_ids
     }
   end
@@ -201,6 +211,33 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
   def enrich(resource_and_classification, _cache_version), do: resource_and_classification
 
+  def post_classification(process_list = [{_, _} | _], cache_version) do
+    process_list
+    |> Enum.map(&post_classification(&1, cache_version))
+  end
+
+  # Published ephemera projects go through.
+  def post_classification(
+        {:update,
+         resource = %Figgy.CombinedFiggyResource{
+           resource: %{
+             internal_resource: "EphemeraProject",
+             metadata: metadata
+           }
+         }},
+        _cache_version
+      ) do
+    case metadata do
+      %{"publish" => ["1"]} ->
+        {:update, resource}
+
+      _ ->
+        {:skip, resource}
+    end
+  end
+
+  # Every other ephemera project does not.
+
   # Delete things which have no persisted members.
   @spec post_classification(process_return(), cache_version :: integer) ::
           process_return()
@@ -222,12 +259,20 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   end
 
   # A related resource returned an empty list, skip.
-  def post_classification({:update, []}, _cache_version) do
+  def post_classification({:update_related, []}, _cache_version) do
     {:skip, []}
   end
 
   def post_classification(resource_and_classification, _cache_version),
     do: resource_and_classification
+
+  # If there's a bunch of actions, only no-op if all of them are skips.
+  def store_result(process_list = [{_, _} | _], message) do
+    case Enum.filter(process_list, fn {action, _} -> action != :skip end) do
+      [] -> Broadway.Message.put_batcher(message, :noop)
+      _ -> message
+    end
+  end
 
   @spec store_result(process_return(), message :: Broadway.Message.t()) ::
           Broadway.Message.t()
@@ -236,10 +281,21 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   def store_result(_, message),
     do: message
 
+  # If we're passed a bunch of process_returns, iterate.
+  defp persist(action_list = [{_, _} | _], cache_version) do
+    action_list
+    |> Enum.each(&persist(&1, cache_version))
+
+    # Return the action_list with data stripped..
+    action_list
+    |> Enum.map(fn {action, _} -> {action, nil} end)
+  end
+
   # If we're passed several IDs, process them in order and persist.
   @spec persist(process_return(), cache_version :: integer) ::
           {:ok, %Figgy.HydrationCacheEntry{}}
-  defp persist(update = {:update, id_list = [id | _]}, cache_version) when is_binary(id) do
+  defp persist(update = {:update_related, id_list = [id | _]}, cache_version)
+       when is_binary(id) do
     # Do one at a time to prevent memory ballooning.
     id_list
     |> Enum.each(fn id ->
