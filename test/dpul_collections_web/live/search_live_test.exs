@@ -42,6 +42,17 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Enum.any?()
   end
 
+  test "GET /search with an ephemera project title", %{conn: conn} do
+    conn = get(conn, ~p"/search?q=Amazing+Project")
+
+    {:ok, document} =
+      html_response(conn, 200) |> Floki.parse_document()
+
+    assert document
+           |> Floki.find(~s{a[href="/i/document1/item/1"]})
+           |> Enum.any?()
+  end
+
   test "GET /search with a query that has no results", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/search?q=therewontbeanyresults")
 
