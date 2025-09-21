@@ -27,7 +27,12 @@ defmodule DpulCollectionsWeb.SearchLive do
         search_state: search_state,
         item_counter: item_counter(search_state, total_items),
         items: items,
-        total_items: total_items
+        total_items: total_items,
+        highlighting:
+          (solr_response["highlighting"] || %{})
+          |> Enum.map(fn {k, v} -> {k, Item.from_solr(v)} end)
+          |> Map.new()
+          |> dbg
       )
 
     {:noreply, socket}
@@ -132,6 +137,7 @@ defmodule DpulCollectionsWeb.SearchLive do
               item={item}
               sort_by={@search_state.sort_by}
               show_images={@show_images}
+              highlighting={Map.get(@highlighting, item.id) || %Item{}}
             />
           </div>
         </div>
@@ -233,6 +239,27 @@ defmodule DpulCollectionsWeb.SearchLive do
               >
                 <div class="text-lg">{@item.geographic_origin}</div>
                 <div class="text-base">Origin</div>
+              </div>
+            </div>
+            <div class="highlighting flex-auto flex flex-col gap-2">
+              <div :if={Map.get(@highlighting, :description) != []}>
+                <h3 class="font-semibold inline-block">{gettext("Description")}</h3>: ...{Map.get(
+                  @highlighting,
+                  :description
+                )
+                |> raw}...
+              </div>
+              <div :for={{category, fields} <- Item.metadata_detail_categories()}>
+                <div
+                  :for={{field, field_label} <- fields}
+                  :if={Map.get(@highlighting, field) != [] && Map.get(@highlighting, field)}
+                >
+                  <h3 class="font-semibold inline-block">{field_label}</h3>: {Map.get(
+                    @highlighting,
+                    field
+                  )
+                  |> raw}
+                </div>
               </div>
             </div>
             <div class="small-thumbnails hidden sm:flex flex-row flex-wrap gap-5 max-h-[125px] justify-start overflow-hidden">
