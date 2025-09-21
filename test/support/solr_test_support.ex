@@ -59,6 +59,7 @@ if Mix.env() == :test do
           genre_txt_sort: genre,
           primary_thumbnail_service_url_s: thumbnail_url,
           iiif_manifest_url_s: manifest_url,
+          ephemera_project_title_s: "Amazing Project",
           updated_at_dt:
             DateTime.utc_now() |> DateTime.add(-100 + 1 * n, :day) |> DateTime.to_iso8601()
         }

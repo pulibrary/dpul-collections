@@ -794,6 +794,7 @@
         keywords_txtm
         language_txtm
         ephemera_project_title_s
+        ephemera_project_title_txt_sort
         provenance_txtm
         publisher_txtm
         series_txtm
