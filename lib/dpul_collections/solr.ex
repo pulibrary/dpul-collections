@@ -30,7 +30,8 @@ defmodule DpulCollections.Solr do
     "genre_txt_sort",
     "updated_at_dt",
     "content_warning_s",
-    "geographic_origin_txt_sort"
+    "geographic_origin_txt_sort",
+    "tagline_txt_sort"
   ]
 
   @spec query(map(), String.t()) :: map()
