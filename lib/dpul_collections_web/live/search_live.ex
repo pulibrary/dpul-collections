@@ -197,7 +197,7 @@ defmodule DpulCollectionsWeb.SearchLive do
             show_images={@show_images}
           />
           <div
-            class="metadata sm:col-span-3 flex flex-col gap-2 sm:gap-4 p-4"
+            class="metadata sm:col-span-3 sm:col-start-2 flex flex-col gap-2 sm:gap-4 p-4"
             id={"item-metadata-#{@item.id}"}
           >
             <div class="flex flex-wrap flex-row sm:flex-row justify-between">
@@ -217,22 +217,7 @@ defmodule DpulCollectionsWeb.SearchLive do
             >
               {gettext("Added")} {DpulCollectionsWeb.BrowseItem.time_ago(@item.updated_at)}
             </div>
-            <div class="brief-metadata flex-auto flex flex-row gap-4">
-              <div
-                :if={@item.date}
-                class="date flex flex-col gap-0 pe-4 py-0 h-min"
-              >
-                <div class="text-lg">{@item.date}</div>
-                <div class="text-base">Date</div>
-              </div>
-              <div
-                :if={@item.geographic_origin}
-                class="origin flex flex-col gap-0 pe-4 py-0 h-min"
-              >
-                <div class="text-lg">{@item.geographic_origin}</div>
-                <div class="text-base">Origin</div>
-              </div>
-            </div>
+            <.search_brief_metadata item={@item} />
             <div class="small-thumbnails hidden sm:flex flex-row flex-wrap gap-5 max-h-[125px] justify-start overflow-hidden">
               <.thumbs
                 :for={{thumb, thumb_num} <- thumbnail_service_urls(1, 6, @item)}
@@ -253,6 +238,35 @@ defmodule DpulCollectionsWeb.SearchLive do
         </div>
       </.link>
     </article>
+    """
+  end
+
+  defp search_brief_metadata(assigns = %{item: %{resource_type: "collection"}}) do
+    ~H"""
+    <div class="brief-metadata flex-auto flex-row gap-4">
+      <div :if={@item.tagline} class="text-base">{@item.tagline}</div>
+    </div>
+    """
+  end
+
+  defp search_brief_metadata(assigns) do
+    ~H"""
+    <div class="brief-metadata flex-auto flex flex-row gap-4">
+      <div
+        :if={@item.date}
+        class="date flex flex-col gap-0 pe-4 py-0 h-min"
+      >
+        <div class="text-lg">{@item.date}</div>
+        <div class="text-base">Date</div>
+      </div>
+      <div
+        :if={@item.geographic_origin}
+        class="origin flex flex-col gap-0 pe-4 py-0 h-min"
+      >
+        <div class="text-lg">{@item.geographic_origin}</div>
+        <div class="text-base">Origin</div>
+      </div>
+    </div>
     """
   end
 

@@ -2,6 +2,8 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   use DpulCollectionsWeb.ConnCase
   import Phoenix.LiveViewTest
   import SolrTestSupport
+  alias DpulCollections.IndexingPipeline.Figgy
+  alias DpulCollections.IndexingPipeline
   alias DpulCollections.Solr
   @endpoint DpulCollectionsWeb.Endpoint
 
@@ -515,6 +517,28 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
              |> Floki.attribute("#item-2 .small-thumbnails > :first-child > img", "src") == [
                "https://example.com/iiif/2/image1/square/350,350/0/default.jpg"
              ]
+    end
+
+    test "displays ephemera projects", %{conn: conn} do
+      doc =
+        IndexingPipeline.get_figgy_resource!("f99af4de-fed4-4baa-82b1-6e857b230306")
+        |> Figgy.Resource.to_combined()
+        |> Figgy.CombinedFiggyResource.to_solr_document()
+
+      Solr.add([doc])
+      Solr.soft_commit()
+
+      {:ok, view, _html} = live(conn, ~p"/search?#{%{q: "South Asian Ephemera"}}")
+      # Search result works.
+      item_card = view |> element("#item-#{doc[:id]}")
+      assert item_card |> has_element?
+      # Link to collection page.
+      assert view |> element("#item-#{doc[:id]} a[href='/collections/sae']") |> has_element?
+      card_content = item_card |> render()
+      # Tagline renders.
+      assert card_content =~ "Discover voices of change"
+      # Digital Collection genre renders
+      assert card_content =~ "Digital Collection"
     end
 
     test "link to record page", %{conn: conn} do

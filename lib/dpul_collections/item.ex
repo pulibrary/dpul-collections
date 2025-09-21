@@ -46,7 +46,9 @@ defmodule DpulCollections.Item do
     :width,
     :metadata_url,
     :viewer_url,
-    :slug
+    :slug,
+    :resource_type,
+    :tagline
   ]
 
   def metadata_display_fields do
@@ -121,6 +123,7 @@ defmodule DpulCollections.Item do
       id: id,
       title: title,
       slug: slug,
+      resource_type: type,
       alternative_title: doc["alternative_title_txtm"] || [],
       barcode: doc["barcode_txtm"] || [],
       box_number: doc["box_number_txtm"] || [],
@@ -160,7 +163,8 @@ defmodule DpulCollections.Item do
       pdf_url: doc["pdf_url_s"],
       width: doc["width_txtm"] || [],
       metadata_url: generate_metadata_url(id, slug),
-      viewer_url: generate_viewer_url(id, slug)
+      viewer_url: generate_viewer_url(id, slug),
+      tagline: doc["tagline_txt_sort"] || []
     }
   end
 
