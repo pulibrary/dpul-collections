@@ -57,6 +57,7 @@ if Mix.env() == :test do
             "https://iiif.io/api/cookbook/recipe/0001-mvm-image/canvas/p2"
           ],
           genre_txt_sort: genre,
+          subject_txt_sort: ["Arts"],
           primary_thumbnail_service_url_s: thumbnail_url,
           iiif_manifest_url_s: manifest_url,
           updated_at_dt:

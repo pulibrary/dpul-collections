@@ -459,6 +459,18 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   end
 
   describe "results" do
+    test "can search for subjects", %{conn: conn} do
+      {:ok, _view, html} = live(conn, ~p"/search?#{%{q: "arts"}}")
+
+      assert html =~ "Document-1"
+    end
+
+    test "can search for stemmed metadata", %{conn: conn} do
+      {:ok, _view, html} = live(conn, ~p"/search?#{%{q: "art"}}")
+
+      assert html =~ "Document-1"
+    end
+
     test "display large and small thumbnails", %{conn: conn} do
       {:ok, _view, html} = live(conn, "/search?")
 
