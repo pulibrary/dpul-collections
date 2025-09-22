@@ -5,8 +5,15 @@ orbs:
   node: circleci/node@7.1.0
 executors:
   builder:
+    parameters:
+      elixir_version:
+        type: string
+        default: 1.18.4 # datasource=hexpm-bob depName=elixir
+      erlang_version:
+        type: string
+        default: 27.2.2
     docker:
-      - image: cimg/elixir:1.18.4-erlang-27.2.2-browsers
+      - image: cimg/elixir:<< parameters.elixir_version >>-erlang-<< parameters.erlang_version >>-browsers
         environment:
           TEST_POSTGRES_PORT: 5432
           TEST_POSTGRES_FIGGY_HOST: figgy_database
@@ -22,8 +29,15 @@ executors:
         command: server/scripts/ci-start.sh
     working_directory: ~/project
   formatter:
+    parameters:
+      elixir_version:
+        type: string
+        default: 1.18.4 # datasource=hexpm-bob depName=elixir
+      erlang_version:
+        type: string
+        default: 27.2.2
     docker:
-      - image: cimg/elixir:1.18.4-erlang-27.2.2-browsers
+      - image: cimg/elixir:<< parameters.elixir_version >>-erlang-<< parameters.erlang_version >>-browsers
         environment:
           MIX_ENV: test
     working_directory: ~/project
