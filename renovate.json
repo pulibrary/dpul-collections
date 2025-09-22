@@ -1,6 +1,105 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
-  ]
+    "config:recommended",
+    "group:allNonMajor",
+    "customManagers:dockerfileVersions"
+  ],
+  "enabledManagers": [
+    "asdf",
+    "bundler",
+    "circleci",
+    "docker-compose",
+    "dockerfile",
+    "nodenv",
+    "npm",
+    "custom.regex"
+  ],
+  "packageRules": [
+    {
+      "matchDatasources": [
+        "docker"
+      ],
+      "enabled": false,
+      "matchPackageNames": [
+        "/postgres/", "/solr/"
+      ]
+    },
+    {
+      "matchManagers": ["mix"],
+      "enabled": true
+    },
+    {
+      "matchDatasources": ["github-tags"],
+      "matchPackageNames": ["erlang/otp"],
+      "versioning": "regex:^(?<major>\\d+?)\\.(?<minor>\\d+?)(\\.(?<patch>\\d+))?(\\.(?<build>\\d+))?$"
+    },
+    {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["debian"],
+      "versioning": "regex:^(?<compatibility>.*)-(?<minor>\\d+)-slim$"
+    },
+    {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["debian"],
+      "matchUpdateTypes": ["pinDigest"],
+      "enabled": false
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^.tool-versions$/"
+      ],
+      "matchStrings": [
+        "\\s+(?<currentValue>\\S+)\\s*#\\s*renovate: datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)(\\s+packageName=(?<packageName>\\S+))?(\\s+versioning=(?<versioning>\\S+))?(\\s+registryUrl=(?<registryUrl>\\S+))?(\\s+extractVersion=(?<extractVersion>\\S+))?\\s*\\n"
+      ],
+      "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^.circleci/config.yml$/"
+      ],
+      "matchStrings": [
+        "\\s+(?<currentValue>\\S+)\\s*#\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)(\\s+versioning=(?<versioning>\\S+))?(\\s+extractVersion=(?<extractVersion>\\S+))?(\\s+registryUrl=(?<registryUrl>\\S+))?\\s*\\n"
+      ],
+      "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^.circleci/config.yml$/"
+      ],
+      "matchStrings": [
+        "node-version:.*'(?<currentValue>.*?)'"
+      ],
+      "datasourceTemplate": "node-version",
+      "depNameTemplate": "node"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^.circleci/config.yml$/"
+      ],
+      "matchStrings": [
+        "yarn-version:.*'(?<currentValue>.*?)'"
+      ],
+      "datasourceTemplate": "npm",
+      "depNameTemplate": "yarn"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^.circleci/config.yml$/"
+      ],
+      "matchStrings": [
+        "cimg/ruby:(?<currentValue>.*?)-"
+      ],
+      "datasourceTemplate": "ruby-version",
+      "depNameTemplate": "ruby"
+    }
+  ],
+  "prHourlyLimit": 3
 }
