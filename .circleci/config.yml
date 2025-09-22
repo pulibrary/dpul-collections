@@ -11,7 +11,7 @@ executors:
         default: 1.18.4 # datasource=hexpm-bob depName=elixir
       erlang_version:
         type: string
-        default: 27.2.2 # renovate: datasource=github-tags depName=erlang packageName=erlang/otp
+        default: 27.2.2
     docker:
       - image: cimg/elixir:<< parameters.elixir_version >>-erlang-<< parameters.erlang_version >>-browsers
         environment:
