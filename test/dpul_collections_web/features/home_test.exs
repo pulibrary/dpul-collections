@@ -14,6 +14,7 @@ defmodule DpulCollectionsWeb.Features.HomeTest do
 
     conn
     |> visit("/")
+    |> assert_has("a", text: "Explore")
     |> unwrap(&TestUtils.assert_a11y/1)
   end
 end
