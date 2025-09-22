@@ -30,6 +30,7 @@ defmodule DpulCollectionsWeb.Router do
     live "/", HomeLive, :live
     live "/browse", BrowseLive, :live
     live "/browse/focus/:focus_id", BrowseLive, :live
+    live "/collections/sae", CollectionsLive, :live
     live "/search", SearchLive, :live
     live "/item/:id", ItemLive, :live
     live "/i/:slug/item/:id", ItemLive, :live

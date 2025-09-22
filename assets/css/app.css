@@ -55,6 +55,8 @@
    * Images/highlights/hyperlinks/boxes/cards/etc.
    */
   --color-accent: var(--color-rust);
+  /* Light accents, currently for tags */
+  --color-light-accent: --alpha(var(--color-accent) / 20%);
   --color-search: var(--color-sage-200);
 
   /* just add poppins on the front of the tailwind default */
