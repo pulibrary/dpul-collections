@@ -77,17 +77,6 @@
       ],
       "datasourceTemplate": "node-version",
       "depNameTemplate": "node"
-    },
-    {
-      "customType": "regex",
-      "managerFilePatterns": [
-        "/^.circleci/config.yml$/"
-      ],
-      "matchStrings": [
-        "yarn-version:.*'(?<currentValue>.*?)'"
-      ],
-      "datasourceTemplate": "npm",
-      "depNameTemplate": "yarn"
     }
   ],
   "prHourlyLimit": 3
