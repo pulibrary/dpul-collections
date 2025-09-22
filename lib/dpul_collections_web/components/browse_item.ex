@@ -67,18 +67,18 @@ defmodule DpulCollectionsWeb.BrowseItem do
 
   def browse_item(assigns) do
     ~H"""
-    <div
+    <article
       id={"#{@id}-#{@item.id}"}
       data-item-id={@item.id}
       class={[
-        "browse-item card flex bg-white flex-col overflow-hidden min-w-[250px]",
+        "browse-item relative card flex bg-white flex-col min-w-[250px]",
         @class
       ]}
     >
       <!-- similar -->
       <div
         :if={@likeable? || Helpers.obfuscate_item?(assigns)}
-        class="browse-header mb-2 h-12 w-full bg-white absolute left-2 top-2 flex items-center"
+        class="browse-header mb-2 h-12 w-full bg-white absolute flex items-center"
       >
         <div class="h-full pl-2 w-full flex items-center flex-grow like-header bg-white z-50">
           <ContentWarnings.show_images_banner
@@ -99,7 +99,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
       <.link
         href={@item.url}
         target={@target}
-        class="flex-grow item-link"
+        class="flex-grow item-link flex flex-col"
         aria-label={"View #{@item.title |> hd}"}
       >
         <!-- thumbs -->
@@ -139,7 +139,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
           </div>
         </div>
         <!-- card text area -->
-        <div class="relative px-6 py-5 bg-white flex flex-col flex-grow">
+        <div class="relative px-6 py-5 bg-white flex flex-col">
           <div
             :if={@item.file_count > 4}
             class="absolute bg-background right-2 top-0 z-10 pr-2 pb-1 diagonal-drop"
@@ -152,15 +152,18 @@ defmodule DpulCollectionsWeb.BrowseItem do
           </h2>
           <p class="text-gray-700 text-base">{@item.date}</p>
         </div>
+        <!-- Footer area -->
+        <div class="flex-grow flex w-full flex-col justify-end">
+          <div
+            :if={@added? && @item.updated_at}
+            class="updated-at align-self-end justify-self-end-safe w-full bg-light-secondary h-10 p-2 text-right"
+          >
+            {"#{gettext("Updated")} #{time_ago(@item.updated_at)}"}
+          </div>
+        </div>
+        <!-- "added on" note -->
       </.link>
-      <!-- "added on" note -->
-      <div
-        :if={@added? && @item.updated_at}
-        class="updated-at justify-self-end-safe w-full bg-light-secondary h-10 p-2 text-right"
-      >
-        {"#{gettext("Updated")} #{time_ago(@item.updated_at)}"}
-      </div>
-    </div>
+    </article>
     """
   end
 
