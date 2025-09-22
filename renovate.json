@@ -32,7 +32,8 @@
     {
       "matchDatasources": ["github-tags"],
       "matchPackageNames": ["erlang/otp"],
-      "versioning": "regex:^(?<major>\\d+?)\\.(?<minor>\\d+?)(\\.(?<patch>\\d+))?(\\.(?<build>\\d+))?$"
+      "versioning": "regex:^(?<major>\\d+?)\\.(?<minor>\\d+?)(\\.(?<patch>\\d+))?(\\.(?<build>\\d+))?$",
+      "extractVersion": "^OTP-(?<version>\\S+)"
     },
     {
       "matchDatasources": ["docker"],
