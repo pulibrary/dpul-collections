@@ -310,7 +310,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       phx-hook="ScrollTop"
     >
       <div id="viewer-header" class="header-x-padding heading-y-padding bg-accent flex flex-row">
-        <div class="flex-auto flex flex-row">
+        <div class="flex-auto flex flex-row gap-4">
           <h1 class="uppercase text-light-text flex-none">{gettext("Viewer")}</h1>
           <.action_icon
             icon="hero-share"
@@ -383,7 +383,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def action_bar(assigns) do
     ~H"""
     <div {@rest}>
-      <div class="flex flex-row justify-left items-center">
+      <div class="flex flex-row justify-left items-center gap-4">
         <.action_icon
           :if={has_dimensions(@item)}
           icon="pepicons-pencil:ruler"
@@ -453,7 +453,7 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def action_icon(assigns = %{href: _href}) do
     ~H"""
-    <div class="text-sm mr-2 min-w-15 items-center">
+    <div class="flex text-sm items-center">
       <a
         href={@href}
         class="no-underline justify-center items-center flex flex-col text-center"
@@ -470,7 +470,7 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def action_icon(assigns) do
     ~H"""
-    <div class="text-sm mr-2 min-w-15 items-center">
+    <div class="flex text-sm items-center">
       <button class="justify-center items-center flex flex-col text-center" {@rest}>
         <div class={["cursor-pointer rounded-full flex justify-center items-center", @variant]}>
           <.icon class="w-full h-full" name={@icon} />
