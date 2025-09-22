@@ -88,17 +88,6 @@
       ],
       "datasourceTemplate": "npm",
       "depNameTemplate": "yarn"
-    },
-    {
-      "customType": "regex",
-      "managerFilePatterns": [
-        "/^.circleci/config.yml$/"
-      ],
-      "matchStrings": [
-        "cimg/ruby:(?<currentValue>.*?)-"
-      ],
-      "datasourceTemplate": "ruby-version",
-      "depNameTemplate": "ruby"
     }
   ],
   "prHourlyLimit": 3
