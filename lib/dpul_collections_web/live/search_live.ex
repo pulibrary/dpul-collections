@@ -1,4 +1,5 @@
 defmodule DpulCollectionsWeb.SearchLive do
+  alias DpulCollections.Collection
   use DpulCollectionsWeb, :live_view
   use Gettext, backend: DpulCollectionsWeb.Gettext
   alias DpulCollections.{Item, Solr}
@@ -168,7 +169,71 @@ defmodule DpulCollectionsWeb.SearchLive do
     """
   end
 
-  def search_item(assigns) do
+  def search_item(assigns = %{item: %Collection{}}) do
+    ~H"""
+    <article
+      id={"item-#{@item.id}"}
+      class="item card"
+      aria-label={@item.title |> hd}
+      data-id={@item.id}
+    >
+      <.link navigate={@item.url}>
+        <div class="grid-rows-2 bg-sage-100 grid sm:grid-rows-1 sm:grid-cols-4 gap-0">
+          <div class={[
+            "search-thumbnail",
+            "row-span-2 col-span-1",
+            "bg-search flex justify-center relative",
+            "h-[350px]"
+          ]}>
+            <div class="grid grid-cols-2 w-full gap-2 h-[350px] p-2">
+              <img
+                :for={item <- @item.featured_items}
+                src={"#{item.primary_thumbnail_service_url}/full/!#{item.primary_thumbnail_width},#{item.primary_thumbnail_height}/0/default.jpg"}
+                width={item.primary_thumbnail_width}
+                height={item.primary_thumbnail_height}
+                class="min-h-0 min-w-0 object-cover object-top h-full w-full max-h-full"
+                alt={item.title |> hd}
+              />
+            </div>
+          </div>
+          <div
+            class="metadata sm:col-span-3 sm:col-start-2 flex flex-col gap-2 sm:gap-4 p-4"
+            id={"item-metadata-#{@item.id}"}
+          >
+            <div class="flex flex-wrap flex-row sm:flex-row justify-between">
+              <h2 dir="auto w-full flex-grow sm:w-fit">
+                {@item.title}
+              </h2>
+              <div
+                data-field="genre"
+                class="w-full sm:w-fit flex-grow sm:flex-none text-gray-600 font-bold text-base uppercase sm:text-right"
+              >
+                {@item.genre}
+              </div>
+            </div>
+            <div :if={@item.tagline} class="text-base">{@item.tagline}</div>
+            <div class="brief-metadata flex flex-auto flex-row gap-4">
+              <div class="flex flex-col pe-4 gap-0 py-0 h-min">
+                <div class="text-lg">{@item.item_count}</div>
+                <div class="text-base">Items</div>
+              </div>
+              <div class="flex flex-col pe-4 gap-0 py-0 h-min">
+                <div class="text-lg">{length(@item.languages)}</div>
+                <div class="text-base">Languages</div>
+              </div>
+              <div class="flex flex-col pe-4 gap-0 py-0 h-min">
+                <div class="text-lg">{length(@item.geographic_origins)}</div>
+                <div class="text-base">Locations</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </.link>
+    </article>
+    """
+  end
+
+  def search_item(assigns = %{item: %Item{}}) do
     ~H"""
     <article
       id={"item-#{@item.id}"}
@@ -211,10 +276,7 @@ defmodule DpulCollectionsWeb.SearchLive do
                 {@item.genre}
               </div>
             </div>
-            <div
-              :if={@sort_by == :recently_updated && @item.updated_at}
-              class="updated-at w-full"
-            >
+            <div :if={@sort_by == :recently_updated && @item.updated_at} class="updated-at w-full">
               {gettext("Added")} {DpulCollectionsWeb.BrowseItem.time_ago(@item.updated_at)}
             </div>
             <.search_brief_metadata item={@item} />
@@ -238,14 +300,6 @@ defmodule DpulCollectionsWeb.SearchLive do
         </div>
       </.link>
     </article>
-    """
-  end
-
-  defp search_brief_metadata(assigns = %{item: %{resource_type: "collection"}}) do
-    ~H"""
-    <div class="brief-metadata flex-auto flex-row gap-4">
-      <div :if={@item.tagline} class="text-base">{@item.tagline}</div>
-    </div>
     """
   end
 

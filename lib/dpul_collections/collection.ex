@@ -11,6 +11,8 @@ defmodule DpulCollections.Collection do
     :tagline,
     :description,
     :item_count,
+    :url,
+    genre: ["Digital Collections"],
     categories: [],
     genres: [],
     languages: [],
@@ -35,23 +37,25 @@ defmodule DpulCollections.Collection do
   end
 
   def from_solr(nil), do: nil
+
   def from_solr(doc = %{}) do
-    title = Map.get(doc, "title_txtm", [])
+    title = Map.get(doc, "title_ss") || Map.get(doc, "title_txtm") || []
     summary = project_summary(title |> hd)
 
     %__MODULE__{
       id: doc["id"],
       slug: doc["authoritative_slug_s"],
       title: title,
-      tagline: doc |> Map.get("tagline_txt_sort", []) |> hd,
-      description: doc |> Map.get("description_txtm", []) |> hd,
+      tagline: doc |> Map.get("tagline_txt_sort", []) |> Enum.at(0),
+      description: doc |> Map.get("description_txtm", []) |> Enum.at(0),
       item_count: summary.count,
       categories: summary.categories,
       genres: summary.genres,
       languages: summary.languages,
       geographic_origins: summary.geographic_origins,
       featured_items: get_featured_items(title |> hd),
-      recently_updated: get_recent_items(title |> hd)
+      recently_updated: get_recent_items(title |> hd),
+      url: "/collections/#{doc["authoritative_slug_s"]}"
     }
   end
 

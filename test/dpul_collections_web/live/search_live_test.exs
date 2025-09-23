@@ -2,8 +2,6 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   use DpulCollectionsWeb.ConnCase
   import Phoenix.LiveViewTest
   import SolrTestSupport
-  alias DpulCollections.IndexingPipeline.Figgy
-  alias DpulCollections.IndexingPipeline
   alias DpulCollections.Solr
   @endpoint DpulCollectionsWeb.Endpoint
 
@@ -520,25 +518,33 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     end
 
     test "displays ephemera projects", %{conn: conn} do
-      doc =
-        IndexingPipeline.get_figgy_resource!("f99af4de-fed4-4baa-82b1-6e857b230306")
-        |> Figgy.Resource.to_combined()
-        |> Figgy.CombinedFiggyResource.to_solr_document()
+      sae_ids = [
+        "f99af4de-fed4-4baa-82b1-6e857b230306",
+        "e379b822-27cc-4d0e-bca7-6096ac38f1e6"
+      ]
 
-      Solr.add([doc])
-      Solr.soft_commit()
+      sae_ids
+      |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
+
+      Solr.commit()
+      sae_id = "f99af4de-fed4-4baa-82b1-6e857b230306"
 
       {:ok, view, _html} = live(conn, ~p"/search?#{%{q: "South Asian Ephemera"}}")
       # Search result works.
-      item_card = view |> element("#item-#{doc[:id]}")
+      item_card = view |> element("#item-#{sae_id}")
       assert item_card |> has_element?
       # Link to collection page.
-      assert view |> element("#item-#{doc[:id]} a[href='/collections/sae']") |> has_element?
+      assert view |> element("#item-#{sae_id} a[href='/collections/sae']") |> has_element?
       card_content = item_card |> render()
       # Tagline renders.
       assert card_content =~ "Discover voices of change"
       # Digital Collection genre renders
       assert card_content =~ "Digital Collection"
+      # Mosaic images
+      assert view |> element("#item-#{sae_id} .search-thumbnail img") |> has_element?
+      # Stats
+      assert card_content =~ "1"
+      assert card_content =~ "Items"
     end
 
     test "link to record page", %{conn: conn} do

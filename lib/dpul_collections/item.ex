@@ -1,4 +1,5 @@
 defmodule DpulCollections.Item do
+  alias DpulCollections.Collection
   alias DpulCollectionsWeb.Live.Helpers
   use DpulCollectionsWeb, :verified_routes
   use Gettext, backend: DpulCollectionsWeb.Gettext
@@ -47,7 +48,6 @@ defmodule DpulCollections.Item do
     :metadata_url,
     :viewer_url,
     :slug,
-    :resource_type,
     :tagline
   ]
 
@@ -111,19 +111,18 @@ defmodule DpulCollections.Item do
   end
 
   def from_solr(nil), do: nil
+  def from_solr(doc = %{"resource_type_s" => "collection"}), do: Collection.from_solr(doc)
 
   def from_solr(doc) do
     slug = doc["authoritative_slug_s"] || doc["slug_s"]
     id = doc["id"]
     title = Map.get(doc, "title_ss") || Map.get(doc, "title_txtm") || []
-    type = doc["resource_type_s"]
     {primary_thumbnail_width, primary_thumbnail_height} = primary_thumbnail_dimensions(doc)
 
     %__MODULE__{
       id: id,
       title: title,
       slug: slug,
-      resource_type: type,
       alternative_title: doc["alternative_title_txtm"] || [],
       barcode: doc["barcode_txtm"] || [],
       box_number: doc["box_number_txtm"] || [],
@@ -159,7 +158,7 @@ defmodule DpulCollections.Item do
       subject: doc["subject_txt_sort"] || [],
       transliterated_title: doc["transliterated_title_txtm"] || [],
       updated_at: doc["updated_at_dt"],
-      url: generate_url(id, slug, type),
+      url: generate_url(id, slug),
       pdf_url: doc["pdf_url_s"],
       width: doc["width_txtm"] || [],
       metadata_url: generate_metadata_url(id, slug),
@@ -168,11 +167,7 @@ defmodule DpulCollections.Item do
     }
   end
 
-  defp generate_url(_id, slug, "collection") do
-    "/collections/#{slug}"
-  end
-
-  defp generate_url(id, slug, _type) do
+  defp generate_url(id, slug) do
     "/i/#{slug}/item/#{id}"
   end
 
