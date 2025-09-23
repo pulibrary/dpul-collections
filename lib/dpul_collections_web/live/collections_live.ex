@@ -5,19 +5,25 @@ defmodule DpulCollectionsWeb.CollectionsLive do
   alias DpulCollections.Collection
 
   def mount(_params, _session, socket) do
-    collection = get_collection("sae")
-
-    socket =
-      assign(socket,
-        page_title: collection.title,
-        collection: collection
-      )
-
     {:ok, socket}
   end
 
-  def get_collection(_slug) do
-    Collection.from_slug("sae")
+  def handle_params(%{"slug" => slug}, _uri, socket) do
+    collection = Collection.from_slug(slug)
+
+    case collection do
+      nil ->
+        raise DpulCollectionsWeb.CollectionsLive.NotFoundError
+
+      _ ->
+        socket =
+          assign(socket,
+            page_title: collection.title,
+            collection: collection
+          )
+
+        {:noreply, socket}
+    end
   end
 
   defp pill_section(assigns) do

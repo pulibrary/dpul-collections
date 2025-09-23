@@ -34,6 +34,7 @@ defmodule DpulCollections.Collection do
     Solr.query(params)["docs"] |> Enum.map(&Item.from_solr/1)
   end
 
+  def from_solr(nil), do: nil
   def from_solr(doc = %{}) do
     title = Map.get(doc, "title_txtm", [])
     summary = project_summary(title |> hd)
