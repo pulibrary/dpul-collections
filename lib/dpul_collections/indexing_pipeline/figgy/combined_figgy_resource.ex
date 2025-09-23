@@ -109,7 +109,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
       updated_at_dt: updated_date(data),
       width_txtm: get_in(metadata, ["width"]),
       years_is: extract_years(data),
-      categories_txt_sort: extract_categories(metadata, related_data)
+      categories_txt_sort: extract_categories(metadata, related_data),
+      featurable_b: get_in(metadata, ["featurable"]) == ["1"]
     }
   end
 

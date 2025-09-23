@@ -22,5 +22,23 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResourceTest do
 
       assert hd(doc[:description_txtm]) =~ "already robust <a"
     end
+
+    test "converting a featurable EphemeraFolder sets a boolean" do
+      doc =
+        IndexingPipeline.get_figgy_resource!("e8abfa75-253f-428a-b3df-0e83ff2b20f9")
+        |> Figgy.Resource.to_combined()
+        |> Figgy.CombinedFiggyResource.to_solr_document()
+
+      assert %{
+               featurable_b: true
+             } = doc
+
+      unfeatured_doc =
+        IndexingPipeline.get_figgy_resource!("3da68e1c-06af-4d17-8603-fc73152e1ef7")
+        |> Figgy.Resource.to_combined()
+        |> Figgy.CombinedFiggyResource.to_solr_document()
+
+      assert unfeatured_doc[:featurable_b] == false
+    end
   end
 end
