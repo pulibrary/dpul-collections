@@ -343,4 +343,10 @@ defmodule DpulCollections.SolrTest do
     Solr.commit(active_collection())
     assert Solr.find_by_id(valid_doc["id"])["id"] == valid_doc["id"]
   end
+
+  describe ".find_by_slug" do
+    test "returns nothing if there's nothing with that authoritative slug" do
+      assert Solr.find_by_slug("empty") == nil
+    end
+  end
 end

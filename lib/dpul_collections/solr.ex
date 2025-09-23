@@ -258,6 +258,19 @@ defmodule DpulCollections.Solr do
     end
   end
 
+  def find_by_slug(slug, index \\ Index.read_index()) do
+    {:ok, response} =
+      Req.get(
+        select_url(index),
+        params: [q: "authoritative_slug_s:#{slug}", rows: 1]
+      )
+
+    case response.body["response"]["docs"] do
+      [] -> nil
+      [doc] -> doc
+    end
+  end
+
   @spec add(list(map()) | String.t(), %Index{}) ::
           {:ok, Req.Response.t()} | {:error, Exception.t()}
   def add(docs, index \\ Index.read_index())

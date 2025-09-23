@@ -154,7 +154,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                     Digital Collection
                   </p>
                   <h1 class="flex-grow-1 text-4xl lg:text-4xl font-bold">
-                    {@collection.title}
+                    {@collection.title |> hd}
                   </h1>
                   <div class="flex flex-wrap gap-4">
                     <div class="flex items-center text-dark-text gap-2">
@@ -176,7 +176,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
 
                 <div class="flex flex-wrap gap-4 pt-4">
                   <.primary_button
-                    href={~p"/search?#{%{filter: %{project: @collection.title}}}"}
+                    href={~p"/search?#{%{filter: %{project: @collection.title |> hd}}}"}
                     class="btn-primary"
                   >
                     Browse Collection
@@ -242,14 +242,9 @@ defmodule DpulCollectionsWeb.CollectionsLive do
               id="collection-description"
               class="bg-background page-t-padding overflow-hidden group"
             >
-              <div class="transition-all duration-500 w-full text-lg max-h-0 invisible group-[.expanded]:visible group-[.expanded]:max-h-300">
-                <div class="">
-                  <p
-                    :for={description_paragraph <- String.split(@collection.description, "\n")}
-                    class="leading-relaxed not-first:mt-4"
-                  >
-                    {description_paragraph}
-                  </p>
+              <div class="[&_a]:text-accent transition-all duration-500 w-full text-lg max-h-0 invisible group-[.expanded]:visible group-[.expanded]:max-h-300">
+                <div class="leading-relaxed">
+                  {@collection.description |> raw}
                 </div>
               </div>
             </div>
@@ -263,13 +258,13 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           items={@recent_items}
           title="Recently Updated Items"
           more_link={
-            ~p"/search?#{%{filter: %{project: @collection.title}, sort_by: "recently_updated"}}"
+            ~p"/search?#{%{filter: %{project: @collection.title |> hd}, sort_by: "recently_updated"}}"
           }
           show_images={[]}
           added?={true}
         >
           <p class="my-2">
-            Explore the latest additions to our growing collection for {@collection.title}.
+            Explore the latest additions to our growing collection for {@collection.title |> hd}.
           </p>
         </.browse_item_row>
         <!-- Browse All Section -->
@@ -277,7 +272,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           <div class="home-content-area text-center">
             <h2 class="text-3xl font-bold mb-4">Ready to Explore?</h2>
             <p class="text-xl mb-8">
-              Sort, filter, and search through the entirety of {@collection.title}.
+              Sort, filter, and search through the entirety of {@collection.title |> hd}.
             </p>
             <.primary_button
               href={~p"/search?#{%{filter: %{project: @collection.title}}}"}

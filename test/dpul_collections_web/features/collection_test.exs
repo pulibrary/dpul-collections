@@ -13,7 +13,8 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       "8b6f89a7-984c-4a83-85a5-fdfba899e0c3",
       "1e86cab8-69c0-4e1f-8cf7-c11f274b657f",
       "666fcfd1-dda7-4603-82d1-1863dc97ffc3",
-      "8ac0a23b-8c51-4e1c-8bc0-ae307264b895"
+      "8ac0a23b-8c51-4e1c-8bc0-ae307264b895",
+      "f99af4de-fed4-4baa-82b1-6e857b230306"
     ]
 
     # Add another ID so we know it doesn't include counts from other collections.
@@ -44,11 +45,11 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
         text: "Browse Collection"
       )
       # Learn More collapse/expand
-      |> refute_has("p", text: "The South Asian Ephemera Collection complements Princeton's")
+      |> refute_has("div", text: "The South Asian Ephemera Collection complements Princeton's")
       |> click_button("Learn More")
-      |> assert_has("p", text: "The South Asian Ephemera Collection complements Princeton's")
+      |> assert_has("div", text: "The South Asian Ephemera Collection complements Princeton's")
       |> click_button("Learn More")
-      |> refute_has("p", text: "The South Asian Ephemera Collection complements Princeton's")
+      |> refute_has("div", text: "The South Asian Ephemera Collection complements Princeton's")
       |> assert_has("li", text: "Politics and government")
       # Subject tag expansion
       |> refute_has("li", text: "Socioeconomic conditions and development")
