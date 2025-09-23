@@ -71,7 +71,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
       id={"#{@id}-#{@item.id}"}
       data-item-id={@item.id}
       class={[
-        "browse-item relative card flex bg-white flex-col min-w-[250px]",
+        "browse-item overflow-hidden -outline-offset-2 relative card flex bg-white flex-col min-w-[250px]",
         @class
       ]}
     >
@@ -99,7 +99,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
       <.link
         href={@item.url}
         target={@target}
-        class="flex-grow item-link flex flex-col"
+        class="-outline-offset-1 flex-grow item-link flex flex-col"
         aria-label={"View #{@item.title |> hd}"}
       >
         <!-- thumbs -->
@@ -139,7 +139,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
           </div>
         </div>
         <!-- card text area -->
-        <div class="relative px-6 py-5 bg-white flex flex-col">
+        <div class="relative mx-1 px-6 py-5 bg-white flex flex-col">
           <div
             :if={@item.file_count > 4}
             class="absolute bg-background right-2 top-0 z-10 pr-2 pb-1 diagonal-drop"
