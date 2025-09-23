@@ -2,7 +2,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
   use DpulCollectionsWeb, :live_view
   use Gettext, backend: DpulCollectionsWeb.Gettext
   import DpulCollectionsWeb.BrowseItem
-  alias DpulCollections.{Item, Collection}
+  alias DpulCollections.Collection
 
   def mount(_params, _session, socket) do
     collection = get_collection("sae")
@@ -10,8 +10,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
     socket =
       assign(socket,
         page_title: collection.title,
-        collection: collection,
-        recent_items: get_recent_collection_items()
+        collection: collection
       )
 
     {:ok, socket}
@@ -19,80 +18,6 @@ defmodule DpulCollectionsWeb.CollectionsLive do
 
   def get_collection(_slug) do
     Collection.from_slug("sae")
-  end
-
-  # Implement filters into Solr.recently_updated
-  defp get_recent_collection_items do
-    [
-      %{
-        id: "77ba4ea4-ce03-4a63-b0ee-a1a5b9cd746c",
-        title: ["Migration from North-Eastern region to Bangalore: level and trend analysis"],
-        date: "2016",
-        geographic_origin: "India",
-        file_count: 24,
-        primary_thumbnail_service_url:
-          "https://iiif-cloud.princeton.edu/iiif/2/a2%2F30%2F20%2Fa23020f89dd645f1803be45dc9ff0d17%2Fintermediate_file",
-        image_service_urls: [
-          "https://iiif-cloud.princeton.edu/iiif/2/a2%2F30%2F20%2Fa23020f89dd645f1803be45dc9ff0d17%2Fintermediate_file"
-        ],
-        primary_thumbnail_width: 350,
-        primary_thumbnail_height: 350,
-        genre: "Reports",
-        url: "/item/77ba4ea4-ce03-4a63-b0ee-a1a5b9cd746c",
-        updated_at: "2024-01-15T10:30:00Z"
-      },
-      %{
-        id: "9bb5fedf-bdde-4207-abd3-1ade3e190d94",
-        title: ["Please fasten your seat belts! We are passing through turbulent weather"],
-        date: "2011",
-        geographic_origin: "India",
-        file_count: 11,
-        primary_thumbnail_service_url:
-          "https://iiif-cloud.princeton.edu/iiif/2/7e%2F67%2F0e%2F7e670ec857c94ca5a6b2c4e195daaa9d%2Fintermediate_file",
-        image_service_urls: [
-          "https://iiif-cloud.princeton.edu/iiif/2/7e%2F67%2F0e%2F7e670ec857c94ca5a6b2c4e195daaa9d%2Fintermediate_file"
-        ],
-        primary_thumbnail_width: 350,
-        primary_thumbnail_height: 350,
-        genre: "Brochures",
-        url: "/item/9bb5fedf-bdde-4207-abd3-1ade3e190d94",
-        updated_at: "2024-01-12T14:22:00Z"
-      },
-      %{
-        id: "ec477e9c-eff1-4945-b438-e5e7fdcb55f9",
-        title: ["Qissa soi storytelling: behrupiya storytelling tradition of Delhi"],
-        date: "2018",
-        geographic_origin: "India",
-        file_count: 3,
-        primary_thumbnail_service_url:
-          "https://iiif-cloud.princeton.edu/iiif/2/6f%2F85%2Fde%2F6f85deaa645d480d8564916ac887be9a%2Fintermediate_file",
-        image_service_urls: [
-          "https://iiif-cloud.princeton.edu/iiif/2/6f%2F85%2Fde%2F6f85deaa645d480d8564916ac887be9a%2Fintermediate_file"
-        ],
-        primary_thumbnail_width: 350,
-        primary_thumbnail_height: 350,
-        genre: "Flyers",
-        url: "/item/ec477e9c-eff1-4945-b438-e5e7fdcb55f9",
-        updated_at: "2024-01-18T09:15:00Z"
-      },
-      %{
-        id: "6fb2af84-6a4f-401d-8c7e-5787633876f5",
-        title: ["تغیر پذیر حالت میں تفقه کے تقاضے اور هم"],
-        geographic_origin: "India",
-        file_count: 22,
-        primary_thumbnail_service_url:
-          "https://iiif-cloud.princeton.edu/iiif/2/e1%2F39%2Fe6%2Fe139e69b8421409392c35fdf936d8895%2Fintermediate_file",
-        image_service_urls: [
-          "https://iiif-cloud.princeton.edu/iiif/2/e1%2F39%2Fe6%2Fe139e69b8421409392c35fdf936d8895%2Fintermediate_file"
-        ],
-        primary_thumbnail_width: 350,
-        primary_thumbnail_height: 350,
-        genre: "Booklets",
-        url: "/item/6fb2af84-6a4f-401d-8c7e-5787633876f5",
-        updated_at: "2024-01-10T16:45:00Z"
-      }
-    ]
-    |> Enum.map(&struct(Item, &1))
   end
 
   defp pill_section(assigns) do
@@ -137,7 +62,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} content_class={}>
-      <div class="[&>*:nth-child(odd)]:bg-background [&>*:nth-child(event)]:bg-secondary grid grid-flow-row auto-rows-max">
+      <div class="[&>*:nth-child(odd)]:bg-background [&>*:nth-child(even)]:bg-secondary grid grid-flow-row auto-rows-max">
         <!-- Hero Section -->
         <div class="relative overflow-hidden">
           <div class="home-content-area page-y-padding">
@@ -248,9 +173,10 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         </div>
         <!-- Recently Updated Items -->
         <.browse_item_row
-          id="recent-sae-items"
+          :if={length(@collection.recently_updated) > 0}
+          id="recent-items"
           layout="home-content-area"
-          items={@recent_items}
+          items={@collection.recently_updated}
           title="Recently Updated Items"
           more_link={
             ~p"/search?#{%{filter: %{project: @collection.title |> hd}, sort_by: "recently_updated"}}"

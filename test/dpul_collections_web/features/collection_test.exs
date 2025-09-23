@@ -76,6 +76,11 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> assert_has(
         "a[href='/search?filter[project]=South+Asian+Ephemera&sort_by=recently_updated']"
       )
+      # Recently Updated cards
+      |> assert_has(
+        "#recent-items .card",
+        count: 3
+      )
     end
 
     test "collection page is accessible", %{conn: conn} do

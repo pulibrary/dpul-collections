@@ -15,7 +15,8 @@ defmodule DpulCollections.Collection do
     genres: [],
     languages: [],
     geographic_origins: [],
-    featured_items: []
+    featured_items: [],
+    recently_updated: []
   ]
 
   def from_slug(slug) do
@@ -34,12 +35,13 @@ defmodule DpulCollections.Collection do
   end
 
   def from_solr(doc = %{}) do
-    summary = project_summary("South Asian Ephemera")
+    title = Map.get(doc, "title_txtm", [])
+    summary = project_summary(title |> hd)
 
     %__MODULE__{
       id: doc["id"],
       slug: doc["authoritative_slug_s"],
-      title: Map.get(doc, "title_txtm", []),
+      title: title,
       tagline: doc |> Map.get("tagline_txt_sort", []) |> hd,
       description: doc |> Map.get("description_txtm", []) |> hd,
       item_count: summary.count,
@@ -47,8 +49,15 @@ defmodule DpulCollections.Collection do
       genres: summary.genres,
       languages: summary.languages,
       geographic_origins: summary.geographic_origins,
-      featured_items: get_featured_items("South Asian Ephemera")
+      featured_items: get_featured_items(title |> hd),
+      recently_updated: get_recent_items(title |> hd)
     }
+  end
+
+  defp get_recent_items(label) do
+    Solr.recently_updated(5, SearchState.from_params(%{"filters" => %{"project" => label}}))
+    |> Map.get("docs")
+    |> Enum.map(&Item.from_solr/1)
   end
 
   defp project_summary(label) do
