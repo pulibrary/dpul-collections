@@ -212,6 +212,12 @@ defmodule DpulCollections.Solr do
     "+filter(#{solr_field}:\"#{filter_value}\")"
   end
 
+  def generate_filter_query({filter_key, filter_value})
+      when is_boolean(filter_value) and filter_key in @filter_keys do
+    solr_field = @filters[filter_key].solr_field
+    "+filter(#{solr_field}:#{filter_value})"
+  end
+
   # Range filter.
   def generate_filter_query({filter_key, filter_value = %{}}) when filter_key in @filter_keys do
     from = filter_value["from"] || "*"

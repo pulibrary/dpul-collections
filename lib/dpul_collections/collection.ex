@@ -1,4 +1,6 @@
 defmodule DpulCollections.Collection do
+  alias DpulCollections.Item
+  alias DpulCollectionsWeb.SearchLive.SearchState
   alias DpulCollections.Solr
   use Gettext, backend: DpulCollectionsWeb.Gettext
 
@@ -21,6 +23,16 @@ defmodule DpulCollections.Collection do
     |> from_solr()
   end
 
+  def get_featured_items(label) do
+    params =
+      SearchState.from_params(%{
+        "filter" => %{"project" => label, "featured" => true},
+        "per_page" => "4"
+      })
+
+    Solr.query(params)["docs"] |> Enum.map(&Item.from_solr/1)
+  end
+
   def from_solr(doc = %{}) do
     summary = project_summary("South Asian Ephemera")
 
@@ -34,7 +46,8 @@ defmodule DpulCollections.Collection do
       categories: summary.categories,
       genres: summary.genres,
       languages: summary.languages,
-      geographic_origins: summary.geographic_origins
+      geographic_origins: summary.geographic_origins,
+      featured_items: get_featured_items("South Asian Ephemera")
     }
   end
 

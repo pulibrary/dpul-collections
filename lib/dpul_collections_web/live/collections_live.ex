@@ -224,7 +224,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                         src={"#{item.primary_thumbnail_service_url}/full/!#{item.primary_thumbnail_width},#{item.primary_thumbnail_height}/0/default.jpg"}
                         width={item.primary_thumbnail_width}
                         height={item.primary_thumbnail_height}
-                        class="object-cover object-start-top h-full w-full"
+                        class="object-cover object-top h-full w-full"
                         alt={item.title |> hd}
                       />
                     </div>
