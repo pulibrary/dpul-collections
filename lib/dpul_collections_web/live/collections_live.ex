@@ -11,8 +11,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
       assign(socket,
         page_title: collection.title,
         collection: collection,
-        recent_items: get_recent_collection_items(),
-        featured_items: get_featured_items()
+        recent_items: get_recent_collection_items()
       )
 
     {:ok, socket}
@@ -94,10 +93,6 @@ defmodule DpulCollectionsWeb.CollectionsLive do
       }
     ]
     |> Enum.map(&struct(Item, &1))
-  end
-
-  defp get_featured_items do
-    get_recent_collection_items()
   end
 
   defp pill_section(assigns) do
@@ -219,7 +214,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
               <div class="self-start h-120 relative">
                 <div class="absolute inset-0 grid grid-cols-2 gap-2 w-full h-full">
                   <.link
-                    :for={item <- @featured_items}
+                    :for={item <- @collection.featured_items}
                     href={item.url}
                     class="card p-2 bg-background min-h-0 min-w-0"
                     aria-label={"View #{item.title |> hd}"}

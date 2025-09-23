@@ -14,7 +14,12 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       "1e86cab8-69c0-4e1f-8cf7-c11f274b657f",
       "666fcfd1-dda7-4603-82d1-1863dc97ffc3",
       "8ac0a23b-8c51-4e1c-8bc0-ae307264b895",
-      "f99af4de-fed4-4baa-82b1-6e857b230306"
+      "f99af4de-fed4-4baa-82b1-6e857b230306",
+      "e8abfa75-253f-428a-b3df-0e83ff2b20f9",
+      "e379b822-27cc-4d0e-bca7-6096ac38f1e6",
+      "1e5ae074-3a6e-494e-9889-6cd01f7f0621",
+      "036b86bf-28b0-4157-8912-6d3d9eeaa5a8",
+      "d82efa97-c69b-424c-83c2-c461baae8307"
     ]
 
     # Add another ID so we know it doesn't include counts from other collections.
@@ -37,9 +42,9 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       # Subject summary
       |> assert_has("li", text: "Politics and government")
       # Count summary
-      |> assert_has("div", text: "8 items")
-      |> assert_has("div", text: "2 Languages")
-      |> assert_has("div", text: "2 Locations")
+      |> assert_has("div", text: "13 items")
+      |> assert_has("div", text: "3 Languages")
+      |> assert_has("div", text: "4 Locations")
       # Browse button
       |> assert_has("a[href='/search?filter[project]=South+Asian+Ephemera']",
         text: "Browse Collection"

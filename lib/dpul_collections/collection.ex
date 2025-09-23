@@ -12,7 +12,8 @@ defmodule DpulCollections.Collection do
     categories: [],
     genres: [],
     languages: [],
-    geographic_origins: []
+    geographic_origins: [],
+    featured_items: []
   ]
 
   def from_slug(slug) do
