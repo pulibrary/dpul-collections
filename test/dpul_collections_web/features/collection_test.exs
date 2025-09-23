@@ -19,7 +19,8 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       "e379b822-27cc-4d0e-bca7-6096ac38f1e6",
       "1e5ae074-3a6e-494e-9889-6cd01f7f0621",
       "036b86bf-28b0-4157-8912-6d3d9eeaa5a8",
-      "d82efa97-c69b-424c-83c2-c461baae8307"
+      "d82efa97-c69b-424c-83c2-c461baae8307",
+      "39a1a1a0-7ba6-4de9-8a44-f081811c2b34"
     ]
 
     # Add another ID so we know it doesn't include counts from other collections.
@@ -42,13 +43,15 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       # Subject summary
       |> assert_has("li", text: "Politics and government")
       # Count summary
-      |> assert_has("div", text: "13 items")
+      |> assert_has("div", text: "14 items")
       |> assert_has("div", text: "3 Languages")
       |> assert_has("div", text: "4 Locations")
       # Browse button
       |> assert_has("a[href='/search?filter[project]=South+Asian+Ephemera']",
         text: "Browse Collection"
       )
+      # Mosaic
+      |> assert_has("#collection-mosaic .card", count: 4)
       # Learn More collapse/expand
       |> refute_has("div", text: "The South Asian Ephemera Collection complements Princeton's")
       |> click_button("Learn More")
