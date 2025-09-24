@@ -13,7 +13,8 @@
     "dockerfile",
     "nodenv",
     "npm",
-    "custom.regex"
+    "custom.regex",
+    "mix"
   ],
   "packageRules": [
     {
@@ -24,10 +25,6 @@
       "matchPackageNames": [
         "/postgres/", "/solr/"
       ]
-    },
-    {
-      "matchManagers": ["mix"],
-      "enabled": true
     },
     {
       "matchDatasources": ["github-tags"],
