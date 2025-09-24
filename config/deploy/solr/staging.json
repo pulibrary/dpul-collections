@@ -9,6 +9,12 @@
       "base_url": "http://lib-solr8d-staging.princeton.edu:8983",
       "collection": "dpulc5",
       "config_set": "dpulc-staging"
+    },
+    {
+      "cache_version": 7,
+      "base_url": "http://lib-solr8d-staging.princeton.edu:8983",
+      "collection": "dpulc7",
+      "config_set": "dpulc-staging"
     }
   ]
 }
