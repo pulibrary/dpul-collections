@@ -2,10 +2,6 @@ variable "branch_or_sha" {
   type = string
   default = "main"
 }
-variable "branch" {
-  type = string
-  default = "main"
-}
 
 job "dpulc-production" {
   region = "global"
@@ -71,19 +67,19 @@ job "dpulc-production" {
       }
       driver = "podman"
       config {
-        image = "ghcr.io/pulibrary/dpul-collections:${ var.branch_or_sha }"
+        image = "ghcr.io/pulibrary/dpul-collections:sha-${ var.branch_or_sha }"
         command = "bash"
         # Only run on one node.
         args    = ["-c", "([ \"$NOMAD_ALLOC_INDEX\" -eq 0 ] && /app/bin/migrate) || true"]
         force_pull = true
       }
       artifact {
-        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/env/production.tpl"
+        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch_or_sha}/config/deploy/env/production.tpl"
         destination = "local/env.tpl"
         mode = "file"
       }
       artifact {
-        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/solr/production.json"
+        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch_or_sha}/config/deploy/solr/production.json"
         destination = "${NOMAD_TASK_DIR}/solr.json"
         mode = "file"
       }
@@ -97,7 +93,7 @@ job "dpulc-production" {
     task "webserver" {
       driver = "podman"
       config {
-        image = "ghcr.io/pulibrary/dpul-collections:${ var.branch_or_sha }"
+        image = "ghcr.io/pulibrary/dpul-collections:sha-${ var.branch_or_sha }"
         ports = ["http", "epmd", "metrics"]
         force_pull = true
       }
@@ -110,12 +106,12 @@ job "dpulc-production" {
         ERL_DIST_PORT = 6789
       }
       artifact {
-        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/env/production.tpl"
+        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch_or_sha}/config/deploy/env/production.tpl"
         destination = "local/env.tpl"
         mode = "file"
       }
       artifact {
-        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/solr/production.json"
+        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch_or_sha}/config/deploy/solr/production.json"
         destination = "${NOMAD_TASK_DIR}/solr.json"
         mode = "file"
       }
@@ -159,7 +155,7 @@ job "dpulc-production" {
     task "indexer" {
       driver = "podman"
       config {
-        image = "ghcr.io/pulibrary/dpul-collections:${ var.branch_or_sha }"
+        image = "ghcr.io/pulibrary/dpul-collections:sha-${ var.branch_or_sha }"
         ports = ["http", "epmd", "metrics"]
         force_pull = true
       }
@@ -173,12 +169,12 @@ job "dpulc-production" {
         memory = 8000
       }
       artifact {
-        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/env/production.tpl"
+        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch_or_sha}/config/deploy/env/production.tpl"
         destination = "local/env.tpl"
         mode = "file"
       }
       artifact {
-        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch}/config/deploy/solr/production.json"
+        source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch_or_sha}/config/deploy/solr/production.json"
         destination = "${NOMAD_TASK_DIR}/solr.json"
         mode = "file"
       }
