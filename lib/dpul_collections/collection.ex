@@ -60,7 +60,7 @@ defmodule DpulCollections.Collection do
   end
 
   defp get_recent_items(label) do
-    Solr.recently_updated(5, SearchState.from_params(%{"filters" => %{"project" => label}}))
+    Solr.recently_updated(5, SearchState.from_params(%{"filter" => %{"project" => label}}))
     |> Map.get("docs")
     |> Enum.map(&Item.from_solr/1)
   end
