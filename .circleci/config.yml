@@ -2,7 +2,7 @@ version: 2.1
 
 description: Common jobs for testing and building phoenix applications
 orbs:
-  node: circleci/node@7.1.0
+  node: circleci/node@7.2.0
 executors:
   builder:
     parameters:
@@ -73,7 +73,7 @@ commands:
           condition: << parameters.include-assets >>
           steps:
             - node/install:
-                node-version: '22.14.0'
+                node-version: '22.20.0'
             - run:
                 name: Install elixir deps
                 command: mix assets.setup

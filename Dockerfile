@@ -14,7 +14,7 @@
 # renovate: datasource=hexpm-bob depName=elixir
 ARG ELIXIR_VERSION=1.18.4
 # renovate: datasource=github-tags depName=erlang packageName=erlang/otp
-ARG OTP_VERSION=27.3.4.2
+ARG OTP_VERSION=27.3.4.3
 # renovate: datasource=docker depName=debian packageName=debian
 ARG DEBIAN_VERSION=bookworm-20250908-slim
 
@@ -29,7 +29,7 @@ RUN apt-get update -y && apt-get install -y build-essential git curl \
 
 # Install JavaScript dependencies
 # renovate: datasource=node-version depName=node
-ARG NODE_VERSION=22.14.0
+ARG NODE_VERSION=22.20.0
 ENV PATH=/usr/local/node/bin:$PATH
 RUN curl -sL https://github.com/nodenv/node-build/archive/master.tar.gz | tar xz -C /tmp/ && \
     /tmp/node-build-master/bin/node-build "${NODE_VERSION}" /usr/local/node && \
