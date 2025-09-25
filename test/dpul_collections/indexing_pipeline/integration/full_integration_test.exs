@@ -12,6 +12,31 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     on_exit(fn -> Solr.delete_all(active_collection()) end)
   end
 
+  @tag sandbox: false
+  test "there's no race condition when hydrating records" do
+    cache_version = 1
+    {:ok, tracker_pid} = GenServer.start_link(AckTracker, self())
+
+    children = [
+      {Figgy.TransformationConsumer, cache_version: cache_version, batch_size: 50},
+      {Figgy.HydrationConsumer, cache_version: cache_version, batch_size: 50}
+    ]
+
+    AckTracker.reset_count!(tracker_pid)
+
+    Enum.each(children, fn child ->
+      start_supervised(child)
+    end)
+
+    index_count =
+      FiggyTestSupport.ephemera_folder_count() + FiggyTestSupport.deletion_marker_count()
+
+    AckTracker.wait_for_indexed_count(index_count)
+
+    transformation_cache_entry_count = Repo.aggregate(Figgy.TransformationCacheEntry, :count)
+    assert transformation_cache_entry_count == FiggyTestSupport.ephemera_folder_count()
+  end
+
   test "a full pipeline run of all 3 stages, then re-run of each stage" do
     # Start the figgy pipeline in a way that mimics how it is started in
     # dev and prod (slightly simplified)

@@ -46,6 +46,7 @@ defmodule AckTracker do
       ) do
     state = state |> append_ack(metadata)
     send(pid, {:ack_status, state |> Map.delete(:pid)})
+
     {:noreply, state}
   end
 
