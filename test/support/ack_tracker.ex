@@ -24,6 +24,13 @@ defmodule AckTracker do
     Solr.soft_commit()
   end
 
+  def wait_for_transformed_count(count) do
+    assert_receive(
+      {:ack_status, %{"figgy_transformer" => %{1 => %{acked_count: ^count}}}},
+      30_000
+    )
+  end
+
   def reset_count!(pid) do
     FiggyTestSupport.flush_messages()
     GenServer.call(pid, {:reset_count})
