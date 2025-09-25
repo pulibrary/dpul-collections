@@ -19,10 +19,10 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     children = [
       {Figgy.TransformationConsumer, cache_version: cache_version, batch_size: 50},
-      {Figgy.HydrationConsumer, cache_version: cache_version, batch_size: 50},
-      {Figgy.IndexingConsumer,
-       cache_version: cache_version, batch_size: 50, solr_index: active_collection()}
+      {Figgy.HydrationConsumer, cache_version: cache_version, batch_size: 50}
     ]
+
+    FiggyTestSupport.make_broadway_parallel()
 
     AckTracker.reset_count!(tracker_pid)
 
@@ -33,7 +33,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     index_count =
       FiggyTestSupport.ephemera_folder_count()
 
-    AckTracker.wait_for_indexed_count(index_count)
+    AckTracker.wait_for_transformed_count(index_count)
 
     transformation_cache_entry_count = Repo.aggregate(Figgy.TransformationCacheEntry, :count)
     assert transformation_cache_entry_count == FiggyTestSupport.ephemera_folder_count()
