@@ -65,18 +65,17 @@ defmodule DpulCollectionsWeb.SearchLive do
       <section class="content-area">
         <.results_for_keywords_heading keywords={@search_state.q} />
         <div class="my-4 grid grid-flow-row auto-rows-max gap-6">
-          <div id="filters" class="grid md:grid-cols-[auto_300px] gap-4">
+          <div id="filters" class="flex flex-wrap gap-4">
             <form
               id="date-filter"
               phx-submit="filter-date"
-              class="grid md:grid-cols-[150px_200px_200px_200px] gap-2"
+              class="flex flex-wrap gap-2"
             >
-              <label class="col-span-1 self-center font-bold uppercase" for="date-filter">
+              <label class="self-center font-bold uppercase" for="date-filter">
                 {gettext("filter by year")}:
               </label>
               <label class="sr-only" for="filter[year][from]">{gettext("From")}</label>
               <input
-                class="col-span-1"
                 type="text"
                 placeholder={gettext("From")}
                 form="date-filter"
@@ -86,7 +85,6 @@ defmodule DpulCollectionsWeb.SearchLive do
               />
               <label class="sr-only" for="filter[year][to]">{gettext("To")}</label>
               <input
-                class="col-span-1"
                 type="text"
                 placeholder={gettext("To")}
                 form="date-filter"
@@ -94,7 +92,7 @@ defmodule DpulCollectionsWeb.SearchLive do
                 id="filter[year][to]"
                 value={@search_state.filter["year"]["to"]}
               />
-              <.primary_button class="col-span-1 md:col-span-1" type="submit">
+              <.primary_button type="submit">
                 {gettext("Apply")}
               </.primary_button>
             </form>
