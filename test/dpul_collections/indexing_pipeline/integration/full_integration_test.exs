@@ -19,7 +19,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     children = [
       {Figgy.TransformationConsumer, cache_version: cache_version, batch_size: 50},
-      {Figgy.HydrationConsumer, cache_version: cache_version, batch_size: 50}
+      {Figgy.HydrationConsumer, cache_version: cache_version, batch_size: 50},
+      {Figgy.IndexingConsumer,
+       cache_version: cache_version, batch_size: 50, solr_index: active_collection()}
     ]
 
     AckTracker.reset_count!(tracker_pid)
@@ -29,7 +31,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     end)
 
     index_count =
-      FiggyTestSupport.ephemera_folder_count() + FiggyTestSupport.deletion_marker_count()
+      FiggyTestSupport.ephemera_folder_count()
 
     AckTracker.wait_for_indexed_count(index_count)
 
