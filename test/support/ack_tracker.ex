@@ -1,4 +1,6 @@
 defmodule AckTracker do
+  alias DpulCollections.IndexingPipeline.Figgy
+  alias DpulCollections.Repo
   alias DpulCollections.Solr
   use GenServer
   import ExUnit.Assertions
@@ -24,6 +26,43 @@ defmodule AckTracker do
     Solr.soft_commit()
   end
 
+  def wait_for_pipeline_finished(tracker_pid) do
+    test_pid = self()
+
+    :telemetry.attach(
+      "hydration-full-run-#{tracker_pid |> :erlang.pid_to_list()}",
+      [:dpulc, :indexing_pipeline, :hydrator, :time_to_poll],
+      fn _, measurements, _, _ ->
+        send(test_pid, {:hydrator_finished, measurements})
+      end,
+      nil
+    )
+
+    # First the hydrator finishes.
+    assert_receive({:hydrator_finished, _}, 30_000)
+    :telemetry.detach("hydration-full-run-#{tracker_pid |> :erlang.pid_to_list()}")
+    # Then we have as many Transformation acks as we do HydrationCacheEntries.
+    hydration_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
+    wait_for_ack_count(tracker_pid, "figgy_transformer", hydration_count)
+    # Then we have as many index acks as we do transformation caches.
+    transformation_count = Repo.aggregate(Figgy.TransformationCacheEntry, :count)
+    wait_for_ack_count(tracker_pid, "figgy_indexer", transformation_count)
+    Solr.soft_commit()
+  end
+
+  def wait_for_ack_count(pid, type, target_count) do
+    current_count = GenServer.call(pid, {:get_count, type})
+
+    cond do
+      current_count < target_count ->
+        :timer.sleep(100)
+        wait_for_ack_count(pid, type, target_count)
+
+      true ->
+        true
+    end
+  end
+
   def wait_for_transformed_count(count) do
     assert_receive(
       {:ack_status, %{"figgy_transformer" => %{1 => %{acked_count: ^count}}}},
@@ -39,6 +78,17 @@ defmodule AckTracker do
   @impl true
   def handle_call({:reset_count}, _from, %{pid: pid}) do
     {:reply, :ok, %{pid: pid}}
+  end
+
+  def handle_call({:get_count, processor_marker_key}, _from, state) do
+    count =
+      get_in(state, [
+        Access.key(processor_marker_key, %{}),
+        Access.key(1),
+        Access.key(:acked_count, 0)
+      ])
+
+    {:reply, count, state}
   end
 
   @impl true

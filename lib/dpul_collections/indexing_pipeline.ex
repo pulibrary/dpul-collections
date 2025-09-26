@@ -77,16 +77,18 @@ defmodule DpulCollections.IndexingPipeline do
       )
       |> where([c], c.source_cache_order <= ^attrs.source_cache_order)
 
-    try do
-      %Figgy.HydrationCacheEntry{}
-      |> Figgy.HydrationCacheEntry.changeset(attrs)
-      |> Repo.insert(
-        on_conflict: conflict_query,
-        conflict_target: [:cache_version, :record_id]
-      )
-    rescue
-      Ecto.StaleEntryError -> {:ok, nil}
-    end
+    Repo.transact(fn ->
+      try do
+        %Figgy.HydrationCacheEntry{}
+        |> Figgy.HydrationCacheEntry.changeset(attrs)
+        |> Repo.insert(
+          on_conflict: conflict_query,
+          conflict_target: [:cache_version, :record_id]
+        )
+      rescue
+        Ecto.StaleEntryError -> {:ok, nil}
+      end
+    end)
   end
 
   @spec get_hydration_cache_entries_since!(
@@ -473,16 +475,18 @@ defmodule DpulCollections.IndexingPipeline do
       )
       |> where([c], c.source_cache_order <= ^attrs.source_cache_order)
 
-    try do
-      %Figgy.TransformationCacheEntry{}
-      |> Figgy.TransformationCacheEntry.changeset(attrs)
-      |> Repo.insert(
-        on_conflict: conflict_query,
-        conflict_target: [:cache_version, :record_id]
-      )
-    rescue
-      Ecto.StaleEntryError -> {:ok, nil}
-    end
+    Repo.transact(fn ->
+      try do
+        %Figgy.TransformationCacheEntry{}
+        |> Figgy.TransformationCacheEntry.changeset(attrs)
+        |> Repo.insert(
+          on_conflict: conflict_query,
+          conflict_target: [:cache_version, :record_id]
+        )
+      rescue
+        Ecto.StaleEntryError -> {:ok, nil}
+      end
+    end)
   end
 
   @doc """
