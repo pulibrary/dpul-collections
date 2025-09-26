@@ -202,7 +202,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
               Sort, filter, and search through the entirety of {@collection.title |> hd}.
             </p>
             <.primary_button
-              href={~p"/search?#{%{filter: %{project: @collection.title}}}"}
+              href={~p"/search?#{%{filter: %{project: @collection.title |> hd}}}"}
               class="btn-primary text-lg px-8 py-4"
             >
               Browse All Items
