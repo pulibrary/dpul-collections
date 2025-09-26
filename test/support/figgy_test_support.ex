@@ -212,5 +212,7 @@ defmodule FiggyTestSupport do
       end,
       %{}
     )
+
+    ExUnit.Callbacks.on_exit(fn -> :telemetry.detach({__MODULE__, :broadway_parallel}) end)
   end
 end
