@@ -79,6 +79,10 @@ defmodule DpulCollections.IndexingPipeline do
 
     Repo.transact(fn ->
       try do
+        # Serialize writes for a cache version by acquiring an advisory lock.
+        # It takes two integers - 1 here is special and for Hydration.
+        Repo.query!("SELECT pg_advisory_xact_lock($1, $2)", [attrs.cache_version, 1])
+
         %Figgy.HydrationCacheEntry{}
         |> Figgy.HydrationCacheEntry.changeset(attrs)
         |> Repo.insert(
@@ -477,6 +481,11 @@ defmodule DpulCollections.IndexingPipeline do
 
     Repo.transact(fn ->
       try do
+        # Serialize writes for a cache version by acquiring an advisory lock.
+        # It takes two integers - 2 here is special and for Transformation.
+        # The lock is released when the transaction closes.
+        Repo.query!("SELECT pg_advisory_xact_lock($1, $2)", [attrs.cache_version, 2])
+
         %Figgy.TransformationCacheEntry{}
         |> Figgy.TransformationCacheEntry.changeset(attrs)
         |> Repo.insert(
