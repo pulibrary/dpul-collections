@@ -112,7 +112,7 @@ defmodule DpulCollections.Item do
   def from_solr(doc) do
     slug = doc["slug_s"]
     id = doc["id"]
-    title = doc["title_ss"] || [] |> Enum.at(0, doc["title_txtm"] |> hd)
+    title = doc["title_ss"] || doc["title_txtm"] || []
     {primary_thumbnail_width, primary_thumbnail_height} = primary_thumbnail_dimensions(doc)
 
     %__MODULE__{

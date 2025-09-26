@@ -46,7 +46,11 @@ defmodule DpulCollections.Solr do
       rows: search_state[:per_page],
       start: pagination_offset(search_state),
       # To do MLT in edismax we have to allow the keyword _query_
-      uf: "* _query_"
+      uf: "* _query_",
+      # Search highlighting.
+      hl: true,
+      "hl.requireFieldMatch": true,
+      "hl.fl": "*_txt_sort *_txtm"
     ]
 
     {:ok, response} =
@@ -55,7 +59,10 @@ defmodule DpulCollections.Solr do
         params: solr_params
       )
 
+    response.body
+
     response.body["response"]
+    |> Map.put("highlighting", response.body["highlighting"])
   end
 
   # Uses the more like this query parser
