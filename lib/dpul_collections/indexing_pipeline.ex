@@ -77,16 +77,22 @@ defmodule DpulCollections.IndexingPipeline do
       )
       |> where([c], c.source_cache_order <= ^attrs.source_cache_order)
 
-    try do
-      %Figgy.HydrationCacheEntry{}
-      |> Figgy.HydrationCacheEntry.changeset(attrs)
-      |> Repo.insert(
-        on_conflict: conflict_query,
-        conflict_target: [:cache_version, :record_id]
-      )
-    rescue
-      Ecto.StaleEntryError -> {:ok, nil}
-    end
+    Repo.transact(fn ->
+      try do
+        # Serialize writes for a cache version by acquiring an advisory lock.
+        # It takes two integers - 1 here is special and for Hydration.
+        Repo.query!("SELECT pg_advisory_xact_lock($1, $2)", [attrs.cache_version, 1])
+
+        %Figgy.HydrationCacheEntry{}
+        |> Figgy.HydrationCacheEntry.changeset(attrs)
+        |> Repo.insert(
+          on_conflict: conflict_query,
+          conflict_target: [:cache_version, :record_id]
+        )
+      rescue
+        Ecto.StaleEntryError -> {:ok, nil}
+      end
+    end)
   end
 
   @spec get_hydration_cache_entries_since!(
@@ -473,16 +479,23 @@ defmodule DpulCollections.IndexingPipeline do
       )
       |> where([c], c.source_cache_order <= ^attrs.source_cache_order)
 
-    try do
-      %Figgy.TransformationCacheEntry{}
-      |> Figgy.TransformationCacheEntry.changeset(attrs)
-      |> Repo.insert(
-        on_conflict: conflict_query,
-        conflict_target: [:cache_version, :record_id]
-      )
-    rescue
-      Ecto.StaleEntryError -> {:ok, nil}
-    end
+    Repo.transact(fn ->
+      try do
+        # Serialize writes for a cache version by acquiring an advisory lock.
+        # It takes two integers - 2 here is special and for Transformation.
+        # The lock is released when the transaction closes.
+        Repo.query!("SELECT pg_advisory_xact_lock($1, $2)", [attrs.cache_version, 2])
+
+        %Figgy.TransformationCacheEntry{}
+        |> Figgy.TransformationCacheEntry.changeset(attrs)
+        |> Repo.insert(
+          on_conflict: conflict_query,
+          conflict_target: [:cache_version, :record_id]
+        )
+      rescue
+        Ecto.StaleEntryError -> {:ok, nil}
+      end
+    end)
   end
 
   @doc """
