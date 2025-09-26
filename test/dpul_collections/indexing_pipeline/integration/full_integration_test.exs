@@ -30,10 +30,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       start_supervised(child)
     end)
 
-    index_count =
-      FiggyTestSupport.ephemera_folder_count()
-
-    AckTracker.wait_for_transformed_count(index_count)
+    AckTracker.wait_for_pipeline_finished(tracker_pid)
 
     transformation_cache_entry_count = Repo.aggregate(Figgy.TransformationCacheEntry, :count)
     assert transformation_cache_entry_count == FiggyTestSupport.ephemera_folder_count()
@@ -90,15 +87,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       start_supervised(child)
     end)
 
-    # Transformation cache processes 98 ephemera folders, 3 fake records we
-    # inserted into the hydration cache, then 3 real deletion markers.
-    # Indexing pipeline does 98 ephemera folders, 3 fake records we inserted
-    # into transformation cache, result of 3 fake records we put in hydration
-    # cache, then 3 real deletion markers.
-    index_count =
-      FiggyTestSupport.ephemera_folder_count() + 3 * FiggyTestSupport.deletion_marker_count()
-
-    AckTracker.wait_for_indexed_count(index_count)
+    AckTracker.wait_for_pipeline_finished(tracker_pid)
 
     # The hydrator pulled all ephemera folders, terms, deletion markers and
     # removed the hydration cache markers for the deletion marker deleted resource.
@@ -202,7 +191,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     Figgy.HydrationConsumer.start_over!(cache_version)
 
-    AckTracker.wait_for_indexed_count(index_count)
+    AckTracker.wait_for_pipeline_finished(tracker_pid)
 
     hydration_entry_again =
       Repo.get_by(Figgy.HydrationCacheEntry, record_id: latest_document["id"])
