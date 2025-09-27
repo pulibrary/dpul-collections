@@ -23,6 +23,7 @@ psql -h $PG_FIGGY_HOST -p $PG_FIGGY_PORT -U postgres -c "\copy orm_resources FRO
 psql -h $PG_FIGGY_HOST -p $PG_FIGGY_PORT -U postgres -c "\copy orm_resources FROM fixture-exports/project-ignore2-export.binary BINARY"
 psql -h $PG_FIGGY_HOST -p $PG_FIGGY_PORT -U postgres -c "\copy orm_resources FROM fixture-exports/extras-export.binary BINARY"
 psql -h $PG_FIGGY_HOST -p $PG_FIGGY_PORT -U postgres -c "\copy orm_resources FROM fixture-exports/extras-members-export.binary BINARY"
+psql -h $PG_FIGGY_HOST -p $PG_FIGGY_PORT -U postgres -c "\copy orm_resources FROM fixture-exports/extras-parents-export.binary BINARY"
 
 # Import synthetic fixtures
 for file in fixture-exports/synthetic/*.csv; do

@@ -101,6 +101,11 @@ defmodule DpulCollections.Solr.Constants do
           solr_field: "years_is",
           label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Year"),
           value_function: &DpulCollections.Solr.Constants.date_value/1
+        },
+        "featured" => %{
+          solr_field: "featurable_b",
+          label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Featured"),
+          value_function: &Function.identity/1
         }
       }
 

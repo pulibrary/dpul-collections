@@ -855,4 +855,31 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
       assert("82624edb-c360-4d8a-b202-f103ee639e8e" not in resource_ids)
     end
   end
+
+  describe "EphemeraProject processing" do
+    test "skips projects that are unpublished" do
+      project = IndexingPipeline.get_figgy_resource!("f09fc91d-7a9b-47b5-afff-ce7db76b4e92")
+
+      message =
+        %Broadway.Message{acknowledger: nil, data: project}
+
+      processed = HydrationConsumer.handle_message(nil, message, %{cache_version: 1})
+      assert processed.batcher == :noop
+    end
+
+    test "updates projects that are published" do
+      project = IndexingPipeline.get_figgy_resource!("f99af4de-fed4-4baa-82b1-6e857b230306")
+
+      message =
+        %Broadway.Message{acknowledger: nil, data: project}
+
+      processed = HydrationConsumer.handle_message(nil, message, %{cache_version: 1})
+      assert processed.batcher == :default
+      cache_entry = DpulCollections.IndexingPipeline.get_hydration_cache_entry!(project.id, 1)
+
+      # No related data
+      assert cache_entry.related_data["resources"] == %{}
+      assert cache_entry.related_ids == []
+    end
+  end
 end

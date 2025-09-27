@@ -42,6 +42,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     }
   end
 
+  def populate_virtual(resource), do: resource
+
   @spec to_combined(%__MODULE__{}) :: %Figgy.CombinedFiggyResource{}
   def to_combined(resource = %Figgy.Resource{metadata: %{"member_ids" => member_ids}}) do
     related_data = extract_related_data(resource)
@@ -117,6 +119,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   #     }
   #   }
   # ```
+  defp fetch_related(%Figgy.Resource{internal_resource: "EphemeraProject"}) do
+    %{}
+  end
+
   @spec fetch_related(%__MODULE__{}) :: related_data()
   defp fetch_related(resource = %Figgy.Resource{metadata: _metadata}) do
     resource

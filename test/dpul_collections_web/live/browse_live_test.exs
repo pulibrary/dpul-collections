@@ -14,6 +14,15 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     assert redirected_to(conn, 302) =~ "/browse?r="
   end
 
+  test "browsing when there's a collection", %{conn: conn} do
+    FiggyTestSupport.index_record_id_directly("f99af4de-fed4-4baa-82b1-6e857b230306")
+    Solr.soft_commit()
+
+    {:ok, view, _html} = live(conn, "/browse?r=0")
+
+    refute element(view, ".browse-item") |> has_element?
+  end
+
   test "browse from random", %{conn: conn} do
     Solr.add(SolrTestSupport.mock_solr_documents(200), active_collection())
     Solr.commit(active_collection())

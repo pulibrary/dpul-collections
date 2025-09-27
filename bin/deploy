@@ -53,7 +53,7 @@ curl -s -X POST -H "Accept: application/vnd.github+json-H" -H "Content-Type: app
 SHA=$(git ls-remote https://github.com/pulibrary/${REPOSITORY}.git ${BRANCH_NAME} | awk '{ print substr($1,1,40) }')
 # Deploy using nomad-host-prod1, which has the nomad management key.
 ssh deploy@nomad-host-prod1.lib.princeton.edu << EOF
-  curl -s "https://raw.githubusercontent.com/pulibrary/${REPOSITORY}/${SHA}/config/deploy/${ENV}.hcl" | nomad job run -var "branch_or_sha=sha-$(git ls-remote https://github.com/pulibrary/${REPOSITORY}.git ${BRANCH_NAME} | awk '{ print substr($1,1,7) }')" -var "branch=${BRANCH_NAME}" -
+  curl -s "https://raw.githubusercontent.com/pulibrary/${REPOSITORY}/${SHA}/config/deploy/${ENV}.hcl" | nomad job run -var "branch_or_sha=$(git ls-remote https://github.com/pulibrary/${REPOSITORY}.git ${BRANCH_NAME} | awk '{ print substr($1,1,7) }')" -
 EOF
 retcode=$?
 

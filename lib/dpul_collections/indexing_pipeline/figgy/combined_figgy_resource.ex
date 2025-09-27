@@ -45,6 +45,24 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
   end
 
   def to_solr_document(%__MODULE__{
+        resource: %{
+          "id" => id,
+          "internal_resource" => "EphemeraProject",
+          "metadata" => metadata
+        }
+      }) do
+    %{
+      id: id,
+      title_txtm: metadata["title"],
+      description_txtm: metadata["description"],
+      resource_type_s: "collection",
+      tagline_txt_sort: metadata["tagline"],
+      authoritative_slug_s: Map.get(metadata, "slug", []) |> Enum.at(0),
+      genre_txt_sort: ["Digital Collection"]
+    }
+  end
+
+  def to_solr_document(%__MODULE__{
         related_data: related_data,
         resource: data = %{"id" => id, "metadata" => metadata}
       }) do
@@ -91,7 +109,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
       updated_at_dt: updated_date(data),
       width_txtm: get_in(metadata, ["width"]),
       years_is: extract_years(data),
-      categories_txtm: extract_categories(metadata, related_data)
+      categories_txt_sort: extract_categories(metadata, related_data),
+      featurable_b: get_in(metadata, ["featurable"]) == ["1"]
     }
   end
 
