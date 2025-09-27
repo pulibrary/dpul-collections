@@ -164,7 +164,8 @@ defmodule DpulCollections.Solr do
     solr_params = [
       fl: fl,
       rows: count,
-      sort: "random_#{seed} desc"
+      sort: "random_#{seed} desc",
+      fq: "file_count_i:[1 TO *]"
     ]
 
     {:ok, response} =
