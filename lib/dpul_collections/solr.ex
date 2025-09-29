@@ -60,6 +60,8 @@ defmodule DpulCollections.Solr do
     "display_date_s",
     "file_count_i",
     "detectlang_ss",
+    # Solr generates `slug_s` via a script from the title, but users define
+    # slugs for collections and projects, so we have to store the slug from the user separately.
     "authoritative_slug_s",
     "resource_type_s",
     "slug_s",

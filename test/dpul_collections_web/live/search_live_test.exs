@@ -11,56 +11,58 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     on_exit(fn -> Solr.delete_all(active_collection()) end)
   end
 
-  test "GET /search", %{conn: conn} do
-    conn = get(conn, ~p"/search")
+  describe "GET /search" do
+    test "with no parameters returns all items", %{conn: conn} do
+      conn = get(conn, ~p"/search")
 
-    {:ok, document} =
-      html_response(conn, 200)
-      |> Floki.parse_document()
+      {:ok, document} =
+        html_response(conn, 200)
+        |> Floki.parse_document()
 
-    assert document
-           |> Floki.find(~s{a[href="/i/document1/item/1"]})
-           |> Enum.any?()
+      assert document
+             |> Floki.find(~s{a[href="/i/document1/item/1"]})
+             |> Enum.any?()
 
-    assert document
-           |> Floki.find(~s{a[href="/i/document2/item/2"]})
-           |> Enum.any?()
-  end
+      assert document
+             |> Floki.find(~s{a[href="/i/document2/item/2"]})
+             |> Enum.any?()
+    end
 
-  test "GET /search with blank q parameter", %{conn: conn} do
-    conn = get(conn, ~p"/search?q=")
+    test "with a blank q parameter returns all items", %{conn: conn} do
+      conn = get(conn, ~p"/search?q=")
 
-    {:ok, document} =
-      html_response(conn, 200) |> Floki.parse_document()
+      {:ok, document} =
+        html_response(conn, 200) |> Floki.parse_document()
 
-    assert document
-           |> Floki.find(~s{a[href="/i/document1/item/1"]})
-           |> Enum.any?()
+      assert document
+             |> Floki.find(~s{a[href="/i/document1/item/1"]})
+             |> Enum.any?()
 
-    assert document
-           |> Floki.find(~s{a[href="/i/document2/item/2"]})
-           |> Enum.any?()
-  end
+      assert document
+             |> Floki.find(~s{a[href="/i/document2/item/2"]})
+             |> Enum.any?()
+    end
 
-  test "GET /search with an ephemera project title", %{conn: conn} do
-    conn = get(conn, ~p"/search?q=Amazing+Project")
+    test "with an ephemera project indexed displays it", %{conn: conn} do
+      conn = get(conn, ~p"/search?q=Amazing+Project")
 
-    {:ok, document} =
-      html_response(conn, 200) |> Floki.parse_document()
+      {:ok, document} =
+        html_response(conn, 200) |> Floki.parse_document()
 
-    assert document
-           |> Floki.find(~s{a[href="/i/document1/item/1"]})
-           |> Enum.any?()
-  end
+      assert document
+             |> Floki.find(~s{a[href="/i/document1/item/1"]})
+             |> Enum.any?()
+    end
 
-  test "GET /search with a query that has no results", %{conn: conn} do
-    {:ok, view, _html} = live(conn, "/search?q=therewontbeanyresults")
+    test "with a query that has no results displays a no items found page", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/search?q=therewontbeanyresults")
 
-    assert view
-           |> has_element?(
-             "#item-counter",
-             "No items found"
-           )
+      assert view
+             |> has_element?(
+               "#item-counter",
+               "No items found"
+             )
+    end
   end
 
   test "searching filters results", %{conn: conn} do
