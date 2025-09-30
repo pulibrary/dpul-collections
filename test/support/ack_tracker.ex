@@ -1,8 +1,6 @@
 defmodule AckTracker do
   alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
   alias DpulCollections.IndexingPipeline
-  alias DpulCollections.IndexingPipeline.Figgy
-  alias DpulCollections.Repo
   alias DpulCollections.Solr
   use GenServer
   import ExUnit.Assertions
@@ -20,6 +18,15 @@ defmodule AckTracker do
       nil
     )
 
+    :telemetry.attach(
+      "persisted_marker-#{tracker_pid |> :erlang.pid_to_list()}",
+      [:database_producer, :persisted_marker],
+      fn _, _, metadata, _ ->
+        GenServer.cast(tracker_pid, {:marker_persisted, metadata})
+      end,
+      nil
+    )
+
     {:ok, %{pid: pid}}
   end
 
@@ -28,32 +35,14 @@ defmodule AckTracker do
     Solr.soft_commit()
   end
 
-  def wait_for_pipeline_finished(tracker_pid) do
-    test_pid = self()
+  def wait_for_pipeline_finished(tracker_pid, cache_version \\ 1) do
+    tracker_pid
+    |> wait_for_hydrator(cache_version)
+    |> wait_for_transformer(cache_version)
+    |> wait_for_indexer(cache_version)
+  end
 
-    :telemetry.attach(
-      "hydration-full-run-#{tracker_pid |> :erlang.pid_to_list()}",
-      [:dpulc, :indexing_pipeline, :hydrator, :time_to_poll],
-      fn _, measurements, _, _ ->
-        send(test_pid, {:hydrator_finished, measurements})
-        :ok
-      end,
-      nil
-    )
-
-    :telemetry.attach(
-      "persisted_marker-#{tracker_pid |> :erlang.pid_to_list()}",
-      [:database_producer, :persisted_marker],
-      fn _, _, metadata, _ ->
-        send(test_pid, {:marker_persisted, metadata})
-        :ok
-      end,
-      nil
-    )
-
-    # First the hydrator finishes.
-    assert_receive({:hydrator_finished, _}, 30_000)
-    :telemetry.detach("hydration-full-run-#{tracker_pid |> :erlang.pid_to_list()}")
+  def wait_for_transformer(tracker_pid, cache_version) do
     # Get the last hydration cache entry
     hydration_marker =
       IndexingPipeline.get_hydration_cache_entries_since!(nil, 10_000, 1)
@@ -61,12 +50,11 @@ defmodule AckTracker do
       |> CacheEntryMarker.from()
 
     # Wait until that cache entry is persisted - then transformation is done.
-    assert_receive(
-      {:marker_persisted,
-       %{marker: ^hydration_marker, processor_marker_key: "figgy_transformer"}},
-      10_000
-    )
+    wait_for_persisted_marker(tracker_pid, hydration_marker, "figgy_transformer", cache_version)
+    tracker_pid
+  end
 
+  def wait_for_indexer(tracker_pid, cache_version) do
     # Get the last transformation cache entry
     transformation_marker =
       IndexingPipeline.get_transformation_cache_entries_since!(nil, 10_000, 1)
@@ -74,14 +62,40 @@ defmodule AckTracker do
       |> CacheEntryMarker.from()
 
     # Wait until that cache entry is persisted - then indexing is done.
-    assert_receive(
-      {:marker_persisted,
-       %{marker: ^transformation_marker, processor_marker_key: "figgy_indexer"}},
-      30_000
+    wait_for_persisted_marker(tracker_pid, transformation_marker, "figgy_indexer", cache_version)
+    Solr.soft_commit()
+  end
+
+  def wait_for_hydrator(tracker_pid, cache_version) do
+    test_pid = self()
+
+    :telemetry.attach(
+      "hydration-full-run-#{tracker_pid |> :erlang.pid_to_list()}",
+      [:dpulc, :indexing_pipeline, :hydrator, :time_to_poll],
+      fn _, _, metadata, _ ->
+        send(test_pid, {:hydrator_finished, metadata})
+        :ok
+      end,
+      nil
     )
 
-    :telemetry.detach("persisted_marker-#{tracker_pid |> :erlang.pid_to_list()}")
-    Solr.soft_commit()
+    # First the hydrator finishes.
+    assert_receive({:hydrator_finished, %{cache_version: ^cache_version}}, 30_000)
+    :telemetry.detach("hydration-full-run-#{tracker_pid |> :erlang.pid_to_list()}")
+    tracker_pid
+  end
+
+  def wait_for_persisted_marker(pid, target_marker, type, cache_version) do
+    current_marker = GenServer.call(pid, {:get_last_persisted_marker, type, cache_version})
+
+    cond do
+      current_marker == target_marker ->
+        true
+
+      true ->
+        :timer.sleep(100)
+        wait_for_persisted_marker(pid, target_marker, type, cache_version)
+    end
   end
 
   def wait_for_ack_count(pid, type, target_count) do
@@ -125,6 +139,17 @@ defmodule AckTracker do
     {:reply, count, state}
   end
 
+  def handle_call({:get_last_persisted_marker, processor_marker_key, cache_version}, _from, state) do
+    last_marker =
+      get_in(state, [
+        Access.key(processor_marker_key, %{}),
+        Access.key(cache_version),
+        Access.key(:last_persisted_marker, nil)
+      ])
+
+    {:reply, last_marker, state}
+  end
+
   @impl true
   def handle_cast(
         {:ack,
@@ -137,6 +162,29 @@ defmodule AckTracker do
       ) do
     state = state |> append_ack(metadata)
     send(pid, {:ack_status, state |> Map.delete(:pid)})
+
+    {:noreply, state}
+  end
+
+  def handle_cast(
+        {:marker_persisted,
+         %{
+           marker: marker,
+           processor_marker_key: processor_marker_key,
+           cache_version: cache_version
+         }},
+        state
+      ) do
+    state =
+      state
+      |> put_in(
+        [
+          Access.key(processor_marker_key, %{}),
+          Access.key(cache_version, %{}),
+          Access.key(:last_persisted_marker, marker)
+        ],
+        marker
+      )
 
     {:noreply, state}
   end

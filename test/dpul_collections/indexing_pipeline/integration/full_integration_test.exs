@@ -114,11 +114,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     Figgy.IndexingConsumer.start_over!(cache_version)
 
-    # The fake records are out of the caches.
-    index_count =
-      FiggyTestSupport.ephemera_folder_count() + FiggyTestSupport.deletion_marker_count() + 1
-
-    AckTracker.wait_for_indexed_count(index_count)
+    AckTracker.wait_for_indexer(tracker_pid, 1)
 
     latest_document_again = Solr.latest_document()
 
@@ -146,7 +142,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     Figgy.TransformationConsumer.start_over!(cache_version)
 
-    AckTracker.wait_for_indexed_count(index_count)
+    tracker_pid
+    |> AckTracker.wait_for_transformer(1)
+    |> AckTracker.wait_for_indexer(1)
 
     Repo.aggregate(Figgy.TransformationCacheEntry, :count)
 
