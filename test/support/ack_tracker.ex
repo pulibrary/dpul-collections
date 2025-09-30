@@ -98,26 +98,6 @@ defmodule AckTracker do
     end
   end
 
-  def wait_for_ack_count(pid, type, target_count) do
-    current_count = GenServer.call(pid, {:get_count, type})
-
-    cond do
-      current_count < target_count ->
-        :timer.sleep(100)
-        wait_for_ack_count(pid, type, target_count)
-
-      true ->
-        true
-    end
-  end
-
-  def wait_for_transformed_count(count) do
-    assert_receive(
-      {:ack_status, %{"figgy_transformer" => %{1 => %{acked_count: ^count}}}},
-      30_000
-    )
-  end
-
   def reset_count!(pid) do
     FiggyTestSupport.flush_messages()
     GenServer.call(pid, {:reset_count})
