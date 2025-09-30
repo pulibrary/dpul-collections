@@ -152,6 +152,16 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
         cache_location: cache_location,
         cache_record_id: cache_record_id
       })
+
+      :telemetry.execute(
+        [:database_producer, :persisted_marker],
+        %{},
+        %{
+          marker: last_removed_marker,
+          processor_marker_key: state.source_module.processor_marker_key(),
+          cache_version: state.cache_version
+        }
+      )
     end
 
     notify_ack(

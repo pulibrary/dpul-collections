@@ -13,29 +13,6 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
   end
 
   @tag sandbox: false
-  test "there's no race condition when hydrating records" do
-    cache_version = 1
-    {:ok, tracker_pid} = GenServer.start_link(AckTracker, self())
-
-    children = [
-      {Figgy.TransformationConsumer, cache_version: cache_version, batch_size: 50},
-      {Figgy.HydrationConsumer, cache_version: cache_version, batch_size: 50}
-    ]
-
-    FiggyTestSupport.make_broadway_parallel()
-
-    AckTracker.reset_count!(tracker_pid)
-
-    Enum.each(children, fn child ->
-      start_supervised(child)
-    end)
-
-    AckTracker.wait_for_pipeline_finished(tracker_pid)
-
-    transformation_cache_entry_count = Repo.aggregate(Figgy.TransformationCacheEntry, :count)
-    assert transformation_cache_entry_count == FiggyTestSupport.ephemera_folder_count()
-  end
-
   test "a full pipeline run of all 3 stages, then re-run of each stage" do
     # Start the figgy pipeline in a way that mimics how it is started in
     # dev and prod (slightly simplified)
@@ -61,13 +38,11 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     children = [
       {Figgy.IndexingConsumer,
        cache_version: cache_version, batch_size: 50, solr_index: active_collection()},
-      # We need every transformation cache entry to trigger an index, so we can
-      # track when the acks are done - setting batch size to 1 achieves that.
-      # Otherwise, sometimes it handles two entries for the same ID at the same
-      # time, and the indexing consumer gets one less message.
-      {Figgy.TransformationConsumer, cache_version: cache_version, batch_size: 1},
+      {Figgy.TransformationConsumer, cache_version: cache_version, batch_size: 50},
       {Figgy.HydrationConsumer, cache_version: cache_version, batch_size: 50}
     ]
+
+    FiggyTestSupport.make_broadway_parallel()
 
     test_pid = self()
 
@@ -90,14 +65,6 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     Enum.each(children, fn child ->
       start_supervised(child)
     end)
-
-    # Transformation cache processes 98 ephemera folders, 3 fake records we
-    # inserted into the hydration cache, then 3 real deletion markers.
-    # Indexing pipeline does 98 ephemera folders, 3 fake records we inserted
-    # into transformation cache, result of 3 fake records we put in hydration
-    # cache, then 3 real deletion markers, then an EphmeraProject
-    index_count =
-      FiggyTestSupport.ephemera_folder_count() + 3 * FiggyTestSupport.deletion_marker_count() + 1
 
     AckTracker.wait_for_pipeline_finished(tracker_pid)
 

@@ -1,4 +1,6 @@
 defmodule AckTracker do
+  alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
+  alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.Repo
   alias DpulCollections.Solr
@@ -34,6 +36,17 @@ defmodule AckTracker do
       [:dpulc, :indexing_pipeline, :hydrator, :time_to_poll],
       fn _, measurements, _, _ ->
         send(test_pid, {:hydrator_finished, measurements})
+        :ok
+      end,
+      nil
+    )
+
+    :telemetry.attach(
+      "persisted_marker-#{tracker_pid |> :erlang.pid_to_list()}",
+      [:database_producer, :persisted_marker],
+      fn _, _, metadata, _ ->
+        send(test_pid, {:marker_persisted, metadata})
+        :ok
       end,
       nil
     )
@@ -41,12 +54,33 @@ defmodule AckTracker do
     # First the hydrator finishes.
     assert_receive({:hydrator_finished, _}, 30_000)
     :telemetry.detach("hydration-full-run-#{tracker_pid |> :erlang.pid_to_list()}")
-    # Then we have as many Transformation acks as we do HydrationCacheEntries.
-    hydration_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
-    wait_for_ack_count(tracker_pid, "figgy_transformer", hydration_count)
-    # Then we have as many index acks as we do transformation caches.
-    transformation_count = Repo.aggregate(Figgy.TransformationCacheEntry, :count)
-    wait_for_ack_count(tracker_pid, "figgy_indexer", transformation_count)
+    # Get the last hydration cache entry
+    hydration_marker =
+      IndexingPipeline.get_hydration_cache_entries_since!(nil, 10_000, 1)
+      |> Enum.at(-1)
+      |> CacheEntryMarker.from()
+
+    # Wait until that cache entry is persisted - then transformation is done.
+    assert_receive(
+      {:marker_persisted,
+       %{marker: ^hydration_marker, processor_marker_key: "figgy_transformer"}},
+      10_000
+    )
+
+    # Get the last transformation cache entry
+    transformation_marker =
+      IndexingPipeline.get_transformation_cache_entries_since!(nil, 10_000, 1)
+      |> Enum.at(-1)
+      |> CacheEntryMarker.from()
+
+    # Wait until that cache entry is persisted - then indexing is done.
+    assert_receive(
+      {:marker_persisted,
+       %{marker: ^transformation_marker, processor_marker_key: "figgy_indexer"}},
+      30_000
+    )
+
+    :telemetry.detach("persisted_marker-#{tracker_pid |> :erlang.pid_to_list()}")
     Solr.soft_commit()
   end
 
