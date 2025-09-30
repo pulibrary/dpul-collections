@@ -83,8 +83,6 @@ defmodule DpulCollectionsWeb.Router do
       live "/users/settings", UserLive.Settings, :edit
       live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
     end
-
-    post "/users/update-password", UserSessionController, :update_password
   end
 
   scope "/", DpulCollectionsWeb do
