@@ -99,6 +99,14 @@ defmodule FiggyTestSupport do
     solr_doc
   end
 
+  def index_record_id_directly(id) do
+    IndexingPipeline.get_figgy_resource!(id)
+    |> Figgy.Resource.populate_virtual()
+    |> Figgy.Resource.to_combined()
+    |> Figgy.CombinedFiggyResource.to_solr_document()
+    |> Solr.add()
+  end
+
   def index_record_id(id) do
     cache_version = 1
     # Get record with a description.

@@ -52,9 +52,9 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
-            - v1-mix-cache-{{ .Branch }}
-            - v1-mix-cache
+            - v2-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
+            - v2-mix-cache-{{ .Branch }}
+            - v2-mix-cache
       - run:
           name: Install hex
           command: mix local.hex --force
@@ -66,9 +66,9 @@ commands:
           command: mix deps.get
       - restore_cache:
           keys:
-            - v1-asset-cache-<< parameters.include-assets >>-{{ .Branch }}-{{ checksum "mix.lock" }}
-            - v1-asset-cache-<< parameters.include-assets >>-{{ .Branch }}
-            - v1-asset-cache-<< parameters.include-assets >>
+            - v2-asset-cache-<< parameters.include-assets >>-{{ .Branch }}-{{ checksum "mix.lock" }}
+            - v2-asset-cache-<< parameters.include-assets >>-{{ .Branch }}
+            - v2-asset-cache-<< parameters.include-assets >>
       - when:
           condition: << parameters.include-assets >>
           steps:
@@ -83,25 +83,25 @@ commands:
             - "deps"
             - "_build"
       - save_cache:
-          key: v1-mix-cache-{{ .Branch }}
+          key: v2-mix-cache-{{ .Branch }}
           paths:
             - "deps"
             - "_build"
       - save_cache:
-          key: v1-mix-cache
+          key: v2-mix-cache
           paths:
             - "deps"
             - "_build"
       - save_cache:
-          key: v1-asset-cache-<< parameters.include-assets >>-{{ .Branch }}-{{ checksum "mix.lock" }}
+          key: v2-asset-cache-<< parameters.include-assets >>-{{ .Branch }}-{{ checksum "mix.lock" }}
           paths:
             - "~/.cache/ms-playwright"
       - save_cache:
-          key: v1-asset-cache-<< parameters.include-assets >>-{{ .Branch }}
+          key: v2-asset-cache-<< parameters.include-assets >>-{{ .Branch }}
           paths:
             - "~/.cache/ms-playwright"
       - save_cache:
-          key: v1-asset-cache-<< parameters.include-assets >>
+          key: v2-asset-cache-<< parameters.include-assets >>
           paths:
             - "~/.cache/ms-playwright"
 

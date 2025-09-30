@@ -1,4 +1,5 @@
 defmodule DpulCollections.SolrTest do
+  alias DpulCollectionsWeb.SearchLive.SearchState
   use DpulCollections.DataCase
   alias DpulCollections.Item
   alias DpulCollections.Solr
@@ -135,34 +136,76 @@ defmodule DpulCollections.SolrTest do
     end
   end
 
-  test ".recently_updated/1 returns most recently updated solr records with images" do
-    doc1 = %{
-      "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
-      "title_txtm" => "Doc-1",
-      "file_count_i" => 1,
-      "updated_at_dt" => DateTime.utc_now() |> DateTime.add(-1, :hour) |> DateTime.to_iso8601()
-    }
+  describe ".recently-updated/3" do
+    test "can be limited by search filters" do
+      doc1 = %{
+        "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
+        "title_txtm" => "Doc-1",
+        "file_count_i" => 1,
+        "updated_at_dt" => DateTime.utc_now() |> DateTime.add(-1, :hour) |> DateTime.to_iso8601(),
+        "ephemera_project_title_s" => "Test Title"
+      }
 
-    doc2 = %{
-      "id" => "26713a31-d615-49fd-adfc-93770b4f66b3",
-      "file_count_i" => 1,
-      "updated_at_dt" => DateTime.utc_now() |> DateTime.add(-5, :minute) |> DateTime.to_iso8601(),
-      "title_txtm" => "Doc-2"
-    }
+      doc2 = %{
+        "id" => "26713a31-d615-49fd-adfc-93770b4f66b3",
+        "file_count_i" => 1,
+        "updated_at_dt" =>
+          DateTime.utc_now() |> DateTime.add(-5, :minute) |> DateTime.to_iso8601(),
+        "title_txtm" => "Doc-2",
+        "ephemera_project_title_s" => "Test Title"
+      }
 
-    doc3 = %{
-      "id" => "26713a31-d615-49fd-adfc-93770b4f66b4",
-      "file_count_i" => 0,
-      "updated_at_dt" => DateTime.utc_now() |> DateTime.to_iso8601(),
-      "title_txtm" => "Doc-3"
-    }
+      doc3 = %{
+        "id" => "26713a31-d615-49fd-adfc-93770b4f66b4",
+        "file_count_i" => 1,
+        "updated_at_dt" => DateTime.utc_now() |> DateTime.to_iso8601(),
+        "title_txtm" => "Doc-3"
+      }
 
-    Solr.add([doc1, doc2, doc3], active_collection())
-    Solr.commit(active_collection())
+      Solr.add([doc1, doc2, doc3], active_collection())
+      Solr.commit(active_collection())
 
-    records = Solr.recently_updated(1) |> Map.get("docs")
+      records =
+        Solr.recently_updated(
+          1,
+          SearchState.from_params(%{"filter" => %{"project" => "Test Title"}})
+        )
+        |> Map.get("docs")
 
-    assert Enum.at(records, 0) |> Map.get("id") == doc2["id"]
+      # Doc-3 would be most recent, but isn't in that project.
+      assert Enum.at(records, 0) |> Map.get("id") == doc2["id"]
+    end
+
+    test "returns most recently updated solr records with images" do
+      doc1 = %{
+        "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
+        "title_txtm" => "Doc-1",
+        "file_count_i" => 1,
+        "updated_at_dt" => DateTime.utc_now() |> DateTime.add(-1, :hour) |> DateTime.to_iso8601()
+      }
+
+      doc2 = %{
+        "id" => "26713a31-d615-49fd-adfc-93770b4f66b3",
+        "file_count_i" => 1,
+        "updated_at_dt" =>
+          DateTime.utc_now() |> DateTime.add(-5, :minute) |> DateTime.to_iso8601(),
+        "title_txtm" => "Doc-2"
+      }
+
+      doc3 = %{
+        "id" => "26713a31-d615-49fd-adfc-93770b4f66b4",
+        "file_count_i" => 0,
+        "updated_at_dt" => DateTime.utc_now() |> DateTime.to_iso8601(),
+        "title_txtm" => "Doc-3"
+      }
+
+      Solr.add([doc1, doc2, doc3], active_collection())
+      Solr.commit(active_collection())
+
+      records = Solr.recently_updated(1) |> Map.get("docs")
+
+      assert Enum.at(records, 0) |> Map.get("id") == doc2["id"]
+    end
   end
 
   test ".random/3 with two different seeds returns different results" do
@@ -342,5 +385,11 @@ defmodule DpulCollections.SolrTest do
 
     Solr.commit(active_collection())
     assert Solr.find_by_id(valid_doc["id"])["id"] == valid_doc["id"]
+  end
+
+  describe ".find_by_slug" do
+    test "returns nothing if there's nothing with that authoritative slug" do
+      assert Solr.find_by_slug("empty") == nil
+    end
   end
 end

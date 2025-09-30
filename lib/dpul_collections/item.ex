@@ -1,4 +1,5 @@
 defmodule DpulCollections.Item do
+  alias DpulCollections.Collection
   alias DpulCollectionsWeb.Live.Helpers
   use DpulCollectionsWeb, :verified_routes
   use Gettext, backend: DpulCollectionsWeb.Gettext
@@ -45,7 +46,9 @@ defmodule DpulCollections.Item do
     :pdf_url,
     :width,
     :metadata_url,
-    :viewer_url
+    :viewer_url,
+    :slug,
+    :tagline
   ]
 
   def metadata_display_fields do
@@ -108,16 +111,18 @@ defmodule DpulCollections.Item do
   end
 
   def from_solr(nil), do: nil
+  def from_solr(doc = %{"resource_type_s" => "collection"}), do: Collection.from_solr(doc)
 
   def from_solr(doc) do
-    slug = doc["slug_s"]
+    slug = doc["authoritative_slug_s"] || doc["slug_s"]
     id = doc["id"]
-    title = doc["title_ss"] || [] |> Enum.at(0, doc["title_txtm"] |> hd)
+    title = Map.get(doc, "title_ss") || Map.get(doc, "title_txtm") || []
     {primary_thumbnail_width, primary_thumbnail_height} = primary_thumbnail_dimensions(doc)
 
     %__MODULE__{
       id: id,
       title: title,
+      slug: slug,
       alternative_title: doc["alternative_title_txtm"] || [],
       barcode: doc["barcode_txtm"] || [],
       box_number: doc["box_number_txtm"] || [],
@@ -157,7 +162,8 @@ defmodule DpulCollections.Item do
       pdf_url: doc["pdf_url_s"],
       width: doc["width_txtm"] || [],
       metadata_url: generate_metadata_url(id, slug),
-      viewer_url: generate_viewer_url(id, slug)
+      viewer_url: generate_viewer_url(id, slug),
+      tagline: doc["tagline_txt_sort"] || []
     }
   end
 

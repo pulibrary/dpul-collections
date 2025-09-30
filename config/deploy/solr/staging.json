@@ -5,9 +5,9 @@
   },
   "write": [
     {
-      "cache_version": 5,
+      "cache_version": 7,
       "base_url": "http://lib-solr8d-staging.princeton.edu:8983",
-      "collection": "dpulc5",
+      "collection": "dpulc7",
       "config_set": "dpulc-staging"
     }
   ]

@@ -74,7 +74,6 @@ Hooks.ShowPageCount = {
           lastImg = el
         }
       })
-      console.log(lastImg)
       return lastImg
     }
 
@@ -98,7 +97,6 @@ Hooks.ShowPageCount = {
     this.handleResize = () => {
       if(showPageCount(containerEl, elFilecount) && fileCountLabelEl !== null){
         let lastImg = getLastVisibleImg(containerEl)
-        console.log(lastImg)
         lastImg.parentElement.append(fileCountLabelEl)
         fileCountLabelEl.style.display = "block"
       } else {
@@ -130,6 +128,8 @@ Hooks.ResponsivePills = {
   mounted() {
     this.totalCount = this.el.querySelectorAll('.pill-item').length
     this.isExpanded = false
+    this.moreButton = this.el.querySelector('.more-button button')
+    this.lessButton = this.el.querySelector('.less-button button')
     this.setupToggleListeners()
     this.calculateVisibleItems()
     // Handle resize with debouncing
@@ -146,14 +146,8 @@ Hooks.ResponsivePills = {
   },
 
   setupToggleListeners() {
-    const moreButton = this.el.querySelector('.more-button button')
-    const lessButton = this.el.querySelector('.less-button button')
-    if (moreButton) {
-      moreButton.addEventListener('click', () => this.expand())
-    }
-    if (lessButton) {
-      lessButton.addEventListener('click', () => this.collapse())
-    }
+    this.moreButton.addEventListener('click', () => this.expand())
+    this.lessButton.addEventListener('click', () => this.collapse())
   },
 
   expand() {
@@ -165,7 +159,7 @@ Hooks.ResponsivePills = {
   collapse() {
     this.isExpanded = false
     const ul = this.el.querySelector('.group')
-    ul.classList.add('expanded')
+    ul.classList.remove('expanded')
 
     // Recalculate visible items for current viewport
     this.calculateVisibleItems()
@@ -176,50 +170,33 @@ Hooks.ResponsivePills = {
     if (this.isExpanded) return
 
     const ul = this.el.querySelector('.group')
-    // Temporarily show all items and remove constraints to measure
-    ul.classList.add("expanded")
     const allPillItems = this.el.querySelectorAll('.pill-item')
-    const moreButton = this.el.querySelector('.more-button')
+    const pillItemArray = [...allPillItems]
 
     // Temporarily show all pills for measurement
     allPillItems.forEach(item => item.classList.remove('hidden'))
-
-    // Get container width
-    const containerWidth = ul.offsetWidth
-    let currentWidth = 0
-    let visibleCount = 0
-
-    // Gap between pills is 8px
-    const gap = 8
-
-    // Reserve space for the more button
-    // The more button is invisible rather than hidden, so we can get its
-    // height/width. The first pill doesn't have a gap on its left, so we don't
-    // add a gap here for calculating.
-    const moreButtonWidth = moreButton.offsetWidth
-
-    // Calculate how many items fit on one line
-    for (let i = 0; i < allPillItems.length; i++) {
-      const itemWidth = allPillItems[i].offsetWidth + gap
-
-      // Check if this item plus the more button would fit
-      if (currentWidth + itemWidth + moreButtonWidth <= containerWidth) {
-        currentWidth += itemWidth
-        visibleCount++
+    // The goal is get "more" to show up, so hide all of them from the end until
+    // that happens.
+    const ulRectangle = ul.getBoundingClientRect()
+    let removedCount = 0
+    pillItemArray.reverse().forEach((pill) => {
+      let moreButtonRectangle = this.moreButton.getBoundingClientRect()
+      if(moreButtonRectangle.top > ulRectangle.bottom) {
+        removedCount++
+        pill.classList.add("hidden")
       } else {
-        break
+        pill.classList.remove("hidden")
       }
-    }
-    // Hide every pill that doesn't fit so that "more" will slide into place.
-    Array.from(allPillItems).slice(visibleCount).forEach(item => item.classList.add('hidden'))
-
-    // Remove expand so the pills will contract again, it was only temporary to get widths.
-    ul.classList.remove("expanded")
+    })
 
     // Update the more count
     const moreCountSpan = this.el.querySelector('.more-count')
-    const remainingCount = this.totalCount - visibleCount
-    moreCountSpan.textContent = remainingCount
+    moreCountSpan.textContent = removedCount
+    if (removedCount == 0) {
+      this.moreButton.parentElement.classList.add("invisible")
+    } else {
+      this.moreButton.parentElement.classList.remove("invisible")
+    }
   }
 }
 
