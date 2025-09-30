@@ -1,5 +1,8 @@
 import Config
 
+# Feature flips
+config :dpul_collections, :feature_account_toolbar, true
+
 # Configure your database
 config :dpul_collections, DpulCollections.Repo,
   username: "postgres",
