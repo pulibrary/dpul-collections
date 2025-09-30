@@ -67,21 +67,14 @@ defmodule AckTracker do
   end
 
   def wait_for_hydrator(tracker_pid, cache_version) do
-    test_pid = self()
+    # Get the last Figgy entry
+    figgy_marker =
+      IndexingPipeline.get_figgy_resources_since!(nil, 10_000)
+      |> Enum.at(-1)
+      |> CacheEntryMarker.from()
 
-    :telemetry.attach(
-      "hydration-full-run-#{tracker_pid |> :erlang.pid_to_list()}",
-      [:dpulc, :indexing_pipeline, :hydrator, :time_to_poll],
-      fn _, _, metadata, _ ->
-        send(test_pid, {:hydrator_finished, metadata})
-        :ok
-      end,
-      nil
-    )
-
-    # First the hydrator finishes.
-    assert_receive({:hydrator_finished, %{cache_version: ^cache_version}}, 30_000)
-    :telemetry.detach("hydration-full-run-#{tracker_pid |> :erlang.pid_to_list()}")
+    # Wait until that cache entry is persisted - then indexing is done.
+    wait_for_persisted_marker(tracker_pid, figgy_marker, "figgy_hydrator", cache_version)
     tracker_pid
   end
 
