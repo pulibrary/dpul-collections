@@ -229,4 +229,18 @@ defmodule DpulCollectionsWeb.CoreComponents.ButtonTest do
     assert html =~ "disabled"
     refute html =~ ~s(href=)
   end
+
+  describe "translate_error" do
+    test "can accept pluralization" do
+      text = translate_error({"username should be at least %{count} character(s)", [count: 2]})
+      assert text == "username should be at least 2 character(s)"
+    end
+  end
+
+  describe "translate_errors" do
+    test "gives back a list of error messages" do
+      list = translate_errors([email: {"not found", []}, token: {"expired", []}], :email)
+      assert list == ["not found"]
+    end
+  end
 end

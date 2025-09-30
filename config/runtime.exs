@@ -23,6 +23,9 @@ end
 if config_env() == :prod do
   config :dpul_collections, environment_name: System.get_env("APP_ENV")
 
+  # Feature flips
+  config :dpul_collections, :feature_account_toolbar, false
+
   database_url =
     System.get_env("DATABASE_URL") ||
       raise """

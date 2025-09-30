@@ -22,6 +22,29 @@
       >
         {gettext("Skip To Content")}
       </a>
+      <ul
+        :if={Application.fetch_env!(:dpul_collections, :feature_account_toolbar)}
+        class="menu menu-horizontal w-full relative z-10 flex items-center gap-4 px-4 sm:px-6 lg:px-8 justify-end"
+      >
+        <%= if @current_scope do %>
+          <li>
+            {@current_scope.user.email}
+          </li>
+          <li>
+            <.link href={~p"/users/settings"}>Settings</.link>
+          </li>
+          <li>
+            <.link href={~p"/users/log-out"} method="delete">Log out</.link>
+          </li>
+        <% else %>
+          <li>
+            <.link href={~p"/users/register"}>Register</.link>
+          </li>
+          <li>
+            <.link href={~p"/users/log-in"}>Log in</.link>
+          </li>
+        <% end %>
+      </ul>
     </nav>
     <div class="flex flex-col min-h-screen" id="app">
       {DpulCollectionsWeb.HeaderComponent.header(assigns)}
