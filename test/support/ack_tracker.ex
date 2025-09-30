@@ -73,7 +73,7 @@ defmodule AckTracker do
       |> Enum.at(-1)
       |> CacheEntryMarker.from()
 
-    # Wait until that cache entry is persisted - then indexing is done.
+    # Wait until that cache entry is persisted - then hydration is done.
     wait_for_persisted_marker(tracker_pid, figgy_marker, "figgy_hydrator", cache_version)
     tracker_pid
   end
