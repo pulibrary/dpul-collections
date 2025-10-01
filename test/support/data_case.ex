@@ -33,8 +33,11 @@ defmodule DpulCollections.DataCase do
     :ok
   end
 
-  setup_all do
-    DpulCollections.Solr.delete_all(SolrTestSupport.active_collection())
+  setup_all tags do
+    if !tags[:async] do
+      DpulCollections.Solr.delete_all(SolrTestSupport.active_collection())
+    end
+
     :ok
   end
 
@@ -43,7 +46,12 @@ defmodule DpulCollections.DataCase do
   """
   def setup_sandbox(tags) do
     pid = Ecto.Adapters.SQL.Sandbox.start_owner!(DpulCollections.Repo, shared: not tags[:async])
-    on_exit(fn -> DpulCollections.Solr.delete_all(SolrTestSupport.active_collection()) end)
+
+    if !tags[:async] do
+      DpulCollections.Solr.delete_all(SolrTestSupport.active_collection())
+      on_exit(fn -> DpulCollections.Solr.delete_all(SolrTestSupport.active_collection()) end)
+    end
+
     on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
   end
 

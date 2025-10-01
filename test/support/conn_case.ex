@@ -32,8 +32,10 @@ defmodule DpulCollectionsWeb.ConnCase do
     end
   end
 
-  setup_all do
-    DpulCollections.Solr.delete_all(SolrTestSupport.active_collection())
+  setup_all tags do
+    if !tags[:async] do
+      DpulCollections.Solr.delete_all(SolrTestSupport.active_collection())
+    end
     :ok
   end
 
