@@ -5,15 +5,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
   alias DpulCollections.IndexingPipeline
 
   def start_producer(cache_version \\ 0) do
-    pid = self()
-
-    :telemetry.attach(
-      "ack-handler-#{pid |> :erlang.pid_to_list()}",
-      [:database_producer, :ack, :done],
-      fn _event, _, _, _ -> send(pid, {:ack_done}) end,
-      nil
-    )
-
     {:ok, hydrator} =
       Figgy.HydrationConsumer.start_link(
         cache_version: cache_version,
@@ -42,13 +33,21 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     })
   end
 
+  # Track acks for all of these.
+  setup do
+    {:ok, tracker_pid} = GenServer.start_link(AckTracker, self())
+    AckTracker.reset_count!(tracker_pid)
+    :ok
+  end
+
   test "ephemera folder cache entry creation" do
     jump_processor_to_ephemera_folder()
     marker1 = FiggyTestFixtures.ephemera_folder_marker()
     hydrator = start_producer()
 
     MockFiggyHydrationProducer.process(1)
-    assert_receive {:ack_done}, 1_000
+
+    assert_receive({:ack_status, %{"figgy_hydrator" => %{0 => %{acked_count: 1}}}}, 1_000)
 
     cache_entry = IndexingPipeline.list_hydration_cache_entries() |> hd
     assert cache_entry.record_id == marker1.id
@@ -87,7 +86,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     hydrator = start_producer()
 
     MockFiggyHydrationProducer.process(1)
-    assert_receive {:ack_done}, 1_000
+    assert_receive({:ack_status, %{"figgy_hydrator" => %{0 => %{acked_count: 1}}}}, 1_000)
 
     cache_entry = IndexingPipeline.list_hydration_cache_entries() |> hd
     assert cache_entry.record_id == marker1.id
@@ -108,7 +107,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     hydrator = start_producer(cache_version)
 
     MockFiggyHydrationProducer.process(1, cache_version)
-    assert_receive {:ack_done}, 1_000
+    assert_receive({:ack_status, %{"figgy_hydrator" => %{1 => %{acked_count: 1}}}}, 1_000)
 
     cache_entry = IndexingPipeline.list_hydration_cache_entries() |> hd
     assert cache_entry.record_id == marker1.id
@@ -141,7 +140,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     # Process that past record.
     hydrator = start_producer()
     MockFiggyHydrationProducer.process(1)
-    assert_receive {:ack_done}, 1_000
+    assert_receive({:ack_status, %{"figgy_hydrator" => %{0 => %{acked_count: 1}}}}, 1_000)
     hydrator |> Broadway.stop(:normal)
     # Ensure there's only one hydration cache entry.
     entries = IndexingPipeline.list_hydration_cache_entries()
@@ -166,7 +165,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     # Process that past record.
     hydrator = start_producer()
     MockFiggyHydrationProducer.process(1)
-    assert_receive {:ack_done}, 1_000
+    assert_receive({:ack_status, %{"figgy_hydrator" => %{0 => %{acked_count: 1}}}}, 1_000)
     hydrator |> Broadway.stop(:normal)
     # Ensure there's only one hydration cache entry.
     entries = IndexingPipeline.list_hydration_cache_entries()
@@ -193,7 +192,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     hydrator = start_producer()
     # Make sure the first record that comes back is what we expect
     MockFiggyHydrationProducer.process(1)
-    assert_receive {:ack_done}, 1_000
+    assert_receive({:ack_status, %{"figgy_hydrator" => %{0 => %{acked_count: 1}}}}, 1_000)
     cache_entry = IndexingPipeline.list_hydration_cache_entries() |> hd
     assert cache_entry.record_id == marker2.id
     assert cache_entry.cache_version == 0
