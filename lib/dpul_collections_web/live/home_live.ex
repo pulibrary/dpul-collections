@@ -44,10 +44,13 @@ defmodule DpulCollectionsWeb.HomeLive do
                   <div class="bg-light-accent rounded-full px-3 py-1">
                     274 Locations
                   </div>
+                  <div class="bg-light-accent rounded-full px-3 py-1">
+                    From 1400 to 2025
+                  </div>
                 </div>
               </div>
               <div class="text-2xl flex-grow">
-                Browse six continents and six millenia of free publically available books, manuscripts, objects and art organized into collections for you to use, download, share, and enjoy.
+                Browse six continents worth of free publically available books, manuscripts, objects and art organized into collections for you to use, download, share, and enjoy.
               </div>
               <div class="content-area bg-primary text-light-text px-0 text-xl">
                 <.primary_button href={~p"/browse"}>
