@@ -36,6 +36,7 @@ defmodule DpulCollectionsWeb.ConnCase do
     if !tags[:async] do
       DpulCollections.Solr.delete_all(SolrTestSupport.active_collection())
     end
+
     :ok
   end
 
