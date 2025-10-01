@@ -30,28 +30,17 @@ defmodule DpulCollectionsWeb.HomeLive do
     <Layouts.app flash={@flash} content_class={}>
       <div class="grid grid-flow-row auto-rows-max">
         <div class="explore-header grid-row bg-background relative">
-          <div class="drop-shadow-[1px_1px_3rem_rgba(0,0,0,1)] bg-primary absolute max-h-[600px] sm:min-w-[350px] w-full lg:max-w-1/2 2xl:max-w-1/3 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 p-4">
-            <div class="corner-cut content-area text-center h-full w-full flex flex-col justify-evenly bg-background p-8">
-              <div class="page-y-padding text-2xl flex-grow">
+          <div class="drop-shadow-[1px_1px_3rem_rgba(0,0,0,1)] bg-primary absolute max-h-[600px] sm:min-w-[350px] w-full md:max-w-2/3 lg:max-w-1/2 2xl:max-w-2/5 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 p-4">
+            <div class="corner-cut content-area text-center h-full w-full flex flex-col justify-evenly items-center bg-background p-8 gap-4">
+              <div>
+                <h1 class="text-3xl font-normal">{gettext("Digital Collections")}</h1>
+                <p class=" italic">{gettext("of the Princeton University Library")}</p>
+              </div>
+
+              <div class="text-xl text-balance flex-grow">
                 {gettext(
-                  "Discover %{photographs}, %{posters}, %{pamphlets}, and more to inspire your research",
-                  photographs:
-                    callout_link(%{
-                      url: ~p"/search?#{%{filter: %{genre: ["photographs"]}}}",
-                      label: gettext("photographs")
-                    }),
-                  posters:
-                    callout_link(%{
-                      url: ~p"/search?#{%{filter: %{genre: ["posters"]}}}",
-                      label: gettext("posters")
-                    }),
-                  pamphlets:
-                    callout_link(%{
-                      url: ~p"/search?#{%{filter: %{genre: ["pamphlets"]}}}",
-                      label: gettext("pamphlets")
-                    })
-                )
-                |> Phoenix.HTML.raw()}
+                  "Discover, download, and share digitized selections from the Library's unique collections and collaborations."
+                )}
               </div>
               <div class="content-area bg-primary text-light-text px-0 text-xl">
                 <.primary_button href={~p"/browse"}>
@@ -108,11 +97,5 @@ defmodule DpulCollectionsWeb.HomeLive do
       </div>
     </Layouts.app>
     """
-  end
-
-  defp callout_link(assigns) do
-    Phoenix.HTML.Safe.to_iodata(~H"""
-    <.link href={@url} class="text-accent font-bold" target="_blank">{@label}</.link>
-    """)
   end
 end
