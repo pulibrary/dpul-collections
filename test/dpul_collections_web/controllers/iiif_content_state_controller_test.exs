@@ -1,5 +1,5 @@
 defmodule DpulCollectionsWeb.IiifContentStateControllerTest do
-  use DpulCollectionsWeb.ConnCase, async: true
+  use DpulCollectionsWeb.ConnCase
   alias DpulCollections.Solr
   import SolrTestSupport
 
