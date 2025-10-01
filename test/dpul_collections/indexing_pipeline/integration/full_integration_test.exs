@@ -57,6 +57,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
         nil
       )
 
+    on_exit(fn -> :telemetry.detach("hydration-full-run") end)
+
     AckTracker.reset_count!(tracker_pid)
 
     Enum.each(children, fn child ->
