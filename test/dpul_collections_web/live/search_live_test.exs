@@ -554,16 +554,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     test "link to record page", %{conn: conn} do
       {:ok, view, _html} = live(conn, ~p"/search?q=")
 
-      html = render(view)
-
-      first_href =
-        html
-        |> Floki.parse_document!()
-        |> Floki.find(".card a")
-        |> Enum.flat_map(&Floki.attribute(&1, "href"))
-        |> Enum.at(0)
-
-      assert first_href == "/i/document1/item/1"
+      assert view |> element(".card a[href='/i/document1/item/1']") |> has_element? == true
     end
 
     test "show some metadata", %{conn: conn} do
