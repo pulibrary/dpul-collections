@@ -106,6 +106,11 @@ defmodule DpulCollections.Solr.Constants do
           solr_field: "featurable_b",
           label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Featured"),
           value_function: &Function.identity/1
+        },
+        "file_count" => %{
+          solr_field: "file_count_i",
+          label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "File Count"),
+          value_function: &Function.identity/1
         }
       }
 

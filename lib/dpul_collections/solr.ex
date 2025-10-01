@@ -112,24 +112,21 @@ defmodule DpulCollections.Solr do
   # Uses the more like this query parser
   # see: https://solr.apache.org/guide/solr/latest/query-guide/morelikethis.html#morelikethis-query-parser
   def related_items(%{id: id}, search_state, rows \\ 5, index \\ Index.read_index()) do
-    fl = Enum.join(@query_field_list, ",")
+    search_state =
+      SearchState.from_params(%{
+        "filter" =>
+          Map.merge(
+            search_state.filter,
+            %{
+              "similar" => id,
+              "file_count" => %{"from" => 1}
+            }
+          ),
+        "per_page" => "#{rows}"
+      })
+      |> Map.put(:extra_params, mm: 1)
 
-    solr_params = [
-      fl: fl,
-      q: mlt_query(id),
-      rows: rows,
-      indent: false,
-      fq: filter_param(search_state),
-      mm: 1
-    ]
-
-    {:ok, response} =
-      Req.get(
-        query_url(index),
-        params: solr_params
-      )
-
-    response.body["response"]
+    query(search_state, index)
   end
 
   def mlt_query(id) do
@@ -366,10 +363,5 @@ defmodule DpulCollections.Solr do
   defp update_url(index) do
     Index.connect(index)
     |> Req.merge(url: "/solr/#{index.collection}/update")
-  end
-
-  defp query_url(index) do
-    Index.connect(index)
-    |> Req.merge(url: "/solr/#{index.collection}/query")
   end
 end

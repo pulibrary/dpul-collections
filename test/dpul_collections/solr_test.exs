@@ -52,28 +52,32 @@ defmodule DpulCollections.SolrTest do
           "title_txtm" => ["test title 1"],
           "genre_txt_sort" => ["pamphlets"],
           "subject_txt_sort" => ["folk art", "museum exhibits"],
-          "ephemera_project_title_s" => "Latin American Ephemera"
+          "ephemera_project_title_s" => "Latin American Ephemera",
+          "file_count_i" => 1
         },
         %{
           "id" => "similar",
           "title_txtm" => ["similar item"],
           "genre_txt_sort" => ["pamphlets"],
           "subject_txt_sort" => ["folk art", "music"],
-          "ephemera_project_title_s" => "Latin American Ephemera"
+          "ephemera_project_title_s" => "Latin American Ephemera",
+          "file_count_i" => 1
         },
         %{
           "id" => "less-similar",
           "title_txtm" => ["item that's not as similar"],
           "genre_txt_sort" => ["pamphlets"],
           "subject_txt_sort" => ["education", "music"],
-          "ephemera_project_title_s" => "Latin American Ephemera"
+          "ephemera_project_title_s" => "Latin American Ephemera",
+          "file_count_i" => 1
         },
         %{
           "id" => "other-project",
           "title_txtm" => ["similar item"],
           "genre_txt_sort" => ["pamphlets"],
           "subject_txt_sort" => ["folk art", "music"],
-          "ephemera_project_title_s" => "South Asian Ephemera"
+          "ephemera_project_title_s" => "South Asian Ephemera",
+          "file_count_i" => 1
         }
       ]
 
@@ -97,28 +101,39 @@ defmodule DpulCollections.SolrTest do
           "title_txtm" => ["test title 1"],
           "genre_txt_sort" => ["pamphlets"],
           "subject_txt_sort" => ["folk art", "museum exhibits"],
-          "ephemera_project_title_s" => "Latin American Ephemera"
+          "ephemera_project_title_s" => "Latin American Ephemera",
+          "file_count_i" => 1
+        },
+        %{
+          "id" => "similar-project",
+          "title_txtm" => ["similar project"],
+          "resource_type_s" => "collection",
+          "genre_txt_sort" => ["pamphlets"],
+          "subject_txt_sort" => ["folk art", "museum exhibits"]
         },
         %{
           "id" => "similar",
           "title_txtm" => ["similar item"],
           "genre_txt_sort" => ["pamphlets"],
           "subject_txt_sort" => ["folk art", "music"],
-          "ephemera_project_title_s" => "Latin American Ephemera"
+          "ephemera_project_title_s" => "Latin American Ephemera",
+          "file_count_i" => 1
         },
         %{
           "id" => "less-similar",
           "title_txtm" => ["item that's not as similar"],
           "genre_txt_sort" => ["pamphlets"],
           "subject_txt_sort" => ["education", "music"],
-          "ephemera_project_title_s" => "Latin American Ephemera"
+          "ephemera_project_title_s" => "Latin American Ephemera",
+          "file_count_i" => 1
         },
         %{
           "id" => "other-project",
           "title_txtm" => ["similar item"],
           "genre_txt_sort" => ["pamphlets"],
           "subject_txt_sort" => ["folk art", "music"],
-          "ephemera_project_title_s" => "South Asian Ephemera"
+          "ephemera_project_title_s" => "South Asian Ephemera",
+          "file_count_i" => 1
         }
       ]
 

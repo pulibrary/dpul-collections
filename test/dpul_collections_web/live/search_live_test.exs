@@ -248,12 +248,14 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       [
         %{
           id: "nildate",
-          title_txtm: "Document-nildate"
+          title_txtm: "Document-nildate",
+          file_count_i: 1
         },
         %{
           id: "emptydate",
           title_txtm: "Document-emptydate",
-          years_is: []
+          years_is: [],
+          file_count_i: 1
         }
       ],
       active_collection()

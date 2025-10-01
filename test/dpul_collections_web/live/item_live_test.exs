@@ -83,6 +83,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
         %{
           id: "similar-to-1",
           title_txtm: "Similar Item Same Project",
+          file_count_i: 1,
           ephemera_project_title_s: "Test Project",
           genre_txt_sort: ["genre"],
           subject_txt_sort: ["subject"],
@@ -93,10 +94,17 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
         },
         %{
           id: "similar-to-1-diff-project",
+          file_count_i: 1,
           title_txtm: "Similar Item Different Project",
           ephemera_project_title_s: "Different Project",
           genre_txt_sort: ["genre"],
           subject_txt_sort: ["subject"]
+        },
+        %{
+          id: "similar-to-1-is-a-project",
+          title_txtm: "I'm a project",
+          description_txtm: ["This is a test description"],
+          resource_type_s: "collection"
         }
       ],
       active_collection()
