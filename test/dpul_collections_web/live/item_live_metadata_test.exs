@@ -1,11 +1,10 @@
 defmodule DpulCollectionsWeb.ItemLiveMetadataTest do
   use DpulCollectionsWeb.ConnCase
   import Phoenix.LiveViewTest
-  import SolrTestSupport
   alias DpulCollections.Solr
   @endpoint DpulCollectionsWeb.Endpoint
 
-  setup_all do
+  setup do
     Solr.add(
       [
         %{
@@ -49,8 +48,8 @@ defmodule DpulCollectionsWeb.ItemLiveMetadataTest do
       active_collection()
     )
 
-    Solr.commit(active_collection())
-    on_exit(fn -> Solr.delete_all(active_collection()) end)
+    Solr.soft_commit(active_collection())
+    :ok
   end
 
   test "/item/{:id}/metadata displays all the metadata fields and has links for linkable fields",

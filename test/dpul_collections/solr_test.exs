@@ -3,13 +3,7 @@ defmodule DpulCollections.SolrTest do
   use DpulCollections.DataCase
   alias DpulCollections.Item
   alias DpulCollections.Solr
-  import SolrTestSupport
   import ExUnit.CaptureLog
-
-  setup do
-    Solr.delete_all(active_collection())
-    on_exit(fn -> Solr.delete_all(active_collection()) end)
-  end
 
   test ".document_count/0" do
     assert Solr.document_count() == 0
@@ -24,7 +18,7 @@ defmodule DpulCollections.SolrTest do
     }
 
     Solr.add([doc], active_collection())
-    Solr.commit(active_collection())
+    Solr.soft_commit(active_collection())
 
     assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["title_txtm"] ==
              doc["title_txtm"]
@@ -39,7 +33,7 @@ defmodule DpulCollections.SolrTest do
     assert Solr.document_count() == 0
 
     Solr.add([doc], active_collection())
-    Solr.commit(active_collection())
+    Solr.soft_commit(active_collection())
 
     assert Solr.document_count() == 1
   end
@@ -82,7 +76,7 @@ defmodule DpulCollections.SolrTest do
       ]
 
       Solr.add(docs, active_collection())
-      Solr.commit(active_collection())
+      Solr.soft_commit(active_collection())
 
       results =
         Solr.related_items(%Item{id: "reference", project: "Latin American Ephemera"}, %{
@@ -138,7 +132,7 @@ defmodule DpulCollections.SolrTest do
       ]
 
       Solr.add(docs, active_collection())
-      Solr.commit(active_collection())
+      Solr.soft_commit(active_collection())
 
       results =
         Solr.related_items(%Item{id: "reference", project: "Latin American Ephemera"}, %{
@@ -178,7 +172,7 @@ defmodule DpulCollections.SolrTest do
       }
 
       Solr.add([doc1, doc2, doc3], active_collection())
-      Solr.commit(active_collection())
+      Solr.soft_commit(active_collection())
 
       records =
         Solr.recently_updated(
@@ -215,7 +209,7 @@ defmodule DpulCollections.SolrTest do
       }
 
       Solr.add([doc1, doc2, doc3], active_collection())
-      Solr.commit(active_collection())
+      Solr.soft_commit(active_collection())
 
       records = Solr.recently_updated(1) |> Map.get("docs")
 
@@ -225,7 +219,7 @@ defmodule DpulCollections.SolrTest do
 
   test ".random/3 with two different seeds returns different results" do
     Solr.add(SolrTestSupport.mock_solr_documents(), active_collection())
-    Solr.commit(active_collection())
+    Solr.soft_commit(active_collection())
 
     set1 = Solr.random(5, "100")
     set2 = Solr.random(5, "999")
@@ -234,7 +228,7 @@ defmodule DpulCollections.SolrTest do
 
   test ".random/3 with the same seed returns the same results" do
     Solr.add(SolrTestSupport.mock_solr_documents(), active_collection())
-    Solr.commit(active_collection())
+    Solr.soft_commit(active_collection())
 
     set1 = Solr.random(5, "100")
     set2 = Solr.random(5, "100")
@@ -250,7 +244,7 @@ defmodule DpulCollections.SolrTest do
     assert Solr.latest_document() == nil
 
     Solr.add([doc], active_collection())
-    Solr.commit(active_collection())
+    Solr.soft_commit(active_collection())
 
     assert Solr.latest_document()["id"] == doc["id"]
 
@@ -260,7 +254,7 @@ defmodule DpulCollections.SolrTest do
     }
 
     Solr.add([doc_2], active_collection())
-    Solr.commit(active_collection())
+    Solr.soft_commit(active_collection())
 
     assert Solr.latest_document()["id"] == doc_2["id"]
   end
@@ -272,7 +266,7 @@ defmodule DpulCollections.SolrTest do
     }
 
     Solr.add([doc], active_collection())
-    Solr.commit(active_collection())
+    Solr.soft_commit(active_collection())
     assert Solr.document_count() == 1
 
     Solr.delete_all(active_collection())
@@ -291,7 +285,7 @@ defmodule DpulCollections.SolrTest do
     }
 
     Solr.add([doc], active_collection())
-    Solr.commit(active_collection())
+    Solr.soft_commit(active_collection())
 
     assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["slug_s"] ==
              "zilele-vor-mai-niciodată"
@@ -304,7 +298,7 @@ defmodule DpulCollections.SolrTest do
     }
 
     Solr.add([doc], active_collection())
-    Solr.commit(active_collection())
+    Solr.soft_commit(active_collection())
 
     assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["slug_s"] == "this-is-a-title"
   end
@@ -316,7 +310,7 @@ defmodule DpulCollections.SolrTest do
     }
 
     Solr.add([doc], active_collection())
-    Solr.commit(active_collection())
+    Solr.soft_commit(active_collection())
 
     assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["slug_s"] ==
              "玉機微義-五十卷-徐用誠輯-劉純續輯"
@@ -329,7 +323,7 @@ defmodule DpulCollections.SolrTest do
     }
 
     Solr.add([doc], active_collection())
-    Solr.commit(active_collection())
+    Solr.soft_commit(active_collection())
 
     assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["slug_s"] ==
              "ديوان-القاضي-ناصح-الدين-ابي"
@@ -342,7 +336,7 @@ defmodule DpulCollections.SolrTest do
     }
 
     Solr.add([doc], active_collection())
-    Solr.commit(active_collection())
+    Solr.soft_commit(active_collection())
 
     assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["slug_s"] ==
              "паук-семейства-сои"
@@ -355,7 +349,7 @@ defmodule DpulCollections.SolrTest do
     }
 
     Solr.add([doc], active_collection())
-    Solr.commit(active_collection())
+    Solr.soft_commit(active_collection())
 
     assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["slug_s"] ==
              "él-no-responde-mis-mensajes"
@@ -368,7 +362,7 @@ defmodule DpulCollections.SolrTest do
     }
 
     Solr.add([doc], active_collection())
-    Solr.commit(active_collection())
+    Solr.soft_commit(active_collection())
 
     assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["slug_s"] ==
              "cómo-reforma-educacional-beneficia"
@@ -398,7 +392,7 @@ defmodule DpulCollections.SolrTest do
     assert capture_log(fn -> Solr.add([valid_doc, invalid_doc], active_collection()) end) =~
              "error indexing solr document"
 
-    Solr.commit(active_collection())
+    Solr.soft_commit(active_collection())
     assert Solr.find_by_id(valid_doc["id"])["id"] == valid_doc["id"]
   end
 

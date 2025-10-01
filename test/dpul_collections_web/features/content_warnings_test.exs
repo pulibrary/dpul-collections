@@ -1,11 +1,10 @@
 defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
-  use ExUnit.Case
+  use DpulCollections.DataCase
   use PhoenixTest.Playwright.Case
-  import SolrTestSupport
   alias PhoenixTest.Playwright.Frame
   alias DpulCollections.Solr
 
-  setup_all do
+  setup do
     Solr.add(SolrTestSupport.mock_solr_documents(50), active_collection())
 
     Solr.add(
@@ -29,8 +28,8 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
       active_collection()
     )
 
-    Solr.commit(active_collection())
-    on_exit(fn -> Solr.delete_all(active_collection()) end)
+    Solr.soft_commit(active_collection())
+    :ok
   end
 
   describe "when there's a content warning, thumbnails are obfuscated" do
@@ -105,11 +104,7 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
         active_collection()
       )
 
-      Solr.commit(active_collection())
-
-      on_exit(fn ->
-        Solr.delete_batch(["d4292e58-25d7-4247-bf92-0a5e24ec75d2"], active_collection())
-      end)
+      Solr.soft_commit(active_collection())
 
       conn
       |> visit("/item/d4292e58-25d7-4247-bf92-0a5e24ec75d1")

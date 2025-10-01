@@ -3,17 +3,12 @@ defmodule DpulCollections.Workers.CacheMosaicImagesTest do
   alias DpulCollections.Solr
   import SolrTestSupport
 
-  setup do
-    Solr.delete_all(active_collection())
-    on_exit(fn -> Solr.delete_all(active_collection()) end)
-  end
-
   describe ".perform/" do
     test "mosaic images are cached" do
       Oban.Testing.with_testing_mode(:inline, fn ->
         doc = SolrTestSupport.mock_solr_documents(1) |> hd
         Solr.add([doc], active_collection())
-        Solr.commit(active_collection())
+        Solr.soft_commit(active_collection())
 
         Req.Test.stub(DpulCollections.Workers.CacheMosaicImages, fn conn ->
           conn

@@ -1,20 +1,18 @@
 defmodule DpulCollectionsWeb.BrowseTest do
-  use ExUnit.Case
+  use DpulCollections.DataCase
   use PhoenixTest.Playwright.Case
   alias PhoenixTest.Playwright.Frame
   alias DpulCollections.Solr
-  import SolrTestSupport
 
   setup do
     Solr.add(SolrTestSupport.mock_solr_documents(20), active_collection())
-    Solr.commit(active_collection())
-    on_exit(fn -> Solr.delete_all(active_collection()) end)
+    Solr.soft_commit(active_collection())
     {:ok, %{}}
   end
 
   test "browse page is accessible", %{conn: conn} do
     Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
-    Solr.commit(active_collection())
+    Solr.soft_commit(active_collection())
 
     conn
     |> visit("/browse?r=0")

@@ -24,6 +24,7 @@ defmodule DpulCollections.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import DpulCollections.DataCase
+      import SolrTestSupport
     end
   end
 
@@ -32,11 +33,17 @@ defmodule DpulCollections.DataCase do
     :ok
   end
 
+  setup_all do
+    DpulCollections.Solr.delete_all(SolrTestSupport.active_collection())
+    :ok
+  end
+
   @doc """
   Sets up the sandbox based on the test tags.
   """
   def setup_sandbox(tags) do
     pid = Ecto.Adapters.SQL.Sandbox.start_owner!(DpulCollections.Repo, shared: not tags[:async])
+    on_exit(fn -> DpulCollections.Solr.delete_all(SolrTestSupport.active_collection()) end)
     on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
   end
 

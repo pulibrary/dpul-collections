@@ -1,12 +1,7 @@
 defmodule DpulCollectionsWeb.Features.SearchTest do
-  use ExUnit.Case
+  use DpulCollections.DataCase
   use PhoenixTest.Playwright.Case
-  import SolrTestSupport
   alias DpulCollections.Solr
-
-  setup do
-    on_exit(fn -> Solr.delete_all(active_collection()) end)
-  end
 
   test "image counts are shown when total files outnumber visible images", %{conn: conn} do
     Solr.add(
@@ -38,7 +33,7 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
       active_collection()
     )
 
-    Solr.commit(active_collection())
+    Solr.soft_commit(active_collection())
 
     conn
     |> visit("/search?q=")

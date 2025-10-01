@@ -1,9 +1,8 @@
 defmodule DpulCollectionsWeb.IiifContentStateControllerTest do
   use DpulCollectionsWeb.ConnCase
   alias DpulCollections.Solr
-  import SolrTestSupport
 
-  setup_all do
+  setup do
     Solr.add([
       %{
         id: 1,
@@ -29,8 +28,8 @@ defmodule DpulCollectionsWeb.IiifContentStateControllerTest do
       }
     ])
 
-    Solr.commit(active_collection())
-    on_exit(fn -> Solr.delete_all(active_collection()) end)
+    Solr.soft_commit(active_collection())
+    :ok
   end
 
   describe "show/2" do

@@ -1,16 +1,14 @@
 defmodule DpulCollectionsWeb.Features.ItemViewTest do
-  use ExUnit.Case
+  use DpulCollections.DataCase
   use PhoenixTest.Playwright.Case
   alias PhoenixTest.Playwright.Frame
   alias PhoenixTest.Playwright
-  import SolrTestSupport
   alias DpulCollections.Solr
 
   setup do
     sham = Sham.start()
     Solr.add(SolrTestSupport.mock_solr_documents(1, true, sham), active_collection())
-    Solr.commit(active_collection())
-    on_exit(fn -> Solr.delete_all(active_collection()) end)
+    Solr.soft_commit(active_collection())
     {:ok, sham: sham}
   end
 

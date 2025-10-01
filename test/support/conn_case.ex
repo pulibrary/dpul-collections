@@ -28,7 +28,13 @@ defmodule DpulCollectionsWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import DpulCollectionsWeb.ConnCase
+      import SolrTestSupport
     end
+  end
+
+  setup_all do
+    DpulCollections.Solr.delete_all(SolrTestSupport.active_collection())
+    :ok
   end
 
   setup tags do

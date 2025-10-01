@@ -338,7 +338,7 @@ defmodule DpulCollections.Solr do
       json: %{delete: %{query: "*:*"}}
     )
 
-    commit(index)
+    soft_commit(index)
   end
 
   @spec delete_batch(list(), %Index{}) ::

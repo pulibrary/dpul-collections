@@ -1,13 +1,12 @@
 defmodule DpulCollections.Solr.ManagementTest do
   use DpulCollections.DataCase
-  alias DpulCollections.Solr
   alias DpulCollections.Solr.Index
   alias DpulCollections.Solr.Management
-  import SolrTestSupport
 
   setup do
-    Solr.delete_all(active_collection())
-    on_exit(fn -> Solr.delete_all(active_collection()) end)
+    write_index = Index.write_indexes() |> hd
+    Management.delete_collection(%Index{write_index | collection: "new_index1"})
+    :ok
   end
 
   test "create a new collection, set alias, delete a collection" do
