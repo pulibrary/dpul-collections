@@ -124,16 +124,16 @@ defmodule DpulCollectionsWeb.SearchLive do
             <span>{@item_counter}</span>
           </div>
         </div>
-        <div class="grid grid-flow-row auto-rows-max gap-8">
-          <div :for={item <- @items}>
+        <ul class="grid grid-flow-row auto-rows-max gap-8">
+          <li :for={item <- @items}>
             <.search_item
               search_state={@search_state}
               item={item}
               sort_by={@search_state.sort_by}
               show_images={@show_images}
             />
-          </div>
-        </div>
+          </li>
+        </ul>
         <div class="text-center max-w-5xl mx-auto text-lg py-8">
           <.paginator
             page={@search_state.page}
@@ -171,71 +171,73 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def search_item(assigns = %{item: %Collection{}}) do
     ~H"""
-    <article
+    <div
       id={"item-#{@item.id}"}
       class="item card"
-      aria-label={@item.title |> hd}
       data-id={@item.id}
     >
-      <.link navigate={@item.url}>
-        <div class="grid-rows-2 bg-sage-100 grid sm:grid-rows-1 sm:grid-cols-4 gap-0">
-          <div class={[
-            "search-thumbnail",
-            "row-span-2 col-span-1",
-            "bg-search flex justify-center relative",
-            "h-[350px]"
-          ]}>
-            <div class="grid grid-cols-2 w-full gap-2 h-[350px] p-2">
-              <img
-                :for={item <- @item.featured_items}
-                src={"#{item.primary_thumbnail_service_url}/full/!#{item.primary_thumbnail_width},#{item.primary_thumbnail_height}/0/default.jpg"}
-                width={item.primary_thumbnail_width}
-                height={item.primary_thumbnail_height}
-                class="min-h-0 min-w-0 object-cover object-top h-full w-full max-h-full"
-                alt={item.title |> hd}
-              />
-            </div>
+      <div class="grid-rows-2 bg-sage-100 grid sm:grid-rows-1 sm:grid-cols-4 gap-0">
+        <div class={[
+          "search-thumbnail",
+          "row-span-2 col-span-1",
+          "bg-search flex justify-center relative",
+          "h-[350px]"
+        ]}>
+          <div class="grid grid-cols-2 w-full gap-2 h-[350px] p-2">
+            <img
+              :for={item <- @item.featured_items}
+              src={"#{item.primary_thumbnail_service_url}/full/!#{item.primary_thumbnail_width},#{item.primary_thumbnail_height}/0/default.jpg"}
+              width={item.primary_thumbnail_width}
+              height={item.primary_thumbnail_height}
+              class="min-h-0 min-w-0 object-cover object-top h-full w-full max-h-full"
+              alt={item.title |> hd}
+            />
           </div>
-          <div
-            class="metadata sm:col-span-3 sm:col-start-2 flex flex-col gap-2 sm:gap-4 p-4"
-            id={"item-metadata-#{@item.id}"}
-          >
-            <div class="flex flex-wrap flex-row sm:flex-row justify-between">
+        </div>
+        <div
+          class="metadata sm:col-span-3 flex flex-col gap-2 sm:gap-4 p-4"
+          id={"item-metadata-#{@item.id}"}
+        >
+          <div class="flex flex-wrap flex-row sm:flex-row justify-between">
+            <.link
+              navigate={@item.url}
+              class="before:content-[''] before:absolute before:inset-0 before:z-[1]"
+            >
               <h2 dir="auto w-full flex-grow sm:w-fit">
                 {@item.title}
               </h2>
-              <div
-                data-field="genre"
-                class="w-full sm:w-fit flex-grow sm:flex-none text-gray-600 font-bold text-base uppercase sm:text-right"
-              >
-                {@item.genre}
-              </div>
+            </.link>
+            <span
+              data-field="genre"
+              class="w-full sm:w-fit flex-grow sm:flex-none text-gray-600 font-bold text-base uppercase sm:text-right"
+            >
+              {@item.genre}
+            </span>
+          </div>
+          <div :if={@item.tagline} class="text-base">{@item.tagline}</div>
+          <div class="brief-metadata flex flex-auto flex-row gap-4">
+            <div class="flex flex-col pe-4 gap-0 py-0 h-min">
+              <div class="text-lg">{@item.item_count}</div>
+              <div class="text-base">Items</div>
             </div>
-            <div :if={@item.tagline} class="text-base">{@item.tagline}</div>
-            <div class="brief-metadata flex flex-auto flex-row gap-4">
-              <div class="flex flex-col pe-4 gap-0 py-0 h-min">
-                <div class="text-lg">{@item.item_count}</div>
-                <div class="text-base">Items</div>
-              </div>
-              <div class="flex flex-col pe-4 gap-0 py-0 h-min">
-                <div class="text-lg">{length(@item.languages)}</div>
-                <div class="text-base">Languages</div>
-              </div>
-              <div class="flex flex-col pe-4 gap-0 py-0 h-min">
-                <div class="text-lg">{length(@item.geographic_origins)}</div>
-                <div class="text-base">Locations</div>
-              </div>
+            <div class="flex flex-col pe-4 gap-0 py-0 h-min">
+              <div class="text-lg">{length(@item.languages)}</div>
+              <div class="text-base">Languages</div>
+            </div>
+            <div class="flex flex-col pe-4 gap-0 py-0 h-min">
+              <div class="text-lg">{length(@item.geographic_origins)}</div>
+              <div class="text-base">Locations</div>
             </div>
           </div>
         </div>
-      </.link>
-    </article>
+      </div>
+    </div>
     """
   end
 
   def search_item(assigns = %{item: %Item{}}) do
     ~H"""
-    <article
+    <div
       id={"item-#{@item.id}"}
       class="item card"
       aria-label={@item.title |> hd}
@@ -252,54 +254,57 @@ defmodule DpulCollectionsWeb.SearchLive do
           content_warning={@item.content_warning}
         />
       </div>
-      <.link navigate={@item.url}>
-        <div class="grid-rows-2 bg-sage-100 grid sm:grid-rows-1 sm:grid-cols-4 gap-0">
-          <.large_thumb
-            :if={@item.file_count}
-            thumb={elem(hd(thumbnail_service_urls(0, 1, @item)), 0)}
-            thumb_num={0}
-            item={@item}
-            show_images={@show_images}
-          />
-          <div
-            class="metadata sm:col-span-3 sm:col-start-2 flex flex-col gap-2 sm:gap-4 p-4"
-            id={"item-metadata-#{@item.id}"}
-          >
-            <div class="flex flex-wrap flex-row sm:flex-row justify-between">
+      <div class="grid-rows-2 bg-sage-100 grid sm:grid-rows-1 sm:grid-cols-4 gap-0">
+        <.large_thumb
+          :if={@item.file_count}
+          thumb={elem(hd(thumbnail_service_urls(0, 1, @item)), 0)}
+          thumb_num={0}
+          item={@item}
+          show_images={@show_images}
+        />
+        <div
+          class="metadata sm:col-span-3 sm:col-start-2 flex flex-col gap-2 sm:gap-4 p-4"
+          id={"item-metadata-#{@item.id}"}
+        >
+          <div class="flex flex-wrap flex-row sm:flex-row justify-between">
+            <.link
+              navigate={@item.url}
+              class="before:content-[''] before:absolute before:inset-0 before:z-[1]"
+            >
               <h2 dir="auto w-full flex-grow sm:w-fit">
                 {@item.title}
               </h2>
-              <div
-                data-field="genre"
-                class="w-full sm:w-fit flex-grow sm:flex-none text-gray-600 font-bold text-base uppercase sm:text-right"
-              >
-                {@item.genre}
-              </div>
-            </div>
-            <div :if={@sort_by == :recently_updated && @item.updated_at} class="updated-at w-full">
-              {gettext("Added")} {DpulCollectionsWeb.BrowseItem.time_ago(@item.updated_at)}
-            </div>
-            <.search_brief_metadata item={@item} />
-            <div class="small-thumbnails hidden sm:flex flex-row flex-wrap gap-5 max-h-[125px] justify-start overflow-hidden">
-              <.thumbs
-                :for={{thumb, thumb_num} <- thumbnail_service_urls(1, 6, @item)}
-                :if={@item.file_count > 1}
-                thumb={thumb}
-                thumb_num={thumb_num + 1}
-                item={@item}
-                show_images={@show_images}
-              />
-              <div
-                id={"filecount-#{@item.id}"}
-                class="hidden absolute diagonal-rise -right-px bottom-0 bg-sage-100 pr-4 py-2 text-sm"
-              >
-                {@item.file_count} {gettext("Images")}
-              </div>
+            </.link>
+            <span
+              data-field="genre"
+              class="w-full sm:w-fit flex-grow sm:flex-none text-gray-600 font-bold text-base uppercase sm:text-right"
+            >
+              {@item.genre}
+            </span>
+          </div>
+          <div :if={@sort_by == :recently_updated && @item.updated_at} class="updated-at w-full">
+            {gettext("Added")} {DpulCollectionsWeb.BrowseItem.time_ago(@item.updated_at)}
+          </div>
+          <.search_brief_metadata item={@item} />
+          <div class="small-thumbnails hidden sm:flex flex-row flex-wrap gap-5 max-h-[125px] justify-start overflow-hidden">
+            <.thumbs
+              :for={{thumb, thumb_num} <- thumbnail_service_urls(1, 6, @item)}
+              :if={@item.file_count > 1}
+              thumb={thumb}
+              thumb_num={thumb_num + 1}
+              item={@item}
+              show_images={@show_images}
+            />
+            <div
+              id={"filecount-#{@item.id}"}
+              class="hidden absolute diagonal-rise -right-px bottom-0 bg-sage-100 pr-4 py-2 text-sm"
+            >
+              {@item.file_count} {gettext("Images")}
             </div>
           </div>
         </div>
-      </.link>
-    </article>
+      </div>
+    </div>
     """
   end
 
@@ -310,15 +315,15 @@ defmodule DpulCollectionsWeb.SearchLive do
         :if={@item.date}
         class="date flex flex-col gap-0 pe-4 py-0 h-min"
       >
-        <div class="text-lg">{@item.date}</div>
         <div class="text-base">Date</div>
+        <div class="text-lg">{@item.date}</div>
       </div>
       <div
         :if={@item.geographic_origin}
         class="origin flex flex-col gap-0 pe-4 py-0 h-min"
       >
-        <div class="text-lg">{@item.geographic_origin}</div>
         <div class="text-base">Origin</div>
+        <div class="text-lg">{@item.geographic_origin}</div>
       </div>
     </div>
     """

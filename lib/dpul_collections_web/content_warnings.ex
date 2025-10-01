@@ -41,7 +41,7 @@ defmodule DpulCollectionsWeb.ContentWarnings do
     ~H"""
     <div
       id={"show-image-banner-#{@item_id}"}
-      class="show-image-banner absolute top-0 left-0 w-full p-3 bg-white z-1 flex gap-2 align-center"
+      class="show-image-banner absolute top-0 left-0 w-full p-3 bg-white z-2 flex gap-2 align-center"
     >
       <.link
         id={"open-show-image-banner-#{@item_id}"}
