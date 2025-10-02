@@ -557,7 +557,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       first_href =
         html
         |> Floki.parse_document!()
-        |> Floki.find("article > a")
+        |> Floki.find(".card a")
         |> Enum.flat_map(&Floki.attribute(&1, "href"))
         |> Enum.at(0)
 
