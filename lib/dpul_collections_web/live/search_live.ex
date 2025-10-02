@@ -256,7 +256,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       </div>
       <div class="grid-rows-2 bg-sage-100 grid sm:grid-rows-1 sm:grid-cols-4 gap-0">
         <.large_thumb
-          :if={@item.file_count}
+          :if={@item.file_count && length(@item.image_service_urls) > 0}
           thumb={elem(hd(thumbnail_service_urls(0, 1, @item)), 0)}
           thumb_num={0}
           item={@item}

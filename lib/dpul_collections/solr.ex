@@ -112,28 +112,24 @@ defmodule DpulCollections.Solr do
   # Uses the more like this query parser
   # see: https://solr.apache.org/guide/solr/latest/query-guide/morelikethis.html#morelikethis-query-parser
   def related_items(%{id: id}, search_state, rows \\ 5, index \\ Index.read_index()) do
-    fl = Enum.join(@query_field_list, ",")
+    search_state =
+      SearchState.from_params(%{
+        "filter" =>
+          Map.merge(
+            search_state.filter,
+            %{
+              # Similar adds a MoreLikeThis query to the query, to restrict to
+              # items like the given id.
+              "similar" => id,
+              # No collections.
+              "resource_type" => "-collection"
+            }
+          ),
+        "per_page" => "#{rows}"
+      })
+      |> Map.put(:extra_params, mm: 1)
 
-    solr_params = [
-      fl: fl,
-      q: mlt_query(id),
-      rows: rows,
-      indent: false,
-      fq: filter_param(search_state),
-      mm: 1
-    ]
-
-    {:ok, response} =
-      Req.get(
-        query_url(index),
-        params: solr_params
-      )
-
-    response.body["response"]
-  end
-
-  def mlt_query(id) do
-    "{!mlt qf=genre_txt_sort,subject_txt_sort,geo_subject_txt_sort,geographic_origin_txt_sort,language_txt_sort,keywords_txt_sort,description_txtm mintf=1}#{id}"
+    query(search_state, index)
   end
 
   def recently_updated(
@@ -141,42 +137,41 @@ defmodule DpulCollections.Solr do
         search_state \\ SearchState.from_params(%{}),
         index \\ Index.read_index()
       ) do
-    fl = Enum.join(@query_field_list, ",")
+    search_state =
+      SearchState.from_params(%{
+        "filter" =>
+          Map.merge(
+            search_state.filter,
+            %{
+              # No collections.
+              "resource_type" => "-collection",
+              # Require at least one image.
+              "file_count" => %{"from" => 1}
+            }
+          ),
+        "sort_by" => "recently_updated",
+        "per_page" => "#{count}"
+      })
 
-    solr_params = [
-      fl: fl,
-      rows: count,
-      sort: "updated_at_dt desc",
-      fq: "file_count_i:[1 TO *]",
-      fq: filter_param(search_state)
-    ]
-
-    {:ok, response} =
-      Req.get(
-        select_url(index),
-        params: solr_params
-      )
-
-    response.body["response"]
+    query(search_state, index)
   end
 
   def random(count, seed, index \\ Index.read_index()) do
-    fl = Enum.join(@query_field_list, ",")
+    search_state =
+      SearchState.from_params(%{
+        "filter" => %{
+          # No collections.
+          "resource_type" => "-collection",
+          # Require at least one image.
+          "file_count" => %{"from" => 1}
+        },
+        "per_page" => "#{count}"
+      })
+      # We can't have a sort_by here because it's dynamic by seed, so just put
+      # it in directly.
+      |> Map.put(:extra_params, sort: "random_#{seed} desc")
 
-    solr_params = [
-      fl: fl,
-      rows: count,
-      sort: "random_#{seed} desc",
-      fq: "file_count_i:[1 TO *]"
-    ]
-
-    {:ok, response} =
-      Req.get(
-        select_url(index),
-        params: solr_params
-      )
-
-    response.body["response"]
+    query(search_state, index)
   end
 
   defp query_param(search_state) do
@@ -184,7 +179,7 @@ defmodule DpulCollections.Solr do
   end
 
   def mlt_focus(%{filter: %{"similar" => id}}) do
-    mlt_query(id)
+    "{!mlt qf=genre_txt_sort,subject_txt_sort,geo_subject_txt_sort,geographic_origin_txt_sort,language_txt_sort,keywords_txt_sort,description_txtm mintf=1}#{id}"
   end
 
   def mlt_focus(_search_state) do
@@ -341,7 +336,7 @@ defmodule DpulCollections.Solr do
       json: %{delete: %{query: "*:*"}}
     )
 
-    commit(index)
+    soft_commit(index)
   end
 
   @spec delete_batch(list(), %Index{}) ::
@@ -366,10 +361,5 @@ defmodule DpulCollections.Solr do
   defp update_url(index) do
     Index.connect(index)
     |> Req.merge(url: "/solr/#{index.collection}/update")
-  end
-
-  defp query_url(index) do
-    Index.connect(index)
-    |> Req.merge(url: "/solr/#{index.collection}/query")
   end
 end

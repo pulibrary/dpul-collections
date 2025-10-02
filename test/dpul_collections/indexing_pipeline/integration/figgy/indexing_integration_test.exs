@@ -6,13 +6,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
   alias DpulCollections.Solr
   alias DpulCollections.Solr.Index
 
-  import SolrTestSupport
-
-  setup do
-    Solr.delete_all(active_collection())
-    :ok
-  end
-
   def start_indexing_producer(cache_version \\ 0) do
     pid = self()
 
@@ -43,7 +36,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
     MockFiggyIndexingProducer.process(1)
     assert_receive {:ack_done}, 500
 
-    Solr.commit(active_collection())
+    Solr.soft_commit(active_collection())
     assert Solr.document_count() == 1
 
     indexer |> Broadway.stop(:normal)
@@ -87,7 +80,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
     assert_receive {:ack_done}, 500
     indexer |> Broadway.stop(:normal)
     # Ensure there's only one solr document
-    Solr.commit(active_collection())
+    Solr.soft_commit(active_collection())
     assert Solr.document_count() == 1
     # Ensure that entry has the new title
     doc = Solr.find_by_id(marker1.id)
@@ -109,7 +102,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
     indexer = start_indexing_producer()
     MockFiggyIndexingProducer.process(1)
     assert_receive {:ack_done}, 500
-    Solr.commit(active_collection())
+    Solr.soft_commit(active_collection())
     # Make sure the first record that comes back is what we expect
     doc = Solr.find_by_id(marker2.id)
     assert doc["title_ss"] == ["test title 2"]

@@ -28,6 +28,7 @@ defmodule DpulCollectionsWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import DpulCollectionsWeb.ConnCase
+      import SolrTestSupport
     end
   end
 

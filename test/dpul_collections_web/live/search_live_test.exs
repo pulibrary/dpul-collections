@@ -1,14 +1,13 @@
 defmodule DpulCollectionsWeb.SearchLiveTest do
   use DpulCollectionsWeb.ConnCase
   import Phoenix.LiveViewTest
-  import SolrTestSupport
   alias DpulCollections.Solr
   @endpoint DpulCollectionsWeb.Endpoint
 
   setup do
     Solr.add(SolrTestSupport.mock_solr_documents(), active_collection())
-    Solr.commit(active_collection())
-    on_exit(fn -> Solr.delete_all(active_collection()) end)
+    Solr.soft_commit(active_collection())
+    :ok
   end
 
   describe "GET /search" do
@@ -248,18 +247,20 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       [
         %{
           id: "nildate",
-          title_txtm: "Document-nildate"
+          title_txtm: "Document-nildate",
+          file_count_i: 1
         },
         %{
           id: "emptydate",
           title_txtm: "Document-emptydate",
-          years_is: []
+          years_is: [],
+          file_count_i: 1
         }
       ],
       active_collection()
     )
 
-    Solr.commit()
+    Solr.soft_commit()
 
     {:ok, view, _html} = live(conn, "/search?sort_by=date_desc&page=3")
 
@@ -528,7 +529,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       sae_ids
       |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
 
-      Solr.commit()
+      Solr.soft_commit()
       sae_id = "f99af4de-fed4-4baa-82b1-6e857b230306"
 
       {:ok, view, _html} = live(conn, ~p"/search?#{%{q: "South Asian Ephemera"}}")
@@ -552,16 +553,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     test "link to record page", %{conn: conn} do
       {:ok, view, _html} = live(conn, ~p"/search?q=")
 
-      html = render(view)
-
-      first_href =
-        html
-        |> Floki.parse_document!()
-        |> Floki.find(".card a")
-        |> Enum.flat_map(&Floki.attribute(&1, "href"))
-        |> Enum.at(0)
-
-      assert first_href == "/i/document1/item/1"
+      assert view |> element(".card a[href='/i/document1/item/1']") |> has_element? == true
     end
 
     test "show some metadata", %{conn: conn} do
@@ -579,7 +571,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
         active_collection()
       )
 
-      Solr.commit()
+      Solr.soft_commit()
 
       {:ok, view, _html} = live(conn, "/search?q=movement")
 

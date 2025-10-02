@@ -1,7 +1,6 @@
 defmodule DpulCollectionsWeb.BrowseLiveTest do
   use DpulCollectionsWeb.ConnCase
   import Phoenix.LiveViewTest
-  import SolrTestSupport
   alias DpulCollections.Solr
   @endpoint DpulCollectionsWeb.Endpoint
 
@@ -27,7 +26,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
 
   test "browse from random", %{conn: conn} do
     Solr.add(SolrTestSupport.mock_solr_documents(200), active_collection())
-    Solr.commit(active_collection())
+    Solr.soft_commit(active_collection())
 
     {:ok, view, html} = live(conn, "/browse?r=0")
 
@@ -82,7 +81,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
 
   test "focused browse from link", %{conn: conn} do
     Solr.add(SolrTestSupport.mock_solr_documents(90), active_collection())
-    Solr.commit(active_collection())
+    Solr.soft_commit(active_collection())
 
     {:ok, _view, html} = live(conn, "/browse/focus/1")
 
@@ -91,7 +90,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
 
   test "click random button", %{conn: conn} do
     Solr.add(SolrTestSupport.mock_solr_documents(90), active_collection())
-    Solr.commit(active_collection())
+    Solr.soft_commit(active_collection())
 
     {:ok, view, html} = live(conn, "/browse?r=0")
 
@@ -128,7 +127,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
       active_collection()
     )
 
-    Solr.commit(active_collection())
+    Solr.soft_commit(active_collection())
 
     {:ok, view, _html} = live(conn, "/browse?r=0")
 
@@ -148,7 +147,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
       active_collection()
     )
 
-    Solr.commit(active_collection())
+    Solr.soft_commit(active_collection())
 
     {:ok, view, _html} = live(conn, "/browse?r=0")
 
@@ -172,7 +171,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
       active_collection()
     )
 
-    Solr.commit(active_collection())
+    Solr.soft_commit(active_collection())
 
     {:ok, _view, html} = live(conn, "/browse?r=0")
 
@@ -202,7 +201,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
       active_collection()
     )
 
-    Solr.commit(active_collection())
+    Solr.soft_commit(active_collection())
 
     {:ok, _view, html} = live(conn, "/browse?r=0")
 
@@ -252,7 +251,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
         active_collection()
       )
 
-      Solr.commit(active_collection())
+      Solr.soft_commit(active_collection())
 
       {:ok, view, _html} = live(conn, "/browse?r=0")
 

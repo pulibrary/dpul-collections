@@ -1,11 +1,10 @@
 defmodule DpulCollectionsWeb.ItemLiveViewerTest do
   use DpulCollectionsWeb.ConnCase
   import Phoenix.LiveViewTest
-  import SolrTestSupport
   alias DpulCollections.Solr
   @endpoint DpulCollectionsWeb.Endpoint
 
-  setup_all do
+  setup do
     Solr.add(
       [
         %{
@@ -25,8 +24,8 @@ defmodule DpulCollectionsWeb.ItemLiveViewerTest do
       active_collection()
     )
 
-    Solr.commit(active_collection())
-    on_exit(fn -> Solr.delete_all(active_collection()) end)
+    Solr.soft_commit(active_collection())
+    :ok
   end
 
   test "GET /item/{:id}/viewer", %{conn: conn} do

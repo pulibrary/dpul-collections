@@ -5,10 +5,6 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
   alias DpulCollections.Solr
   @endpoint DpulCollectionsWeb.Endpoint
 
-  setup do
-    on_exit(fn -> Solr.delete_all(active_collection()) end)
-  end
-
   test "GET /", %{conn: conn} do
     conn = get(conn, ~p"/")
     assert html_response(conn, 200) =~ "Digital Collections"
@@ -40,7 +36,7 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
   describe "recent item blocks" do
     test "renders 5 cards", %{conn: conn} do
       Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
-      Solr.commit(active_collection())
+      Solr.soft_commit(active_collection())
 
       {:ok, _view, html} = live(conn, "/")
 
@@ -55,7 +51,7 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
 
     test "link to recently updated", %{conn: conn} do
       Solr.add(SolrTestSupport.mock_solr_documents(100), active_collection())
-      Solr.commit(active_collection())
+      Solr.soft_commit(active_collection())
 
       {:ok, view, _} = live(conn, "/")
 
@@ -78,7 +74,7 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
 
     test "recently updated thumbnails link to record", %{conn: conn} do
       Solr.add(SolrTestSupport.mock_solr_documents(3), active_collection())
-      Solr.commit(active_collection())
+      Solr.soft_commit(active_collection())
 
       {:ok, view, _} = live(conn, "/")
 

@@ -1,12 +1,11 @@
 defmodule DpulCollectionsWeb.ItemLiveTest do
   use DpulCollectionsWeb.ConnCase
   import Phoenix.LiveViewTest
-  import SolrTestSupport
   alias DpulCollections.Solr
   alias DpulCollectionsWeb.ItemLive
   @endpoint DpulCollectionsWeb.Endpoint
 
-  setup_all do
+  setup do
     Solr.add(SolrTestSupport.mock_solr_documents())
 
     Solr.add(
@@ -83,6 +82,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
         %{
           id: "similar-to-1",
           title_txtm: "Similar Item Same Project",
+          file_count_i: 1,
           ephemera_project_title_s: "Test Project",
           genre_txt_sort: ["genre"],
           subject_txt_sort: ["subject"],
@@ -93,17 +93,24 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
         },
         %{
           id: "similar-to-1-diff-project",
+          file_count_i: 1,
           title_txtm: "Similar Item Different Project",
           ephemera_project_title_s: "Different Project",
           genre_txt_sort: ["genre"],
           subject_txt_sort: ["subject"]
+        },
+        %{
+          id: "similar-to-1-is-a-project",
+          title_txtm: "I'm a project",
+          description_txtm: ["This is a test description"],
+          resource_type_s: "collection"
         }
       ],
       active_collection()
     )
 
-    Solr.commit(active_collection())
-    on_exit(fn -> Solr.delete_all(active_collection()) end)
+    Solr.soft_commit(active_collection())
+    :ok
   end
 
   describe "url paths and routing" do
@@ -380,7 +387,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
   end
 
   describe "related items" do
-    test "shows some related items", %{conn: conn} do
+    test "shows some related items, but no collections", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
 
       assert view |> has_element?("#related-same-project a", "Similar Item Same Project")

@@ -57,6 +57,10 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
         nil
       )
 
+    # When we run tests with --repeat-until-failure the above attachment fails
+    # on the second run if we haven't detached it.
+    on_exit(fn -> :telemetry.detach("hydration-full-run") end)
+
     AckTracker.reset_count!(tracker_pid)
 
     Enum.each(children, fn child ->

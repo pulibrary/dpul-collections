@@ -4,16 +4,6 @@ defmodule DpulCollections.IndexingPipeline.CoherenceTest do
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Coherence
 
-  import SolrTestSupport
-
-  setup do
-    Solr.delete_all(active_collection())
-
-    on_exit(fn ->
-      Solr.delete_all(active_collection())
-    end)
-  end
-
   test "index_parity?/0 is false when the old index is fresher than the new index" do
     {marker1, marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers(1)
     FiggyTestFixtures.hydration_cache_markers(2)
@@ -94,9 +84,9 @@ defmodule DpulCollections.IndexingPipeline.CoherenceTest do
     }
 
     Solr.add([doc, doc2], old_index)
-    Solr.commit(old_index)
+    Solr.soft_commit(old_index)
     Solr.add([doc], new_index)
-    Solr.commit(new_index)
+    Solr.soft_commit(new_index)
 
     assert Coherence.document_count_report() == [
              %{cache_version: 1, collection: "dpulc1", document_count: 2},

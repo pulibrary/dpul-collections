@@ -94,7 +94,7 @@ defmodule FiggyTestSupport do
     })
 
     Solr.add(solr_doc)
-    Solr.commit()
+    Solr.soft_commit()
 
     solr_doc
   end
@@ -161,7 +161,7 @@ defmodule FiggyTestSupport do
 
   def wait_for_indexed_count(count) do
     index = Solr.Index.read_index()
-    DpulCollections.Solr.commit(index)
+    DpulCollections.Solr.soft_commit(index)
 
     continue =
       if DpulCollections.Solr.document_count() == count do

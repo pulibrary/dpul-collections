@@ -1,14 +1,13 @@
 defmodule DpulCollectionsWeb.Features.SearchBarTest do
-  use ExUnit.Case
+  use DpulCollections.DataCase
   use PhoenixTest.Playwright.Case
   alias PhoenixTest.Playwright
-  import SolrTestSupport
   alias DpulCollections.Solr
 
   setup do
     Solr.add(SolrTestSupport.mock_solr_documents(), active_collection())
-    Solr.commit(active_collection())
-    on_exit(fn -> Solr.delete_all(active_collection()) end)
+    Solr.soft_commit(active_collection())
+    :ok
   end
 
   # Because the search button is only visible when the input is focused, we use
