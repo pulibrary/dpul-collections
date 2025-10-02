@@ -387,7 +387,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
   end
 
   describe "related items" do
-    test "shows some related items", %{conn: conn} do
+    test "shows some related items, but no collections", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
 
       assert view |> has_element?("#related-same-project a", "Similar Item Same Project")

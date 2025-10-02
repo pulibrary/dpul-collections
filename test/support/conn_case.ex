@@ -32,14 +32,6 @@ defmodule DpulCollectionsWeb.ConnCase do
     end
   end
 
-  setup_all tags do
-    if !tags[:async] do
-      DpulCollections.Solr.delete_all(SolrTestSupport.active_collection())
-    end
-
-    :ok
-  end
-
   setup tags do
     DpulCollections.DataCase.setup_sandbox(tags)
     {:ok, conn: Phoenix.ConnTest.build_conn()}

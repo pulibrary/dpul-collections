@@ -33,14 +33,6 @@ defmodule DpulCollections.DataCase do
     :ok
   end
 
-  setup_all tags do
-    if !tags[:async] do
-      DpulCollections.Solr.delete_all(SolrTestSupport.active_collection())
-    end
-
-    :ok
-  end
-
   @doc """
   Sets up the sandbox based on the test tags.
   """

@@ -5,6 +5,9 @@ defmodule DpulCollections.Solr.ManagementTest do
 
   setup do
     write_index = Index.write_indexes() |> hd
+    # If the test below crashes or is force killed `new_index1` might be sitting
+    # around, so delete it beforehand just in case so we have a fresh testing
+    # environment.
     Management.delete_collection(%Index{write_index | collection: "new_index1"})
     :ok
   end

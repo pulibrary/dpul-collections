@@ -118,6 +118,8 @@ defmodule DpulCollections.Solr do
           Map.merge(
             search_state.filter,
             %{
+              # Similar adds a MoreLikeThis query to the query, to restrict to
+              # items like the given id.
               "similar" => id,
               "file_count" => %{"from" => 1}
             }
@@ -127,10 +129,6 @@ defmodule DpulCollections.Solr do
       |> Map.put(:extra_params, mm: 1)
 
     query(search_state, index)
-  end
-
-  def mlt_query(id) do
-    "{!mlt qf=genre_txt_sort,subject_txt_sort,geo_subject_txt_sort,geographic_origin_txt_sort,language_txt_sort,keywords_txt_sort,description_txtm mintf=1}#{id}"
   end
 
   def recently_updated(
@@ -181,7 +179,7 @@ defmodule DpulCollections.Solr do
   end
 
   def mlt_focus(%{filter: %{"similar" => id}}) do
-    mlt_query(id)
+    "{!mlt qf=genre_txt_sort,subject_txt_sort,geo_subject_txt_sort,geographic_origin_txt_sort,language_txt_sort,keywords_txt_sort,description_txtm mintf=1}#{id}"
   end
 
   def mlt_focus(_search_state) do
