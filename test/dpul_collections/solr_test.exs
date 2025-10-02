@@ -185,6 +185,33 @@ defmodule DpulCollections.SolrTest do
       assert Enum.at(records, 0) |> Map.get("id") == doc2["id"]
     end
 
+    test "doesn't return collections" do
+      doc1 = %{
+        "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
+        "title_txtm" => "Doc-1",
+        "file_count_i" => 1,
+        "updated_at_dt" => DateTime.utc_now() |> DateTime.add(-1, :hour) |> DateTime.to_iso8601()
+      }
+
+      doc2 = %{
+        "id" => "26713a31-d615-49fd-adfc-93770b4f66b3",
+        "file_count_i" => 1,
+        "updated_at_dt" =>
+          DateTime.utc_now() |> DateTime.add(-5, :minute) |> DateTime.to_iso8601(),
+        "title_txtm" => "Doc-2",
+        "resource_type_s" => "collection"
+      }
+
+      Solr.add([doc1, doc2], active_collection())
+      Solr.soft_commit(active_collection())
+
+      records = Solr.recently_updated(2) |> Map.get("docs")
+
+      # Only returns one, and it's the non-collection.
+      id = doc1["id"]
+      assert [%{"id" => ^id}] = records
+    end
+
     test "returns most recently updated solr records with images" do
       doc1 = %{
         "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
@@ -215,6 +242,24 @@ defmodule DpulCollections.SolrTest do
 
       assert Enum.at(records, 0) |> Map.get("id") == doc2["id"]
     end
+  end
+
+  test ".random/3 doesn't return ephemera projects" do
+    Solr.add(%{
+      "id" => "similar-project",
+      "title_txtm" => ["similar project"],
+      "resource_type_s" => "collection",
+      "genre_txt_sort" => ["pamphlets"],
+      "subject_txt_sort" => ["folk art", "museum exhibits"],
+      # This never happens right now, but to make sure we're filtering on resource type.
+      "file_count_i" => 1
+    })
+
+    Solr.soft_commit()
+
+    records = Solr.random(5, "100")
+
+    assert %{"docs" => []} = records
   end
 
   test ".random/3 with two different seeds returns different results" do

@@ -137,42 +137,41 @@ defmodule DpulCollections.Solr do
         search_state \\ SearchState.from_params(%{}),
         index \\ Index.read_index()
       ) do
-    fl = Enum.join(@query_field_list, ",")
+    search_state =
+      SearchState.from_params(%{
+        "filter" =>
+          Map.merge(
+            search_state.filter,
+            %{
+              # No collections.
+              "resource_type" => "-collection",
+              # Require at least one image.
+              "file_count" => %{"from" => 1}
+            }
+          ),
+        "sort_by" => "recently_updated",
+        "per_page" => "#{count}"
+      })
 
-    solr_params = [
-      fl: fl,
-      rows: count,
-      sort: "updated_at_dt desc",
-      fq: "file_count_i:[1 TO *]",
-      fq: filter_param(search_state)
-    ]
-
-    {:ok, response} =
-      Req.get(
-        select_url(index),
-        params: solr_params
-      )
-
-    response.body["response"]
+    query(search_state, index)
   end
 
   def random(count, seed, index \\ Index.read_index()) do
-    fl = Enum.join(@query_field_list, ",")
+    search_state =
+      SearchState.from_params(%{
+        "filter" => %{
+          # No collections.
+          "resource_type" => "-collection",
+          # Require at least one image.
+          "file_count" => %{"from" => 1}
+        },
+        "per_page" => "#{count}"
+      })
+      # We can't have a sort_by here because it's dynamic by seed, so just put
+      # it in directly.
+      |> Map.put(:extra_params, sort: "random_#{seed} desc")
 
-    solr_params = [
-      fl: fl,
-      rows: count,
-      sort: "random_#{seed} desc",
-      fq: "file_count_i:[1 TO *]"
-    ]
-
-    {:ok, response} =
-      Req.get(
-        select_url(index),
-        params: solr_params
-      )
-
-    response.body["response"]
+    query(search_state, index)
   end
 
   defp query_param(search_state) do
