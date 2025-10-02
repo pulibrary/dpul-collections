@@ -121,7 +121,8 @@ defmodule DpulCollections.Solr do
               # Similar adds a MoreLikeThis query to the query, to restrict to
               # items like the given id.
               "similar" => id,
-              "file_count" => %{"from" => 1}
+              # No collections.
+              "resource_type" => "-collection"
             }
           ),
         "per_page" => "#{rows}"
