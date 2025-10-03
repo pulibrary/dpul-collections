@@ -192,8 +192,11 @@ defmodule DpulCollectionsWeb.ItemLive do
           >
             {description}
           </div>
-          <div :if={@item.project} class="text-lg font-medium text-dark-text">
+          <div :if={@item.project} class="text-lg font-medium text-dark-text border-l-4 border-s-sage-500 w-full px-4">
+            <div class="text-sage-500 uppercase text-sm font-bold tracking-wide">Collection</div>
             Part of <.filter_link filter_name="project" filter_value={@item.project} />
+            <div class="tagline text-sm font-light py-1">{@item.tagline} | Discover voices of change across South Asia through contemporary pamphlets, 
+            flyers, and documents that capture the region's social movements, politics, and cultural expressions.</div>
           </div>
           <.action_bar class="hidden sm:block" item={@item} />
           <.content_separator />

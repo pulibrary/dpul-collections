@@ -100,6 +100,7 @@ defmodule DpulCollections.Item do
       {gettext("Institutional Information"),
        [
          {:project, gettext("Ephemera Project")},
+         {:tagline, gettext("Tagline")},
          # :collection,
          {:box_number, gettext("Box number")},
          {:folder_number, gettext("Folder number")},
