@@ -337,6 +337,16 @@
   }
 }
 
+.active-contributor {
+  @apply shadow-[0_0_10px_var(--color-sage-600)];
+}
+.contributor-description {
+  @apply hidden;
+}
+.active-contributor-description {
+  @apply block;
+}
+
 .brief-metadata > div:not(:last-child) {
   @apply border-e-1 border-search;
 }

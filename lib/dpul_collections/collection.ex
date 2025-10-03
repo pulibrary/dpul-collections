@@ -57,13 +57,15 @@ defmodule DpulCollections.Collection do
       featured_items: get_featured_items(title |> hd),
       recently_updated: get_recent_items(title |> hd),
       url: "/collections/#{doc["authoritative_slug_s"]}",
-      contributors: get_contributors(doc["authoritative_slug_s"])
+      contributors: get_contributors("lae")
+      # contributors: get_contributors(doc["authoritative_slug_s"])
     }
   end
 
   defp get_contributors("sae") do
     [
       %{
+        id: "aisls",
         logo:
           "https://dpul.princeton.edu/uploads/spotlight/attachment/file/587/AILS_Logo_New.png",
         url: "https://www.aisls.org/",
@@ -73,6 +75,29 @@ defmodule DpulCollections.Collection do
         """
       }
     ]
+  end
+
+  defp get_contributors("lae") do
+    [
+      %{
+        id: "clir",
+        logo:
+          "https://lae.princeton.edu/assets/CLIR_logo-8c0e18a0823a74ff69d628b3cd226d32d7f6c37a85408023de0c1e38f76df6b8.gif",
+        label: "Council on Library and Information Resources",
+        url: "https://www.clir.org/",
+        description:
+          "The Princeton University Digital Archive of Latin American and Caribbean Ephemera is made possible with generous grants from The Council on Library and Information Resources and The Latin Americanist Research Resources Project."
+      },
+      %{
+        id: "larrp",
+        logo:
+          "https://lae.princeton.edu/assets/larrp-53632ea58cc61411babf45947b707dbc0be401f21ef72a5560aa1ed1192f2ac1.gif",
+        label: "Latin Americanist Research Resources Project",
+        url: "http://www.crl.edu/programs/larrp",
+        description:
+          "The Princeton University Digital Archive of Latin American and Caribbean Ephemera is made possible with generous grants from The Council on Library and Information Resources and The Latin Americanist Research Resources Project."
+      }
+    ] ++ get_contributors("sae")
   end
 
   defp get_contributors(_), do: []

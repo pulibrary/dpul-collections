@@ -197,39 +197,45 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         <!-- Contributors -->
         <div
           :if={length(@collection.contributors) > 0}
-          class="w-full home-content-area page-y-padding page-x-padding flex flex-col gap-4"
+          class="w-full home-content-area page-y-padding page-x-padding flex flex-col"
         >
-          <h2 class="heading text-2xl">Contributors</h2>
-          <div class="grid grid-flow-col auto-cols-fr">
+          <h2 class="heading text-2xl pb-4">Contributors</h2>
+          <div class="flex gap-4">
             <div
               :for={contributor <- @collection.contributors}
-              class="item card max-w-[400px]"
+              class="cursor-pointer p-2 contributor-logo max-h-[150px]"
+              phx-click={
+                JS.toggle_class("active-contributor", to: ".contributor-logo.active-contributor")
+                |> JS.toggle_class("active-contributor")
+                |> JS.toggle_class("active-contributor-description",
+                  to: ".contributor-description.active-contributor-description"
+                )
+                |> JS.add_class("active-contributor-description",
+                  to: "#contributor-description-#{contributor.id}"
+                )
+              }
             >
-              <div class="grid-rows-2 bg-sage-100 grid gap-0">
-                <div class={[
-                  "bg-search flex justify-center relative"
-                ]}>
-                  <img
-                    src={contributor.logo}
-                    class="object-fit"
-                    alt=""
-                  />
-                </div>
-                <div class="flex flex-col gap-2 p-4">
-                  <div class="flex flex-wrap flex-row justify-between">
-                    <.link
-                      href={contributor.url}
-                      target="_blank"
-                      class="before:content-[''] before:absolute before:inset-0 before:z-[1]"
-                    >
-                      <h2 dir="auto flex-grow">
-                        {contributor.label}
-                      </h2>
-                    </.link>
-                  </div>
-                  <div class="text-base z-2">{contributor.description |> raw}</div>
-                </div>
+              <div class="pb-2 flex items-center overflow-hidden h-[120px]">
+                <img
+                  src={contributor.logo}
+                  class="object-cover max-h-full max-w-full"
+                  alt=""
+                />
               </div>
+            </div>
+          </div>
+          <div class="bg-search [clip-path:inset(0_-12px_-12px_-12px)] drop-shadow-[0_0_5px_var(--color-sage-600)]">
+            <div
+              :for={contributor <- @collection.contributors}
+              class="contributor-description flex flex-col gap-4 p-4"
+              id={"contributor-description-#{contributor.id}"}
+            >
+              <.link href={contributor.url} target="_blank">
+                <h2 class="heading text-2xl">{contributor.label}</h2>
+              </.link>
+              <span>
+                {contributor.description |> raw}
+              </span>
             </div>
           </div>
         </div>
