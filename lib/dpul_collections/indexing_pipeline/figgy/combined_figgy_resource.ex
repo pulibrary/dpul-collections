@@ -331,6 +331,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
 
       true ->
         IO.inspect(project)
+
         project
         |> elem(1)
         |> get_in(["metadata"])
