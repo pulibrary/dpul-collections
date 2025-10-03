@@ -35,5 +35,9 @@ defmodule DpulCollections.CollectionTest do
     test "returns 1 contributor for SAE" do
       assert length(Collection.get_contributors("sae")) == 1
     end
+
+    test "returns no contributors for unknown slugs" do
+      assert length(Collection.get_contributors("notarealslug")) == 0
+    end
   end
 end
