@@ -194,6 +194,45 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             Explore the latest additions to our growing collection for {@collection.title |> hd}.
           </p>
         </.browse_item_row>
+        <!-- Contributors -->
+        <div
+          :if={length(@collection.contributors) > 0}
+          class="w-full home-content-area page-y-padding page-x-padding flex flex-col gap-4"
+        >
+          <h2 class="heading text-2xl">Contributors</h2>
+          <div class="grid grid-flow-col auto-cols-fr">
+            <div
+              :for={contributor <- @collection.contributors}
+              class="item card max-w-[400px]"
+            >
+              <div class="grid-rows-2 bg-sage-100 grid gap-0">
+                <div class={[
+                  "bg-search flex justify-center relative"
+                ]}>
+                  <img
+                    src={contributor.logo}
+                    class="object-fit"
+                    alt=""
+                  />
+                </div>
+                <div class="flex flex-col gap-2 p-4">
+                  <div class="flex flex-wrap flex-row justify-between">
+                    <.link
+                      href={contributor.url}
+                      target="_blank"
+                      class="before:content-[''] before:absolute before:inset-0 before:z-[1]"
+                    >
+                      <h2 dir="auto flex-grow">
+                        {contributor.label}
+                      </h2>
+                    </.link>
+                  </div>
+                  <div class="text-base z-2">{contributor.description |> raw}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <!-- Browse All Section -->
         <div class="text-dark-text w-full page-y-padding page-x-padding">
           <div class="home-content-area text-center">

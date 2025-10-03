@@ -18,7 +18,8 @@ defmodule DpulCollections.Collection do
     languages: [],
     geographic_origins: [],
     featured_items: [],
-    recently_updated: []
+    recently_updated: [],
+    contributors: []
   ]
 
   def from_slug(slug) do
@@ -55,9 +56,26 @@ defmodule DpulCollections.Collection do
       geographic_origins: summary.geographic_origins,
       featured_items: get_featured_items(title |> hd),
       recently_updated: get_recent_items(title |> hd),
-      url: "/collections/#{doc["authoritative_slug_s"]}"
+      url: "/collections/#{doc["authoritative_slug_s"]}",
+      contributors: get_contributors(doc["authoritative_slug_s"])
     }
   end
+
+  defp get_contributors("sae") do
+    [
+      %{
+        logo:
+          "https://dpul.princeton.edu/uploads/spotlight/attachment/file/587/AILS_Logo_New.png",
+        url: "https://www.aisls.org/",
+        label: "The American Institute for Sri Lankan Studies (AISLS)",
+        description: ~s"""
+        <p>The <a href="https://www.aisls.org/">American Institute for Sri Lankan Studies (AISLS)</a> was established in 1996. It is a member of the <a href="http://www.caorc.org/">Council of American Overseas Research Centers (CAORC)</a> and an affiliate of the <a href="http://www.asian-studies.org/">Association for Asian Studies</a>. PUL has collaborated with the AISLS Colombo office, the University of Edinburgh, and the South Asia Open Archives to digitally host "Dissidents and Activists in Sri Lanka, 1960s to 1990s."</p>
+        """
+      }
+    ]
+  end
+
+  defp get_contributors(_), do: []
 
   defp get_recent_items(label) do
     Solr.recently_updated(5, SearchState.from_params(%{"filter" => %{"project" => label}}))
