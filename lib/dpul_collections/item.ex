@@ -34,6 +34,7 @@ defmodule DpulCollections.Item do
     :primary_thumbnail_width,
     :primary_thumbnail_height,
     :project,
+    :project_id,
     :provenance,
     :publisher,
     :rights_statement,
@@ -100,6 +101,7 @@ defmodule DpulCollections.Item do
       {gettext("Institutional Information"),
        [
          {:project, gettext("Ephemera Project")},
+         {:tagline, gettext("Tagline")},
          # :collection,
          {:box_number, gettext("Box number")},
          {:folder_number, gettext("Folder number")},
@@ -150,6 +152,7 @@ defmodule DpulCollections.Item do
       primary_thumbnail_width: primary_thumbnail_width,
       primary_thumbnail_height: primary_thumbnail_height,
       project: doc["ephemera_project_title_s"],
+      project_id: doc["ephemera_project_id_s"],
       provenance: doc["provenance_txtm"] || [],
       publisher: doc["publisher_txt_sort"] || [],
       rights_statement: doc["rights_statement_txtm"] || [],
