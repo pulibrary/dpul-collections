@@ -81,6 +81,11 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
         "#recent-items .card",
         count: 3
       )
+      # Contributors
+      |> assert_has(
+        "#contributors .card",
+        count: 1
+      )
     end
 
     test "collection page is accessible", %{conn: conn} do

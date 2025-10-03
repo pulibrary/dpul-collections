@@ -198,44 +198,44 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         <div
           :if={length(@collection.contributors) > 0}
           class="w-full home-content-area page-y-padding page-x-padding flex flex-col"
+          id="contributors"
         >
           <h2 class="heading text-2xl pb-4">Contributors</h2>
-          <div class="flex gap-4">
+          <div class="flex flex-wrap gap-4">
             <div
               :for={contributor <- @collection.contributors}
-              class="cursor-pointer p-2 contributor-logo max-h-[150px]"
-              phx-click={
-                JS.toggle_class("active-contributor", to: ".contributor-logo.active-contributor")
-                |> JS.toggle_class("active-contributor")
-                |> JS.toggle_class("active-contributor-description",
-                  to: ".contributor-description.active-contributor-description"
-                )
-                |> JS.add_class("active-contributor-description",
-                  to: "#contributor-description-#{contributor.id}"
-                )
-              }
+              class="item card flex basis-full first:grow lg:basis-[calc(50%-0.5rem)]"
             >
-              <div class="pb-2 flex items-center overflow-hidden h-[120px]">
-                <img
-                  src={contributor.logo}
-                  class="object-cover max-h-full max-w-full"
-                  alt=""
-                />
+              <div class="h-full grid-rows-2 bg-sage-100 grid sm:grid-rows-1 sm:grid-cols-6 gap-0">
+                <div class={[
+                  "search-thumbnail",
+                  "row-span-2 col-span-1",
+                  "bg-search flex items-center justify-center relative",
+                  "h-full"
+                ]}>
+                  <div class="w-full flex items-center overflow-hidden justify-center gap-2 h-[150px] p-2">
+                    <img
+                      src={contributor.logo}
+                      class="object-cover max-w-full max-h-full"
+                      alt=""
+                    />
+                  </div>
+                </div>
+                <div class="metadata sm:col-span-5 flex flex-col gap-2 sm:gap-4 p-4">
+                  <div class="flex flex-wrap flex-row sm:flex-row justify-between">
+                    <.link
+                      href={contributor.url}
+                      target="_blank"
+                      class="before:content-[''] before:absolute before:inset-0 before:z-[1]"
+                    >
+                      <h3 dir="auto" class="w-full font-bold text-xl flex-grow sm:w-fit">
+                        {contributor.label}
+                      </h3>
+                    </.link>
+                  </div>
+                  <div class="text-base">{contributor.description |> raw}</div>
+                </div>
               </div>
-            </div>
-          </div>
-          <div class="bg-search [clip-path:inset(0_-12px_-12px_-12px)] drop-shadow-[0_0_5px_var(--color-sage-600)]">
-            <div
-              :for={contributor <- @collection.contributors}
-              class="contributor-description flex flex-col gap-4 p-4"
-              id={"contributor-description-#{contributor.id}"}
-            >
-              <.link href={contributor.url} target="_blank">
-                <h2 class="heading text-2xl">{contributor.label}</h2>
-              </.link>
-              <span>
-                {contributor.description |> raw}
-              </span>
             </div>
           </div>
         </div>

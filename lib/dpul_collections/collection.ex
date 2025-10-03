@@ -57,12 +57,11 @@ defmodule DpulCollections.Collection do
       featured_items: get_featured_items(title |> hd),
       recently_updated: get_recent_items(title |> hd),
       url: "/collections/#{doc["authoritative_slug_s"]}",
-      contributors: get_contributors("lae")
-      # contributors: get_contributors(doc["authoritative_slug_s"])
+      contributors: get_contributors(doc["authoritative_slug_s"])
     }
   end
 
-  defp get_contributors("sae") do
+  def get_contributors("sae") do
     [
       %{
         id: "aisls",
@@ -77,7 +76,7 @@ defmodule DpulCollections.Collection do
     ]
   end
 
-  defp get_contributors("lae") do
+  def get_contributors("lae") do
     [
       %{
         id: "clir",
@@ -96,11 +95,20 @@ defmodule DpulCollections.Collection do
         url: "http://www.crl.edu/programs/larrp",
         description:
           "The Princeton University Digital Archive of Latin American and Caribbean Ephemera is made possible with generous grants from The Council on Library and Information Resources and The Latin Americanist Research Resources Project."
+      },
+      %{
+        id: "dartmouth",
+        label: "Dartmouth Libraries",
+        logo:
+          "https://lae.princeton.edu/assets/dartmouth_logo-9bfe6d626202b0620c409d67646d7691790d0fbc93e60914cb7ac054b39c8db1.png",
+        url: "https://www.library.dartmouth.edu/",
+        description:
+          "Thanks to Dartmouth Libraries for their contributions to Latin American Ephemera."
       }
-    ] ++ get_contributors("sae")
+    ]
   end
 
-  defp get_contributors(_), do: []
+  def get_contributors(_), do: []
 
   defp get_recent_items(label) do
     Solr.recently_updated(5, SearchState.from_params(%{"filter" => %{"project" => label}}))

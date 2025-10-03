@@ -26,4 +26,14 @@ defmodule DpulCollections.CollectionTest do
       assert length(collection.recently_updated) == 1
     end
   end
+
+  describe ".get_contributors/1" do
+    test "returns 3 contributors for lae" do
+      assert length(Collection.get_contributors("lae")) == 3
+    end
+
+    test "returns 1 contributor for SAE" do
+      assert length(Collection.get_contributors("sae")) == 1
+    end
+  end
 end
