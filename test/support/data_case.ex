@@ -37,14 +37,24 @@ defmodule DpulCollections.DataCase do
   Sets up the sandbox based on the test tags.
   """
   def setup_sandbox(tags) do
-    pid = Ecto.Adapters.SQL.Sandbox.start_owner!(DpulCollections.Repo, shared: not tags[:async])
+    pid =
+      Ecto.Adapters.SQL.Sandbox.start_owner!(DpulCollections.Repo,
+        shared: not tags[:async],
+        sandbox: tags[:sandbox] != false
+      )
+
+    on_exit(fn ->
+      if tags[:sandbox] == false do
+        DpulCollections.Repo.truncate_all()
+      end
+
+      Ecto.Adapters.SQL.Sandbox.stop_owner(pid)
+    end)
 
     if !tags[:async] do
       DpulCollections.Solr.delete_all(SolrTestSupport.active_collection())
       on_exit(fn -> DpulCollections.Solr.delete_all(SolrTestSupport.active_collection()) end)
     end
-
-    on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
   end
 
   @doc """

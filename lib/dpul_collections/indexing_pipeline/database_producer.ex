@@ -31,6 +31,12 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
     # see https://www.erlang.org/doc/apps/erts/erlang.html#process_flag/2
     Process.flag(:trap_exit, true)
 
+    :telemetry.execute(
+      [:database_producer, :init],
+      %{},
+      %{}
+    )
+
     last_queried_marker =
       IndexingPipeline.get_processor_marker!(source_module.processor_marker_key(), cache_version)
 
@@ -146,6 +152,16 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
         cache_location: cache_location,
         cache_record_id: cache_record_id
       })
+
+      :telemetry.execute(
+        [:database_producer, :persisted_marker],
+        %{},
+        %{
+          marker: last_removed_marker,
+          processor_marker_key: state.source_module.processor_marker_key(),
+          cache_version: state.cache_version
+        }
+      )
     end
 
     notify_ack(

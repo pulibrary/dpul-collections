@@ -172,4 +172,47 @@ defmodule FiggyTestSupport do
 
     continue || (:timer.sleep(100) && wait_for_indexed_count(count))
   end
+
+  # Makes every Broadway processor/batch processor check out its own independent
+  # connection to the database, which allows for race conditions to happen we
+  # can test for.
+  def make_broadway_parallel() do
+    events = [
+      [:broadway, :processor, :start],
+      [:broadway, :batch_processor, :start],
+      [:broadway, :processor, :stop],
+      [:broadway, :batch_processor, :stop],
+      [:database_producer, :init]
+    ]
+
+    # Make sure every processor and batch processor gets a unique connection to
+    # allow race conditions to happen.
+    :telemetry.attach_many(
+      {__MODULE__, :broadway_parallel},
+      events,
+      fn event, _, _, _ ->
+        case event do
+          [_, _, :start] ->
+            Ecto.Adapters.SQL.Sandbox.checkout(DpulCollections.Repo,
+              shared: false,
+              sandbox: false
+            )
+
+          [_, _, :stop] ->
+            Ecto.Adapters.SQL.Sandbox.checkin(DpulCollections.Repo)
+
+          [_, :init] ->
+            Ecto.Adapters.SQL.Sandbox.checkout(DpulCollections.Repo,
+              shared: false,
+              sandbox: false
+            )
+        end
+
+        :ok
+      end,
+      %{}
+    )
+
+    ExUnit.Callbacks.on_exit(fn -> :telemetry.detach({__MODULE__, :broadway_parallel}) end)
+  end
 end

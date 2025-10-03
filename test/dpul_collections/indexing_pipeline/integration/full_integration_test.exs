@@ -12,6 +12,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     on_exit(fn -> Solr.delete_all(active_collection()) end)
   end
 
+  @tag sandbox: false
   test "a full pipeline run of all 3 stages, then re-run of each stage" do
     # Start the figgy pipeline in a way that mimics how it is started in
     # dev and prod (slightly simplified)
@@ -37,13 +38,11 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     children = [
       {Figgy.IndexingConsumer,
        cache_version: cache_version, batch_size: 50, solr_index: active_collection()},
-      # We need every transformation cache entry to trigger an index, so we can
-      # track when the acks are done - setting batch size to 1 achieves that.
-      # Otherwise, sometimes it handles two entries for the same ID at the same
-      # time, and the indexing consumer gets one less message.
-      {Figgy.TransformationConsumer, cache_version: cache_version, batch_size: 1},
+      {Figgy.TransformationConsumer, cache_version: cache_version, batch_size: 50},
       {Figgy.HydrationConsumer, cache_version: cache_version, batch_size: 50}
     ]
+
+    FiggyTestSupport.make_broadway_parallel()
 
     test_pid = self()
 
@@ -67,15 +66,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       start_supervised(child)
     end)
 
-    # Transformation cache processes 98 ephemera folders, 3 fake records we
-    # inserted into the hydration cache, then 3 real deletion markers.
-    # Indexing pipeline does 98 ephemera folders, 3 fake records we inserted
-    # into transformation cache, result of 3 fake records we put in hydration
-    # cache, then 3 real deletion markers, then an EphmeraProject
-    index_count =
-      FiggyTestSupport.ephemera_folder_count() + 3 * FiggyTestSupport.deletion_marker_count() + 1
-
-    AckTracker.wait_for_indexed_count(index_count)
+    AckTracker.wait_for_pipeline_finished(tracker_pid)
 
     # The hydrator pulled all ephemera folders, terms, deletion markers and
     # removed the hydration cache markers for the deletion marker deleted resource. It also has the one ephemera project.
@@ -123,11 +114,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     Figgy.IndexingConsumer.start_over!(cache_version)
 
-    # The fake records are out of the caches.
-    index_count =
-      FiggyTestSupport.ephemera_folder_count() + FiggyTestSupport.deletion_marker_count() + 1
-
-    AckTracker.wait_for_indexed_count(index_count)
+    AckTracker.wait_for_indexer(tracker_pid, 1)
 
     latest_document_again = Solr.latest_document()
 
@@ -155,7 +142,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     Figgy.TransformationConsumer.start_over!(cache_version)
 
-    AckTracker.wait_for_indexed_count(index_count)
+    tracker_pid
+    |> AckTracker.wait_for_transformer(1)
+    |> AckTracker.wait_for_indexer(1)
 
     Repo.aggregate(Figgy.TransformationCacheEntry, :count)
 
@@ -179,7 +168,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     Figgy.HydrationConsumer.start_over!(cache_version)
 
-    AckTracker.wait_for_indexed_count(index_count)
+    AckTracker.wait_for_pipeline_finished(tracker_pid)
 
     hydration_entry_again =
       Repo.get_by(Figgy.HydrationCacheEntry, record_id: latest_document["id"])
