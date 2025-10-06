@@ -247,6 +247,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       assert document |> Floki.find(~s{dt:fl-contains("Subject")}) |> Enum.any?()
       assert document |> Floki.find(~s{.metadata *:fl-contains("subject")}) |> Enum.any?()
       assert document |> Floki.find(~s{*:fl-contains("Test Project")}) |> Enum.any?()
+      assert document |> Floki.find(~s{*:fl-contains("This is a tagline.")}) |> Enum.any?()
 
       # Does not display unconfigured fields
       assert document |> Floki.find(~s{dt:fl-contains("Sort title")}) |> Enum.any?() == false
