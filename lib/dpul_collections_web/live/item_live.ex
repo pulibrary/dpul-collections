@@ -203,7 +203,7 @@ defmodule DpulCollectionsWeb.ItemLive do
           >
             <div class="text-sage-500 uppercase text-sm font-bold tracking-wide">Collection</div>
             Part of <.filter_link filter_name="project" filter_value={@item.project} />
-            <div class="tagline text-sm font-light py-1">{@project.tagline}</div>
+            <div :if={@project != nil} class="tagline text-sm font-light py-1">{@project.tagline}</div>
           </div>
           <.action_bar class="hidden sm:block" item={@item} />
           <.content_separator />

@@ -48,6 +48,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           transliterated_title_txtm: ["transliterated title"],
           width_txtm: ["200"],
           ephemera_project_title_s: "Test Project",
+          tagline_txt_sort: "This is a tagline.",
           pdf_url_s:
             "https://figgy.example.com/concern/ephemera_folders/3da68e1c-06af-4d17-8603-fc73152e1ef7/pdf"
         },
