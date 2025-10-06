@@ -194,6 +194,51 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             Explore the latest additions to our growing collection for {@collection.title |> hd}.
           </p>
         </.browse_item_row>
+        <!-- Contributors -->
+        <div
+          :if={length(@collection.contributors) > 0}
+          class="w-full home-content-area page-y-padding page-x-padding flex flex-col"
+          id="contributors"
+        >
+          <h2 class="heading text-2xl pb-4">Contributors</h2>
+          <div class="flex flex-wrap gap-4">
+            <div
+              :for={contributor <- @collection.contributors}
+              class="item card flex basis-full first:grow lg:basis-[calc(50%-0.5rem)]"
+            >
+              <div class="h-full grid-rows-2 bg-sage-100 grid sm:grid-rows-1 sm:grid-cols-6 gap-0">
+                <div class={[
+                  "search-thumbnail",
+                  "row-span-2 col-span-1",
+                  "bg-search flex items-center justify-center relative",
+                  "h-full"
+                ]}>
+                  <div class="w-full flex items-center overflow-hidden justify-center gap-2 h-[150px] p-2">
+                    <img
+                      src={contributor.logo}
+                      class="object-cover max-w-full max-h-full"
+                      alt=""
+                    />
+                  </div>
+                </div>
+                <div class="metadata sm:col-span-5 flex flex-col gap-2 sm:gap-4 p-4">
+                  <div class="flex flex-wrap flex-row sm:flex-row justify-between">
+                    <.link
+                      href={contributor.url}
+                      target="_blank"
+                      class="before:content-[''] before:absolute before:inset-0 before:z-[1]"
+                    >
+                      <h3 dir="auto" class="w-full font-bold text-xl flex-grow sm:w-fit">
+                        {contributor.label}
+                      </h3>
+                    </.link>
+                  </div>
+                  <div class="text-base">{contributor.description |> raw}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <!-- Browse All Section -->
         <div class="text-dark-text w-full page-y-padding page-x-padding">
           <div class="home-content-area text-center">
