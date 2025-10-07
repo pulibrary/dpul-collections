@@ -126,7 +126,7 @@ defmodule DpulCollectionsWeb.SearchLive do
             ]}
           >
             <div class="content-area flex flex-col gap-6">
-              <div id="filter-search-filter" class="flex items-center w-full gap-2" role="search">
+              <div class="flex items-center w-full gap-2" role="search">
                 <input
                   class="border-2 border-dark-text/20 grow h-full placeholder:text-dark-text/40 bg-light-text border-none placeholder:text-xl text-xl placeholder:font-bold w-full"
                   type="text"
