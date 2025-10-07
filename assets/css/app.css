@@ -55,6 +55,8 @@
    * Images/highlights/hyperlinks/boxes/cards/etc.
    */
   --color-accent: var(--color-rust);
+  /* Accent for buttons when you hover over them. */
+  --color-hover-accent: #c5c6b5;
   /* Light accents, currently for tags */
   --color-light-accent: --alpha(var(--color-accent) / 20%);
   --color-search: var(--color-sage-200);
@@ -117,9 +119,12 @@
   @apply pr-[20px] bg-primary border-none hover:bg-[#c5c6b5] flex justify-center items-center w-full h-14;
 }
 
-.btn-arrow {
+@utility arrow {
   clip-path: polygon(0% 0%, 100% 50%, 0% 100%);
-  @apply bg-accent cursor-pointer;
+}
+
+.btn-arrow {
+  @apply arrow bg-accent cursor-pointer;
 }
 
 #search-form:focus-within #search-button {
