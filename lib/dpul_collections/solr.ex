@@ -1,6 +1,7 @@
 defmodule DpulCollections.Solr do
   require Logger
   use DpulCollections.Solr.Constants
+  alias DpulCollections.Item
   alias DpulCollectionsWeb.SearchLive.SearchState
   alias DpulCollections.Solr.Index
 
@@ -96,9 +97,10 @@ defmodule DpulCollections.Solr do
       |> Keyword.merge(search_state[:extra_params] || [])
 
     {:ok, response} =
-      Req.get(
+      Req.post(
         select_url(index),
-        params: solr_params
+        params: solr_params,
+        json: search_state[:json_params] || %{}
       )
 
     response.body
@@ -108,6 +110,50 @@ defmodule DpulCollections.Solr do
   def query(search_state, index \\ Index.read_index()) do
     raw_query(search_state, index)["response"]
   end
+
+  @filter_fields ["project", "genre", "language", "subject"]
+  def search(search_state, index \\ Index.read_index()) do
+    facet_params =
+      @filter_fields
+      |> Enum.map(fn field -> {field, %{field: @filters[field].solr_field, type: "terms"}} end)
+      |> Map.new()
+
+    search_state =
+      search_state
+      |> Map.put(
+        :json_params,
+        %{
+          facet: facet_params
+        }
+      )
+
+    results = raw_query(search_state, index)
+
+    %{
+      results: results["response"]["docs"] |> Enum.map(&Item.from_solr/1),
+      total_items: results["response"]["numFound"],
+      filter_data: results["facets"] |> facets_to_filter_data()
+    }
+  end
+
+  defp facets_to_filter_data(facets = %{}) do
+    facets
+    |> Enum.map(&facet_to_filter/1)
+    |> Enum.filter(fn x -> x != nil end)
+    |> Map.new()
+  end
+
+  defp facet_to_filter({key, %{"buckets" => buckets = [%{"val" => _val, "count" => _count} | _]}}) do
+    {
+      key,
+      %{
+        label: @filters[key].label,
+        data: buckets |> Enum.map(fn %{"val" => val, "count" => count} -> {val, count} end)
+      }
+    }
+  end
+
+  defp facet_to_filter(_), do: nil
 
   # Uses the more like this query parser
   # see: https://solr.apache.org/guide/solr/latest/query-guide/morelikethis.html#morelikethis-query-parser
@@ -221,6 +267,14 @@ defmodule DpulCollections.Solr do
     "+filter(#{solr_field}:#{filter_value})"
   end
 
+  # Inclusion for a list of strings.
+  def generate_filter_query({filter_key, values = [filter_value | _]})
+      when is_binary(filter_value) and filter_key in @filter_keys do
+    solr_field = @filters[filter_key].solr_field
+    filter_strings = values |> Enum.map(fn value -> ~s("#{value}") end)
+    "+filter(#{solr_field}:(#{filter_strings |> Enum.join("OR ")}))"
+  end
+
   # Range filter.
   def generate_filter_query({filter_key, filter_value = %{}}) when filter_key in @filter_keys do
     from = filter_value["from"] || "*"
@@ -228,8 +282,6 @@ defmodule DpulCollections.Solr do
     solr_field = @filters[filter_key].solr_field
     "+filter(#{solr_field}:[#{from} TO #{to}])"
   end
-
-  def generate_filter_query(_), do: nil
 
   defp sort_param(%{sort_by: sort_by}) do
     @valid_sort_by[sort_by][:solr_param]

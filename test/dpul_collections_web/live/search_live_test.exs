@@ -160,6 +160,18 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert document |> Floki.find(".digitized_at") |> Enum.empty?()
   end
 
+  test "can activate filters", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/search?")
+
+    assert view
+           |> element("button", "Genre")
+           |> render_click() =~ "Folders"
+
+    assert view
+           |> element("label", "Folders")
+           |> render_click() =~ "of 5"
+  end
+
   test "renders active filters with states", %{
     conn: conn
   } do

@@ -541,7 +541,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
   attr :type, :string,
     default: "text",
     values: ~w(checkbox color date datetime-local email file month number password
-        range search select tel text textarea time url week)
+        range search select tel text textarea time url week checkgroup)
 
   attr :field, Phoenix.HTML.FormField,
     doc: "a form field struct retrieved from the form, for example: @form[:email]"
@@ -551,6 +551,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
   attr :prompt, :string, default: nil, doc: "the prompt for select inputs"
   attr :options, :list, doc: "the options to pass to Phoenix.HTML.Form.options_for_select/2"
   attr :multiple, :boolean, default: false, doc: "the multiple flag for select inputs"
+  attr :class, :any, default: nil
 
   attr :rest, :global,
     include: ~w(accept autocomplete capture cols disabled form list max maxlength min minlength
@@ -565,6 +566,30 @@ defmodule DpulCollectionsWeb.CoreComponents do
     |> assign_new(:name, fn -> if assigns.multiple, do: field.name <> "[]", else: field.name end)
     |> assign_new(:value, fn -> field.value end)
     |> input()
+  end
+
+  def input(%{type: "checkgroup"} = assigns) do
+    ~H"""
+    <div phx-feedback-for={@name} class={@class}>
+      <label
+        :for={{label, value} <- @options}
+        class="flex items-center gap-2 cursor-pointer"
+      >
+        <input
+          type="checkbox"
+          id={"#{@name}-#{value}"}
+          name={@name}
+          value={value}
+          checked={value in (@value || [])}
+          multiple={true}
+          class="h-[20px] w-[20px]"
+          {@rest}
+        />
+        {label}
+      </label>
+      <.error :for={msg <- @errors}>{msg}</.error>
+    </div>
+    """
   end
 
   # def input(%{type: "checkbox"} = assigns) do
