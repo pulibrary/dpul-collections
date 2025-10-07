@@ -80,6 +80,46 @@ defmodule DpulCollections.SolrTest do
                }
              } = result
     end
+
+    test "returns filter data excluding its own filter" do
+      Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+      Solr.soft_commit(active_collection())
+
+      search_state = SearchState.from_params(%{"filter" => %{"genre" => ["Folders"]}})
+      result = Solr.search(search_state)
+
+      assert %{
+               "genre" => %{
+                 label: "Genre",
+                 data: [
+                   {"Folders", 5},
+                   {"Pamphlets", 5}
+                 ]
+               }
+             } =
+               result.filter_data
+    end
+
+    test "can filter by two facets" do
+      Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+      Solr.soft_commit(active_collection())
+
+      search_state =
+        SearchState.from_params(%{"filter" => %{"subject" => ["Arts"], "genre" => ["Folders"]}})
+
+      result = Solr.search(search_state)
+
+      assert %{
+               "genre" => %{
+                 label: "Genre",
+                 data: [
+                   {"Folders", 5},
+                   {"Pamphlets", 5}
+                 ]
+               }
+             } =
+               result.filter_data
+    end
   end
 
   test ".add/1" do
