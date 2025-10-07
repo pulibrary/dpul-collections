@@ -66,6 +66,25 @@ defmodule DpulCollectionsWeb.SearchLive do
       <section class="content-area">
         <.results_for_keywords_heading keywords={@search_state.q} />
         <div class="my-4 grid grid-flow-row auto-rows-max gap-6">
+          <div class="w-full">
+            <ul class="border-t-1 border-b-1 border-rust/20 w-full grid grid-flow-col auto-cols-auto gap-5">
+              <li class="p-4 h-full text-xl font-semibold not-last:border-r-1 border-rust/20">
+                Collection
+              </li>
+              <li class="p-4 text-xl font-semibold not-last:border-r-1 border-rust/20">
+                Genre
+              </li>
+              <li class="p-4 text-xl font-semibold not-last:border-r-1 border-rust/20">
+                Language
+              </li>
+              <li class="p-4 text-xl font-semibold not-last:border-r-1 border-rust/20">
+                Subject
+              </li>
+              <li class="p-4 text-xl font-semibold not-last:border-r-1 border-rust/20">
+                Year
+              </li>
+            </ul>
+          </div>
           <div id="filters" class="flex flex-wrap gap-4">
             <form
               id="date-filter"
