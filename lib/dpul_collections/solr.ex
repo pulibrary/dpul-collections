@@ -283,6 +283,8 @@ defmodule DpulCollections.Solr do
     "+filter(#{solr_field}:[#{from} TO #{to}])"
   end
 
+  def generate_filter_query(_), do: nil
+
   defp sort_param(%{sort_by: sort_by}) do
     @valid_sort_by[sort_by][:solr_param]
   end
