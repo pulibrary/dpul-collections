@@ -35,6 +35,53 @@ defmodule DpulCollections.SolrTest do
     end
   end
 
+  describe ".search" do
+    test "returns documents in one key" do
+      Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+      Solr.soft_commit(active_collection())
+
+      search_state = SearchState.from_params(%{})
+      result = Solr.search(search_state)
+      assert length(Solr.search(search_state).results) == 10
+      assert result.total_items == 10
+    end
+
+    test "can filter by multiple values, and when it does it's an OR" do
+      Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+      Solr.soft_commit(active_collection())
+
+      search_state =
+        SearchState.from_params(%{"filter" => %{"genre" => ["Folders", "Pamphlets"]}})
+
+      result = Solr.search(search_state)
+      assert result.total_items == 10
+
+      search_state = SearchState.from_params(%{"filter" => %{"genre" => ["Folders"]}})
+      result = Solr.search(search_state)
+      assert result.total_items == 5
+    end
+
+    test "returns filter data" do
+      Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+      Solr.soft_commit(active_collection())
+
+      search_state = SearchState.from_params(%{})
+      result = Solr.search(search_state)
+
+      assert %{
+               filter_data: %{
+                 "genre" => %{
+                   label: "Genre",
+                   data: [
+                     {"Folders", 5},
+                     {"Pamphlets", 5}
+                   ]
+                 }
+               }
+             } = result
+    end
+  end
+
   test ".add/1" do
     doc = %{
       "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
