@@ -5,7 +5,9 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   @endpoint DpulCollectionsWeb.Endpoint
 
   setup do
-    Solr.add(SolrTestSupport.mock_solr_documents(), active_collection())
+    # 99 mock documents because it adds one collection, for a total of 100
+    # search results.
+    Solr.add(SolrTestSupport.mock_solr_documents(99), active_collection())
     Solr.soft_commit(active_collection())
     :ok
   end
@@ -93,7 +95,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       |> Floki.parse_document()
 
     assert document
-           |> Floki.find(~s{a[href="/i/document100/item/100"]})
+           |> Floki.find(~s{a[href="/i/document99/item/99"]})
            |> Enum.any?()
 
     assert document
@@ -110,7 +112,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Enum.any?()
 
     assert document
-           |> Floki.find(~s{a[href="/i/document100/item/100"]})
+           |> Floki.find(~s{a[href="/i/document99/item/99"]})
            |> Enum.empty?()
   end
 
@@ -130,7 +132,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Enum.empty?()
 
     assert document
-           |> Floki.find(~s{a[href="/i/document100/item/100"]})
+           |> Floki.find(~s{a[href="/i/document99/item/99"]})
            |> Enum.any?()
   end
 
@@ -293,7 +295,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Enum.any?()
 
     assert document
-           |> Floki.find(~s{a[href="/i/document100/item/100"]})
+           |> Floki.find(~s{a[href="/i/document99/item/99"]})
            |> Enum.any?()
 
     assert document
