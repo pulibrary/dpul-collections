@@ -115,7 +115,10 @@ defmodule DpulCollections.Solr do
   def search(search_state, index \\ Index.read_index()) do
     facet_params =
       @filter_fields
-      |> Enum.map(fn field -> {field, %{field: @filters[field].solr_field, type: "terms"}} end)
+      |> Enum.map(fn field ->
+        {field,
+         %{domain: %{excludeTags: field}, field: @filters[field].solr_field, type: "terms"}}
+      end)
       |> Map.new()
 
     search_state =
@@ -127,7 +130,7 @@ defmodule DpulCollections.Solr do
         }
       )
 
-    results = raw_query(search_state, index)
+    results = raw_query(search_state, index) |> dbg
 
     %{
       results: results["response"]["docs"] |> Enum.map(&Item.from_solr/1),
