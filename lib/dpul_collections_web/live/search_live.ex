@@ -28,7 +28,9 @@ defmodule DpulCollectionsWeb.SearchLive do
         search_state: search_state,
         item_counter: item_counter(search_state, total_items),
         items: items,
-        total_items: total_items
+        total_items: total_items,
+        expanded_filter: nil,
+        filter_data: mock_facet_data()
       )
 
     {:noreply, socket}
@@ -60,31 +62,179 @@ defmodule DpulCollectionsWeb.SearchLive do
     @filters
   end
 
+  # When we click an expanded one, disable it.
+  def handle_event(
+        "select_filter",
+        %{"filter" => field},
+        socket = %{assigns: %{expanded_filter: field}}
+      ) do
+    dbg(socket)
+    {:noreply, socket |> assign(:expanded_filter, nil)}
+  end
+
+  # When we click a filter that's not selected, disable it.
+  def handle_event("select_filter", %{"filter" => field}, socket) do
+    {:noreply, socket |> assign(:expanded_filter, field)}
+  end
+
+  def filter_button(assigns) do
+    ~H"""
+    <div class={[
+      "group w-full h-full text-xl font-semibold not-last:border-r-1 border-rust/20",
+      "#{@expanded && "expanded"}"
+    ]}>
+      <button
+        phx-click="select_filter"
+        phx-value-filter={@field}
+        class="group-[.expanded]:bg-accent group-[.expanded]:text-light-text p-4 hover:text-dark-text hover:bg-hover-accent cursor-pointer w-full h-full flex items-center text-left"
+      >
+        <span class="grow">
+          {@label}
+        </span>
+        <div class="arrow bg-dark-text group-[.expanded]:bg-light-text group-[.expanded:hover]:bg-dark-text rotate-90 group-[.expanded]:-rotate-90 w-[15px] h-[15px]">
+        </div>
+      </button>
+    </div>
+    """
+  end
+
+  def mock_facet_data do
+    %{
+      "ephemera_project_txt_sort" => %{
+        label: "Collection",
+        data: [
+          "Greek Ephemera": 2738,
+          "LGBTQIA+ Ephemera": 394,
+          "Spanish 15-M Protest Movement Collection": 98,
+          "Guatemala News and Information Bureau Archive (1963-2000)": 634,
+          "Pakistani Film Ephemera Collection": 230,
+          "Pakistani Film Poster Collection": 71,
+          "Latin American Ephemera": 431,
+          "Russian and East European Posters": 220,
+          "South Asian Ephemera": 23,
+          "Another One": 56,
+          "Even More": 32
+        ]
+      },
+      "genre_txt_sort" => %{
+        label: "Genre",
+        data: [
+          Correspondence: 3104,
+          Photographs: 2891,
+          Reports: 2240,
+          Manuscripts: 1976,
+          Periodicals: 1532,
+          Pamphlets: 1289,
+          Books: 1107,
+          "Audio Recordings": 945,
+          Maps: 818,
+          "Government Documents": 760,
+          Speeches: 623,
+          "Video Recordings": 559,
+          Ephemera: 481,
+          "Architectural Drawings": 375,
+          "Sheet Music": 299
+        ]
+      },
+      "language_txt_sort" => %{
+        label: "Language",
+        data: [
+          English: 2548,
+          "Mandarin Chinese": 1892,
+          Spanish: 1673,
+          Hindi: 1245,
+          Arabic: 988,
+          French: 854,
+          Russian: 761,
+          Portuguese: 692,
+          German: 588,
+          Japanese: 512,
+          Bengali: 450,
+          Urdu: 398,
+          Indonesian: 351,
+          Swahili: 276,
+          Turkish: 215
+        ]
+      },
+      "subject_txt_sort" => %{
+        label: "Subject",
+        data: [
+          "Politics and Government": 1166,
+          Religion: 767,
+          "Socioeconomic conditions and development": 527,
+          "Gender and sexuality": 473,
+          "Human and civil rights": 432,
+          "Arts and culture": 372,
+          "Minorities, ethnic and racial groups": 321,
+          Economics: 284,
+          "Environment and Ecology": 262,
+          Education: 254,
+          "Agrarian and rural issues": 249,
+          History: 220,
+          "Children and youth": 182,
+          Health: 168,
+          Labor: 158
+        ]
+      }
+    }
+  end
+
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash}>
-      <section class="content-area">
+      <div class="content-area page-b-padding">
         <.results_for_keywords_heading keywords={@search_state.q} />
-        <div class="my-4 grid grid-flow-row auto-rows-max gap-6">
-          <div class="w-full">
-            <ul class="border-t-1 border-b-1 border-rust/20 w-full grid grid-flow-col auto-cols-auto gap-5">
-              <li class="p-4 h-full text-xl font-semibold not-last:border-r-1 border-rust/20">
-                Collection
-              </li>
-              <li class="p-4 text-xl font-semibold not-last:border-r-1 border-rust/20">
-                Genre
-              </li>
-              <li class="p-4 text-xl font-semibold not-last:border-r-1 border-rust/20">
-                Language
-              </li>
-              <li class="p-4 text-xl font-semibold not-last:border-r-1 border-rust/20">
-                Subject
-              </li>
-              <li class="p-4 text-xl font-semibold not-last:border-r-1 border-rust/20">
-                Year
-              </li>
-            </ul>
+      </div>
+      <section class="w-full">
+        <div class="content-area">
+          <h2 class="text-xl font-normal page-b-padding">Filter your results</h2>
+          <div
+            role="tablist"
+            class={[
+              "border-t-1 border-rust/20 w-full grid grid-flow-col auto-cols-auto",
+              !@expanded_filter && "border-b-1"
+            ]}
+          >
+            <.filter_button
+              :for={{field, filter} <- @filter_data}
+              label={filter.label}
+              field={field}
+              expanded={field == @expanded_filter}
+            />
           </div>
+        </div>
+        <div
+          :for={{field, filter} <- @filter_data}
+          :if={field == @expanded_filter}
+          role="tabpanel"
+          class="bg-secondary page-y-padding border-t-4 border-b-4 border-accent w-full"
+        >
+          <div class="content-area flex flex-col gap-6">
+            <form id="search-form" class="w-full" phx-submit="search">
+              <div id="search-filter" class="flex items-center w-full gap-2" role="search">
+                <input
+                  class="border-2 border-dark-text/20 grow h-full placeholder:text-dark-text/40 bg-light-text border-none placeholder:text-xl text-xl placeholder:font-bold w-full"
+                  type="text"
+                  id="q"
+                  name="q"
+                  placeholder={"#{gettext("Filter by")} #{filter.label}"}
+                  dir="auto"
+                />
+              </div>
+            </form>
+            <div class="flex">
+              <div class="w-full grow grid gap-6 grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]">
+                <label :for={{filter_value, count} <- filter.data} class="flex items-center gap-2">
+                  <input type="checkbox" class="h-[20px] w-[20px]" />
+                  {filter_value} [{count}]
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="content-area">
+        <div class="page-y-padding grid grid-flow-row auto-rows-max gap-6">
           <div id="filters" class="flex flex-wrap gap-4">
             <form
               id="date-filter"
