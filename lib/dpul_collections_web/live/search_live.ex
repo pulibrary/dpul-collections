@@ -224,7 +224,7 @@ defmodule DpulCollectionsWeb.SearchLive do
             </form>
             <div class="flex">
               <div class="w-full grow grid gap-6 grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]">
-                <label :for={{filter_value, count} <- filter.data} class="flex items-center gap-2">
+                <label :for={{filter_value, count} <- filter.data} class="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" class="h-[20px] w-[20px]" />
                   {filter_value} [{count}]
                 </label>
