@@ -48,6 +48,8 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           transliterated_title_txtm: ["transliterated title"],
           width_txtm: ["200"],
           ephemera_project_title_s: "Test Project",
+          ephemera_project_id_s: "similar-to-1-is-a-project",
+          tagline_txt_sort: "This is a tagline.",
           pdf_url_s:
             "https://figgy.example.com/concern/ephemera_folders/3da68e1c-06af-4d17-8603-fc73152e1ef7/pdf"
         },
@@ -102,6 +104,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
         %{
           id: "similar-to-1-is-a-project",
           title_txtm: "I'm a project",
+          tagline_txt_sort: "This is a tagline.",
           description_txtm: ["This is a test description"],
           resource_type_s: "collection"
         }
@@ -246,6 +249,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       assert document |> Floki.find(~s{dt:fl-contains("Subject")}) |> Enum.any?()
       assert document |> Floki.find(~s{.metadata *:fl-contains("subject")}) |> Enum.any?()
       assert document |> Floki.find(~s{*:fl-contains("Test Project")}) |> Enum.any?()
+      assert document |> Floki.find(~s{*:fl-contains("This is a tagline.")}) |> Enum.any?()
 
       # Does not display unconfigured fields
       assert document |> Floki.find(~s{dt:fl-contains("Sort title")}) |> Enum.any?() == false
