@@ -163,9 +163,24 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   test "can activate filters", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/search?")
 
-    assert view
-           |> element("button", "Genre")
-           |> render_click() =~ "Folders"
+    # Clicking the button shows the filters.
+    view
+    |> element("button", "Genre")
+    |> render_click()
+
+    assert view |> has_element?("div.expanded[role='tabpanel']")
+
+    # Clicking the button again hides the filters.
+    view
+    |> element("button", "Genre")
+    |> render_click() =~ "Folders"
+
+    refute view |> has_element?("div.expanded[role='tabpanel']")
+
+    # Let's toggle it back on so we can click the Folders genre.
+    view
+    |> element("button", "Genre")
+    |> render_click()
 
     assert view
            |> element("#filter-form")

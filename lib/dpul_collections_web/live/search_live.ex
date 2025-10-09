@@ -123,6 +123,7 @@ defmodule DpulCollectionsWeb.SearchLive do
             role="tabpanel"
             class={[
               @expanded_filter == field || "hidden",
+              @expanded_filter == field && "expanded",
               "bg-secondary page-y-padding border-t-4 border-b-4 border-accent w-full"
             ]}
           >
