@@ -240,21 +240,41 @@ defmodule DpulCollectionsWeb.SearchLive do
   attr :label, :string, required: true
   attr :search_state, :map, required: true
 
-  def filter(assigns) do
+  def filter(assigns = %{filter_value: filter_values}) when is_list(filter_values) do
+    ~H"""
+    <.filter
+      :for={filter_value <- @filter_value}
+      filter_value={filter_value}
+      field={@field}
+      search_state={@search_state}
+      label={@label}
+    />
+    """
+  end
+
+  def filter(assigns = %{filter_value: filter_value}) when is_binary(filter_value) do
     ~H"""
     <.link
       :if={@filter_value}
       role="button"
-      id={"#{@field}-filter"}
-      navigate={self_route(@search_state, %{filter: %{@field => nil}})}
+      phx-value-filter-value={@filter_value}
+      phx-value-filter={@field}
+      phx-click="remove_filter"
       class="filter focus:border-3 focus:visible:border-accent focus:border-accent py-1 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue font-sans font-bold text-sm btn-primary hover:text-white hover:bg-accent focus:outline-none active:shadow-none"
     >
       {# These labels are defined explicitly in Solr.Constants, but have to be called here because Constants is defined at compile time.}
       {Gettext.gettext(DpulCollectionsWeb.Gettext, @label)}
       <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
-      {@filter_value}
+      <span class="filter-text">
+        {@filter_value}
+      </span>
       <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
     </.link>
+    """
+  end
+
+  def filter(assigns) do
+    ~H"""
     """
   end
 
@@ -581,19 +601,29 @@ defmodule DpulCollectionsWeb.SearchLive do
   end
 
   def handle_event(
-        "checked_filter",
-        params,
-        socket
+        "remove_filter",
+        %{"filter" => filter, "filter-value" => value},
+        socket = %{assigns: %{search_state: search_state}}
       ) do
-    existing_filter = socket.assigns.search_state.filter |> Map.drop(params["_target"] || [])
+    new_state =
+      search_state
+      |> SearchState.remove_filter_value(filter, value)
 
-    params =
-      %{
-        socket.assigns.search_state
-        | filter: Map.merge(existing_filter, params["filter"] || %{})
-      }
+    {:noreply, push_patch(socket, to: ~p"/search?#{new_state}")}
+  end
 
-    socket = push_patch(socket, to: ~p"/search?#{params}")
+  def handle_event(
+        "checked_filter",
+        %{"filter" => selected_filters},
+        socket = %{assigns: %{search_state: search_state}}
+      ) do
+    new_state =
+      selected_filters
+      |> Enum.reduce(search_state, fn {filter, values}, acc_state ->
+        SearchState.set_filter(acc_state, filter, values)
+      end)
+
+    socket = push_patch(socket, to: ~p"/search?#{new_state}")
     {:noreply, socket}
   end
 
