@@ -86,7 +86,7 @@ defmodule DpulCollections.Solr do
         # https://solr.apache.org/docs/9_4_0/core/org/apache/solr/util/doc-files/min-should-match.html
         # If more than 6 clauses, only require 90%. Pulled from our catalog.
         mm: "6<90%",
-        fq: filter_param(search_state),
+        # fq: filter_param(search_state),
         fl: fl,
         sort: sort_param(search_state),
         rows: search_state[:per_page],
@@ -100,7 +100,11 @@ defmodule DpulCollections.Solr do
       Req.post(
         select_url(index),
         params: solr_params,
-        json: search_state[:json_params] || %{}
+        json:
+          %{
+            filter: filter_param(search_state)
+          }
+          |> Map.merge(search_state[:json_params] || %{})
       )
 
     response.body
@@ -117,7 +121,11 @@ defmodule DpulCollections.Solr do
       @filter_fields
       |> Enum.map(fn field ->
         {field,
-         %{domain: %{excludeTags: field}, field: @filters[field].solr_field, type: "terms"}}
+         %{
+           domain: %{excludeTags: "#{field}Filter"},
+           field: @filters[field].solr_field,
+           type: "terms"
+         }}
       end)
       |> Map.new()
 
@@ -130,7 +138,7 @@ defmodule DpulCollections.Solr do
         }
       )
 
-    results = raw_query(search_state, index) |> dbg
+    results = raw_query(search_state, index)
 
     %{
       results: results["response"]["docs"] |> Enum.map(&Item.from_solr/1),
@@ -239,7 +247,6 @@ defmodule DpulCollections.Solr do
     search_state.filter
     |> Enum.map(&generate_filter_query/1)
     |> Enum.reject(&is_nil/1)
-    |> Enum.join(" ")
   end
 
   # Simple string filter
@@ -249,7 +256,7 @@ defmodule DpulCollections.Solr do
   def generate_filter_query({filter_key, "-" <> filter_value})
       when is_binary(filter_value) and filter_key in @filter_keys do
     solr_field = @filters[filter_key].solr_field
-    "-filter(#{solr_field}:\"#{filter_value}\")"
+    "{!tag=#{filter_key}Filter}-#{solr_field}:\"#{filter_value}\""
   end
 
   # Similar filter - display, but handle in the q parameter instead.
@@ -261,13 +268,13 @@ defmodule DpulCollections.Solr do
   def generate_filter_query({filter_key, filter_value})
       when is_binary(filter_value) and filter_key in @filter_keys do
     solr_field = @filters[filter_key].solr_field
-    "+filter(#{solr_field}:\"#{filter_value}\")"
+    "{!tag=#{filter_key}Filter}#{solr_field}:\"#{filter_value}\""
   end
 
   def generate_filter_query({filter_key, filter_value})
       when is_boolean(filter_value) and filter_key in @filter_keys do
     solr_field = @filters[filter_key].solr_field
-    "+filter(#{solr_field}:#{filter_value})"
+    "{!tag=#{filter_key}Filter}#{solr_field}:#{filter_value}"
   end
 
   # Inclusion for a list of strings.
@@ -275,7 +282,7 @@ defmodule DpulCollections.Solr do
       when is_binary(filter_value) and filter_key in @filter_keys do
     solr_field = @filters[filter_key].solr_field
     filter_strings = values |> Enum.map(fn value -> ~s("#{value}") end)
-    "+filter(#{solr_field}:(#{filter_strings |> Enum.join("OR ")}))"
+    "{!tag=#{filter_key}Filter}#{solr_field}:(#{filter_strings |> Enum.join("OR ")})"
   end
 
   # Range filter.
@@ -283,7 +290,7 @@ defmodule DpulCollections.Solr do
     from = filter_value["from"] || "*"
     to = filter_value["to"] || "*"
     solr_field = @filters[filter_key].solr_field
-    "+filter(#{solr_field}:[#{from} TO #{to}])"
+    "{!tag=#{filter_key}Filter}#{solr_field}:[#{from} TO #{to}]"
   end
 
   def generate_filter_query(_), do: nil
