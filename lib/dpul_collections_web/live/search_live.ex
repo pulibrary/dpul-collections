@@ -591,7 +591,6 @@ defmodule DpulCollectionsWeb.SearchLive do
         | filter: Map.merge(existing_filter, params["filter"] || %{})
       }
 
-    dbg(params)
     socket = push_patch(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
   end
