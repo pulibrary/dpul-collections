@@ -188,6 +188,28 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
            |> Floki.text() =~ "of 50"
+
+    assert view
+           |> has_element?(".filter", "Folders")
+
+    # I can pick a second genre to make an OR
+    assert view
+           |> element("#filter-form")
+           |> render_change(%{_target: ["genre"], filter: %{genre: ["Folders", "Pamphlets"]}})
+           |> Floki.parse_document!()
+           |> Floki.find("#item-counter")
+           |> Floki.text() =~ "of 100"
+
+    # Make sure there's two independent pills.
+    assert element(view, ".filter", "Pamphlets") != element(view, ".filter", "Folders")
+
+    # Removing one pill doesn't remove the other
+    assert view
+           |> element(".filter", "Pamphlets")
+           |> render_click()
+           |> Floki.parse_document!()
+           |> Floki.find("#item-counter")
+           |> Floki.text() =~ "of 50"
   end
 
   test "renders active filters with states", %{
