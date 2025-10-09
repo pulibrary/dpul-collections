@@ -168,8 +168,11 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> render_click() =~ "Folders"
 
     assert view
-           |> element("label", "Folders")
-           |> render_click() =~ "of 5"
+           |> element("#filter-form")
+           |> render_change(%{_target: ["genre"], filter: %{genre: ["Folders"]}})
+           |> Floki.parse_document!()
+           |> Floki.find("#item-counter")
+           |> Floki.text() =~ "of 50"
   end
 
   test "renders active filters with states", %{

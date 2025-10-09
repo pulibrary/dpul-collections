@@ -97,6 +97,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       </div>
       <section class="w-full">
         <.form
+          id="filter-form"
           phx-change="checked_filter"
           for={@filter_form}
         >
