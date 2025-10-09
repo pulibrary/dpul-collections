@@ -86,7 +86,6 @@ defmodule DpulCollections.Solr do
         # https://solr.apache.org/docs/9_4_0/core/org/apache/solr/util/doc-files/min-should-match.html
         # If more than 6 clauses, only require 90%. Pulled from our catalog.
         mm: "6<90%",
-        # fq: filter_param(search_state),
         fl: fl,
         sort: sort_param(search_state),
         rows: search_state[:per_page],
@@ -124,7 +123,8 @@ defmodule DpulCollections.Solr do
          %{
            domain: %{excludeTags: "#{field}Filter"},
            field: @filters[field].solr_field,
-           type: "terms"
+           type: "terms",
+           limit: -1
          }}
       end)
       |> Map.new()
