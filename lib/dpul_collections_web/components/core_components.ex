@@ -580,7 +580,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
           id={"#{@name}-#{value}"}
           name={@name}
           value={value}
-          checked={value in (@value || [])}
+          checked={is_list(value) && value in (@value || [])}
           multiple={true}
           class="h-[20px] w-[20px]"
           {@rest}
