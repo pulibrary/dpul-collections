@@ -29,10 +29,6 @@ defmodule DpulCollectionsWeb.SearchLive.SearchState do
     end
   end
 
-  def remove_filter_value(search_state, _, _) do
-    search_state
-  end
-
   def set_filter(search_state, filter, value) do
     search_state
     |> put_in([:filter, filter], value)
