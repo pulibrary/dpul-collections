@@ -24,6 +24,8 @@ defmodule DpulCollectionsWeb.SearchLive.SearchState do
 
       true ->
         search_state
+        |> pop_in([:filter, filter])
+        |> elem(1)
     end
   end
 

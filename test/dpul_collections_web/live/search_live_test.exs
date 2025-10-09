@@ -184,7 +184,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     assert view
            |> element("#filter-form")
-           |> render_change(%{_target: ["genre"], filter: %{genre: ["Folders"]}})
+           |> render_change(%{_target: ["filter", "genre"], filter: %{genre: ["Folders"]}})
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
            |> Floki.text() =~ "of 50"
@@ -195,7 +195,10 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     # I can pick a second genre to make an OR
     assert view
            |> element("#filter-form")
-           |> render_change(%{_target: ["genre"], filter: %{genre: ["Folders", "Pamphlets"]}})
+           |> render_change(%{
+             _target: ["filter", "genre"],
+             filter: %{genre: ["Folders", "Pamphlets"]}
+           })
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
            |> Floki.text() =~ "of 100"
@@ -210,6 +213,14 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
            |> Floki.text() =~ "of 50"
+
+    # I can remove it from the checkbox
+    assert view
+           |> element("#filter-form")
+           |> render_change(%{"_target" => ["filter", "genre"], "filter" => %{"genre" => nil}})
+           |> Floki.parse_document!()
+           |> Floki.find("#item-counter")
+           |> Floki.text() =~ "of 100"
   end
 
   test "renders active filters with states", %{
@@ -222,8 +233,8 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       |> Floki.parse_document()
 
     # Only filters that are in use / active should display
-    assert document |> Floki.find("#year-filter") |> Enum.empty?()
-    assert document |> Floki.find("#genre-filter") |> Enum.empty?()
+    assert document |> Floki.find(".year.filter") |> Enum.empty?()
+    assert document |> Floki.find(".genre.filter") |> Enum.empty?()
 
     {:ok, _view, html} = live(conn, "/search?filter[year][to]=2025")
 
@@ -232,11 +243,11 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       |> Floki.parse_document()
 
     assert document
-           |> Floki.find("#year-filter")
+           |> Floki.find(".year.filter")
            |> Floki.text()
            |> TestUtils.clean_string() == "Year Up to 2025"
 
-    assert document |> Floki.find("#genre-filter") |> Enum.empty?()
+    assert document |> Floki.find(".genre.filter") |> Enum.empty?()
 
     {:ok, _view, html} = live(conn, "/search?filter[year][from]=2020&filter[year][to]=")
 
@@ -245,38 +256,38 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       |> Floki.parse_document()
 
     assert document
-           |> Floki.find("#year-filter")
+           |> Floki.find(".year.filter")
            |> Floki.text()
            |> TestUtils.clean_string() == "Year 2020 to Now"
 
-    assert document |> Floki.find("#genre-filter") |> Enum.empty?()
+    assert document |> Floki.find(".genre.filter") |> Enum.empty?()
 
-    {:ok, _view, html} = live(conn, "/search?filter[genre]=posters")
+    {:ok, _view, html} = live(conn, "/search?filter[genre][]=posters")
 
     {:ok, document} =
       html
       |> Floki.parse_document()
 
-    assert document |> Floki.find("#year-filter") |> Enum.empty?()
+    assert document |> Floki.find(".year.filter") |> Enum.empty?()
 
     assert document
-           |> Floki.find("#genre-filter")
+           |> Floki.find(".genre.filter")
            |> Floki.text()
            |> TestUtils.clean_string() == "Genre posters"
 
-    {:ok, _view, html} = live(conn, "/search?filter[genre]=posters&filter[year][to]=2025")
+    {:ok, _view, html} = live(conn, "/search?filter[genre][]=posters&filter[year][to]=2025")
 
     {:ok, document} =
       html
       |> Floki.parse_document()
 
     assert document
-           |> Floki.find("#year-filter")
+           |> Floki.find(".year.filter")
            |> Floki.text()
            |> TestUtils.clean_string() == "Year Up to 2025"
 
     assert document
-           |> Floki.find("#genre-filter")
+           |> Floki.find(".genre.filter")
            |> Floki.text()
            |> TestUtils.clean_string() == "Genre posters"
   end
@@ -364,7 +375,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   end
 
   test "items can be filtered by similarity", %{conn: conn} do
-    {:ok, _view, html} = live(conn, "/search?filter[similar]=2")
+    {:ok, view, html} = live(conn, "/search?filter[similar]=2")
 
     {:ok, document} =
       html
@@ -372,7 +383,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     # There's a similarity filter.
     assert document
-           |> Floki.find("#similar-filter")
+           |> Floki.find(".filter.similar")
            |> Floki.text()
            |> TestUtils.clean_string() == "Similar To Document-2"
 
@@ -384,6 +395,13 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert document
            |> Floki.find(~s{a[href="/i/document6/item/6"]})
            |> Enum.any?()
+
+    # The filter can be removed.
+    view
+    |> element(".filter", "Similar")
+    |> render_click()
+
+    refute has_element?(view, ".filter.similar")
   end
 
   test "paginator works as expected", %{conn: conn} do

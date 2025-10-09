@@ -260,7 +260,10 @@ defmodule DpulCollectionsWeb.SearchLive do
       phx-value-filter-value={@filter_value}
       phx-value-filter={@field}
       phx-click="remove_filter"
-      class="filter focus:border-3 focus:visible:border-accent focus:border-accent py-1 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue font-sans font-bold text-sm btn-primary hover:text-white hover:bg-accent focus:outline-none active:shadow-none"
+      class={[
+        @field,
+        "filter focus:border-3 focus:visible:border-accent focus:border-accent py-1 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue font-sans font-bold text-sm btn-primary hover:text-white hover:bg-accent focus:outline-none active:shadow-none"
+      ]}
     >
       {# These labels are defined explicitly in Solr.Constants, but have to be called here because Constants is defined at compile time.}
       {Gettext.gettext(DpulCollectionsWeb.Gettext, @label)}
@@ -614,14 +617,12 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def handle_event(
         "checked_filter",
-        %{"filter" => selected_filters},
+        params = %{"_target" => ["filter", filter]},
         socket = %{assigns: %{search_state: search_state}}
       ) do
     new_state =
-      selected_filters
-      |> Enum.reduce(search_state, fn {filter, values}, acc_state ->
-        SearchState.set_filter(acc_state, filter, values)
-      end)
+      search_state
+      |> SearchState.set_filter(filter, get_in(params, ["filter", filter]))
 
     socket = push_patch(socket, to: ~p"/search?#{new_state}")
     {:noreply, socket}

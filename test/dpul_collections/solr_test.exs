@@ -46,6 +46,17 @@ defmodule DpulCollections.SolrTest do
       assert result.total_items == 10
     end
 
+    test "can filter by similarity and another facet" do
+      Solr.add(SolrTestSupport.mock_solr_documents(20), active_collection())
+      Solr.soft_commit(active_collection())
+
+      search_state =
+        SearchState.from_params(%{"filter" => %{"similar" => "2", "genre" => ["Pamphlets"]}})
+
+      result = Solr.search(search_state)
+      assert result.total_items == 10
+    end
+
     test "can filter by multiple values, and when it does it's an OR" do
       Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
       Solr.soft_commit(active_collection())

@@ -119,23 +119,18 @@ defmodule DpulCollections.Solr do
     facet_params =
       @filter_fields
       |> Enum.map(fn field ->
-        {field,
-         %{
-           domain: %{excludeTags: "#{field}Filter"},
-           field: @filters[field].solr_field,
-           type: "terms",
-           limit: -1
-         }}
+        {:"facet.field", "{!ex=#{field}Filter key=#{field}}#{@filters[field].solr_field}"}
       end)
-      |> Map.new()
 
     search_state =
       search_state
       |> Map.put(
-        :json_params,
-        %{
-          facet: facet_params
-        }
+        :extra_params,
+        [
+          facet: true,
+          "facet.limit": -1,
+          "facet.mincount": 1
+        ] ++ facet_params
       )
 
     results = raw_query(search_state, index)
@@ -143,28 +138,17 @@ defmodule DpulCollections.Solr do
     %{
       results: results["response"]["docs"] |> Enum.map(&Item.from_solr/1),
       total_items: results["response"]["numFound"],
-      filter_data: results["facets"] |> facets_to_filter_data()
+      filter_data: facets_to_filter_data(extract_facets(results["facet_counts"]))
     }
   end
 
-  defp facets_to_filter_data(facets = %{}) do
-    facets
-    |> Enum.map(&facet_to_filter/1)
-    |> Enum.filter(fn x -> x != nil end)
+  defp facets_to_filter_data(facet_map) do
+    facet_map
+    |> Enum.map(fn {facet_key, facet_data} ->
+      {facet_key, %{label: @filters[facet_key].label, data: facet_data}}
+    end)
     |> Map.new()
   end
-
-  defp facet_to_filter({key, %{"buckets" => buckets = [%{"val" => _val, "count" => _count} | _]}}) do
-    {
-      key,
-      %{
-        label: @filters[key].label,
-        data: buckets |> Enum.map(fn %{"val" => val, "count" => count} -> {val, count} end)
-      }
-    }
-  end
-
-  defp facet_to_filter(_), do: nil
 
   # Uses the more like this query parser
   # see: https://solr.apache.org/guide/solr/latest/query-guide/morelikethis.html#morelikethis-query-parser
