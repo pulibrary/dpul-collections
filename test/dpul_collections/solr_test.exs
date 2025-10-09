@@ -81,6 +81,26 @@ defmodule DpulCollections.SolrTest do
              } = result
     end
 
+    test "returns more than 10 filter items" do
+      for n <- 1..15 do
+        Solr.add(
+          %{
+            id: "document-#{n}",
+            genre_txt_sort: ["Genre #{n}"],
+            title_txtm: ["Title #{n}"]
+          },
+          active_collection()
+        )
+      end
+
+      Solr.soft_commit(active_collection())
+
+      search_state = SearchState.from_params(%{})
+      result = Solr.search(search_state)
+
+      assert length(result.filter_data["genre"].data) == 15
+    end
+
     test "returns filter data excluding its own filter" do
       Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
       Solr.soft_commit(active_collection())
