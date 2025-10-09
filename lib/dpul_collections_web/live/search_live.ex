@@ -669,15 +669,6 @@ defmodule DpulCollectionsWeb.SearchLive do
     {:noreply, socket}
   end
 
-  def self_route(search_state, extra \\ %{}) do
-    params = Map.merge(search_state, extra, &merger/3) |> Helpers.clean_params()
-    ~p"/search?#{params}"
-  end
-
-  # Merge new filters with existing filters.
-  def merger(:filter, first_filter = %{}, second_filter = %{}),
-    do: Map.merge(first_filter, second_filter)
-
   defp more_pages?(page, per_page, total_items) do
     page * per_page < total_items
   end
