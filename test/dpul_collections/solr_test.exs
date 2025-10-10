@@ -9,19 +9,29 @@ defmodule DpulCollections.SolrTest do
     assert Solr.document_count() == 0
   end
 
-  test ".find_by_id/1" do
-    assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74") == nil
+  describe ".find_by_id/1" do
+    test "returns a solr document" do
+      assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74") == nil
 
-    doc = %{
-      "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
-      "title_txtm" => ["test title 1"]
-    }
+      doc = %{
+        "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
+        "title_txtm" => ["test title 1"]
+      }
 
-    Solr.add([doc], active_collection())
-    Solr.soft_commit(active_collection())
+      Solr.add([doc], active_collection())
+      Solr.soft_commit(active_collection())
 
-    assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["title_txtm"] ==
-             doc["title_txtm"]
+      assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["title_txtm"] ==
+               doc["title_txtm"]
+    end
+
+    test "when called on nil returns nil" do
+      FiggyTestSupport.index_record_id_directly("256df489-089d-473a-b9bb-c3585bb639af")
+      FiggyTestSupport.index_record_id_directly("32b45be9-257e-444c-bc3e-89535146ae2c")
+      Solr.soft_commit()
+
+      assert Solr.find_by_id(nil) == nil
+    end
   end
 
   test ".add/1" do
