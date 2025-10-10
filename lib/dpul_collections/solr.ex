@@ -18,26 +18,19 @@ defmodule DpulCollections.Solr do
 
   def project_summary(label, index \\ Index.read_index()) do
     params =
-      SearchState.from_params(%{
-        "filter" => %{"project" => label},
-        "per_page" => "0"
-      })
-      |> Map.put(
-        :extra_params,
-        facet: true,
-        "facet.field": "language_txt_sort",
-        "facet.field": "geographic_origin_txt_sort",
-        "facet.field": "categories_txt_sort",
-        "facet.field": "genre_txt_sort",
-        "facet.sort": "count",
-        "facet.mincount": 1,
-        "facet.limit": -1
-      )
+      %{"per_page" => "0"}
+      |> SearchState.from_params()
+      |> SearchState.set_filter("project", label)
+      |> SearchState.add_filter_count_fields([
+        "language",
+        "geographic_origin",
+        "category",
+        "genre"
+      ])
 
-    response = raw_query(params, index)
-    # Returns something like
-    # %{ "response" => solr_response, "facets" => %{"solr_field" => [{"Value", count}, {"Value 2", count}]}}
-    response["response"] |> Map.merge(%{"facets" => extract_facets(response["facet_counts"])})
+    params
+    |> raw_query(index)
+    |> to_search_result()
   end
 
   defp extract_facets(%{"facet_fields" => facet_fields}) do
@@ -93,6 +86,7 @@ defmodule DpulCollections.Solr do
         # To do MLT in edismax we have to allow the keyword _query_
         uf: "* _query_"
       ]
+      |> Keyword.merge(filter_count_params(search_state.filter_count_fields))
       |> Keyword.merge(search_state[:extra_params] || [])
 
     {:ok, response} =
@@ -107,6 +101,23 @@ defmodule DpulCollections.Solr do
     response.body
   end
 
+  defp filter_count_params([]), do: []
+
+  defp filter_count_params(filter_count_fields) do
+    facet_params =
+      filter_count_fields
+      |> Enum.map(fn field ->
+        {:"facet.field", "{!ex=#{field}Filter key=#{field}}#{@filters[field].solr_field}"}
+      end)
+
+    [
+      facet: true,
+      "facet.limit": -1,
+      "facet.mincount": 1,
+      "facet.sort": "count"
+    ] ++ facet_params
+  end
+
   @spec query(map(), String.t()) :: map()
   def query(search_state, index \\ Index.read_index()) do
     raw_query(search_state, index)["response"]
@@ -114,30 +125,17 @@ defmodule DpulCollections.Solr do
 
   @filter_fields ["project", "genre", "language", "subject"]
   def search(search_state, index \\ Index.read_index()) do
-    facet_params =
-      @filter_fields
-      |> Enum.map(fn field ->
-        {:"facet.field", "{!ex=#{field}Filter key=#{field}}#{@filters[field].solr_field}"}
-      end)
+    search_state
+    |> SearchState.add_filter_count_fields(@filter_fields)
+    |> raw_query(index)
+    |> to_search_result()
+  end
 
-    search_state =
-      search_state
-      |> Map.put(
-        :extra_params,
-        [
-          facet: true,
-          "facet.limit": -1,
-          "facet.mincount": 1,
-          "facet.sort": "count"
-        ] ++ facet_params
-      )
-
-    results = raw_query(search_state, index)
-
+  defp to_search_result(%{"facet_counts" => facet_counts, "response" => response}) do
     %{
-      results: results["response"]["docs"] |> Enum.map(&Item.from_solr/1),
-      total_items: results["response"]["numFound"],
-      filter_data: facets_to_filter_data(extract_facets(results["facet_counts"]))
+      results: response["docs"] |> Enum.map(&Item.from_solr/1),
+      total_items: response["numFound"],
+      filter_data: facets_to_filter_data(extract_facets(facet_counts))
     }
   end
 
