@@ -236,6 +236,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
       # Parent EphemeraProject
       assert document["ephemera_project_title_s"] == "Woman Life Freedom Movement: Iran 2022"
+      assert document["ephemera_project_id_s"] == "2961c153-54ab-4c6a-b5cd-aa992f4c349b"
 
       # Image URLs
       assert [
@@ -277,6 +278,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       # Parent EphemeraProject
       assert document["ephemera_project_title_s"] ==
                "Guatemala News and Information Bureau Archive (1963-2000)"
+
+      assert document["ephemera_project_id_s"] == "1e63fc3c-f41d-4512-9abc-8ed671a50261"
     end
   end
 
