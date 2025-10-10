@@ -25,12 +25,13 @@ defmodule DpulCollections.SolrTest do
                doc["title_txtm"]
     end
 
-    test "when called on nil returns nil" do
+    test "when called on nil or empty string returns nil" do
       FiggyTestSupport.index_record_id_directly("256df489-089d-473a-b9bb-c3585bb639af")
       FiggyTestSupport.index_record_id_directly("32b45be9-257e-444c-bc3e-89535146ae2c")
       Solr.soft_commit()
 
       assert Solr.find_by_id(nil) == nil
+      assert Solr.find_by_id("") == nil
     end
   end
 
