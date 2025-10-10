@@ -99,11 +99,9 @@ defmodule DpulCollections.Solr do
       Req.post(
         select_url(index),
         params: solr_params,
-        json:
-          %{
-            filter: filter_param(search_state)
-          }
-          |> Map.merge(search_state[:json_params] || %{})
+        json: %{
+          filter: filter_param(search_state)
+        }
       )
 
     response.body
