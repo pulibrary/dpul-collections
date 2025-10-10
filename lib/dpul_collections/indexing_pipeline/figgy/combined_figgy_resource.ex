@@ -56,7 +56,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
       title_txtm: metadata["title"],
       description_txtm: metadata["description"],
       resource_type_s: "collection",
-      tagline_txt_sort: metadata["tagline"],
+      tagline_txtm: metadata["tagline"],
       authoritative_slug_s: Map.get(metadata, "slug", []) |> Enum.at(0),
       genre_txt_sort: ["Digital Collection"]
     }

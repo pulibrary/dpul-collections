@@ -49,7 +49,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           width_txtm: ["200"],
           ephemera_project_title_s: "Test Project",
           ephemera_project_id_s: "similar-to-1-is-a-project",
-          tagline_txt_sort: "This is a tagline.",
+          tagline_txtm: "This is a tagline.",
           pdf_url_s:
             "https://figgy.example.com/concern/ephemera_folders/3da68e1c-06af-4d17-8603-fc73152e1ef7/pdf"
         },
@@ -104,7 +104,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
         %{
           id: "similar-to-1-is-a-project",
           title_txtm: "I'm a project",
-          tagline_txt_sort: "This is a tagline.",
+          tagline_txtm: "This is a tagline.",
           description_txtm: ["This is a test description"],
           resource_type_s: "collection"
         }
