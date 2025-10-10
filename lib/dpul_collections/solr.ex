@@ -254,7 +254,11 @@ defmodule DpulCollections.Solr do
   end
 
   @spec find_by_id(String.t(), String.t()) :: map()
-  def find_by_id(id, index \\ Index.read_index()) do
+  def find_by_id(id, index \\ Index.read_index())
+
+  def find_by_id(nil, _index), do: nil
+
+  def find_by_id(id, index) do
     {:ok, response} =
       Req.get(
         select_url(index),
