@@ -83,6 +83,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
       digitized_at_dt: digitized_date(data),
       display_date_s: format_date(metadata),
       ephemera_project_title_s: Map.get(project_metadata, "title", []) |> Enum.at(0),
+      ephemera_project_id_s: extract_project_id(related_data),
       file_count_i: file_count(metadata),
       folder_number_txtm: get_in(metadata, ["folder_number"]),
       genre_txt_sort: extract_term("genre", metadata, related_data),
@@ -336,6 +337,22 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
   end
 
   defp extract_project_metadata(_), do: %{}
+
+  defp extract_project_id(%{"ancestors" => ancestors}) when map_size(ancestors) > 0 do
+    project = find_ancestor_type(ancestors, "EphemeraProject")
+
+    cond do
+      is_nil(project) ->
+        ""
+
+      true ->
+        project
+        |> elem(1)
+        |> extract_id_from_map()
+    end
+  end
+
+  defp extract_project_id(_), do: %{}
 
   defp find_ancestor_type(ancestors, resource_type) do
     ancestors
