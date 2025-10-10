@@ -257,6 +257,7 @@ defmodule DpulCollections.Solr do
   def find_by_id(id, index \\ Index.read_index())
 
   def find_by_id(nil, _index), do: nil
+  def find_by_id("", _index), do: nil
 
   def find_by_id(id, index) do
     {:ok, response} =
