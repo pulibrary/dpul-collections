@@ -47,7 +47,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> assert_has("div", text: "3 Languages")
       |> assert_has("div", text: "4 Locations")
       # Browse button
-      |> assert_has("a[href='/search?filter[project]=South+Asian+Ephemera']",
+      |> assert_has("a[href='/search?filter[project][]=South+Asian+Ephemera']",
         text: "Browse Collection"
       )
       # Mosaic
@@ -74,7 +74,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> refute_has("li", text: "+0 more")
       # Recently updated more link
       |> assert_has(
-        "a[href='/search?filter[project]=South+Asian+Ephemera&sort_by=recently_updated']"
+        "a[href='/search?filter[project][]=South+Asian+Ephemera&sort_by=recently_updated']"
       )
       # Recently Updated cards
       |> assert_has(

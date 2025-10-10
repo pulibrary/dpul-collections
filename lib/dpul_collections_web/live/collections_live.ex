@@ -102,7 +102,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
 
                 <div class="flex flex-wrap gap-4 pt-4">
                   <.primary_button
-                    href={~p"/search?#{%{filter: %{project: @collection.title |> hd}}}"}
+                    href={~p"/search?#{%{filter: %{project: [@collection.title |> hd]}}}"}
                     class="btn-primary"
                   >
                     Browse Collection
@@ -185,7 +185,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           items={@collection.recently_updated}
           title="Recently Updated Items"
           more_link={
-            ~p"/search?#{%{filter: %{project: @collection.title |> hd}, sort_by: "recently_updated"}}"
+            ~p"/search?#{%{filter: %{project: [@collection.title |> hd]}, sort_by: "recently_updated"}}"
           }
           show_images={[]}
           added?={true}
@@ -247,7 +247,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
               Sort, filter, and search through the entirety of {@collection.title |> hd}.
             </p>
             <.primary_button
-              href={~p"/search?#{%{filter: %{project: @collection.title |> hd}}}"}
+              href={~p"/search?#{%{filter: %{project: [@collection.title |> hd]}}}"}
               class="btn-primary text-lg px-8 py-4"
             >
               Browse All Items

@@ -55,7 +55,7 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   defp build_socket(socket, item, _) do
     related_items =
-      Solr.related_items(item, %{filter: %{"project" => item.project}})["docs"]
+      Solr.related_items(item, %{filter: %{"project" => [item.project]}})["docs"]
       |> Enum.map(&Item.from_solr(&1))
 
     project =
@@ -83,7 +83,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <.link
       class={["filter-link", @class]}
-      href={~p"/search?#{%{filter: %{@filter_name => @filter_value}} |> Helpers.clean_params()}"}
+      href={~p"/search?#{%{filter: %{@filter_name => [@filter_value]}} |> Helpers.clean_params()}"}
       {@rest}
     >
       {@filter_value}
