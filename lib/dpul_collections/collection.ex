@@ -47,7 +47,7 @@ defmodule DpulCollections.Collection do
       id: doc["id"],
       slug: doc["authoritative_slug_s"],
       title: title,
-      tagline: doc |> Map.get("tagline_txt_sort", []) |> Enum.at(0),
+      tagline: doc |> Map.get("tagline_txtm", []) |> Enum.at(0),
       description: doc |> Map.get("description_txtm", []) |> Enum.at(0),
       item_count: summary.count,
       categories: summary.categories,

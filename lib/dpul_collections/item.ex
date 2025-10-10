@@ -166,7 +166,7 @@ defmodule DpulCollections.Item do
       width: doc["width_txtm"] || [],
       metadata_url: generate_metadata_url(id, slug),
       viewer_url: generate_viewer_url(id, slug),
-      tagline: doc["tagline_txt_sort"] || []
+      tagline: doc["tagline_txtm"] || []
     }
   end
 
