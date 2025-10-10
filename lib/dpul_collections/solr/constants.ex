@@ -116,6 +116,11 @@ defmodule DpulCollections.Solr.Constants do
           solr_field: "file_count_i",
           label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "File Count"),
           value_function: &Function.identity/1
+        },
+        "category" => %{
+          solr_field: "categories_txt_sort",
+          label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Categories"),
+          value_function: &Function.identity/1
         }
       }
 

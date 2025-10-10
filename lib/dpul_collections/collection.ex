@@ -120,11 +120,11 @@ defmodule DpulCollections.Collection do
     summary = Solr.project_summary(label)
 
     %{
-      count: summary["numFound"],
-      languages: summary["facets"]["language_txt_sort"],
-      geographic_origins: summary["facets"]["geographic_origin_txt_sort"],
-      categories: summary["facets"]["categories_txt_sort"],
-      genres: summary["facets"]["genre_txt_sort"]
+      count: summary.total_items,
+      languages: summary.filter_data["language"].data,
+      geographic_origins: summary.filter_data["geographic_origin"].data,
+      categories: summary.filter_data["category"].data,
+      genres: summary.filter_data["genre"].data
     }
   end
 end
