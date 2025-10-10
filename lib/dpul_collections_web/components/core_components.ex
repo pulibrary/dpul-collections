@@ -568,6 +568,9 @@ defmodule DpulCollectionsWeb.CoreComponents do
     |> input()
   end
 
+  # Adds support for a group of checkboxes representing options for a field.
+  # See https://fly.io/phoenix-files/making-a-checkboxgroup-input/ for
+  # inspiration.
   def input(%{type: "checkgroup"} = assigns) do
     ~H"""
     <div phx-feedback-for={@name} class={@class}>
