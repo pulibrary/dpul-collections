@@ -161,7 +161,10 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   end
 
   test "can activate filters", %{conn: conn} do
-    {:ok, view, _html} = live(conn, "/search?")
+    {:ok, view, html} = live(conn, "/search?")
+
+    assert html =~ "Filter your 100 results"
+    refute html =~ "Applied Filters"
 
     # Clicking the button shows the filters.
     view

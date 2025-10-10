@@ -96,13 +96,26 @@ defmodule DpulCollectionsWeb.SearchLive do
         <.results_for_keywords_heading keywords={@search_state.q} />
       </div>
       <section class="w-full">
+        <div
+          :if={map_size(@search_state.filter) > 0}
+          class="flex gap-6 items-center content-area page-b-padding flex-wrap"
+        >
+          <h2>Applied Filters:</h2>
+          <.filter
+            :for={{filter_field, filter_settings} <- filter_configuration()}
+            search_state={@search_state}
+            field={filter_field}
+            label={filter_settings.label}
+            filter_value={filter_settings.value_function.(@search_state.filter[filter_field])}
+          />
+        </div>
         <.form
           id="filter-form"
           phx-change="checked_filter"
           for={@filter_form}
         >
           <div class="content-area">
-            <h2 class="text-xl font-normal page-b-padding">Filter your results</h2>
+            <h2 class="text-xl font-normal page-b-padding">Filter your {@total_items} results</h2>
             <div
               role="tablist"
               class={[
@@ -188,17 +201,6 @@ defmodule DpulCollectionsWeb.SearchLive do
                   @search_state.sort_by
                 )}
               </select>
-            </form>
-            <form id="filter-pills" class="md:col-span-2">
-              <div class="select-none flex flex-wrap gap-4">
-                <.filter
-                  :for={{filter_field, filter_settings} <- filter_configuration()}
-                  search_state={@search_state}
-                  field={filter_field}
-                  label={filter_settings.label}
-                  filter_value={filter_settings.value_function.(@search_state.filter[filter_field])}
-                />
-              </div>
             </form>
           </div>
           <div id="item-counter">
