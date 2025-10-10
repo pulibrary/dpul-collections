@@ -365,7 +365,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   end
 
   test "unknown filters are ignored", %{conn: conn} do
-    {:ok, _view, html} = live(conn, "/search?filter[stuff]=1")
+    {:ok, _view, html} = live(conn, "/search?filter[stuff][]=1")
 
     {:ok, document} = Floki.parse_document(html)
 

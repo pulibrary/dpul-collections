@@ -93,6 +93,8 @@ defmodule DpulCollections.Solr do
       Req.post(
         select_url(index),
         params: solr_params,
+        # Send filters in a POST request in case a lot of filters are requested.
+        # This uses the JSON Filter API so we can send an array of filters: https://solr.apache.org/guide/solr/latest/query-guide/json-request-api.html
         json: %{
           filter: filter_param(search_state)
         }
@@ -107,6 +109,9 @@ defmodule DpulCollections.Solr do
     facet_params =
       filter_count_fields
       |> Enum.map(fn field ->
+        # For every field we request counts for exclude any filters we've set on
+        # that field when calculating it (ex=exclude), and name it after our shorthand field (key).
+        # See https://solr.apache.org/guide/solr/latest/query-guide/faceting.html#tagging-and-excluding-filters
         {:"facet.field", "{!ex=#{field}Filter key=#{field}}#{@filters[field].solr_field}"}
       end)
 
@@ -230,6 +235,8 @@ defmodule DpulCollections.Solr do
     |> Enum.reject(&is_nil/1)
   end
 
+  # Generate filter queries for requested filters - we tag them with {!tag} so
+  # we can filter them out when getting filter counts.
   # Simple string filter
   # Negation filter
   def generate_filter_query({_filter_key, "-"}), do: nil
