@@ -55,7 +55,7 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   defp build_socket(socket, item, _) do
     related_items =
-      Solr.related_items(item, %{filter: %{"project" => item.project}})["docs"]
+      Solr.related_items(item, %{filter: %{"project" => [item.project]}})["docs"]
       |> Enum.map(&Item.from_solr(&1))
 
     project =
@@ -83,7 +83,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <.link
       class={["filter-link", @class]}
-      href={~p"/search?#{%{filter: %{@filter_name => @filter_value}} |> Helpers.clean_params()}"}
+      href={~p"/search?#{%{filter: %{@filter_name => [@filter_value]}} |> Helpers.clean_params()}"}
       {@rest}
     >
       {@filter_value}
@@ -220,7 +220,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         id="related-same-project"
         items={@related_items}
         title={gettext("Similar Items in this Collection")}
-        more_link={~p"/search?filter[similar]=#{@item.id}&filter[project]=#{@item.project}"}
+        more_link={~p"/search?filter[similar]=#{@item.id}&filter[project][]=#{@item.project}"}
         show_images={@show_images}
       />
       <.browse_item_row
@@ -229,7 +229,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         items={@different_project_related_items}
         title={gettext("Similar Items outside this Collection")}
         color="bg-background"
-        more_link={~p"/search?filter[similar]=#{@item.id}&filter[project]=-#{@item.project}"}
+        more_link={~p"/search?filter[similar]=#{@item.id}&filter[project][]=-#{@item.project}"}
         show_images={@show_images}
       />
     </div>

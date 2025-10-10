@@ -97,8 +97,10 @@ Hooks.ShowPageCount = {
     this.handleResize = () => {
       if(showPageCount(containerEl, elFilecount) && fileCountLabelEl !== null){
         let lastImg = getLastVisibleImg(containerEl)
-        lastImg.parentElement.append(fileCountLabelEl)
-        fileCountLabelEl.style.display = "block"
+        if(lastImg) {
+          lastImg.parentElement.append(fileCountLabelEl)
+          fileCountLabelEl.style.display = "block"
+        }
       } else {
         fileCountLabelEl.style.display = "none"
       }

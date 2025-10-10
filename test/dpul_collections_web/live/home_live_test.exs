@@ -101,7 +101,7 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
       assert view
              |> element("#main-content a", genre)
              |> render_click() ==
-               {:error, {:redirect, %{to: "/search?filter[genre]=#{genre}"}}}
+               {:error, {:redirect, %{to: "/search?filter[genre][]=#{genre}"}}}
     end)
   end
 

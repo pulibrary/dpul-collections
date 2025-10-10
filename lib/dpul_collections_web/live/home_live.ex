@@ -37,17 +37,17 @@ defmodule DpulCollectionsWeb.HomeLive do
                   "Discover %{photographs}, %{posters}, %{pamphlets}, and more to inspire your research",
                   photographs:
                     callout_link(%{
-                      url: ~p"/search?#{%{filter: %{genre: "photographs"}}}",
+                      url: ~p"/search?#{%{filter: %{genre: ["photographs"]}}}",
                       label: gettext("photographs")
                     }),
                   posters:
                     callout_link(%{
-                      url: ~p"/search?#{%{filter: %{genre: "posters"}}}",
+                      url: ~p"/search?#{%{filter: %{genre: ["posters"]}}}",
                       label: gettext("posters")
                     }),
                   pamphlets:
                     callout_link(%{
-                      url: ~p"/search?#{%{filter: %{genre: "pamphlets"}}}",
+                      url: ~p"/search?#{%{filter: %{genre: ["pamphlets"]}}}",
                       label: gettext("pamphlets")
                     })
                 )
