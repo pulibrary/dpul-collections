@@ -44,3 +44,6 @@ solr/conf/solr_config.zip
 
 # playwright screenshots
 screenshots/*
+
+# ignore coverage data files
+*.coverdata
