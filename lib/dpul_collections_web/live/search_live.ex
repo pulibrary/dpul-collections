@@ -73,7 +73,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       "#{@expanded && "expanded"}"
     ]}>
       <button
-        phx-click="select_filter"
+        phx-click="select_filter_tab"
         type="button"
         role="tab"
         phx-value-filter={@field}
@@ -624,7 +624,7 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   # When we click an expanded one, disable it.
   def handle_event(
-        "select_filter",
+        "select_filter_tab",
         %{"filter" => field},
         socket = %{assigns: %{expanded_filter: field}}
       ) do
@@ -632,7 +632,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   end
 
   # When we click a filter that's not selected, disable it.
-  def handle_event("select_filter", %{"filter" => field}, socket) do
+  def handle_event("select_filter_tab", %{"filter" => field}, socket) do
     {:noreply, socket |> assign(:expanded_filter, field)}
   end
 
