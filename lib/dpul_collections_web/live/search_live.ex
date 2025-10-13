@@ -66,7 +66,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     @filters
   end
 
-  def filter_button(assigns) do
+  def filter_tab(assigns) do
     ~H"""
     <div class={[
       "group w-full h-full text-xl font-semibold not-last:border-r-1 border-rust/20",
@@ -101,7 +101,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           class="flex gap-6 items-center content-area page-b-padding flex-wrap"
         >
           <h2>Applied Filters:</h2>
-          <.filter
+          <.filter_pill
             :for={{filter_field, filter_settings} <- filter_configuration()}
             search_state={@search_state}
             field={filter_field}
@@ -123,7 +123,7 @@ defmodule DpulCollectionsWeb.SearchLive do
                 !@expanded_filter && "border-b-1"
               ]}
             >
-              <.filter_button
+              <.filter_tab
                 :for={{field, filter} <- @filter_data}
                 label={filter.label}
                 field={field}
@@ -234,9 +234,9 @@ defmodule DpulCollectionsWeb.SearchLive do
   attr :label, :string, required: true
   attr :search_state, :map, required: true
 
-  def filter(assigns = %{filter_value: filter_values}) when is_list(filter_values) do
+  def filter_pill(assigns = %{filter_value: filter_values}) when is_list(filter_values) do
     ~H"""
-    <.filter
+    <.filter_pill
       :for={filter_value <- @filter_value}
       filter_value={filter_value}
       field={@field}
@@ -246,7 +246,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     """
   end
 
-  def filter(assigns = %{filter_value: filter_value}) when is_binary(filter_value) do
+  def filter_pill(assigns = %{filter_value: filter_value}) when is_binary(filter_value) do
     ~H"""
     <.link
       :if={@filter_value}
@@ -270,7 +270,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     """
   end
 
-  def filter(assigns) do
+  def filter_pill(assigns) do
     ~H"""
     """
   end
