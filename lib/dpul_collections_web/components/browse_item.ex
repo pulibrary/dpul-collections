@@ -25,7 +25,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
     <div class={["grid-row", @color]} {@rest}>
       <div class={@layout}>
         <div class="page-t-padding" />
-        <h1>{@title}</h1>
+        <h2>{@title}</h2>
         {render_slot(@inner_block)}
         <div class="flex gap-8 justify-stretch page-t-padding">
           <!-- cards -->
