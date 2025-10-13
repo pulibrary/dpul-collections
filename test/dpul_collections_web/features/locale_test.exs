@@ -15,7 +15,8 @@ defmodule DpulCollectionsWeb.Features.LocaleTest do
     |> assert_has("a", text: "Explorar")
     |> Playwright.type("input#q", " ")
     |> click_button("Buscar")
-    |> assert_has("label", text: "filtrar por fecha:")
+    |> click("*[role=tab]", "Year")
+    |> assert_has("label", text: "De")
   end
 
   test "the language dropdown is accessible", %{conn: conn} do
