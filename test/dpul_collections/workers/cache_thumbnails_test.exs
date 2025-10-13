@@ -66,5 +66,16 @@ defmodule DpulCollections.Workers.CacheThumbnailsTest do
         assert state == "completed"
       end)
     end
+
+    test "collection documents do not raise an error" do
+      Oban.Testing.with_testing_mode(:inline, fn ->
+        doc = %{id: 1, resource_type_s: "collection"}
+
+        {:ok, %Oban.Job{state: state}} =
+          Oban.insert(DpulCollections.Workers.CacheThumbnails.new(%{solr_document: doc}))
+
+        assert state == "completed"
+      end)
+    end
   end
 end
