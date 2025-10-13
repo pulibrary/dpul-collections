@@ -267,6 +267,7 @@ defmodule DpulCollectionsWeb.ItemLive do
           <h2 class="sm:border-t-1 border-accent py-3">{gettext("Item Description")}</h2>
           <p
             :for={description <- @item.description}
+            class="not-last:pb-4"
             dir="auto"
           >
             {description}
