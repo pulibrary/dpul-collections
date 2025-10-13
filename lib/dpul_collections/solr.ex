@@ -1,9 +1,9 @@
 defmodule DpulCollections.Solr do
   require Logger
   use DpulCollections.Solr.Constants
-  alias DpulCollections.Item
   alias DpulCollectionsWeb.SearchLive.SearchState
   alias DpulCollections.Solr.Index
+  alias DpulCollections.SearchResult
 
   @spec document_count(%Index{}) :: integer()
   def document_count(index \\ Index.read_index()) do
@@ -31,21 +31,6 @@ defmodule DpulCollections.Solr do
     params
     |> raw_query(index)
     |> to_search_result()
-  end
-
-  defp extract_facets(%{"facet_fields" => facet_fields}) do
-    # facet_fields looks like %{"field" => ["Label", count]}
-    facet_fields
-    |> Enum.map(fn {field, field_values} ->
-      {
-        field,
-        # Split into pairs
-        Enum.chunk_every(field_values, 2)
-        # Convert sub-lists to tuples
-        |> Enum.map(&List.to_tuple/1)
-      }
-    end)
-    |> Map.new()
   end
 
   @query_field_list [
@@ -136,20 +121,8 @@ defmodule DpulCollections.Solr do
     |> to_search_result()
   end
 
-  defp to_search_result(%{"facet_counts" => facet_counts, "response" => response}) do
-    %{
-      results: response["docs"] |> Enum.map(&Item.from_solr/1),
-      total_items: response["numFound"],
-      filter_data: facets_to_filter_data(extract_facets(facet_counts))
-    }
-  end
-
-  defp facets_to_filter_data(facet_map) do
-    facet_map
-    |> Enum.map(fn {facet_key, facet_data} ->
-      {facet_key, %{label: @filters[facet_key].label, data: facet_data}}
-    end)
-    |> Map.new()
+  defp to_search_result(solr_response) do
+    SearchResult.from_solr(solr_response)
   end
 
   # Uses the more like this query parser
