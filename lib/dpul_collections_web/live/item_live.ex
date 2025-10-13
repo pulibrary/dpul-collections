@@ -265,7 +265,12 @@ defmodule DpulCollectionsWeb.ItemLive do
       <div class="main-content header-x-padding page-y-padding">
         <div class="py-6">
           <h2 class="sm:border-t-1 border-accent py-3">{gettext("Item Description")}</h2>
-          <p dir="auto">{@item.description}</p>
+          <p
+            :for={description <- @item.description}
+            dir="auto"
+          >
+            {description}
+          </p>
         </div>
         <div
           :for={{category, fields} <- DpulCollections.Item.metadata_detail_categories()}
