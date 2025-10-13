@@ -233,6 +233,17 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     |> render_click()
 
     assert view |> has_element?(".expanded input[name='filter[year][from]']")
+
+    # Typing into a year filter doesn't do anything.
+    view
+    |> element("#filter-form")
+    |> render_change(%{
+      "_target" => ["filter", "year", "from"],
+      "filter" => %{"year" => %{"from" => "201"}}
+    })
+
+    refute view
+           |> has_element?(".filter", "Year")
   end
 
   test "renders active filters with states", %{

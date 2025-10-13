@@ -660,18 +660,6 @@ defmodule DpulCollectionsWeb.SearchLive do
     {:noreply, socket |> assign(:expanded_filter, field)}
   end
 
-  def handle_event("filter-date", params, socket) do
-    params =
-      %{
-        socket.assigns.search_state
-        | filter: Map.merge(socket.assigns.search_state.filter, params["filter"])
-      }
-      |> Helpers.clean_params([:page, :per_page])
-
-    socket = push_patch(socket, to: ~p"/search?#{params}")
-    {:noreply, socket}
-  end
-
   def handle_event("sort", params, socket) do
     params =
       %{socket.assigns.search_state | sort_by: params["sort-by"]}
