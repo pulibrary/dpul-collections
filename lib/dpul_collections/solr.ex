@@ -3,6 +3,7 @@ defmodule DpulCollections.Solr do
   use DpulCollections.Solr.Constants
   alias DpulCollectionsWeb.SearchLive.SearchState
   alias DpulCollections.Solr.Index
+  alias DpulCollections.SearchResult
 
   @spec document_count(%Index{}) :: integer()
   def document_count(index \\ Index.read_index()) do
@@ -17,41 +18,19 @@ defmodule DpulCollections.Solr do
 
   def project_summary(label, index \\ Index.read_index()) do
     params =
-      SearchState.from_params(%{
-        "filter" => %{"project" => label},
-        "per_page" => "0"
-      })
-      |> Map.put(
-        :extra_params,
-        facet: true,
-        "facet.field": "language_txt_sort",
-        "facet.field": "geographic_origin_txt_sort",
-        "facet.field": "categories_txt_sort",
-        "facet.field": "genre_txt_sort",
-        "facet.sort": "count",
-        "facet.mincount": 1,
-        "facet.limit": -1
-      )
+      %{"per_page" => "0"}
+      |> SearchState.from_params()
+      |> SearchState.set_filter("project", label)
+      |> SearchState.add_filter_count_fields([
+        "language",
+        "geographic_origin",
+        "category",
+        "genre"
+      ])
 
-    response = raw_query(params, index)
-    # Returns something like
-    # %{ "response" => solr_response, "facets" => %{"solr_field" => [{"Value", count}, {"Value 2", count}]}}
-    response["response"] |> Map.merge(%{"facets" => extract_facets(response["facet_counts"])})
-  end
-
-  defp extract_facets(%{"facet_fields" => facet_fields}) do
-    # facet_fields looks like %{"field" => ["Label", count]}
-    facet_fields
-    |> Enum.map(fn {field, field_values} ->
-      {
-        field,
-        # Split into pairs
-        Enum.chunk_every(field_values, 2)
-        # Convert sub-lists to tuples
-        |> Enum.map(&List.to_tuple/1)
-      }
-    end)
-    |> Map.new()
+    params
+    |> raw_query(index)
+    |> to_search_result()
   end
 
   @query_field_list [
@@ -85,7 +64,6 @@ defmodule DpulCollections.Solr do
         # https://solr.apache.org/docs/9_4_0/core/org/apache/solr/util/doc-files/min-should-match.html
         # If more than 6 clauses, only require 90%. Pulled from our catalog.
         mm: "6<90%",
-        fq: filter_param(search_state),
         fl: fl,
         sort: sort_param(search_state),
         rows: search_state[:per_page],
@@ -93,20 +71,58 @@ defmodule DpulCollections.Solr do
         # To do MLT in edismax we have to allow the keyword _query_
         uf: "* _query_"
       ]
+      |> Keyword.merge(filter_count_params(search_state.filter_count_fields))
       |> Keyword.merge(search_state[:extra_params] || [])
 
     {:ok, response} =
-      Req.get(
+      Req.post(
         select_url(index),
-        params: solr_params
+        params: solr_params,
+        # Send filters in a POST request in case a lot of filters are requested.
+        # This uses the JSON Filter API so we can send an array of filters: https://solr.apache.org/guide/solr/latest/query-guide/json-request-api.html
+        json: %{
+          filter: filter_param(search_state)
+        }
       )
 
     response.body
   end
 
+  defp filter_count_params([]), do: []
+
+  defp filter_count_params(filter_count_fields) do
+    facet_params =
+      filter_count_fields
+      |> Enum.map(fn field ->
+        # For every field we request counts for exclude any filters we've set on
+        # that field when calculating it (ex=exclude), and name it after our shorthand field (key).
+        # See https://solr.apache.org/guide/solr/latest/query-guide/faceting.html#tagging-and-excluding-filters
+        {:"facet.field", "{!ex=#{field}Filter key=#{field}}#{@filters[field].solr_field}"}
+      end)
+
+    [
+      facet: true,
+      "facet.limit": -1,
+      "facet.mincount": 1,
+      "facet.sort": "count"
+    ] ++ facet_params
+  end
+
   @spec query(map(), String.t()) :: map()
   def query(search_state, index \\ Index.read_index()) do
     raw_query(search_state, index)["response"]
+  end
+
+  @filter_fields ["project", "genre", "language", "subject"]
+  def search(search_state, index \\ Index.read_index()) do
+    search_state
+    |> SearchState.add_filter_count_fields(@filter_fields)
+    |> raw_query(index)
+    |> to_search_result()
+  end
+
+  defp to_search_result(solr_response) do
+    SearchResult.from_solr(solr_response)
   end
 
   # Uses the more like this query parser
@@ -190,9 +206,10 @@ defmodule DpulCollections.Solr do
     search_state.filter
     |> Enum.map(&generate_filter_query/1)
     |> Enum.reject(&is_nil/1)
-    |> Enum.join(" ")
   end
 
+  # Generate filter queries for requested filters - we tag them with {!tag} so
+  # we can filter them out when getting filter counts.
   # Simple string filter
   # Negation filter
   def generate_filter_query({_filter_key, "-"}), do: nil
@@ -200,7 +217,7 @@ defmodule DpulCollections.Solr do
   def generate_filter_query({filter_key, "-" <> filter_value})
       when is_binary(filter_value) and filter_key in @filter_keys do
     solr_field = @filters[filter_key].solr_field
-    "-filter(#{solr_field}:\"#{filter_value}\")"
+    "{!tag=#{filter_key}Filter}-#{solr_field}:\"#{filter_value}\""
   end
 
   # Similar filter - display, but handle in the q parameter instead.
@@ -212,13 +229,21 @@ defmodule DpulCollections.Solr do
   def generate_filter_query({filter_key, filter_value})
       when is_binary(filter_value) and filter_key in @filter_keys do
     solr_field = @filters[filter_key].solr_field
-    "+filter(#{solr_field}:\"#{filter_value}\")"
+    "{!tag=#{filter_key}Filter}#{solr_field}:\"#{filter_value}\""
   end
 
   def generate_filter_query({filter_key, filter_value})
       when is_boolean(filter_value) and filter_key in @filter_keys do
     solr_field = @filters[filter_key].solr_field
-    "+filter(#{solr_field}:#{filter_value})"
+    "{!tag=#{filter_key}Filter}#{solr_field}:#{filter_value}"
+  end
+
+  # Inclusion for a list of strings.
+  def generate_filter_query({filter_key, values = [filter_value | _]})
+      when is_binary(filter_value) and filter_key in @filter_keys do
+    solr_field = @filters[filter_key].solr_field
+    filter_strings = values |> Enum.map(fn value -> ~s("#{value}") end)
+    "{!tag=#{filter_key}Filter}#{solr_field}:(#{filter_strings |> Enum.join("OR ")})"
   end
 
   # Range filter.
@@ -226,7 +251,7 @@ defmodule DpulCollections.Solr do
     from = filter_value["from"] || "*"
     to = filter_value["to"] || "*"
     solr_field = @filters[filter_key].solr_field
-    "+filter(#{solr_field}:[#{from} TO #{to}])"
+    "{!tag=#{filter_key}Filter}#{solr_field}:[#{from} TO #{to}]"
   end
 
   def generate_filter_query(_), do: nil

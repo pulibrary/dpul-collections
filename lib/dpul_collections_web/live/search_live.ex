@@ -14,21 +14,27 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def handle_params(params, _uri, socket) do
     search_state = SearchState.from_params(params |> Helpers.clean_params())
-    solr_response = Solr.query(search_state)
 
-    items =
-      solr_response["docs"]
-      |> Enum.map(&Item.from_solr(&1))
-
-    total_items = solr_response["numFound"]
+    %{
+      results: items,
+      total_items: total_items,
+      filter_data: filter_data
+    } = Solr.search(search_state)
 
     socket =
-      assign(socket,
+      socket
+      |> assign(
         page_title: "Search Results - Digital Collections",
         search_state: search_state,
         item_counter: item_counter(search_state, total_items),
         items: items,
-        total_items: total_items
+        total_items: total_items,
+        filter_data: filter_data,
+        filter_form: to_form(params["filter"] || %{}, as: "filter")
+      )
+      |> assign_new(
+        :expanded_filter,
+        fn -> nil end
       )
 
     {:noreply, socket}
@@ -60,12 +66,100 @@ defmodule DpulCollectionsWeb.SearchLive do
     @filters
   end
 
+  def filter_tab(assigns) do
+    ~H"""
+    <div class={[
+      "group w-full h-full text-xl font-semibold not-last:border-r-1 border-rust/20",
+      "#{@expanded && "expanded"}"
+    ]}>
+      <button
+        phx-click="select_filter_tab"
+        type="button"
+        role="tab"
+        phx-value-filter={@field}
+        class="group-[.expanded]:bg-accent group-[.expanded]:text-light-text p-4 hover:text-dark-text hover:bg-hover-accent cursor-pointer w-full h-full flex items-center text-left"
+      >
+        <span class="grow">
+          {@label}
+        </span>
+        <div class="arrow bg-dark-text group-[.expanded]:bg-light-text group-[.expanded:hover]:bg-dark-text rotate-90 group-[.expanded]:-rotate-90 w-[15px] h-[15px]">
+        </div>
+      </button>
+    </div>
+    """
+  end
+
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash}>
-      <section class="content-area">
+      <div class="content-area page-b-padding">
         <.results_for_keywords_heading keywords={@search_state.q} />
-        <div class="my-4 grid grid-flow-row auto-rows-max gap-6">
+      </div>
+      <section class="w-full">
+        <div
+          :if={map_size(@search_state.filter) > 0}
+          class="flex gap-6 items-center content-area page-b-padding flex-wrap"
+        >
+          <h2>Applied Filters:</h2>
+          <.filter_pill
+            :for={{filter_field, filter_settings} <- filter_configuration()}
+            search_state={@search_state}
+            field={filter_field}
+            label={filter_settings.label}
+            filter_value={filter_settings.value_function.(@search_state.filter[filter_field])}
+          />
+        </div>
+        <.form
+          id="filter-form"
+          phx-change="checked_filter"
+          for={@filter_form}
+        >
+          <div class="content-area">
+            <h2 class="text-xl font-normal page-b-padding">Filter your {@total_items} results</h2>
+            <div
+              role="tablist"
+              class={[
+                "border-t-1 border-rust/20 w-full grid grid-flow-col auto-cols-auto",
+                !@expanded_filter && "border-b-1"
+              ]}
+            >
+              <.filter_tab
+                :for={{field, filter} <- @filter_data}
+                label={filter.label}
+                field={field}
+                expanded={field == @expanded_filter}
+              />
+            </div>
+          </div>
+          <div
+            :for={{field, filter} <- @filter_data}
+            role="tabpanel"
+            class={[
+              @expanded_filter == field || "hidden",
+              @expanded_filter == field && "expanded",
+              "bg-secondary page-y-padding border-t-4 border-b-4 border-accent w-full"
+            ]}
+          >
+            <div class="content-area flex flex-col gap-6">
+              <div class="flex">
+                <div class="w-full grow">
+                  <.input
+                    type="checkgroup"
+                    field={@filter_form[field]}
+                    multiple={true}
+                    class="w-full grid gap-6 grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]"
+                    options={
+                      filter.data |> Enum.map(fn {value, count} -> {"#{value} [#{count}]", value} end)
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </.form>
+      </section>
+      <section class="content-area">
+        <div class="page-y-padding grid grid-flow-row auto-rows-max gap-6">
           <div id="filters" class="flex flex-wrap gap-4">
             <form
               id="date-filter"
@@ -108,17 +202,6 @@ defmodule DpulCollectionsWeb.SearchLive do
                 )}
               </select>
             </form>
-            <form id="filter-pills" class="md:col-span-2">
-              <div class="select-none flex flex-wrap gap-4">
-                <.filter
-                  :for={{filter_field, filter_settings} <- filter_configuration()}
-                  search_state={@search_state}
-                  field={filter_field}
-                  label={filter_settings.label}
-                  filter_value={filter_settings.value_function.(@search_state.filter[filter_field])}
-                />
-              </div>
-            </form>
           </div>
           <div id="item-counter">
             <span>{@item_counter}</span>
@@ -151,21 +234,44 @@ defmodule DpulCollectionsWeb.SearchLive do
   attr :label, :string, required: true
   attr :search_state, :map, required: true
 
-  def filter(assigns) do
+  def filter_pill(assigns = %{filter_value: filter_values}) when is_list(filter_values) do
+    ~H"""
+    <.filter_pill
+      :for={filter_value <- @filter_value}
+      filter_value={filter_value}
+      field={@field}
+      search_state={@search_state}
+      label={@label}
+    />
+    """
+  end
+
+  def filter_pill(assigns = %{filter_value: filter_value}) when is_binary(filter_value) do
     ~H"""
     <.link
       :if={@filter_value}
       role="button"
-      id={"#{@field}-filter"}
-      navigate={self_route(@search_state, %{filter: %{@field => nil}})}
-      class="filter focus:border-3 focus:visible:border-accent focus:border-accent py-1 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue font-sans font-bold text-sm btn-primary hover:text-white hover:bg-accent focus:outline-none active:shadow-none"
+      phx-value-filter-value={@filter_value}
+      phx-value-filter={@field}
+      phx-click="remove_filter"
+      class={[
+        @field,
+        "filter focus:border-3 focus:visible:border-accent focus:border-accent py-1 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue font-sans font-bold text-sm btn-primary hover:text-white hover:bg-accent focus:outline-none active:shadow-none"
+      ]}
     >
       {# These labels are defined explicitly in Solr.Constants, but have to be called here because Constants is defined at compile time.}
       {Gettext.gettext(DpulCollectionsWeb.Gettext, @label)}
       <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
-      {@filter_value}
+      <span class="filter-text">
+        {@filter_value}
+      </span>
       <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
     </.link>
+    """
+  end
+
+  def filter_pill(assigns) do
+    ~H"""
     """
   end
 
@@ -491,6 +597,45 @@ defmodule DpulCollectionsWeb.SearchLive do
     """
   end
 
+  def handle_event(
+        "remove_filter",
+        %{"filter" => filter, "filter-value" => value},
+        socket = %{assigns: %{search_state: search_state}}
+      ) do
+    new_state =
+      search_state
+      |> SearchState.remove_filter_value(filter, value)
+
+    {:noreply, push_patch(socket, to: ~p"/search?#{new_state}")}
+  end
+
+  def handle_event(
+        "checked_filter",
+        params = %{"_target" => ["filter", filter]},
+        socket = %{assigns: %{search_state: search_state}}
+      ) do
+    new_state =
+      search_state
+      |> SearchState.set_filter(filter, get_in(params, ["filter", filter]))
+
+    socket = push_patch(socket, to: ~p"/search?#{new_state}")
+    {:noreply, socket}
+  end
+
+  # When we click an expanded one, disable it.
+  def handle_event(
+        "select_filter_tab",
+        %{"filter" => field},
+        socket = %{assigns: %{expanded_filter: field}}
+      ) do
+    {:noreply, socket |> assign(:expanded_filter, nil)}
+  end
+
+  # When we click a filter that's not selected, disable it.
+  def handle_event("select_filter_tab", %{"filter" => field}, socket) do
+    {:noreply, socket |> assign(:expanded_filter, field)}
+  end
+
   def handle_event("filter-date", params, socket) do
     params =
       %{
@@ -517,15 +662,6 @@ defmodule DpulCollectionsWeb.SearchLive do
     socket = push_navigate(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
   end
-
-  def self_route(search_state, extra \\ %{}) do
-    params = Map.merge(search_state, extra, &merger/3) |> Helpers.clean_params()
-    ~p"/search?#{params}"
-  end
-
-  # Merge new filters with existing filters.
-  def merger(:filter, first_filter = %{}, second_filter = %{}),
-    do: Map.merge(first_filter, second_filter)
 
   defp more_pages?(page, per_page, total_items) do
     page * per_page < total_items

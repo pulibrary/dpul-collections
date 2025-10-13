@@ -35,6 +35,124 @@ defmodule DpulCollections.SolrTest do
     end
   end
 
+  describe ".search" do
+    test "returns documents in one key" do
+      Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+      Solr.soft_commit(active_collection())
+
+      search_state = SearchState.from_params(%{})
+      result = Solr.search(search_state)
+      assert length(Solr.search(search_state).results) == 10
+      assert result.total_items == 10
+    end
+
+    test "can filter by similarity and another facet" do
+      Solr.add(SolrTestSupport.mock_solr_documents(20), active_collection())
+      Solr.soft_commit(active_collection())
+
+      search_state =
+        SearchState.from_params(%{"filter" => %{"similar" => "2", "genre" => ["Pamphlets"]}})
+
+      result = Solr.search(search_state)
+      assert result.total_items == 10
+    end
+
+    test "can filter by multiple values, and when it does it's an OR" do
+      Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+      Solr.soft_commit(active_collection())
+
+      search_state =
+        SearchState.from_params(%{"filter" => %{"genre" => ["Folders", "Pamphlets"]}})
+
+      result = Solr.search(search_state)
+      assert result.total_items == 10
+
+      search_state = SearchState.from_params(%{"filter" => %{"genre" => ["Folders"]}})
+      result = Solr.search(search_state)
+      assert result.total_items == 5
+    end
+
+    test "returns filter data" do
+      Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+      Solr.soft_commit(active_collection())
+
+      search_state = SearchState.from_params(%{})
+      result = Solr.search(search_state)
+
+      assert %{
+               filter_data: %{
+                 "genre" => %{
+                   label: "Genre",
+                   data: [
+                     {"Folders", 5},
+                     {"Pamphlets", 5}
+                   ]
+                 }
+               }
+             } = result
+    end
+
+    test "returns more than 10 filter items" do
+      for n <- 1..15 do
+        Solr.add(
+          %{
+            id: "document-#{n}",
+            genre_txt_sort: ["Genre #{n}"],
+            title_txtm: ["Title #{n}"]
+          },
+          active_collection()
+        )
+      end
+
+      Solr.soft_commit(active_collection())
+
+      search_state = SearchState.from_params(%{})
+      result = Solr.search(search_state)
+
+      assert length(result.filter_data["genre"].data) == 15
+    end
+
+    test "returns filter data excluding its own filter" do
+      Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+      Solr.soft_commit(active_collection())
+
+      search_state = SearchState.from_params(%{"filter" => %{"genre" => ["Folders"]}})
+      result = Solr.search(search_state)
+
+      assert %{
+               "genre" => %{
+                 label: "Genre",
+                 data: [
+                   {"Folders", 5},
+                   {"Pamphlets", 5}
+                 ]
+               }
+             } =
+               result.filter_data
+    end
+
+    test "can filter by two facets" do
+      Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+      Solr.soft_commit(active_collection())
+
+      search_state =
+        SearchState.from_params(%{"filter" => %{"subject" => ["Arts"], "genre" => ["Folders"]}})
+
+      result = Solr.search(search_state)
+
+      assert %{
+               "genre" => %{
+                 label: "Genre",
+                 data: [
+                   {"Folders", 5},
+                   {"Pamphlets", 5}
+                 ]
+               }
+             } =
+               result.filter_data
+    end
+  end
+
   test ".add/1" do
     doc = %{
       "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
