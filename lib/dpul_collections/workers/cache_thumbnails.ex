@@ -26,8 +26,9 @@ defmodule DpulCollections.Workers.CacheThumbnails do
     {"full", "!#{item.primary_thumbnail_width}", "#{item.primary_thumbnail_height}"}
   end
 
-  # Don't attempt to cache deleted records
+  # Don't attempt to cache deleted records, or collections
   defp cache_images(%{"deleted" => true}), do: :ok
+  defp cache_images(%{"resource_type_s" => "collection"}), do: :ok
 
   defp cache_images(solr_document) do
     item =
