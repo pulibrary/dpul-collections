@@ -86,4 +86,61 @@ defmodule DpulCollections.UserSetsTest do
       assert %Ecto.Changeset{} = UserSets.change_set(scope, set)
     end
   end
+
+  describe "user_set_items" do
+    alias DpulCollections.UserSets.SetItem
+
+    import DpulCollections.UserSetsFixtures
+    import DpulCollections.AccountsFixtures, only: [user_scope_fixture: 0]
+
+    @invalid_attrs %{solr_id: nil}
+
+    test "list_user_set_items/0 returns all user_set_items" do
+      set_item = set_item_fixture()
+      assert UserSets.list_user_set_items() == [set_item]
+    end
+
+    test "get_set_item!/1 returns the set_item with given id" do
+      set_item = set_item_fixture()
+      assert UserSets.get_set_item!(set_item.id) == set_item
+    end
+
+    test "create_set_item/1 with valid data creates a set_item" do
+      scope = user_scope_fixture()
+      set = set_fixture(scope)
+      valid_attrs = %{solr_id: "some solr_id", set_id: set.id}
+
+      assert {:ok, %SetItem{} = set_item} = UserSets.create_set_item(valid_attrs)
+      assert set_item.solr_id == "some solr_id"
+    end
+
+    test "create_set_item/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = UserSets.create_set_item(@invalid_attrs)
+    end
+
+    test "update_set_item/2 with valid data updates the set_item" do
+      set_item = set_item_fixture()
+      update_attrs = %{solr_id: "some updated solr_id"}
+
+      assert {:ok, %SetItem{} = set_item} = UserSets.update_set_item(set_item, update_attrs)
+      assert set_item.solr_id == "some updated solr_id"
+    end
+
+    test "update_set_item/2 with invalid data returns error changeset" do
+      set_item = set_item_fixture()
+      assert {:error, %Ecto.Changeset{}} = UserSets.update_set_item(set_item, @invalid_attrs)
+      assert set_item == UserSets.get_set_item!(set_item.id)
+    end
+
+    test "delete_set_item/1 deletes the set_item" do
+      set_item = set_item_fixture()
+      assert {:ok, %SetItem{}} = UserSets.delete_set_item(set_item)
+      assert_raise Ecto.NoResultsError, fn -> UserSets.get_set_item!(set_item.id) end
+    end
+
+    test "change_set_item/1 returns a set_item changeset" do
+      set_item = set_item_fixture()
+      assert %Ecto.Changeset{} = UserSets.change_set_item(set_item)
+    end
+  end
 end

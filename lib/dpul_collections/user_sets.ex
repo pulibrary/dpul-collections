@@ -144,4 +144,100 @@ defmodule DpulCollections.UserSets do
 
     Set.changeset(set, attrs, scope)
   end
+
+  alias DpulCollections.UserSets.SetItem
+
+  @doc """
+  Returns the list of user_set_items.
+
+  ## Examples
+
+      iex> list_user_set_items()
+      [%SetItem{}, ...]
+
+  """
+  def list_user_set_items do
+    Repo.all(SetItem)
+  end
+
+  @doc """
+  Gets a single set_item.
+
+  Raises `Ecto.NoResultsError` if the Set item does not exist.
+
+  ## Examples
+
+      iex> get_set_item!(123)
+      %SetItem{}
+
+      iex> get_set_item!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_set_item!(id), do: Repo.get!(SetItem, id)
+
+  @doc """
+  Creates a set_item.
+
+  ## Examples
+
+      iex> create_set_item(%{field: value})
+      {:ok, %SetItem{}}
+
+      iex> create_set_item(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_set_item(attrs) do
+    %SetItem{}
+    |> SetItem.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a set_item.
+
+  ## Examples
+
+      iex> update_set_item(set_item, %{field: new_value})
+      {:ok, %SetItem{}}
+
+      iex> update_set_item(set_item, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_set_item(%SetItem{} = set_item, attrs) do
+    set_item
+    |> SetItem.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a set_item.
+
+  ## Examples
+
+      iex> delete_set_item(set_item)
+      {:ok, %SetItem{}}
+
+      iex> delete_set_item(set_item)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_set_item(%SetItem{} = set_item) do
+    Repo.delete(set_item)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking set_item changes.
+
+  ## Examples
+
+      iex> change_set_item(set_item)
+      %Ecto.Changeset{data: %SetItem{}}
+
+  """
+  def change_set_item(%SetItem{} = set_item, attrs \\ %{}) do
+    SetItem.changeset(set_item, attrs)
+  end
 end

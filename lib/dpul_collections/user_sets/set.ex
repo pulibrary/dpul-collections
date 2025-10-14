@@ -6,6 +6,7 @@ defmodule DpulCollections.UserSets.Set do
     field :title, :string
     field :description, :string
     belongs_to :user, DpulCollections.Accounts.User
+    has_many :set_items, DpulCollections.UserSets.SetItem
 
     timestamps(type: :utc_datetime)
   end
@@ -14,6 +15,7 @@ defmodule DpulCollections.UserSets.Set do
   def changeset(set, attrs, user_scope) do
     set
     |> cast(attrs, [:title, :description])
+    |> cast_assoc(:set_items)
     |> validate_required([:title])
     |> put_change(:user_id, user_scope.user.id)
   end

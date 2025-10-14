@@ -3,6 +3,7 @@ defmodule DpulCollections.UserSetsFixtures do
   This module defines test helpers for creating
   entities via the `DpulCollections.UserSets` context.
   """
+  alias DpulCollections.AccountsFixtures
 
   @doc """
   Generate a set.
@@ -16,5 +17,23 @@ defmodule DpulCollections.UserSetsFixtures do
 
     {:ok, set} = DpulCollections.UserSets.create_set(scope, attrs)
     set
+  end
+
+  @doc """
+  Generate a set_item.
+  """
+  def set_item_fixture(attrs \\ %{}) do
+    scope = AccountsFixtures.user_scope_fixture()
+    set = set_fixture(scope)
+
+    {:ok, set_item} =
+      attrs
+      |> Enum.into(%{
+        solr_id: "some solr_id",
+        set_id: set.id
+      })
+      |> DpulCollections.UserSets.create_set_item()
+
+    set_item
   end
 end
