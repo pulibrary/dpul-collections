@@ -100,7 +100,8 @@ defmodule DpulCollections.Solr.Constants do
         "year" => %{
           solr_field: "years_is",
           label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Year"),
-          value_function: &DpulCollections.Solr.Constants.date_value/1
+          value_function: &DpulCollections.Solr.Constants.date_value/1,
+          type: :range
         },
         "featured" => %{
           solr_field: "featurable_b",

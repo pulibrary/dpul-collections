@@ -93,11 +93,18 @@ defmodule DpulCollections.Solr do
   defp filter_count_params(filter_count_fields) do
     facet_params =
       filter_count_fields
-      |> Enum.map(fn field ->
+      |> Enum.flat_map(fn field ->
         # For every field we request counts for exclude any filters we've set on
         # that field when calculating it (ex=exclude), and name it after our shorthand field (key).
         # See https://solr.apache.org/guide/solr/latest/query-guide/faceting.html#tagging-and-excluding-filters
-        {:"facet.field", "{!ex=#{field}Filter key=#{field}}#{@filters[field].solr_field}"}
+        case @filters[field] do
+          # For range filters don't facet - we'll render custom range boxes.
+          %{type: :range} ->
+            []
+
+          _ ->
+            [{:"facet.field", "{!ex=#{field}Filter key=#{field}}#{@filters[field].solr_field}"}]
+        end
       end)
 
     [
@@ -113,7 +120,7 @@ defmodule DpulCollections.Solr do
     raw_query(search_state, index)["response"]
   end
 
-  @filter_fields ["project", "genre", "language", "subject"]
+  @filter_fields ["project", "genre", "language", "subject", "year"]
   def search(search_state, index \\ Index.read_index()) do
     search_state
     |> SearchState.add_filter_count_fields(@filter_fields)

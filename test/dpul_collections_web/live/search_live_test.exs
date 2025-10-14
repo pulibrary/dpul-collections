@@ -224,6 +224,26 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
            |> Floki.text() =~ "of 100"
+
+    refute view |> has_element?(".expanded input[name='filter[year][from]']")
+
+    # I can add a year filter
+    view
+    |> element("button", "Year")
+    |> render_click()
+
+    assert view |> has_element?(".expanded input[name='filter[year][from]']")
+
+    # Typing into a year filter doesn't do anything.
+    view
+    |> element("#filter-form")
+    |> render_change(%{
+      "_target" => ["filter", "year", "from"],
+      "filter" => %{"year" => %{"from" => "201"}}
+    })
+
+    refute view
+           |> has_element?(".filter", "Year")
   end
 
   test "renders active filters with states", %{
@@ -350,7 +370,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     {:ok, document} =
       view
-      |> element("#date-filter")
+      |> element("#filter-form")
       |> render_submit(%{"filter" => %{"year" => %{"from" => "1925", "to" => "1926"}}})
       |> Floki.parse_document()
 
@@ -502,10 +522,8 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     {:ok, document} =
       view
-      |> element("#search-form")
-      |> render_submit(%{"date-from" => "1900", "date-to" => "2025"})
-      |> follow_redirect(conn)
-      |> elem(2)
+      |> element("#filter-form")
+      |> render_submit(%{"filter" => %{"year" => %{"from" => nil, "to" => nil}}})
       |> Floki.parse_document()
 
     assert document

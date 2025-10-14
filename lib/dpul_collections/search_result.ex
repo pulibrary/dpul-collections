@@ -21,7 +21,11 @@ defmodule DpulCollections.SearchResult do
   defp facets_to_filter_data(facet_map) do
     facet_map
     |> Enum.map(fn {facet_key, facet_data} ->
-      {facet_key, %{label: @filters[facet_key].label, data: facet_data}}
+      {facet_key,
+       %{
+         label: @filters[facet_key].label,
+         data: facet_data
+       }}
     end)
     |> Map.new()
   end

@@ -21,6 +21,8 @@ defmodule DpulCollectionsWeb.SearchLive do
       filter_data: filter_data
     } = Solr.search(search_state)
 
+    filter_data = filter_data |> Map.put("year", %{label: @filters["year"].label, data: []})
+
     socket =
       socket
       |> assign(
@@ -30,7 +32,14 @@ defmodule DpulCollectionsWeb.SearchLive do
         items: items,
         total_items: total_items,
         filter_data: filter_data,
-        filter_form: to_form(params["filter"] || %{}, as: "filter")
+        filter_form: to_form(params["filter"] || %{}, as: "filter"),
+        # To put this in filter_form we'd have to make a ChangeSet that can
+        # handle nested parameters.
+        year_form:
+          to_form(
+            get_in(params, [Access.key("filter", %{}), Access.key("year", %{})]),
+            as: "filter[year]"
+          )
       )
       |> assign_new(
         :expanded_filter,
@@ -80,12 +89,67 @@ defmodule DpulCollectionsWeb.SearchLive do
         class="group-[.expanded]:bg-accent group-[.expanded]:text-light-text p-4 hover:text-dark-text hover:bg-hover-accent cursor-pointer w-full h-full flex items-center text-left"
       >
         <span class="grow">
-          {@label}
+          {Gettext.gettext(DpulCollectionsWeb.Gettext, @label)}
         </span>
         <div class="arrow bg-dark-text group-[.expanded]:bg-light-text group-[.expanded:hover]:bg-dark-text rotate-90 group-[.expanded]:-rotate-90 w-[15px] h-[15px]">
         </div>
       </button>
     </div>
+    """
+  end
+
+  def filter_panel(assigns) do
+    ~H"""
+    <div
+      role="tabpanel"
+      class={[
+        @expanded_filter == @field || "hidden",
+        @expanded_filter == @field && "expanded",
+        "bg-secondary page-y-padding border-t-4 border-b-4 border-accent w-full"
+      ]}
+    >
+      <div class="content-area flex flex-col gap-6">
+        <div class="flex">
+          <div class="w-full grow">
+            <.filter_input filter_configuration={filter_configuration()[@field]} {assigns} />
+          </div>
+        </div>
+      </div>
+    </div>
+    """
+  end
+
+  def filter_input(assigns = %{field: "year"}) do
+    ~H"""
+    <div class="w-full flex flex-wrap gap-4">
+      <.input
+        class="flex gap-4 items-end"
+        placeholder={gettext("From")}
+        label={gettext("From")}
+        field={@year_form["from"]}
+      />
+      <.input
+        class="flex gap-4 items-end"
+        placeholder={gettext("To")}
+        label={gettext("To")}
+        field={@year_form["to"]}
+      />
+      <.primary_button type="submit">
+        {gettext("Apply")}
+      </.primary_button>
+    </div>
+    """
+  end
+
+  def filter_input(assigns) do
+    ~H"""
+    <.input
+      type="checkgroup"
+      field={@filter_form[@field]}
+      multiple={true}
+      class="w-full grid gap-6 grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]"
+      options={@filter.data |> Enum.map(fn {value, count} -> {"#{value} [#{count}]", value} end)}
+    />
     """
   end
 
@@ -112,6 +176,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         <.form
           id="filter-form"
           phx-change="checked_filter"
+          phx-submit="apply_filters"
           for={@filter_form}
         >
           <div class="content-area">
@@ -131,66 +196,19 @@ defmodule DpulCollectionsWeb.SearchLive do
               />
             </div>
           </div>
-          <div
+          <.filter_panel
             :for={{field, filter} <- @filter_data}
-            role="tabpanel"
-            class={[
-              @expanded_filter == field || "hidden",
-              @expanded_filter == field && "expanded",
-              "bg-secondary page-y-padding border-t-4 border-b-4 border-accent w-full"
-            ]}
-          >
-            <div class="content-area flex flex-col gap-6">
-              <div class="flex">
-                <div class="w-full grow">
-                  <.input
-                    type="checkgroup"
-                    field={@filter_form[field]}
-                    multiple={true}
-                    class="w-full grid gap-6 grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]"
-                    options={
-                      filter.data |> Enum.map(fn {value, count} -> {"#{value} [#{count}]", value} end)
-                    }
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+            field={field}
+            filter={filter}
+            expanded_filter={@expanded_filter}
+            filter_form={@filter_form}
+            {assigns}
+          />
         </.form>
       </section>
       <section class="content-area">
         <div class="page-y-padding grid grid-flow-row auto-rows-max gap-6">
           <div id="filters" class="flex flex-wrap gap-4">
-            <form
-              id="date-filter"
-              phx-submit="filter-date"
-              class="flex flex-wrap gap-2"
-            >
-              <label class="self-center font-bold uppercase" for="date-filter">
-                {gettext("filter by year")}:
-              </label>
-              <label class="sr-only" for="filter[year][from]">{gettext("From")}</label>
-              <input
-                type="text"
-                placeholder={gettext("From")}
-                form="date-filter"
-                name="filter[year][from]"
-                id="filter[year][from]"
-                value={@search_state.filter["year"]["from"]}
-              />
-              <label class="sr-only" for="filter[year][to]">{gettext("To")}</label>
-              <input
-                type="text"
-                placeholder={gettext("To")}
-                form="date-filter"
-                name="filter[year][to]"
-                id="filter[year][to]"
-                value={@search_state.filter["year"]["to"]}
-              />
-              <.primary_button type="submit">
-                {gettext("Apply")}
-              </.primary_button>
-            </form>
             <form id="sort-form" class="grid md:grid-cols-[auto_200px] gap-2" phx-change="sort">
               <label class="col-span-1 self-center font-bold uppercase md:text-right" for="sort-by">
                 {gettext("sort by")}:
@@ -609,6 +627,16 @@ defmodule DpulCollectionsWeb.SearchLive do
     {:noreply, push_patch(socket, to: ~p"/search?#{new_state}")}
   end
 
+  def handle_event("apply_filters", params, socket) do
+    params = params |> Map.merge(%{"page" => 1})
+    socket = push_patch(socket, to: ~p"/search?#{params}")
+    {:noreply, socket}
+  end
+
+  # Don't do ranges with changed events.
+  def handle_event("checked_filter", %{"_target" => ["filter", _filter, _from_or_to]}, socket),
+    do: {:noreply, socket}
+
   def handle_event(
         "checked_filter",
         params = %{"_target" => ["filter", filter]},
@@ -634,18 +662,6 @@ defmodule DpulCollectionsWeb.SearchLive do
   # When we click a filter that's not selected, disable it.
   def handle_event("select_filter_tab", %{"filter" => field}, socket) do
     {:noreply, socket |> assign(:expanded_filter, field)}
-  end
-
-  def handle_event("filter-date", params, socket) do
-    params =
-      %{
-        socket.assigns.search_state
-        | filter: Map.merge(socket.assigns.search_state.filter, params["filter"])
-      }
-      |> Helpers.clean_params([:page, :per_page])
-
-    socket = push_patch(socket, to: ~p"/search?#{params}")
-    {:noreply, socket}
   end
 
   def handle_event("sort", params, socket) do
