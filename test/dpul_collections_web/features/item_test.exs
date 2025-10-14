@@ -104,7 +104,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
       |> click_link("View all metadata for this item")
       |> click_button("Copy")
       |> assert_has("button#iiif-url-copy", text: "Copied")
-      |> click_link("close")
+      |> click_link("close pane")
       # share copy button has not been triggered
       |> click_button("Share")
       |> assert_has("#share-modal button", text: "Copy")
@@ -116,16 +116,16 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
     |> visit("/i/document1/item/1")
     |> click_link("View all metadata for this item")
     |> assert_path("/i/document1/item/1/metadata")
-    |> click_link("close")
+    |> click_link("close pane")
     |> assert_path("/i/document1/item/1")
   end
 
   test "links to and from viewer page", %{conn: conn} do
     conn
     |> visit("/i/document1/item/1")
-    |> click_link("#viewer-link", "View")
+    |> click_link("#viewer-link", "Look closer")
     |> assert_path("/i/document1/item/1/viewer/1")
-    |> click_link("close")
+    |> click_link("close pane")
     |> assert_path("/i/document1/item/1")
   end
 
@@ -135,7 +135,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
     |> click_link("Document-1")
     |> click_link("View all metadata for this item")
     |> assert_path("/i/document1/item/1/metadata")
-    |> click_link("close")
+    |> click_link("close pane")
     |> assert_path("/i/document1/item/1")
     |> go_back
     |> assert_path("/search")
@@ -145,9 +145,9 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
     conn
     |> visit("/search")
     |> click_link("Document-1")
-    |> click_link("#viewer-link", "View")
+    |> click_link("#viewer-link", "Look closer")
     |> assert_path("/i/document1/item/1/viewer/1")
-    |> click_link("close")
+    |> click_link("close pane")
     |> assert_path("/i/document1/item/1")
     |> go_back
     |> assert_path("/search")
@@ -156,7 +156,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
   test "the viewer pane changes the URL when clicking a new item", %{conn: conn} do
     conn
     |> visit("/item/1")
-    |> click_link("#viewer-link", "View")
+    |> click_link("#viewer-link", "Look closer")
     |> assert_path("/i/document1/item/1/viewer/1")
     |> click_button("figcaption", "2")
     |> assert_path("/i/document1/item/1/viewer/2")
