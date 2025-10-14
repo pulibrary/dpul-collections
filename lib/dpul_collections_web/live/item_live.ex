@@ -254,7 +254,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       <div class="header-x-padding heading-y-padding bg-accent flex flex-row">
         <h1 class="uppercase text-light-text flex-auto">{gettext("Metadata")}</h1>
         <.link
-          aria-label={gettext("close")}
+          aria-label={gettext("close pane")}
           class="flex-none cursor-pointer justify-end"
           patch={@item.url}
           replace
@@ -339,7 +339,7 @@ defmodule DpulCollectionsWeb.ItemLive do
           </.action_icon>
         </div>
         <.link
-          aria-label={gettext("close")}
+          aria-label={gettext("close pane")}
           class="flex-none cursor-pointer justify-end"
           patch={@item.url}
           replace
@@ -599,7 +599,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         <div class="thumbnail-buttons grid grid-cols-2 gap-2">
           <.arrow_button_left id="viewer-link" patch={"#{@item.viewer_url}/1"} replace>
             <span class="w-max flex gap-2 text-sm sm:text-base">
-              <.icon name="hero-eye" /> {gettext("View")}
+              <.icon name="hero-eye" />{gettext("Look closer")}
             </span>
           </.arrow_button_left>
 
