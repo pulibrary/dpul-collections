@@ -21,6 +21,8 @@ defmodule DpulCollectionsWeb.SearchLive do
       filter_data: filter_data
     } = Solr.search(search_state)
 
+    filter_data = filter_data |> Map.put("year", %{label: @filters["year"].label, data: []})
+
     socket =
       socket
       |> assign(
@@ -87,7 +89,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         class="group-[.expanded]:bg-accent group-[.expanded]:text-light-text p-4 hover:text-dark-text hover:bg-hover-accent cursor-pointer w-full h-full flex items-center text-left"
       >
         <span class="grow">
-          {@label}
+          {Gettext.gettext(DpulCollectionsWeb.Gettext, @label)}
         </span>
         <div class="arrow bg-dark-text group-[.expanded]:bg-light-text group-[.expanded:hover]:bg-dark-text rotate-90 group-[.expanded]:-rotate-90 w-[15px] h-[15px]">
         </div>

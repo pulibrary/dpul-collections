@@ -98,13 +98,9 @@ defmodule DpulCollections.Solr do
         # that field when calculating it (ex=exclude), and name it after our shorthand field (key).
         # See https://solr.apache.org/guide/solr/latest/query-guide/faceting.html#tagging-and-excluding-filters
         case @filters[field] do
+          # For range filters don't facet - we'll render custom range boxes.
           %{type: :range, solr_field: solr_field} ->
-            [
-              {:"facet.field", "{!ex=#{field}Filter key=#{field}}#{@filters[field].solr_field}"},
-              # If it's a range filter we don't need facet values yet - until we
-              # build a histogram or something.
-              {:"f.#{solr_field}.facet.limit", 0}
-            ]
+            []
 
           _ ->
             [{:"facet.field", "{!ex=#{field}Filter key=#{field}}#{@filters[field].solr_field}"}]

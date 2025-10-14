@@ -23,7 +23,7 @@ defmodule DpulCollections.SearchResult do
     |> Enum.map(fn {facet_key, facet_data} ->
       {facet_key,
        %{
-         label: Gettext.gettext(DpulCollectionsWeb.Gettext, @filters[facet_key].label),
+         label: @filters[facet_key].label,
          data: facet_data
        }}
     end)
