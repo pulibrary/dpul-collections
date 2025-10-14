@@ -101,6 +101,8 @@ defmodule DpulCollections.Solr do
           %{type: :range, solr_field: solr_field} ->
             [
               {:"facet.field", "{!ex=#{field}Filter key=#{field}}#{@filters[field].solr_field}"},
+              # If it's a range filter we don't need facet values yet - until we
+              # build a histogram or something.
               {:"f.#{solr_field}.facet.limit", 0}
             ]
 

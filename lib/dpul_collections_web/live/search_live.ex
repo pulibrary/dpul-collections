@@ -31,9 +31,11 @@ defmodule DpulCollectionsWeb.SearchLive do
         total_items: total_items,
         filter_data: filter_data,
         filter_form: to_form(params["filter"] || %{}, as: "filter"),
+        # To put this in filter_form we'd have to make a ChangeSet that can
+        # handle nested parameters.
         year_form:
           to_form(
-            get_in(params, [Access.key("filter", %{}), "year"]) || %{"from" => nil, "to" => nil},
+            get_in(params, [Access.key("filter", %{}), Access.key("year", %{})]),
             as: "filter[year]"
           )
       )
@@ -115,7 +117,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     """
   end
 
-  def filter_input(assigns = %{filter_configuration: %{type: :range}}) do
+  def filter_input(assigns = %{field: "year"}) do
     ~H"""
     <div class="w-full flex flex-wrap gap-4">
       <.input
