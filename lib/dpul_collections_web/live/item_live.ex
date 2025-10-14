@@ -683,6 +683,7 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def metadata_table(assigns) do
     ~H"""
+    <h2 class="sr-only">{gettext("Metadata")}</h2>
     <div class="relative overflow-x-auto">
       <dl class="grid items-start gap-x-8 gap-y-4">
         <.metadata_row
