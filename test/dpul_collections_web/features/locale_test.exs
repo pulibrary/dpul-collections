@@ -15,7 +15,7 @@ defmodule DpulCollectionsWeb.Features.LocaleTest do
     |> assert_has("a", text: "Explorar")
     |> Playwright.type("input#q", " ")
     |> click_button("Buscar")
-    |> click("*[role=tab]", "Year")
+    |> click("*[role=tab]", "Año")
     |> assert_has("label", text: "De")
   end
 
