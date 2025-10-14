@@ -29,20 +29,39 @@ defmodule DpulCollectionsWeb.Router do
   end
 
   scope "/", DpulCollectionsWeb do
-    pipe_through :browser
+    pipe_through [:browser]
 
-    live "/", HomeLive, :live
-    live "/browse", BrowseLive, :live
-    live "/browse/focus/:focus_id", BrowseLive, :live
-    live "/collections/:slug", CollectionsLive, :live
-    live "/search", SearchLive, :live
-    live "/item/:id", ItemLive, :live
-    live "/i/:slug/item/:id", ItemLive, :live
-    live "/i/:slug/item/:id/metadata", ItemLive, :metadata
-    live "/item/:id/metadata", ItemLive, :metadata
-    live "/i/:slug/item/:id/viewer", ItemLive, :viewer
-    live "/i/:slug/item/:id/viewer/:current_canvas_idx", ItemLive, :viewer
-    live "/item/:id/viewer", ItemLive, :viewer
+    live_session :current_user,
+      on_mount: with_sandbox_support([{DpulCollectionsWeb.UserAuth, :mount_current_scope}]) do
+      live "/users/register", UserLive.Registration, :new
+      live "/users/log-in", UserLive.Login, :new
+      live "/users/log-in/:token", UserLive.Confirmation, :new
+      live "/", HomeLive, :live
+      live "/browse", BrowseLive, :live
+      live "/browse/focus/:focus_id", BrowseLive, :live
+      live "/collections/:slug", CollectionsLive, :live
+      live "/search", SearchLive, :live
+      live "/item/:id", ItemLive, :live
+      live "/i/:slug/item/:id", ItemLive, :live
+      live "/i/:slug/item/:id/metadata", ItemLive, :metadata
+      live "/item/:id/metadata", ItemLive, :metadata
+      live "/i/:slug/item/:id/viewer", ItemLive, :viewer
+      live "/i/:slug/item/:id/viewer/:current_canvas_idx", ItemLive, :viewer
+      live "/item/:id/viewer", ItemLive, :viewer
+    end
+
+    post "/users/log-in", UserSessionController, :create
+    delete "/users/log-out", UserSessionController, :delete
+  end
+
+  scope "/", DpulCollectionsWeb do
+    pipe_through [:browser, :require_authenticated_user]
+
+    live_session :require_authenticated_user,
+      on_mount: with_sandbox_support([{DpulCollectionsWeb.UserAuth, :require_authenticated}]) do
+      live "/users/settings", UserLive.Settings, :edit
+      live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
+    end
   end
 
   scope "/iiif", DpulCollectionsWeb do
@@ -72,31 +91,5 @@ defmodule DpulCollectionsWeb.Router do
 
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
-  end
-
-  ## Authentication routes
-
-  scope "/", DpulCollectionsWeb do
-    pipe_through [:browser, :require_authenticated_user]
-
-    live_session :require_authenticated_user,
-      on_mount: with_sandbox_support([{DpulCollectionsWeb.UserAuth, :require_authenticated}]) do
-      live "/users/settings", UserLive.Settings, :edit
-      live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
-    end
-  end
-
-  scope "/", DpulCollectionsWeb do
-    pipe_through [:browser]
-
-    live_session :current_user,
-      on_mount: with_sandbox_support([{DpulCollectionsWeb.UserAuth, :mount_current_scope}]) do
-      live "/users/register", UserLive.Registration, :new
-      live "/users/log-in", UserLive.Login, :new
-      live "/users/log-in/:token", UserLive.Confirmation, :new
-    end
-
-    post "/users/log-in", UserSessionController, :create
-    delete "/users/log-out", UserSessionController, :delete
   end
 end
