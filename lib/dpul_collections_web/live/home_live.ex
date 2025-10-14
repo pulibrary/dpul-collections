@@ -33,14 +33,21 @@ defmodule DpulCollectionsWeb.HomeLive do
           <div class="drop-shadow-[1px_1px_3rem_rgba(0,0,0,1)] bg-primary absolute max-h-[600px] sm:min-w-[350px] w-full md:max-w-2/3 lg:max-w-1/2 2xl:max-w-2/5 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 p-4">
             <div class="corner-cut content-area text-center h-full w-full flex flex-col justify-evenly items-center bg-background p-8 gap-4">
               <div>
-                <h1 class="text-3xl font-normal">{gettext("Digital Collections")}</h1>
-                <p class=" italic">{gettext("of the Princeton University Library")}</p>
+                <h1 class="text-2xl">{gettext("Digital Collections")}</h1>
               </div>
 
               <div class="text-xl text-balance flex-grow">
                 {gettext(
-                  "Discover, download, and share digitized selections from the Library's unique collections and collaborations."
+                  "Discover, download, and share contemporary and historic items from across the world."
                 )}
+              </div>
+              <div class="flex flex-wrap justify-center text-dark-text gap-2">
+                <.genre_link filter="posters" label={gettext("Posters")} />
+                <.genre_link filter="pamphlets" label={gettext("Pamphlets")} />
+                <.genre_link filter="flyers" label={gettext("Flyers")} />
+                <.genre_link filter="leaflets" label={gettext("Leaflets")} />
+                <.genre_link filter="photographs" label={gettext("Photographs")} />
+                <.genre_link filter="art" label={gettext("Art")} />
               </div>
               <div class="content-area bg-primary text-light-text px-0 text-xl">
                 <.primary_button href={~p"/browse"}>
@@ -96,6 +103,19 @@ defmodule DpulCollectionsWeb.HomeLive do
         </.browse_item_row>
       </div>
     </Layouts.app>
+    """
+  end
+
+  def genre_link(assigns) do
+    ~H"""
+    <div class="bg-light-accent rounded-full px-3 py-1">
+      <.link
+        class="no-underline"
+        navigate={~p"/search?filter[genre][]=#{@filter}"}
+      >
+        {@label}
+      </.link>
+    </div>
     """
   end
 end

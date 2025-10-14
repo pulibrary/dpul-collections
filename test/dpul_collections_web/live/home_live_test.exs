@@ -113,4 +113,16 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
 
     assert title == "Digital Collections"
   end
+
+  test "links to filters", %{conn: conn} do
+    ["photographs", "posters", "pamphlets"]
+    |> Enum.each(fn genre ->
+      {:ok, view, _} = live(conn, "/")
+
+      assert view
+             |> element("#main-content a", String.capitalize(genre))
+             |> render_click() ==
+               {:error, {:live_redirect, %{to: "/search?filter[genre][]=#{genre}", kind: :push}}}
+    end)
+  end
 end
