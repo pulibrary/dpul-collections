@@ -97,7 +97,8 @@ defmodule DpulCollectionsWeb.BrowseItem do
         </div>
       </div>
       <.link
-        href={@item.url}
+        navigate={!@target && @item.url}
+        href={@target != nil && @item.url}
         target={@target}
         class="-outline-offset-1 flex-grow item-link flex flex-col"
         aria-label={"View #{@item.title |> hd}"}
