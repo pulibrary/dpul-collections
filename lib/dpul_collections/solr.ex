@@ -99,7 +99,7 @@ defmodule DpulCollections.Solr do
         # See https://solr.apache.org/guide/solr/latest/query-guide/faceting.html#tagging-and-excluding-filters
         case @filters[field] do
           # For range filters don't facet - we'll render custom range boxes.
-          %{type: :range, solr_field: solr_field} ->
+          %{type: :range} ->
             []
 
           _ ->
