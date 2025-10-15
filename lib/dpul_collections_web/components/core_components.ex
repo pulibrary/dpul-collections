@@ -736,6 +736,20 @@ defmodule DpulCollectionsWeb.CoreComponents do
     """
   end
 
+  def card_button(assigns) do
+    ~H"""
+    <.link
+      class="btn-base border-1 border-gray-200 bg-background py-1 px-2 flex flex-col items-center z-100"
+      {assigns}
+    >
+      <.icon class="grow w-[1.5rem] h-[1.5rem]" name={@icon} />
+      <span class="text-sm font-normal normal-case">
+        {@label}
+      </span>
+    </.link>
+    """
+  end
+
   @doc """
   Translates an error message using gettext.
   """

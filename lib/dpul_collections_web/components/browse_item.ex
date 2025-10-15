@@ -75,9 +75,20 @@ defmodule DpulCollectionsWeb.BrowseItem do
         @class
       ]}
     >
-      <!-- similar -->
+      <div class="absolute p-4 inset-0 w-full">
+        <div class="w-full flex items-top justify-end gap-2">
+          <.card_button
+            :if={@likeable?}
+            patch={~p"/browse/focus/#{@item.id}"}
+            phx-click={JS.dispatch("dpulc:scrollTop")}
+            icon="iconoir:binocular"
+            label={gettext("Similar")}
+          />
+          <.card_button icon="hero-folder-plus" label={gettext("Save")} />
+        </div>
+      </div>
       <div
-        :if={@likeable? || Helpers.obfuscate_item?(assigns)}
+        :if={Helpers.obfuscate_item?(assigns)}
         class="browse-header mb-2 h-12 w-full bg-white absolute flex items-center"
       >
         <div class="h-full pl-2 w-full flex items-center flex-grow like-header bg-white z-50">
@@ -86,14 +97,6 @@ defmodule DpulCollectionsWeb.BrowseItem do
             item_id={@item.id}
             content_warning={@item.content_warning}
           />
-          <.link
-            :if={@likeable?}
-            class="flex-grow text-accent font-semibold"
-            patch={~p"/browse/focus/#{@item.id}"}
-            phx-click={JS.dispatch("dpulc:scrollTop")}
-          >
-            {gettext("Browse Similar Items")}
-          </.link>
         </div>
       </div>
       <.link

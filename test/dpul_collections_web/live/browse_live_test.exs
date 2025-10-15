@@ -43,7 +43,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     # Make sure I can go to recommendations from the link
     {:ok, document} =
       view
-      |> element("#browse-items .browse-item:first-child .like-header a")
+      |> element("#browse-items .browse-item:first-child a", "Similar")
       |> render_click()
       |> Floki.parse_document()
 
@@ -65,7 +65,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     # Add a second liked item.
     {:ok, document} =
       view
-      |> element("#browse-items .browse-item:nth-child(2) .like-header a")
+      |> element("#browse-items .browse-item:nth-child(2) a", "Similar")
       |> render_click()
       |> Floki.parse_document()
 
