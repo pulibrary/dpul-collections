@@ -174,6 +174,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           />
         </div>
         <.form
+          :if={@total_items > 0}
           id="filter-form"
           phx-change="checked_filter"
           phx-submit="apply_filters"
@@ -208,8 +209,13 @@ defmodule DpulCollectionsWeb.SearchLive do
       </section>
       <section class="content-area">
         <div class="page-y-padding grid grid-flow-row auto-rows-max gap-6">
-          <div id="filters" class="flex flex-wrap gap-4">
-            <form id="sort-form" class="grid md:grid-cols-[auto_200px] gap-2" phx-change="sort">
+          <div class="flex flex-wrap gap-4">
+            <form
+              :if={@total_items > 0}
+              id="sort-form"
+              class="grid md:grid-cols-[auto_200px] gap-2"
+              phx-change="sort"
+            >
               <label class="col-span-1 self-center font-bold uppercase md:text-right" for="sort-by">
                 {gettext("sort by")}:
               </label>

@@ -7,6 +7,9 @@ defmodule DpulCollectionsWeb.Features.LocaleTest do
   # Because the search button is only visible when the input is focused, we use
   # type instead of fill_in
   test "locale persists between pages", %{conn: conn} do
+    Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+    Solr.soft_commit(active_collection())
+
     conn
     |> visit("/")
     |> assert_has("a", text: "Explore")

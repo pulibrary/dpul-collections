@@ -61,6 +61,14 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
                "#item-counter",
                "No items found"
              )
+
+      # There aren't any filters
+      refute view
+             |> has_element?("#filter-form")
+
+      # There's no sort dropdown
+      refute view
+             |> has_element?("#sort-form")
     end
   end
 
