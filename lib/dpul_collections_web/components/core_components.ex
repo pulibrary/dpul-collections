@@ -404,6 +404,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
   attr :id, :string, required: true
   attr :afterClose, :any, required: false, default: %JS{}
   attr :label, :string, required: true
+  attr :open, :boolean, required: false
 
   slot :inner_block, doc: "the modal content"
 
@@ -411,6 +412,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
     ~H"""
     <dialog
       id={@id}
+      open={assigns[:open]}
       phx-hook="Dialog"
       dcjs-open={JS.dispatch("dpulc:showDialog")}
       dcjs-close={JS.dispatch("dpulc:closeDialog") |> JS.exec("dcjs-after-close")}
@@ -738,15 +740,15 @@ defmodule DpulCollectionsWeb.CoreComponents do
 
   def card_button(assigns) do
     ~H"""
-    <.link
-      class="btn-base border-1 border-gray-200 bg-background py-1 px-2 flex flex-col items-center z-100"
+    <.primary_button
+      class="btn-base border-1 border-gray-200 bg-background py-1 px-2 flex flex-col items-center z-100 hover:bg-background"
       {assigns}
     >
       <.icon class="grow w-[1.5rem] h-[1.5rem]" name={@icon} />
       <span class="text-sm font-normal normal-case">
         {@label}
       </span>
-    </.link>
+    </.primary_button>
     """
   end
 

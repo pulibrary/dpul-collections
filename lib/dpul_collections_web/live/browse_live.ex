@@ -1,4 +1,5 @@
 defmodule DpulCollectionsWeb.BrowseLive do
+  alias DpulCollectionsWeb.UserSets.AddToSetComponent
   alias DpulCollectionsWeb.SearchLive.SearchState
   alias DpulCollectionsWeb.BrowseItem
   use DpulCollectionsWeb, :live_view
@@ -86,6 +87,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
         </div>
         <.display_items {assigns} />
       </div>
+      <.live_component module={AddToSetComponent} id="user_set_form" />
     </Layouts.app>
     """
   end

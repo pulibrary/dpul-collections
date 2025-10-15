@@ -1,4 +1,5 @@
 defmodule DpulCollectionsWeb.BrowseItem do
+  alias DpulCollectionsWeb.UserSets
   use DpulCollectionsWeb, :html
   use Phoenix.Component
   use Gettext, backend: DpulCollectionsWeb.Gettext
@@ -84,7 +85,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
             icon="iconoir:binocular"
             label={gettext("Similar")}
           />
-          <.card_button icon="hero-folder-plus" label={gettext("Save")} />
+          <UserSets.AddToSetComponent.add_button item_id={@item.id} />
         </div>
       </div>
       <div

@@ -3,11 +3,26 @@ defmodule DpulCollectionsWeb.BrowseTest do
   use PhoenixTest.Playwright.Case
   alias PhoenixTest.Playwright.Frame
   alias DpulCollections.Solr
+  import DpulCollections.AccountsFixtures
 
   setup do
     Solr.add(SolrTestSupport.mock_solr_documents(20), active_collection())
     Solr.soft_commit(active_collection())
     {:ok, %{}}
+  end
+
+  describe "user sets" do
+    test "users can add an item to a user set", %{conn: conn} do
+      Solr.add(SolrTestSupport.mock_solr_documents(1), active_collection())
+      Solr.soft_commit(active_collection())
+      user = user_fixture()
+
+      conn
+      |> FiggyTestSupport.feature_login(user)
+      |> visit("/browse?r=0")
+      |> click_button(".browse-item:first-child button", "Save")
+      |> assert_has("h2", text: "Save to Set")
+    end
   end
 
   test "browse page is accessible", %{conn: conn} do
