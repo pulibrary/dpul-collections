@@ -91,20 +91,6 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
     end
   end
 
-  test "link to filters", %{conn: conn} do
-    {:ok, _, _} = live(conn, "/")
-
-    ["photographs", "posters", "pamphlets"]
-    |> Enum.each(fn genre ->
-      {:ok, view, _} = live(conn, "/")
-
-      assert view
-             |> element("#main-content a", genre)
-             |> render_click() ==
-               {:error, {:redirect, %{to: "/search?filter[genre][]=#{genre}"}}}
-    end)
-  end
-
   test "link to browse", %{conn: conn} do
     {:ok, view, _} = live(conn, "/")
 
@@ -126,5 +112,17 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
       |> String.trim_trailing()
 
     assert title == "Digital Collections"
+  end
+
+  test "links to filters", %{conn: conn} do
+    ["photographs", "posters", "pamphlets"]
+    |> Enum.each(fn genre ->
+      {:ok, view, _} = live(conn, "/")
+
+      assert view
+             |> element("#main-content a", String.capitalize(genre))
+             |> render_click() ==
+               {:error, {:live_redirect, %{to: "/search?filter[genre][]=#{genre}", kind: :push}}}
+    end)
   end
 end

@@ -4,6 +4,8 @@ defmodule DpulCollectionsWeb.HeaderComponent do
   use Phoenix.Component
   use Gettext, backend: DpulCollectionsWeb.Gettext
 
+  attr :display_title, :boolean, default: true
+
   def header(assigns) do
     ~H"""
     <header class="flex flex-row gap-10 items-center bg-brand header-y-padding header-x-padding">
@@ -21,6 +23,7 @@ defmodule DpulCollectionsWeb.HeaderComponent do
     <!-- title -->
       <div class="app_name flex-1 w-auto text-center px-2">
         <.link
+          :if={@display_title}
           navigate={~p"/"}
           class="text-lg sm:text-xl md:text-2xl lg:text-3xl sm:inline-block uppercase tracking-widest font-bold text-center"
         >

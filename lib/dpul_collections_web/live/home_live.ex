@@ -27,31 +27,27 @@ defmodule DpulCollectionsWeb.HomeLive do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} content_class={}>
+    <Layouts.app flash={@flash} content_class={} display_title={false}>
       <div class="grid grid-flow-row auto-rows-max">
         <div class="explore-header grid-row bg-background relative">
-          <div class="drop-shadow-[1px_1px_3rem_rgba(0,0,0,1)] bg-primary absolute max-h-[600px] sm:min-w-[350px] w-full lg:max-w-1/2 2xl:max-w-1/3 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 p-4">
-            <div class="corner-cut content-area text-center h-full w-full flex flex-col justify-evenly bg-background p-8">
-              <div class="page-y-padding text-2xl flex-grow">
+          <div class="drop-shadow-[1px_1px_3rem_rgba(0,0,0,1)] bg-primary absolute max-h-[600px] sm:min-w-[350px] w-full md:max-w-2/3 lg:max-w-1/2 2xl:max-w-2/5 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 p-4">
+            <div class="corner-cut content-area text-center h-full w-full flex flex-col justify-evenly items-center bg-background p-8 gap-4">
+              <div>
+                <h1 class="text-2xl">{gettext("Digital Collections")}</h1>
+              </div>
+
+              <div class="text-xl text-balance flex-grow">
                 {gettext(
-                  "Discover %{photographs}, %{posters}, %{pamphlets}, and more to inspire your research",
-                  photographs:
-                    callout_link(%{
-                      url: ~p"/search?#{%{filter: %{genre: ["photographs"]}}}",
-                      label: gettext("photographs")
-                    }),
-                  posters:
-                    callout_link(%{
-                      url: ~p"/search?#{%{filter: %{genre: ["posters"]}}}",
-                      label: gettext("posters")
-                    }),
-                  pamphlets:
-                    callout_link(%{
-                      url: ~p"/search?#{%{filter: %{genre: ["pamphlets"]}}}",
-                      label: gettext("pamphlets")
-                    })
-                )
-                |> Phoenix.HTML.raw()}
+                  "Discover, download, and share contemporary and historic items from across the world."
+                )}
+              </div>
+              <div class="flex flex-wrap justify-center text-dark-text gap-2">
+                <.genre_link filter="posters" label={gettext("Posters")} />
+                <.genre_link filter="pamphlets" label={gettext("Pamphlets")} />
+                <.genre_link filter="flyers" label={gettext("Flyers")} />
+                <.genre_link filter="leaflets" label={gettext("Leaflets")} />
+                <.genre_link filter="photographs" label={gettext("Photographs")} />
+                <.genre_link filter="art" label={gettext("Art")} />
               </div>
               <div class="content-area bg-primary text-light-text px-0 text-xl">
                 <.primary_button href={~p"/browse"}>
@@ -110,9 +106,16 @@ defmodule DpulCollectionsWeb.HomeLive do
     """
   end
 
-  defp callout_link(assigns) do
-    Phoenix.HTML.Safe.to_iodata(~H"""
-    <.link href={@url} class="text-accent font-bold" target="_blank">{@label}</.link>
-    """)
+  def genre_link(assigns) do
+    ~H"""
+    <div class="bg-light-accent rounded-full px-3 py-1">
+      <.link
+        class="no-underline"
+        navigate={~p"/search?filter[genre][]=#{@filter}"}
+      >
+        {@label}
+      </.link>
+    </div>
+    """
   end
 end
