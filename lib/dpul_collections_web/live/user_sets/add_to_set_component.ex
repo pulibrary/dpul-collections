@@ -2,7 +2,12 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
   use DpulCollectionsWeb, :live_component
   use Gettext, backend: DpulCollectionsWeb.Gettext
 
+  def update(_assigns, socket) do
+    {:ok, socket}
+  end
+
   attr :item_id, :string, default: nil
+  attr :current_user, :any
 
   def render(assigns) do
     ~H"""

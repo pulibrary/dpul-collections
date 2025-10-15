@@ -2,7 +2,6 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
   use DpulCollectionsWeb.ConnCase
   import Phoenix.LiveViewTest
   alias DpulCollections.Solr
-  import DpulCollections.AccountsFixtures
   @endpoint DpulCollectionsWeb.Endpoint
 
   setup do

@@ -22,6 +22,10 @@ defmodule DpulCollectionsWeb.BrowseTest do
       |> visit("/browse?r=0")
       |> click_button(".browse-item:first-child button", "Save")
       |> assert_has("h2", text: "Save to Set")
+      |> click_button("Create new set")
+      |> fill_in("Set name", "My Awesome Set")
+      |> fill_in("Set Description", "My awesome set description")
+      |> click_button("Create Set")
     end
   end
 
