@@ -12,4 +12,13 @@ defmodule DpulCollectionsWeb.Features.HomeTest do
     |> assert_has("a", text: "Explore")
     |> unwrap(&TestUtils.assert_a11y/1)
   end
+
+  test "site title is not shown in header, page has it in h1", %{conn: conn} do
+    conn
+    |> visit("/")
+    |> refute_has("header", text: "Digital Collections")
+    |> assert_has("h1", text: "Digital Collections")
+    |> click_link("pamphlets")
+    |> assert_has("header", text: "Digital Collections")
+  end
 end

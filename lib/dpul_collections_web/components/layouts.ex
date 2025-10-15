@@ -19,16 +19,24 @@ defmodule DpulCollectionsWeb.Layouts do
     doc: "the current [scope](https://hexdocs.pm/phoenix/scopes.html)"
 
   attr :content_class, :list, default: ["bg-background", "page-y-padding"]
+  attr :display_title, :boolean, default: true
 
   slot :inner_block, required: true
 
   def app(assigns) do
     ~H"""
-    <.live_component module={DpulCollectionsWeb.SearchBarComponent} id="search-bar" />
-    <main id="main-content" class={@content_class}>
-      <.flash_group flash={@flash} />
-      {render_slot(@inner_block)}
-    </main>
+    {DpulCollectionsWeb.HeaderComponent.header(assigns)}
+    <!-- "relative" here lets us have absolute layout elements that cover all parts of the page except the header. -->
+    <div class="relative flex-1 flex flex-col">
+      <div class="flex-1 bg-background">
+        <.live_component module={DpulCollectionsWeb.SearchBarComponent} id="search-bar" />
+        <main id="main-content" class={@content_class}>
+          <.flash_group flash={@flash} />
+          {render_slot(@inner_block)}
+        </main>
+      </div>
+      {DpulCollectionsWeb.FooterComponent.footer(assigns)}
+    </div>
     """
   end
 end
