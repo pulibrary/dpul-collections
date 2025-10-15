@@ -456,16 +456,16 @@ defmodule DpulCollectionsWeb.SearchLive do
   def results_for_keywords_heading(assigns) do
     ~H"""
     <h1 class="flex flex-wrap">
-      <div>
-        {gettext("Search Results for")}:&nbsp;
-      </div>
-      <div dir="auto" class="normal-case flex-grow">
-        <%= if @keywords do %>
+      <%= if @keywords do %>
+        {gettext("Search Results")}:&nbsp;
+        <span dir="auto" class="normal-case flex-grow">
           {@keywords}
-        <% else %>
-          [ {gettext("All Possible Items")} ]
-        <% end %>
-      </div>
+        </span>
+      <% else %>
+        <div>
+          {gettext("Search Results")}
+        </div>
+      <% end %>
     </h1>
     """
   end
