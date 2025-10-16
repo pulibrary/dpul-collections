@@ -404,7 +404,6 @@ defmodule DpulCollectionsWeb.CoreComponents do
   attr :id, :string, required: true
   attr :afterClose, :any, required: false, default: %JS{}
   attr :label, :string, required: true
-  attr :open, :boolean, required: false
 
   slot :inner_block, doc: "the modal content"
 
@@ -412,7 +411,6 @@ defmodule DpulCollectionsWeb.CoreComponents do
     ~H"""
     <dialog
       id={@id}
-      open={assigns[:open]}
       phx-hook="Dialog"
       phx-mounted={JS.ignore_attributes("open")}
       dcjs-open={JS.dispatch("dpulc:showDialog")}
