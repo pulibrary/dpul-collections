@@ -73,9 +73,7 @@ defmodule DpulCollections.UserSets do
       on: matching_item.set_id == t.id and matching_item.solr_id == ^solr_id,
       select_merge: %{
         set_item_count: count(s.id),
-        # Max is annoying here, but it won't return otherwise since we have to
-        # group_by.
-        has_solr_id: not is_nil(max(matching_item.id))
+        has_solr_id: count(matching_item.id) > 0
       }
   end
 

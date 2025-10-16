@@ -1,5 +1,5 @@
 defmodule DpulCollections.UserSets.SetItem do
-  use Ecto.Schema
+  use DpulCollections.Schema
   import Ecto.Changeset
 
   schema "user_set_items" do

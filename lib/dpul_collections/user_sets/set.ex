@@ -1,5 +1,5 @@
 defmodule DpulCollections.UserSets.Set do
-  use Ecto.Schema
+  use DpulCollections.Schema
   import Ecto.Changeset
 
   schema "user_sets" do
@@ -8,7 +8,7 @@ defmodule DpulCollections.UserSets.Set do
     # Virtual fields to support the display for Add to Set.
     field :set_item_count, :integer, virtual: true
     field :has_solr_id, :boolean, virtual: true, default: false
-    belongs_to :user, DpulCollections.Accounts.User
+    belongs_to :user, DpulCollections.Accounts.User, type: :id
     has_many :set_items, DpulCollections.UserSets.SetItem
 
     timestamps(type: :utc_datetime)
