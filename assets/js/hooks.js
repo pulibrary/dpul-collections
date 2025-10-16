@@ -34,8 +34,8 @@ Hooks.Dialog = {
       }
     })
     this.el.addEventListener('dpulc:closeDialog', (e) =>  {
-      this.el.close()
       this.el.setAttribute("open", false)
+      this.el.close()
     })
     this.el.addEventListener('dpulc:showDialog', (e) =>  {
       this.el.showModal()

@@ -1,13 +1,21 @@
 defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
+  alias DpulCollections.UserSets.Set
+  alias DpulCollections.UserSets
   use DpulCollectionsWeb, :live_component
   use Gettext, backend: DpulCollectionsWeb.Gettext
 
-  def update(_assigns, socket) do
-    {:ok, socket}
+  def update(assigns, socket) do
+    {
+      :ok,
+      socket
+      |> assign(assigns)
+      |> reset()
+    }
   end
 
   attr :item_id, :string, default: nil
-  attr :current_user, :any
+  attr :current_scope, :any
+  attr :mode, :string, default: "append"
 
   def render(assigns) do
     ~H"""
@@ -17,17 +25,105 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
         label="Save to Set"
         open={@item_id != nil}
       >
-        <div id="add-set-modal-content" class="mt-4">
-          Sup - {@item_id}
+        <div id="add-set-modal-content" class="min-w-[400px] mt-4 w-full flex">
+          <.append :if={@mode == "append"} {assigns} />
+          <.new_set_form :if={@mode == "new_set"} {assigns} />
         </div>
       </.modal>
     </div>
     """
   end
 
+  def new_set_form(assigns) do
+    ~H"""
+    <.form
+      for={@set_form}
+      class="flex flex-col gap-2 w-full"
+      phx-submit="save_new_set"
+      phx-target={@myself}
+    >
+      <.input type="text" required={true} label="Set name" field={@set_form[:title]} />
+      <.input type="textarea" label="Set description" field={@set_form[:description]} />
+      <.primary_button>
+        Create Set
+      </.primary_button>
+    </.form>
+    """
+  end
+
+  def append(assigns) do
+    ~H"""
+    <div class="w-full flex flex-col gap-2">
+      <.primary_button
+        phx-click="create_set"
+        phx-target={@myself}
+        class="w-full text-left"
+      >
+        <span class="grow">
+          Create new set
+        </span>
+      </.primary_button>
+      <ul class="flex flex-col gap-2">
+        <li :for={set <- @sets}>
+          <.secondary_button class="w-full flex text-left items-left justify-left">
+            <span class="grow">
+              {set.title}
+            </span>
+          </.secondary_button>
+        </li>
+      </ul>
+    </div>
+    """
+  end
+
+  def handle_event(
+        "save_new_set",
+        %{"set" => params},
+        socket = %{assigns: %{current_scope: current_scope}}
+      ) do
+    case UserSets.create_set(current_scope, params) do
+      {:ok, _set} ->
+        {:noreply,
+         socket
+         |> reset()}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:noreply, assign(socket, new_set_form: to_form(changeset))}
+    end
+  end
+
+  def handle_event(
+        "create_set",
+        _params,
+        socket = %{assigns: %{current_scope: current_scope}}
+      ) do
+    {
+      :noreply,
+      socket
+      |> assign(
+        :set_form,
+        to_form(UserSets.change_set(current_scope, %Set{user_id: current_scope.user.id}))
+      )
+      |> assign(:mode, "new_set")
+    }
+  end
+
   def handle_event("open_modal", %{"item_id" => item_id}, socket) do
     {:noreply,
-     socket |> assign(:item_id, item_id) |> push_event("dcjs-open", %{id: "add-set-modal"})}
+     socket
+     |> reset()
+     |> assign(:item_id, item_id)
+     # Notes to self:
+     # We need to reset things.
+     # Also we can get rid of a bunch of this Modal stuff with
+     # JS.ignore_attribute on phx-mounted
+     |> push_event("dcjs-open", %{id: "add-set-modal"})}
+  end
+
+  def reset(socket) do
+    socket
+    |> assign(:mode, "append")
+    |> assign(:sets, UserSets.list_user_sets(socket.assigns.current_scope))
   end
 
   attr :item_id, :string, required: true

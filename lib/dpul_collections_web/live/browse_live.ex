@@ -90,7 +90,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
       <.live_component
         module={AddToSetComponent}
         id="user_set_form"
-        current_user={@current_scope.user}
+        current_scope={@current_scope}
       />
     </Layouts.app>
     """
