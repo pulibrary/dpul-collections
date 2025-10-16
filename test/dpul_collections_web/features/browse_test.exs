@@ -13,7 +13,7 @@ defmodule DpulCollectionsWeb.BrowseTest do
 
   describe "user sets" do
     test "users can add an item to a user set", %{conn: conn} do
-      Solr.add(SolrTestSupport.mock_solr_documents(1), active_collection())
+      Solr.add(SolrTestSupport.mock_solr_documents(2), active_collection())
       Solr.soft_commit(active_collection())
       user = user_fixture()
 
@@ -25,9 +25,22 @@ defmodule DpulCollectionsWeb.BrowseTest do
       |> click_button("Create new set")
       |> fill_in("Set name", with: "My Awesome Set")
       |> fill_in("Set description", with: "My awesome set description")
+      # Can make a new set that has it.
       |> click_button("Create Set")
       |> assert_has("li", text: "My Awesome Set - 1 Item")
       |> assert_has("li.has-item", text: "My Awesome Set - 1 Item")
+      # Can make a new set, then cancel
+      |> click_button("Create new set")
+      |> click_button("Cancel")
+      # A new one didn't get made.
+      |> assert_has("#add-set-modal li", count: 1)
+      |> click_button("Close modal")
+      # I can add a second item to that set.
+      |> click_button(".browse-item:nth-child(2) button", "Save")
+      |> assert_has("li", text: "My Awesome Set - 1 Item")
+      |> refute_has("li.has-item")
+      |> click_button("My Awesome Set - 1 Item")
+      |> assert_has("li.has-item")
     end
   end
 

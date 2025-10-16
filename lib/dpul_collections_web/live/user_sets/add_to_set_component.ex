@@ -47,9 +47,15 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
       <.inputs_for :let={si_form} field={@set_form[:set_items]}>
         <input type="hidden" name={si_form[:solr_id].name} value={si_form[:solr_id].value} />
       </.inputs_for>
-      <.primary_button>
-        Create Set
-      </.primary_button>
+      <div class="flex w-full">
+        <.secondary_button phx-click="reset" phx-target={@myself}>
+          Cancel
+        </.secondary_button>
+        <div class="grow"></div>
+        <.primary_button>
+          Create Set
+        </.primary_button>
+      </div>
     </.form>
     """
   end
@@ -68,7 +74,12 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
       </.primary_button>
       <ul class="flex flex-col gap-2">
         <li :for={set <- @sets} class={["group", set.has_solr_id && "has-item"]}>
-          <.secondary_button class="group-[.has-item]:bg-loud-button group-[.has-item]:text-light-text group-[.has-item]:hover:text-dark-text w-full flex text-left items-left justify-left">
+          <.secondary_button
+            class="group-[.has-item]:bg-loud-button group-[.has-item]:text-light-text group-[.has-item]:hover:text-dark-text w-full flex text-left items-left justify-left"
+            phx-target={@myself}
+            phx-click="append_item"
+            phx-value-set-id={set.id}
+          >
             <span class="grow">
               {set.title} - {set.set_item_count} Items
             </span>
@@ -78,6 +89,16 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
       </ul>
     </div>
     """
+  end
+
+  def handle_event(
+        "append_item",
+        %{"set-id" => set_id},
+        socket = %{assigns: %{current_scope: current_scope, item_id: solr_id}}
+      ) do
+    set = UserSets.get_set!(current_scope, set_id)
+    {:ok, _set_item} = UserSets.create_set_item(%{set_id: set.id, solr_id: solr_id})
+    {:noreply, socket |> reset()}
   end
 
   def handle_event(
@@ -127,6 +148,12 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
      # We can get rid of a bunch of this Modal stuff with
      # JS.ignore_attribute on phx-mounted
      |> push_event("dcjs-open", %{id: "add-set-modal"})}
+  end
+
+  def handle_event("reset", _, socket) do
+    {:noreply,
+     socket
+     |> reset()}
   end
 
   def reset(socket) do
