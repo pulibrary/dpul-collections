@@ -72,6 +72,7 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
             <span class="grow">
               {set.title} - {set.set_item_count} Items
             </span>
+            <.icon :if={set.has_solr_id} name="hero-check-circle" />
           </.secondary_button>
         </li>
       </ul>
