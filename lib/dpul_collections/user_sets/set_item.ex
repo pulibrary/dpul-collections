@@ -6,7 +6,7 @@ defmodule DpulCollections.UserSets.SetItem do
     field :solr_id, :string
     belongs_to :set, DpulCollections.UserSets.Set
 
-    timestamps(type: :utc_datetime)
+    timestamps(type: :utc_datetime_usec)
   end
 
   @doc false

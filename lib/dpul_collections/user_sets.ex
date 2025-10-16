@@ -52,7 +52,7 @@ defmodule DpulCollections.UserSets do
         # Join all set items to get the total count
         left_join: s in assoc(t, :set_items),
         group_by: t.id,
-        order_by: [asc: t.inserted_at]
+        order_by: [desc: t.inserted_at]
 
     Repo.all(base_query |> assign_has_solr_id(solr_id))
   end

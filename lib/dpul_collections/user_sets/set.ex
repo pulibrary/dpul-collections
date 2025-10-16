@@ -11,7 +11,7 @@ defmodule DpulCollections.UserSets.Set do
     belongs_to :user, DpulCollections.Accounts.User, type: :id
     has_many :set_items, DpulCollections.UserSets.SetItem
 
-    timestamps(type: :utc_datetime)
+    timestamps(type: :utc_datetime_usec)
   end
 
   @doc false
