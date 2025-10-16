@@ -24,7 +24,6 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
       <.modal
         id="add-set-modal"
         label="Save to Set"
-        open={@item_id != nil}
       >
         <div id="add-set-modal-content" class="min-w-[400px] mt-4 w-full flex">
           <.append :if={@mode == "append"} {assigns} />

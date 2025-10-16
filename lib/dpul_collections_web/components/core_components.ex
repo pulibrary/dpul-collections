@@ -414,6 +414,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
       id={@id}
       open={assigns[:open]}
       phx-hook="Dialog"
+      phx-mounted={JS.ignore_attributes("open")}
       dcjs-open={JS.dispatch("dpulc:showDialog")}
       dcjs-close={JS.dispatch("dpulc:closeDialog") |> JS.exec("dcjs-after-close")}
       dcjs-after-close={@afterClose}

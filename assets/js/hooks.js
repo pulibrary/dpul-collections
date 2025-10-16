@@ -27,19 +27,14 @@ Hooks.Dialog = {
     // doesn't open until the content is updated.
     this.handleEvent("dcjs-open", (e) => {
       if(this.el.id == e.id) {
-        // If "open" is set we can't call showModal, so unset it - LiveView will
-        // reset it later.
-        this.el.removeAttribute("open")
         this.js().exec(this.el.getAttribute('dcjs-open'))
       }
     })
     this.el.addEventListener('dpulc:closeDialog', (e) =>  {
-      this.el.setAttribute("open", false)
       this.el.close()
     })
     this.el.addEventListener('dpulc:showDialog', (e) =>  {
       this.el.showModal()
-      this.el.setAttribute("open", true)
     })
     this.el.addEventListener('close', (e) => {
       // If the user hits "escape" then JS closes the modal, we still want

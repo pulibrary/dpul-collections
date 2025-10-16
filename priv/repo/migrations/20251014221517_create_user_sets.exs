@@ -8,7 +8,7 @@ defmodule DpulCollections.Repo.Migrations.CreateUserSets do
       add :description, :text
       add :user_id, references(:users, type: :id, on_delete: :delete_all)
 
-      timestamps(type: :utc_datetime)
+      timestamps(type: :utc_datetime_usec)
     end
 
     create index(:user_sets, [:user_id])
