@@ -22,6 +22,7 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
     ~H"""
     <div id={@id}>
       <.modal
+        :if={Application.fetch_env!(:dpul_collections, :feature_account_toolbar)}
         id="add-set-modal"
         label="Save to Set"
       >
@@ -179,6 +180,7 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
   def add_button(assigns) do
     ~H"""
     <.card_button
+      :if={Application.fetch_env!(:dpul_collections, :feature_account_toolbar)}
       icon="hero-folder-plus"
       label={gettext("Save")}
       phx-click="open_modal"
