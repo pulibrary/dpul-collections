@@ -315,6 +315,64 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> TestUtils.clean_string() == "Genre posters"
   end
 
+  test "adding and removing filters sets page back to 1", %{conn: conn} do
+    # Add more documents so that we can still paginate after filtering
+    Solr.add(SolrTestSupport.mock_solr_documents(210), active_collection())
+    Solr.soft_commit(active_collection())
+
+    {:ok, view, html} = live(conn, "/search?")
+
+    assert html =~ "1 - 50 of 210"
+
+    # go to the next page
+    {:ok, view, html} =
+      view
+      |> element("#paginator-next")
+      |> render_click()
+      |> follow_redirect(conn)
+
+    assert html
+           |> Floki.parse_document!()
+           |> Floki.find("#item-counter")
+           |> Floki.text() =~ "51 - 100 of 210"
+
+    # selecting a filter goes back to page 1
+    view
+    |> element("button", "Genre")
+    |> render_click()
+
+    assert view
+           |> element("#filter-form")
+           |> render_change(%{_target: ["filter", "genre"], filter: %{genre: ["Folders"]}})
+           |> Floki.parse_document!()
+           |> Floki.find("#item-counter")
+           |> Floki.text() =~ "1 - 50 of 105"
+
+    # go to the next page
+    {:ok, view, html} =
+      view
+      |> element("#paginator-next")
+      |> render_click()
+      |> follow_redirect(conn)
+
+    assert html
+           |> Floki.parse_document!()
+           |> Floki.find("#item-counter")
+           |> Floki.text() =~ "51 - 100 of 105"
+
+    # Removing a pill goes back to page 1
+    view
+    |> element("button", "Genre")
+    |> render_click()
+
+    assert view
+           |> element(".filter", "Folders")
+           |> render_click()
+           |> Floki.parse_document!()
+           |> Floki.find("#item-counter")
+           |> Floki.text() =~ "1 - 50 of 210"
+  end
+
   test "changing query parameter resets sort_by to default", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/search")
 

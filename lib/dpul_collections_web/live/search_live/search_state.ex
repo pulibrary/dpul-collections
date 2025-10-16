@@ -44,6 +44,11 @@ defmodule DpulCollectionsWeb.SearchLive.SearchState do
     |> put_in([:filter, filter], value)
   end
 
+  def reset_pagination(search_state) do
+    search_state
+    |> Map.put(:page, 1)
+  end
+
   defp valid_sort_by(%{"sort_by" => sort_by})
        when sort_by in @sort_by_keys do
     String.to_existing_atom(sort_by)

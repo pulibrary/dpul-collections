@@ -623,6 +623,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     new_state =
       search_state
       |> SearchState.remove_filter_value(filter, value)
+      |> SearchState.reset_pagination()
 
     {:noreply, push_patch(socket, to: ~p"/search?#{new_state}")}
   end
@@ -645,6 +646,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     new_state =
       search_state
       |> SearchState.set_filter(filter, get_in(params, ["filter", filter]))
+      |> SearchState.reset_pagination()
 
     socket = push_patch(socket, to: ~p"/search?#{new_state}")
     {:noreply, socket}
