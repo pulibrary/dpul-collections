@@ -97,7 +97,17 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
         socket = %{assigns: %{current_scope: current_scope, item_id: solr_id}}
       ) do
     set = UserSets.get_set!(current_scope, set_id)
-    {:ok, _set_item} = UserSets.create_set_item(%{set_id: set.id, solr_id: solr_id})
+
+    case UserSets.get_set_item(set.id, solr_id) do
+      # If there isn't one yet, make one.
+      nil ->
+        {:ok, _set_item} = UserSets.create_set_item(%{set_id: set.id, solr_id: solr_id})
+
+      # Otherwise delete the existing one.
+      set_item ->
+        {:ok, _} = UserSets.delete_set_item(set_item)
+    end
+
     {:noreply, socket |> reset()}
   end
 

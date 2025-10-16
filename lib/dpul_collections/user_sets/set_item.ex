@@ -14,5 +14,6 @@ defmodule DpulCollections.UserSets.SetItem do
     set_item
     |> cast(attrs, [:solr_id, :set_id])
     |> validate_required([:solr_id])
+    |> unique_constraint([:set_id, :solr_id])
   end
 end

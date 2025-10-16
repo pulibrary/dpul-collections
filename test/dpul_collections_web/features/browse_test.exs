@@ -41,6 +41,11 @@ defmodule DpulCollectionsWeb.BrowseTest do
       |> refute_has("li.has-item")
       |> click_button("My Awesome Set - 1 Item")
       |> assert_has("li.has-item")
+      # I can remove it from a set.
+      |> click_button("My Awesome Set - 2 Items")
+      # We might want a confirmation here, but it's not in the mockups.
+      |> refute_has("li.has-item")
+      |> assert_has("li", text: "My Awesome Set - 1 Item")
     end
   end
 

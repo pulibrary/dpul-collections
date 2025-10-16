@@ -209,6 +209,11 @@ defmodule DpulCollections.UserSets do
   """
   def get_set_item!(id), do: Repo.get!(SetItem, id)
 
+  def get_set_item(set_id, solr_id) do
+    SetItem
+    |> Repo.get_by(set_id: set_id, solr_id: solr_id)
+  end
+
   @doc """
   Creates a set_item.
 

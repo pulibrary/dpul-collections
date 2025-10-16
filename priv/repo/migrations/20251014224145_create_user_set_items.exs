@@ -11,6 +11,6 @@ defmodule DpulCollections.Repo.Migrations.CreateUserSetItems do
     end
 
     create index(:user_set_items, [:set_id])
-    create index(:user_set_items, [:set_id, :solr_id])
+    create unique_index(:user_set_items, [:set_id, :solr_id])
   end
 end
