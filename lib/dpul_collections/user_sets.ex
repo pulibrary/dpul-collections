@@ -4,6 +4,7 @@ defmodule DpulCollections.UserSets do
   """
 
   import Ecto.Query, warn: false
+  alias DpulCollections.UserSets.SetItem
   alias DpulCollections.Repo
 
   alias DpulCollections.UserSets.Set
@@ -42,6 +43,40 @@ defmodule DpulCollections.UserSets do
   """
   def list_user_sets(%Scope{} = scope) do
     Repo.all_by(Set, user_id: scope.user.id)
+  end
+
+  def list_user_sets_for_addition(%Scope{} = scope, solr_id \\ nil) do
+    base_query =
+      from t in Set,
+        where: t.user_id == ^scope.user.id,
+        # Join all set items to get the total count
+        left_join: s in assoc(t, :set_items),
+        group_by: t.id,
+        order_by: [asc: t.inserted_at]
+
+    Repo.all(base_query |> assign_has_solr_id(solr_id))
+  end
+
+  # If solr_id is nil it's not safe to join, so always return false for
+  # has_solr_id. If we try, then Ecto throws an error.
+  defp assign_has_solr_id(base_query, nil) do
+    from [t, s] in base_query,
+      select_merge: %{
+        set_item_count: count(s.id),
+        has_solr_id: false
+      }
+  end
+
+  defp assign_has_solr_id(base_query, solr_id) do
+    from [t, s] in base_query,
+      left_join: matching_item in DpulCollections.UserSets.SetItem,
+      on: matching_item.set_id == t.id and matching_item.solr_id == ^solr_id,
+      select_merge: %{
+        set_item_count: count(s.id),
+        # Max is annoying here, but it won't return otherwise since we have to
+        # group_by.
+        has_solr_id: not is_nil(max(matching_item.id))
+      }
   end
 
   @doc """

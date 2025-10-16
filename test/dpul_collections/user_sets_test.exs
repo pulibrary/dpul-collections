@@ -20,6 +20,27 @@ defmodule DpulCollections.UserSetsTest do
       assert UserSets.list_user_sets(other_scope) == [other_set]
     end
 
+    test "list_user_sets_for_addition/2 returns all user sets, how many SetItems it has, and if the given ItemID is in there" do
+      scope = user_scope_fixture()
+      # Make another user, make sure their sets don't get returned.
+      _other_scope = user_scope_fixture()
+      set = set_fixture(scope, %{title: "The First Set"})
+      other_set = set_fixture(scope, %{title: "The Second Set"})
+      set_item = set_item_fixture(%{solr_id: "123"}, scope, set)
+      _set_item_2 = set_item_fixture(%{}, scope, set)
+
+      sets = UserSets.list_user_sets_for_addition(scope, set_item.solr_id)
+      assert length(sets) == 2
+
+      [first_set, second_set] = sets
+      assert first_set.set_item_count == 2
+      assert second_set.set_item_count == 0
+      assert first_set.has_solr_id == true
+      assert second_set.has_solr_id == false
+      assert first_set.title == "The First Set"
+      assert second_set.title == other_set.title
+    end
+
     test "get_set!/2 returns the set with given id" do
       scope = user_scope_fixture()
       set = set_fixture(scope)
@@ -34,6 +55,15 @@ defmodule DpulCollections.UserSetsTest do
 
       assert {:ok, %Set{} = set} = UserSets.create_set(scope, valid_attrs)
       assert set.user_id == scope.user.id
+    end
+
+    test "create_set/2 can create a set with an item" do
+      valid_attrs = %{"title" => "Test Set", "set_items" => [%{"solr_id" => "test"}]}
+      scope = user_scope_fixture()
+
+      assert {:ok, %Set{}} = UserSets.create_set(scope, valid_attrs)
+      [first_set] = UserSets.list_user_sets_for_addition(scope)
+      assert first_set.set_item_count == 1
     end
 
     test "create_set/2 with invalid data returns error changeset" do

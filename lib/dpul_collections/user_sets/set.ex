@@ -5,6 +5,9 @@ defmodule DpulCollections.UserSets.Set do
   schema "user_sets" do
     field :title, :string
     field :description, :string
+    # Virtual fields to support the display for Add to Set.
+    field :set_item_count, :integer, virtual: true
+    field :has_solr_id, :boolean, virtual: true, default: false
     belongs_to :user, DpulCollections.Accounts.User
     has_many :set_items, DpulCollections.UserSets.SetItem
 

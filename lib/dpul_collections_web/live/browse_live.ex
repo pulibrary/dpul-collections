@@ -88,6 +88,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
         <.display_items {assigns} />
       </div>
       <.live_component
+        :if={@current_scope}
         module={AddToSetComponent}
         id="user_set_form"
         current_scope={@current_scope}
@@ -108,8 +109,15 @@ defmodule DpulCollectionsWeb.BrowseLive do
           target="_blank"
           class="border-6 border-primary"
           show_images={@show_images}
+          current_scope={@current_scope}
         />
-        <.browse_item :for={item <- @items} item={item} target="_blank" show_images={@show_images} />
+        <.browse_item
+          :for={item <- @items}
+          item={item}
+          target="_blank"
+          show_images={@show_images}
+          current_scope={@current_scope}
+        />
       </div>
     </div>
     """

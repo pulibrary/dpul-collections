@@ -1,4 +1,5 @@
 defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
+  alias DpulCollections.UserSets.SetItem
   alias DpulCollections.UserSets.Set
   alias DpulCollections.UserSets
   use DpulCollectionsWeb, :live_component
@@ -44,6 +45,9 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
     >
       <.input type="text" required={true} label="Set name" field={@set_form[:title]} />
       <.input type="textarea" label="Set description" field={@set_form[:description]} />
+      <.inputs_for :let={si_form} field={@set_form[:set_items]}>
+        <input type="hidden" name={si_form[:solr_id].name} value={si_form[:solr_id].value} />
+      </.inputs_for>
       <.primary_button>
         Create Set
       </.primary_button>
@@ -64,10 +68,10 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
         </span>
       </.primary_button>
       <ul class="flex flex-col gap-2">
-        <li :for={set <- @sets}>
-          <.secondary_button class="w-full flex text-left items-left justify-left">
+        <li :for={set <- @sets} class={["group", set.has_solr_id && "has-item"]}>
+          <.secondary_button class="group-[.has-item]:bg-loud-button group-[.has-item]:text-light-text group-[.has-item]:hover:text-dark-text w-full flex text-left items-left justify-left">
             <span class="grow">
-              {set.title}
+              {set.title} - {set.set_item_count} Items
             </span>
           </.secondary_button>
         </li>
@@ -88,6 +92,7 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
          |> reset()}
 
       {:error, %Ecto.Changeset{} = changeset} ->
+        dbg(changeset)
         {:noreply, assign(socket, new_set_form: to_form(changeset))}
     end
   end
@@ -95,14 +100,19 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
   def handle_event(
         "create_set",
         _params,
-        socket = %{assigns: %{current_scope: current_scope}}
+        socket = %{assigns: %{current_scope: current_scope, item_id: item_id}}
       ) do
     {
       :noreply,
       socket
       |> assign(
         :set_form,
-        to_form(UserSets.change_set(current_scope, %Set{user_id: current_scope.user.id}))
+        to_form(
+          UserSets.change_set(current_scope, %Set{
+            user_id: current_scope.user.id,
+            set_items: [%SetItem{solr_id: item_id}]
+          })
+        )
       )
       |> assign(:mode, "new_set")
     }
@@ -111,11 +121,10 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
   def handle_event("open_modal", %{"item_id" => item_id}, socket) do
     {:noreply,
      socket
-     |> reset()
      |> assign(:item_id, item_id)
+     |> reset()
      # Notes to self:
-     # We need to reset things.
-     # Also we can get rid of a bunch of this Modal stuff with
+     # We can get rid of a bunch of this Modal stuff with
      # JS.ignore_attribute on phx-mounted
      |> push_event("dcjs-open", %{id: "add-set-modal"})}
   end
@@ -123,7 +132,10 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
   def reset(socket) do
     socket
     |> assign(:mode, "append")
-    |> assign(:sets, UserSets.list_user_sets(socket.assigns.current_scope))
+    |> assign(
+      :sets,
+      UserSets.list_user_sets_for_addition(socket.assigns.current_scope, socket.assigns[:item_id])
+    )
   end
 
   attr :item_id, :string, required: true

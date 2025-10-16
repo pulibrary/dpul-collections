@@ -22,9 +22,8 @@ defmodule DpulCollections.UserSetsFixtures do
   @doc """
   Generate a set_item.
   """
-  def set_item_fixture(attrs \\ %{}) do
-    scope = AccountsFixtures.user_scope_fixture()
-    set = set_fixture(scope)
+  def set_item_fixture(attrs \\ %{}, scope \\ AccountsFixtures.user_scope_fixture(), set \\ nil) do
+    set = set || set_fixture(scope)
 
     {:ok, set_item} =
       attrs

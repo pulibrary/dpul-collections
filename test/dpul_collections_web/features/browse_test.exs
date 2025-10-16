@@ -27,6 +27,7 @@ defmodule DpulCollectionsWeb.BrowseTest do
       |> fill_in("Set description", with: "My awesome set description")
       |> click_button("Create Set")
       |> assert_has("li", text: "My Awesome Set - 1 Item")
+      |> assert_has("li.has-item", text: "My Awesome Set - 1 Item")
     end
   end
 

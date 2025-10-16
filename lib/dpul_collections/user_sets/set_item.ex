@@ -13,6 +13,6 @@ defmodule DpulCollections.UserSets.SetItem do
   def changeset(set_item, attrs) do
     set_item
     |> cast(attrs, [:solr_id, :set_id])
-    |> validate_required([:solr_id, :set_id])
+    |> validate_required([:solr_id])
   end
 end
