@@ -1,5 +1,6 @@
 defmodule DpulCollectionsWeb.SearchLive do
   alias DpulCollections.Collection
+  alias DpulCollectionsWeb.UserSets
   use DpulCollectionsWeb, :live_view
   use Gettext, backend: DpulCollectionsWeb.Gettext
   alias DpulCollections.{Item, Solr}
@@ -153,9 +154,11 @@ defmodule DpulCollectionsWeb.SearchLive do
     """
   end
 
+  attr :current_scope, :map, required: false, default: nil
+
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash}>
+    <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="content-area page-b-padding">
         <.results_for_keywords_heading keywords={@search_state.q} />
       </div>
@@ -238,6 +241,7 @@ defmodule DpulCollectionsWeb.SearchLive do
               item={item}
               sort_by={@search_state.sort_by}
               show_images={@show_images}
+              current_scope={@current_scope}
             />
           </li>
         </ul>
@@ -415,7 +419,12 @@ defmodule DpulCollectionsWeb.SearchLive do
           <div :if={@sort_by == :recently_updated && @item.updated_at} class="updated-at w-full">
             {gettext("Added")} {DpulCollectionsWeb.BrowseItem.time_ago(@item.updated_at)}
           </div>
-          <.search_brief_metadata item={@item} />
+          <div class="flex">
+            <div class="grow">
+              <.search_brief_metadata item={@item} />
+            </div>
+            <UserSets.AddToSetComponent.add_button :if={@current_scope} item_id={@item.id} />
+          </div>
           <div class="small-thumbnails hidden sm:flex flex-row flex-wrap gap-5 max-h-[125px] justify-start overflow-hidden">
             <.thumbs
               :for={{thumb, thumb_num} <- thumbnail_service_urls(1, 6, @item)}
