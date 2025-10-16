@@ -10,21 +10,22 @@ defmodule DpulCollections.UserSets do
   alias DpulCollections.UserSets.Set
   alias DpulCollections.Accounts.Scope
 
-  @doc """
-  Subscribes to scoped notifications about any set changes.
+  # NOTE: Commented until we need it. Might need it for multi-tab set adding.
+  # @doc """
+  # Subscribes to scoped notifications about any set changes.
 
-  The broadcasted messages match the pattern:
+  # The broadcasted messages match the pattern:
 
-    * {:created, %Set{}}
-    * {:updated, %Set{}}
-    * {:deleted, %Set{}}
+  #   * {:created, %Set{}}
+  #   * {:updated, %Set{}}
+  #   * {:deleted, %Set{}}
 
-  """
-  def subscribe_user_sets(%Scope{} = scope) do
-    key = scope.user.id
-
-    Phoenix.PubSub.subscribe(DpulCollections.PubSub, "user:#{key}:user_sets")
-  end
+  # """
+  # def subscribe_user_sets(%Scope{} = scope) do
+  #   key = scope.user.id
+  #
+  #   Phoenix.PubSub.subscribe(DpulCollections.PubSub, "user:#{key}:user_sets")
+  # end
 
   defp broadcast_set(%Scope{} = scope, message) do
     key = scope.user.id
