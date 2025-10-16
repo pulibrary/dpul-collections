@@ -20,7 +20,7 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
 
   def render(assigns) do
     ~H"""
-    <div>
+    <div id={@id}>
       <.modal
         id="add-set-modal"
         label="Save to Set"
@@ -123,7 +123,6 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
          |> reset()}
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        dbg(changeset)
         {:noreply, assign(socket, new_set_form: to_form(changeset))}
     end
   end
@@ -184,7 +183,7 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
       label={gettext("Save")}
       phx-click="open_modal"
       phx-value-item_id={@item_id}
-      phx-target="#add-set-modal"
+      phx-target="#user_set_form"
     />
     """
   end

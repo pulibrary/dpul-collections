@@ -23,6 +23,8 @@ defmodule DpulCollectionsWeb.BrowseTest do
       |> click_button(".browse-item:first-child button", "Save")
       |> assert_has("h2", text: "Save to Set")
       |> click_button("Create new set")
+      # Can't submit empty form.
+      |> click_button("Create Set")
       |> fill_in("Set name", with: "My Awesome Set")
       |> fill_in("Set description", with: "My awesome set description")
       # Can make a new set that has it.
