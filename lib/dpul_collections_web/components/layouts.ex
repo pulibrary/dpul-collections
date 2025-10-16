@@ -3,6 +3,7 @@ defmodule DpulCollectionsWeb.Layouts do
   This module holds layouts and related functionality
   used by your application.
   """
+  alias DpulCollectionsWeb.UserSets.AddToSetComponent
   use DpulCollectionsWeb, :html
   use Gettext, backend: DpulCollectionsWeb.Gettext
 
@@ -32,6 +33,12 @@ defmodule DpulCollectionsWeb.Layouts do
         <.live_component module={DpulCollectionsWeb.SearchBarComponent} id="search-bar" />
         <main id="main-content" class={@content_class}>
           <.flash_group flash={@flash} />
+          <.live_component
+            :if={@current_scope}
+            module={AddToSetComponent}
+            id="user_set_form"
+            current_scope={@current_scope}
+          />
           {render_slot(@inner_block)}
         </main>
       </div>

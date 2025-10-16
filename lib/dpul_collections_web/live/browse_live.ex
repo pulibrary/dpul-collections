@@ -1,5 +1,4 @@
 defmodule DpulCollectionsWeb.BrowseLive do
-  alias DpulCollectionsWeb.UserSets.AddToSetComponent
   alias DpulCollectionsWeb.SearchLive.SearchState
   alias DpulCollectionsWeb.BrowseItem
   use DpulCollectionsWeb, :live_view
@@ -71,7 +70,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash}>
+    <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div id="browse" class="content-area">
         <h1 id="browse-header" class="mb-2">{gettext("Browse")}</h1>
         <div class="mb-5 text-lg w-full items-center">
@@ -87,12 +86,6 @@ defmodule DpulCollectionsWeb.BrowseLive do
         </div>
         <.display_items {assigns} />
       </div>
-      <.live_component
-        :if={@current_scope}
-        module={AddToSetComponent}
-        id="user_set_form"
-        current_scope={@current_scope}
-      />
     </Layouts.app>
     """
   end
