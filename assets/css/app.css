@@ -60,6 +60,7 @@
   /* Light accents, currently for tags */
   --color-light-accent: --alpha(var(--color-accent) / 20%);
   --color-search: var(--color-sage-200);
+  --color-loud-button: hsl(113, 97%, 24%);
 
   /* just add poppins on the front of the tailwind default */
   --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";

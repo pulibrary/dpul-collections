@@ -2,6 +2,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   use DpulCollectionsWeb.ConnCase
   import Phoenix.LiveViewTest
   alias DpulCollections.Solr
+  import DpulCollections.AccountsFixtures
   @endpoint DpulCollectionsWeb.Endpoint
 
   setup do
@@ -11,6 +12,23 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   end
 
   describe "GET /search" do
+    test "items can be saved to a user set", %{conn: conn} do
+      {:ok, view, _html} =
+        conn
+        |> log_in_user(user_fixture())
+        |> live(~p"/search")
+
+      # Open dialog
+      view
+      |> element("li:first-child button", "Save")
+      |> render_click()
+
+      # Create new set
+      assert view
+             |> element("button", "Create new set")
+             |> render_click() =~ "Set name"
+    end
+
     test "with no parameters returns all items", %{conn: conn} do
       conn = get(conn, ~p"/search")
 

@@ -6,6 +6,7 @@ defmodule DpulCollections.Accounts.User do
     field :email, :string
     field :confirmed_at, :utc_datetime
     field :authenticated_at, :utc_datetime, virtual: true
+    has_many :sets, DpulCollections.UserSets.Set
 
     timestamps(type: :utc_datetime)
   end

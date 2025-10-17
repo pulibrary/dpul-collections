@@ -412,6 +412,10 @@ defmodule DpulCollectionsWeb.CoreComponents do
     <dialog
       id={@id}
       phx-hook="Dialog"
+      phx-mounted={
+        # Ignore `open` attribute when LiveView updates so JS can control opening/closing the modal.
+        JS.ignore_attributes("open")
+      }
       dcjs-open={JS.dispatch("dpulc:showDialog")}
       dcjs-close={JS.dispatch("dpulc:closeDialog") |> JS.exec("dcjs-after-close")}
       dcjs-after-close={@afterClose}
@@ -640,25 +644,25 @@ defmodule DpulCollectionsWeb.CoreComponents do
   #   """
   # end
   #
-  # def input(%{type: "textarea"} = assigns) do
-  #   ~H"""
-  #   <div phx-feedback-for={@name}>
-  #     <.label for={@id}>{@label}</.label>
-  #     <textarea
-  #       id={@id}
-  #       name={@name}
-  #       class={[
-  #         "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
-  #         "min-h-[6rem] phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
-  #         @errors == [] && "border-zinc-300 focus:border-zinc-400",
-  #         @errors != [] && "border-rose-400 focus:border-rose-400"
-  #       ]}
-  #       {@rest}
-  #     ><%= Phoenix.HTML.Form.normalize_value("textarea", @value) %></textarea>
-  #     <.error :for={msg <- @errors}>{msg}</.error>
-  #   </div>
-  #   """
-  # end
+  def input(%{type: "textarea"} = assigns) do
+    ~H"""
+    <div phx-feedback-for={@name}>
+      <.label for={@id}>{@label}</.label>
+      <textarea
+        id={@id}
+        name={@name}
+        class={[
+          "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
+          "min-h-[6rem] phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
+          @errors == [] && "border-zinc-300 focus:border-zinc-400",
+          @errors != [] && "border-rose-400 focus:border-rose-400"
+        ]}
+        {@rest}
+      ><%= Phoenix.HTML.Form.normalize_value("textarea", @value) %></textarea>
+      <.error :for={msg <- @errors}>{msg}</.error>
+    </div>
+    """
+  end
 
   # All other inputs text, datetime-local, url, password, etc. are handled here...
   def input(assigns) do
@@ -733,6 +737,20 @@ defmodule DpulCollectionsWeb.CoreComponents do
       </div>
       <div class="flex-none">{render_slot(@actions)}</div>
     </header>
+    """
+  end
+
+  def card_button(assigns) do
+    ~H"""
+    <.primary_button
+      class="btn-base border-1 border-gray-200 bg-background py-1 px-2 flex flex-col items-center z-100 hover:bg-background"
+      {assigns}
+    >
+      <.icon class="grow w-[1.5rem] h-[1.5rem]" name={@icon} />
+      <span class="text-sm font-normal normal-case">
+        {@label}
+      </span>
+    </.primary_button>
     """
   end
 

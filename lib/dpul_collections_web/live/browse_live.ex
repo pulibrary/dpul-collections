@@ -70,7 +70,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash}>
+    <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div id="browse" class="content-area">
         <h1 id="browse-header" class="mb-2">{gettext("Browse")}</h1>
         <div class="mb-5 text-lg w-full items-center">
@@ -102,8 +102,15 @@ defmodule DpulCollectionsWeb.BrowseLive do
           target="_blank"
           class="border-6 border-primary"
           show_images={@show_images}
+          current_scope={@current_scope}
         />
-        <.browse_item :for={item <- @items} item={item} target="_blank" show_images={@show_images} />
+        <.browse_item
+          :for={item <- @items}
+          item={item}
+          target="_blank"
+          show_images={@show_images}
+          current_scope={@current_scope}
+        />
       </div>
     </div>
     """

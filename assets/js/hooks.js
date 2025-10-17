@@ -23,6 +23,13 @@ Hooks.ToolbarHook = {
 
 Hooks.Dialog = {
   mounted() {
+    // Add a way for the server to request opening via a server event, so it
+    // doesn't open until the content is updated.
+    this.handleEvent("dcjs-open", (e) => {
+      if(this.el.id == e.id) {
+        this.js().exec(this.el.getAttribute('dcjs-open'))
+      }
+    })
     this.el.addEventListener('dpulc:closeDialog', (e) =>  {
       this.el.close()
     })
