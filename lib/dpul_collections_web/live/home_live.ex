@@ -47,7 +47,6 @@ defmodule DpulCollectionsWeb.HomeLive do
                 <.genre_link filter="flyers" label={gettext("Flyers")} />
                 <.genre_link filter="leaflets" label={gettext("Leaflets")} />
                 <.genre_link filter="photographs" label={gettext("Photographs")} />
-                <.genre_link filter="art" label={gettext("Art")} />
               </div>
               <div class="content-area bg-primary text-light-text px-0 text-xl">
                 <.primary_button href={~p"/browse"}>
