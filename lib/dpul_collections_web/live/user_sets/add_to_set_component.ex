@@ -61,6 +61,7 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
 
   @doc """
   List a user's sets and allow them to append the item to one - or click to create a new one.
+  If the item's already in the set clicked then it removes it.
   """
   def list_sets(assigns) do
     ~H"""
@@ -79,7 +80,7 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
           <.secondary_button
             class="group-[.has-item]:bg-loud-button group-[.has-item]:text-light-text group-[.has-item]:hover:text-dark-text w-full flex text-left items-left justify-left"
             phx-target={@myself}
-            phx-click="create_set_item"
+            phx-click="toggle_set_membership"
             phx-value-set-id={set.id}
           >
             <span class="grow">
@@ -123,7 +124,7 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
   end
 
   def handle_event(
-        "create_set_item",
+        "toggle_set_membership",
         %{"set-id" => set_id},
         socket = %{assigns: %{current_scope: current_scope, item_id: solr_id}}
       ) do
