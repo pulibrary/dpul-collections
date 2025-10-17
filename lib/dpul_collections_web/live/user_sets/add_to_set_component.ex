@@ -94,6 +94,7 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
   end
 
   @doc """
+  Displays a form to create a new set for the item to be in.
   """
   def new_set(assigns) do
     ~H"""
