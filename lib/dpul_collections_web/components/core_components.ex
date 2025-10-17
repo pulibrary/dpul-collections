@@ -412,7 +412,10 @@ defmodule DpulCollectionsWeb.CoreComponents do
     <dialog
       id={@id}
       phx-hook="Dialog"
-      phx-mounted={JS.ignore_attributes("open")}
+      phx-mounted={
+        # Ignore `open` attribute when LiveView updates so JS can control opening/closing the modal.
+        JS.ignore_attributes("open")
+      }
       dcjs-open={JS.dispatch("dpulc:showDialog")}
       dcjs-close={JS.dispatch("dpulc:closeDialog") |> JS.exec("dcjs-after-close")}
       dcjs-after-close={@afterClose}
