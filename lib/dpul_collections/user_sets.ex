@@ -46,6 +46,20 @@ defmodule DpulCollections.UserSets do
     Repo.all_by(Set, user_id: scope.user.id)
   end
 
+  @spec list_user_sets_for_addition(%Scope{}, solr_id :: nil | String.t()) :: [
+          %Set{set_item_count: integer(), has_solr_id: boolean()}
+        ]
+  @doc """
+  Returns all sets for a user, and each set has a boolean `has_solr_id` that says if it has the given solr_id.
+
+  ## Examples
+      iex> {:ok, user} = DpulCollections.Accounts.register_user(%{email: "test@test.com"})
+      ...> scope = DpulCollections.Accounts.Scope.for_user(user)
+      ...> {:ok, user_set} = DpulCollections.UserSets.create_set(scope, %{title: "My Set"})
+      ...> {:ok, _set_item} = DpulCollections.UserSets.create_set_item(%{set_id: user_set.id, solr_id: "123"})
+      ...> output = DpulCollections.UserSets.list_user_sets_for_addition(scope, "123")
+      ...> [%Set{has_solr_id: true, set_item_count: 1, title: "My Set"}] = output
+  """
   def list_user_sets_for_addition(%Scope{} = scope, solr_id \\ nil) do
     base_query =
       from t in Set,

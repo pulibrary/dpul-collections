@@ -8,6 +8,7 @@ defmodule DpulCollections.UserSetsTest do
 
     import DpulCollections.AccountsFixtures, only: [user_scope_fixture: 0]
     import DpulCollections.UserSetsFixtures
+    doctest DpulCollections.UserSets, only: [list_user_sets_for_addition: 2]
 
     @invalid_attrs %{title: ""}
 
