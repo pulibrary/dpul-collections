@@ -129,3 +129,4 @@ config :phoenix_test,
   ]
 
 config :honeybadger, api_key: ""
+config :dpul_collections, sql_sandbox: true

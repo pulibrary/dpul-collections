@@ -1,10 +1,20 @@
 defmodule FiggyTestSupport do
   import Ecto.Query, warn: false
 
+  alias DpulCollections.Accounts
   alias DpulCollections.{IndexingPipeline, Solr}
   alias DpulCollections.IndexingPipeline.Figgy
 
   alias DpulCollections.FiggyRepo
+
+  # Used for logging in a given user to a feature test.
+  def feature_login(conn, user) do
+    conn
+    |> PhoenixTest.Playwright.add_session_cookie(
+      [value: %{user_token: Accounts.generate_user_session_token(user)}],
+      DpulCollectionsWeb.Endpoint.session_options()
+    )
+  end
 
   def total_resource_count do
     query =

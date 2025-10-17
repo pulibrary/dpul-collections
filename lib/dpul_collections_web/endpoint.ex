@@ -11,9 +11,22 @@ defmodule DpulCollectionsWeb.Endpoint do
     same_site: "Lax"
   ]
 
+  def session_options do
+    @session_options
+  end
+
+  # Add the sandbox to the endpoint to support feature tests with database
+  # operations.
+  # See https://hexdocs.pm/phoenix_ecto/main.html#concurrent-browser-tests
+  if Application.compile_env(:dpul_collections, :sql_sandbox) do
+    plug Phoenix.Ecto.SQL.Sandbox
+  end
+
   socket "/live", Phoenix.LiveView.Socket,
-    websocket: [connect_info: [session: @session_options]],
-    longpoll: [connect_info: [session: @session_options]]
+    # user_agent is used by the SQL sandbox to support feature tests.
+    # See https://hexdocs.pm/phoenix_test_playwright/PhoenixTest.Playwright.html#module-ecto-sql-sandbox
+    websocket: [connect_info: [:user_agent, session: @session_options]],
+    longpoll: [connect_info: [:user_agent, session: @session_options]]
 
   # Serve at "/" the static files from "priv/static" directory.
   #

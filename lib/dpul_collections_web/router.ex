@@ -4,6 +4,7 @@ defmodule DpulCollectionsWeb.Router do
   import DpulCollectionsWeb.UserAuth
   use Honeybadger.Plug
   import Oban.Web.Router
+  import DpulCollectionsWeb.RouterHelpers
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -79,7 +80,7 @@ defmodule DpulCollectionsWeb.Router do
     pipe_through [:browser, :require_authenticated_user]
 
     live_session :require_authenticated_user,
-      on_mount: [{DpulCollectionsWeb.UserAuth, :require_authenticated}] do
+      on_mount: with_sandbox_support([{DpulCollectionsWeb.UserAuth, :require_authenticated}]) do
       live "/users/settings", UserLive.Settings, :edit
       live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
     end
@@ -89,7 +90,7 @@ defmodule DpulCollectionsWeb.Router do
     pipe_through [:browser]
 
     live_session :current_user,
-      on_mount: [{DpulCollectionsWeb.UserAuth, :mount_current_scope}] do
+      on_mount: with_sandbox_support([{DpulCollectionsWeb.UserAuth, :mount_current_scope}]) do
       live "/users/register", UserLive.Registration, :new
       live "/users/log-in", UserLive.Login, :new
       live "/users/log-in/:token", UserLive.Confirmation, :new
