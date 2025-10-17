@@ -4,12 +4,13 @@ defmodule DpulCollections.Solr do
   alias DpulCollectionsWeb.SearchLive.SearchState
   alias DpulCollections.Solr.Index
   alias DpulCollections.SearchResult
+  alias DpulCollections.Solr.Client
 
   @spec document_count(%Index{}) :: integer()
   def document_count(index \\ Index.read_index()) do
     {:ok, response} =
-      Req.get(
-        select_url(index),
+      Client.query(
+        index,
         params: [q: "*:*"]
       )
 
@@ -75,8 +76,8 @@ defmodule DpulCollections.Solr do
       |> Keyword.merge(search_state[:extra_params] || [])
 
     {:ok, response} =
-      Req.post(
-        select_url(index),
+      Client.query(
+        index,
         params: solr_params,
         # Send filters in a POST request in case a lot of filters are requested.
         # This uses the JSON Filter API so we can send an array of filters: https://solr.apache.org/guide/solr/latest/query-guide/json-request-api.html
@@ -274,8 +275,8 @@ defmodule DpulCollections.Solr do
   @spec latest_document(String.t()) :: map()
   def latest_document(index \\ Index.read_index()) do
     {:ok, response} =
-      Req.get(
-        select_url(index),
+      Client.query(
+        index,
         params: [q: "*:*", sort: "_version_ desc"]
       )
 
@@ -293,8 +294,8 @@ defmodule DpulCollections.Solr do
 
   def find_by_id(id, index) do
     {:ok, response} =
-      Req.get(
-        select_url(index),
+      Client.query(
+        index,
         params: [q: "id:#{id}"]
       )
 
@@ -306,8 +307,8 @@ defmodule DpulCollections.Solr do
 
   def find_by_slug(slug, index \\ Index.read_index()) do
     {:ok, response} =
-      Req.get(
-        select_url(index),
+      Client.query(
+        index,
         params: [q: "authoritative_slug_s:#{slug}", rows: 1]
       )
 
@@ -322,11 +323,8 @@ defmodule DpulCollections.Solr do
   def add(docs, index \\ Index.read_index())
 
   def add(docs, index) when is_list(docs) do
-    response =
-      Req.post!(
-        update_url(index),
-        json: docs
-      )
+    {:ok, response} =
+      Client.add(index, docs)
 
     if response.status != 200 do
       docs |> Enum.each(&add/1)
@@ -336,11 +334,8 @@ defmodule DpulCollections.Solr do
   end
 
   def add(doc, index) when not is_list(doc) do
-    response =
-      Req.post!(
-        update_url(index),
-        json: [doc]
-      )
+    {:ok, response} =
+      Client.add(index, doc)
 
     if response.status != 200 do
       Logger.warning("error indexing solr document with id: #{doc["id"]} #{response.body}")
@@ -351,52 +346,25 @@ defmodule DpulCollections.Solr do
 
   @spec commit(String.t()) :: {:ok, Req.Response.t()} | {:error, Exception.t()}
   def commit(index \\ Index.read_index()) do
-    Req.get(
-      update_url(index),
-      params: [commit: true]
-    )
+    Client.commit(index)
   end
 
   @spec soft_commit() :: {:ok, Req.Response.t()} | {:error, Exception.t()}
   def soft_commit(index \\ Index.read_index()) do
-    Req.get(
-      update_url(index),
-      params: [commit: true, softCommit: true]
-    )
+    Client.soft_commit(index)
   end
 
   @spec delete_all(%Index{}) ::
           {:ok, Req.Response.t()} | {:error, Exception.t()} | Exception.t()
   def delete_all(index \\ Index.read_index()) do
-    Req.post!(
-      update_url(index),
-      json: %{delete: %{query: "*:*"}}
-    )
-
+    {:ok, _} = Client.delete_all(index)
     soft_commit(index)
   end
 
   @spec delete_batch(list(), %Index{}) ::
           {:ok, Req.Response.t()} | {:error, Exception.t()} | Exception.t()
   def delete_batch(ids, index \\ Index.read_index()) do
-    ids
-    |> Enum.each(fn id ->
-      Req.post!(
-        update_url(index),
-        json: %{delete: %{query: "id:#{id}"}}
-      )
-    end)
-
+    Client.delete_ids(index, ids)
     soft_commit(index)
-  end
-
-  defp select_url(index) do
-    Index.connect(index)
-    |> Req.merge(url: "/solr/#{index.collection}/select")
-  end
-
-  defp update_url(index) do
-    Index.connect(index)
-    |> Req.merge(url: "/solr/#{index.collection}/update")
   end
 end
