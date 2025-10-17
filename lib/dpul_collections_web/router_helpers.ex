@@ -7,6 +7,8 @@ defmodule DpulCollectionsWeb.RouterHelpers do
   # Add a macro to conditionally add sandbox support to a list of LiveView
   # on_mount hooks. Similar to code here: https://hexdocs.pm/phoenix_ecto/Phoenix.Ecto.SQL.Sandbox.html#module-acceptance-tests-with-liveviews
   # This is a macro so that it happens at compile time.
+  # Ignore coverage here, because we don't compile the non-test env.
+  # coveralls-ignore-start
   defmacro with_sandbox_support(hooks) do
     if @sql_sandbox_enabled do
       quote do
@@ -16,4 +18,6 @@ defmodule DpulCollectionsWeb.RouterHelpers do
       hooks
     end
   end
+
+  # coveralls-ignore-stop
 end
