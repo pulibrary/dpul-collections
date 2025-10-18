@@ -101,7 +101,7 @@ defmodule DpulCollections.MixProject do
       {:sham, "~> 1.0", only: :test},
       {:oban, "~> 2.19"},
       {:oban_web, "~> 2.11"},
-      {:a11y_audit, "~> 0.2.3", only: :test},
+      {:a11y_audit, "~> 0.3.0", only: :test},
       {:mock, "~> 0.3.0", only: :test},
       {:lazy_html, ">= 0.1.0", only: :test}
     ]
