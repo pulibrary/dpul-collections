@@ -1,3 +1,4 @@
 elixir 1.18.4
 erlang 27.3.4.3 # renovate: datasource=github-tags depName=erlang packageName=erlang/otp
 nodejs 22.20.0
+rust 1.90.0

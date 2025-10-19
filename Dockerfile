@@ -21,7 +21,9 @@ ARG DEBIAN_VERSION=bookworm-20250929-slim
 ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
 ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
 
+
 FROM ${BUILDER_IMAGE} as builder
+
 
 # install build dependencies
 RUN apt-get update -y && apt-get install -y build-essential git curl \
@@ -35,6 +37,13 @@ RUN curl -sL https://github.com/nodenv/node-build/archive/master.tar.gz | tar xz
     /tmp/node-build-master/bin/node-build "${NODE_VERSION}" /usr/local/node && \
     rm -rf /tmp/node-build-master
 
+# Install rust.
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+ENV RUSTUP_HOME=/root/.rustup \
+    RUSTFLAGS="-C target-feature=-crt-static" \
+    CARGO_HOME=/root/.cargo  \
+    PATH="/root/.cargo/bin:$PATH"
+RUN rustup default 1.90.0
 
 # prepare build dir
 WORKDIR /app

@@ -107,6 +107,8 @@ config :dpul_collections, DpulCollections.PromEx,
 # Turn on thumbnail caching
 config :dpul_collections, :cache_thumbnails?, true
 
+config :rustler_precompiled, force_build_all: true
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

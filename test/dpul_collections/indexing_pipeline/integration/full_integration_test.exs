@@ -190,6 +190,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       transformer |> Broadway.stop(:normal)
       indexer |> Broadway.stop(:normal)
 
+      document["description_txtm"] |> dbg
       assert document["title_txtm"] == ["Ali Bagheri"]
       # Language Detection
       assert document["title_txtm_de"] == ["Ali Bagheri"]

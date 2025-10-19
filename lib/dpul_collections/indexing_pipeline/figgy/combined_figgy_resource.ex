@@ -70,9 +70,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
     project_metadata = extract_project_metadata(related_data)
     thumbnail = primary_thumbnail(metadata, related_data)
 
+    %{}
+    |> Map.merge(multilingual_field(:title_txtm, extract_title(metadata)))
+    |> Map.merge(
     %{
       id: id,
-      title_txtm: extract_title(metadata),
       alternative_title_txtm: get_in(metadata, ["alternative_title"]),
       barcode_txtm: get_in(metadata, ["barcode"]),
       box_number_txtm: get_in(box_metadata, ["box_number"]),
@@ -112,6 +114,19 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
       years_is: extract_years(data),
       categories_txt_sort: extract_categories(metadata, related_data),
       featurable_b: get_in(metadata, ["featurable"]) == ["1"]
+    })
+  end
+
+  def multilingual_field(field, values) when is_list(values) do
+    # Classify languages of every value
+    values
+    |> Enum.map(fn(x) -> {Lingua.detect!(x) |> Lingua.iso_code_639_1_for_language() |> elem(1), x} end)
+    # Group them by language
+    |> Enum.group_by(&elem(&1, 0), &elem(&1, 1))
+    |> dbg
+
+    %{
+      field => values
     }
   end
 

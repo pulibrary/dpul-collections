@@ -103,7 +103,9 @@ defmodule DpulCollections.MixProject do
       {:oban_web, "~> 2.11"},
       {:a11y_audit, "~> 0.2.3", only: :test},
       {:mock, "~> 0.3.0", only: :test},
-      {:lazy_html, ">= 0.1.0", only: :test}
+      {:lazy_html, ">= 0.1.0", only: :test},
+      {:lingua, github: "joshrotenberg/lingua_ex", branch: "main"},
+      {:rustler, ">= 0.0.0", optional: true}
     ]
   end
 

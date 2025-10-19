@@ -1139,7 +1139,7 @@
     -->
 
   <updateRequestProcessorChain name="dpulc-processor-chain"
-           processor="lang-detection, build-slugs">
+           processor="build-slugs">
     <processor class="solr.LogUpdateProcessorFactory"/>
     <processor class="solr.DistributedUpdateProcessorFactory"/>
     <processor class="solr.RunUpdateProcessorFactory"/>
