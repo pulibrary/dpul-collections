@@ -31,8 +31,8 @@ defmodule DpulCollectionsWeb.BrowseItem do
         {render_slot(@inner_block)}
         <div class="flex gap-8 justify-stretch page-t-padding">
           <!-- cards -->
-          <div class="w-full recent-container">
-            <.browse_item
+          <ul class="w-full recent-container">
+            <.browse_li
               :for={item <- @items}
               show_images={@show_images}
               item={item}
@@ -40,7 +40,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
               likeable?={false}
               current_scope={@current_scope}
             />
-          </div>
+          </ul>
           <div :if={@more_link} class="w-16 flex-none content-center">
             <.transparent_button
               class="w-16 h-16"
@@ -69,11 +69,13 @@ defmodule DpulCollectionsWeb.BrowseItem do
     default: [],
     doc: "the list of images stored in session that should not be obfuscated"
 
-  def browse_item(assigns) do
+  # make sure to wrap these in a ul
+  def browse_li(assigns) do
     ~H"""
-    <article
+    <li
       id={"#{@id}-#{@item.id}"}
       data-item-id={@item.id}
+      aria-label={@item.title |> hd}
       class={[
         "browse-item overflow-hidden -outline-offset-2 relative card flex bg-white flex-col min-w-[250px]",
         @class
@@ -101,15 +103,9 @@ defmodule DpulCollectionsWeb.BrowseItem do
           />
         </div>
       </div>
-      <.link
-        navigate={!@target && @item.url}
-        href={@target != nil && @item.url}
-        target={@target}
-        class="-outline-offset-1 flex-grow item-link flex flex-col"
-        aria-label={"View #{@item.title |> hd}"}
-      >
+      <div class="-outline-offset-1 flex-grow flex flex-col">
         <!-- thumbs -->
-        <div class="px-2 pt-2 bg-white">
+        <div class="px-2 pt-2 bg-white overflow-clip">
           <div class="grid grid-rows-[repeat(4, 25%)] gap-2 h-[24rem]">
             <!-- main thumbnail -->
             <div :if={@item.file_count == 1} class="row-span-4">
@@ -145,31 +141,41 @@ defmodule DpulCollectionsWeb.BrowseItem do
           </div>
         </div>
         <!-- card text area -->
-        <div class="relative mx-1 px-6 py-5 bg-white flex flex-col">
-          <div
-            :if={@item.file_count > 4}
-            class="absolute bg-background right-2 top-0 z-10 pr-2 pb-1 diagonal-drop"
-          >
-            {@item.file_count} {gettext("Images")}
+        <div class="grid grid-cols-1 grow">
+          <div class="relative h-8">
+            <div
+              :if={@item.file_count > 4}
+              class="absolute bg-background right-2 top-0 z-10 pr-2 pb-1 diagonal-drop"
+            >
+              {@item.file_count} {gettext("Images")}
+            </div>
           </div>
-
-          <h2 class="font-normal tracking-tight py-2 flex-grow" dir="auto">
-            {truncate_title(@item.title |> hd)}
-          </h2>
-          <p class="text-gray-700 text-base">{@item.date}</p>
-        </div>
-        <!-- Footer area -->
-        <div class="flex-grow flex w-full flex-col justify-end">
-          <div
-            :if={@added? && @item.updated_at}
-            class="updated-at align-self-end justify-self-end-safe w-full bg-light-secondary h-10 p-2 text-right"
-          >
-            {"#{gettext("Updated")} #{time_ago(@item.updated_at)}"}
+          <div class="mx-1 px-6 pb-5 bg-white flex flex-col">
+            <h2 class="font-normal tracking-tight py-1 flex-grow" dir="auto">
+              <.link
+                navigate={!@target && @item.url}
+                href={@target != nil && @item.url}
+                target={@target}
+                class="card-link"
+              >
+                {truncate_title(@item.title |> hd)}
+              </.link>
+            </h2>
+            <p class="text-gray-700 text-base">{@item.date}</p>
+          </div>
+          <!-- Footer area -->
+          <div class="flex-grow flex w-full flex-col justify-end">
+            <div
+              :if={@added? && @item.updated_at}
+              class="updated-at w-full bg-light-secondary h-10 p-2 text-right"
+            >
+              {"#{gettext("Updated")} #{time_ago(@item.updated_at)}"}
+            </div>
           </div>
         </div>
         <!-- "added on" note -->
-      </.link>
-    </article>
+      </div>
+    </li>
     """
   end
 

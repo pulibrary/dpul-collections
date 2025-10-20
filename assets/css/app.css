@@ -343,6 +343,12 @@
   }
 }
 
+/* note you have to use a relative class on the card where
+ * you want the link to extend */
+.card-link {
+  @apply before:content-[''] before:absolute before:inset-0 before:z-[1];
+}
+
 .brief-metadata > div:not(:last-child) {
   @apply border-e-1 border-search;
 }

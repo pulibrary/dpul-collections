@@ -335,7 +335,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           <div class="flex flex-wrap flex-row sm:flex-row justify-between">
             <.link
               navigate={@item.url}
-              class="before:content-[''] before:absolute before:inset-0 before:z-[1]"
+              class="card-link"
             >
               <h2 dir="auto w-full flex-grow sm:w-fit">
                 {@item.title}
@@ -403,7 +403,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           <div class="flex flex-wrap flex-row sm:flex-row justify-between">
             <.link
               navigate={@item.url}
-              class="before:content-[''] before:absolute before:inset-0 before:z-[1]"
+              class="card-link"
             >
               <h2 dir="auto w-full flex-grow sm:w-fit">
                 {@item.title}

@@ -97,7 +97,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     initial_order =
       html
       |> Floki.parse_document!()
-      |> Floki.find(".item-link")
+      |> Floki.find(".card-link")
       |> Enum.flat_map(fn a -> Floki.attribute(a, "href") end)
 
     assert Enum.count(initial_order) == 90
@@ -109,7 +109,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
 
     new_order =
       document
-      |> Floki.find(".item-link")
+      |> Floki.find(".card-link")
       |> Enum.flat_map(fn a -> Floki.attribute(a, "href") end)
 
     assert initial_order != new_order
@@ -132,7 +132,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     {:ok, view, _html} = live(conn, "/browse?r=0")
 
     view
-    |> has_element?(".item-link")
+    |> has_element?(".card-link")
   end
 
   test "renders a link when page count is zero and there's no thumbnail", %{conn: conn} do
@@ -152,7 +152,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     {:ok, view, _html} = live(conn, "/browse?r=0")
 
     view
-    |> has_element?(".item-link")
+    |> has_element?(".card-link")
   end
 
   test "renders primary thumbnail only when there is only one image url", %{conn: conn} do
@@ -219,7 +219,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     first_href =
       html
       |> Floki.parse_document!()
-      |> Floki.find(".item-link")
+      |> Floki.find(".card-link")
       |> Enum.flat_map(&Floki.attribute(&1, "href"))
       |> Enum.at(0)
 

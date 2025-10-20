@@ -43,7 +43,7 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
       links =
         html
         |> Floki.parse_document!()
-        |> Floki.find(".item-link")
+        |> Floki.find(".card-link")
         |> Enum.flat_map(fn a -> Floki.attribute(a, "href") end)
 
       assert Enum.count(links) == 5
@@ -83,7 +83,7 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
       first_href =
         html
         |> Floki.parse_document!()
-        |> Floki.find(".item-link")
+        |> Floki.find(".card-link")
         |> Enum.flat_map(&Floki.attribute(&1, "href"))
         |> Enum.at(0)
 

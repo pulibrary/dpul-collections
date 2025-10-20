@@ -94,8 +94,8 @@ defmodule DpulCollectionsWeb.BrowseLive do
     ~H"""
     <div>
       <.liked_items {assigns} />
-      <div id="browse-items" class="grid grid-cols-[repeat(auto-fit,minmax(300px,_1fr))] gap-6 pt-5">
-        <.browse_item
+      <ul id="browse-items" class="grid grid-cols-[repeat(auto-fit,minmax(300px,_1fr))] gap-6 pt-5">
+        <.browse_li
           :if={@focused_item}
           item={@focused_item}
           likeable?={false}
@@ -104,14 +104,14 @@ defmodule DpulCollectionsWeb.BrowseLive do
           show_images={@show_images}
           current_scope={@current_scope}
         />
-        <.browse_item
+        <.browse_li
           :for={item <- @items}
           item={item}
           target="_blank"
           show_images={@show_images}
           current_scope={@current_scope}
         />
-      </div>
+      </ul>
     </div>
     """
   end
