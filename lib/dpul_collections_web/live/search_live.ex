@@ -211,7 +211,10 @@ defmodule DpulCollectionsWeb.SearchLive do
         </.form>
       </section>
       <section class="content-area">
-        <div class="page-y-padding grid grid-flow-row auto-rows-max gap-6">
+        <div class="py-4 flex flex-row justify-between gap-4">
+          <div id="item-counter" class="place-content-center">
+            {@item_counter}
+          </div>
           <div class="flex flex-wrap gap-4">
             <form
               :if={@total_items > 0}
@@ -229,9 +232,6 @@ defmodule DpulCollectionsWeb.SearchLive do
                 )}
               </select>
             </form>
-          </div>
-          <div id="item-counter">
-            <span>{@item_counter}</span>
           </div>
         </div>
         <ul class="grid grid-flow-row auto-rows-max gap-8">
