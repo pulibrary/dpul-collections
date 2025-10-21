@@ -4,7 +4,8 @@ Date: 2024-07-09
 
 ## Status
 
-Accepted
+Accepted 2024-07-09
+Updated 2025-10-21
 
 ## Context
 
@@ -37,9 +38,11 @@ The Hydrator will query Figgy's `orm_resources` table for newly updated records 
 
 The Hydration Cache has the following structure:
 
-| id   | data  | cache_order | cache_version | record_id | source_cache_order |
-|------|-------|-------------|---------------|-----------|--------------------|
-| INT  | BLOB  | DATETIME    | INT           | VARCHAR   | DATETIME           |
+| id   | data  | cache_order | cache_version | record_id | source_cache_order | related_ids | source_cache_order_record_id |
+|------|-------|-------------|---------------|-----------|--------------------| ----------- | -------------------------- |
+| INT  | BLOB  | DATETIME    | INT           | VARCHAR   | DATETIME           | VARCHAR[]   | VARCHAR                      |
+
+`related_ids` is used to make sure we can update a given record when its related records change. Given this requirement, `cache_order` is populated by the latest datetime between the record itself and all its related records. `source_cache_order_record_id` records the record id that is used to populate `cache_order`.
 
 We'll pull records as well as DeletionMarkers so we'll know and record when records have been deleted from Figgy.
 
