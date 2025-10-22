@@ -66,17 +66,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
       assert doc3[:description_txtm] == nil
     end
 
-    test "indexes file_count_i" do
-      entries =
-        FiggyTestFixtures.hydration_cache_entries()
-        |> Tuple.to_list()
-
-      [doc1, doc2, _doc3] = Enum.map(entries, &HydrationCacheEntry.to_solr_document/1)
-
-      assert doc1[:file_count_i] == 27
-      assert doc2[:file_count_i] == 0
-    end
-
     test "doesn't convert canvas IDs for missing file sets" do
       {:ok, entry} =
         IndexingPipeline.write_hydration_cache_entry(%{

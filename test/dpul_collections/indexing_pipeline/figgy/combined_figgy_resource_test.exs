@@ -15,7 +15,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResourceTest do
                title_txtm: ["South Asian Ephemera"],
                resource_type_s: "collection",
                tagline_txtm: [
-                 "Discover voices of change across South Asia through contemporary pamphlets, flyers, and documents that capture the region's social movements, politics, and cultural expressions."
+                 "The South Asian Ephemera Collection is an openly accessible repository of items that spans a variety of subjects and languages and supports research, teaching, and private study. Newly acquired materials are digitized and added on an ongoing basis."
                ],
                authoritative_slug_s: "sae"
              } = doc
@@ -39,6 +39,15 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResourceTest do
         |> Figgy.CombinedFiggyResource.to_solr_document()
 
       assert unfeatured_doc[:featurable_b] == false
+    end
+
+    test "file count filters out members without thumbnails" do
+      doc =
+        IndexingPipeline.get_figgy_resource!("6d2be738-626f-4b3d-a17a-655501d2ad9e")
+        |> Figgy.Resource.to_combined()
+        |> Figgy.CombinedFiggyResource.to_solr_document()
+
+      assert doc[:file_count_i] == 4
     end
   end
 end

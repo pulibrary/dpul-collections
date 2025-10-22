@@ -715,7 +715,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       assert view |> element("#item-#{sae_id} a[href='/collections/sae']") |> has_element?
       card_content = item_card |> render()
       # Tagline renders.
-      assert card_content =~ "Discover voices of change"
+      assert card_content =~ "The South Asian Ephemera Collection is an openly accessible"
       # Digital Collection genre renders
       assert card_content =~ "Digital Collection"
       # Mosaic images

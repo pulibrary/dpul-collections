@@ -84,7 +84,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
       display_date_s: format_date(metadata),
       ephemera_project_title_s: Map.get(project_metadata, "title", []) |> Enum.at(0),
       ephemera_project_id_s: extract_project_id(related_data),
-      file_count_i: file_count(metadata),
+      file_count_i: file_count(metadata, related_data),
       folder_number_txtm: get_in(metadata, ["folder_number"]),
       genre_txt_sort: extract_term("genre", metadata, related_data),
       geo_subject_txt_sort: extract_term("geo_subject", metadata, related_data),
@@ -445,11 +445,15 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
 
   defp is_derivative(_), do: false
 
-  defp file_count(%{"member_ids" => member_ids}) when is_list(member_ids) do
-    member_ids |> length
+  defp file_count(%{"member_ids" => member_ids}, %{"resources" => resources})
+       when is_list(member_ids) do
+    member_ids
+    |> Enum.map(&extract_id_from_map/1)
+    |> Enum.filter(fn id -> resources[id] end)
+    |> length
   end
 
-  defp file_count(_) do
+  defp file_count(_, _) do
     0
   end
 
