@@ -502,7 +502,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           "place-self-center"
         ]}
         src={"#{@thumb}/full/!350,350/0/default.jpg"}
-        alt={"image #{@thumb_num}"}
+        alt=""
       />
       <div
         :if={@item.file_count > 1}
@@ -524,7 +524,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           "thumbnail-#{@item.id}"
         ]}
         src={"#{@thumb}/square/350,350/0/default.jpg"}
-        alt={"image #{@thumb_num}"}
+        alt=""
         style="background-color: lightgray;"
         width="125"
         height="125"

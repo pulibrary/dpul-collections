@@ -205,7 +205,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
         "thumbnail-#{@item.id}"
       ]}
       src={thumbnail_url(assigns)}
-      alt="thumbnail image"
+      alt=""
     />
     """
   end
