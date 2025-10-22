@@ -10,7 +10,7 @@ defmodule DpulCollections.CollectionTest do
         # Project
         "f99af4de-fed4-4baa-82b1-6e857b230306",
         # One Item
-        "39a1a1a0-7ba6-4de9-8a44-f081811c2b34"
+        "d82efa97-c69b-424c-83c2-c461baae8307"
       ]
 
       # Add another ID so we know it doesn't include related items from other collections.
