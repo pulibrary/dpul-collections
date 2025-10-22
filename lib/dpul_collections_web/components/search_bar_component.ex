@@ -5,7 +5,7 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
 
   def render(assigns) do
     ~H"""
-    <div class="search-bar">
+    <div class="search-bar cover-with-pane">
       <div class="search-browse-container min-h-10 flex flex-wrap bg-search">
         <div class="search-box header-x-padding grow">
           <form id="search-form" class="w-full h-full" phx-submit="search" phx-target={@myself}>
