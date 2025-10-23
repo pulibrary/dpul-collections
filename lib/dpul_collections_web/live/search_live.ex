@@ -266,7 +266,6 @@ defmodule DpulCollectionsWeb.SearchLive do
     <button
       phx-click="select_filter_tab"
       type="button"
-      role="tab"
       phx-value-filter={@field}
       class="sm:hidden group-[.expanded]:bg-accent group-[.expanded]:text-light-text p-4 hover:text-dark-text hover:bg-hover-accent cursor-pointer w-full h-full flex items-center text-left"
     >
