@@ -14,11 +14,11 @@ defmodule DpulCollections.Workers.CacheThumbnails do
   defp thumbnail_configurations do
     [
       # Small browse thumbnails
-      {"square", "100", "100"},
+      {"square", "!100", "100"},
       # Browse and search results thumbnails
-      {"square", "350", "350"},
+      {"square", "!350", "350"},
       # Item page thumbnails
-      {"full", "350", "465"}
+      {"square", "!350", "465"}
     ]
   end
 

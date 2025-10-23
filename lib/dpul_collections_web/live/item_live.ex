@@ -802,7 +802,7 @@ defmodule DpulCollectionsWeb.ItemLive do
             Helpers.obfuscate_item?(assigns) && "obfuscate",
             "thumbnail-#{@item.id}"
           ]}
-          src={"#{@thumb}/full/350,465/0/default.jpg"}
+          src={"#{@thumb}/square/!350,465/0/default.jpg"}
           alt={"image #{@thumb_num}"}
           style="
             background-color: lightgray;"

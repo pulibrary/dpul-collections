@@ -48,11 +48,11 @@ defmodule DpulCollections.Workers.CacheThumbnailsTest do
         # Primary thumbnail
         assert cached_paths |> Enum.member?("/iiif/2/image2/full/!453,800/0/default.jpg")
         # Item page thumbnails
-        assert cached_paths |> Enum.member?("/iiif/2/image1/full/350,465/0/default.jpg")
+        assert cached_paths |> Enum.member?("/iiif/2/image1/square/!350,465/0/default.jpg")
         # Browse and search results thumbnails
-        assert cached_paths |> Enum.member?("/iiif/2/image2/square/350,350/0/default.jpg")
+        assert cached_paths |> Enum.member?("/iiif/2/image2/square/!350,350/0/default.jpg")
         # Small browse thumbnails
-        assert cached_paths |> Enum.member?("/iiif/2/image7/square/100,100/0/default.jpg")
+        assert cached_paths |> Enum.member?("/iiif/2/image7/square/!100,100/0/default.jpg")
       end)
     end
 
