@@ -149,7 +149,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       >
         <div
           :if={map_size(@search_state.filter) > 0}
-          class="flex gap-6 items-center content-area page-y-padding flex-wrap"
+          class="flex gap-6 items-center content-area page-t-padding flex-wrap"
         >
           <h2 class="hidden sm:block">Applied Filters:</h2>
           <.filter_pill
@@ -182,7 +182,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       phx-submit="apply_filters"
       for={@filter_form}
     >
-      <div class="sm:content-area">
+      <div class="sm:content-area page-t-padding">
         <h2 class="text-xl font-normal page-b-padding hidden sm:block">
           Filter your {@total_items} results
         </h2>
@@ -205,7 +205,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         :for={{field, filter} <- @filter_data}
         field={field}
         filter={filter}
-        expanded_filter={@expanded_filter}
+        expanded={field == @expanded_filter}
         filter_form={@filter_form}
         {assigns}
       />
@@ -263,23 +263,28 @@ defmodule DpulCollectionsWeb.SearchLive do
   # screen sizes
   def filter_panel(assigns) do
     ~H"""
-    <button
-      phx-click="select_filter_tab"
-      type="button"
-      phx-value-filter={@field}
-      class="sm:hidden group-[.expanded]:bg-accent group-[.expanded]:text-light-text p-4 hover:text-dark-text hover:bg-hover-accent cursor-pointer w-full h-full flex items-center text-left"
-    >
-      <span class="grow">
-        {Gettext.gettext(DpulCollectionsWeb.Gettext, @filter.label)}
-      </span>
-      <div class="arrow bg-dark-text group-[.expanded]:bg-light-text group-[.expanded:hover]:bg-dark-text rotate-90 group-[.expanded]:-rotate-90 w-[15px] h-[15px]">
-      </div>
-    </button>
+    <div class={[
+      "group",
+      "#{@expanded && "expanded"}"
+    ]}>
+      <button
+        phx-click="select_filter_tab"
+        type="button"
+        phx-value-filter={@field}
+        class="sm:hidden group-[.expanded]:bg-accent group-[.expanded]:text-light-text p-4 hover:text-dark-text hover:bg-hover-accent cursor-pointer w-full h-full flex items-center text-left"
+      >
+        <span class="grow">
+          {Gettext.gettext(DpulCollectionsWeb.Gettext, @filter.label)}
+        </span>
+        <div class="arrow bg-dark-text group-[.expanded]:bg-light-text group-[.expanded:hover]:bg-dark-text rotate-90 group-[.expanded]:-rotate-90 w-[15px] h-[15px]">
+        </div>
+      </button>
+    </div>
     <div
       role="tabpanel"
       class={[
-        @expanded_filter == @field || "hidden",
-        @expanded_filter == @field && "expanded",
+        @expanded || "hidden",
+        @expanded && "expanded",
         "bg-secondary page-y-padding border-t-4 border-b-4 border-accent w-full"
       ]}
     >
