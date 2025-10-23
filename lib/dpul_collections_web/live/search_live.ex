@@ -65,47 +65,226 @@ defmodule DpulCollectionsWeb.SearchLive do
     "#{first_item} - #{last_item} #{gettext("of")} #{total_items}"
   end
 
-  def sort_by_params do
-    @valid_sort_by
-    # Don't include things without labels.
-    |> Enum.filter(fn {_, v} -> v[:label] end)
-    |> Enum.map(fn {k, v} -> {v[:label], k} end)
+  attr :current_scope, :map, required: false, default: nil
+
+  def render(assigns) do
+    ~H"""
+    <Layouts.app flash={@flash} current_scope={@current_scope}>
+      <div class="content-area page-b-padding">
+        <.results_for_keywords_heading keywords={@search_state.q} />
+      </div>
+      <.filters
+        search_state={@search_state}
+        total_items={@total_items}
+        filter_form={@filter_form}
+        year_form={@year_form}
+        filter_data={@filter_data}
+        expanded_filter={@expanded_filter}
+      />
+      <section class="content-area">
+        <div class="py-4 flex flex-row justify-between gap-4">
+          <div id="item-counter" class="place-content-center">
+            {@item_counter}
+          </div>
+          <div class="flex flex-wrap gap-4">
+            <form
+              :if={@total_items > 0}
+              id="sort-form"
+              class="grid md:grid-cols-[auto_200px] gap-2"
+              phx-change="sort"
+            >
+              <label class="col-span-1 self-center font-bold uppercase md:text-right" for="sort-by">
+                {gettext("sort by")}:
+              </label>
+              <select id="sort-by" class="col-span-1" name="sort-by" aria-label={gettext("sort by")}>
+                {Phoenix.HTML.Form.options_for_select(
+                  sort_by_params(),
+                  @search_state.sort_by
+                )}
+              </select>
+            </form>
+          </div>
+        </div>
+        <ul class="grid grid-flow-row auto-rows-max gap-8">
+          <li :for={item <- @items}>
+            <.search_item
+              search_state={@search_state}
+              item={item}
+              sort_by={@search_state.sort_by}
+              show_images={@show_images}
+              current_scope={@current_scope}
+            />
+          </li>
+        </ul>
+        <div class="text-center max-w-5xl mx-auto text-lg py-8">
+          <.paginator
+            page={@search_state.page}
+            per_page={@search_state.per_page}
+            total_items={@total_items}
+          />
+        </div>
+      </section>
+    </Layouts.app>
+    """
   end
 
-  def filter_configuration do
-    @filters
+  def filters(assigns) do
+    ~H"""
+    <section id="filters" class="">
+      <div class="content-area sm:hidden">
+        <.danger_button
+          :if={@total_items > 0}
+          class="w-full"
+          phx-click={JS.toggle_class("hidden", to: "#filter-area")}
+        >
+          <.icon name="hero-adjustments-horizontal" class="h-5" />
+          <span>
+            {gettext("Filters")} ({Enum.count(@search_state.filter)})
+          </span>
+        </.danger_button>
+      </div>
+      <div
+        id="filter-area"
+        class="hidden sm:block border-b-1 border-rust/20 sm:border-b-0"
+      >
+        <div
+          :if={map_size(@search_state.filter) > 0}
+          class="flex gap-6 items-center content-area page-t-padding flex-wrap"
+        >
+          <h2 class="hidden sm:block">Applied Filters:</h2>
+          <.filter_pill
+            :for={{filter_field, filter_settings} <- filter_configuration()}
+            search_state={@search_state}
+            field={filter_field}
+            label={filter_settings.label}
+            filter_value={filter_settings.value_function.(@search_state.filter[filter_field])}
+          />
+        </div>
+        <.filter_form_component
+          search_state={@search_state}
+          total_items={@total_items}
+          filter_form={@filter_form}
+          year_form={@year_form}
+          filter_data={@filter_data}
+          expanded_filter={@expanded_filter}
+        />
+      </div>
+    </section>
+    """
   end
 
-  def filter_tab(assigns) do
+  def filter_form_component(assigns) do
+    ~H"""
+    <.form
+      :if={@total_items > 0}
+      id="filter-form"
+      phx-change="checked_filter"
+      phx-submit="apply_filters"
+      for={@filter_form}
+    >
+      <div class="sm:content-area page-t-padding">
+        <h2 class="text-xl font-normal page-b-padding hidden sm:block">
+          Filter your {@total_items} results
+        </h2>
+        <div
+          role="tablist"
+          class={[
+            "border-t-1 border-rust/20 w-full sm:grid sm:grid-flow-col sm:auto-cols-auto",
+            !@expanded_filter && "border-b-1"
+          ]}
+        >
+          <.filter_tab
+            :for={{field, filter} <- @filter_data}
+            label={filter.label}
+            field={field}
+            expanded={field == @expanded_filter}
+          />
+        </div>
+      </div>
+      <.filter_panel
+        :for={{field, filter} <- @filter_data}
+        field={field}
+        filter={filter}
+        expanded={field == @expanded_filter}
+        filter_form={@filter_form}
+        {assigns}
+      />
+    </.form>
+    """
+  end
+
+  attr :field, :string, required: true
+  attr :filter_value, :string, required: true
+  attr :label, :string, required: true
+  attr :search_state, :map, required: true
+
+  def filter_pill(assigns = %{filter_value: filter_values}) when is_list(filter_values) do
+    ~H"""
+    <.filter_pill
+      :for={filter_value <- @filter_value}
+      filter_value={filter_value}
+      field={@field}
+      search_state={@search_state}
+      label={@label}
+    />
+    """
+  end
+
+  def filter_pill(assigns = %{filter_value: filter_value}) when is_binary(filter_value) do
+    ~H"""
+    <.link
+      :if={@filter_value}
+      role="button"
+      phx-value-filter-value={@filter_value}
+      phx-value-filter={@field}
+      phx-click="remove_filter"
+      class={[
+        @field,
+        "filter focus:border-3 focus:visible:border-accent focus:border-accent py-1 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue font-sans font-bold text-sm btn-primary hover:text-white hover:bg-accent focus:outline-none active:shadow-none"
+      ]}
+    >
+      {# These labels are defined explicitly in Solr.Constants, but have to be called here because Constants is defined at compile time.}
+      {Gettext.gettext(DpulCollectionsWeb.Gettext, @label)}
+      <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
+      <span class="filter-text">
+        {@filter_value}
+      </span>
+      <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
+    </.link>
+    """
+  end
+
+  def filter_pill(assigns) do
+    ~H"""
+    """
+  end
+
+  # Buttons are interspersed here to make it work like an accordion on mobile
+  # screen sizes
+  def filter_panel(assigns) do
     ~H"""
     <div class={[
-      "group w-full h-full text-xl font-semibold not-last:border-r-1 border-rust/20",
+      "group",
       "#{@expanded && "expanded"}"
     ]}>
       <button
         phx-click="select_filter_tab"
         type="button"
-        role="tab"
         phx-value-filter={@field}
-        class="group-[.expanded]:bg-accent group-[.expanded]:text-light-text p-4 hover:text-dark-text hover:bg-hover-accent cursor-pointer w-full h-full flex items-center text-left"
+        class="sm:hidden group-[.expanded]:bg-accent group-[.expanded]:text-light-text p-4 hover:text-dark-text hover:bg-hover-accent cursor-pointer w-full h-full flex items-center text-left"
       >
         <span class="grow">
-          {Gettext.gettext(DpulCollectionsWeb.Gettext, @label)}
+          {Gettext.gettext(DpulCollectionsWeb.Gettext, @filter.label)}
         </span>
         <div class="arrow bg-dark-text group-[.expanded]:bg-light-text group-[.expanded:hover]:bg-dark-text rotate-90 group-[.expanded]:-rotate-90 w-[15px] h-[15px]">
         </div>
       </button>
     </div>
-    """
-  end
-
-  def filter_panel(assigns) do
-    ~H"""
     <div
       role="tabpanel"
       class={[
-        @expanded_filter == @field || "hidden",
-        @expanded_filter == @field && "expanded",
+        @expanded || "hidden",
+        @expanded && "expanded",
         "bg-secondary page-y-padding border-t-4 border-b-4 border-accent w-full"
       ]}
     >
@@ -154,153 +333,39 @@ defmodule DpulCollectionsWeb.SearchLive do
     """
   end
 
-  attr :current_scope, :map, required: false, default: nil
-
-  def render(assigns) do
+  def filter_tab(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <div class="content-area page-b-padding">
-        <.results_for_keywords_heading keywords={@search_state.q} />
-      </div>
-      <section class="w-full">
-        <div
-          :if={map_size(@search_state.filter) > 0}
-          class="flex gap-6 items-center content-area page-b-padding flex-wrap"
-        >
-          <h2>Applied Filters:</h2>
-          <.filter_pill
-            :for={{filter_field, filter_settings} <- filter_configuration()}
-            search_state={@search_state}
-            field={filter_field}
-            label={filter_settings.label}
-            filter_value={filter_settings.value_function.(@search_state.filter[filter_field])}
-          />
+    <div class={[
+      "group w-full h-full text-xl font-semibold not-last:border-r-1 border-rust/20",
+      "hidden sm:block",
+      "#{@expanded && "expanded"}"
+    ]}>
+      <button
+        phx-click="select_filter_tab"
+        type="button"
+        role="tab"
+        phx-value-filter={@field}
+        class="group-[.expanded]:bg-accent group-[.expanded]:text-light-text p-4 hover:text-dark-text hover:bg-hover-accent cursor-pointer w-full h-full flex items-center text-left"
+      >
+        <span class="grow">
+          {Gettext.gettext(DpulCollectionsWeb.Gettext, @label)}
+        </span>
+        <div class="arrow bg-dark-text group-[.expanded]:bg-light-text group-[.expanded:hover]:bg-dark-text rotate-90 group-[.expanded]:-rotate-90 w-[15px] h-[15px]">
         </div>
-        <.form
-          :if={@total_items > 0}
-          id="filter-form"
-          phx-change="checked_filter"
-          phx-submit="apply_filters"
-          for={@filter_form}
-        >
-          <div class="content-area">
-            <h2 class="text-xl font-normal page-b-padding">Filter your {@total_items} results</h2>
-            <div
-              role="tablist"
-              class={[
-                "border-t-1 border-rust/20 w-full grid grid-flow-col auto-cols-auto",
-                !@expanded_filter && "border-b-1"
-              ]}
-            >
-              <.filter_tab
-                :for={{field, filter} <- @filter_data}
-                label={filter.label}
-                field={field}
-                expanded={field == @expanded_filter}
-              />
-            </div>
-          </div>
-          <.filter_panel
-            :for={{field, filter} <- @filter_data}
-            field={field}
-            filter={filter}
-            expanded_filter={@expanded_filter}
-            filter_form={@filter_form}
-            {assigns}
-          />
-        </.form>
-      </section>
-      <section class="content-area">
-        <div class="py-4 flex flex-row justify-between gap-4">
-          <div id="item-counter" class="place-content-center">
-            {@item_counter}
-          </div>
-          <div class="flex flex-wrap gap-4">
-            <form
-              :if={@total_items > 0}
-              id="sort-form"
-              class="grid md:grid-cols-[auto_200px] gap-2"
-              phx-change="sort"
-            >
-              <label class="col-span-1 self-center font-bold uppercase md:text-right" for="sort-by">
-                {gettext("sort by")}:
-              </label>
-              <select id="sort-by" class="col-span-1" name="sort-by" aria-label={gettext("sort by")}>
-                {Phoenix.HTML.Form.options_for_select(
-                  sort_by_params(),
-                  @search_state.sort_by
-                )}
-              </select>
-            </form>
-          </div>
-        </div>
-        <ul class="grid grid-flow-row auto-rows-max gap-8">
-          <li :for={item <- @items}>
-            <.search_item
-              search_state={@search_state}
-              item={item}
-              sort_by={@search_state.sort_by}
-              show_images={@show_images}
-              current_scope={@current_scope}
-            />
-          </li>
-        </ul>
-        <div class="text-center max-w-5xl mx-auto text-lg py-8">
-          <.paginator
-            page={@search_state.page}
-            per_page={@search_state.per_page}
-            total_items={@total_items}
-          />
-        </div>
-      </section>
-    </Layouts.app>
+      </button>
+    </div>
     """
   end
 
-  attr :field, :string, required: true
-  attr :filter_value, :string, required: true
-  attr :label, :string, required: true
-  attr :search_state, :map, required: true
-
-  def filter_pill(assigns = %{filter_value: filter_values}) when is_list(filter_values) do
-    ~H"""
-    <.filter_pill
-      :for={filter_value <- @filter_value}
-      filter_value={filter_value}
-      field={@field}
-      search_state={@search_state}
-      label={@label}
-    />
-    """
+  def filter_configuration do
+    @filters
   end
 
-  def filter_pill(assigns = %{filter_value: filter_value}) when is_binary(filter_value) do
-    ~H"""
-    <.link
-      :if={@filter_value}
-      role="button"
-      phx-value-filter-value={@filter_value}
-      phx-value-filter={@field}
-      phx-click="remove_filter"
-      class={[
-        @field,
-        "filter focus:border-3 focus:visible:border-accent focus:border-accent py-1 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue font-sans font-bold text-sm btn-primary hover:text-white hover:bg-accent focus:outline-none active:shadow-none"
-      ]}
-    >
-      {# These labels are defined explicitly in Solr.Constants, but have to be called here because Constants is defined at compile time.}
-      {Gettext.gettext(DpulCollectionsWeb.Gettext, @label)}
-      <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
-      <span class="filter-text">
-        {@filter_value}
-      </span>
-      <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
-    </.link>
-    """
-  end
-
-  def filter_pill(assigns) do
-    ~H"""
-    """
+  def sort_by_params do
+    @valid_sort_by
+    # Don't include things without labels.
+    |> Enum.filter(fn {_, v} -> v[:label] end)
+    |> Enum.map(fn {k, v} -> {v[:label], k} end)
   end
 
   def search_item(assigns = %{item: %Collection{}}) do
