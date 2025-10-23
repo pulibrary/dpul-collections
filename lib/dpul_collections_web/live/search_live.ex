@@ -130,54 +130,86 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def filters(assigns) do
     ~H"""
-    <section class="w-full">
+    <section id="filters" class="">
+      <div class="content-area sm:hidden">
+        <.danger_button
+          :if={@total_items > 0}
+          class="w-full"
+          phx-click={JS.toggle_class("hidden", to: "#filter-area")}
+        >
+          <.icon name="hero-adjustments-horizontal" class="h-5" />
+          <span>
+            {gettext("Filters")} ({Enum.count(@search_state.filter)})
+          </span>
+        </.danger_button>
+      </div>
       <div
-        :if={map_size(@search_state.filter) > 0}
-        class="flex gap-6 items-center content-area page-b-padding flex-wrap"
+        id="filter-area"
+        class="hidden sm:block border-b-1 border-rust/20 sm:border-b-0"
       >
-        <h2>Applied Filters:</h2>
-        <.filter_pill
-          :for={{filter_field, filter_settings} <- filter_configuration()}
+        <div
+          :if={map_size(@search_state.filter) > 0}
+          class="flex gap-6 items-center content-area page-y-padding flex-wrap"
+        >
+          <h2 class="hidden sm:block">Applied Filters:</h2>
+          <.filter_pill
+            :for={{filter_field, filter_settings} <- filter_configuration()}
+            search_state={@search_state}
+            field={filter_field}
+            label={filter_settings.label}
+            filter_value={filter_settings.value_function.(@search_state.filter[filter_field])}
+          />
+        </div>
+        <.filter_form_component
           search_state={@search_state}
-          field={filter_field}
-          label={filter_settings.label}
-          filter_value={filter_settings.value_function.(@search_state.filter[filter_field])}
+          total_items={@total_items}
+          filter_form={@filter_form}
+          year_form={@year_form}
+          filter_data={@filter_data}
+          expanded_filter={@expanded_filter}
         />
       </div>
-      <.form
-        :if={@total_items > 0}
-        id="filter-form"
-        phx-change="checked_filter"
-        phx-submit="apply_filters"
-        for={@filter_form}
-      >
-        <div class="content-area">
-          <h2 class="text-xl font-normal page-b-padding">Filter your {@total_items} results</h2>
-          <div
-            role="tablist"
-            class={[
-              "border-t-1 border-rust/20 w-full grid grid-flow-col auto-cols-auto",
-              !@expanded_filter && "border-b-1"
-            ]}
-          >
-            <.filter_tab
-              :for={{field, filter} <- @filter_data}
-              label={filter.label}
-              field={field}
-              expanded={field == @expanded_filter}
-            />
-          </div>
-        </div>
-        <.filter_panel
-          :for={{field, filter} <- @filter_data}
-          field={field}
-          filter={filter}
-          expanded_filter={@expanded_filter}
-          filter_form={@filter_form}
-          {assigns}
-        />
-      </.form>
     </section>
+    """
+  end
+
+  def filter_form_component(assigns) do
+    ~H"""
+    <.form
+      :if={@total_items > 0}
+      id="filter-form"
+      phx-change="checked_filter"
+      phx-submit="apply_filters"
+      for={@filter_form}
+    >
+      <div class="sm:content-area">
+        <h2 class="text-xl font-normal page-b-padding hidden sm:block">
+          Filter your {@total_items} results
+        </h2>
+        <div
+          role="tablist"
+          class={[
+            "border-t-1 border-rust/20 w-full sm:grid sm:grid-flow-col sm:auto-cols-auto",
+            !@expanded_filter && "border-b-1"
+          ]}
+        >
+          <.filter_tab
+            :for={{field, filter} <- @filter_data}
+            label={filter.label}
+            field={field}
+            expanded={field == @expanded_filter}
+          />
+        </div>
+      </div>
+      <.filter_panel
+        :for={{field, filter} <- @filter_data}
+        field={field}
+        filter={filter}
+        expanded_filter={@expanded_filter}
+        filter_form={@filter_form}
+        {assigns}
+      />
+    </.form>
     """
   end
 
@@ -227,8 +259,23 @@ defmodule DpulCollectionsWeb.SearchLive do
     """
   end
 
+  # Buttons are interspersed here to make it work like an accordion on mobile
+  # screen sizes
   def filter_panel(assigns) do
     ~H"""
+    <button
+      phx-click="select_filter_tab"
+      type="button"
+      role="tab"
+      phx-value-filter={@field}
+      class="sm:hidden group-[.expanded]:bg-accent group-[.expanded]:text-light-text p-4 hover:text-dark-text hover:bg-hover-accent cursor-pointer w-full h-full flex items-center text-left"
+    >
+      <span class="grow">
+        {Gettext.gettext(DpulCollectionsWeb.Gettext, @filter.label)}
+      </span>
+      <div class="arrow bg-dark-text group-[.expanded]:bg-light-text group-[.expanded:hover]:bg-dark-text rotate-90 group-[.expanded]:-rotate-90 w-[15px] h-[15px]">
+      </div>
+    </button>
     <div
       role="tabpanel"
       class={[
@@ -286,6 +333,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     ~H"""
     <div class={[
       "group w-full h-full text-xl font-semibold not-last:border-r-1 border-rust/20",
+      "hidden sm:block",
       "#{@expanded && "expanded"}"
     ]}>
       <button
