@@ -100,7 +100,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} content_class={}>
-      <div id="item-wrap" class="grid grid-rows-[1fr/1fr] grid-cols-[1fr/1fr]">
+      <div id="item-wrap" class="grid grid-rows-[1fr/1fr] grid-cols-[1fr/1fr] cover-with-pane">
         <.item_page {assigns} />
       </div>
       <.metadata_pane :if={@live_action == :metadata} item={@item} />
@@ -238,30 +238,16 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def metadata_pane(assigns) do
     ~H"""
-    <div
+    <.live_component
+      module={DpulCollectionsWeb.PaneComponent}
       id="metadata-pane"
-      class="z-3 bg-background min-w-full min-h-full translate-x-full col-start-1 row-start-1 absolute top-0"
-      phx-mounted={
-        JS.transition({"ease-out duration-250", "translate-x-full", "translate-x-0"})
-        |> hide_covered_elements()
-      }
-      phx-remove={show_covered_elements()}
-      data-cancel={JS.patch(@item.url, replace: true)}
-      phx-window-keydown={JS.exec("data-cancel", to: "#metadata-pane")}
-      phx-key="escape"
-      phx-hook="ScrollTop"
+      class=""
+      translate="translate-x-full"
+      cancel_url={@item.url}
     >
-      <div class="header-x-padding heading-y-padding bg-accent flex flex-row">
+      <:heading>
         <h1 class="uppercase text-light-text flex-auto">{gettext("Metadata")}</h1>
-        <.link
-          aria-label={gettext("close pane")}
-          class="flex-none cursor-pointer justify-end"
-          patch={@item.url}
-          replace
-        >
-          <.icon class="w-8 h-8" name="hero-x-mark" />
-        </.link>
-      </div>
+      </:heading>
       <div class="main-content header-x-padding page-y-padding">
         <div class="py-6">
           <h2 class="sm:border-t-1 border-accent py-3">{gettext("Item Description")}</h2>
@@ -294,59 +280,29 @@ defmodule DpulCollectionsWeb.ItemLive do
           </div>
         </div>
       </div>
-    </div>
+    </.live_component>
     """
-  end
-
-  # Hide elements that get covered by the viewer modal so they're not tab
-  # targetable.
-  def hide_covered_elements(js \\ %JS{}) do
-    ["#item-wrap", ".search-bar", "footer"]
-    |> Enum.reduce(js, fn selector, acc_js ->
-      JS.hide(acc_js, to: selector, transition: "fade-out-scale", time: 250)
-    end)
-  end
-
-  def show_covered_elements(js \\ %JS{}) do
-    ["#item-wrap", ".search-bar", "footer"]
-    |> Enum.reduce(js, fn selector, acc_js -> JS.show(acc_js, to: selector) end)
   end
 
   def viewer_pane(assigns) do
     ~H"""
-    <div
+    <.live_component
+      module={DpulCollectionsWeb.PaneComponent}
       id="viewer-pane"
-      class="z-3 bg-background flex flex-col min-h-full min-w-full -translate-x-full col-start-1 row-start-1 absolute top-0 dismissable"
-      phx-mounted={
-        JS.transition({"ease-out duration-250", "-translate-x-full", "translate-x-0"})
-        |> hide_covered_elements()
-      }
-      phx-remove={show_covered_elements()}
-      data-cancel={JS.patch(@item.url, replace: true)}
-      phx-window-keydown={JS.exec("data-cancel", to: "#viewer-pane.dismissable")}
-      phx-key="escape"
-      phx-hook="ScrollTop"
+      class="flex flex-col"
+      translate="-translate-x-full"
+      cancel_url={@item.url}
     >
-      <div id="viewer-header" class="header-x-padding heading-y-padding bg-accent flex flex-row">
-        <div class="flex-auto flex flex-row gap-4">
-          <h1 class="uppercase text-light-text flex-none">{gettext("Viewer")}</h1>
-          <.action_icon
-            icon="hero-share"
-            phx-click={show_viewer_share_modal()}
-            variant="pane-action-icon"
-            aria-label={gettext("Share")}
-          >
-          </.action_icon>
-        </div>
-        <.link
-          aria-label={gettext("close pane")}
-          class="flex-none cursor-pointer justify-end"
-          patch={@item.url}
-          replace
+      <:heading>
+        <h1 class="uppercase text-light-text flex-none">{gettext("Viewer")}</h1>
+        <.action_icon
+          icon="hero-share"
+          phx-click={show_viewer_share_modal()}
+          variant="pane-action-icon"
+          aria-label={gettext("Share")}
         >
-          <.icon class="w-8 h-8" name="hero-x-mark" />
-        </.link>
-      </div>
+        </.action_icon>
+      </:heading>
       <!-- "relative" here lets Clover fill the full size of main-content. -->
       <!-- Ignore phoenix updates, since Clover manages switching the canvas. Without this it's jumpy on page switches. -->
       <div id="clover-viewer" class="main-content grow relative">
@@ -380,7 +336,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         id="viewer-share-modal"
         heading={gettext("Share this image")}
       />
-    </div>
+    </.live_component>
     """
   end
 
