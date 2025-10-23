@@ -520,10 +520,11 @@ defmodule DpulCollectionsWeb.SearchLive do
       <img
         class={[
           "h-[125px] w-[125px] md:h-[125px] md:w-[125px] border border-solid border-gray-400",
+          "object-cover",
           Helpers.obfuscate_item?(assigns) && "obfuscate",
           "thumbnail-#{@item.id}"
         ]}
-        src={"#{@thumb}/square/350,350/0/default.jpg"}
+        src={"#{@thumb}/square/!350,350/0/default.jpg"}
         alt=""
         style="background-color: lightgray;"
         width="125"

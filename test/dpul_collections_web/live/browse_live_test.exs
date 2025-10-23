@@ -181,7 +181,7 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
       |> Floki.find("img.thumbnail")
       |> Floki.attribute("src")
 
-    assert src == ["https://example.com/iiif/2/image1/square/350,350/0/default.jpg"]
+    assert src == ["https://example.com/iiif/2/image1/square/!350,350/0/default.jpg"]
   end
 
   test "renders large and small thumbnails that link to records", %{conn: conn} do
@@ -212,8 +212,8 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
       |> Floki.attribute("src")
 
     assert src == [
-             "https://example.com/iiif/2/image1/square/350,350/0/default.jpg",
-             "https://example.com/iiif/2/image2/square/100,100/0/default.jpg"
+             "https://example.com/iiif/2/image1/square/!350,350/0/default.jpg",
+             "https://example.com/iiif/2/image2/square/!100,100/0/default.jpg"
            ]
 
     first_href =
