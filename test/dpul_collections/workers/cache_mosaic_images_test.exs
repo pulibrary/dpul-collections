@@ -23,4 +23,10 @@ defmodule DpulCollections.Workers.CacheMosaicImagesTest do
       end)
     end
   end
+
+  describe ".timeout" do
+    test "timeout is set to 10 minutes (600000 milliseconds)" do
+      assert DpulCollections.Workers.CacheMosaicImages.timeout("") == 600_000
+    end
+  end
 end
