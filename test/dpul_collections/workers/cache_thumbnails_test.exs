@@ -78,4 +78,10 @@ defmodule DpulCollections.Workers.CacheThumbnailsTest do
       end)
     end
   end
+
+  describe ".timeout" do
+    test "timeout is set to 10 minutes (600000 milliseconds)" do
+      assert DpulCollections.Workers.CacheThumbnails.timeout("") == 600_000
+    end
+  end
 end

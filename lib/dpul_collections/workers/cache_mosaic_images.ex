@@ -13,6 +13,9 @@ defmodule DpulCollections.Workers.CacheMosaicImages do
     :ok
   end
 
+  @impl Oban.Worker
+  def timeout(_job), do: :timer.minutes(10)
+
   def cache_iiif_image(image) do
     # Generate iiif image server base url from image tuple
     {_, iiif_url, _} = image

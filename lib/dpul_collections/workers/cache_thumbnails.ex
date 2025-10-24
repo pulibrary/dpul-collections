@@ -11,6 +11,9 @@ defmodule DpulCollections.Workers.CacheThumbnails do
     :ok
   end
 
+  @impl Oban.Worker
+  def timeout(_job), do: :timer.minutes(10)
+
   defp thumbnail_configurations do
     [
       # Small browse thumbnails
