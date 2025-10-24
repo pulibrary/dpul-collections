@@ -53,6 +53,8 @@ defmodule DpulCollections.Workers.CacheThumbnailsTest do
         assert cached_paths |> Enum.member?("/iiif/2/image2/square/!350,350/0/default.jpg")
         # Small browse thumbnails
         assert cached_paths |> Enum.member?("/iiif/2/image7/square/!100,100/0/default.jpg")
+        # Clover thumbnails
+        assert cached_paths |> Enum.member?("/iiif/2/image6/full/!200,150/0/default.jpg")
       end)
     end
 

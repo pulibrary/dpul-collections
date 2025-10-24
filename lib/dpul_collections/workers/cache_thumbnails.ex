@@ -21,7 +21,9 @@ defmodule DpulCollections.Workers.CacheThumbnails do
       # Browse and search results thumbnails
       {"square", "!350", "350"},
       # Item page thumbnails
-      {"square", "!350", "465"}
+      {"square", "!350", "465"},
+      # Clover thumbnails
+      {"full", "!200", "150"}
     ]
   end
 
