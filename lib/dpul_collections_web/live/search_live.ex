@@ -188,6 +188,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         </h2>
         <div
           role="tablist"
+          aria-label={gettext("available filters")}
           class={[
             "border-t-1 border-rust/20 w-full sm:grid sm:grid-flow-col sm:auto-cols-auto",
             !@expanded_filter && "border-b-1"
@@ -268,8 +269,9 @@ defmodule DpulCollectionsWeb.SearchLive do
       "#{@expanded && "expanded"}"
     ]}>
       <button
-        phx-click="select_filter_tab"
+        phx-click={JS.push("select_filter_tab") |> JS.focus_first(to: "##{@field}-panel")}
         type="button"
+        aria-controls={"#{@field}-panel"}
         phx-value-filter={@field}
         class="sm:hidden group-[.expanded]:bg-accent group-[.expanded]:text-light-text p-4 hover:text-dark-text hover:bg-hover-accent cursor-pointer w-full h-full flex items-center text-left"
       >
@@ -281,12 +283,14 @@ defmodule DpulCollectionsWeb.SearchLive do
       </button>
     </div>
     <div
+      id={"#{@field}-panel"}
       role="tabpanel"
       class={[
-        @expanded || "hidden",
+        !@expanded && "hidden",
         @expanded && "expanded",
         "bg-secondary page-y-padding border-t-4 border-b-4 border-accent w-full"
       ]}
+      aria-expanded={if @expanded, do: "true", else: "false"}
     >
       <div class="content-area flex flex-col gap-6">
         <div class="flex">
@@ -341,9 +345,10 @@ defmodule DpulCollectionsWeb.SearchLive do
       "#{@expanded && "expanded"}"
     ]}>
       <button
-        phx-click="select_filter_tab"
+        phx-click={JS.push("select_filter_tab") |> JS.focus_first(to: "##{@field}-panel")}
         type="button"
         role="tab"
+        aria-controls={"#{@field}-panel"}
         phx-value-filter={@field}
         class="group-[.expanded]:bg-accent group-[.expanded]:text-light-text p-4 hover:text-dark-text hover:bg-hover-accent cursor-pointer w-full h-full flex items-center text-left"
       >
@@ -742,9 +747,10 @@ defmodule DpulCollectionsWeb.SearchLive do
     {:noreply, socket |> assign(:expanded_filter, nil)}
   end
 
-  # When we click a filter that's not selected, disable it.
+  # When we click a filter that's not selected, activate it.
   def handle_event("select_filter_tab", %{"filter" => field}, socket) do
-    {:noreply, socket |> assign(:expanded_filter, field)}
+    socket = socket |> assign(:expanded_filter, field)
+    {:noreply, socket}
   end
 
   def handle_event("sort", params, socket) do
