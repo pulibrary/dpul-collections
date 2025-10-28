@@ -131,10 +131,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
           </div>
         </div>
         <!-- card text area -->
-        <div class="grid grid-cols-1 grow relative">
-          <div class="h-8">
-            <!-- "images" diagonal-drop slots in here, it's below in DOM order for screen reader purposes -->
-          </div>
+        <div class="grid grid-cols-1 grow">
           <div class="mx-1 px-6 pb-5 bg-white flex flex-col">
             <h2 class="font-normal tracking-tight py-1 flex-grow" dir="auto">
               <.link
@@ -163,11 +160,13 @@ defmodule DpulCollectionsWeb.BrowseItem do
               </div>
             </div>
           </div>
-          <div
-            :if={@item.file_count > 4}
-            class="absolute bg-background right-2 top-0 z-10 pr-2 pb-1 diagonal-drop"
-          >
-            {@item.file_count} {gettext("Files")}
+          <div class="h-8 relative order-first">
+            <div
+              :if={@item.file_count > 4}
+              class="absolute bg-background right-2 top-0 z-10 pr-2 pb-1 diagonal-drop"
+            >
+              {@item.file_count} {gettext("Files")}
+            </div>
           </div>
           <!-- Footer area -->
           <div class="flex-grow flex w-full flex-col justify-end">
