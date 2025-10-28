@@ -152,7 +152,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
             :if={@item.file_count > 4}
             class="absolute bg-background right-2 top-0 z-10 pr-2 pb-1 diagonal-drop"
           >
-            {@item.file_count} {gettext("Images")}
+            {@item.file_count} {gettext("Files")}
           </div>
           <!-- Footer area -->
           <div class="flex-grow flex w-full flex-col justify-end">

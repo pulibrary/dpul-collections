@@ -40,6 +40,6 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
     # when filecount exceeds visible images show image total
     |> assert_has("#item-1", text: "Document-1")
     # when visible images equals filecount don't show image total
-    |> assert_has("#filecount-1", text: "8 Images")
+    |> assert_has("#filecount-1", text: "8 Files")
   end
 end

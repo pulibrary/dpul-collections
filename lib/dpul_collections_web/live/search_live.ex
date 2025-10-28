@@ -510,7 +510,7 @@ defmodule DpulCollectionsWeb.SearchLive do
               id={"filecount-#{@item.id}"}
               class="hidden absolute diagonal-rise -right-px bottom-0 bg-sage-100 pr-4 py-2 text-sm"
             >
-              {@item.file_count} {gettext("Images")}
+              {@item.file_count} {gettext("Files")}
             </div>
           </div>
         </div>
@@ -580,7 +580,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         :if={@item.file_count > 1}
         class="absolute sm:hidden diagonal-rise right-0 bottom-0 bg-sage-100 pr-4 py-2"
       >
-        {@item.file_count} {gettext("Images")}
+        {@item.file_count} {gettext("Files")}
       </div>
     </div>
     """
