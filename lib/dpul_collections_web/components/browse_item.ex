@@ -81,16 +81,6 @@ defmodule DpulCollectionsWeb.BrowseItem do
         @class
       ]}
     >
-      <div class="absolute p-4 right-0 flex gap-2">
-        <.card_button
-          :if={@likeable?}
-          patch={~p"/browse/focus/#{@item.id}"}
-          phx-click={JS.dispatch("dpulc:scrollTop")}
-          icon="iconoir:binocular"
-          label={gettext("Similar")}
-        />
-        <UserSets.AddToSetComponent.add_button :if={@current_scope} item_id={@item.id} />
-      </div>
       <div
         :if={Helpers.obfuscate_item?(assigns)}
         class="browse-header mb-2 h-12 w-full bg-white absolute flex items-center"
@@ -174,6 +164,16 @@ defmodule DpulCollectionsWeb.BrowseItem do
           </div>
         </div>
         <!-- "added on" note -->
+      </div>
+      <div class="absolute p-4 right-0 flex gap-2">
+        <.card_button
+          :if={@likeable?}
+          patch={~p"/browse/focus/#{@item.id}"}
+          phx-click={JS.dispatch("dpulc:scrollTop")}
+          icon="iconoir:binocular"
+          label={gettext("Similar")}
+        />
+        <UserSets.AddToSetComponent.add_button :if={@current_scope} item_id={@item.id} />
       </div>
     </li>
     """
