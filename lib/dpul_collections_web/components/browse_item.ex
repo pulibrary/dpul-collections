@@ -131,14 +131,9 @@ defmodule DpulCollectionsWeb.BrowseItem do
           </div>
         </div>
         <!-- card text area -->
-        <div class="grid grid-cols-1 grow">
-          <div class="relative h-8">
-            <div
-              :if={@item.file_count > 4}
-              class="absolute bg-background right-2 top-0 z-10 pr-2 pb-1 diagonal-drop"
-            >
-              {@item.file_count} {gettext("Images")}
-            </div>
+        <div class="grid grid-cols-1 grow relative">
+          <div class="h-8">
+            <!-- "images" diagonal-drop slots in here, it's below in DOM order for screen reader purposes -->
           </div>
           <div class="mx-1 px-6 pb-5 bg-white flex flex-col">
             <h2 class="font-normal tracking-tight py-1 flex-grow" dir="auto">
@@ -153,6 +148,12 @@ defmodule DpulCollectionsWeb.BrowseItem do
             </h2>
             <p class="text-gray-700 text-base">{@item.date}</p>
           </div>
+          <div
+            :if={@item.file_count > 4}
+            class="absolute bg-background right-2 top-0 z-10 pr-2 pb-1 diagonal-drop"
+          >
+            {@item.file_count} {gettext("Images")}
+          </div>
           <!-- Footer area -->
           <div class="flex-grow flex w-full flex-col justify-end">
             <div
@@ -163,17 +164,16 @@ defmodule DpulCollectionsWeb.BrowseItem do
             </div>
           </div>
         </div>
-        <!-- "added on" note -->
-      </div>
-      <div class="absolute p-4 right-0 flex gap-2">
-        <.card_button
-          :if={@likeable?}
-          patch={~p"/browse/focus/#{@item.id}"}
-          phx-click={JS.dispatch("dpulc:scrollTop")}
-          icon="iconoir:binocular"
-          label={gettext("Similar")}
-        />
-        <UserSets.AddToSetComponent.add_button :if={@current_scope} item_id={@item.id} />
+        <div class="absolute p-4 right-0 flex gap-2">
+          <.card_button
+            :if={@likeable?}
+            patch={~p"/browse/focus/#{@item.id}"}
+            phx-click={JS.dispatch("dpulc:scrollTop")}
+            icon="iconoir:binocular"
+            label={gettext("Similar")}
+          />
+          <UserSets.AddToSetComponent.add_button :if={@current_scope} item_id={@item.id} />
+        </div>
       </div>
     </li>
     """
