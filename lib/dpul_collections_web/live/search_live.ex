@@ -105,16 +105,15 @@ defmodule DpulCollectionsWeb.SearchLive do
             </form>
           </div>
         </div>
-        <ul class="grid grid-flow-row auto-rows-max gap-8">
-          <li :for={item <- @items}>
-            <.search_item
-              search_state={@search_state}
-              item={item}
-              sort_by={@search_state.sort_by}
-              show_images={@show_images}
-              current_scope={@current_scope}
-            />
-          </li>
+        <ul class="grid grid-flow-row auto-rows-max gap-8" id="search-results">
+          <.search_item
+            :for={item <- @items}
+            search_state={@search_state}
+            item={item}
+            sort_by={@search_state.sort_by}
+            show_images={@show_images}
+            current_scope={@current_scope}
+          />
         </ul>
         <div class="text-center max-w-5xl mx-auto text-lg py-8">
           <.paginator
@@ -375,10 +374,11 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def search_item(assigns = %{item: %Collection{}}) do
     ~H"""
-    <div
+    <li
       id={"item-#{@item.id}"}
       class="item card"
       data-id={@item.id}
+      aria-label={@item.title |> hd}
     >
       <div class="grid-rows-2 bg-sage-100 grid sm:grid-rows-1 sm:grid-cols-4 gap-0">
         <div class={[
@@ -403,15 +403,16 @@ defmodule DpulCollectionsWeb.SearchLive do
           id={"item-metadata-#{@item.id}"}
         >
           <div class="flex flex-wrap flex-row sm:flex-row justify-between">
-            <.link
-              navigate={@item.url}
-              class="card-link"
-            >
-              <h2 dir="auto w-full flex-grow sm:w-fit">
+            <h2 dir="auto w-full flex-grow sm:w-fit">
+              <.link
+                navigate={@item.url}
+                class="card-link"
+              >
                 {@item.title}
-              </h2>
-            </.link>
+              </.link>
+            </h2>
             <span
+              aria-label={gettext("genre")}
               data-field="genre"
               class="w-full sm:w-fit flex-grow sm:flex-none text-gray-600 font-bold text-base uppercase sm:text-right"
             >
@@ -435,13 +436,13 @@ defmodule DpulCollectionsWeb.SearchLive do
           </div>
         </div>
       </div>
-    </div>
+    </li>
     """
   end
 
   def search_item(assigns = %{item: %Item{}}) do
     ~H"""
-    <div
+    <li
       id={"item-#{@item.id}"}
       class="item card"
       aria-label={@item.title |> hd}
@@ -471,15 +472,16 @@ defmodule DpulCollectionsWeb.SearchLive do
           id={"item-metadata-#{@item.id}"}
         >
           <div class="flex flex-wrap flex-row sm:flex-row justify-between">
-            <.link
-              navigate={@item.url}
-              class="card-link"
-            >
-              <h2 dir="auto w-full flex-grow sm:w-fit">
+            <h2 dir="auto w-full flex-grow sm:w-fit">
+              <.link
+                navigate={@item.url}
+                class="card-link"
+              >
                 {@item.title}
-              </h2>
-            </.link>
+              </.link>
+            </h2>
             <span
+              aria-label={gettext("genre")}
               data-field="genre"
               class="w-full sm:w-fit flex-grow sm:flex-none text-gray-600 font-bold text-base uppercase sm:text-right"
             >
@@ -508,30 +510,30 @@ defmodule DpulCollectionsWeb.SearchLive do
               id={"filecount-#{@item.id}"}
               class="hidden absolute diagonal-rise -right-px bottom-0 bg-sage-100 pr-4 py-2 text-sm"
             >
-              {@item.file_count} {gettext("Images")}
+              {@item.file_count} {gettext("Files")}
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </li>
     """
   end
 
   defp search_brief_metadata(assigns) do
     ~H"""
-    <div class="brief-metadata flex-auto flex flex-row gap-4">
+    <div class="brief-metadata">
       <div
         :if={@item.date}
-        class="date flex flex-col gap-0 pe-4 py-0 h-min"
+        class="date"
       >
-        <div class="text-base">Date</div>
+        <div class="text-base">{gettext("Date")}</div>
         <div class="text-lg">{@item.date}</div>
       </div>
       <div
         :if={@item.geographic_origin}
-        class="origin flex flex-col gap-0 pe-4 py-0 h-min"
+        class="origin"
       >
-        <div class="text-base">Origin</div>
+        <div class="text-base">{gettext("Origin")}</div>
         <div class="text-lg">{@item.geographic_origin}</div>
       </div>
     </div>
@@ -578,7 +580,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         :if={@item.file_count > 1}
         class="absolute sm:hidden diagonal-rise right-0 bottom-0 bg-sage-100 pr-4 py-2"
       >
-        {@item.file_count} {gettext("Images")}
+        {@item.file_count} {gettext("Files")}
       </div>
     </div>
     """

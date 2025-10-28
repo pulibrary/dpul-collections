@@ -81,16 +81,6 @@ defmodule DpulCollectionsWeb.BrowseItem do
         @class
       ]}
     >
-      <div class="absolute p-4 right-0 flex gap-2">
-        <.card_button
-          :if={@likeable?}
-          patch={~p"/browse/focus/#{@item.id}"}
-          phx-click={JS.dispatch("dpulc:scrollTop")}
-          icon="iconoir:binocular"
-          label={gettext("Similar")}
-        />
-        <UserSets.AddToSetComponent.add_button :if={@current_scope} item_id={@item.id} />
-      </div>
       <div
         :if={Helpers.obfuscate_item?(assigns)}
         class="browse-header mb-2 h-12 w-full bg-white absolute flex items-center"
@@ -142,14 +132,6 @@ defmodule DpulCollectionsWeb.BrowseItem do
         </div>
         <!-- card text area -->
         <div class="grid grid-cols-1 grow">
-          <div class="relative h-8">
-            <div
-              :if={@item.file_count > 4}
-              class="absolute bg-background right-2 top-0 z-10 pr-2 pb-1 diagonal-drop"
-            >
-              {@item.file_count} {gettext("Images")}
-            </div>
-          </div>
           <div class="mx-1 px-6 pb-5 bg-white flex flex-col">
             <h2 class="font-normal tracking-tight py-1 flex-grow" dir="auto">
               <.link
@@ -161,7 +143,30 @@ defmodule DpulCollectionsWeb.BrowseItem do
                 {truncate_title(@item.title |> hd)}
               </.link>
             </h2>
-            <p class="text-gray-700 text-base">{@item.date}</p>
+            <div class="brief-metadata pt-4 text-gray-700 text-base">
+              <div
+                :if={@item.date}
+                class="date"
+              >
+                <div>{gettext("Date")}</div>
+                <div>{@item.date}</div>
+              </div>
+              <div
+                :if={@item.genre}
+                class="origin"
+              >
+                <div>{gettext("Genre")}</div>
+                <div>{@item.genre}</div>
+              </div>
+            </div>
+          </div>
+          <div class="h-8 relative order-first">
+            <div
+              :if={@item.file_count > 4}
+              class="absolute bg-background right-2 top-0 z-10 pr-2 pb-1 diagonal-drop"
+            >
+              {@item.file_count} {gettext("Files")}
+            </div>
           </div>
           <!-- Footer area -->
           <div class="flex-grow flex w-full flex-col justify-end">
@@ -173,7 +178,16 @@ defmodule DpulCollectionsWeb.BrowseItem do
             </div>
           </div>
         </div>
-        <!-- "added on" note -->
+        <div class="absolute p-4 right-0 flex gap-2">
+          <.card_button
+            :if={@likeable?}
+            patch={~p"/browse/focus/#{@item.id}"}
+            phx-click={JS.dispatch("dpulc:scrollTop")}
+            icon="iconoir:binocular"
+            label={gettext("Similar")}
+          />
+          <UserSets.AddToSetComponent.add_button :if={@current_scope} item_id={@item.id} />
+        </div>
       </div>
     </li>
     """
