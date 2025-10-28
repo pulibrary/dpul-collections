@@ -146,7 +146,22 @@ defmodule DpulCollectionsWeb.BrowseItem do
                 {truncate_title(@item.title |> hd)}
               </.link>
             </h2>
-            <p class="text-gray-700 text-base">{@item.date}</p>
+            <div class="brief-metadata pt-4 text-gray-700 text-base">
+              <div
+                :if={@item.date}
+                class="date"
+              >
+                <div>{gettext("Date")}</div>
+                <div>{@item.date}</div>
+              </div>
+              <div
+                :if={@item.genre}
+                class="origin"
+              >
+                <div>{gettext("Genre")}</div>
+                <div>{@item.genre}</div>
+              </div>
+            </div>
           </div>
           <div
             :if={@item.file_count > 4}

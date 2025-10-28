@@ -521,19 +521,19 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   defp search_brief_metadata(assigns) do
     ~H"""
-    <div class="brief-metadata flex-auto flex flex-row gap-4">
+    <div class="brief-metadata">
       <div
         :if={@item.date}
-        class="date flex flex-col gap-0 pe-4 py-0 h-min"
+        class="date"
       >
-        <div class="text-base">Date</div>
+        <div class="text-base">{gettext("Date")}</div>
         <div class="text-lg">{@item.date}</div>
       </div>
       <div
         :if={@item.geographic_origin}
-        class="origin flex flex-col gap-0 pe-4 py-0 h-min"
+        class="origin"
       >
-        <div class="text-base">Origin</div>
+        <div class="text-base">{gettext("Origin")}</div>
         <div class="text-lg">{@item.geographic_origin}</div>
       </div>
     </div>

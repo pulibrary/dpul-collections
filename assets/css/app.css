@@ -349,6 +349,14 @@
   @apply before:content-[''] before:absolute before:inset-0 before:z-[1];
 }
 
+.brief-metadata {
+ @apply flex-auto flex flex-row gap-4;
+}
+
 .brief-metadata > div:not(:last-child) {
   @apply border-e-1 border-search;
+}
+
+.brief-metadata > div {
+  @apply flex flex-col gap-0 pe-4 py-0 h-min;
 }
