@@ -101,13 +101,6 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 </p>
 
                 <div class="flex flex-wrap gap-4 pt-4">
-                  <.primary_button
-                    href={~p"/search?#{%{filter: %{project: [@collection.title |> hd]}}}"}
-                    class="btn-primary"
-                  >
-                    Browse Collection
-                  </.primary_button>
-
                   <button
                     phx-click={
                       JS.toggle_class(
@@ -117,8 +110,14 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                     }
                     class="btn-secondary"
                   >
-                    Learn More
+                    {gettext("Learn More")}
                   </button>
+                  <.primary_button
+                    href={~p"/search?#{%{filter: %{project: [@collection.title |> hd]}}}"}
+                    class="btn-primary"
+                  >
+                    {gettext("Browse Collection")}
+                  </.primary_button>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-1 gap-6">
@@ -168,7 +167,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
               id="collection-description"
               class="bg-background page-t-padding overflow-hidden group"
             >
-              <div class="[&_a]:text-accent transition-all duration-500 w-full text-lg max-h-0 invisible group-[.expanded]:visible group-[.expanded]:max-h-300">
+              <div class="[&_a]:text-accent transition-all duration-500 w-full text-lg max-h-0 invisible group-[.expanded]:visible group-[.expanded]:max-h-300 page-t-padding">
                 <div class="leading-relaxed">
                   {@collection.description |> raw}
                 </div>
@@ -237,21 +236,6 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-        <!-- Browse All Section -->
-        <div class="text-dark-text w-full page-y-padding page-x-padding">
-          <div class="home-content-area text-center">
-            <h2 class="text-3xl font-bold mb-4">Ready to Explore?</h2>
-            <p class="text-xl mb-8">
-              Sort, filter, and search through the entirety of {@collection.title |> hd}.
-            </p>
-            <.primary_button
-              href={~p"/search?#{%{filter: %{project: [@collection.title |> hd]}}}"}
-              class="btn-primary text-lg px-8 py-4"
-            >
-              Browse All Items
-            </.primary_button>
           </div>
         </div>
       </div>
