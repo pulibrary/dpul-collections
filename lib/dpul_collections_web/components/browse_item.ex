@@ -101,7 +101,6 @@ defmodule DpulCollectionsWeb.BrowseItem do
             <div :if={@item.file_count == 1} class="row-span-4">
               <.thumb
                 thumb={thumbnail_service_url(@item)}
-                href={@item.url}
                 item={@item}
                 show_images={@show_images}
               />
@@ -110,7 +109,6 @@ defmodule DpulCollectionsWeb.BrowseItem do
             <div :if={@item.file_count > 1} class="row-span-3 overflow-hidden h-[18rem]">
               <.thumb
                 thumb={thumbnail_service_url(@item)}
-                href={@item.url}
                 item={@item}
                 show_images={@show_images}
               />
@@ -123,7 +121,6 @@ defmodule DpulCollectionsWeb.BrowseItem do
                 :if={@item.file_count}
                 thumb={thumb}
                 thumb_num={thumb_num}
-                href={@item.url}
                 item={@item}
                 show_images={@show_images}
               />
@@ -204,7 +201,6 @@ defmodule DpulCollectionsWeb.BrowseItem do
   attr :thumb, :string, required: false
   attr :thumb_num, :string, required: false
   attr :item, :map, required: false
-  attr :href, :string, required: false, default: nil
 
   attr :show_images, :list,
     default: [],
