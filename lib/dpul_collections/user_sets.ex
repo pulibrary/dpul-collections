@@ -44,6 +44,7 @@ defmodule DpulCollections.UserSets do
   """
   def list_user_sets(%Scope{} = scope) do
     Repo.all_by(Set, user_id: scope.user.id)
+    |> Repo.preload(:set_items)
   end
 
   @spec list_user_sets_for_addition(%Scope{}, solr_id :: nil | String.t()) :: [
