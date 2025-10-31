@@ -67,7 +67,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} content_class={}>
+    <Layouts.app flash={@flash}>
       <div class="[&>*:nth-child(odd)]:bg-background [&>*:nth-child(even)]:bg-secondary grid grid-flow-row auto-rows-max">
         <!-- Hero Section -->
         <div class="relative overflow-hidden">
