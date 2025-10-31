@@ -309,4 +309,22 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       assert document["title_txtm"] == ["South Asian Ephemera"]
     end
   end
+
+  describe "updated_at_dt solr field" do
+    test "is pulled from published_at when possible" do
+      {hydrator, transformer, indexer, document} =
+        FiggyTestSupport.index_record_id("ff1b2bed-0ca8-45d4-854e-d8f82fc7572f")
+
+      hydrator |> Broadway.stop(:normal)
+      transformer |> Broadway.stop(:normal)
+      indexer |> Broadway.stop(:normal)
+
+      %Figgy.Resource{metadata: %{"published_at" => published_at}} =
+        IndexingPipeline.get_figgy_resource!("ff1b2bed-0ca8-45d4-854e-d8f82fc7572f")
+
+      {:ok, solr_date, _} = DateTime.from_iso8601(document["updated_at_dt"])
+      {:ok, figgy_date, _} = DateTime.from_iso8601(published_at |> Enum.at(0))
+      assert solr_date == figgy_date
+    end
+  end
 end

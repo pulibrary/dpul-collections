@@ -155,6 +155,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
 
   defp digitized_date(_data), do: nil
 
+  defp updated_date(%{"metadata" => %{"published_at" => [published_at]}})
+       when is_binary(published_at) do
+    {:ok, datetime, _} = published_at |> DateTime.from_iso8601()
+    datetime
+  end
+
   defp updated_date(%{"updated_at" => updated_at}) when is_binary(updated_at) do
     updated_at
   end
