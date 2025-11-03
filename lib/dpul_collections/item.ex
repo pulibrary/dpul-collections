@@ -208,4 +208,12 @@ defmodule DpulCollections.Item do
   def meta_description([description | _rest]) do
     description |> Helpers.truncate(200)
   end
+
+  def null_item() do
+    %__MODULE__{
+      id: "null_item",
+      content_warning: nil,
+      file_count: 0
+    }
+  end
 end

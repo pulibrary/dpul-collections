@@ -16,7 +16,10 @@ defmodule DpulCollections.UserSetsTest do
       scope = user_scope_fixture()
       other_scope = user_scope_fixture()
       set = set_fixture(scope)
+      # when the query preloads it it becomes an empty list
+      set = %{set | set_items: []}
       other_set = set_fixture(other_scope)
+      other_set = %{other_set | set_items: []}
       assert UserSets.list_user_sets(scope) == [set]
       assert UserSets.list_user_sets(other_scope) == [other_set]
     end
