@@ -30,7 +30,7 @@ defmodule DpulCollectionsWeb.UserSetsLive do
   end
 
   defp first_item([]) do
-    Item.placeholder()
+    Item.null_item()
   end
 
   def render(assigns) do

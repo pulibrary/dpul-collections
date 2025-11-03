@@ -209,9 +209,9 @@ defmodule DpulCollections.Item do
     description |> Helpers.truncate(200)
   end
 
-  def placeholder() do
+  def null_item() do
     %__MODULE__{
-      id: "placeholder",
+      id: "null_item",
       content_warning: nil,
       file_count: 0
     }
