@@ -26,13 +26,13 @@ defmodule DpulCollectionsWeb.Features.LocaleTest do
     conn
     |> visit("/")
     |> assert_has("#language-nav button[aria-expanded='false']")
-    |> refute_has("#language-nav li a")
+    |> refute_has("#language-menu a li")
     |> click_button("Language")
     |> assert_has("#language-nav button[aria-expanded='true']")
-    |> assert_has("#language-nav li a")
+    |> assert_has("#language-menu a li")
     # Click away
     |> Playwright.click("input")
-    |> refute_has("#language-nav li a")
+    |> refute_has("#language-menu a li")
     |> assert_has("#language-nav button[aria-expanded='false']")
     # Click twice
     |> click_button("Language")

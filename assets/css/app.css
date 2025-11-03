@@ -360,3 +360,24 @@
 .brief-metadata > div {
   @apply flex flex-col gap-0 pe-4 py-0 h-min;
 }
+
+header nav {
+  ul.dropdown {
+
+    /* language and account buttons */
+    li {
+      @apply p-2 hover:link-hover hover:bg-stone-200 focus:bg-stone-200 md:hover:bg-brand md:focus:bg-brand cursor-pointer;
+    }
+
+    button {
+      @apply md:inline text-black md:text-white md:font-medium w-full text-left cursor-pointer;
+    }
+
+    ul.dropdown-menu {
+     @apply static md:not-[.expanded]:hidden md:absolute left-auto right-0 list-none bg-white min-w-3xs py-2 px-0 mt-2 md:shadow-md rounded-md z-100;
+    li.menu-item {
+      @apply p-2 hover:bg-stone-200 focus:bg-stone-200 cursor-pointer;
+    }
+   }
+  }
+}
