@@ -3,6 +3,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
   import Phoenix.LiveViewTest
   alias DpulCollections.Solr
   alias DpulCollectionsWeb.ItemLive
+  import DpulCollections.AccountsFixtures
   @endpoint DpulCollectionsWeb.Endpoint
 
   setup do
@@ -473,6 +474,25 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       |> String.trim_trailing()
 
     assert title == "Viewer - زلزلہ - Digital Collections"
+  end
+
+  describe "user sets" do
+    test "item can be saved to a user set", %{conn: conn} do
+      {:ok, view, _html} =
+        conn
+        |> log_in_user(user_fixture())
+        |> live(~p"/i/زلزلہ/item/2")
+
+      # Open dialog
+      view
+      |> element(".metadata button", "Save")
+      |> render_click()
+
+      # Create new set
+      assert view
+             |> element("button", "Create new set")
+             |> render_click() =~ "Set name"
+    end
   end
 
   # Copied from

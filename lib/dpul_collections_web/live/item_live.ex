@@ -97,9 +97,11 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
+  attr :current_scope, :map, required: false, default: nil
+
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} content_class={}>
+    <Layouts.app flash={@flash} content_class={} current_scope={@current_scope}>
       <div id="item-wrap" class="grid grid-rows-[1fr/1fr] grid-cols-[1fr/1fr] cover-with-pane">
         <.item_page {assigns} />
       </div>
@@ -151,7 +153,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         <div class="thumbnails w-full sm:row-start-1 sm:col-start-1 sm:col-span-2 sm:row-span-full">
           <.primary_thumbnail item={@item} display_size={@display_size} show_images={@show_images} />
 
-          <.action_bar class="sm:hidden pt-4" item={@item} />
+          <.action_bar class="sm:hidden pt-4" item={@item} current_scope={@current_scope} />
 
           <section class="image-thumbnails hidden sm:block md:col-span-2 py-4">
             <h2 class="py-1">{gettext("Files")}</h2>
@@ -207,7 +209,7 @@ defmodule DpulCollectionsWeb.ItemLive do
               {@project.tagline}
             </div>
           </div>
-          <.action_bar class="hidden sm:block" item={@item} />
+          <.action_bar class="hidden sm:block" item={@item} current_scope={@current_scope} />
           <.content_separator />
           <.metadata_table item={@item} />
         </div>
@@ -353,6 +355,7 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   attr :rest, :global
   attr :item, :map, required: true
+  attr :current_scope, :map, required: false, default: nil
 
   def action_bar(assigns) do
     ~H"""
@@ -379,6 +382,16 @@ defmodule DpulCollectionsWeb.ItemLive do
           phx-click={JS.exec("dcjs-open", to: "#share-modal")}
         >
           {gettext("Share")}
+        </.action_icon>
+        <.action_icon
+          :if={Application.fetch_env!(:dpul_collections, :feature_account_toolbar) && @current_scope}
+          icon="hero-folder-plus"
+          variant="item-action-icon"
+          phx-click="open_modal"
+          phx-value-item_id={@item.id}
+          phx-target="#user_set_form"
+        >
+          {gettext("Save")}
         </.action_icon>
         <div class="ml-auto h-full flex-grow pr-4">
           <.rights_icon rights_statement={@item.rights_statement} />
