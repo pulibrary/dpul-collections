@@ -1,4 +1,5 @@
 defmodule DpulCollectionsWeb.LoginTest do
+  alias DpulCollections.Accounts
   use DpulCollections.DataCase
   use PhoenixTest.Playwright.Case
   import DpulCollections.AccountsFixtures
@@ -15,6 +16,23 @@ defmodule DpulCollectionsWeb.LoginTest do
     |> click_button("Log in with email")
     |> visit("/users/log-in/#{generate_user_magic_link_token(user) |> elem(0)}")
     |> click_button("Keep me logged in on this device")
+    |> assert_has("a", text: "Log out")
+  end
+
+  test "auto-registration via login & confirmation works", %{conn: conn} do
+    out =
+      conn
+      |> visit("/")
+      |> click_link("Log in")
+      |> fill_in("Email", with: "test@example.com")
+      |> click_button("Log in with email")
+      |> assert_has("*", text: "You will receive instructions for logging in shortly.")
+
+    user = Accounts.get_user_by_email("test@example.com")
+
+    out
+    |> visit("/users/log-in/#{generate_user_magic_link_token(user) |> elem(0)}")
+    |> click_button("Confirm and stay logged in")
     |> assert_has("a", text: "Log out")
   end
 

@@ -16,10 +16,10 @@ defmodule DpulCollectionsWeb.UserLive.Login do
                 You need to reauthenticate to perform sensitive actions on your account.
               <% else %>
                 Don't have an account? <.link
-                  navigate={~p"/users/register"}
+                  navigate={~p"/users/log-in"}
                   class="font-semibold text-brand hover:underline"
                   phx-no-format
-                >Sign up</.link> for an account now.
+                >Use any email</.link> to login.
               <% end %>
             </:subtitle>
           </.header>
@@ -76,15 +76,13 @@ defmodule DpulCollectionsWeb.UserLive.Login do
 
   @impl true
   def handle_event("submit_magic", %{"user" => %{"email" => email}}, socket) do
-    if user = Accounts.get_user_by_email(email) do
-      Accounts.deliver_login_instructions(
-        user,
-        &url(~p"/users/log-in/#{&1}")
-      )
-    end
+    Accounts.deliver_login_instructions(
+      email,
+      &url(~p"/users/log-in/#{&1}")
+    )
 
     info =
-      "If your email is in our system, you will receive instructions for logging in shortly."
+      "You will receive instructions for logging in shortly."
 
     {:noreply,
      socket

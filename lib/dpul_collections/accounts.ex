@@ -198,6 +198,21 @@ defmodule DpulCollections.Accounts do
   @doc """
   Delivers the magic link login instructions to the given user.
   """
+  def deliver_login_instructions(email, magic_link_url_fun)
+      when is_binary(email) and is_function(magic_link_url_fun, 1) do
+    user = get_user_by_email(email)
+
+    case user do
+      # Register a new user if one doesn't exist already.
+      nil ->
+        {:ok, new_user} = register_user(%{email: email})
+        deliver_login_instructions(new_user, magic_link_url_fun)
+
+      _ ->
+        deliver_login_instructions(user, magic_link_url_fun)
+    end
+  end
+
   def deliver_login_instructions(%User{} = user, magic_link_url_fun)
       when is_function(magic_link_url_fun, 1) do
     {encoded_token, user_token} = UserToken.build_email_token(user, "login")

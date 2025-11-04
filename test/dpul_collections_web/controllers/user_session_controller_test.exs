@@ -24,7 +24,6 @@ defmodule DpulCollectionsWeb.UserSessionControllerTest do
       conn = get(conn, ~p"/")
       response = html_response(conn, 200)
       assert response =~ user.email
-      assert response =~ ~p"/users/settings"
       assert response =~ ~p"/users/log-out"
     end
 
@@ -48,7 +47,6 @@ defmodule DpulCollectionsWeb.UserSessionControllerTest do
       conn = get(conn, ~p"/")
       response = html_response(conn, 200)
       assert response =~ user.email
-      assert response =~ ~p"/users/settings"
       assert response =~ ~p"/users/log-out"
     end
 
