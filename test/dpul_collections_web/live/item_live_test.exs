@@ -103,9 +103,10 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
         },
         %{
           id: "similar-to-1-is-a-project",
-          title_txtm: "I'm a project",
+          title_txtm: "Test Project",
           tagline_txtm: "This is a tagline.",
           description_txtm: ["This is a test description"],
+          authoritative_slug_s: "project",
           resource_type_s: "collection"
         }
       ],
@@ -421,6 +422,25 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
 
       assert ItemLive.rights_path("In Copyright - Educational Use Permitted") ==
                "in-copyright--educational-use-permitted.svg"
+    end
+  end
+
+  describe "project display and navigation" do
+    test "creates a filter link to the project not published", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
+
+      assert view
+             |> element("a.filter-link", "Test Project")
+             |> render() =~ "/collections/project"
+    end
+
+    test "creates a link to a project page when one is published", %{conn: conn} do
+      {:ok, view, _html} =
+        live(conn, "/i/similar-item-different-project/item/similar-to-1-diff-project")
+
+      assert view
+             |> element("a.filter-link", "Different Project")
+             |> render() =~ "/search"
     end
   end
 
