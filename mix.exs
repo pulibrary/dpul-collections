@@ -131,7 +131,7 @@ defmodule DpulCollections.MixProject do
         "coveralls.html"
       ],
       "fixtures.setup": [
-        "cmd cd ./figgy-fixture-container && PGPASSWORD=postgres ./import-container-fixtures.sh 2> /dev/null || true"
+        "cmd --cd ./figgy-fixture-container ./import-container-fixtures.sh 2> /dev/null || true"
       ],
       "assets.setup": [
         "cmd npm --prefix deps/iconify_ex/assets install",
