@@ -4,6 +4,7 @@ defmodule DpulCollections.SolrTest do
   alias DpulCollections.Item
   alias DpulCollections.Solr
   import ExUnit.CaptureLog
+  import Mock
 
   test ".document_count/0" do
     assert Solr.document_count() == 0
@@ -32,6 +33,15 @@ defmodule DpulCollections.SolrTest do
 
       assert Solr.find_by_id(nil) == nil
       assert Solr.find_by_id("") == nil
+    end
+
+    test "when solr returns a non-200 status" do
+      with_mock Req, [:passthrough],
+        post: fn _url, _ -> {:ok, %{status: 404, body: "server error"}} end do
+        assert_raise Solr.Client.ServerError, fn ->
+          Solr.find_by_id("docid")
+        end
+      end
     end
   end
 
@@ -433,18 +443,40 @@ defmodule DpulCollections.SolrTest do
     assert Solr.latest_document()["id"] == doc_2["id"]
   end
 
-  test ".delete_all/0" do
-    doc = %{
-      "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
-      "title_txtm" => ["test title 1"]
-    }
+  describe ".delete_all/0" do
+    test "with a single doc in the index" do
+      doc = %{
+        "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
+        "title_txtm" => ["test title 1"]
+      }
 
-    Solr.add([doc], active_collection())
-    Solr.soft_commit(active_collection())
-    assert Solr.document_count() == 1
+      Solr.add([doc], active_collection())
+      Solr.soft_commit(active_collection())
+      assert Solr.document_count() == 1
 
-    Solr.delete_all(active_collection())
-    assert Solr.document_count() == 0
+      Solr.delete_all(active_collection())
+      assert Solr.document_count() == 0
+    end
+
+    test "when solr returns a non-200 status" do
+      with_mock Req, [:passthrough],
+        post: fn _url, _ -> {:ok, %{status: 404, body: "server error"}} end do
+        assert_raise Solr.Client.ServerError, fn ->
+          Solr.delete_all(active_collection())
+        end
+      end
+    end
+  end
+
+  describe ".delete_batch/2" do
+    test "when solr returns a non-200 status" do
+      with_mock Req, [:passthrough],
+        post: fn _url, _ -> {:ok, %{status: 404, body: "server error"}} end do
+        assert_raise Solr.Client.ServerError, fn ->
+          Solr.delete_batch(["doc1", "doc2"], active_collection())
+        end
+      end
+    end
   end
 
   test "write operations use a default collection if none specified" do
