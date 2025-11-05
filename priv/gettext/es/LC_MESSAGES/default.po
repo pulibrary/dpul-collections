@@ -518,12 +518,12 @@ msgstr "Descubre %{photographs}, %{posters}, %{pamphlets} y más para inspirar t
 #: lib/dpul_collections_web/live/search_live.ex:5
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
 #, elixir-autogen, elixir-format
-msgid "Recently Updated"
+msgid "Recently Added"
 msgstr "Actualizado recientemente"
 
 #: lib/dpul_collections_web/live/home_live.ex:99
 #, elixir-autogen, elixir-format
-msgid "Recently Updated Items"
+msgid "Recently Added Items"
 msgstr "Materiales Recientes"
 
 #: lib/dpul_collections_web/components/browse_item.ex:161

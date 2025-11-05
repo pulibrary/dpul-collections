@@ -176,13 +176,13 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           </div>
           <.content_separator />
         </div>
-        <!-- Recently Updated Items -->
+        <!-- Recently Added Items -->
         <.browse_item_row
           :if={length(@collection.recently_updated) > 0}
           id="recent-items"
           layout="home-content-area"
           items={@collection.recently_updated}
-          title="Recently Updated Items"
+          title={gettext("Recently Added Items")}
           more_link={
             ~p"/search?#{%{filter: %{project: [@collection.title |> hd]}, sort_by: "recently_updated"}}"
           }
