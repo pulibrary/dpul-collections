@@ -204,9 +204,17 @@ defmodule DpulCollectionsWeb.ItemLive do
             class="text-lg font-medium text-dark-text border-l-4 border-s-sage-500 w-full px-4"
           >
             <div class="text-sage-800 uppercase text-sm font-bold tracking-wide">Collection</div>
-            Part of <.filter_link filter_name="project" filter_value={@item.project} />
-            <div :if={@project != nil} class="tagline text-sm font-light py-1">
-              {@project.tagline}
+            <div :if={@project != nil}>
+              Part of
+              <.link class="filter-link" navigate={~p"/collections/#{@project.slug}"}>
+                {@project.title}
+              </.link>
+              <div class="tagline text-sm font-light py-1">
+                {@project.tagline}
+              </div>
+            </div>
+            <div :if={@project == nil}>
+              Part of <.filter_link filter_name="project" filter_value={@item.project} />
             </div>
           </div>
           <.action_bar class="hidden sm:block" item={@item} current_scope={@current_scope} />
