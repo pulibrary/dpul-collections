@@ -156,7 +156,7 @@ defmodule DpulCollections.Solr do
     query(search_state, index)
   end
 
-  def recently_updated(
+  def recently_added(
         count,
         search_state \\ SearchState.from_params(%{}),
         index \\ Index.read_index()
@@ -173,7 +173,7 @@ defmodule DpulCollections.Solr do
               "file_count" => %{"from" => 1}
             }
           ),
-        "sort_by" => "recently_updated",
+        "sort_by" => "recently_added",
         "per_page" => "#{count}"
       })
 

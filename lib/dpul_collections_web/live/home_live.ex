@@ -11,7 +11,7 @@ defmodule DpulCollectionsWeb.HomeLive do
         page_title: "Digital Collections",
         q_: nil,
         recent_items:
-          Solr.recently_updated(5)["docs"]
+          Solr.recently_added(5)["docs"]
           |> Enum.map(&Item.from_solr(&1))
       )
 
@@ -92,7 +92,7 @@ defmodule DpulCollectionsWeb.HomeLive do
           color="bg-background"
           items={@recent_items}
           title={gettext("Recently Added Items")}
-          more_link={~p"/search?sort_by=recently_updated"}
+          more_link={~p"/search?sort_by=recently_added"}
           show_images={@show_images}
           added?={true}
         >

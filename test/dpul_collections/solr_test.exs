@@ -314,7 +314,7 @@ defmodule DpulCollections.SolrTest do
       Solr.soft_commit(active_collection())
 
       records =
-        Solr.recently_updated(
+        Solr.recently_added(
           1,
           SearchState.from_params(%{"filter" => %{"project" => "Test Title"}})
         )
@@ -344,7 +344,7 @@ defmodule DpulCollections.SolrTest do
       Solr.add([doc1, doc2], active_collection())
       Solr.soft_commit(active_collection())
 
-      records = Solr.recently_updated(2) |> Map.get("docs")
+      records = Solr.recently_added(2) |> Map.get("docs")
 
       # Only returns one, and it's the non-collection.
       id = doc1["id"]
@@ -377,7 +377,7 @@ defmodule DpulCollections.SolrTest do
       Solr.add([doc1, doc2, doc3], active_collection())
       Solr.soft_commit(active_collection())
 
-      records = Solr.recently_updated(1) |> Map.get("docs")
+      records = Solr.recently_added(1) |> Map.get("docs")
 
       assert Enum.at(records, 0) |> Map.get("id") == doc2["id"]
     end

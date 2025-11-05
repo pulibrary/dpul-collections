@@ -18,7 +18,7 @@ defmodule DpulCollections.Collection do
     languages: [],
     geographic_origins: [],
     featured_items: [],
-    recently_updated: [],
+    recently_added: [],
     contributors: []
   ]
 
@@ -55,7 +55,7 @@ defmodule DpulCollections.Collection do
       languages: summary.languages,
       geographic_origins: summary.geographic_origins,
       featured_items: get_featured_items(title |> hd),
-      recently_updated: get_recent_items(title |> hd),
+      recently_added: get_recent_items(title |> hd),
       url: "/collections/#{doc["authoritative_slug_s"]}",
       contributors: get_contributors(doc["authoritative_slug_s"])
     }
@@ -111,7 +111,7 @@ defmodule DpulCollections.Collection do
   def get_contributors(_), do: []
 
   defp get_recent_items(label) do
-    Solr.recently_updated(5, SearchState.from_params(%{"filter" => %{"project" => label}}))
+    Solr.recently_added(5, SearchState.from_params(%{"filter" => %{"project" => label}}))
     |> Map.get("docs")
     |> Enum.map(&Item.from_solr/1)
   end

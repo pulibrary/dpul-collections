@@ -145,12 +145,12 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     {:ok, document} =
       view
-      |> render_click("sort", %{"sort-by" => "recently_updated"})
+      |> render_click("sort", %{"sort-by" => "recently_added"})
       |> Floki.parse_document()
 
     # Note: 100 items are generated in solr_test_support.ex from oldest to newest.
     # Because of this, the test expects the 100th item to be on the front page when 
-    # sorted by recently_updated. 
+    # sorted by recently_added. 
     assert document
            |> Floki.find(~s{a[href="/i/document1/item/1"]})
            |> Enum.empty?()
@@ -160,10 +160,10 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Enum.any?()
   end
 
-  test "items should display time ago when sorted by recently_updated", %{
+  test "items should display time ago when sorted by recently_added", %{
     conn: conn
   } do
-    {:ok, _view, html} = live(conn, "/search?sort_by=recently_updated")
+    {:ok, _view, html} = live(conn, "/search?sort_by=recently_added")
 
     {:ok, document} =
       html
@@ -173,7 +173,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert document |> Floki.find(".updated-at") |> Enum.any?()
   end
 
-  test "items should not display time ago information when not sorted by recently_updated", %{
+  test "items should not display time ago information when not sorted by recently_added", %{
     conn: conn
   } do
     {:ok, _view, html} = live(conn, "/search?")
