@@ -426,7 +426,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
   end
 
   describe "project display and navigation" do
-    test "creates a filter link to the project not published", %{conn: conn} do
+    test "creates a link to a project page when one is published", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
 
       assert view
@@ -434,7 +434,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
              |> render() =~ "/collections/project"
     end
 
-    test "creates a link to a project page when one is published", %{conn: conn} do
+    test "creates a filter link to the project not published", %{conn: conn} do
       {:ok, view, _html} =
         live(conn, "/i/similar-item-different-project/item/similar-to-1-diff-project")
 
