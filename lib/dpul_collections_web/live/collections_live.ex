@@ -67,8 +67,8 @@ defmodule DpulCollectionsWeb.CollectionsLive do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <div class="[&>*:nth-child(odd)]:bg-background [&>*:nth-child(even)]:bg-secondary grid grid-flow-row auto-rows-max">
+    <Layouts.app flash={@flash}>
+      <div class="[&>*:nth-child(odd)]:bg-dark-background [&>*:nth-child(even)]:bg-secondary grid grid-flow-row auto-rows-max">
         <!-- Hero Section -->
         <div class="relative overflow-hidden">
           <div class="home-content-area page-y-padding">

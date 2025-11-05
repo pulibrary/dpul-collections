@@ -22,6 +22,7 @@
   --color-cloud: #c1ccc3;
   --color-rust: #a0562c;
   --color-dark-blue: #3a4151;
+  --color-dark-gray: #444444;
   /* Button Text on Dark Blue */
   --color-light-green: #ECF2CB;
 
@@ -44,6 +45,7 @@
   --color-background: var(--color-taupe);
   --color-light-text: var(--color-taupe);
   --color-dark-text: var(--color-princeton-black);
+  --color-dark-background: var(--color-dark-gray);
   /* brand is the color that's the site's brand - header/footer */
   --color-brand: var(--color-princeton-black);
   /* Primary is calls to action - buttons */
