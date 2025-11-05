@@ -37,7 +37,7 @@ defmodule DpulCollectionsWeb.UserSetsLiveTest do
       # put an item in it
       set_item_fixture(%{solr_id: "1"}, user_scope_fixture(me), mine)
 
-      not_mine =
+      _not_mine =
         set_fixture(user_scope_fixture(not_me),
           title: "Someone else's set",
           description: "boring"
@@ -70,7 +70,7 @@ defmodule DpulCollectionsWeb.UserSetsLiveTest do
 
     test "renders when a set is empty", %{conn: conn} do
       me = user_fixture()
-      mine = set_fixture(user_scope_fixture(me), title: "Set I made", description: "cool")
+      _mine = set_fixture(user_scope_fixture(me), title: "Set I made", description: "cool")
 
       {:ok, _view, html} =
         conn

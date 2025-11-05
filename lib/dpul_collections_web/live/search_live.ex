@@ -488,7 +488,7 @@ defmodule DpulCollectionsWeb.SearchLive do
               {@item.genre}
             </span>
           </div>
-          <div :if={@sort_by == :recently_updated && @item.updated_at} class="updated-at w-full">
+          <div :if={@sort_by == :recently_added && @item.updated_at} class="updated-at w-full">
             {gettext("Added")} {DpulCollectionsWeb.BrowseItem.time_ago(@item.updated_at)}
           </div>
           <div class="flex">

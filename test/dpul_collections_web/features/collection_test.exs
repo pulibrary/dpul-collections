@@ -74,7 +74,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> refute_has("li", text: "+0 more")
       # Recently updated more link
       |> assert_has(
-        "a[href='/search?filter[project][]=South+Asian+Ephemera&sort_by=recently_updated']"
+        "a[href='/search?filter[project][]=South+Asian+Ephemera&sort_by=recently_added']"
       )
       # Recently Updated cards
       |> assert_has(

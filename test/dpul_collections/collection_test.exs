@@ -23,7 +23,7 @@ defmodule DpulCollections.CollectionTest do
 
       collection = Collection.from_slug("sae")
 
-      assert length(collection.recently_updated) == 1
+      assert length(collection.recently_added) == 1
     end
   end
 
