@@ -71,7 +71,7 @@ defmodule DpulCollectionsWeb.HeaderComponent do
             "hidden absolute left-auto right-0 top-8 zi-nav-dropdown min-w-3xs",
             "md:static md:flex md:flex-row md:gap-4",
             "bg-white md:bg-brand",
-            "list-none py-2 px-0 mt-2 shadow-md rounded-md justify-end"
+            "list-none py-2 mt-2 md:py-0 md:mt-0 shadow-md rounded-md justify-end"
           ]}
           dcjs-toggle-menu={
             JS.toggle_attribute({"aria-expanded", "false", "true"}, to: "#menu-toggle")
@@ -134,12 +134,12 @@ defmodule DpulCollectionsWeb.HeaderComponent do
     ~H"""
     <li
       id={"#{@id}-nav"}
-      class="py-2 ps-2 hover:link-hover hover:bg-stone-200 focus:bg-stone-200 md:hover:bg-brand md:focus:bg-brand cursor-pointer"
+      class="py-1 px-2 hover:link-hover hover:bg-stone-200 focus:bg-stone-200 md:hover:bg-brand md:focus:bg-brand cursor-pointer"
     >
       <button
         class={[
           "submenu",
-          "md:inline text-black md:text-white md:font-medium w-full text-left md:text-right cursor-pointer"
+          "md:inline text-black md:text-white md:font-medium w-full text-left md:text-right cursor-pointer border-b border-gray-300 md:border-0"
         ]}
         name={@name}
         aria-label={@name}
@@ -157,7 +157,7 @@ defmodule DpulCollectionsWeb.HeaderComponent do
         }
       >
         <span class="hover:link-hover font-normal sm:font-medium text-sm sm:text-md cursor-pointer">
-          {@name}&nbsp;<span class="font-normal">&gt;</span>
+          {@name}&nbsp;<span class="font-normal hidden md:inline">&gt;</span>
         </span>
       </button>
       <ul
