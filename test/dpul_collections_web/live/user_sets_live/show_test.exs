@@ -32,6 +32,10 @@ defmodule DpulCollectionsWeb.UserSetsLive.ShowTest do
       assert view
              |> element("li#browse-item-#{item_2.solr_id}")
              |> has_element?
+
+      assert view
+             |> element("button", "Share")
+             |> has_element?
     end
   end
 end
