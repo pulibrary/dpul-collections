@@ -221,18 +221,32 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         {:update,
          resource = %Figgy.CombinedFiggyResource{
            resource: %{
+             id: id,
              internal_resource: "EphemeraProject",
              metadata: metadata
-           }
+           },
+           latest_updated_marker: marker
          }},
-        _cache_version
+        cache_version
       ) do
     case metadata do
       %{"publish" => ["1"]} ->
         {:update, resource}
 
       _ ->
-        {:skip, resource}
+        # Delete if we've seen the project before.
+        existing_resource = IndexingPipeline.get_hydration_cache_entry!(id, cache_version)
+
+        if existing_resource do
+          {:delete,
+           %Figgy.DeletionRecord{
+             marker: marker,
+             internal_resource: resource.resource.internal_resource,
+             id: id
+           }}
+        else
+          {:skip, resource}
+        end
     end
   end
 

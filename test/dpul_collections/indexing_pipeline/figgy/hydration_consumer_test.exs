@@ -867,6 +867,30 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
       assert processed.batcher == :noop
     end
 
+    test "deletes projects that were once published" do
+      project = IndexingPipeline.get_figgy_resource!("f99af4de-fed4-4baa-82b1-6e857b230306")
+
+      HydrationConsumer.handle_message(
+        nil,
+        %Broadway.Message{acknowledger: nil, data: project},
+        %{cache_version: 1}
+      )
+
+      unpublished_project = put_in(project, [Access.key!(:metadata), "publish"], ["0"])
+
+      processed =
+        HydrationConsumer.handle_message(
+          nil,
+          %Broadway.Message{acknowledger: nil, data: unpublished_project},
+          %{cache_version: 1}
+        )
+
+      assert processed.batcher == :default
+
+      cache_entry = DpulCollections.IndexingPipeline.get_hydration_cache_entry!(project.id, 1)
+      assert cache_entry.data["metadata"]["deleted"] == true
+    end
+
     test "updates projects that are published" do
       project = IndexingPipeline.get_figgy_resource!("f99af4de-fed4-4baa-82b1-6e857b230306")
 

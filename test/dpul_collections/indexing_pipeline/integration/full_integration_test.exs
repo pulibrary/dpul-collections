@@ -308,6 +308,35 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
       assert document["title_txtm"] == ["South Asian Ephemera"]
     end
+
+    test "deletes an ephemera project after being unpublished" do
+      project = IndexingPipeline.get_figgy_resource!("f99af4de-fed4-4baa-82b1-6e857b230306")
+      # Index a published project. This starts a pipeline.
+      FiggyTestSupport.index_record_id(project.id)
+
+      assert Solr.find_by_id(project.id) != nil
+
+      unpublished_project = put_in(project, [Access.key!(:metadata), "publish"], ["0"])
+
+      {:ok, tracker_pid} = GenServer.start_link(AckTracker, self())
+      AckTracker.reset_count!(tracker_pid)
+
+      # Hydrate a fake unpublished project.
+      Figgy.HydrationConsumer.handle_message(
+        nil,
+        %Broadway.Message{acknowledger: nil, data: unpublished_project},
+        %{cache_version: 1}
+      )
+
+      # Re-transform so the pipeline runs.
+      Figgy.TransformationConsumer.start_over!(1)
+
+      tracker_pid
+      |> AckTracker.wait_for_transformer(1)
+      |> AckTracker.wait_for_indexer(1)
+
+      assert Solr.find_by_id(project.id) == nil
+    end
   end
 
   describe "updated_at_dt solr field" do
