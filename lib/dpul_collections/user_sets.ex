@@ -111,6 +111,11 @@ defmodule DpulCollections.UserSets do
     Repo.get_by!(Set, id: id, user_id: scope.user.id)
   end
 
+  def get_set(id) do
+    Repo.get_by!(Set, id: id)
+    |> Repo.preload(:set_items)
+  end
+
   @doc """
   Creates a set.
 
