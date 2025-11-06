@@ -360,3 +360,11 @@
 .brief-metadata > div {
   @apply flex flex-col gap-0 pe-4 py-0 h-min;
 }
+
+/* semantic labels for z-index so we can see them at once and make sure they
+ * don't interfere with one another */
+@utility zi-nav-dropdown {@apply z-100;}
+@utility zi-flash {@apply z-50;}
+@utility zi-home-callout {@apply z-10;}
+
+@utility zi-card-button {@apply z-100;}

@@ -46,7 +46,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
       phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("##{@id}")}
       role="alert"
       class={[
-        "fixed top-2 right-2 mr-2 w-80 sm:w-96 z-50 rounded-lg p-3 ring-1",
+        "fixed top-20 right-2 mr-2 w-80 sm:w-96 zi-flash rounded-lg p-3 ring-1",
         @kind == :info && "bg-emerald-50 text-emerald-800 ring-emerald-500 fill-cyan-900",
         @kind == :error && "bg-rose-50 text-rose-900 shadow-md ring-rose-500 fill-rose-900"
       ]}
@@ -743,7 +743,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
   def card_button(assigns) do
     ~H"""
     <.primary_button
-      class="btn-base border-1 border-gray-200 bg-background py-1 px-2 flex flex-col items-center z-100 hover:bg-background"
+      class="btn-base border-1 border-gray-200 bg-background py-1 px-2 flex flex-col items-center zi-card-button hover:bg-background"
       {assigns}
     >
       <.icon class="grow w-[1.5rem] h-[1.5rem]" name={@icon} />

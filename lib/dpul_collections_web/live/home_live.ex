@@ -27,10 +27,10 @@ defmodule DpulCollectionsWeb.HomeLive do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} content_class={} display_title={false}>
+    <Layouts.app flash={@flash} current_scope={@current_scope} content_class={} display_title={false}>
       <div class="grid grid-flow-row auto-rows-max">
         <div class="explore-header grid-row bg-background relative">
-          <div class="drop-shadow-[1px_1px_3rem_rgba(0,0,0,1)] bg-primary absolute max-h-[600px] sm:min-w-[350px] w-full md:max-w-2/3 lg:max-w-1/2 2xl:max-w-2/5 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 p-4">
+          <div class="drop-shadow-[1px_1px_3rem_rgba(0,0,0,1)] bg-primary absolute max-h-[600px] sm:min-w-[350px] w-full md:max-w-2/3 lg:max-w-1/2 2xl:max-w-2/5 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 zi-home-callout p-4">
             <div class="corner-cut content-area text-center h-full w-full flex flex-col justify-evenly items-center bg-background p-8 gap-4">
               <div>
                 <h1 class="text-2xl">{gettext("Digital Collections")}</h1>
