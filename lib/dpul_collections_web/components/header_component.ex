@@ -68,10 +68,10 @@ defmodule DpulCollectionsWeb.HeaderComponent do
           id="main-menu-dropdown"
           class={[
             "dropdown",
-            "hidden absolute left-auto right-0 top-8 z-10",
-            "list-none bg-white min-w-3xs py-2 px-0 mt-2 shadow-md rounded-md",
-            "md:bg-brand",
-            "md:static md:flex md:flex-row md:gap-4"
+            "hidden absolute left-auto right-0 top-8 z-20 min-w-3xs",
+            "md:static md:flex md:flex-row md:gap-4",
+            "bg-white md:bg-brand",
+            "list-none py-2 px-0 mt-2 shadow-md rounded-md justify-end"
           ]}
           dcjs-toggle-menu={
             JS.toggle_attribute({"aria-expanded", "false", "true"}, to: "#menu-toggle")
@@ -84,101 +84,102 @@ defmodule DpulCollectionsWeb.HeaderComponent do
             |> JS.add_class("hidden")
           }
         >
-          <li id="language-nav">
-            <button
-              class="submenu"
-              name={gettext("Language")}
-              aria-label={gettext("Language")}
-              aria-expanded="false"
-              aria-haspopup="true"
-              phx-click={
-                JS.toggle_attribute({"aria-expanded", "false", "true"})
-                |> JS.toggle_class("expanded")
-                |> JS.exec("dcjs-toggle-menu", to: "#language-menu")
-              }
-              phx-click-away={
-                JS.set_attribute({"aria-expanded", "false"})
-                |> JS.remove_class("expanded")
-                |> JS.exec("dcjs-hide-menu", to: "#language-menu")
-              }
-            >
-              <span class="hover:link-hover font-normal sm:font-medium text-sm sm:text-md cursor-pointer">
-                {gettext("Language")}&nbsp;<span class="font-normal">&gt;</span>
-              </span>
-            </button>
-            <ul
-              id="language-menu"
-              class="dropdown-menu"
-              dcjs-toggle-menu={JS.toggle_class("expanded")}
-              dcjs-hide-menu={JS.remove_class("expanded")}
-            >
-              <.link phx-click={JS.dispatch("setLocale", detail: %{locale: "en"})}>
-                <li class="menu-item">
-                  English
-                </li>
-              </.link>
-              <.link phx-click={JS.dispatch("setLocale", detail: %{locale: "es"})}>
-                <li class="menu-item">
-                  Español
-                </li>
-              </.link>
-            </ul>
-          </li>
-
-          <li
-            :if={Application.fetch_env!(:dpul_collections, :feature_account_toolbar)}
-            id="account-nav"
+          <.submenu
+            id="language"
+            name={gettext("Language")}
           >
-            <button
-              class="submenu"
-              name={gettext("My Account")}
-              aria-label={gettext("My Account")}
-              aria-expanded="false"
-              aria-haspopup="true"
-              phx-click={
-                JS.toggle_attribute({"aria-expanded", "false", "true"})
-                |> JS.toggle_class("expanded", to: "#account-menu")
-                |> JS.exec("dcjs-toggle-menu", to: "#account-menu")
-              }
-              phx-click-away={
-                JS.set_attribute({"aria-expanded", "false"})
-                |> JS.remove_class("expanded", to: "#account-menu")
-                |> JS.exec("dcjs-hide-menu", to: "#account-menu")
-              }
-            >
-              <span class="hover:link-hover font-normal sm:font-medium text-sm sm:text-md cursor-pointer">
-                {gettext("My Account")}&nbsp;<span class="font-normal">&gt;</span>
-              </span>
-            </button>
-            <ul
-              id="account-menu"
-              class="dropdown-menu"
-              dcjs-toggle-menu={JS.toggle_class("expanded")}
-              dcjs-hide-menu={JS.remove_class("expanded")}
-            >
-              <%= if @current_scope do %>
-                <.link href={~p"/users/settings"}>
-                  <li class="menu-item">
-                    Settings
-                  </li>
-                </.link>
-                <.link href={~p"/users/log-out"} method="delete">
-                  <li class="menu-item">
-                    Log out
-                  </li>
-                </.link>
-              <% else %>
-                <.link href={~p"/users/log-in"}>
-                  <li class="menu-item">
-                    Log in
-                  </li>
-                </.link>
-              <% end %>
-            </ul>
-          </li>
+            <.link phx-click={JS.dispatch("setLocale", detail: %{locale: "en"})}>
+              <.menu_item>
+                English
+              </.menu_item>
+            </.link>
+            <.link phx-click={JS.dispatch("setLocale", detail: %{locale: "es"})}>
+              <.menu_item>
+                Español
+              </.menu_item>
+            </.link>
+          </.submenu>
+
+          <.submenu
+            :if={Application.fetch_env!(:dpul_collections, :feature_account_toolbar)}
+            id="account"
+            name={gettext("My Account")}
+          >
+            <%= if @current_scope do %>
+              <.link href={~p"/users/settings"}>
+                <.menu_item>
+                  {gettext("Settings")}
+                </.menu_item>
+              </.link>
+              <.link href={~p"/users/log-out"} method="delete">
+                <.menu_item>
+                  {gettext("Log out")}
+                </.menu_item>
+              </.link>
+            <% else %>
+              <.link href={~p"/users/log-in"}>
+                <.menu_item>
+                  {gettext("Log in")}
+                </.menu_item>
+              </.link>
+            <% end %>
+          </.submenu>
         </ul>
       </nav>
     </header>
+    """
+  end
+
+  def submenu(assigns) do
+    ~H"""
+    <li
+      id={"#{@id}-nav"}
+      class="py-2 ps-2 hover:link-hover hover:bg-stone-200 focus:bg-stone-200 md:hover:bg-brand md:focus:bg-brand cursor-pointer"
+    >
+      <button
+        class={[
+          "submenu",
+          "md:inline text-black md:text-white md:font-medium w-full text-left md:text-right cursor-pointer"
+        ]}
+        name={@name}
+        aria-label={@name}
+        aria-expanded="false"
+        aria-haspopup="true"
+        phx-click={
+          JS.toggle_attribute({"aria-expanded", "false", "true"})
+          |> JS.toggle_class("expanded")
+          |> JS.exec("dcjs-toggle-menu", to: "##{@id}-menu")
+        }
+        phx-click-away={
+          JS.set_attribute({"aria-expanded", "false"})
+          |> JS.remove_class("expanded")
+          |> JS.exec("dcjs-hide-menu", to: "##{@id}-menu")
+        }
+      >
+        <span class="hover:link-hover font-normal sm:font-medium text-sm sm:text-md cursor-pointer">
+          {@name}&nbsp;<span class="font-normal">&gt;</span>
+        </span>
+      </button>
+      <ul
+        id={"#{@id}-menu"}
+        class={[
+          "dropdown-menu",
+          "static md:not-[.expanded]:hidden md:absolute left-auto right-0 list-none bg-white min-w-3xs py-2 px-0 mt-2 md:shadow-md rounded-md z-100"
+        ]}
+        dcjs-toggle-menu={JS.toggle_class("expanded")}
+        dcjs-hide-menu={JS.remove_class("expanded")}
+      >
+        {render_slot(@inner_block)}
+      </ul>
+    </li>
+    """
+  end
+
+  def menu_item(assigns) do
+    ~H"""
+    <li class="menu-item p-2 hover:bg-stone-200 focus:bg-stone-200 cursor-pointer">
+      {render_slot(@inner_block)}
+    </li>
     """
   end
 end
