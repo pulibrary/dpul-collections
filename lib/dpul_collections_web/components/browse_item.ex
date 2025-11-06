@@ -100,38 +100,30 @@ defmodule DpulCollectionsWeb.BrowseItem do
       <div class="-outline-offset-1 flex-grow flex flex-col">
         <!-- thumbs -->
         <div class="px-2 pt-2 bg-white overflow-clip">
-          <div class="grid grid-rows-[repeat(4, 25%)] gap-2 h-[24rem]">
-            <!-- main thumbnail, no small thumbs -->
-            <div :if={@thumb_source.file_count == 1 || !@show_small_thumbs?} class="row-span-4">
+          <div class="flex flex-col gap-2 h-[24rem]">
+            <!-- main thumbnail -->
+            <div class="min-h-0 grow">
               <.thumb
                 thumb={thumbnail_service_url(@thumb_source)}
                 item={@thumb_source}
                 show_images={@show_images}
               />
             </div>
-            
-    <!-- main and smaller thumbnails -->
-            <div :if={@show_small_thumbs?}>
-              <div :if={@thumb_source.file_count > 1} class="row-span-3 overflow-hidden h-[18rem]">
-                <.thumb
-                  thumb={thumbnail_service_url(@thumb_source)}
-                  item={@thumb_source}
-                  show_images={@show_images}
-                />
-              </div>
 
-              <div :if={@thumb_source.file_count > 1} class="grid grid-cols-4 gap-2 h-[6rem]">
-                <.thumb
-                  :for={
-                    {thumb, thumb_num} <- thumbnail_service_urls(4, @thumb_source.image_service_urls)
-                  }
-                  :if={@thumb_source.file_count}
-                  thumb={thumb}
-                  thumb_num={thumb_num}
-                  item={@thumb_source}
-                  show_images={@show_images}
-                />
-              </div>
+            <div
+              :if={@show_small_thumbs? && @thumb_source.file_count > 1}
+              class="grid grid-cols-4 gap-2 h-[6rem]"
+            >
+              <.thumb
+                :for={
+                  {thumb, thumb_num} <- thumbnail_service_urls(4, @thumb_source.image_service_urls)
+                }
+                :if={@thumb_source.file_count}
+                thumb={thumb}
+                thumb_num={thumb_num}
+                item={@thumb_source}
+                show_images={@show_images}
+              />
             </div>
           </div>
         </div>
