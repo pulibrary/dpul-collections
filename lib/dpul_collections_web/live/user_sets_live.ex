@@ -44,10 +44,10 @@ defmodule DpulCollectionsWeb.UserSetsLive do
             id_prefix="set"
             target_item={set}
             thumb_source={item}
-            target="_blank"
             show_small_thumbs?={false}
             show_images={@show_images}
             current_scope={@current_scope}
+            url={~p"/sets/#{set.id}"}
           >
             <:extra_info>
               {set.description}

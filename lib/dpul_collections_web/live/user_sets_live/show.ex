@@ -26,7 +26,25 @@ defmodule DpulCollectionsWeb.UserSetsLive.Show do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div id="user-set" class="content-area flex flex-col gap-6">
-        <h1 class="text-xl uppercase tracking-wide">{gettext("Item Set")}</h1>
+        <div id="metadata" class="flex flex-col gap-2">
+          <span class="text-xl uppercase tracking-wide">
+            {gettext("Item Set")}
+          </span>
+          <h1
+            :if={@current_scope && @user_set.user_id == @current_scope.user.id}
+            class="text-4xl font-bold normal-case"
+            dir="auto"
+          >
+            {@user_set.title}
+          </h1>
+          <div
+            :if={@current_scope && @user_set.user_id == @current_scope.user.id}
+            id="set-description"
+            dir="auto"
+          >
+            {@user_set.description}
+          </div>
+        </div>
         <div id="user-set-actions" class="flex inline-flex">
           <.secondary_button
             class="text-md px-3 py-2 flex gap-2 h-10"
@@ -42,7 +60,7 @@ defmodule DpulCollectionsWeb.UserSetsLive.Show do
         </div>
         <hr />
         <h2>{length(@user_set.set_items)} Items</h2>
-        <ul id="set-items" class="grid grid-cols-[repeat(auto-fit,minmax(300px,_1fr))] gap-12 pt-5">
+        <ul id="set-items" class="grid grid-cols-[repeat(3,minmax(300px,_1fr))] gap-12 pt-5">
           <.browse_li
             :for={item <- @items}
             show_images={@show_images}
