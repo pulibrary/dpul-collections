@@ -14,11 +14,13 @@ defmodule DpulCollectionsWeb.UserSetsLive.ShowTest do
 
   describe "GET /sets/:id when not logged in" do
     test "displays that user set without any text", %{conn: conn} do
-      set =
-        set_fixture(user_scope_fixture(), %{title: "Awesome Set", description: "I love this set."})
+      user_scope = user_scope_fixture()
 
-      item_1 = set_item_fixture(%{solr_id: "1"}, nil, set)
-      item_2 = set_item_fixture(%{solr_id: "2"}, nil, set)
+      set =
+        set_fixture(user_scope, %{title: "Awesome Set", description: "I love this set."})
+
+      item_1 = set_item_fixture(%{solr_id: "1"}, user_scope, set)
+      item_2 = set_item_fixture(%{solr_id: "2"}, user_scope, set)
 
       {:ok, view, html} =
         conn
@@ -53,8 +55,8 @@ defmodule DpulCollectionsWeb.UserSetsLive.ShowTest do
     test "displays the set with title, description, and can delete", %{conn: conn} do
       user = user_scope_fixture()
       set = set_fixture(user, %{title: "Awesome Set", description: "I love this set."})
-      _item_1 = set_item_fixture(%{solr_id: "1"}, nil, set)
-      _item_2 = set_item_fixture(%{solr_id: "2"}, nil, set)
+      item_1 = set_item_fixture(%{solr_id: "1"}, user, set)
+      _item_2 = set_item_fixture(%{solr_id: "2"}, user, set)
 
       {:ok, view, _html} =
         conn
@@ -68,6 +70,27 @@ defmodule DpulCollectionsWeb.UserSetsLive.ShowTest do
       assert view
              |> element("#set-description")
              |> render() =~ "I love this set."
+
+      view
+      |> element("li#browse-item-#{item_1.solr_id} button", "Save")
+      |> render_click()
+
+      view
+      |> element("button", "Awesome Set")
+      |> render_click()
+
+      assert view
+             |> element("h2", "1 Item")
+             |> has_element?
+
+      view
+      |> element("button", "Awesome Set")
+      |> render_click()
+
+      # Toggle it back in
+      assert view
+             |> element("h2", "2 Items")
+             |> has_element?
     end
   end
 end

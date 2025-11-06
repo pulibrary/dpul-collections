@@ -139,17 +139,18 @@ defmodule DpulCollections.UserSetsTest do
       assert UserSets.get_set_item!(set_item.id) == set_item
     end
 
-    test "create_set_item/1 with valid data creates a set_item" do
+    test "create_set_item/2 with valid data creates a set_item" do
       scope = user_scope_fixture()
       set = set_fixture(scope)
       valid_attrs = %{solr_id: "some solr_id", set_id: set.id}
 
-      assert {:ok, %SetItem{} = set_item} = UserSets.create_set_item(valid_attrs)
+      assert {:ok, %SetItem{} = set_item} = UserSets.create_set_item(scope, valid_attrs)
       assert set_item.solr_id == "some solr_id"
     end
 
-    test "create_set_item/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = UserSets.create_set_item(@invalid_attrs)
+    test "create_set_item/2 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} =
+               UserSets.create_set_item(user_scope_fixture(), @invalid_attrs)
     end
 
     test "update_set_item/2 with valid data updates the set_item" do
@@ -167,8 +168,9 @@ defmodule DpulCollections.UserSetsTest do
     end
 
     test "delete_set_item/1 deletes the set_item" do
-      set_item = set_item_fixture()
-      assert {:ok, %SetItem{}} = UserSets.delete_set_item(set_item)
+      scope = user_scope_fixture()
+      set_item = set_item_fixture(%{}, scope)
+      assert {:ok, %SetItem{}} = UserSets.delete_set_item(scope, set_item)
       assert_raise Ecto.NoResultsError, fn -> UserSets.get_set_item!(set_item.id) end
     end
 

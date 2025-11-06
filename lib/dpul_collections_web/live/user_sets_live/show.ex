@@ -1,4 +1,5 @@
 defmodule DpulCollectionsWeb.UserSetsLive.Show do
+  alias DpulCollections.UserSets.Set
   alias DpulCollectionsWeb.ItemLive
   use DpulCollectionsWeb, :live_view
   use Gettext, backend: DpulCollectionsWeb.Gettext
@@ -11,8 +12,13 @@ defmodule DpulCollectionsWeb.UserSetsLive.Show do
     {:ok, socket}
   end
 
+  def handle_info({:updated, %Set{id: id}}, socket = %{assigns: %{user_set: %{id: id}}}) do
+    handle_params(%{"id" => id}, nil, socket)
+  end
+
   def handle_params(%{"id" => set_id}, _uri, socket) do
     user_set = UserSets.get_set(set_id)
+    UserSets.subscribe_set(user_set)
 
     items =
       user_set.set_items
