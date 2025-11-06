@@ -68,7 +68,7 @@ defmodule DpulCollectionsWeb.HeaderComponent do
           id="main-menu-dropdown"
           class={[
             "dropdown",
-            "hidden absolute left-auto right-0 top-8 z-20 min-w-3xs",
+            "hidden absolute left-auto right-0 top-8 zi-nav-dropdown min-w-3xs",
             "md:static md:flex md:flex-row md:gap-4",
             "bg-white md:bg-brand",
             "list-none py-2 px-0 mt-2 shadow-md rounded-md justify-end"
@@ -164,7 +164,7 @@ defmodule DpulCollectionsWeb.HeaderComponent do
         id={"#{@id}-menu"}
         class={[
           "dropdown-menu",
-          "static md:not-[.expanded]:hidden md:absolute left-auto right-0 list-none bg-white min-w-3xs py-2 px-0 mt-2 md:shadow-md rounded-md z-100"
+          "static md:not-[.expanded]:hidden md:absolute left-auto right-0 list-none bg-white min-w-3xs py-2 px-0 mt-2 md:shadow-md rounded-md zi-nav-dropdown"
         ]}
         dcjs-toggle-menu={JS.toggle_class("expanded")}
         dcjs-hide-menu={JS.remove_class("expanded")}
