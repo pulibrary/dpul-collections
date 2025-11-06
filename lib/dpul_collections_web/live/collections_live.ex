@@ -68,10 +68,11 @@ defmodule DpulCollectionsWeb.CollectionsLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash}>
-      <div class="[&>*:nth-child(odd)]:bg-dark-background [&>*:nth-child(even)]:bg-secondary grid grid-flow-row auto-rows-max">
+      <div class="grid grid-flow-row auto-rows-max">
         <!-- Hero Section -->
         <div class="relative overflow-hidden">
-          <div class="home-content-area page-y-padding">
+          <div class=""><img src="/images/triangle-mosaic.png" alt=''/></div>
+          <div class='home-content-area page-y-padding'>
             <div class="grid lg:grid-cols-2 gap-8 items-center">
               <!-- Left Column: Content -->
               <div class="space-y-6">
@@ -196,7 +197,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         <!-- Contributors -->
         <div
           :if={length(@collection.contributors) > 0}
-          class="w-full home-content-area page-y-padding page-x-padding flex flex-col"
+          class="bg-dark-background w-full home-content-area page-y-padding page-x-padding flex flex-col"
           id="contributors"
         >
           <h2 class="heading text-2xl pb-4">Contributors</h2>
