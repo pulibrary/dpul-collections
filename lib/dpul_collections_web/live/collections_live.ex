@@ -71,8 +71,8 @@ defmodule DpulCollectionsWeb.CollectionsLive do
       <div class="grid grid-flow-row auto-rows-max">
         <!-- Hero Section -->
         <div class="relative overflow-hidden">
-          <div class=""><img src="/images/triangle-mosaic.png" alt=''/></div>
-          <div class='home-content-area page-y-padding'>
+          <div class="home-content-area left-[25%] absolute z-10"><img src="/images/triangle-mosaic.png" alt='' class="mx-auto w-xl" /></div>
+          <div class='home-content-area page-y-padding relative z-100'>
             <div class="grid lg:grid-cols-2 gap-8 items-center">
               <!-- Left Column: Content -->
               <div class="space-y-6">
