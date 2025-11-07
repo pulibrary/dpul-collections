@@ -479,7 +479,10 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     end
   end
 
+  @tag capture_log: true
   test "a full pipeline run there are database errors" do
+    FiggyTestSupport.make_broadway_parallel()
+
     with_mocks [
       {FiggyRepo, [:passthrough],
        all: [
@@ -497,11 +500,13 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
        ],
        insert: [
          in_series([:_, :_], [
-           fn _ -> raise(DBConnection.ConnectionError, "closed") end,
+           fn _, _ -> raise(DBConnection.ConnectionError, "closed") end,
            fn changeset, ops -> passthrough([changeset, ops]) end
          ])
        ]}
     ] do
+      {:ok, tracker_pid} = GenServer.start_link(AckTracker, self())
+      AckTracker.reset_count!(tracker_pid)
       # Start the figgy pipeline in a way that mimics how it is started in
       # dev and prod (slightly simplified)
       cache_version = 1
@@ -519,18 +524,20 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
         start_supervised(child)
       end)
 
+      # Need a little sleep so the first query isn't from AckTracker.
+      :timer.sleep(50)
       AckTracker.wait_for_pipeline_finished(tracker_pid)
 
       # the hydrator pulled all ephemera folders and terms
       entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
-      assert FiggyTestSupport.total_resource_count() == entry_count
+      assert FiggyTestSupport.total_resource_count() == entry_count + 2
 
       # the transformer only processes ephemera folders
       transformation_cache_entry_count = Repo.aggregate(Figgy.TransformationCacheEntry, :count)
-      assert FiggyTestSupport.ephemera_folder_count() == transformation_cache_entry_count
+      assert FiggyTestSupport.ephemera_folder_count() + 1 == transformation_cache_entry_count
 
       # indexed all the documents
-      assert Solr.document_count() == transformation_cache_entry_count
+      assert Solr.document_count() + 1 == transformation_cache_entry_count
 
       # Ensure that the processor markers have the correct cache version
       hydration_processor_marker = IndexingPipeline.get_processor_marker!("figgy_hydrator", 1)
@@ -542,8 +549,6 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       assert hydration_processor_marker.cache_version == 1
       assert transformation_processor_marker.cache_version == 1
       assert indexing_processor_marker.cache_version == 1
-
-      Supervisor.stop(DpulCollections.TestSupervisor, :normal)
     end
   end
 end
