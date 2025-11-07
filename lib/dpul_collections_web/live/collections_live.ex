@@ -68,22 +68,27 @@ defmodule DpulCollectionsWeb.CollectionsLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash}>
-      <div class="grid grid-flow-row auto-rows-max">
+      <div class="home-content-area grid grid-flow-row auto-rows-max">
         <!-- Hero Section -->
         <div class="relative overflow-hidden">
-          <div class="home-content-area left-[25%] absolute z-10"><img src="/images/triangle-mosaic.png" alt='' class="mx-auto w-xl" /></div>
-          <div class='home-content-area page-y-padding relative z-100'>
-            <div class="grid lg:grid-cols-2 gap-8 items-center">
+          <div class="home-content-area left-[25%] absolute z-10">
+            <img src="/images/triangle-mosaic.png" alt='' class="mx-auto w-xl" />
+          </div>
+          <div class="home-content-area space-y-2 relative z-30">
+            <p class="text-accent font-semibold text-xl uppercase tracking-wide">
+              Digital Collection
+            </p>
+            <h1 class="flex-grow-1 text-4xl lg:text-4xl font-bold">
+              {@collection.title |> hd}
+            </h1>
+          </div>
+          <div class='home-content-area page-y-padding relative z-30'>
+            <div class="grid lg:grid-cols-2 gap-0 items-center">
               <!-- Left Column: Content -->
-              <div class="space-y-6">
-                <div class="space-y-2">
-                  <p class="text-accent font-semibold text-xl uppercase tracking-wide">
-                    Digital Collection
-                  </p>
-                  <h1 class="flex-grow-1 text-4xl lg:text-4xl font-bold">
-                    {@collection.title |> hd}
-                  </h1>
+              <div>
+                <div class="bg-white opacity-50 w-full h-50 relative z-30">
                   <div class="flex flex-wrap gap-4">
+                    <p>Foobar Foobar Foobar!</p>
                     <div class="flex items-center text-dark-text gap-2">
                       <div class="bg-light-accent rounded-full px-3 py-1">
                         {@collection.item_count} Items
@@ -143,7 +148,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
               </div>
               <!-- Right Column: Featured Items Mosaic -->
               <div id="collection-mosaic" class="self-start h-120 relative">
-                <div class="absolute inset-0 grid grid-cols-2 gap-2 w-full h-full">
+                <div class="absolute inset-0 grid grid-cols-1 gap-2 w-full h-full">
                   <.link
                     :for={item <- @collection.featured_items}
                     href={item.url}
