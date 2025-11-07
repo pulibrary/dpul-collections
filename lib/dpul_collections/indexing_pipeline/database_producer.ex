@@ -241,6 +241,10 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
   @impl Broadway.Acknowledger
   @spec ack({pid(), atom()}, list(Broadway.Message.t()), list(Broadway.Message.t())) :: any()
   def ack({database_producer_pid, :database_producer_ack}, successful, failed) do
+    if failed != [] do
+      dbg(failed)
+    end
+
     # TODO: Do some error handling
     acked_markers = (successful ++ failed) |> Enum.map(&CacheEntryMarker.from/1)
     send(database_producer_pid, {:ack, :database_producer_ack, acked_markers})
