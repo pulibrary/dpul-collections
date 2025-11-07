@@ -59,6 +59,10 @@ jobs:
           file: Dockerfile
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            DEPLOY_BRANCH=${{ github.ref_name }}
+            DEPLOY_SHA=${{ github.sha }}
+          secret-envs: |
   container-vuln-scan:
     needs: build-and-push-image
     runs-on: ubuntu-latest
