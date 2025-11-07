@@ -21,16 +21,15 @@ defmodule DpulCollections.UserSets do
   #   * {:deleted, %Set{}}
 
   # """
-  # def subscribe_user_sets(%Scope{} = scope) do
-  #   key = scope.user.id
-  #
-  #   Phoenix.PubSub.subscribe(DpulCollections.PubSub, "user:#{key}:user_sets")
-  # end
+  def subscribe_set(%Set{id: set_id}) do
+    Phoenix.PubSub.subscribe(DpulCollections.PubSub, "set:#{set_id}")
+  end
 
-  defp broadcast_set(%Scope{} = scope, message) do
+  defp broadcast_set(%Scope{} = scope, message = {_action, %Set{id: set_id}}) do
     key = scope.user.id
 
     Phoenix.PubSub.broadcast(DpulCollections.PubSub, "user:#{key}:user_sets", message)
+    Phoenix.PubSub.broadcast(DpulCollections.PubSub, "set:#{set_id}", message)
   end
 
   @doc """
@@ -57,7 +56,7 @@ defmodule DpulCollections.UserSets do
       iex> {:ok, user} = DpulCollections.Accounts.register_user(%{email: "test@test.com"})
       ...> scope = DpulCollections.Accounts.Scope.for_user(user)
       ...> {:ok, user_set} = DpulCollections.UserSets.create_set(scope, %{title: "My Set"})
-      ...> {:ok, _set_item} = DpulCollections.UserSets.create_set_item(%{set_id: user_set.id, solr_id: "123"})
+      ...> {:ok, _set_item} = DpulCollections.UserSets.create_set_item(scope, %{set_id: user_set.id, solr_id: "123"})
       ...> output = DpulCollections.UserSets.list_user_sets_for_addition(scope, "123")
       ...> [%Set{has_solr_id: true, set_item_count: 1, title: "My Set"}] = output
   """
@@ -109,6 +108,11 @@ defmodule DpulCollections.UserSets do
   """
   def get_set!(%Scope{} = scope, id) do
     Repo.get_by!(Set, id: id, user_id: scope.user.id)
+  end
+
+  def get_set(id) do
+    Repo.get_by!(Set, id: id)
+    |> Repo.preload(:set_items)
   end
 
   @doc """
@@ -228,6 +232,7 @@ defmodule DpulCollections.UserSets do
   def get_set_item(set_id, solr_id) do
     SetItem
     |> Repo.get_by(set_id: set_id, solr_id: solr_id)
+    |> Repo.preload(:set)
   end
 
   @doc """
@@ -242,10 +247,15 @@ defmodule DpulCollections.UserSets do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_set_item(attrs) do
-    %SetItem{}
-    |> SetItem.changeset(attrs)
-    |> Repo.insert()
+  def create_set_item(%Scope{} = scope, attrs) do
+    with {:ok, set_item} <-
+           %SetItem{}
+           |> SetItem.changeset(attrs)
+           |> Repo.insert() do
+      set = get_set!(scope, set_item.set_id)
+      broadcast_set(scope, {:updated, set})
+      {:ok, set_item}
+    end
   end
 
   @doc """
@@ -278,8 +288,12 @@ defmodule DpulCollections.UserSets do
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_set_item(%SetItem{} = set_item) do
-    Repo.delete(set_item)
+  def delete_set_item(%Scope{} = scope, %SetItem{} = set_item) do
+    with {:ok, set_item} <- Repo.delete(set_item) do
+      set = get_set!(scope, set_item.set_id)
+      broadcast_set(scope, {:updated, set})
+      {:ok, set_item}
+    end
   end
 
   @doc """

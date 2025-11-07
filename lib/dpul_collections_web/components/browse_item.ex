@@ -64,6 +64,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
   attr :class, :string, required: false, default: nil
   attr :current_scope, :map, required: false, default: nil
   attr :show_small_thumbs?, :boolean, default: true
+  attr :url, :string, required: false, default: nil
 
   attr :show_images, :list,
     default: [],
@@ -132,8 +133,8 @@ defmodule DpulCollectionsWeb.BrowseItem do
           <div class="mx-1 px-6 pb-5 bg-white flex flex-col">
             <h2 class="font-normal tracking-tight py-1 flex-grow" dir="auto">
               <.link
-                navigate={!@target && @thumb_source.url}
-                href={@target != nil && @thumb_source.url}
+                navigate={!@target && (@url || @thumb_source.url)}
+                href={@target != nil && (@url || @thumb_source.url)}
                 target={@target}
                 class="card-link"
               >

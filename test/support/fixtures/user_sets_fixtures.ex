@@ -25,13 +25,15 @@ defmodule DpulCollections.UserSetsFixtures do
   def set_item_fixture(attrs \\ %{}, scope \\ AccountsFixtures.user_scope_fixture(), set \\ nil) do
     set = set || set_fixture(scope)
 
-    {:ok, set_item} =
+    attrs =
       attrs
       |> Enum.into(%{
         solr_id: "some solr_id",
         set_id: set.id
       })
-      |> DpulCollections.UserSets.create_set_item()
+
+    {:ok, set_item} =
+      DpulCollections.UserSets.create_set_item(scope, attrs)
 
     set_item
   end

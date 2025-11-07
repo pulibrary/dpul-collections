@@ -84,7 +84,18 @@ defmodule DpulCollectionsWeb.UserSetsLiveTest do
     test "allows set deletion" do
     end
 
-    test "links to the set page" do
+    test "links to the set page", %{conn: conn} do
+      user_scope = user_scope_fixture()
+      set = set_fixture(user_scope, %{title: "Awesome Set", description: "I love this set."})
+
+      {:ok, view, _html} =
+        conn
+        |> log_in_user(user_scope.user)
+        |> live(~p"/sets")
+
+      assert view
+             |> element("a[href='/sets/#{set.id}']")
+             |> has_element?
     end
   end
 end
