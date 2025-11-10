@@ -83,11 +83,11 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             </h1>
           </div>
           <div class='home-content-area page-y-padding relative z-30'>
-            <div class="grid lg:grid-cols-2 gap-0 items-center">
+            <div class="grid lg:grid-cols-2 gap-0">
               <!-- Left Column: Content -->
               <div>
                 <div class="bg-white opacity-50 w-full h-50 relative z-30">
-                  <div class="flex flex-wrap gap-4">
+                  <div class="flex flex-wrap gap-4 p-5">
                     <p>Foobar Foobar Foobar!</p>
                     <div class="flex items-center text-dark-text gap-2">
                       <div class="bg-light-accent rounded-full px-3 py-1">
@@ -118,54 +118,36 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                   >
                     {gettext("Learn More")}
                   </button>
-                  <.primary_button
-                    href={~p"/search?#{%{filter: %{project: [@collection.title |> hd]}}}"}
-                    class="btn-primary"
-                  >
-                    {gettext("Browse Collection")}
-                  </.primary_button>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-1 gap-6">
-                  <.pill_section
-                    title="Subject Areas"
-                    unit="categories"
-                    items={@collection.categories}
-                    container_id="categories-container"
-                    pill_class="bg-secondary"
-                    button_class="bg-secondary/80 hover:bg-secondary/60"
-                  />
-
-                  <.pill_section
-                    title="Genres"
-                    unit="genres"
-                    items={@collection.genres}
-                    container_id="genres-container"
-                    pill_class="bg-cloud"
-                    button_class="bg-cloud/80 hover:bg-cloud/60"
-                  />
                 </div>
               </div>
               <!-- Right Column: Featured Items Mosaic -->
               <div id="collection-mosaic" class="self-start h-120 relative">
-                <div class="absolute inset-0 grid grid-cols-1 gap-2 w-full h-full">
-                  <.link
-                    :for={item <- @collection.featured_items}
-                    href={item.url}
-                    class="card p-2 bg-background min-h-0 min-w-0"
-                    aria-label={"View #{item.title |> hd}"}
+                <div class="w-full h-full relative">
+                  <.primary_button
+                    href={~p"/search?#{%{filter: %{project: [@collection.title |> hd]}}}"}
+                    class="btn-primary absolute bottom-[15%] right-0"
                   >
-                    <div class="h-full w-full">
-                      <img
-                        src={"#{item.primary_thumbnail_service_url}/full/!#{item.primary_thumbnail_width},#{item.primary_thumbnail_height}/0/default.jpg"}
-                        width={item.primary_thumbnail_width}
-                        height={item.primary_thumbnail_height}
-                        class="object-cover object-top h-full w-full"
-                        alt={item.title |> hd}
-                      />
-                    </div>
-                  </.link>
+                    {gettext("Browse Collection")}
+                  </.primary_button>
+                  <%= for {item, index} <-  Enum.with_index(@collection.featured_items) do %>
+                    <.link 
+                      href={item.url}
+                      class={"card w-[100%] p-2 bg-background min-h-0 min-w-0 absolute z-[#{index}]"}
+                      aria-label={"View #{item.title |> hd}"}             
+                    >
+                      <div class="max-h-80 h-full w-full overflow-hidden">
+                        <img
+                          src={"#{item.primary_thumbnail_service_url}/full/!#{item.primary_thumbnail_width},#{item.primary_thumbnail_height}/0/default.jpg"}
+                          width={item.primary_thumbnail_width}
+                          height={item.primary_thumbnail_height}
+                          class="object-cover object-top h-full w-full"
+                          alt={item.title |> hd}
+                        />
+                      </div>
+                    </.link>
+                  <% end %>
                 </div>
+                
               </div>
             </div>
 
@@ -177,6 +159,25 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 <div class="leading-relaxed">
                   {@collection.description |> raw}
                 </div>
+              </div>
+              <div class="grid grid-cols-1 lg:grid-cols-1 gap-6">
+                <.pill_section
+                  title="Subject Areas"
+                  unit="categories"
+                  items={@collection.categories}
+                  container_id="categories-container"
+                  pill_class="bg-secondary"
+                  button_class="bg-secondary/80 hover:bg-secondary/60"
+                />
+
+                <.pill_section
+                  title="Genres"
+                  unit="genres"
+                  items={@collection.genres}
+                  container_id="genres-container"
+                  pill_class="bg-cloud"
+                  button_class="bg-cloud/80 hover:bg-cloud/60"
+                />
               </div>
             </div>
           </div>
