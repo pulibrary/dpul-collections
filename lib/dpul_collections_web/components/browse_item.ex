@@ -199,7 +199,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
         </div>
         <div
           :if={@item.genre}
-          class="origin"
+          class="genre"
         >
           <div>{gettext("Genre")}</div>
           <div>{@item.genre}</div>

@@ -1,5 +1,6 @@
 defmodule DpulCollectionsWeb.UserLive.Settings do
   use DpulCollectionsWeb, :live_view
+  use Gettext, backend: DpulCollectionsWeb.Gettext
 
   on_mount {DpulCollectionsWeb.UserAuth, :require_sudo_mode}
 
@@ -11,8 +12,8 @@ defmodule DpulCollectionsWeb.UserLive.Settings do
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="text-center">
         <.header>
-          Account Settings
-          <:subtitle>Manage your account email address</:subtitle>
+          {gettext("Account Settings")}
+          <:subtitle>{gettext("Manage your account email address")}</:subtitle>
         </.header>
       </div>
 
@@ -24,7 +25,7 @@ defmodule DpulCollectionsWeb.UserLive.Settings do
           autocomplete="username"
           required
         />
-        <.button phx-disable-with="Changing...">Change Email</.button>
+        <.button phx-disable-with="Changing...">{gettext("Change Email")}</.button>
       </.form>
     </Layouts.app>
     """
@@ -35,10 +36,10 @@ defmodule DpulCollectionsWeb.UserLive.Settings do
     socket =
       case Accounts.update_user_email(socket.assigns.current_scope.user, token) do
         {:ok, _user} ->
-          put_flash(socket, :info, "Email changed successfully.")
+          put_flash(socket, :info, gettext("Email changed successfully."))
 
         {:error, _} ->
-          put_flash(socket, :error, "Email change link is invalid or it has expired.")
+          put_flash(socket, :error, gettext("Email change link is invalid or it has expired."))
       end
 
     {:ok, push_navigate(socket, to: ~p"/users/settings")}
@@ -83,7 +84,7 @@ defmodule DpulCollectionsWeb.UserLive.Settings do
           &url(~p"/users/settings/confirm-email/#{&1}")
         )
 
-        info = "A link to confirm your email change has been sent to the new address."
+        info = gettext("A link to confirm your email change has been sent to the new address.")
         {:noreply, socket |> put_flash(:info, info)}
 
       changeset ->
