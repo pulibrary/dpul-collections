@@ -145,6 +145,10 @@ if config_env() == :prod do
   #
   # See https://hexdocs.pm/swoosh/Swoosh.html#module-installation for details.
 
+  if System.get_env("APP_ENV") == "staging" do
+    config :dpul_collections, :feature_account_toolbar, true
+  end
+
   config :dpul_collections, DpulCollections.Mailer,
     adapter: Swoosh.Adapters.SMTP,
     relay: System.get_env("SMTP_HOST"),
