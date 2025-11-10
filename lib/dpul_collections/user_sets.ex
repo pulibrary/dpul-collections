@@ -25,6 +25,11 @@ defmodule DpulCollections.UserSets do
     Phoenix.PubSub.subscribe(DpulCollections.PubSub, "set:#{set_id}")
   end
 
+  def subscribe_user_sets(%Scope{} = scope) do
+    key = scope.user.id
+    Phoenix.PubSub.subscribe(DpulCollections.PubSub, "user:#{key}:user_sets")
+  end
+
   defp broadcast_set(%Scope{} = scope, message = {_action, %Set{id: set_id}}) do
     key = scope.user.id
 
