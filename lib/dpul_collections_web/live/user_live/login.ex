@@ -16,7 +16,7 @@ defmodule DpulCollectionsWeb.UserLive.Login do
               <%= if @current_scope do %>
                 {gettext("You need to reauthenticate to perform sensitive actions on your account.")}
               <% else %>
-              {gettext("Don't have an account?")} <.link
+                {gettext("Don't have an account?")} <.link
                   navigate={~p"/users/log-in"}
                   class="font-semibold text-brand hover:underline"
                   phx-no-format

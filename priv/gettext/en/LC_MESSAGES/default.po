@@ -152,9 +152,9 @@ msgstr ""
 
 #: lib/dpul_collections_web/components/header_component.ex:40
 #: lib/dpul_collections_web/live/home_live.ex:36
-#: lib/dpul_collections_web/live/item_live.ex:798
-#: lib/dpul_collections_web/live/item_live.ex:799
 #: lib/dpul_collections_web/live/item_live.ex:800
+#: lib/dpul_collections_web/live/item_live.ex:801
+#: lib/dpul_collections_web/live/item_live.ex:802
 #, elixir-autogen, elixir-format
 msgid "Digital Collections"
 msgstr ""
@@ -253,18 +253,18 @@ msgstr ""
 msgid "Subject"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:676
+#: lib/dpul_collections_web/live/item_live.ex:678
 #, elixir-autogen, elixir-format
 msgid "View all metadata for this item"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:625
+#: lib/dpul_collections_web/live/item_live.ex:627
 #, elixir-autogen, elixir-format
 msgid "No PDF Available"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:307
-#: lib/dpul_collections_web/live/item_live.ex:799
+#: lib/dpul_collections_web/live/item_live.ex:309
+#: lib/dpul_collections_web/live/item_live.ex:801
 #, elixir-autogen, elixir-format
 msgid "Viewer"
 msgstr ""
@@ -285,7 +285,7 @@ msgid "Box number"
 msgstr ""
 
 #: lib/dpul_collections/item.ex:80
-#: lib/dpul_collections_web/live/item_live.ex:335
+#: lib/dpul_collections_web/live/item_live.ex:337
 #, elixir-autogen, elixir-format
 msgid "Content Warning"
 msgstr ""
@@ -376,7 +376,7 @@ msgstr ""
 msgid "Institutional Information"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:263
+#: lib/dpul_collections_web/live/item_live.ex:265
 #, elixir-autogen, elixir-format
 msgid "Item Description"
 msgstr ""
@@ -386,9 +386,9 @@ msgstr ""
 msgid "Keywords"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:259
-#: lib/dpul_collections_web/live/item_live.ex:663
-#: lib/dpul_collections_web/live/item_live.ex:798
+#: lib/dpul_collections_web/live/item_live.ex:261
+#: lib/dpul_collections_web/live/item_live.ex:665
+#: lib/dpul_collections_web/live/item_live.ex:800
 #, elixir-autogen, elixir-format
 msgid "Metadata"
 msgstr ""
@@ -453,38 +453,38 @@ msgstr ""
 msgid "View all images"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:232
+#: lib/dpul_collections_web/live/item_live.ex:234
 #, elixir-autogen, elixir-format
 msgid "Similar Items in this Collection"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:240
+#: lib/dpul_collections_web/live/item_live.ex:242
 #, elixir-autogen, elixir-format
 msgid "Similar Items outside this Collection"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:312
-#: lib/dpul_collections_web/live/item_live.ex:392
+#: lib/dpul_collections_web/live/item_live.ex:314
+#: lib/dpul_collections_web/live/item_live.ex:394
 #, elixir-autogen, elixir-format
 msgid "Share"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:347
+#: lib/dpul_collections_web/live/item_live.ex:349
 #, elixir-autogen, elixir-format
 msgid "Share this image"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:225
+#: lib/dpul_collections_web/live/item_live.ex:227
 #, elixir-autogen, elixir-format
 msgid "Share this item"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:378
+#: lib/dpul_collections_web/live/item_live.ex:380
 #, elixir-autogen, elixir-format
 msgid "Size"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:617
+#: lib/dpul_collections_web/live/item_live.ex:619
 #, elixir-autogen, elixir-format
 msgid "Download PDF"
 msgstr ""
@@ -535,17 +535,17 @@ msgstr ""
 msgid "Browse - Digital Collections"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:766
+#: lib/dpul_collections_web/live/item_live.ex:768
 #, elixir-autogen, elixir-format
 msgid "Copied"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:765
+#: lib/dpul_collections_web/live/item_live.ex:767
 #, elixir-autogen, elixir-format
 msgid "Copy"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:568
+#: lib/dpul_collections_web/live/item_live.ex:570
 #, elixir-autogen, elixir-format
 msgid "Letter Paper"
 msgstr ""
@@ -566,7 +566,7 @@ msgstr ""
 msgid "View Random Items"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:549
+#: lib/dpul_collections_web/live/item_live.ex:551
 #, elixir-autogen, elixir-format
 msgid "main image display"
 msgstr ""
@@ -622,7 +622,7 @@ msgid "Main Navigation"
 msgstr ""
 
 #: lib/dpul_collections_web/components/browse_item.ex:222
-#: lib/dpul_collections_web/live/item_live.ex:385
+#: lib/dpul_collections_web/live/item_live.ex:387
 #, elixir-autogen, elixir-format
 msgid "Similar"
 msgstr ""
@@ -700,7 +700,7 @@ msgstr ""
 msgid "Log out"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:579
+#: lib/dpul_collections_web/live/item_live.ex:581
 #, elixir-autogen, elixir-format
 msgid "Look closer"
 msgstr ""
@@ -740,7 +740,7 @@ msgstr ""
 msgid "Posters"
 msgstr ""
 
-#: lib/dpul_collections_web/live/item_live.ex:402
+#: lib/dpul_collections_web/live/item_live.ex:404
 #: lib/dpul_collections_web/live/user_sets/add_to_set_component.ex:212
 #, elixir-autogen, elixir-format
 msgid "Save"
@@ -878,12 +878,12 @@ msgid "Welcome back!"
 msgstr ""
 
 #: lib/dpul_collections_web/user_auth.ex:227
-#: lib/dpul_collections_web/user_auth.ex:276
+#: lib/dpul_collections_web/user_auth.ex:279
 #, elixir-autogen, elixir-format
 msgid "You must log in to access this page."
 msgstr ""
 
-#: lib/dpul_collections_web/user_auth.ex:242
+#: lib/dpul_collections_web/user_auth.ex:244
 #, elixir-autogen, elixir-format
 msgid "You must re-authenticate to access this page."
 msgstr ""
@@ -901,4 +901,15 @@ msgstr ""
 #: lib/dpul_collections_web/live/user_live/login.ex:23
 #, elixir-autogen, elixir-format
 msgid "to login"
+msgstr ""
+
+#: lib/dpul_collections_web/live/item_live.ex:207
+#, elixir-autogen, elixir-format
+msgid "Collection"
+msgstr ""
+
+#: lib/dpul_collections_web/live/item_live.ex:210
+#: lib/dpul_collections_web/live/item_live.ex:219
+#, elixir-autogen, elixir-format
+msgid "Part of"
 msgstr ""
