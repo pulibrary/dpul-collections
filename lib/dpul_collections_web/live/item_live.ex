@@ -122,32 +122,43 @@ defmodule DpulCollectionsWeb.ItemLive do
     <div class="bg-background page-y-padding content-area item-page col-start-1 row-start-1">
       <div class="column-layout my-5 flex flex-col sm:grid sm:grid-flow-row sm:auto-rows-0 sm:grid-cols-5 sm:grid-rows-[auto_1fr] sm:content-start gap-x-14 gap-y-4">
         <div class="item-title sm:row-start-1 sm:col-start-3 sm:col-span-3 h-min flex flex-col gap-4">
-          <.filter_link
-            class="text-xl uppercase tracking-wide"
-            filter_value={@item.genre |> List.first()}
-            filter_name="genre"
-          />
-          <h1 class="text-4xl font-bold normal-case" dir="auto">{@item.title}</h1>
-          <div
-            :if={!Enum.empty?(@item.transliterated_title) || !Enum.empty?(@item.alternative_title)}
-            class="flex flex-col gap-2"
-          >
-            <p
-              :for={ttitle <- @item.transliterated_title}
-              dir="auto"
-              class="text-2xl font-medium text-gray-500"
+          <div aria-label={gettext("genre")}>
+            <.filter_link
+              class="text-xl uppercase tracking-wide"
+              filter_value={@item.genre |> List.first()}
+              filter_name="genre"
+            />
+          </div>
+          <div aria-label={gettext("title")}>
+            <h1 class="text-4xl font-bold normal-case" dir="auto">{@item.title}</h1>
+            <div
+              :if={!Enum.empty?(@item.transliterated_title) || !Enum.empty?(@item.alternative_title)}
+              class="flex flex-col gap-2"
             >
-              {ttitle}
-            </p>
+              <p
+                :for={ttitle <- @item.transliterated_title}
+                dir="auto"
+                class="text-2xl font-medium text-gray-500"
+              >
+                {ttitle}
+              </p>
+              <p
+                :for={atitle <- @item.alternative_title}
+                dir="auto"
+                class="text-2xl font-medium text-gray-500"
+              >
+                [{atitle}]
+              </p>
+            </div>
+          </div>
+          <div aria-label={gettext("date")}>
             <p
-              :for={atitle <- @item.alternative_title}
-              dir="auto"
-              class="text-2xl font-medium text-gray-500"
+              :if={@item.date}
+              class="text-xl font-medium text-dark-text"
             >
-              [{atitle}]
+              {@item.date}
             </p>
           </div>
-          <p :if={@item.date} class="text-xl font-medium text-dark-text">{@item.date}</p>
         </div>
 
         <div class="thumbnails w-full sm:row-start-1 sm:col-start-1 sm:col-span-2 sm:row-span-full">
