@@ -26,7 +26,7 @@ defmodule DpulCollectionsWeb.UserSetsLive.ShowTest do
         conn
         |> live(~p"/sets/#{set.id}")
 
-      assert html =~ "Item Set"
+      assert html =~ "User Set"
       assert html =~ "2 Items"
 
       assert view

@@ -177,7 +177,7 @@ msgstr "Nuestras colecciones están en constante crecimiento. ¡Descubre algo nu
 #: lib/dpul_collections/item.ex:79
 #: lib/dpul_collections/search_result.ex:2
 #: lib/dpul_collections/solr.ex:3
-#: lib/dpul_collections_web/components/browse_item.ex:204
+#: lib/dpul_collections_web/components/browse_item.ex:205
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:7
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
@@ -504,7 +504,7 @@ msgstr "Actualizado recientemente"
 msgid "Recently Added Items"
 msgstr "Materiales Recientes"
 
-#: lib/dpul_collections_web/components/browse_item.ex:213
+#: lib/dpul_collections_web/components/browse_item.ex:214
 #, elixir-autogen, elixir-format
 msgid "Updated"
 msgstr "Actualizado"
@@ -621,7 +621,7 @@ msgstr "¿Por qué las imágenes están borrosas?"
 msgid "Main Navigation"
 msgstr "Navegación principal"
 
-#: lib/dpul_collections_web/components/browse_item.ex:222
+#: lib/dpul_collections_web/components/browse_item.ex:223
 #: lib/dpul_collections_web/live/item_live.ex:387
 #, elixir-autogen, elixir-format
 msgid "Similar"
@@ -641,7 +641,7 @@ msgstr "Explorar Colecciones"
 msgid "Categories"
 msgstr "Categorías"
 
-#: lib/dpul_collections_web/components/browse_item.ex:197
+#: lib/dpul_collections_web/components/browse_item.ex:198
 #: lib/dpul_collections_web/live/search_live.ex:529
 #, elixir-autogen, elixir-format
 msgid "Date"
@@ -661,7 +661,7 @@ msgstr "Descubre, descarga y comparte artículos contemporáneos e históricos d
 msgid "Featured"
 msgstr "Destacado"
 
-#: lib/dpul_collections_web/components/browse_item.ex:152
+#: lib/dpul_collections_web/components/browse_item.ex:153
 #: lib/dpul_collections_web/live/item_live.ex:159
 #: lib/dpul_collections_web/live/search_live.ex:513
 #: lib/dpul_collections_web/live/search_live.ex:583
@@ -715,7 +715,7 @@ msgstr "Menú principal"
 msgid "My Account"
 msgstr "Mi Cuenta"
 
-#: lib/dpul_collections_web/live/user_sets_live.ex:40
+#: lib/dpul_collections_web/live/user_sets_live.ex:51
 #, elixir-autogen, elixir-format
 msgid "My Sets"
 msgstr "Mis Conjuntos"
@@ -741,7 +741,7 @@ msgid "Posters"
 msgstr "Pósteres"
 
 #: lib/dpul_collections_web/live/item_live.ex:404
-#: lib/dpul_collections_web/live/user_sets/add_to_set_component.ex:212
+#: lib/dpul_collections_web/live/user_sets/add_to_set_component.ex:213
 #, elixir-autogen, elixir-format
 msgid "Save"
 msgstr "Guardar"
@@ -913,3 +913,28 @@ msgstr "Coleccion"
 #, elixir-autogen, elixir-format
 msgid "Part of"
 msgstr "Parte de"
+
+#: lib/dpul_collections_web/live/user_sets_live.ex:67
+#, elixir-autogen, elixir-format
+msgid "Are you sure you want to delete this?"
+msgstr "¿Está seguro de que quiere eliminar esto?"
+
+#: lib/dpul_collections_web/live/user_sets_live.ex:69
+#, elixir-autogen, elixir-format
+msgid "Delete"
+msgstr "Eliminar"
+
+#: lib/dpul_collections_web/live/user_sets_live.ex:96
+#, elixir-autogen, elixir-format
+msgid "Deleted %{set_title}."
+msgstr "Se eliminó %{set_title}."
+
+#: lib/dpul_collections_web/live/user_sets_live/show.ex:37
+#, elixir-autogen, elixir-format
+msgid "User Set"
+msgstr "Conjunto de usuario"
+
+#: lib/dpul_collections_web/live/user_sets_live/show.ex:64
+#, elixir-autogen, elixir-format
+msgid "Share this set"
+msgstr "Compartir este conjunto"

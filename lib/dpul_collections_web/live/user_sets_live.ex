@@ -4,16 +4,27 @@ defmodule DpulCollectionsWeb.UserSetsLive do
   alias DpulCollections.UserSets
   alias DpulCollections.Solr
   alias DpulCollections.Item
+  alias DpulCollections.UserSets.Set
   import DpulCollectionsWeb.BrowseItem
 
   def mount(_params, _session, socket) do
+    UserSets.subscribe_user_sets(socket.assigns.current_scope)
+
+    {:ok, socket |> reload_sets_with_items()}
+  end
+
+  # One of the user's sets got updated, reload them all.
+  def handle_info({_, %Set{}}, socket) do
+    {:noreply, socket |> reload_sets_with_items()}
+  end
+
+  defp reload_sets_with_items(socket) do
     sets_with_items =
       UserSets.list_user_sets(socket.assigns.current_scope)
       |> Enum.map(&set_item_tuple(&1))
 
-    {:ok,
-     socket
-     |> assign(:sets_with_items, sets_with_items)}
+    socket
+    |> assign(:sets_with_items, sets_with_items)
   end
 
   defp set_item_tuple(set) do
@@ -49,6 +60,15 @@ defmodule DpulCollectionsWeb.UserSetsLive do
             current_scope={@current_scope}
             url={~p"/sets/#{set.id}"}
           >
+            <:card_buttons>
+              <.card_button
+                phx-click="delete_set"
+                phx-value-set-id={set.id}
+                data-confirm={gettext("Are you sure you want to delete this?")}
+                icon="hero-trash"
+                label={gettext("Delete")}
+              />
+            </:card_buttons>
             <:extra_info>
               {set.description}
             </:extra_info>
@@ -57,5 +77,24 @@ defmodule DpulCollectionsWeb.UserSetsLive do
       </div>
     </Layouts.app>
     """
+  end
+
+  def handle_event(
+        "delete_set",
+        %{"set-id" => set_id},
+        socket = %{assigns: %{current_scope: current_scope}}
+      ) do
+    set = UserSets.get_set!(current_scope, set_id)
+
+    {:ok, _} = UserSets.delete_set(current_scope, set)
+
+    {
+      :noreply,
+      socket
+      |> Phoenix.LiveView.put_flash(
+        :info,
+        gettext("Deleted %{set_title}.", %{set_title: set.title})
+      )
+    }
   end
 end
