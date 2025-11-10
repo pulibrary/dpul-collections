@@ -86,19 +86,15 @@ defmodule DpulCollectionsWeb.UserSetsLive do
       ) do
     set = UserSets.get_set!(current_scope, set_id)
 
-    case UserSets.delete_set(current_scope, set) do
-      {:ok, _} ->
-        {
-          :noreply,
-          socket
-          |> Phoenix.LiveView.put_flash(
-            :info,
-            gettext("Deleted %{set_title}.", %{set_title: set.title})
-          )
-        }
+    {:ok, _} = UserSets.delete_set(current_scope, set)
 
-      _ ->
-        {:noreply, socket}
-    end
+    {
+      :noreply,
+      socket
+      |> Phoenix.LiveView.put_flash(
+        :info,
+        gettext("Deleted %{set_title}.", %{set_title: set.title})
+      )
+    }
   end
 end
