@@ -68,6 +68,7 @@ defmodule DpulCollections.MixProject do
        compile: false,
        depth: 1},
       {:swoosh, "~> 1.18"},
+      {:gen_smtp, "~> 1.1"},
       {:telemetry_metrics, "~> 1.1"},
       {:telemetry_poller, "~> 1.1"},
       {:gettext, "~> 1.0"},
