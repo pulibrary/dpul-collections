@@ -34,7 +34,7 @@ defmodule DpulCollectionsWeb.UserSetsLive.Show do
       <div id="user-set" class="content-area flex flex-col gap-6">
         <div id="metadata" class="flex flex-col gap-2">
           <span class="text-xl uppercase tracking-wide">
-            {gettext("Item Set")}
+            {gettext("User Set")}
           </span>
           <h1
             :if={@current_scope && @user_set.user_id == @current_scope.user.id}
