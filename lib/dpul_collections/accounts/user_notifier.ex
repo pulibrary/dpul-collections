@@ -2,7 +2,6 @@ defmodule DpulCollections.Accounts.UserNotifier do
   import Swoosh.Email
 
   alias DpulCollections.Mailer
-  alias DpulCollections.Accounts.User
 
   # Delivers the email using the application mailer.
   defp deliver(recipient, subject, body) do
@@ -22,19 +21,15 @@ defmodule DpulCollections.Accounts.UserNotifier do
   Deliver instructions to update a user email.
   """
   def deliver_update_email_instructions(user, url) do
-    deliver(user.email, "Update email instructions", """
-
-    ==============================
-
+    deliver(user.email, "Digital Collections update email link", """
     Hi #{user.email},
 
-    You can change your email by visiting the URL below:
+    You can change the email address you use for the Princeton University Library Digital Collections site by visiting the URL below:
 
     #{url}
 
     If you didn't request this change, please ignore this.
 
-    ==============================
     """)
   end
 
@@ -42,43 +37,15 @@ defmodule DpulCollections.Accounts.UserNotifier do
   Deliver instructions to log in with a magic link.
   """
   def deliver_login_instructions(user, url) do
-    case user do
-      %User{confirmed_at: nil} -> deliver_confirmation_instructions(user, url)
-      _ -> deliver_magic_link_instructions(user, url)
-    end
-  end
-
-  defp deliver_magic_link_instructions(user, url) do
-    deliver(user.email, "Log in instructions", """
-
-    ==============================
-
+    deliver(user.email, "Digital Collections log-in link", """
     Hi #{user.email},
 
-    You can log into your account by visiting the URL below:
+    You can log into your Princeton University Library Digital Collections account by visiting the URL below:
 
     #{url}
 
     If you didn't request this email, please ignore this.
 
-    ==============================
-    """)
-  end
-
-  defp deliver_confirmation_instructions(user, url) do
-    deliver(user.email, "Confirmation instructions", """
-
-    ==============================
-
-    Hi #{user.email},
-
-    You can confirm your account by visiting the URL below:
-
-    #{url}
-
-    If you didn't create an account with us, please ignore this.
-
-    ==============================
     """)
   end
 end
