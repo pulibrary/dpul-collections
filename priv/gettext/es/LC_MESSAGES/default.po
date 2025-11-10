@@ -690,6 +690,7 @@ msgid "Learn More"
 msgstr "Más información"
 
 #: lib/dpul_collections_web/components/header_component.ex:122
+#: lib/dpul_collections_web/live/user_live/login.ex:14
 #, elixir-autogen, elixir-format
 msgid "Log in"
 msgstr "Iniciar sesión"
@@ -754,7 +755,7 @@ msgstr "Resultados de la búsqueda"
 #: lib/dpul_collections_web/components/header_component.ex:111
 #, elixir-autogen, elixir-format
 msgid "Settings"
-msgstr "Ajustes"
+msgstr "Configuraciones"
 
 #: lib/dpul_collections/search_result.ex:2
 #: lib/dpul_collections/solr.ex:3
@@ -780,3 +781,124 @@ msgstr "cerrar panel"
 #, elixir-autogen, elixir-format
 msgid "genre"
 msgstr "género"
+
+#: lib/dpul_collections_web/live/user_live/settings.ex:87
+#, elixir-autogen, elixir-format
+msgid "A link to confirm your email change has been sent to the new address."
+msgstr "Se ha enviado un enlace a la nueva dirección de correo electrónico para confirmar el cambio de dirección."
+
+#: lib/dpul_collections_web/live/user_live/settings.ex:15
+#, elixir-autogen, elixir-format
+msgid "Account Settings"
+msgstr "Configuraciones de la cuenta"
+
+#: lib/dpul_collections_web/live/user_live/settings.ex:28
+#, elixir-autogen, elixir-format
+msgid "Change Email"
+msgstr "Cambiar correo electrónico"
+
+#: lib/dpul_collections_web/live/user_live/confirmation.ex:35
+#, elixir-autogen, elixir-format
+msgid "Confirm and log in only this time"
+msgstr "Confirma e inicia sesión solo esta vez."
+
+#: lib/dpul_collections_web/live/user_live/confirmation.ex:32
+#, elixir-autogen, elixir-format
+msgid "Confirm and stay logged in"
+msgstr "Confirma y mantén la sesión iniciada"
+
+#: lib/dpul_collections_web/live/user_live/login.ex:19
+#, elixir-autogen, elixir-format
+msgid "Don't have an account?"
+msgstr "¿No tienes una cuenta?"
+
+#: lib/dpul_collections_web/live/user_live/settings.ex:42
+#, elixir-autogen, elixir-format
+msgid "Email change link is invalid or it has expired."
+msgstr "El enlace para cambiar el correo electrónico no es válido o ha caducado."
+
+#: lib/dpul_collections_web/live/user_live/settings.ex:39
+#, elixir-autogen, elixir-format
+msgid "Email changed successfully."
+msgstr "El correo electrónico se cambió correctamente."
+
+#: lib/dpul_collections_web/live/user_live/confirmation.ex:55
+#, elixir-autogen, elixir-format
+msgid "Keep me logged in on this device"
+msgstr "Mantenme conectado en este dispositivo"
+
+#: lib/dpul_collections_web/live/user_live/login.ex:59
+#, elixir-autogen, elixir-format
+msgid "Log in with email"
+msgstr "Inicia sesión con tu correo electrónico"
+
+#: lib/dpul_collections_web/live/user_live/confirmation.ex:58
+#, elixir-autogen, elixir-format
+msgid "Log me in only this time"
+msgstr "Inicia sesión solo esta vez."
+
+#: lib/dpul_collections_web/controllers/user_session_controller.ex:35
+#, elixir-autogen, elixir-format
+msgid "Logged out successfully."
+msgstr "Sesión cerrada correctamente."
+
+#: lib/dpul_collections_web/live/user_live/confirmation.ex:76
+#, elixir-autogen, elixir-format
+msgid "Magic link is invalid or it has expired."
+msgstr "El enlace mágico no es válido o ha caducado."
+
+#: lib/dpul_collections_web/live/user_live/settings.ex:16
+#, elixir-autogen, elixir-format
+msgid "Manage your account email address"
+msgstr "Administra tu dirección de correo electrónico de la cuenta"
+
+#: lib/dpul_collections_web/controllers/user_session_controller.ex:28
+#, elixir-autogen, elixir-format
+msgid "The link is invalid or it has expired."
+msgstr "El enlace no es válido o ha caducado."
+
+#: lib/dpul_collections_web/live/user_live/login.ex:23
+#, elixir-autogen, elixir-format
+msgid "Use any email"
+msgstr "Utilice cualquier correo electrónico"
+
+#: lib/dpul_collections_web/controllers/user_session_controller.ex:9
+#, elixir-autogen, elixir-format
+msgid "User confirmed successfully."
+msgstr "Inicio de sesión confirmado correctamente."
+
+#: lib/dpul_collections_web/live/user_live/confirmation.ex:13
+#, elixir-autogen, elixir-format
+msgid "Welcome"
+msgstr "Bienvenido"
+
+#: lib/dpul_collections_web/controllers/user_session_controller.ex:13
+#, elixir-autogen, elixir-format
+msgid "Welcome back!"
+msgstr "Bienvenido de nuevo"
+
+#: lib/dpul_collections_web/user_auth.ex:227
+#: lib/dpul_collections_web/user_auth.ex:276
+#, elixir-autogen, elixir-format
+msgid "You must log in to access this page."
+msgstr "Debes iniciar sesión para acceder a esta página."
+
+#: lib/dpul_collections_web/user_auth.ex:242
+#, elixir-autogen, elixir-format
+msgid "You must re-authenticate to access this page."
+msgstr "Debe volver a autenticarse para acceder a esta página."
+
+#: lib/dpul_collections_web/live/user_live/login.ex:17
+#, elixir-autogen, elixir-format
+msgid "You need to reauthenticate to perform sensitive actions on your account."
+msgstr "Necesitas volver a autenticarte para realizar acciones confidenciales en tu cuenta."
+
+#: lib/dpul_collections_web/live/user_live/login.ex:86
+#, elixir-autogen, elixir-format
+msgid "You will receive instructions for logging in shortly."
+msgstr "En breve recibirá instrucciones para iniciar sesión."
+
+#: lib/dpul_collections_web/live/user_live/login.ex:23
+#, elixir-autogen, elixir-format
+msgid "to login"
+msgstr "para iniciar sesión"
