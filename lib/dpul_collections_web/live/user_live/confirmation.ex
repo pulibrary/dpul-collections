@@ -1,5 +1,6 @@
 defmodule DpulCollectionsWeb.UserLive.Confirmation do
   use DpulCollectionsWeb, :live_view
+  use Gettext, backend: DpulCollectionsWeb.Gettext
 
   alias DpulCollections.Accounts
 
@@ -9,7 +10,7 @@ defmodule DpulCollectionsWeb.UserLive.Confirmation do
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="mx-auto max-w-sm">
         <div class="text-center">
-          <.header>Welcome {@user.email}</.header>
+          <.header>{gettext("Welcome")} {@user.email}</.header>
         </div>
 
         <.form
@@ -28,10 +29,10 @@ defmodule DpulCollectionsWeb.UserLive.Confirmation do
             phx-disable-with="Confirming..."
             class="btn btn-primary w-full"
           >
-            Confirm and stay logged in
+            {gettext("Confirm and stay logged in")}
           </.button>
           <.button phx-disable-with="Confirming..." class="btn btn-primary btn-soft w-full mt-2">
-            Confirm and log in only this time
+            {gettext("Confirm and log in only this time")}
           </.button>
         </.form>
 
@@ -51,10 +52,10 @@ defmodule DpulCollectionsWeb.UserLive.Confirmation do
             phx-disable-with="Logging in..."
             class="btn btn-primary w-full"
           >
-            Keep me logged in on this device
+            {gettext("Keep me logged in on this device")}
           </.button>
           <.button phx-disable-with="Logging in..." class="btn btn-primary btn-soft w-full mt-2">
-            Log me in only this time
+            {gettext("Log me in only this time")}
           </.button>
         </.form>
       </div>
@@ -72,7 +73,7 @@ defmodule DpulCollectionsWeb.UserLive.Confirmation do
     else
       {:ok,
        socket
-       |> put_flash(:error, "Magic link is invalid or it has expired.")
+       |> put_flash(:error, gettext("Magic link is invalid or it has expired."))
        |> push_navigate(to: ~p"/users/log-in")}
     end
   end

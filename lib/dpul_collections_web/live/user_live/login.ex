@@ -1,5 +1,6 @@
 defmodule DpulCollectionsWeb.UserLive.Login do
   use DpulCollectionsWeb, :live_view
+  use Gettext, backend: DpulCollectionsWeb.Gettext
 
   alias DpulCollections.Accounts
 
@@ -10,16 +11,16 @@ defmodule DpulCollectionsWeb.UserLive.Login do
       <div class="mx-auto max-w-sm space-y-4">
         <div class="text-center">
           <.header>
-            <p>Log in</p>
+            <p>{gettext("Log in")}</p>
             <:subtitle>
               <%= if @current_scope do %>
-                You need to reauthenticate to perform sensitive actions on your account.
+                {gettext("You need to reauthenticate to perform sensitive actions on your account.")}
               <% else %>
-                Don't have an account? <.link
+                {gettext("Don't have an account?")} <.link
                   navigate={~p"/users/log-in"}
                   class="font-semibold text-brand hover:underline"
                   phx-no-format
-                >Use any email</.link> to login.
+                >{gettext("Use any email")}</.link> {gettext("to login")}.
               <% end %>
             </:subtitle>
           </.header>
@@ -55,7 +56,7 @@ defmodule DpulCollectionsWeb.UserLive.Login do
             phx-mounted={JS.focus()}
           />
           <.button class="btn btn-primary w-full">
-            Log in with email <span aria-hidden="true">→</span>
+            {gettext("Log in with email")} <span aria-hidden="true">→</span>
           </.button>
         </.form>
       </div>
@@ -82,7 +83,7 @@ defmodule DpulCollectionsWeb.UserLive.Login do
     )
 
     info =
-      "You will receive instructions for logging in shortly."
+      gettext("You will receive instructions for logging in shortly.")
 
     {:noreply,
      socket

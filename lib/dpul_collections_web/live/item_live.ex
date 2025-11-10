@@ -203,9 +203,11 @@ defmodule DpulCollectionsWeb.ItemLive do
             :if={@item.project}
             class="text-lg font-medium text-dark-text border-l-4 border-s-sage-500 w-full px-4"
           >
-            <div class="text-sage-800 uppercase text-sm font-bold tracking-wide">Collection</div>
+            <div class="text-sage-800 uppercase text-sm font-bold tracking-wide">
+              {gettext("Collection")}
+            </div>
             <div :if={@project != nil}>
-              Part of
+              {gettext("Part of")}
               <.link class="filter-link" navigate={~p"/collections/#{@project.slug}"}>
                 {@project.title}
               </.link>
@@ -214,7 +216,7 @@ defmodule DpulCollectionsWeb.ItemLive do
               </div>
             </div>
             <div :if={@project == nil}>
-              Part of <.filter_link filter_name="project" filter_value={@item.project} />
+              {gettext("Part of")} <.filter_link filter_name="project" filter_value={@item.project} />
             </div>
           </div>
           <.action_bar class="hidden sm:block" item={@item} current_scope={@current_scope} />
