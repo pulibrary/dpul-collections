@@ -30,7 +30,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
     ~H"""
     <div>
       <div class="flex items-center gap-3 mb-2">
-        <h2 id={"#{@container_id}-header"} class="text-sm font-medium">{@title}</h2>
+        <h2 id={"#{@container_id}-header"} class="text-sm font-medium text-wafer-pink">{@title}</h2>
       </div>
       <div
         phx-hook="ResponsivePills"
@@ -68,10 +68,10 @@ defmodule DpulCollectionsWeb.CollectionsLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash}>
-      <div class="home-content-area grid grid-flow-row auto-rows-max">
+      <div class="grid grid-flow-row auto-rows-max">
         <!-- Hero Section -->
-        <div class="relative overflow-hidden">
-          <div class="home-content-area left-[10%] absolute z-10">
+        <div class="home-content-area relative overflow-hidden">
+          <div class="home-content-area left-[15%] absolute z-10">
             <img src="/images/triangle-mosaic.png" alt='' class="mx-auto w-xl" />
           </div>
           <div class="home-content-area space-y-2 relative z-30">
@@ -152,11 +152,15 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 
               </div>
             </div>
-
-            <div
-              id="collection-description"
-              class="bg-background page-t-padding overflow-hidden group"
-            >
+          </div>
+        </div>
+        <!-- Learn More -->
+        <div class="grid-flow-row auto-rows-max bg-dark-gray py-6">
+          <div id="collection-description" class="overflow-hidden group home-content-area grid grid-cols-2 gap-0 grid-cols-[60%_auto]">
+            <div>
+              <h2 class="heading text-4xl pb-4 text-wafer-pink py-6">Learn More</h2>
+            </div>
+            <div>
               <div class="[&_a]:text-accent transition-all duration-500 w-full text-lg max-h-0 invisible group-[.expanded]:visible group-[.expanded]:max-h-300 page-t-padding">
                 <div class="leading-relaxed">
                   {@collection.description |> raw}
@@ -183,9 +187,9 @@ defmodule DpulCollectionsWeb.CollectionsLive do
               </div>
             </div>
           </div>
-          <.content_separator />
         </div>
-        <!-- Recently Added Items -->
+        <.content_separator />
+        <!-- Recently Updated Items -->
         <.browse_item_row
           :if={length(@collection.recently_added) > 0}
           id="recent-items"
