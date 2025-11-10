@@ -147,14 +147,14 @@ if config_env() == :prod do
 
   if System.get_env("APP_ENV") == "staging" do
     config :dpul_collections, :feature_account_toolbar, true
-  end
 
-  config :dpul_collections, DpulCollections.Mailer,
-    adapter: Swoosh.Adapters.SMTP,
-    relay: System.get_env("SMTP_HOST"),
-    auth: :never,
-    ssl: false,
-    tls: :never,
-    retries: 2,
-    no_mx_lookups: true
+    config :dpul_collections, DpulCollections.Mailer,
+      adapter: Swoosh.Adapters.SMTP,
+      relay: System.get_env("SMTP_HOST"),
+      auth: :never,
+      ssl: false,
+      tls: :never,
+      retries: 2,
+      no_mx_lookups: true
+  end
 end
