@@ -9,7 +9,7 @@ defmodule DpulCollections.Accounts.UserNotifier do
     email =
       new()
       |> to(recipient)
-      |> from({"DpulCollections", "contact@example.com"})
+      |> from({"Princeton Digital Collections", "noreply@princeton.edu"})
       |> subject(subject)
       |> text_body(body)
 
