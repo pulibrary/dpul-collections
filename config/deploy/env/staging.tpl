@@ -10,5 +10,5 @@ DNS_CLUSTER_QUERY = "dpulc-staging-web.service.consul"
 HONEYBADGER_API_KEY = {{ .HONEYBADGER_API_KEY }}
 GRAFANA_SERVICE_TOKEN = {{ .GRAFANA_SERVICE_TOKEN }}
 METRICS_AUTH_TOKEN = {{ .METRICS_AUTH_TOKEN }}
-SMTP_HOST = "lib-ponyexpr-staging.princeton.edu"
+SMTP_HOST = "lib-ponyexpr-prod.princeton.edu"
 {{- end -}}
