@@ -13,6 +13,9 @@ defmodule DpulCollections.MixProject do
       compilers: [:phoenix_live_view] ++ Mix.compilers(),
       listeners: [Phoenix.CodeReloader],
       test_coverage: [tool: ExCoveralls],
+      gettext: [
+        custom_flags_to_keep: ["machine-generated"]
+      ],
       preferred_cli_env: [
         coveralls: :test,
         "coveralls.detail": :test,
@@ -104,7 +107,9 @@ defmodule DpulCollections.MixProject do
       {:oban_web, "~> 2.11"},
       {:a11y_audit, "~> 0.2.3", only: :test},
       {:mock, "~> 0.3.0", only: :test},
-      {:lazy_html, ">= 0.1.0", only: :test}
+      {:lazy_html, ">= 0.1.0", only: :test},
+      {:goth, "~> 1.4.5"},
+      {:google_api_translate, "~> 0.22.0"}
     ]
   end
 

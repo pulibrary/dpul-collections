@@ -16,3 +16,14 @@ _see https://hexdocs.pm/gettext/Gettext.html for additional details_
 ## Adding a new language
 
 The relative time wording used in the recently updated content area is implemented via Cldr, which provides its own translations. When we add new languages we should ensure the translations are working from upstream.
+
+To add a new language:
+
+1. Find the new locale code (for example, `el` for greek)
+1. `mkdir -p priv/gettext/el/LC_MESSAGES`
+1. `mix gettext.merge priv/gettext`
+1. `mix gettext.machinetranslate el`
+1. Add the new language to `lib/dpul_collections_web/components/header_component.md`
+1. Add the new locale to gettext config in `config/config.exs` - search for `locales:`
+1. Add the new locale to DpulCollectionsWeb.Cldr
+1. Create a PR - in the future we'll have a human review process.

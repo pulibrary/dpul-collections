@@ -8,6 +8,8 @@
     "lib/dpul_collections/release.ex",
     "test/support",
     "lib/dpul_collections_web/telemetry.ex",
-    "lib/dpul_collections/prom_ex.ex"
+    "lib/dpul_collections/prom_ex.ex",
+    "lib/dpul_collections/translator.ex",
+    "lib/mix/tasks/gettext/machinetranslate.ex"
   ]
 }

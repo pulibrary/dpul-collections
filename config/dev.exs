@@ -136,3 +136,12 @@ end
 config :dpul_collections, :cache_thumbnails?, false
 
 config :honeybadger, api_key: ""
+
+# Google Translate
+case File.read(".translatecredentials.json") do
+  {:ok, content} ->
+    config :goth, json: content
+  _ ->
+    nil
+end
+config :tesla, disable_deprecated_builder_warning: true

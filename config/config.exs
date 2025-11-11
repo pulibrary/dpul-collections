@@ -93,7 +93,7 @@ config :dpul_collections, :figgy_hydrator, poll_interval: 60000
 
 config :dpul_collections, DpulCollectionsWeb.Gettext,
   default_locale: "en",
-  locales: ~w(en es)
+  locales: ~w(en es pt_BR)
 
 config :dpul_collections, :web_connections, figgy_url: "https://figgy.princeton.edu"
 
@@ -122,3 +122,6 @@ config :iconify_ex,
   default_class: nil
 
 config :dpul_collections, environment_name: Mix.env() |> to_string()
+
+# Suppress deprecation warnings brought in by the google libs.
+config :tesla, disable_deprecated_builder_warning: true

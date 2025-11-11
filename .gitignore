@@ -47,3 +47,6 @@ screenshots/*
 
 # ignore coverage data files
 *.coverdata
+
+# Ignore translation credentials.
+.translatecredentials.json
