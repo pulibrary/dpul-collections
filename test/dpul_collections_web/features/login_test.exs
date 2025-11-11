@@ -19,6 +19,8 @@ defmodule DpulCollectionsWeb.LoginTest do
     |> click_button("Keep me logged in on this device")
     |> click_button("My Account")
     |> assert_has("a", text: "Log out")
+    |> assert_has("a", text: "Settings")
+    |> assert_has("a", text: "My Sets")
   end
 
   test "auto-registration via login & confirmation works", %{conn: conn} do

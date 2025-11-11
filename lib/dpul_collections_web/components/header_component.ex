@@ -106,6 +106,11 @@ defmodule DpulCollectionsWeb.HeaderComponent do
             name={gettext("My Account")}
           >
             <%= if @current_scope do %>
+              <.link href={~p"/sets"}>
+                <.menu_item>
+                  {gettext("My Sets")}
+                </.menu_item>
+              </.link>
               <.link href={~p"/users/settings"}>
                 <.menu_item>
                   {gettext("Settings")}
