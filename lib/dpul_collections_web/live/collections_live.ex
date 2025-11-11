@@ -30,7 +30,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
     ~H"""
     <div>
       <div class="flex items-center gap-3 mb-2">
-        <h2 id={"#{@container_id}-header"} class="text-sm font-medium text-wafer-pink">{@title}</h2>
+        <h2 id={"#{@container_id}-header"} class="text-sm font-sans font-medium text-wafer-pink">{@title}</h2>
       </div>
       <div
         phx-hook="ResponsivePills"
@@ -97,7 +97,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                   <%= for {item, index} <-  Enum.with_index(@collection.featured_items) do %>
                     <.link 
                       href={item.url}
-                      class={"card w-[100%] p-2 bg-white min-h-0 min-w-0 absolute z-[#{index}]"}
+                      class={"card-darkdrop w-[100%] p-2 bg-white min-h-0 min-w-0 absolute z-[#{index}] drop-shadow-none"}
                       aria-label={"View #{item.title |> hd}"}             
                     >
                       <div class="max-h-75 md:max-h-90 h-full w-full overflow-hidden">
@@ -166,14 +166,22 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         </div>
         <!-- Learn More -->
         <div class="grid-flow-row auto-rows-max bg-dark-gray py-6">
-          <div id="collection-description" class="overflow-hidden group home-content-area grid grid-cols-2 gap-0 grid-cols-[60%_auto]">
-            <div>
-              <h2 class="heading text-4xl pb-4 text-wafer-pink py-6">Learn More</h2>
-            </div>
-            <div>
-              <div class="[&_a]:text-accent transition-all duration-500 w-full text-lg max-h-0 invisible group-[.expanded]:visible group-[.expanded]:max-h-300 page-t-padding">
-                <div class="leading-relaxed">
+          <div class="home-content-area">
+            <h2 class="heading text-4xl pb-4 text-wafer-pink py-6">Learn More</h2>
+          </div>
+          <div id="collection-description" class="overflow-hidden group home-content-area grid grid-cols-2 gap-10 grid-cols-[60%_auto]">
+              <div class="[&_a]:text-accent max-h-300 w-full text-lg max-h-0 page-t-padding">
+                <div class="collection-description text-wafer-pink leading-relaxed pb-6">
                   {@collection.description |> raw}
+                <!--  
+                  <p>Our team of curators, partners, and digitization specialists have built this collection to support interdisciplinary scholarship in South Asian studies.</p>
+
+                  <p>Here you'll find largely contemporary material about a wide variety of subjects, but all gathered from or about countries in South Asia. These materials provide a unique insight into the lives, cultures, and every day experience of people in those countries and we hope as a set they inspire new research, understanding, and curiosity.</p>
+
+                  <p>These items were produced by a variety of individuals and organizations including political parties, non-governmental organizations, public policy think tanks, activists, and others and were meant to promote their views, positions, agendas, policies, events, and activities.</p>
+
+                  <p>Every effort is being made to represent each country in the region. As the collection grows over time, PUL will provide increasingly balanced coverage of the area.</p>
+                -->
                 </div>
               </div>
               <div class="grid grid-cols-1 lg:grid-cols-1 gap-6">
@@ -195,7 +203,6 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                   button_class="bg-cloud/80 hover:bg-cloud/60"
                 />
               </div>
-            </div>
           </div>
         </div>
         <.content_separator />
@@ -223,11 +230,11 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           id="contributors"
         >
           <div class="home-content-area pb-6">
-            <h2 class="heading text-2xl pb-4">Contributors</h2>
-            <div class="flex flex-wrap gap-4">
+            <h2 class="heading text-2xl pb-4 text-wafer-pink">Contributors</h2>
+            <div class="flex flex-wrap gap-4 pb-6">
               <div
                 :for={contributor <- @collection.contributors}
-                class="item card flex basis-full first:grow lg:basis-[calc(50%-0.5rem)]"
+                class="item card-nodrop flex basis-full first:grow lg:basis-[calc(50%-0.5rem)]"
               >
                 <div class="h-full grid-rows-2 bg-sage-100 grid sm:grid-rows-1 sm:grid-cols-6 gap-0">
                   <div class={[
@@ -261,6 +268,24 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 </div>
               </div>
             </div>
+            <hr class="text-wafer-pink" />
+            <h3 class="heading text-xl pt-4 text-wafer-pink">Copyright</h3>
+            <p class="text-wafer-pink">
+              Princeton University Library claims no copyright governing this digital resource. 
+              It is provided for free, on anon-commercial, open-access basis, for fair-use academic 
+              and research purposes only. Anyone who claims copyright over any part of these resources 
+              and feels that they should not be presented in this manner is invited to contact Princeton 
+              University Library, who will in turn consider such concerns and make reasonable efforts to 
+              respond to such concerns. 
+            </p>
+            <h3 class="heading text-xl pt-4 text-wafer-pink">Preferred Citation</h3> 
+            <p class="text-wafer-pink">
+              [Identification of item], [Sub-collection name (if applicable)], {@collection.title |> hd} Collection, Princeton University Library.
+            </p>
+            <h3 class="heading text-xl pt-4 text-wafer-pink">Romanization</h3>
+            <p class="text-wafer-pink">
+              Please refer to the Library of Congress Romanization tables when searching the collection.
+            </p>
           </div>
         </div>
       </div>
