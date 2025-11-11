@@ -362,5 +362,20 @@
 @utility zi-nav-dropdown {@apply z-100;}
 @utility zi-flash {@apply z-50;}
 @utility zi-home-callout {@apply z-10;}
-
 @utility zi-card-button {@apply z-100;}
+
+.hero-container-collection {
+    grid-template-areas: 
+    "image-col"
+    "tagline-col";
+}
+
+.image-col { grid-area: image-col; }
+.tagline-col { grid-area: tagline-col; }
+
+@media (min-width: 768px) {
+  .hero-container-collection {
+      grid-template-areas: 
+      "tagline-col image-col";
+  }
+}
