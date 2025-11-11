@@ -495,7 +495,7 @@ defmodule DpulCollectionsWeb.SearchLive do
             <div class="grow">
               <.search_brief_metadata item={@item} />
             </div>
-            <UserSets.AddToSetComponent.add_button :if={@current_scope} item_id={@item.id} />
+            <UserSets.AddToSetComponent.add_button current_scope={@current_scope} item_id={@item.id} />
           </div>
           <div class="small-thumbnails hidden sm:flex flex-row flex-wrap gap-5 max-h-[125px] justify-start overflow-hidden">
             <.thumbs

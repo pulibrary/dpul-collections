@@ -12,6 +12,30 @@ defmodule DpulCollectionsWeb.BrowseTest do
   end
 
   describe "user sets" do
+    test "users can add an item to a user set if not logged in", %{conn: conn} do
+      Solr.add(SolrTestSupport.mock_solr_documents(2), active_collection())
+      Solr.soft_commit(active_collection())
+      user = user_fixture()
+
+      conn =
+        conn
+        |> visit("/browse?r=0")
+        |> click_button(".browse-item:first-child a", "Save")
+        |> fill_in("Email", with: user.email)
+        |> click_button("Log in with email")
+        |> assert_has("h1", text: "We emailed you a code")
+
+      {token, _} = generate_user_magic_link_token(user)
+
+      conn
+      |> visit("/users/log-in/#{token}")
+      |> assert_has("h1", text: "Welcome")
+      |> click_button("Log me in only this time")
+      # Now we should be back at browse, and save to set should be popped up
+      # (hard!!)
+      |> assert_has("h2", text: "Save to Set")
+    end
+
     test "users can add an item to a user set", %{conn: conn} do
       Solr.add(SolrTestSupport.mock_solr_documents(2), active_collection())
       Solr.soft_commit(active_collection())

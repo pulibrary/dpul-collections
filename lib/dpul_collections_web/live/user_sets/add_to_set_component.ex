@@ -202,10 +202,12 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
     doc: "Item ID to be added to a user set if this button is clicked. Should be a Solr ID.",
     required: true
 
+  attr :current_scope, :map, required: false, default: nil
+
   @doc """
   Function component that triggers the add to set modal for a given Item ID when it's clicked.
   """
-  def add_button(assigns) do
+  def add_button(assigns = %{current_scope: %{}}) do
     ~H"""
     <.card_button
       :if={Application.fetch_env!(:dpul_collections, :feature_account_toolbar)}
@@ -214,6 +216,17 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
       phx-click="open_modal"
       phx-value-item_id={@item_id}
       phx-target="#user_set_form"
+    />
+    """
+  end
+
+  def add_button(assigns = %{current_scope: nil}) do
+    ~H"""
+    <.card_button
+      :if={Application.fetch_env!(:dpul_collections, :feature_account_toolbar)}
+      icon="hero-folder-plus"
+      label={gettext("Save")}
+      navigate={~p"/users/log-in"}
     />
     """
   end

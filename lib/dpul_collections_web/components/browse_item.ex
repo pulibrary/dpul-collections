@@ -222,7 +222,11 @@ defmodule DpulCollectionsWeb.BrowseItem do
           icon="iconoir:binocular"
           label={gettext("Similar")}
         />
-        <UserSets.AddToSetComponent.add_button :if={@current_scope && @savable?} item_id={@item.id} />
+        <UserSets.AddToSetComponent.add_button
+          :if={@savable?}
+          current_scope={@current_scope}
+          item_id={@item.id}
+        />
       </:card_buttons>
     </.card_li>
     """
