@@ -17,6 +17,8 @@ defmodule DpulCollectionsWeb.LoginTest do
     |> click_button("Log in with email")
     |> visit("/users/log-in/#{generate_user_magic_link_token(user) |> elem(0)}")
     |> click_button("Keep me logged in on this device")
+    # wait until flash has loaded
+    |> assert_has("#flash-info", text: "Success")
     |> click_button("My Account")
     |> assert_has("a", text: "Log out")
     |> assert_has("a", text: "Settings")
@@ -38,6 +40,8 @@ defmodule DpulCollectionsWeb.LoginTest do
     out
     |> visit("/users/log-in/#{generate_user_magic_link_token(user) |> elem(0)}")
     |> click_button("Confirm and stay logged in")
+    # wait until flash has loaded
+    |> assert_has("#flash-info", text: "Success")
     |> click_button("My Account")
     |> assert_has("a", text: "Log out")
   end
