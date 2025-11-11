@@ -10,7 +10,10 @@ defmodule DpulCollectionsWeb.UserLive.Confirmation do
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="content-area flex flex-col items-center justify-center gap-6">
         <div class="text-center">
-          <.header>{gettext("Welcome")} {@user.email}</.header>
+          <.header>
+            {gettext("Welcome")}
+            <:subtitle>{gettext("Logging in %{email}", %{email: @user.email})}</:subtitle>
+          </.header>
         </div>
 
         <.form

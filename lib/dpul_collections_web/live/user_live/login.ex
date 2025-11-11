@@ -55,7 +55,7 @@ defmodule DpulCollectionsWeb.UserLive.Login do
 
   def verify_page(assigns) do
     ~H"""
-    <div class="content-area flex flex-col gap-6">
+    <div class="content-area text-lg flex flex-col gap-6">
       <div class="text-center flex flex-col gap-2">
         <.header>
           <p>{gettext("We emailed you a code")}</p>
@@ -67,7 +67,7 @@ defmodule DpulCollectionsWeb.UserLive.Login do
           class="flex gap-2 justify-center items-center alert alert-info"
         >
           <.icon name="hero-information-circle" class="size-6 shrink-0 grow-0" />
-          <div class="">
+          <div>
             <p>You are running the local mail adapter.</p>
             <p>
               To see sent emails, visit <.link href="/dev/mailbox" class="underline">the mailbox page</.link>.
