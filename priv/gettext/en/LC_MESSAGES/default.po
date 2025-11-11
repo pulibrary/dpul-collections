@@ -11,12 +11,12 @@ msgstr ""
 "Language: en\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: lib/dpul_collections_web/components/core_components.ex:83
+#: lib/dpul_collections_web/components/core_components.ex:84
 #, elixir-autogen, elixir-format
 msgid "Error!"
 msgstr ""
 
-#: lib/dpul_collections_web/components/core_components.ex:92
+#: lib/dpul_collections_web/components/core_components.ex:93
 #, elixir-autogen, elixir-format
 msgid "Hang in there while we get back on track"
 msgstr ""
@@ -28,17 +28,17 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-#: lib/dpul_collections_web/components/core_components.ex:87
+#: lib/dpul_collections_web/components/core_components.ex:88
 #, elixir-autogen, elixir-format
 msgid "Something went wrong!"
 msgstr ""
 
-#: lib/dpul_collections_web/components/core_components.ex:82
+#: lib/dpul_collections_web/components/core_components.ex:83
 #, elixir-autogen, elixir-format
 msgid "Success!"
 msgstr ""
 
-#: lib/dpul_collections_web/components/core_components.ex:62
+#: lib/dpul_collections_web/components/core_components.ex:63
 #, elixir-autogen, elixir-format
 msgid "close"
 msgstr ""
@@ -586,7 +586,7 @@ msgstr ""
 msgid "Skip links"
 msgstr ""
 
-#: lib/dpul_collections_web/components/core_components.ex:440
+#: lib/dpul_collections_web/components/core_components.ex:444
 #, elixir-autogen, elixir-format
 msgid "Close modal"
 msgstr ""
@@ -690,7 +690,7 @@ msgid "Learn More"
 msgstr ""
 
 #: lib/dpul_collections_web/components/header_component.ex:127
-#: lib/dpul_collections_web/live/user_live/login.ex:14
+#: lib/dpul_collections_web/live/user_live/login.ex:22
 #, elixir-autogen, elixir-format
 msgid "Log in"
 msgstr ""
@@ -784,57 +784,42 @@ msgstr ""
 msgid "genre"
 msgstr ""
 
-#: lib/dpul_collections_web/live/user_live/settings.ex:87
+#: lib/dpul_collections_web/live/user_live/settings.ex:99
 #, elixir-autogen, elixir-format
 msgid "A link to confirm your email change has been sent to the new address."
 msgstr ""
 
-#: lib/dpul_collections_web/live/user_live/settings.ex:15
+#: lib/dpul_collections_web/live/user_live/settings.ex:16
 #, elixir-autogen, elixir-format
 msgid "Account Settings"
 msgstr ""
 
-#: lib/dpul_collections_web/live/user_live/settings.ex:28
+#: lib/dpul_collections_web/live/user_live/settings.ex:37
 #, elixir-autogen, elixir-format
 msgid "Change Email"
 msgstr ""
 
-#: lib/dpul_collections_web/live/user_live/confirmation.ex:35
-#, elixir-autogen, elixir-format
-msgid "Confirm and log in only this time"
-msgstr ""
-
-#: lib/dpul_collections_web/live/user_live/confirmation.ex:32
-#, elixir-autogen, elixir-format
-msgid "Confirm and stay logged in"
-msgstr ""
-
-#: lib/dpul_collections_web/live/user_live/login.ex:19
-#, elixir-autogen, elixir-format
-msgid "Don't have an account?"
-msgstr ""
-
-#: lib/dpul_collections_web/live/user_live/settings.ex:42
+#: lib/dpul_collections_web/live/user_live/settings.ex:54
 #, elixir-autogen, elixir-format
 msgid "Email change link is invalid or it has expired."
 msgstr ""
 
-#: lib/dpul_collections_web/live/user_live/settings.ex:39
+#: lib/dpul_collections_web/live/user_live/settings.ex:51
 #, elixir-autogen, elixir-format
 msgid "Email changed successfully."
 msgstr ""
 
-#: lib/dpul_collections_web/live/user_live/confirmation.ex:55
+#: lib/dpul_collections_web/live/user_live/confirmation.ex:34
 #, elixir-autogen, elixir-format
 msgid "Keep me logged in on this device"
 msgstr ""
 
-#: lib/dpul_collections_web/live/user_live/login.ex:59
+#: lib/dpul_collections_web/live/user_live/login.ex:49
 #, elixir-autogen, elixir-format
 msgid "Log in with email"
 msgstr ""
 
-#: lib/dpul_collections_web/live/user_live/confirmation.ex:58
+#: lib/dpul_collections_web/live/user_live/confirmation.ex:37
 #, elixir-autogen, elixir-format
 msgid "Log me in only this time"
 msgstr ""
@@ -844,12 +829,12 @@ msgstr ""
 msgid "Logged out successfully."
 msgstr ""
 
-#: lib/dpul_collections_web/live/user_live/confirmation.ex:76
+#: lib/dpul_collections_web/live/user_live/confirmation.ex:55
 #, elixir-autogen, elixir-format
 msgid "Magic link is invalid or it has expired."
 msgstr ""
 
-#: lib/dpul_collections_web/live/user_live/settings.ex:16
+#: lib/dpul_collections_web/live/user_live/settings.ex:17
 #, elixir-autogen, elixir-format
 msgid "Manage your account email address"
 msgstr ""
@@ -859,17 +844,12 @@ msgstr ""
 msgid "The link is invalid or it has expired."
 msgstr ""
 
-#: lib/dpul_collections_web/live/user_live/login.ex:23
-#, elixir-autogen, elixir-format
-msgid "Use any email"
-msgstr ""
-
 #: lib/dpul_collections_web/controllers/user_session_controller.ex:9
 #, elixir-autogen, elixir-format
 msgid "User confirmed successfully."
 msgstr ""
 
-#: lib/dpul_collections_web/live/user_live/confirmation.ex:13
+#: lib/dpul_collections_web/live/user_live/confirmation.ex:14
 #, elixir-autogen, elixir-format
 msgid "Welcome"
 msgstr ""
@@ -890,19 +870,9 @@ msgstr ""
 msgid "You must re-authenticate to access this page."
 msgstr ""
 
-#: lib/dpul_collections_web/live/user_live/login.ex:17
+#: lib/dpul_collections_web/live/user_live/login.ex:25
 #, elixir-autogen, elixir-format
 msgid "You need to reauthenticate to perform sensitive actions on your account."
-msgstr ""
-
-#: lib/dpul_collections_web/live/user_live/login.ex:86
-#, elixir-autogen, elixir-format
-msgid "You will receive instructions for logging in shortly."
-msgstr ""
-
-#: lib/dpul_collections_web/live/user_live/login.ex:23
-#, elixir-autogen, elixir-format
-msgid "to login"
 msgstr ""
 
 #: lib/dpul_collections_web/live/item_live.ex:218
@@ -949,4 +919,44 @@ msgstr ""
 #: lib/dpul_collections_web/live/item_live.ex:132
 #, elixir-autogen, elixir-format
 msgid "title"
+msgstr ""
+
+#: lib/dpul_collections_web/live/user_live/login.ex:119
+#, elixir-autogen, elixir-format
+msgid "An email has been re-sent, please check your inbox."
+msgstr ""
+
+#: lib/dpul_collections_web/live/user_live/login.ex:87
+#, elixir-autogen, elixir-format
+msgid "Can't find your link?"
+msgstr ""
+
+#: lib/dpul_collections_web/live/user_live/login.ex:80
+#, elixir-autogen, elixir-format
+msgid "Click the link in that email to log in."
+msgstr ""
+
+#: lib/dpul_collections_web/live/user_live/login.ex:84
+#, elixir-autogen, elixir-format
+msgid "If you don't see the email, check your spam or junk folder."
+msgstr ""
+
+#: lib/dpul_collections_web/live/user_live/confirmation.ex:15
+#, elixir-autogen, elixir-format
+msgid "Logging in %{email}"
+msgstr ""
+
+#: lib/dpul_collections_web/live/user_live/login.ex:88
+#, elixir-autogen, elixir-format
+msgid "Resend link"
+msgstr ""
+
+#: lib/dpul_collections_web/live/user_live/login.ex:61
+#, elixir-autogen, elixir-format
+msgid "We emailed you a code"
+msgstr ""
+
+#: lib/dpul_collections_web/live/user_live/login.ex:80
+#, elixir-autogen, elixir-format
+msgid "We sent an email to %{email}."
 msgstr ""
