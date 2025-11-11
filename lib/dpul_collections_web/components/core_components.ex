@@ -731,17 +731,17 @@ defmodule DpulCollectionsWeb.CoreComponents do
 
   def header(assigns) do
     ~H"""
-    <header class={[@actions != [] && "flex items-center justify-between gap-6", @class]}>
+    <div class={[@actions != [] && "flex items-center justify-between gap-6", @class]}>
       <div>
-        <h1 class="font-bold">
+        <h1>
           {render_slot(@inner_block)}
         </h1>
-        <p :if={@subtitle != []} class="mt-2 text-lg leading-6 text-zinc-600">
+        <p :if={@subtitle != []} class="mt-2 text-lg">
           {render_slot(@subtitle)}
         </p>
       </div>
       <div class="flex-none">{render_slot(@actions)}</div>
-    </header>
+    </div>
     """
   end
 
