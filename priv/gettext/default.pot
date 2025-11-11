@@ -11,12 +11,12 @@
 msgid ""
 msgstr ""
 
-#: lib/dpul_collections_web/components/core_components.ex:82
+#: lib/dpul_collections_web/components/core_components.ex:83
 #, elixir-autogen, elixir-format
 msgid "Error!"
 msgstr ""
 
-#: lib/dpul_collections_web/components/core_components.ex:91
+#: lib/dpul_collections_web/components/core_components.ex:92
 #, elixir-autogen, elixir-format
 msgid "Hang in there while we get back on track"
 msgstr ""
@@ -28,17 +28,17 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-#: lib/dpul_collections_web/components/core_components.ex:86
+#: lib/dpul_collections_web/components/core_components.ex:87
 #, elixir-autogen, elixir-format
 msgid "Something went wrong!"
 msgstr ""
 
-#: lib/dpul_collections_web/components/core_components.ex:81
+#: lib/dpul_collections_web/components/core_components.ex:82
 #, elixir-autogen, elixir-format
 msgid "Success!"
 msgstr ""
 
-#: lib/dpul_collections_web/components/core_components.ex:61
+#: lib/dpul_collections_web/components/core_components.ex:62
 #, elixir-autogen, elixir-format
 msgid "close"
 msgstr ""
@@ -586,7 +586,7 @@ msgstr ""
 msgid "Skip links"
 msgstr ""
 
-#: lib/dpul_collections_web/components/core_components.ex:439
+#: lib/dpul_collections_web/components/core_components.ex:440
 #, elixir-autogen, elixir-format
 msgid "Close modal"
 msgstr ""
@@ -689,13 +689,13 @@ msgstr ""
 msgid "Learn More"
 msgstr ""
 
-#: lib/dpul_collections_web/components/header_component.ex:122
+#: lib/dpul_collections_web/components/header_component.ex:127
 #: lib/dpul_collections_web/live/user_live/login.ex:14
 #, elixir-autogen, elixir-format
 msgid "Log in"
 msgstr ""
 
-#: lib/dpul_collections_web/components/header_component.ex:116
+#: lib/dpul_collections_web/components/header_component.ex:121
 #, elixir-autogen, elixir-format
 msgid "Log out"
 msgstr ""
@@ -715,6 +715,7 @@ msgstr ""
 msgid "My Account"
 msgstr ""
 
+#: lib/dpul_collections_web/components/header_component.ex:111
 #: lib/dpul_collections_web/live/user_sets_live.ex:51
 #, elixir-autogen, elixir-format
 msgid "My Sets"
@@ -752,7 +753,7 @@ msgstr ""
 msgid "Search Results"
 msgstr ""
 
-#: lib/dpul_collections_web/components/header_component.ex:111
+#: lib/dpul_collections_web/components/header_component.ex:116
 #, elixir-autogen, elixir-format
 msgid "Settings"
 msgstr ""

@@ -11,12 +11,12 @@ msgstr ""
 "Language: es\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: lib/dpul_collections_web/components/core_components.ex:82
+#: lib/dpul_collections_web/components/core_components.ex:83
 #, elixir-autogen, elixir-format
 msgid "Error!"
 msgstr "¡Error!"
 
-#: lib/dpul_collections_web/components/core_components.ex:91
+#: lib/dpul_collections_web/components/core_components.ex:92
 #, elixir-autogen, elixir-format
 msgid "Hang in there while we get back on track"
 msgstr "Aguanta mientras volvemos al buen camino"
@@ -28,17 +28,17 @@ msgstr "Aguanta mientras volvemos al buen camino"
 msgid "Search"
 msgstr "Buscar"
 
-#: lib/dpul_collections_web/components/core_components.ex:86
+#: lib/dpul_collections_web/components/core_components.ex:87
 #, elixir-autogen, elixir-format
 msgid "Something went wrong!"
 msgstr "¡Algo salió mal!"
 
-#: lib/dpul_collections_web/components/core_components.ex:81
+#: lib/dpul_collections_web/components/core_components.ex:82
 #, elixir-autogen, elixir-format
 msgid "Success!"
 msgstr "¡Éxito!"
 
-#: lib/dpul_collections_web/components/core_components.ex:61
+#: lib/dpul_collections_web/components/core_components.ex:62
 #, elixir-autogen, elixir-format
 msgid "close"
 msgstr "cerrar"
@@ -586,7 +586,7 @@ msgstr "más artículos"
 msgid "Skip links"
 msgstr "Saltar enlaces"
 
-#: lib/dpul_collections_web/components/core_components.ex:439
+#: lib/dpul_collections_web/components/core_components.ex:440
 #, elixir-autogen, elixir-format
 msgid "Close modal"
 msgstr "Cerrar modal"
@@ -689,13 +689,13 @@ msgstr "Folletos"
 msgid "Learn More"
 msgstr "Más información"
 
-#: lib/dpul_collections_web/components/header_component.ex:122
+#: lib/dpul_collections_web/components/header_component.ex:127
 #: lib/dpul_collections_web/live/user_live/login.ex:14
 #, elixir-autogen, elixir-format
 msgid "Log in"
 msgstr "Iniciar sesión"
 
-#: lib/dpul_collections_web/components/header_component.ex:116
+#: lib/dpul_collections_web/components/header_component.ex:121
 #, elixir-autogen, elixir-format
 msgid "Log out"
 msgstr "Cierre la sesión"
@@ -715,6 +715,7 @@ msgstr "Menú principal"
 msgid "My Account"
 msgstr "Mi Cuenta"
 
+#: lib/dpul_collections_web/components/header_component.ex:111
 #: lib/dpul_collections_web/live/user_sets_live.ex:51
 #, elixir-autogen, elixir-format
 msgid "My Sets"
@@ -752,7 +753,7 @@ msgstr "Guardar"
 msgid "Search Results"
 msgstr "Resultados de la búsqueda"
 
-#: lib/dpul_collections_web/components/header_component.ex:111
+#: lib/dpul_collections_web/components/header_component.ex:116
 #, elixir-autogen, elixir-format
 msgid "Settings"
 msgstr "Configuraciones"
