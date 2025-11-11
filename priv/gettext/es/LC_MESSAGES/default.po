@@ -924,39 +924,39 @@ msgstr "título"
 #: lib/dpul_collections_web/live/user_live/login.ex:119
 #, elixir-autogen, elixir-format
 msgid "An email has been re-sent, please check your inbox."
-msgstr ""
+msgstr "Se ha reenviado un correo electrónico, por favor revise su bandeja de entrada."
 
 #: lib/dpul_collections_web/live/user_live/login.ex:87
 #, elixir-autogen, elixir-format
 msgid "Can't find your link?"
-msgstr ""
+msgstr "¿No encuentra su enlace?"
 
 #: lib/dpul_collections_web/live/user_live/login.ex:80
 #, elixir-autogen, elixir-format
 msgid "Click the link in that email to log in."
-msgstr ""
+msgstr "Haga clic en el enlace de ese correo electrónico para iniciar sesión."
 
 #: lib/dpul_collections_web/live/user_live/login.ex:84
 #, elixir-autogen, elixir-format
 msgid "If you don't see the email, check your spam or junk folder."
-msgstr ""
+msgstr "Si no ve el correo electrónico, revise su carpeta de correo no deseado o spam."
 
 #: lib/dpul_collections_web/live/user_live/confirmation.ex:15
 #, elixir-autogen, elixir-format
 msgid "Logging in %{email}"
-msgstr ""
+msgstr "Iniciando sesión en %{email}"
 
 #: lib/dpul_collections_web/live/user_live/login.ex:88
 #, elixir-autogen, elixir-format
 msgid "Resend link"
-msgstr ""
+msgstr "Reenviar enlace"
 
 #: lib/dpul_collections_web/live/user_live/login.ex:61
 #, elixir-autogen, elixir-format
 msgid "We emailed you a code"
-msgstr ""
+msgstr "Le enviamos un código por correo electrónico"
 
 #: lib/dpul_collections_web/live/user_live/login.ex:80
 #, elixir-autogen, elixir-format
 msgid "We sent an email to %{email}."
-msgstr ""
+msgstr "Enviamos un correo electrónico a %{email}."
