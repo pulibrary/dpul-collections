@@ -41,7 +41,7 @@ defmodule DpulCollectionsWeb.LoginTest do
 
     out
     |> visit("/users/log-in/#{generate_user_magic_link_token(user) |> elem(0)}")
-    |> click_button("Confirm and stay logged in")
+    |> click_button("Log me in only this time")
     # wait until flash has loaded
     |> assert_has("#flash-info", text: "Success")
     |> click_button("My Account")

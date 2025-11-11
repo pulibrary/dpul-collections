@@ -18,7 +18,7 @@ defmodule DpulCollectionsWeb.UserLive.ConfirmationTest do
         end)
 
       {:ok, _lv, html} = live(conn, ~p"/users/log-in/#{token}")
-      assert html =~ "Confirm and stay logged in"
+      assert html =~ "Log in"
     end
 
     test "renders login page for confirmed user", %{conn: conn, confirmed_user: user} do
@@ -28,7 +28,6 @@ defmodule DpulCollectionsWeb.UserLive.ConfirmationTest do
         end)
 
       {:ok, _lv, html} = live(conn, ~p"/users/log-in/#{token}")
-      refute html =~ "Confirm my account"
       assert html =~ "Log in"
     end
 
@@ -40,13 +39,13 @@ defmodule DpulCollectionsWeb.UserLive.ConfirmationTest do
 
       {:ok, lv, _html} = live(conn, ~p"/users/log-in/#{token}")
 
-      form = form(lv, "#confirmation_form", %{"user" => %{"token" => token}})
+      form = form(lv, "#login_form", %{"user" => %{"token" => token}})
       render_submit(form)
 
       conn = follow_trigger_action(form, conn)
 
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~
-               "User confirmed successfully"
+               "Welcome back!"
 
       assert Accounts.get_user!(user.id).confirmed_at
       # we are logged in now

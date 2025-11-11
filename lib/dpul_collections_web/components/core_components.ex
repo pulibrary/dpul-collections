@@ -171,7 +171,10 @@ defmodule DpulCollectionsWeb.CoreComponents do
   attr :href, :string, default: nil, doc: "link - if set it makes an anchor tag"
   attr :patch, :string, default: nil, doc: "link - if set makes an anchor tag"
   attr :disabled, :boolean, default: false
-  attr :rest, :global, include: ~w(replace), doc: "the arbitrary HTML attributes to add link"
+
+  attr :rest, :global,
+    include: ~w(replace disabled form name value),
+    doc: "the arbitrary HTML attributes to add link"
 
   def primary_button(assigns = %{href: href, patch: patch}) when href != nil or patch != nil do
     ~H"""

@@ -8,55 +8,31 @@ defmodule DpulCollectionsWeb.UserLive.Confirmation do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <div class="mx-auto max-w-sm">
+      <div class="content-area flex flex-col items-center justify-center gap-6">
         <div class="text-center">
           <.header>{gettext("Welcome")} {@user.email}</.header>
         </div>
 
         <.form
-          :if={!@user.confirmed_at}
-          for={@form}
-          id="confirmation_form"
-          phx-mounted={JS.focus_first()}
-          phx-submit="submit"
-          action={~p"/users/log-in?_action=confirmed"}
-          phx-trigger-action={@trigger_submit}
-        >
-          <input type="hidden" name={@form[:token].name} value={@form[:token].value} />
-          <.button
-            name={@form[:remember_me].name}
-            value="true"
-            phx-disable-with="Confirming..."
-            class="btn btn-primary w-full"
-          >
-            {gettext("Confirm and stay logged in")}
-          </.button>
-          <.button phx-disable-with="Confirming..." class="btn btn-primary btn-soft w-full mt-2">
-            {gettext("Confirm and log in only this time")}
-          </.button>
-        </.form>
-
-        <.form
-          :if={@user.confirmed_at}
           for={@form}
           id="login_form"
           phx-submit="submit"
           phx-mounted={JS.focus_first()}
           action={~p"/users/log-in"}
           phx-trigger-action={@trigger_submit}
+          class="flex gap-4"
         >
           <input type="hidden" name={@form[:token].name} value={@form[:token].value} />
-          <.button
+          <.primary_button
             name={@form[:remember_me].name}
             value="true"
             phx-disable-with="Logging in..."
-            class="btn btn-primary w-full"
           >
             {gettext("Keep me logged in on this device")}
-          </.button>
-          <.button phx-disable-with="Logging in..." class="btn btn-primary btn-soft w-full mt-2">
+          </.primary_button>
+          <.primary_button phx-disable-with="Logging in...">
             {gettext("Log me in only this time")}
-          </.button>
+          </.primary_button>
         </.form>
       </div>
     </Layouts.app>
