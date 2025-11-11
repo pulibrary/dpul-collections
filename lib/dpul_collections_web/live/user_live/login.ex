@@ -15,12 +15,6 @@ defmodule DpulCollectionsWeb.UserLive.Login do
             <:subtitle>
               <%= if @current_scope do %>
                 {gettext("You need to reauthenticate to perform sensitive actions on your account.")}
-              <% else %>
-                {gettext("Don't have an account?")} <.link
-                  navigate={~p"/users/log-in"}
-                  class="font-semibold text-brand hover:underline"
-                  phx-no-format
-                >{gettext("Use any email")}</.link> {gettext("to login")}.
               <% end %>
             </:subtitle>
           </.header>
@@ -28,9 +22,9 @@ defmodule DpulCollectionsWeb.UserLive.Login do
 
         <% # this is only for dev, so not covered in test %>
         <% # coveralls-ignore-start %>
-        <div :if={local_mail_adapter?()} class="alert alert-info">
-          <.icon name="hero-information-circle" class="size-6 shrink-0" />
-          <div>
+        <div :if={local_mail_adapter?()} class="flex gap-2 items-center alert alert-info">
+          <.icon name="hero-information-circle" class="size-6 shrink-0 grow-0" />
+          <div class="grow">
             <p>You are running the local mail adapter.</p>
             <p>
               To see sent emails, visit <.link href="/dev/mailbox" class="underline">the mailbox page</.link>.
@@ -45,6 +39,7 @@ defmodule DpulCollectionsWeb.UserLive.Login do
           id="login_form_magic"
           action={~p"/users/log-in"}
           phx-submit="submit_magic"
+          class="flex flex-col gap-6"
         >
           <.input
             readonly={!!@current_scope}
@@ -55,9 +50,9 @@ defmodule DpulCollectionsWeb.UserLive.Login do
             required
             phx-mounted={JS.focus()}
           />
-          <.button class="btn btn-primary w-full">
-            {gettext("Log in with email")} <span aria-hidden="true">→</span>
-          </.button>
+          <.primary_button class="btn btn-primary w-full">
+            {gettext("Log in with email")}
+          </.primary_button>
         </.form>
       </div>
     </Layouts.app>
