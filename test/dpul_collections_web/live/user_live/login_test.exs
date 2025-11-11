@@ -14,15 +14,13 @@ defmodule DpulCollectionsWeb.UserLive.LoginTest do
   end
 
   describe "user login - magic link" do
-    test "sends magic link email when user exists", %{conn: conn} do
+    test "sends magic link email", %{conn: conn} do
       user = user_fixture()
 
       {:ok, lv, _html} = live(conn, ~p"/users/log-in")
 
-      {:ok, _lv, _html} =
-        form(lv, "#login_form_magic", user: %{email: user.email})
-        |> render_submit()
-        |> follow_redirect(conn, ~p"/users/log-in")
+      form(lv, "#login_form_magic", user: %{email: user.email})
+      |> render_submit()
 
       assert DpulCollections.Repo.get_by!(DpulCollections.Accounts.UserToken, user_id: user.id).context ==
                "login"

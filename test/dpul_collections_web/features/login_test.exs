@@ -33,7 +33,9 @@ defmodule DpulCollectionsWeb.LoginTest do
       |> click_link("Log in")
       |> fill_in("Email", with: "test@example.com")
       |> click_button("Log in with email")
-      |> assert_has("*", text: "You will receive instructions for logging in shortly.")
+      |> assert_has("*", text: "We sent an email to test@example.com.")
+      |> click_link("Resend link")
+      |> assert_has("*", text: "An email has been re-sent")
 
     user = Accounts.get_user_by_email("test@example.com")
 
