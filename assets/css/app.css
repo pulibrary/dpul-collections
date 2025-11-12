@@ -164,9 +164,6 @@
   &:focus {
     @apply enabled:border-0;
   }
-  &:focus-visible {
-    @apply border-4;
-  }
   &:active {
     @apply outline-0 border-1 border-solid border-(--color-princeton-black);
     box-shadow: inset 0 2px 4px 0 rgb(18,18,18,0.8);
@@ -197,9 +194,6 @@
 
 @utility btn-transparent {
   @apply btn-base bg-none text-center;
-  &:focus-visible {
-    @apply border-4;
-  }
 }
 
 /* action_icon utilities */
