@@ -185,6 +185,32 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
     |> unwrap(&TestUtils.assert_a11y(&1, CloverFilter))
   end
 
+  test "similar items outside this collection links to results", %{conn: conn} do
+    docs = [
+      %{
+        "id" => "similar",
+        "title_txtm" => ["similar item"],
+        "genre_txt_sort" => ["pamphlets"],
+        "subject_txt_sort" => ["folk art", "music"],
+        "ephemera_project_title_s" => "Latin American Ephemera",
+        "file_count_i" => 1
+      }
+    ]
+
+    Solr.add(docs, active_collection())
+    Solr.soft_commit(active_collection())
+
+    conn
+    |> visit("/i/document-1/item/1")
+    |> within("#related-different-project", fn session ->
+      session
+      |> assert_has(".card")
+      |> click_link("more items")
+    end)
+    |> refute_has("#item-counter", text: "No items found")
+    |> assert_has("#item-counter", text: "1 - 1 of 1")
+  end
+
   def go_back(conn) do
     conn
     |> unwrap(&Frame.evaluate(&1.frame_id, "window.history.back()"))
