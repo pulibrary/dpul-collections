@@ -385,7 +385,7 @@
 }
 
 #collection-description a {
-  @apply text-princeton-orange-on-black;
+  @apply underline text-princeton-orange-on-black;
 }
 
 .contributor-card a {
