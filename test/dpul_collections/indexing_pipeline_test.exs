@@ -113,7 +113,7 @@ defmodule DpulCollections.IndexingPipelineTest do
       end
     end
 
-    test "get_figgy_resources_since/2 doesn't return all the metadata, just a sparse record" do
+    test "get_figgy_resources_since!/2 doesn't return all the metadata, just a sparse record" do
       record = IndexingPipeline.get_figgy_resource!("26713a31-d615-49fd-adfc-93770b4f66b3")
       marker = IndexingPipeline.DatabaseProducer.CacheEntryMarker.from(record)
 
@@ -124,7 +124,7 @@ defmodule DpulCollections.IndexingPipelineTest do
       assert record.state == ["complete"]
     end
 
-    test "get_figgy_resources_since/2 pulls deleted resource IDs and types" do
+    test "get_figgy_resources_since!/2 pulls deleted resource IDs and types" do
       record = IndexingPipeline.get_figgy_resource!("ea2bc758-e455-493f-87fe-ecf124117fd2")
       marker = IndexingPipeline.DatabaseProducer.CacheEntryMarker.from(record)
       marker = %{marker | timestamp: marker.timestamp |> DateTime.add(-1)}
