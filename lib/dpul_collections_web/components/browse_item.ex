@@ -43,7 +43,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
           </ul>
           <div :if={@more_link} class="w-16 flex-none content-center">
             <.transparent_button
-              class="w-16 h-16"
+              class="w-16 h-16 active:shadow-none active:border-none"
               aria_label={gettext("more items")}
               navigate={@more_link}
             >
