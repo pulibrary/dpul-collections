@@ -203,6 +203,7 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
     required: true
 
   attr :current_scope, :map, required: false, default: nil
+  attr :current_path, :string, required: false, default: nil
 
   @doc """
   Function component that triggers the add to set modal for a given Item ID when it's clicked.
@@ -226,7 +227,7 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
       :if={Application.fetch_env!(:dpul_collections, :feature_account_toolbar)}
       icon="hero-folder-plus"
       label={gettext("Save")}
-      navigate={~p"/users/log-in"}
+      navigate={~p"/users/log-in?#{%{return_to: @current_path}}"}
     />
     """
   end

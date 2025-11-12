@@ -13,7 +13,8 @@ defmodule DpulCollectionsWeb.BrowseLive do
         items: [],
         liked_items: [],
         page_title: gettext("Browse - Digital Collections"),
-        focused_item: nil
+        focused_item: nil,
+        current_path: nil
       )
 
     {:ok, socket}
@@ -21,7 +22,10 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   @spec handle_params(nil | maybe_improper_list() | map(), any(), any()) :: {:noreply, any()}
   # If we've been asked to randomize, do it.
-  def handle_params(%{"r" => given_seed}, _uri, socket) do
+  def handle_params(%{"r" => given_seed}, url, socket) do
+    uri = URI.parse(url)
+    path = "#{uri.path}?#{uri.query}"
+
     socket =
       socket
       |> assign(
@@ -30,6 +34,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
           |> Enum.map(&Item.from_solr(&1)),
         focused_item: nil
       )
+      |> assign(current_path: path)
 
     {:noreply, socket}
   end
@@ -103,6 +108,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
           class="border-6 border-primary"
           show_images={@show_images}
           current_scope={@current_scope}
+          current_path={@current_path}
         />
         <.browse_li
           :for={item <- @items}
@@ -110,6 +116,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
           target="_blank"
           show_images={@show_images}
           current_scope={@current_scope}
+          current_path={@current_path}
         />
       </ul>
     </div>

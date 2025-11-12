@@ -26,6 +26,11 @@ defmodule DpulCollectionsWeb.UserLive.Confirmation do
           class="flex gap-4"
         >
           <input type="hidden" name={@form[:token].name} value={@form[:token].value} />
+          <input
+            type="hidden"
+            name={@form[:return_to].name}
+            value={@form[:return_to].value}
+          />
           <.primary_button
             name={@form[:remember_me].name}
             value="true"
@@ -43,9 +48,9 @@ defmodule DpulCollectionsWeb.UserLive.Confirmation do
   end
 
   @impl true
-  def mount(%{"token" => token}, _session, socket) do
+  def mount(%{"token" => token} = params, _session, socket) do
     if user = Accounts.get_user_by_magic_link_token(token) do
-      form = to_form(%{"token" => token}, as: "user")
+      form = to_form(%{"token" => token, "return_to" => params["return_to"]}, as: "user")
 
       {:ok, assign(socket, user: user, form: form, trigger_submit: false),
        temporary_assigns: [form: nil]}

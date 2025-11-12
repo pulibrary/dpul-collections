@@ -173,6 +173,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
   attr :target, :string, required: false, default: nil
   attr :class, :string, required: false, default: nil
   attr :current_scope, :map, required: false, default: nil
+  attr :current_path, :string, required: false, default: nil
 
   attr :show_images, :list,
     default: [],
@@ -226,6 +227,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
           :if={@savable?}
           current_scope={@current_scope}
           item_id={@item.id}
+          current_path={@current_path}
         />
       </:card_buttons>
     </.card_li>
