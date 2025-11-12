@@ -293,7 +293,9 @@ defmodule DpulCollections.IndexingPipeline do
       - record.id is greater than marker.id
       - OR
       - record.updated_at is greater than marker.updated_at
-  3. Return the number of records indicated by the count parameter
+  3. Add a poll delay to protect against a postgres bug that could allow a row to be
+     persisted with an earier timestamp than an already-persisted row
+  4. Return the number of records indicated by the count parameter
 
   ## Examples
 
@@ -338,11 +340,15 @@ defmodule DpulCollections.IndexingPipeline do
         ) :: list(Figgy.Resource)
   @decorate trace()
   def get_figgy_resources_since!(%CacheEntryMarker{timestamp: updated_at, id: id}, count) do
+    poll_delay = DateTime.utc_now() |> DateTime.add(-30, :second)
+
     query =
       from r in Figgy.Resource,
         where:
           r.internal_resource != "Event" and r.internal_resource != "PreservationObject" and
-            (r.updated_at >= ^updated_at and (r.updated_at > ^updated_at or r.id > ^id)),
+            (r.updated_at >= ^updated_at and
+               (r.updated_at > ^updated_at or r.id > ^id) and
+               r.updated_at < ^poll_delay),
         select: %{
           struct(r, [:id, :updated_at, :internal_resource])
           | visibility: fragment("metadata->'visibility'"),
