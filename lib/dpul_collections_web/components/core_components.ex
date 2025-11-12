@@ -46,6 +46,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
       phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("##{@id}")}
       role="alert"
       phx-connected={show("##{@id}")}
+      phx-mounted={show("##{@id}")}
       class={[
         "hidden fixed top-20 right-2 mr-2 w-80 sm:w-96 zi-flash rounded-lg p-3 ring-1",
         @kind == :info && "bg-emerald-50 text-emerald-800 ring-emerald-500 fill-cyan-900",
@@ -78,7 +79,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
 
   def flash_group(assigns) do
     ~H"""
-    <div id={@id}>
+    <div id={@id} role="alert">
       <.flash kind={:info} title={gettext("Success!")} flash={@flash} />
       <.flash kind={:error} title={gettext("Error!")} flash={@flash} />
       <.flash
@@ -171,7 +172,10 @@ defmodule DpulCollectionsWeb.CoreComponents do
   attr :href, :string, default: nil, doc: "link - if set it makes an anchor tag"
   attr :patch, :string, default: nil, doc: "link - if set makes an anchor tag"
   attr :disabled, :boolean, default: false
-  attr :rest, :global, include: ~w(replace), doc: "the arbitrary HTML attributes to add link"
+
+  attr :rest, :global,
+    include: ~w(replace disabled form name value),
+    doc: "the arbitrary HTML attributes to add link"
 
   def primary_button(assigns = %{href: href, patch: patch}) when href != nil or patch != nil do
     ~H"""
@@ -482,35 +486,35 @@ defmodule DpulCollectionsWeb.CoreComponents do
   #   """
   # end
 
-  @doc """
-  Renders a button.
-
-  ## Examples
-
-  <.button>Send!</.button>
-  <.button phx-click="go" class="ml-2">Send!</.button>
-  """
-  attr :type, :string, default: nil
-  attr :class, :string, default: nil
-  attr :rest, :global, include: ~w(disabled form name value)
-
-  slot :inner_block, required: true
-
-  def button(assigns) do
-    ~H"""
-    <button
-      type={@type}
-      class={[
-        "phx-submit-loading:opacity-75 rounded-lg bg-zinc-900 hover:bg-zinc-700 py-2 px-3",
-        "text-sm font-semibold leading-6 text-white active:text-white/80",
-        @class
-      ]}
-      {@rest}
-    >
-      {render_slot(@inner_block)}
-    </button>
-    """
-  end
+  # @doc """
+  # Renders a button.
+  #
+  # ## Examples
+  #
+  # <.button>Send!</.button>
+  # <.button phx-click="go" class="ml-2">Send!</.button>
+  # """
+  # attr :type, :string, default: nil
+  # attr :class, :string, default: nil
+  # attr :rest, :global, include: ~w(disabled form name value)
+  #
+  # slot :inner_block, required: true
+  #
+  # def button(assigns) do
+  #   ~H"""
+  #   <button
+  #     type={@type}
+  #     class={[
+  #       "phx-submit-loading:opacity-75 rounded-lg bg-zinc-900 hover:bg-zinc-700 py-2 px-3",
+  #       "text-sm font-semibold leading-6 text-white active:text-white/80",
+  #       @class
+  #     ]}
+  #     {@rest}
+  #   >
+  #     {render_slot(@inner_block)}
+  #   </button>
+  #   """
+  # end
 
   @doc """
   Renders an input with label and error messages.
@@ -653,7 +657,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
         id={@id}
         name={@name}
         class={[
-          "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
+          "mt-2 block w-full text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
           "min-h-[6rem] phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
           @errors == [] && "border-zinc-300 focus:border-zinc-400",
           @errors != [] && "border-rose-400 focus:border-rose-400"
@@ -676,7 +680,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
         id={@id}
         value={Phoenix.HTML.Form.normalize_value(@type, @value)}
         class={[
-          "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
+          "block w-full text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
           "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
           @errors == [] && "border-zinc-300 focus:border-zinc-400",
           @errors != [] && "border-rose-400 focus:border-rose-400"
@@ -727,17 +731,17 @@ defmodule DpulCollectionsWeb.CoreComponents do
 
   def header(assigns) do
     ~H"""
-    <header class={[@actions != [] && "flex items-center justify-between gap-6", @class]}>
+    <div class={[@actions != [] && "flex items-center justify-between gap-6", @class]}>
       <div>
-        <h1 class="text-lg font-semibold leading-8 text-zinc-800">
+        <h1>
           {render_slot(@inner_block)}
         </h1>
-        <p :if={@subtitle != []} class="mt-2 text-sm leading-6 text-zinc-600">
+        <p :if={@subtitle != []} class="mt-2 text-lg">
           {render_slot(@subtitle)}
         </p>
       </div>
       <div class="flex-none">{render_slot(@actions)}</div>
-    </header>
+    </div>
     """
   end
 

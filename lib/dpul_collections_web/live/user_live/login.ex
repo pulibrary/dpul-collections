@@ -8,28 +8,65 @@ defmodule DpulCollectionsWeb.UserLive.Login do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <div class="mx-auto max-w-sm space-y-4">
-        <div class="text-center">
-          <.header>
-            <p>{gettext("Log in")}</p>
-            <:subtitle>
-              <%= if @current_scope do %>
-                {gettext("You need to reauthenticate to perform sensitive actions on your account.")}
-              <% else %>
-                {gettext("Don't have an account?")} <.link
-                  navigate={~p"/users/log-in"}
-                  class="font-semibold text-brand hover:underline"
-                  phx-no-format
-                >{gettext("Use any email")}</.link> {gettext("to login")}.
-              <% end %>
-            </:subtitle>
-          </.header>
-        </div>
+      <.login_page :if={!@verify_email} {assigns} />
+      <.verify_page :if={@verify_email} {assigns} />
+    </Layouts.app>
+    """
+  end
 
+  def login_page(assigns) do
+    ~H"""
+    <div class="mx-auto max-w-sm space-y-4">
+      <div class="text-center">
+        <.header>
+          <p>{gettext("Log in")}</p>
+          <:subtitle>
+            <%= if @current_scope do %>
+              {gettext("You need to reauthenticate to perform sensitive actions on your account.")}
+            <% end %>
+          </:subtitle>
+        </.header>
+      </div>
+
+      <.form
+        :let={f}
+        for={@form}
+        id="login_form_magic"
+        action={~p"/users/log-in"}
+        phx-submit="submit_magic"
+        class="flex flex-col gap-6"
+      >
+        <.input
+          readonly={!!@current_scope}
+          field={f[:email]}
+          type="email"
+          label="Email"
+          autocomplete="username"
+          required
+          phx-mounted={JS.focus()}
+        />
+        <.primary_button class="btn btn-primary w-full">
+          {gettext("Log in with email")}
+        </.primary_button>
+      </.form>
+    </div>
+    """
+  end
+
+  def verify_page(assigns) do
+    ~H"""
+    <div class="content-area text-lg flex flex-col gap-6">
+      <div class="text-center flex flex-col gap-2">
+        <.header>
+          <p>{gettext("We emailed you a code")}</p>
+        </.header>
         <% # this is only for dev, so not covered in test %>
         <% # coveralls-ignore-start %>
-        <div :if={local_mail_adapter?()} class="alert alert-info">
-          <.icon name="hero-information-circle" class="size-6 shrink-0" />
+        <div
+          :if={local_mail_adapter?()}
+          class="flex gap-2 justify-center items-center alert alert-info"
+        >
+          <.icon name="hero-information-circle" class="size-6 shrink-0 grow-0" />
           <div>
             <p>You are running the local mail adapter.</p>
             <p>
@@ -39,28 +76,18 @@ defmodule DpulCollectionsWeb.UserLive.Login do
         </div>
         <% # coveralls-ignore-end %>
 
-        <.form
-          :let={f}
-          for={@form}
-          id="login_form_magic"
-          action={~p"/users/log-in"}
-          phx-submit="submit_magic"
-        >
-          <.input
-            readonly={!!@current_scope}
-            field={f[:email]}
-            type="email"
-            label="Email"
-            autocomplete="username"
-            required
-            phx-mounted={JS.focus()}
-          />
-          <.button class="btn btn-primary w-full">
-            {gettext("Log in with email")} <span aria-hidden="true">→</span>
-          </.button>
-        </.form>
+        <p>
+          {gettext("We sent an email to %{email}.", %{email: @verify_email})}<br />{gettext(
+            "Click the link in that email to log in."
+          )}
+        </p>
+        <p>{gettext("If you don't see the email, check your spam or junk folder.")}</p>
       </div>
-    </Layouts.app>
+      <div class="text-center">
+        {gettext("Can't find your link?")}
+        <.link class="text-accent" phx-click="resend_link">{gettext("Resend link")}</.link>
+      </div>
+    </div>
     """
   end
 
@@ -72,7 +99,7 @@ defmodule DpulCollectionsWeb.UserLive.Login do
 
     form = to_form(%{"email" => email}, as: "user")
 
-    {:ok, assign(socket, form: form, trigger_submit: false)}
+    {:ok, assign(socket, verify_email: nil, form: form, trigger_submit: false)}
   end
 
   @impl true
@@ -82,13 +109,16 @@ defmodule DpulCollectionsWeb.UserLive.Login do
       &url(~p"/users/log-in/#{&1}")
     )
 
-    info =
-      gettext("You will receive instructions for logging in shortly.")
-
     {:noreply,
      socket
-     |> put_flash(:info, info)
-     |> push_navigate(to: ~p"/users/log-in")}
+     |> assign(:verify_email, email)}
+  end
+
+  def handle_event("resend_link", _params, socket = %{assigns: %{verify_email: verify_email}}) do
+    socket =
+      put_flash(socket, :info, gettext("An email has been re-sent, please check your inbox."))
+
+    handle_event("submit_magic", %{"user" => %{"email" => verify_email}}, socket)
   end
 
   defp local_mail_adapter? do

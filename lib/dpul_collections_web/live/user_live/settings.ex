@@ -10,23 +10,35 @@ defmodule DpulCollectionsWeb.UserLive.Settings do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <div class="text-center">
-        <.header>
-          {gettext("Account Settings")}
-          <:subtitle>{gettext("Manage your account email address")}</:subtitle>
-        </.header>
-      </div>
+      <div class="content-area">
+        <div class="text-center">
+          <.header>
+            {gettext("Account Settings")}
+            <:subtitle>{gettext("Manage your account email address")}</:subtitle>
+          </.header>
+        </div>
 
-      <.form for={@email_form} id="email_form" phx-submit="update_email" phx-change="validate_email">
-        <.input
-          field={@email_form[:email]}
-          type="email"
-          label="Email"
-          autocomplete="username"
-          required
-        />
-        <.button phx-disable-with="Changing...">{gettext("Change Email")}</.button>
-      </.form>
+        <.form
+          for={@email_form}
+          id="email_form"
+          phx-submit="update_email"
+          phx-change="validate_email"
+          class="flex flex-col gap-4"
+        >
+          <.input
+            field={@email_form[:email]}
+            type="email"
+            label="Email"
+            autocomplete="username"
+            required
+          />
+          <div>
+            <.primary_button phx-disable-with="Changing...">
+              {gettext("Change Email")}
+            </.primary_button>
+          </div>
+        </.form>
+      </div>
     </Layouts.app>
     """
   end
