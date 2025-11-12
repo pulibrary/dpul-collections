@@ -29,7 +29,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
   defp pill_section(assigns) do
     ~H"""
     <div>
-      <div class="flex items-center gap-3 mb-2">
+      <div class="flex items-center gap-3 mb-2 mt-4">
         <h2 id={"#{@container_id}-header"} class="text-sm font-sans font-medium text-wafer-pink">{@title}</h2>
       </div>
       <div
@@ -44,17 +44,17 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             <li
               aria-setsize={length(@items) + 2}
               aria-posinset={idx + 1}
-              class={"pill-item #{@pill_class} group-[.expanded]:block px-3 py-1.5 rounded-full"}
+              class={"pill-item #{@pill_class} group-[.expanded]:block px-3 py-1.5"}
             >
               <span class="text-xs">{name} ({count})</span>
             </li>
           <% end %>
-          <li class={"hidden group-[.expanded]:block less-button px-3 py-1.5 rounded-full #{@button_class}"}>
+          <li class={"hidden group-[.expanded]:block less-button px-3 py-1.5 #{@button_class}"}>
             <button class="w-full h-full cursor-pointer text-xs">
               Show less
             </button>
           </li>
-          <li class={"more-button invisible group-[.expanded]:invisible less-button px-3 py-1.5 rounded-full #{@button_class}"}>
+          <li class={"more-button invisible group-[.expanded]:invisible less-button px-3 py-1.5 #{@button_class}"}>
             <button class="w-full h-full cursor-pointer text-xs">
               +<span class="more-count">{length(@items)}</span> more
             </button>
@@ -140,17 +140,9 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                   </div>
                 </div>
                 <div class="flex flex-wrap gap-4 py-4">
-                  <button
-                    phx-click={
-                      JS.toggle_class(
-                        "expanded",
-                        to: "#collection-description"
-                      )
-                    }
-                    class="btn-secondary bg-dark-gray text-light-text grow md:grow-0"
-                  >
+                  <a href="#learn-more" class="btn-secondary bg-dark-gray text-light-text grow md:grow-0">
                     {gettext("Learn More")}
-                  </button>
+                  </a>
                 </div>
               </div>
               <div class="grid-cols-1 col-span-2 static md:hidden">
@@ -165,26 +157,17 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           </div>
         </div>
         <!-- Learn More -->
-        <div class="grid-flow-row auto-rows-max bg-dark-gray py-6">
+        <div id="learn-more" class="grid-flow-row auto-rows-max bg-dark-gray py-6">
           <div class="home-content-area">
             <h2 class="heading text-4xl pb-4 text-wafer-pink py-6">Learn More</h2>
           </div>
-          <div id="collection-description" class="overflow-hidden group home-content-area grid grid-cols-2 gap-10 grid-cols-[60%_auto]">
+          <div id="collection-description" class="home-content-area grid grid-cols-2 gap-10 grid-cols-[60%_auto]">
               <div class="[&_a]:text-accent max-h-300 w-full text-lg max-h-0 page-t-padding">
                 <div class="collection-description text-wafer-pink leading-relaxed pb-6">
                   {@collection.description |> raw}
-                <!--  
-                  <p>Our team of curators, partners, and digitization specialists have built this collection to support interdisciplinary scholarship in South Asian studies.</p>
-
-                  <p>Here you'll find largely contemporary material about a wide variety of subjects, but all gathered from or about countries in South Asia. These materials provide a unique insight into the lives, cultures, and every day experience of people in those countries and we hope as a set they inspire new research, understanding, and curiosity.</p>
-
-                  <p>These items were produced by a variety of individuals and organizations including political parties, non-governmental organizations, public policy think tanks, activists, and others and were meant to promote their views, positions, agendas, policies, events, and activities.</p>
-
-                  <p>Every effort is being made to represent each country in the region. As the collection grows over time, PUL will provide increasingly balanced coverage of the area.</p>
-                -->
                 </div>
               </div>
-              <div class="grid grid-cols-1 lg:grid-cols-1 gap-6">
+              <div>
                 <.pill_section
                   title="Subject Areas"
                   unit="categories"
@@ -256,7 +239,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                       <.link
                         href={contributor.url}
                         target="_blank"
-                        class="before:content-[''] before:absolute before:inset-0 before:z-[1]"
+                        class=""
                       >
                         <h3 dir="auto" class="w-full font-bold text-xl flex-grow sm:w-fit">
                           {contributor.label}
