@@ -123,7 +123,6 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                   </div>
                   <div class="flex flex-wrap gap-4 p-5 relative z-50 -mt-[10rem] md:mt-0">
                     <p class="text-lg font-semibold text-dark-text italic font-serif">
-                      The South Asian Ephemera Collection is an openly accessible repository of items that spans a variety of subjects and languages and supports research, teaching, and private study. Newly acquired materials are digitized and added on an ongoing basis.  
                       {@collection.tagline}
                     </p>
                     <div class="flex items-center text-dark-text gap-2">
@@ -217,7 +216,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             <div class="flex flex-wrap gap-4 pb-6">
               <div
                 :for={contributor <- @collection.contributors}
-                class="item card-nodrop flex basis-full first:grow lg:basis-[calc(50%-0.5rem)]"
+                class="contributor-card item card-nodrop flex basis-full first:grow lg:basis-[calc(50%-0.5rem)]"
               >
                 <div class="h-full grid-rows-2 bg-sage-100 grid sm:grid-rows-1 sm:grid-cols-6 gap-0">
                   <div class={[

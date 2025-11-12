@@ -22,7 +22,7 @@
   --color-cloud: #c1ccc3;
   --color-rust: #a0562c;
   --color-dark-blue: #3a4151;
-  --color-dark-gray: #444444;
+  --color-dark-gray: #333333;
   /* Button Text on Dark Blue */
   --color-light-green: #ECF2CB;
 
@@ -386,6 +386,10 @@
 
 #collection-description a {
   @apply text-princeton-orange-on-black;
+}
+
+.contributor-card a {
+  @apply underline hover:border-none hover:no-underline;
 }
 
 .hero-container-collection {
