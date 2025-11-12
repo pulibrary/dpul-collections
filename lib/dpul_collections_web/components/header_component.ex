@@ -98,11 +98,6 @@ defmodule DpulCollectionsWeb.HeaderComponent do
                 Español
               </.menu_item>
             </.link>
-            <.link phx-click={JS.dispatch("setLocale", detail: %{locale: "pt_BR"})}>
-              <.menu_item>
-                Português do Brasil
-              </.menu_item>
-            </.link>
           </.submenu>
 
           <.submenu
