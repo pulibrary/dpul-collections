@@ -160,7 +160,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         <!-- Learn More -->
         <div id="learn-more" class="grid-flow-row auto-rows-max bg-dark-gray py-6">
           <div class="home-content-area">
-            <h2 class="heading text-4xl text-wafer-pink py-6">Learn More</h2>
+            <h2 class="uppercase font-semibold text-4xl text-wafer-pink py-6">Learn More</h2>
           </div>
           <div
             id="collection-description"
