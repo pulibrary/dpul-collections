@@ -6,14 +6,12 @@ defmodule DpulCollectionsWeb.HealthController do
   Checks application health and returns a JSON object relecting status
   """
   def show(conn, _params) do
-    health = check_health([:index, :db])
-
-    status = get_status(health)
+    health = check_health([:index])
 
     conn
     |> put_resp_content_type("application/json")
     |> send_resp(
-      status,
+      200,
       %{results: health} |> Jason.encode!()
     )
   end
@@ -27,25 +25,6 @@ defmodule DpulCollectionsWeb.HealthController do
     %{name: "Solr", status: index_health()}
   end
 
-  def check_health(:db) do
-    %{name: "Database", status: db_health()}
-  end
-
-  def get_status(list = [hd | _]) when is_map(hd) do
-    list
-    |> Enum.map(fn x -> x[:status] end)
-    |> Enum.dedup()
-    |> get_status()
-  end
-
-  def get_status(["OK"]) do
-    200
-  end
-
-  def get_status(_) do
-    503
-  end
-
   def index_health do
     with {:ok, response} <- Solr.Client.status(Solr.Index.read_index()),
          %Req.Response{status: 200} <- response do
@@ -53,10 +32,5 @@ defmodule DpulCollectionsWeb.HealthController do
     else
       _ -> "ERROR"
     end
-  end
-
-  def db_health do
-    # TODO check via ecto
-    "OK"
   end
 end

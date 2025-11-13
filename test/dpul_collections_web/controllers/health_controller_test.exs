@@ -2,12 +2,11 @@ defmodule DpulCollectionsWeb.HealthControllerTest do
   use DpulCollectionsWeb.ConnCase
 
   describe "show/2" do
-    test "returns 200 when everything is up", %{conn: conn} do
+    test "returns 200 it can be reached", %{conn: conn} do
       expected =
         %{
           results: [
-            %{name: "Solr", status: "OK"},
-            %{name: "Database", status: "OK"}
+            %{name: "Solr", status: "OK"}
           ]
         }
         |> Jason.encode!()
@@ -25,12 +24,11 @@ defmodule DpulCollectionsWeb.HealthControllerTest do
       assert json_response(conn, 200) == expected
     end
 
-    test "returns 503 when anything is down", %{conn: conn} do
+    test "returns 200 even when anything is down", %{conn: conn} do
       expected =
         %{
           results: [
-            %{name: "Solr", status: "ERROR"},
-            %{name: "Database", status: "OK"}
+            %{name: "Solr", status: "ERROR"}
           ]
         }
         |> Jason.encode!()
@@ -45,7 +43,7 @@ defmodule DpulCollectionsWeb.HealthControllerTest do
       conn = get(conn, ~p"/health")
 
       # Assert the response
-      assert json_response(conn, 503) == expected
+      assert json_response(conn, 200) == expected
     end
   end
 end
