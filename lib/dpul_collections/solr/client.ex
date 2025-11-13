@@ -69,6 +69,15 @@ defmodule DpulCollections.Solr.Client do
     end)
   end
 
+  def status(index = %Index{}) do
+    Index.connect(index)
+    |> Req.merge(url: "/solr/admin/cores?action=STATUS")
+    |> Req.merge(headers: %{"accept" => ["application/json"]})
+    # Add plug option to facilitate http stubbing in tests
+    |> Req.merge(Application.get_env(:dpul_collections, :solr_req_options, []))
+    |> Req.get()
+  end
+
   defp select_url(index) do
     Index.connect(index)
     |> Req.merge(url: "/solr/#{index.collection}/select")

@@ -116,6 +116,13 @@ config :dpul_collections,
     plug: {Req.Test, DpulCollections.Workers.CacheMosaicImages}
   ]
 
+# Stub http requests in Solr for status check
+config :dpul_collections,
+  solr_req_options: [
+    plug: {Req.Test, DpulCollections.Solr.Client},
+    retry: false
+  ]
+
 config :phoenix_test,
   otp_app: :dpul_collections,
   endpoint: DpulCollectionsWeb.Endpoint,
