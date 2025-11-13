@@ -122,7 +122,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                   <div class="w-full h-full bg-white opacity-75 absolute z-40"></div>
                   <div class="flex flex-wrap gap-4 p-5 relative z-50 -mt-[10rem] md:mt-0">
                     <p class="text-lg font-semibold text-dark-text italic font-serif">
-                      {@collection.tagline} The South Asian Ephemera Collection is an openly accessible repository of items that spans a variety of subjects and languages and supports research, teaching, and private study. Newly acquired materials are digitized and added on an ongoing basis.
+                      {@collection.tagline}
                     </p>
                     <div class="flex items-center text-dark-text gap-2">
                       <div class="text-sm bg-cloud rounded-full px-3 py-1">
