@@ -22,10 +22,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   @spec handle_params(nil | maybe_improper_list() | map(), any(), any()) :: {:noreply, any()}
   # If we've been asked to randomize, do it.
-  def handle_params(%{"r" => given_seed}, url, socket) do
-    uri = URI.parse(url)
-    path = "#{uri.path}?#{uri.query}"
-
+  def handle_params(%{"r" => given_seed}, _url, socket) do
     socket =
       socket
       |> assign(
@@ -34,7 +31,6 @@ defmodule DpulCollectionsWeb.BrowseLive do
           |> Enum.map(&Item.from_solr(&1)),
         focused_item: nil
       )
-      |> assign(current_path: path)
 
     {:noreply, socket}
   end

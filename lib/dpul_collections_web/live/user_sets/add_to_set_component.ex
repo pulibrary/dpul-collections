@@ -203,7 +203,7 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
     required: true
 
   attr :current_scope, :map, required: false, default: nil
-  attr :current_path, :string, required: false, default: nil
+  attr :current_path, :string, required: true
 
   @doc """
   Function component that triggers the add to set modal for a given Item ID when it's clicked.

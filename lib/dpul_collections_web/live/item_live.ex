@@ -245,6 +245,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         title={gettext("Similar Items in this Collection")}
         more_link={~p"/search?filter[similar]=#{@item.id}&filter[project][]=#{@item.project}"}
         show_images={@show_images}
+        current_path={@current_path}
       />
       <.browse_item_row
         :if={@item.project}
@@ -254,6 +255,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         color="bg-background"
         more_link={~p"/search?filter[similar]=#{@item.id}&filter[project]=-#{@item.project}"}
         show_images={@show_images}
+        current_path={@current_path}
       />
     </div>
     """
