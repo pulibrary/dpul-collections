@@ -67,6 +67,7 @@ defmodule DpulCollectionsWeb.Router do
 
   scope "/", DpulCollectionsWeb do
     get "/iiif/:id/content_state/:canvas_index", IiifContentStateController, :show
+    get "/health", HealthController, :show
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
