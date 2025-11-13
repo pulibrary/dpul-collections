@@ -166,7 +166,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             id="collection-description"
             class="home-content-area grid grid-cols-1 md:grid-cols-2 gap-10 md:grid-cols-[60%_auto]"
           >
-            <div class="[&_a]:text-accent max-h-300 w-full text-lg max-h-0 page-t-padding">
+            <div class="[&_a]:text-accent w-full text-lg page-t-padding">
               <div class="collection-description text-wafer-pink leading-relaxed pb-6">
                 {@collection.description |> raw}
               </div>

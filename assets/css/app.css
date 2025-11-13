@@ -384,6 +384,15 @@
   @apply font-serif;
 }
 
+#collection-description h1,
+#collection-description h2,
+#collection-description h3,
+#collection-description h4,
+#collection-description h5, 
+#collection-description h6 {
+  @apply text-wafer-pink;
+}
+
 #collection-description a {
   @apply underline text-princeton-orange-on-black;
 }
