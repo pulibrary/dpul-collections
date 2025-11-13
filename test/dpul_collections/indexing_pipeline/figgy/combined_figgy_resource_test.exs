@@ -15,7 +15,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResourceTest do
                title_txtm: ["South Asian Ephemera"],
                resource_type_s: "collection",
                tagline_txtm: [
-                 "Discover voices of change across South Asia through contemporary pamphlets, flyers, and documents that capture the region's social movements, politics, and cultural expressions."
+                 "The South Asian Ephemera Collection is an openly accessible repository of items that spans a variety of subjects and languages and supports research, teaching, and private study. Newly acquired materials are digitized and added on an ongoing basis."
                ],
                authoritative_slug_s: "sae"
              } = doc

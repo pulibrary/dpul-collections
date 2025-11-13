@@ -30,7 +30,9 @@ defmodule DpulCollectionsWeb.CollectionsLive do
     ~H"""
     <div>
       <div class="flex items-center gap-3 mb-2 mt-4">
-        <h2 id={"#{@container_id}-header"} class="text-sm font-sans font-medium text-wafer-pink">{@title}</h2>
+        <h2 id={"#{@container_id}-header"} class="text-sm font-sans font-medium text-wafer-pink">
+          {@title}
+        </h2>
       </div>
       <div
         phx-hook="ResponsivePills"
@@ -72,7 +74,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         <!-- Hero Section -->
         <div class="2xl:home-content-area relative overflow-hidden">
           <div class="home-content-area left-[15%] absolute z-10">
-            <img src="/images/triangle-mosaic.png" alt='' class="mx-auto w-xl" />
+            <img src="/images/triangle-mosaic.png" alt="" class="mx-auto w-xl" />
           </div>
           <div class="home-content-area space-y-2 relative z-30">
             <p class="text-accent font-semibold text-xl uppercase tracking-wide">
@@ -82,10 +84,10 @@ defmodule DpulCollectionsWeb.CollectionsLive do
               {@collection.title |> hd}
             </h1>
           </div>
-          <div class='home-content-area page-y-padding relative z-30'>
+          <div class="home-content-area page-y-padding relative z-30">
             <div class="hero-container-collection grid grid-cols-1 md:grid-cols-2 gap-0 md:grid-cols-[auto_60%]">
-          
-              <!-- Right Column: Featured Items Mosaic -->
+              
+    <!-- Right Column: Featured Items Mosaic -->
               <div id="collection-mosaic" class="image-col self-start h-120">
                 <div class="w-full h-full relative">
                   <.primary_button
@@ -95,10 +97,10 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                     {gettext("Browse Collection")}
                   </.primary_button>
                   <%= for {item, index} <-  Enum.with_index(@collection.featured_items) do %>
-                    <.link 
+                    <.link
                       href={item.url}
                       class={"card-darkdrop w-[100%] p-2 bg-white min-h-0 min-w-0 absolute z-[#{index}] drop-shadow-none"}
-                      aria-label={"View #{item.title |> hd}"}             
+                      aria-label={"View #{item.title |> hd}"}
                     >
                       <div class="max-h-75 md:max-h-90 h-full w-full overflow-hidden">
                         <img
@@ -112,19 +114,15 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                     </.link>
                   <% end %>
                 </div>
-                
               </div>
-
-              <!-- Left Column: Content -->
+              
+    <!-- Left Column: Content -->
               <div class="tagline-col">
                 <div class="w-full relative z-30">
-                  <div class="w-full h-full bg-white opacity-75 absolute z-40">
-                    
-                  </div>
+                  <div class="w-full h-full bg-white opacity-75 absolute z-40"></div>
                   <div class="flex flex-wrap gap-4 p-5 relative z-50 -mt-[10rem] md:mt-0">
                     <p class="text-lg font-semibold text-dark-text italic font-serif">
-                      {@collection.tagline}
-                      The South Asian Ephemera Collection is an openly accessible repository of items that spans a variety of subjects and languages and supports research, teaching, and private study. Newly acquired materials are digitized and added on an ongoing basis. 
+                      {@collection.tagline} The South Asian Ephemera Collection is an openly accessible repository of items that spans a variety of subjects and languages and supports research, teaching, and private study. Newly acquired materials are digitized and added on an ongoing basis.
                     </p>
                     <div class="flex items-center text-dark-text gap-2">
                       <div class="text-sm bg-cloud rounded-full px-3 py-1">
@@ -140,7 +138,10 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                   </div>
                 </div>
                 <div class="flex flex-wrap gap-4 py-4">
-                  <a href="#learn-more" class="btn-secondary bg-dark-gray text-light-text grow md:grow-0">
+                  <a
+                    href="#learn-more"
+                    class="btn-secondary bg-dark-gray text-light-text grow md:grow-0"
+                  >
                     {gettext("Learn More")}
                   </a>
                 </div>
@@ -161,31 +162,34 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           <div class="home-content-area">
             <h2 class="heading text-4xl text-wafer-pink py-6">Learn More</h2>
           </div>
-          <div id="collection-description" class="home-content-area grid grid-cols-1 md:grid-cols-2 gap-10 md:grid-cols-[60%_auto]">
-              <div class="[&_a]:text-accent max-h-300 w-full text-lg max-h-0 page-t-padding">
-                <div class="collection-description text-wafer-pink leading-relaxed pb-6">
-                  {@collection.description |> raw}
-                </div>
+          <div
+            id="collection-description"
+            class="home-content-area grid grid-cols-1 md:grid-cols-2 gap-10 md:grid-cols-[60%_auto]"
+          >
+            <div class="[&_a]:text-accent max-h-300 w-full text-lg max-h-0 page-t-padding">
+              <div class="collection-description text-wafer-pink leading-relaxed pb-6">
+                {@collection.description |> raw}
               </div>
-              <div>
-                <.pill_section
-                  title="Subject Areas"
-                  unit="categories"
-                  items={@collection.categories}
-                  container_id="categories-container"
-                  pill_class="bg-secondary"
-                  button_class="bg-secondary/80 hover:bg-secondary/60"
-                />
+            </div>
+            <div>
+              <.pill_section
+                title="Subject Areas"
+                unit="categories"
+                items={@collection.categories}
+                container_id="categories-container"
+                pill_class="bg-secondary"
+                button_class="bg-secondary/80 hover:bg-secondary/60"
+              />
 
-                <.pill_section
-                  title="Genres"
-                  unit="genres"
-                  items={@collection.genres}
-                  container_id="genres-container"
-                  pill_class="bg-cloud"
-                  button_class="bg-cloud/80 hover:bg-cloud/60"
-                />
-              </div>
+              <.pill_section
+                title="Genres"
+                unit="genres"
+                items={@collection.genres}
+                container_id="genres-container"
+                pill_class="bg-cloud"
+                button_class="bg-cloud/80 hover:bg-cloud/60"
+              />
+            </div>
           </div>
         </div>
         <.content_separator />
@@ -254,16 +258,17 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             <hr class="text-wafer-pink" />
             <h3 class="uppercase font-semibold text-xl pt-6 text-wafer-pink">Copyright</h3>
             <p class="text-wafer-pink">
-              Princeton University Library claims no copyright governing this digital resource. 
-              It is provided for free, on anon-commercial, open-access basis, for fair-use academic 
-              and research purposes only. Anyone who claims copyright over any part of these resources 
-              and feels that they should not be presented in this manner is invited to contact Princeton 
-              University Library, who will in turn consider such concerns and make reasonable efforts to 
-              respond to such concerns. 
+              Princeton University Library claims no copyright governing this digital resource.
+              It is provided for free, on anon-commercial, open-access basis, for fair-use academic
+              and research purposes only. Anyone who claims copyright over any part of these resources
+              and feels that they should not be presented in this manner is invited to contact Princeton
+              University Library, who will in turn consider such concerns and make reasonable efforts to
+              respond to such concerns.
             </p>
-            <h3 class="uppercase font-semibold text-xl pt-6 text-wafer-pink">Preferred Citation</h3> 
+            <h3 class="uppercase font-semibold text-xl pt-6 text-wafer-pink">Preferred Citation</h3>
             <p class="text-wafer-pink">
-              [Identification of item], [Sub-collection name (if applicable)], {@collection.title |> hd} Collection, Princeton University Library.
+              [Identification of item], [Sub-collection name (if applicable)], {@collection.title
+              |> hd} Collection, Princeton University Library.
             </p>
             <h3 class="uppercase font-semibold text-xl pt-6 text-wafer-pink">Romanization</h3>
             <p class="text-wafer-pink">
