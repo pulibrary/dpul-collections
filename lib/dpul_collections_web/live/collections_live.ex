@@ -72,11 +72,11 @@ defmodule DpulCollectionsWeb.CollectionsLive do
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="grid grid-flow-row auto-rows-max -mb-6">
         <!-- Hero Section -->
-        <div class="2xl:home-content-area relative overflow-hidden">
-          <div class="home-content-area left-[15%] absolute z-10">
+        <div class="content-area relative overflow-hidden">
+          <div class="left-[15%] absolute z-10">
             <img src="/images/triangle-mosaic.png" alt="" class="mx-auto w-xl" />
           </div>
-          <div class="home-content-area space-y-2 relative z-30">
+          <div class="space-y-2 relative z-30">
             <p class="text-accent font-semibold text-xl uppercase tracking-wide">
               {gettext("Digital Collection")}
             </p>
@@ -84,7 +84,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
               {@collection.title |> hd}
             </h1>
           </div>
-          <div class="home-content-area page-y-padding relative z-30">
+          <div class="page-y-padding relative z-30">
             <div class="hero-container-collection grid grid-cols-1 md:grid-cols-2 gap-0 md:grid-cols-[auto_60%]">
               
     <!-- Right Column: Featured Items Mosaic -->
@@ -159,21 +159,14 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         </div>
         <!-- Learn More -->
         <div id="learn-more" class="grid-flow-row auto-rows-max bg-dark-gray py-6">
-          <div class="home-content-area">
+          <div
+            id="collection-description"
+            class="content-area grid grid-cols-1 gap-6"
+          >
             <h2 class="uppercase font-semibold text-4xl text-wafer-pink py-6">
               {gettext("Learn More")}
             </h2>
-          </div>
-          <div
-            id="collection-description"
-            class="home-content-area grid grid-cols-1 md:grid-cols-2 gap-10 md:grid-cols-[60%_auto]"
-          >
-            <div class="[&_a]:text-accent w-full text-lg page-t-padding">
-              <div class="collection-description text-wafer-pink leading-relaxed pb-6">
-                {@collection.description |> raw}
-              </div>
-            </div>
-            <div>
+            <div class="grid grid-cols-1">
               <.pill_section
                 title={gettext("Subject Areas")}
                 unit="categories"
@@ -192,6 +185,11 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 button_class="bg-cloud/80 hover:bg-cloud/60"
               />
             </div>
+            <div class="[&_a]:text-accent w-full text-lg page-t-padding">
+              <div class="collection-description text-wafer-pink leading-relaxed pb-6">
+                {@collection.description |> raw}
+              </div>
+            </div>
           </div>
         </div>
         <.content_separator />
@@ -199,7 +197,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         <.browse_item_row
           :if={length(@collection.recently_added) > 0}
           id="recent-items"
-          layout="home-content-area"
+          layout="content-area"
           items={@collection.recently_added}
           title={gettext("Recently Added Items")}
           more_link={
@@ -220,7 +218,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           class="bg-dark-background w-full page-y-padding page-x-padding flex flex-col"
           id="contributors"
         >
-          <div class="home-content-area pb-6">
+          <div class="content-area pb-6">
             <h2 class="heading text-2xl pb-4 text-wafer-pink">Contributors</h2>
             <div class="flex flex-wrap gap-4 pb-6">
               <div
