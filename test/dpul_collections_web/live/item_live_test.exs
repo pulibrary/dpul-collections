@@ -497,6 +497,23 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
   end
 
   describe "user sets" do
+    test "item can be saved to a user set logged out", %{conn: conn} do
+      {:ok, view, _html} =
+        conn
+        |> live(~p"/i/زلزلہ/item/2")
+
+      assert view
+             |> element(".metadata button", "Save")
+             |> render_click() ==
+               {:error,
+                {:live_redirect,
+                 %{
+                   kind: :push,
+                   to:
+                     "/users/log-in?return_to=%2Fi%2F%25D8%25B2%25D9%2584%25D8%25B2%25D9%2584%25DB%2581%2Fitem%2F2%3Fsave_item%3D2"
+                 }}}
+    end
+
     test "item can be saved to a user set", %{conn: conn} do
       {:ok, view, _html} =
         conn

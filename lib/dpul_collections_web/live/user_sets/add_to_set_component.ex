@@ -7,6 +7,14 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
 
   # Called by live_component when this spins up - use it to pre-populate
   # starting state via #display_list_sets().
+  def update(%{item_id: item_id}, socket) when not is_nil(item_id) do
+    {:ok,
+     socket
+     |> assign(:item_id, item_id)
+     |> display_list_sets()
+     |> push_event("dcjs-open", %{id: "add-set-modal"})}
+  end
+
   def update(assigns, socket) do
     {
       :ok,
@@ -214,9 +222,7 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
       :if={Application.fetch_env!(:dpul_collections, :feature_account_toolbar)}
       icon="hero-folder-plus"
       label={gettext("Save")}
-      phx-click="open_modal"
-      phx-value-item_id={@item_id}
-      phx-target="#user_set_form"
+      patch={redirect_path(@current_path, @item_id)}
     />
     """
   end
@@ -227,8 +233,20 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
       :if={Application.fetch_env!(:dpul_collections, :feature_account_toolbar)}
       icon="hero-folder-plus"
       label={gettext("Save")}
-      navigate={~p"/users/log-in?#{%{return_to: @current_path}}"}
+      navigate={~p"/users/log-in?#{%{return_to: redirect_path(@current_path, @item_id)}}"}
     />
     """
+  end
+
+  def redirect_path(url, item_id) do
+    uri = URI.parse(url)
+
+    query =
+      uri.query
+      |> URI.decode_query()
+      |> Map.put("save_item", item_id)
+      |> URI.encode_query()
+
+    "#{uri.path}?#{query}"
   end
 end

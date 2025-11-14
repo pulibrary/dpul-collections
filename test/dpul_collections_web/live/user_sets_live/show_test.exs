@@ -72,7 +72,7 @@ defmodule DpulCollectionsWeb.UserSetsLive.ShowTest do
              |> render() =~ "I love this set."
 
       view
-      |> element("li#browse-item-#{item_1.solr_id} button", "Save")
+      |> element("li#browse-item-#{item_1.solr_id} a", "Save")
       |> render_click()
 
       view

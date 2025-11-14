@@ -40,7 +40,7 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetsComponentTest do
 
       # Open dialog
       view
-      |> element("button", "Save")
+      |> element("a", "Save")
       |> render_click()
 
       # Create new set

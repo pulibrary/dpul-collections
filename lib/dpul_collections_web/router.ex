@@ -34,7 +34,7 @@ defmodule DpulCollectionsWeb.Router do
     live_session :current_user,
       on_mount:
         with_sandbox_support([
-          {DpulCollectionsWeb.CurrentPathHook, :global},
+          {DpulCollectionsWeb.LiveHooks, :global},
           {DpulCollectionsWeb.UserAuth, :mount_current_scope}
         ]) do
       live "/users/log-in", UserLive.Login, :new

@@ -1,5 +1,6 @@
 defmodule DpulCollectionsWeb.ItemLive do
   use DpulCollections.Solr.Constants
+  alias DpulCollectionsWeb.UserSets.AddToSetComponent
   alias DpulCollectionsWeb.Live.Helpers
   alias DpulCollectionsWeb.ContentWarnings
   import DpulCollectionsWeb.BrowseItem
@@ -164,7 +165,12 @@ defmodule DpulCollectionsWeb.ItemLive do
         <div class="thumbnails w-full sm:row-start-1 sm:col-start-1 sm:col-span-2 sm:row-span-full">
           <.primary_thumbnail item={@item} display_size={@display_size} show_images={@show_images} />
 
-          <.action_bar class="sm:hidden pt-4" item={@item} current_scope={@current_scope} />
+          <.action_bar
+            class="sm:hidden pt-4"
+            item={@item}
+            current_path={@current_path}
+            current_scope={@current_scope}
+          />
 
           <section class="image-thumbnails hidden sm:block md:col-span-2 py-4">
             <h2 class="py-1">{gettext("Files")}</h2>
@@ -230,7 +236,12 @@ defmodule DpulCollectionsWeb.ItemLive do
               {gettext("Part of")} <.filter_link filter_name="project" filter_value={@item.project} />
             </div>
           </div>
-          <.action_bar class="hidden sm:block" item={@item} current_scope={@current_scope} />
+          <.action_bar
+            class="hidden sm:block"
+            item={@item}
+            current_path={@current_path}
+            current_scope={@current_scope}
+          />
           <.content_separator />
           <.metadata_table item={@item} />
         </div>
@@ -379,6 +390,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   attr :rest, :global
   attr :item, :map, required: true
   attr :current_scope, :map, required: false, default: nil
+  attr :current_path, :string, required: true
 
   def action_bar(assigns) do
     ~H"""
@@ -407,12 +419,10 @@ defmodule DpulCollectionsWeb.ItemLive do
           {gettext("Share")}
         </.action_icon>
         <.action_icon
-          :if={Application.fetch_env!(:dpul_collections, :feature_account_toolbar) && @current_scope}
+          :if={Application.fetch_env!(:dpul_collections, :feature_account_toolbar)}
           icon="hero-folder-plus"
           variant="item-action-icon"
-          phx-click="open_modal"
-          phx-value-item_id={@item.id}
-          phx-target="#user_set_form"
+          phx-click={save_item(@current_scope, @current_path, @item.id)}
         >
           {gettext("Save")}
         </.action_icon>
@@ -423,6 +433,17 @@ defmodule DpulCollectionsWeb.ItemLive do
     </div>
     """
   end
+
+  # Navigate if we need to login.
+  def save_item(nil, current_path, item_id),
+    do:
+      JS.navigate(
+        ~p"/users/log-in?#{%{return_to: AddToSetComponent.redirect_path(current_path, item_id)}}"
+      )
+
+  # Otherwise patch.
+  def save_item(_scope, current_path, item_id),
+    do: JS.patch(AddToSetComponent.redirect_path(current_path, item_id))
 
   attr :rights_statement, :any, required: true
 

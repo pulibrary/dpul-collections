@@ -37,10 +37,8 @@ defmodule DpulCollectionsWeb.BrowseTest do
       |> click_button("Log me in only this time")
       # Now we should be back at browse
       |> assert_has("h1", text: "Browse")
-
       # See if the item popped up to be added.
-      # |> assert_path("/browse?r=0")
-      # |> assert_has("h2", text: "Save to Set")
+      |> assert_has("h2", text: "Save to Set")
     end
 
     test "users can add an item to a user set", %{conn: conn} do
@@ -51,7 +49,7 @@ defmodule DpulCollectionsWeb.BrowseTest do
       conn
       |> FiggyTestSupport.feature_login(user)
       |> visit("/browse?r=0")
-      |> click_button(".browse-item:first-child button", "Save")
+      |> click_button(".browse-item:first-child a", "Save")
       |> assert_has("h2", text: "Save to Set")
       |> click_button("Create new set")
       # Can't submit empty form.
@@ -69,7 +67,7 @@ defmodule DpulCollectionsWeb.BrowseTest do
       |> assert_has("#add-set-modal li", count: 1)
       |> click_button("Close modal")
       # I can add a second item to that set.
-      |> click_button(".browse-item:nth-child(2) button", "Save")
+      |> click_button(".browse-item:nth-child(2) a", "Save")
       |> assert_has("li", text: "My Awesome Set - 1 Item")
       |> refute_has("li.has-item")
       |> click_button("My Awesome Set - 1 Item")
