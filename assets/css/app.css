@@ -22,10 +22,12 @@
   --color-cloud: #c1ccc3;
   --color-rust: #a0562c;
   --color-dark-blue: #3a4151;
+  --color-dark-gray: #333333;
   /* Button Text on Dark Blue */
   --color-light-green: #ECF2CB;
 
   --color-princeton-black: #121212;
+  --color-princeton-orange-on-black: rgb(245, 128, 37);
 
   /* sage mono colors from canva: https://www.canva.com/colors/color-meanings/sage-green/ */
 
@@ -44,6 +46,7 @@
   --color-background: var(--color-taupe);
   --color-light-text: var(--color-taupe);
   --color-dark-text: var(--color-princeton-black);
+  --color-dark-background: var(--color-dark-gray);
   /* brand is the color that's the site's brand - header/footer */
   --color-brand: var(--color-princeton-black);
   /* Primary is calls to action - buttons */
@@ -337,6 +340,21 @@
   }
 }
 
+.card-darkdrop {
+  @apply drop-shadow-xl;
+  @apply hover:drop-shadow-[0_0_0.7rem_var(--color-dark-gray)];
+
+  * {
+    @apply no-underline;
+  }
+}
+
+.card-nodrop {
+  * {
+    @apply no-underline;
+  }
+}
+
 /* note you have to use a relative class on the card where
  * you want the link to extend */
 .card-link {
@@ -360,5 +378,42 @@
 @utility zi-nav-dropdown {@apply z-100;}
 @utility zi-flash {@apply z-50;}
 @utility zi-home-callout {@apply z-10;}
-
 @utility zi-card-button {@apply z-100;}
+
+#collection-description {
+  @apply font-serif;
+}
+
+#collection-description h1,
+#collection-description h2,
+#collection-description h3,
+#collection-description h4,
+#collection-description h5, 
+#collection-description h6 {
+  @apply text-wafer-pink;
+}
+
+#policies a,
+#collection-description a {
+  @apply underline text-princeton-orange-on-black;
+}
+
+.contributor-card a {
+  @apply underline hover:border-none hover:no-underline;
+}
+
+.hero-container-collection {
+    grid-template-areas: 
+    "image-col"
+    "tagline-col";
+}
+
+.image-col { grid-area: image-col; }
+.tagline-col { grid-area: tagline-col; }
+
+@media (min-width: 768px) {
+  .hero-container-collection {
+      grid-template-areas: 
+      "tagline-col image-col";
+  }
+}

@@ -43,11 +43,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResourceTest do
 
     test "file count filters out members without thumbnails" do
       doc =
-        IndexingPipeline.get_figgy_resource!("6d2be738-626f-4b3d-a17a-655501d2ad9e")
+        IndexingPipeline.get_figgy_resource!("e8abfa75-253f-428a-b3df-0e83ff2b20f9")
         |> Figgy.Resource.to_combined()
         |> Figgy.CombinedFiggyResource.to_solr_document()
 
-      assert doc[:file_count_i] == 4
+      assert doc[:file_count_i] == 9
     end
   end
 end

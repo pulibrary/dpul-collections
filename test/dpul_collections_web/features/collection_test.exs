@@ -51,13 +51,9 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
         text: "Browse Collection"
       )
       # Mosaic
-      |> assert_has("#collection-mosaic .card", count: 4)
+      |> assert_has("#collection-mosaic .card-darkdrop", count: 4)
       # Learn More collapse/expand
-      |> refute_has("div", text: "The South Asian Ephemera Collection complements Princeton's")
-      |> click_button("Learn More")
       |> assert_has("div", text: "The South Asian Ephemera Collection complements Princeton's")
-      |> click_button("Learn More")
-      |> refute_has("div", text: "The South Asian Ephemera Collection complements Princeton's")
       |> assert_has("li", text: "Politics and government")
       # Subject tag expansion
       |> refute_has("li", text: "Socioeconomic conditions and development")
@@ -83,7 +79,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       )
       # Contributors
       |> assert_has(
-        "#contributors .card",
+        "#contributors .contributor-card",
         count: 1
       )
     end
