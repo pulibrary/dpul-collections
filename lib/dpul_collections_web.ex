@@ -58,8 +58,9 @@ defmodule DpulCollectionsWeb do
       alias Iconify.Icon
       use DpulCollectionsWeb.ContentWarnings
 
-      on_mount SetLocaleHook
-      on_mount DpulCollectionsWeb.LiveHooks
+      on_mount DpulCollectionsWeb.LiveHooks.SetLocaleHook
+      on_mount DpulCollectionsWeb.LiveHooks.CurrentPathHook
+      on_mount DpulCollectionsWeb.LiveHooks.SaveItemHook
       unquote(html_helpers())
     end
   end
