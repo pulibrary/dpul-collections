@@ -102,7 +102,12 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} content_class={} current_scope={@current_scope}>
+    <Layouts.app
+      current_path={@current_path}
+      flash={@flash}
+      content_class={}
+      current_scope={@current_scope}
+    >
       <div id="item-wrap" class="grid grid-rows-[1fr/1fr] grid-cols-[1fr/1fr] cover-with-pane">
         <.item_page {assigns} />
       </div>

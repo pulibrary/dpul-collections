@@ -418,6 +418,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
   attr :id, :string, required: true
   attr :afterClose, :any, required: false, default: %JS{}
   attr :label, :string, required: true
+  attr :subtitle, :string, required: false, default: nil
 
   slot :inner_block, doc: "the modal content"
 
@@ -433,17 +434,22 @@ defmodule DpulCollectionsWeb.CoreComponents do
       dcjs-open={JS.dispatch("dpulc:showDialog")}
       dcjs-close={JS.dispatch("dpulc:closeDialog") |> JS.exec("dcjs-after-close")}
       dcjs-after-close={@afterClose}
-      phx-remove={JS.exec("dcjs-close")}
       aria-labelledby={"#{@id}-label"}
       closedBy="any"
       class="modal max-w-2xl backdrop:bg-black/50 open:fixed open:top-[50%] open:left-[50%] open:-translate-x-[50%] open:-translate-y-[50%] fixed bg-white rounded-lg shadow-sm text-dark-text"
     >
       <div class="w-full max-w-2xl bg-white shadow-lg rounded-lg p-8 relative">
         <!-- Modal header -->
-        <div class="flex items-center justify-between border-b border-gray-300 pb-3">
-          <h2 id={"#{@id}-label"} class="text-xl font-semibold">
-            {@label}
-          </h2>
+        <div class="flex items-start justify-between border-b border-gray-300 pb-3">
+          <div class="flex flex-col">
+            <h2 id={"#{@id}-label"} class="text-xl font-semibold">
+              {@label}
+            </h2>
+
+            <p :if={@subtitle} class="text-lg">
+              {@subtitle}
+            </p>
+          </div>
           <button
             type="button"
             class="cursor-pointer"

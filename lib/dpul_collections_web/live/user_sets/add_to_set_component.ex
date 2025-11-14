@@ -1,4 +1,6 @@
 defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
+  alias DpulCollections.Item
+  alias DpulCollections.Solr
   alias DpulCollections.UserSets.SetItem
   alias DpulCollections.UserSets.Set
   alias DpulCollections.UserSets
@@ -8,9 +10,12 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
   # Called by live_component when this spins up - use it to pre-populate
   # starting state via #display_list_sets().
   def update(%{item_id: item_id}, socket) when not is_nil(item_id) do
+    item = Solr.find_by_id(item_id) |> Item.from_solr()
+
     {:ok,
      socket
      |> assign(:item_id, item_id)
+     |> assign(:item_title, item.title)
      |> display_list_sets()
      |> push_event("dcjs-open", %{id: "add-set-modal"})}
   end
@@ -25,7 +30,9 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
   end
 
   attr :item_id, :string, default: nil
+  attr :item_title, :string, default: nil
   attr :current_scope, :any
+  attr :current_path, :string, required: true
 
   attr :mode, :atom,
     doc: "a signifier for which part of the add to set modal to show",
@@ -45,6 +52,8 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
         :if={Application.fetch_env!(:dpul_collections, :feature_account_toolbar)}
         id="add-set-modal"
         label="Save to Set"
+        subtitle={"Adding #{@item_title}"}
+        afterClose={JS.patch(redirect_path(@current_path, nil))}
       >
         <div id="add-set-modal-content" class="min-w-[400px] mt-4 w-full flex">
           <.list_sets :if={@mode == :list_sets} {assigns} />
@@ -189,17 +198,6 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
     }
   end
 
-  def handle_event("open_modal", %{"item_id" => item_id}, socket) do
-    {:noreply,
-     socket
-     |> assign(:item_id, item_id)
-     |> display_list_sets()
-     # Notes to self:
-     # We can get rid of a bunch of this Modal stuff with
-     # JS.ignore_attribute on phx-mounted
-     |> push_event("dcjs-open", %{id: "add-set-modal"})}
-  end
-
   def handle_event("display_list_sets", _, socket) do
     {:noreply,
      socket
@@ -236,6 +234,18 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
       navigate={~p"/users/log-in?#{%{return_to: redirect_path(@current_path, @item_id)}}"}
     />
     """
+  end
+
+  def redirect_path(url, nil) do
+    uri = URI.parse(url)
+
+    query =
+      uri.query
+      |> URI.decode_query()
+      |> Map.delete("save_item")
+      |> URI.encode_query()
+
+    "#{uri.path}#{query && "?"}#{query}"
   end
 
   def redirect_path(url, item_id) do

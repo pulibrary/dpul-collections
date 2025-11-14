@@ -66,6 +66,7 @@ defmodule DpulCollectionsWeb.BrowseTest do
       # A new one didn't get made.
       |> assert_has("#add-set-modal li", count: 1)
       |> click_button("Close modal")
+      |> assert_path("/browse", query_params: %{"r" => 0})
       # I can add a second item to that set.
       |> click_button(".browse-item:nth-child(2) a", "Save")
       |> assert_has("li", text: "My Awesome Set - 1 Item")

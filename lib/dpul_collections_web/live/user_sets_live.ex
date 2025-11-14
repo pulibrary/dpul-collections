@@ -46,7 +46,7 @@ defmodule DpulCollectionsWeb.UserSetsLive do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
+    <Layouts.app flash={@flash} current_path={@current_path} current_scope={@current_scope}>
       <div id="browse" class="content-area">
         <h1>{gettext("My Sets")}</h1>
         <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-5">

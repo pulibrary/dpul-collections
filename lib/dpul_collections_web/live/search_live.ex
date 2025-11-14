@@ -69,7 +69,7 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
+    <Layouts.app flash={@flash} current_path={@current_path} current_scope={@current_scope}>
       <div class="content-area page-b-padding">
         <.results_for_keywords_heading keywords={@search_state.q} />
       </div>

@@ -7,7 +7,7 @@ defmodule DpulCollectionsWeb.UserLive.Login do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
+    <Layouts.app current_path={@current_path} flash={@flash} current_scope={@current_scope}>
       <.login_page :if={!@verify_email} {assigns} />
       <.verify_page :if={@verify_email} {assigns} />
     </Layouts.app>

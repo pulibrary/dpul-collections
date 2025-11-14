@@ -9,7 +9,7 @@ defmodule DpulCollectionsWeb.UserLive.Settings do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
+    <Layouts.app current_path={@current_path} flash={@flash} current_scope={@current_scope}>
       <div class="content-area">
         <div class="text-center">
           <.header>
