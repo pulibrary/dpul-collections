@@ -44,7 +44,7 @@ job "dpulc-production" {
       check {
         type = "http"
         port = "http"
-        path = "/"
+        path = "/health"
         interval = "10s"
         timeout = "1s"
       }
