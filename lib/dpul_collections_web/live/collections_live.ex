@@ -69,7 +69,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash}>
+    <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="grid grid-flow-row auto-rows-max -mb-6">
         <!-- Hero Section -->
         <div class="2xl:home-content-area relative overflow-hidden">
@@ -78,7 +78,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           </div>
           <div class="home-content-area space-y-2 relative z-30">
             <p class="text-accent font-semibold text-xl uppercase tracking-wide">
-              Digital Collection
+              {gettext("Digital Collection")}
             </p>
             <h1 class="flex-grow-1 text-4xl lg:text-6xl font-[1000]">
               {@collection.title |> hd}
@@ -126,13 +126,13 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                     </p>
                     <div class="flex items-center text-dark-text gap-2">
                       <div class="text-sm bg-cloud rounded-full px-3 py-1">
-                        {@collection.item_count} Items
+                        {@collection.item_count} {gettext("Items")}
                       </div>
                       <div class="text-sm bg-cloud rounded-full px-3 py-1">
-                        {length(@collection.languages)} Languages
+                        {length(@collection.languages)} {gettext("Languages")}
                       </div>
                       <div class="text-sm bg-cloud rounded-full px-3 py-1">
-                        {length(@collection.geographic_origins)} Locations
+                        {length(@collection.geographic_origins)} {gettext("Locations")}
                       </div>
                     </div>
                   </div>
@@ -160,7 +160,9 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         <!-- Learn More -->
         <div id="learn-more" class="grid-flow-row auto-rows-max bg-dark-gray py-6">
           <div class="home-content-area">
-            <h2 class="uppercase font-semibold text-4xl text-wafer-pink py-6">Learn More</h2>
+            <h2 class="uppercase font-semibold text-4xl text-wafer-pink py-6">
+              {gettext("Learn More")}
+            </h2>
           </div>
           <div
             id="collection-description"
@@ -173,7 +175,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             </div>
             <div>
               <.pill_section
-                title="Subject Areas"
+                title={gettext("Subject Areas")}
                 unit="categories"
                 items={@collection.categories}
                 container_id="categories-container"
@@ -182,7 +184,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
               />
 
               <.pill_section
-                title="Genres"
+                title={gettext("Genres")}
                 unit="genres"
                 items={@collection.genres}
                 container_id="genres-container"
@@ -207,7 +209,8 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           added?={true}
         >
           <p class="my-2">
-            Explore the latest additions to our growing collection for {@collection.title |> hd}.
+            {gettext("Explore the latest additions to our growing collection for")} {@collection.title
+            |> hd}.
           </p>
         </.browse_item_row>
         <!-- Contributors -->
@@ -256,23 +259,33 @@ defmodule DpulCollectionsWeb.CollectionsLive do
               </div>
             </div>
             <hr class="text-wafer-pink" />
-            <h3 class="uppercase font-semibold text-xl pt-6 text-wafer-pink">Copyright</h3>
+            <h3 class="uppercase font-semibold text-xl pt-6 text-wafer-pink">
+              {gettext("Copyright")}
+            </h3>
             <p class="text-wafer-pink">
-              Princeton University Library claims no copyright governing this digital resource.
+              {gettext(
+                "Princeton University Library claims no copyright governing this digital resource.
               It is provided for free, on anon-commercial, open-access basis, for fair-use academic
               and research purposes only. Anyone who claims copyright over any part of these resources
               and feels that they should not be presented in this manner is invited to contact Princeton
               University Library, who will in turn consider such concerns and make reasonable efforts to
-              respond to such concerns.
+              respond to such concerns."
+              )}
             </p>
-            <h3 class="uppercase font-semibold text-xl pt-6 text-wafer-pink">Preferred Citation</h3>
+            <h3 class="uppercase font-semibold text-xl pt-6 text-wafer-pink">
+              {gettext("Preferred Citation")}
+            </h3>
             <p class="text-wafer-pink">
               [Identification of item], [Sub-collection name (if applicable)], {@collection.title
               |> hd} Collection, Princeton University Library.
             </p>
-            <h3 class="uppercase font-semibold text-xl pt-6 text-wafer-pink">Romanization</h3>
+            <h3 class="uppercase font-semibold text-xl pt-6 text-wafer-pink">
+              {gettext("Romanization")}
+            </h3>
             <p class="text-wafer-pink">
-              Please refer to the Library of Congress Romanization tables when searching the collection.
+              {gettext(
+                "Please refer to the Library of Congress Romanization tables when searching the collection."
+              )}
             </p>
           </div>
         </div>
