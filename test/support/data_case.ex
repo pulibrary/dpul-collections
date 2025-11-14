@@ -48,6 +48,9 @@ defmodule DpulCollections.DataCase do
         DpulCollections.Repo.truncate_all()
       end
 
+      # Clear out the email inbox.
+      Swoosh.Adapters.Local.Storage.Memory.delete_all()
+
       Ecto.Adapters.SQL.Sandbox.stop_owner(pid)
     end)
 

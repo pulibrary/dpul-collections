@@ -15,6 +15,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
   attr :layout, :string, default: "content-area"
   attr :rest, :global
   attr :current_scope, :map, required: false, default: nil
+  attr :current_path, :string, required: true
 
   attr :show_images, :list,
     default: [],
@@ -39,6 +40,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
               added?={@added?}
               likeable?={false}
               current_scope={@current_scope}
+              current_path={@current_path}
             />
           </ul>
           <div :if={@more_link} class="w-16 flex-none content-center">
@@ -173,6 +175,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
   attr :target, :string, required: false, default: nil
   attr :class, :string, required: false, default: nil
   attr :current_scope, :map, required: false, default: nil
+  attr :current_path, :string, required: true
 
   attr :show_images, :list,
     default: [],
@@ -222,7 +225,12 @@ defmodule DpulCollectionsWeb.BrowseItem do
           icon="iconoir:binocular"
           label={gettext("Similar")}
         />
-        <UserSets.AddToSetComponent.add_button :if={@current_scope && @savable?} item_id={@item.id} />
+        <UserSets.AddToSetComponent.add_button
+          :if={@savable?}
+          current_scope={@current_scope}
+          item_id={@item.id}
+          current_path={@current_path}
+        />
       </:card_buttons>
     </.card_li>
     """

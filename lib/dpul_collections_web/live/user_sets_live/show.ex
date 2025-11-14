@@ -74,6 +74,7 @@ defmodule DpulCollectionsWeb.UserSetsLive.Show do
             added?={false}
             likeable?={false}
             current_scope={@current_scope}
+            current_path={@current_path}
           />
         </ul>
       </div>

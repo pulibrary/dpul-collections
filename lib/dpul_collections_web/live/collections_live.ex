@@ -188,6 +188,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           }
           show_images={[]}
           added?={true}
+          current_path={@current_path}
         >
           <p class="my-2">
             Explore the latest additions to our growing collection for {@collection.title |> hd}.

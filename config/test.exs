@@ -45,7 +45,7 @@ config :dpul_collections, DpulCollectionsWeb.Endpoint,
 config :dpul_collections, Oban, testing: :manual
 
 # In test we don't send emails.
-config :dpul_collections, DpulCollections.Mailer, adapter: Swoosh.Adapters.Test
+config :dpul_collections, DpulCollections.Mailer, adapter: Swoosh.Adapters.Local
 
 # Set basic auth
 config :dpul_collections, :basic_auth_username, "admin"

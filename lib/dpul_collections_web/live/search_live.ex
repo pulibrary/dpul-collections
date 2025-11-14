@@ -113,6 +113,7 @@ defmodule DpulCollectionsWeb.SearchLive do
             sort_by={@search_state.sort_by}
             show_images={@show_images}
             current_scope={@current_scope}
+            current_path={@current_path}
           />
         </ul>
         <div class="text-center max-w-5xl mx-auto text-lg py-8">
@@ -495,7 +496,11 @@ defmodule DpulCollectionsWeb.SearchLive do
             <div class="grow">
               <.search_brief_metadata item={@item} />
             </div>
-            <UserSets.AddToSetComponent.add_button :if={@current_scope} item_id={@item.id} />
+            <UserSets.AddToSetComponent.add_button
+              current_scope={@current_scope}
+              item_id={@item.id}
+              current_path={@current_path}
+            />
           </div>
           <div class="small-thumbnails hidden sm:flex flex-row flex-wrap gap-5 max-h-[125px] justify-start overflow-hidden">
             <.thumbs

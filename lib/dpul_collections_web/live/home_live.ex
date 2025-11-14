@@ -94,6 +94,8 @@ defmodule DpulCollectionsWeb.HomeLive do
           title={gettext("Recently Added Items")}
           more_link={~p"/search?sort_by=recently_added"}
           show_images={@show_images}
+          current_scope={@current_scope}
+          current_path={@current_path}
           added?={true}
         >
           <p class="my-2 font-regular">

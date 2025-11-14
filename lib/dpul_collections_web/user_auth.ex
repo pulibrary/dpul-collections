@@ -33,8 +33,13 @@ defmodule DpulCollectionsWeb.UserAuth do
   Redirects to the session's `:user_return_to` path
   or falls back to the `signed_in_path/1`.
   """
-  def log_in_user(conn, user, params \\ %{}) do
-    user_return_to = get_session(conn, :user_return_to)
+  def log_in_user(conn, user, params \\ %{})
+  # Strip blank return_to.
+  def log_in_user(conn, user, %{"return_to" => ""} = params),
+    do: log_in_user(conn, user, params |> Map.delete("return_to"))
+
+  def log_in_user(conn, user, params) do
+    user_return_to = params["return_to"] || get_session(conn, :user_return_to)
 
     conn
     |> create_or_extend_session(user, params)

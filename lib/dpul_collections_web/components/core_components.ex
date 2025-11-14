@@ -171,13 +171,15 @@ defmodule DpulCollectionsWeb.CoreComponents do
   attr :class, :any, default: nil
   attr :href, :string, default: nil, doc: "link - if set it makes an anchor tag"
   attr :patch, :string, default: nil, doc: "link - if set makes an anchor tag"
+  attr :navigate, :string, default: nil, doc: "link - if set makes an anchor tag"
   attr :disabled, :boolean, default: false
 
   attr :rest, :global,
     include: ~w(replace disabled form name value),
     doc: "the arbitrary HTML attributes to add link"
 
-  def primary_button(assigns = %{href: href, patch: patch}) when href != nil or patch != nil do
+  def primary_button(assigns = %{href: href, patch: patch, navigate: navigate})
+      when href != nil or patch != nil or navigate != nil do
     ~H"""
     <span
       :if={@disabled}
@@ -188,7 +190,14 @@ defmodule DpulCollectionsWeb.CoreComponents do
     >
       {render_slot(@inner_block)}
     </span>
-    <.link :if={!@disabled} href={@href} patch={@patch} class={["btn-primary", @class]} {@rest}>
+    <.link
+      :if={!@disabled}
+      href={@href}
+      patch={@patch}
+      navigate={@navigate}
+      class={["btn-primary", @class]}
+      {@rest}
+    >
       {render_slot(@inner_block)}
     </.link>
     """
