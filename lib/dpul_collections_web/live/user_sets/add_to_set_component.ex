@@ -53,7 +53,7 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
         id="add-set-modal"
         label="Save to Set"
         subtitle={"Adding #{@item_title}"}
-        afterClose={JS.patch(redirect_path(@current_path, nil))}
+        afterClose={JS.patch(redirect_path(@current_path, nil), replace: true)}
       >
         <div id="add-set-modal-content" class="min-w-[400px] mt-4 w-full flex">
           <.list_sets :if={@mode == :list_sets} {assigns} />

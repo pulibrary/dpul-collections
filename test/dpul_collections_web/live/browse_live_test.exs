@@ -49,19 +49,6 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
 
     assert Floki.text(document) =~ "Exploring items similar to"
 
-    # Make sure clicking the element in thumbnail list goes to recommendations
-    {:ok, document} =
-      view
-      |> element("#liked-items .liked-item:first-child")
-      |> render_click()
-      |> Floki.parse_document()
-
-    selected_items = document |> Floki.find("#browse-items .browse-item")
-
-    assert random_items != selected_items
-
-    assert Floki.text(document) =~ "Exploring items similar to"
-
     # Add a second liked item.
     {:ok, document} =
       view
@@ -70,6 +57,19 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
       |> Floki.parse_document()
 
     assert document |> Floki.find("#liked-items .liked-item") |> length == 2
+
+    # Make sure clicking the element in thumbnail list goes to recommendations
+    {:ok, document} =
+      view
+      |> element("#liked-items .liked-item:nth-child(2)")
+      |> render_click()
+      |> Floki.parse_document()
+
+    selected_items = document |> Floki.find("#browse-items .browse-item")
+
+    assert random_items != selected_items
+
+    assert Floki.text(document) =~ "Exploring items similar to"
 
     # TODO: unlike an item
 
