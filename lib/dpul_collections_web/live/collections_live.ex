@@ -259,34 +259,41 @@ defmodule DpulCollectionsWeb.CollectionsLive do
               </div>
             </div>
             <hr class="text-wafer-pink" />
-            <h3 class="uppercase font-semibold text-xl pt-6 text-wafer-pink">
-              {gettext("Copyright")}
-            </h3>
-            <p class="text-wafer-pink">
-              {gettext(
-                "Princeton University Library claims no copyright governing this digital resource.
-              It is provided for free, on anon-commercial, open-access basis, for fair-use academic
-              and research purposes only. Anyone who claims copyright over any part of these resources
-              and feels that they should not be presented in this manner is invited to contact Princeton
-              University Library, who will in turn consider such concerns and make reasonable efforts to
-              respond to such concerns."
-              )}
-            </p>
-            <h3 class="uppercase font-semibold text-xl pt-6 text-wafer-pink">
-              {gettext("Preferred Citation")}
-            </h3>
-            <p class="text-wafer-pink">
-              [Identification of item], [Sub-collection name (if applicable)], {@collection.title
-              |> hd} Collection, Princeton University Library.
-            </p>
-            <h3 class="uppercase font-semibold text-xl pt-6 text-wafer-pink">
-              {gettext("Romanization")}
-            </h3>
-            <p class="text-wafer-pink">
-              {gettext(
-                "Please refer to the Library of Congress Romanization tables when searching the collection."
-              )}
-            </p>
+            <div id="policies">
+              <h3 class="uppercase font-semibold text-xl pt-6 text-wafer-pink">
+                {gettext("Copyright")}
+              </h3>
+              <p class="text-wafer-pink">
+                {gettext(
+                  "Princeton University Library claims no copyright governing this digital resource.
+                It is provided for free, on a non-commercial, open-access basis, for fair-use academic
+                and research purposes only. Anyone who claims copyright over any part of these resources
+                and feels that they should not be presented in this manner is invited to"
+                )}
+                <a href="https://library.princeton.edu/form/removal-request">
+                {gettext("contact Princeton University Library")}
+                </a>, {gettext(
+                  "who will in turn consider such concerns and make reasonable efforts to respond to such concerns"
+                )}.
+              </p>
+              <h3 class="uppercase font-semibold text-xl pt-6 text-wafer-pink">
+                {gettext("Preferred Citation")}
+              </h3>
+              <p class="text-wafer-pink">
+                [Identification of item], [Sub-collection name (if applicable)], {@collection.title
+                |> hd} Collection, Princeton University Library.
+              </p>
+              <h3 class="uppercase font-semibold text-xl pt-6 text-wafer-pink">
+                {gettext("Romanization")}
+              </h3>
+              <p class="text-wafer-pink">
+                {gettext("Please refer to the")}
+                <a href="https://www.loc.gov/catdir/cpso/roman.html">
+                  {gettext("Library of Congress Romanization tables")}
+                </a>
+                {gettext("when searching the collection")}.
+              </p>
+            </div>
           </div>
         </div>
       </div>

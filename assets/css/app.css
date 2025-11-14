@@ -393,6 +393,7 @@
   @apply text-wafer-pink;
 }
 
+#policies a,
 #collection-description a {
   @apply underline text-princeton-orange-on-black;
 }
