@@ -15,6 +15,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
         page_title: gettext("Browse - Digital Collections"),
         seed: nil,
         focused_item: nil,
+        focused_id: nil,
         current_path: nil
       )
 
@@ -32,7 +33,8 @@ defmodule DpulCollectionsWeb.BrowseLive do
             Solr.random(90, given_seed)["docs"]
             |> Enum.map(&Item.from_solr(&1)),
           seed: given_seed,
-          focused_item: nil
+          focused_item: nil,
+          focused_id: nil
         )
 
       {:noreply, socket}
@@ -45,12 +47,12 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def handle_params(
         %{"focus_id" => focus_id},
         _uri,
-        %{assigns: %{focused_item: existing_focus}} = socket
+        %{assigns: %{focused_id: existing_focus}} = socket
       ) do
-    item = Solr.find_by_id(focus_id) |> Item.from_solr()
 
     # Only update the focus if we're focusing a new one.
-    if existing_focus && focus_id != existing_focus.id do
+    if focus_id != existing_focus do
+      item = Solr.find_by_id(focus_id) |> Item.from_solr()
       # In this view we're going to use one of the spots to show the focused item,
       # so only get 89 random
       recommended_items =
@@ -74,7 +76,8 @@ defmodule DpulCollectionsWeb.BrowseLive do
          seed: nil,
          items: recommended_items,
          focused_item: item,
-         liked_items: liked_items
+         liked_items: liked_items,
+         focused_id: focus_id
        )}
     else
       {:noreply, socket}
