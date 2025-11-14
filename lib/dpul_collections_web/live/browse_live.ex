@@ -13,6 +13,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
         items: [],
         liked_items: [],
         page_title: gettext("Browse - Digital Collections"),
+        seed: nil,
         focused_item: nil,
         current_path: nil
       )
@@ -22,17 +23,22 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   @spec handle_params(nil | maybe_improper_list() | map(), any(), any()) :: {:noreply, any()}
   # If we've been asked to randomize, do it.
-  def handle_params(%{"r" => given_seed}, _url, socket) do
-    socket =
-      socket
-      |> assign(
-        items:
-          Solr.random(90, given_seed)["docs"]
-          |> Enum.map(&Item.from_solr(&1)),
-        focused_item: nil
-      )
+  def handle_params(%{"r" => given_seed}, _url, %{assigns: %{seed: stored_seed}} = socket) do
+    if given_seed != stored_seed do
+      socket =
+        socket
+        |> assign(
+          items:
+            Solr.random(90, given_seed)["docs"]
+            |> Enum.map(&Item.from_solr(&1)),
+          seed: given_seed,
+          focused_item: nil
+        )
 
-    {:noreply, socket}
+      {:noreply, socket}
+    else
+      {:noreply, socket}
+    end
   end
 
   # If we're recommending items based on another item, do that.
@@ -57,7 +63,8 @@ defmodule DpulCollectionsWeb.BrowseLive do
       end
 
     {:noreply,
-     socket |> assign(items: recommended_items, focused_item: item, liked_items: liked_items)}
+     socket
+     |> assign(seed: nil, items: recommended_items, focused_item: item, liked_items: liked_items)}
   end
 
   # If neither, generate a random seed and display random items.

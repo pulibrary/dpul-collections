@@ -39,6 +39,9 @@ defmodule DpulCollectionsWeb.BrowseTest do
       |> assert_has("h1", text: "Browse")
       # See if the item popped up to be added.
       |> assert_has("h2", text: "Save to Set")
+      |> click_button("Close modal")
+      |> assert_has("h1", text: "Browse")
+      |> refute_has("h1", text: "Save to Set")
     end
 
     test "users can add an item to a user set", %{conn: conn} do
