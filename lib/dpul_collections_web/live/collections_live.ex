@@ -168,7 +168,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             id="collection-description"
             class="xl:content-area home-content-area grid grid-cols-1 gap-6"
           >
-             <div>
+            <div>
               <.pill_section
                 title={gettext("Subject Areas")}
                 unit="categories"
