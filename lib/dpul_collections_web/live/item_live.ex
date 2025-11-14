@@ -448,7 +448,7 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   # Otherwise patch.
   def save_item(_scope, current_path, item_id),
-    do: JS.patch(AddToSetComponent.redirect_path(current_path, item_id))
+    do: JS.patch(AddToSetComponent.redirect_path(current_path, item_id), replace: true)
 
   attr :rights_statement, :any, required: true
 

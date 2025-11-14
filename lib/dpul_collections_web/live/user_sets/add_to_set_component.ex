@@ -221,6 +221,7 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
       icon="hero-folder-plus"
       label={gettext("Save")}
       patch={redirect_path(@current_path, @item_id)}
+      replace
     />
     """
   end

@@ -49,7 +49,6 @@ defmodule DpulCollectionsWeb.BrowseLive do
         _uri,
         %{assigns: %{focused_id: existing_focus}} = socket
       ) do
-
     # Only update the focus if we're focusing a new one.
     if focus_id != existing_focus do
       item = Solr.find_by_id(focus_id) |> Item.from_solr()
