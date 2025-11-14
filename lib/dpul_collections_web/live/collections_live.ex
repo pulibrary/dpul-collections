@@ -72,7 +72,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="grid grid-flow-row auto-rows-max -mb-6">
         <!-- Hero Section -->
-        <div class="home-content-area relative overflow-hidden">
+        <div class="xl:content-area home-content-area relative overflow-hidden">
           <div class="left-[15%] absolute z-10">
             <img src="/images/triangle-mosaic.png" alt="" class="mx-auto w-xl" />
           </div>
@@ -159,21 +159,16 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         </div>
         <!-- Learn More -->
         <div id="learn-more" class="grid-flow-row auto-rows-max bg-dark-gray py-6">
-          <div class="home-content-area">
+          <div class="xl:content-area home-content-area">
             <h2 class="uppercase font-semibold text-4xl text-wafer-pink py-6">
               {gettext("Learn More")}
             </h2>
           </div>
           <div
             id="collection-description"
-            class="home-content-area grid grid-cols-1 md:grid-cols-2 gap-10 md:grid-cols-[60%_auto]"
+            class="xl:content-area home-content-area grid grid-cols-1 gap-6"
           >
-            <div class="[&_a]:text-accent w-full text-lg page-t-padding">
-              <div class="collection-description text-wafer-pink leading-relaxed pb-6">
-                {@collection.description |> raw}
-              </div>
-            </div>
-            <div>
+             <div>
               <.pill_section
                 title={gettext("Subject Areas")}
                 unit="categories"
@@ -191,6 +186,11 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 pill_class="bg-cloud"
                 button_class="bg-cloud/80 hover:bg-cloud/60"
               />
+            </div>
+            <div class="[&_a]:text-accent w-full text-lg page-t-padding">
+              <div class="collection-description text-wafer-pink leading-relaxed pb-6">
+                {@collection.description |> raw}
+              </div>
             </div>
           </div>
         </div>
@@ -220,7 +220,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           class="bg-dark-background w-full page-y-padding page-x-padding flex flex-col"
           id="contributors"
         >
-          <div class="home-content-area pb-6">
+          <div class="xl:content-area home-content-area pb-6">
             <h2 class="heading text-2xl pb-4 text-wafer-pink">Contributors</h2>
             <div class="flex flex-wrap gap-4 pb-6">
               <div
