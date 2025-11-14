@@ -42,29 +42,43 @@ defmodule DpulCollectionsWeb.BrowseLive do
   end
 
   # If we're recommending items based on another item, do that.
-  def handle_params(%{"focus_id" => focus_id}, _uri, socket) do
+  def handle_params(
+        %{"focus_id" => focus_id},
+        _uri,
+        %{assigns: %{focused_item: existing_focus}} = socket
+      ) do
     item = Solr.find_by_id(focus_id) |> Item.from_solr()
 
-    # In this view we're going to use one of the spots to show the focused item,
-    # so only get 89 random
-    recommended_items =
-      Solr.related_items(item, SearchState.from_params(%{}), 89)["docs"]
-      |> Enum.map(&Item.from_solr/1)
+    # Only update the focus if we're focusing a new one.
+    if existing_focus && focus_id != existing_focus.id do
+      # In this view we're going to use one of the spots to show the focused item,
+      # so only get 89 random
+      recommended_items =
+        Solr.related_items(item, SearchState.from_params(%{}), 89)["docs"]
+        |> Enum.map(&Item.from_solr/1)
 
-    liked_items =
-      cond do
-        item.id in Enum.map(socket.assigns.liked_items, fn item -> item.id end) ->
-          socket.assigns.liked_items
+      liked_items =
+        cond do
+          item.id in Enum.map(socket.assigns.liked_items, fn item -> item.id end) ->
+            socket.assigns.liked_items
 
-        # When we come to this link directly liked_items is empty - add the one
-        # we're focusing.
-        true ->
-          [item | socket.assigns.liked_items]
-      end
+          # When we come to this link directly liked_items is empty - add the one
+          # we're focusing.
+          true ->
+            [item | socket.assigns.liked_items]
+        end
 
-    {:noreply,
-     socket
-     |> assign(seed: nil, items: recommended_items, focused_item: item, liked_items: liked_items)}
+      {:noreply,
+       socket
+       |> assign(
+         seed: nil,
+         items: recommended_items,
+         focused_item: item,
+         liked_items: liked_items
+       )}
+    else
+      {:noreply, socket}
+    end
   end
 
   # If neither, generate a random seed and display random items.
