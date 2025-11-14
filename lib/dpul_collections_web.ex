@@ -59,6 +59,7 @@ defmodule DpulCollectionsWeb do
       use DpulCollectionsWeb.ContentWarnings
 
       on_mount SetLocaleHook
+      on_mount DpulCollectionsWeb.LiveHooks
       unquote(html_helpers())
     end
   end

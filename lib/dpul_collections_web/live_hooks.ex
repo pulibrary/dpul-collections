@@ -5,7 +5,7 @@ defmodule DpulCollectionsWeb.LiveHooks do
 
   # Whenever the path gets updated, store it in assigns.
   # Pulled from https://elixirforum.com/t/how-can-i-obtain-the-current-url-to-pass-to-a-functional-component-from-the-app-html-heex-layout-when-rendering-liveviews/59053/8
-  def on_mount(:global, _params, _session, socket) do
+  def on_mount(:default, _params, _session, socket) do
     socket =
       socket
       # Assign current_path to everything.
