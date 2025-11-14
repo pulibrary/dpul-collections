@@ -72,7 +72,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="grid grid-flow-row auto-rows-max -mb-6">
         <!-- Hero Section -->
-        <div class="home-content-area relative overflow-hidden">
+        <div class="content-area relative overflow-hidden">
           <div class="left-[15%] absolute z-10">
             <img src="/images/triangle-mosaic.png" alt="" class="mx-auto w-xl" />
           </div>
@@ -92,7 +92,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 <div class="w-full h-full relative">
                   <.primary_button
                     href={~p"/search?#{%{filter: %{project: [@collection.title |> hd]}}}"}
-                    class="btn-primary absolute bottom-[5%] right-0 hidden md:flex"
+                    class="btn-primary absolute bottom-[-.5rem] right-0 hidden md:flex"
                   >
                     {gettext("Browse Collection")}
                   </.primary_button>
@@ -102,7 +102,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                       class={"card-darkdrop w-[100%] p-2 bg-white min-h-0 min-w-0 absolute z-[#{index}] drop-shadow-none"}
                       aria-label={"View #{item.title |> hd}"}
                     >
-                      <div class="max-h-75 md:max-h-90 h-full w-full overflow-hidden">
+                      <div class="max-h-75 md:max-h-100 h-full w-full overflow-hidden">
                         <img
                           src={"#{item.primary_thumbnail_service_url}/full/!#{item.primary_thumbnail_width},#{item.primary_thumbnail_height}/0/default.jpg"}
                           width={item.primary_thumbnail_width}
@@ -159,20 +159,15 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         </div>
         <!-- Learn More -->
         <div id="learn-more" class="grid-flow-row auto-rows-max bg-dark-gray py-6">
-          <div class="home-content-area">
+          <div class="content-area">
             <h2 class="uppercase font-semibold text-4xl text-wafer-pink py-6">
               {gettext("Learn More")}
             </h2>
           </div>
           <div
             id="collection-description"
-            class="home-content-area grid grid-cols-1 md:grid-cols-2 gap-10 md:grid-cols-[60%_auto]"
+            class="content-area grid grid-cols-1 gap-6"
           >
-            <div class="[&_a]:text-accent w-full text-lg page-t-padding">
-              <div class="collection-description text-wafer-pink leading-relaxed pb-6">
-                {@collection.description |> raw}
-              </div>
-            </div>
             <div>
               <.pill_section
                 title={gettext("Subject Areas")}
@@ -191,6 +186,11 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 pill_class="bg-cloud"
                 button_class="bg-cloud/80 hover:bg-cloud/60"
               />
+            </div>
+            <div class="[&_a]:text-accent w-full text-lg page-t-padding">
+              <div class="collection-description text-wafer-pink leading-relaxed pb-6">
+                {@collection.description |> raw}
+              </div>
             </div>
           </div>
         </div>
@@ -220,7 +220,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           class="bg-dark-background w-full page-y-padding page-x-padding flex flex-col"
           id="contributors"
         >
-          <div class="home-content-area pb-6">
+          <div class="content-area pb-6">
             <h2 class="heading text-2xl pb-4 text-wafer-pink">Contributors</h2>
             <div class="flex flex-wrap gap-4 pb-6">
               <div
