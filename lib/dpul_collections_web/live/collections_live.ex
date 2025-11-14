@@ -72,7 +72,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="grid grid-flow-row auto-rows-max -mb-6">
         <!-- Hero Section -->
-        <div class="xl:content-area home-content-area relative overflow-hidden">
+        <div class="content-area relative overflow-hidden">
           <div class="left-[15%] absolute z-10">
             <img src="/images/triangle-mosaic.png" alt="" class="mx-auto w-xl" />
           </div>
@@ -159,14 +159,14 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         </div>
         <!-- Learn More -->
         <div id="learn-more" class="grid-flow-row auto-rows-max bg-dark-gray py-6">
-          <div class="xl:content-area home-content-area">
+          <div class="content-area">
             <h2 class="uppercase font-semibold text-4xl text-wafer-pink py-6">
               {gettext("Learn More")}
             </h2>
           </div>
           <div
             id="collection-description"
-            class="xl:content-area home-content-area grid grid-cols-1 gap-6"
+            class="content-area grid grid-cols-1 gap-6"
           >
             <div>
               <.pill_section
@@ -220,7 +220,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           class="bg-dark-background w-full page-y-padding page-x-padding flex flex-col"
           id="contributors"
         >
-          <div class="xl:content-area home-content-area pb-6">
+          <div class="content-area pb-6">
             <h2 class="heading text-2xl pb-4 text-wafer-pink">Contributors</h2>
             <div class="flex flex-wrap gap-4 pb-6">
               <div
