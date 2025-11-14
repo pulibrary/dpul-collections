@@ -13,7 +13,9 @@ defmodule DpulCollectionsWeb.BrowseLive do
         items: [],
         liked_items: [],
         page_title: gettext("Browse - Digital Collections"),
+        seed: nil,
         focused_item: nil,
+        focused_id: nil,
         current_path: nil
       )
 
@@ -22,42 +24,63 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   @spec handle_params(nil | maybe_improper_list() | map(), any(), any()) :: {:noreply, any()}
   # If we've been asked to randomize, do it.
-  def handle_params(%{"r" => given_seed}, _url, socket) do
-    socket =
-      socket
-      |> assign(
-        items:
-          Solr.random(90, given_seed)["docs"]
-          |> Enum.map(&Item.from_solr(&1)),
-        focused_item: nil
-      )
+  def handle_params(%{"r" => given_seed}, _url, %{assigns: %{seed: stored_seed}} = socket) do
+    if given_seed != stored_seed do
+      socket =
+        socket
+        |> assign(
+          items:
+            Solr.random(90, given_seed)["docs"]
+            |> Enum.map(&Item.from_solr(&1)),
+          seed: given_seed,
+          focused_item: nil,
+          focused_id: nil
+        )
 
-    {:noreply, socket}
+      {:noreply, socket}
+    else
+      {:noreply, socket}
+    end
   end
 
   # If we're recommending items based on another item, do that.
-  def handle_params(%{"focus_id" => focus_id}, _uri, socket) do
-    item = Solr.find_by_id(focus_id) |> Item.from_solr()
+  def handle_params(
+        %{"focus_id" => focus_id},
+        _uri,
+        %{assigns: %{focused_id: existing_focus}} = socket
+      ) do
+    # Only update the focus if we're focusing a new one.
+    if focus_id != existing_focus do
+      item = Solr.find_by_id(focus_id) |> Item.from_solr()
+      # In this view we're going to use one of the spots to show the focused item,
+      # so only get 89 random
+      recommended_items =
+        Solr.related_items(item, SearchState.from_params(%{}), 89)["docs"]
+        |> Enum.map(&Item.from_solr/1)
 
-    # In this view we're going to use one of the spots to show the focused item,
-    # so only get 89 random
-    recommended_items =
-      Solr.related_items(item, SearchState.from_params(%{}), 89)["docs"]
-      |> Enum.map(&Item.from_solr/1)
+      liked_items =
+        cond do
+          item.id in Enum.map(socket.assigns.liked_items, fn item -> item.id end) ->
+            socket.assigns.liked_items
 
-    liked_items =
-      cond do
-        item.id in Enum.map(socket.assigns.liked_items, fn item -> item.id end) ->
-          socket.assigns.liked_items
+          # When we come to this link directly liked_items is empty - add the one
+          # we're focusing.
+          true ->
+            [item | socket.assigns.liked_items]
+        end
 
-        # When we come to this link directly liked_items is empty - add the one
-        # we're focusing.
-        true ->
-          [item | socket.assigns.liked_items]
-      end
-
-    {:noreply,
-     socket |> assign(items: recommended_items, focused_item: item, liked_items: liked_items)}
+      {:noreply,
+       socket
+       |> assign(
+         seed: nil,
+         items: recommended_items,
+         focused_item: item,
+         liked_items: liked_items,
+         focused_id: focus_id
+       )}
+    else
+      {:noreply, socket}
+    end
   end
 
   # If neither, generate a random seed and display random items.
@@ -71,7 +94,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
+    <Layouts.app flash={@flash} current_path={@current_path} current_scope={@current_scope}>
       <div id="browse" class="content-area">
         <h1 id="browse-header" class="mb-2">{gettext("Browse")}</h1>
         <div class="mb-5 text-lg w-full items-center">

@@ -20,7 +20,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
       # Open dialog
       view
-      |> element("li:first-child button", "Save")
+      |> element("li:first-child a", "Save")
       |> render_click()
 
       # Create new set

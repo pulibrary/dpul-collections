@@ -34,7 +34,6 @@ defmodule DpulCollectionsWeb.Router do
     live_session :current_user,
       on_mount:
         with_sandbox_support([
-          {DpulCollectionsWeb.CurrentPathHook, :global},
           {DpulCollectionsWeb.UserAuth, :mount_current_scope}
         ]) do
       live "/users/log-in", UserLive.Login, :new
@@ -62,7 +61,10 @@ defmodule DpulCollectionsWeb.Router do
     pipe_through [:browser, :require_authenticated_user]
 
     live_session :require_authenticated_user,
-      on_mount: with_sandbox_support([{DpulCollectionsWeb.UserAuth, :require_authenticated}]) do
+      on_mount:
+        with_sandbox_support([
+          {DpulCollectionsWeb.UserAuth, :require_authenticated}
+        ]) do
       live "/users/settings", UserLive.Settings, :edit
       live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
       live "/sets", UserSetsLive, :live

@@ -23,6 +23,7 @@ defmodule DpulCollectionsWeb.Layouts do
   attr :display_title, :boolean, default: true
 
   slot :inner_block, required: true
+  attr :current_path, :string, required: true
 
   def app(assigns) do
     ~H"""
@@ -38,6 +39,7 @@ defmodule DpulCollectionsWeb.Layouts do
             module={AddToSetComponent}
             id="user_set_form"
             current_scope={@current_scope}
+            current_path={@current_path}
           />
           {render_slot(@inner_block)}
         </main>

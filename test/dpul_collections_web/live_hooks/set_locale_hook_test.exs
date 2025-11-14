@@ -1,7 +1,7 @@
-defmodule DpulCollectionsWeb.SetLocaleHookTest do
+defmodule DpulCollectionsWeb.LiveHooks.SetLocaleHookTest do
   use ExUnit.Case, async: true
 
-  alias DpulCollectionsWeb.SetLocaleHook
+  alias DpulCollectionsWeb.LiveHooks.SetLocaleHook
 
   @default_locale "en"
 

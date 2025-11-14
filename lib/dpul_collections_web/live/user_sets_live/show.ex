@@ -30,7 +30,7 @@ defmodule DpulCollectionsWeb.UserSetsLive.Show do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
+    <Layouts.app flash={@flash} current_path={@current_path} current_scope={@current_scope}>
       <div id="user-set" class="content-area flex flex-col gap-6">
         <div id="metadata" class="flex flex-col gap-2">
           <span class="text-xl uppercase tracking-wide">

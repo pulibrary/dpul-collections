@@ -69,7 +69,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
 
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
+    <Layouts.app flash={@flash} current_path={@current_path} current_scope={@current_scope}>
       <div class="grid grid-flow-row auto-rows-max -mb-6">
         <!-- Hero Section -->
         <div class="content-area relative overflow-hidden">

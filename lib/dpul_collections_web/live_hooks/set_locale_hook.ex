@@ -1,4 +1,4 @@
-defmodule DpulCollectionsWeb.SetLocaleHook do
+defmodule DpulCollectionsWeb.LiveHooks.SetLocaleHook do
   @moduledoc """
   Tells Gettext which locale to use for rendering LiveViews on the front-end.
   Locale should be set in the session in lib/dpul_collections_web/plug/locale_plug.ex
