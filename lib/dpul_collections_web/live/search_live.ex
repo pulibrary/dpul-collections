@@ -16,38 +16,42 @@ defmodule DpulCollectionsWeb.SearchLive do
   def handle_params(params, _uri, socket) do
     search_state = SearchState.from_params(params |> Helpers.clean_params())
 
-    %{
-      results: items,
-      total_items: total_items,
-      filter_data: filter_data
-    } = Solr.search(search_state)
-
-    filter_data = filter_data |> Map.put("year", %{label: @filters["year"].label, data: []})
-
-    socket =
-      socket
-      |> assign(
-        page_title: "Search Results - Digital Collections",
-        search_state: search_state,
-        item_counter: item_counter(search_state, total_items),
-        items: items,
+    if socket.assigns[:search_state] != search_state do
+      %{
+        results: items,
         total_items: total_items,
-        filter_data: filter_data,
-        filter_form: to_form(params["filter"] || %{}, as: "filter"),
-        # To put this in filter_form we'd have to make a ChangeSet that can
-        # handle nested parameters.
-        year_form:
-          to_form(
-            get_in(params, [Access.key("filter", %{}), Access.key("year", %{})]),
-            as: "filter[year]"
-          )
-      )
-      |> assign_new(
-        :expanded_filter,
-        fn -> nil end
-      )
+        filter_data: filter_data
+      } = Solr.search(search_state)
 
-    {:noreply, socket}
+      filter_data = filter_data |> Map.put("year", %{label: @filters["year"].label, data: []})
+
+      socket =
+        socket
+        |> assign(
+          page_title: "Search Results - Digital Collections",
+          search_state: search_state,
+          item_counter: item_counter(search_state, total_items),
+          items: items,
+          total_items: total_items,
+          filter_data: filter_data,
+          filter_form: to_form(params["filter"] || %{}, as: "filter"),
+          # To put this in filter_form we'd have to make a ChangeSet that can
+          # handle nested parameters.
+          year_form:
+            to_form(
+              get_in(params, [Access.key("filter", %{}), Access.key("year", %{})]),
+              as: "filter[year]"
+            )
+        )
+        |> assign_new(
+          :expanded_filter,
+          fn -> nil end
+        )
+
+      {:noreply, socket}
+    else
+      {:noreply, socket}
+    end
   end
 
   defp item_counter(_, 0), do: gettext("No items found")
