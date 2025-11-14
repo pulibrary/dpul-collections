@@ -92,7 +92,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 <div class="w-full h-full relative">
                   <.primary_button
                     href={~p"/search?#{%{filter: %{project: [@collection.title |> hd]}}}"}
-                    class="btn-primary absolute bottom-[5%] right-0 hidden md:flex"
+                    class="btn-primary absolute bottom-[-.5rem] right-0 hidden md:flex"
                   >
                     {gettext("Browse Collection")}
                   </.primary_button>
@@ -102,7 +102,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                       class={"card-darkdrop w-[100%] p-2 bg-white min-h-0 min-w-0 absolute z-[#{index}] drop-shadow-none"}
                       aria-label={"View #{item.title |> hd}"}
                     >
-                      <div class="max-h-75 md:max-h-90 h-full w-full overflow-hidden">
+                      <div class="max-h-75 md:max-h-100 h-full w-full overflow-hidden">
                         <img
                           src={"#{item.primary_thumbnail_service_url}/full/!#{item.primary_thumbnail_width},#{item.primary_thumbnail_height}/0/default.jpg"}
                           width={item.primary_thumbnail_width}
