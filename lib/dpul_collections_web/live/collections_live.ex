@@ -72,11 +72,11 @@ defmodule DpulCollectionsWeb.CollectionsLive do
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="grid grid-flow-row auto-rows-max -mb-6">
         <!-- Hero Section -->
-        <div class="2xl:home-content-area relative overflow-hidden">
-          <div class="home-content-area left-[15%] absolute z-10">
+        <div class="home-content-area relative overflow-hidden">
+          <div class="left-[15%] absolute z-10">
             <img src="/images/triangle-mosaic.png" alt="" class="mx-auto w-xl" />
           </div>
-          <div class="home-content-area space-y-2 relative z-30">
+          <div class="space-y-2 relative z-30">
             <p class="text-accent font-semibold text-xl uppercase tracking-wide">
               {gettext("Digital Collection")}
             </p>
@@ -84,7 +84,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
               {@collection.title |> hd}
             </h1>
           </div>
-          <div class="home-content-area page-y-padding relative z-30">
+          <div class="page-y-padding relative z-30">
             <div class="hero-container-collection grid grid-cols-1 md:grid-cols-2 gap-0 md:grid-cols-[auto_60%]">
               
     <!-- Right Column: Featured Items Mosaic -->
