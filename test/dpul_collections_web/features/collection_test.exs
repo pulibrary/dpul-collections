@@ -52,6 +52,8 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       )
       # Mosaic
       |> assert_has("#collection-mosaic .card-darkdrop", count: 4)
+      # Featured Items
+      |> assert_has("#featured-items .browse-item", count: 4)
       # Learn More collapse/expand
       |> assert_has("div", text: "The South Asian Ephemera Collection complements Princeton's")
       |> assert_has("li", text: "Politics and government")
