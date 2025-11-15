@@ -157,6 +157,17 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             </div>
           </div>
         </div>
+        <div :if={length(@collection.featured_items) > 0} class="grid-flow auto-rows-max bg-secondary">
+          <.browse_item_row
+            id="featured-items"
+            layout="content-area"
+            items={@collection.featured_items}
+            title={gettext("Featured Highlights")}
+            show_images={[]}
+            current_path={@current_path}
+          >
+          </.browse_item_row>
+        </div>
         <!-- Learn More -->
         <div id="learn-more" class="grid-flow-row auto-rows-max bg-dark-gray py-6">
           <div class="content-area">
