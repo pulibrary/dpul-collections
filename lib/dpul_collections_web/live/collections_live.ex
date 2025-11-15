@@ -165,6 +165,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             title={gettext("Featured Highlights")}
             show_images={[]}
             current_path={@current_path}
+            current_scope={@current_scope}
           >
           </.browse_item_row>
         </div>
