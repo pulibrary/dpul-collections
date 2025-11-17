@@ -51,9 +51,9 @@
   --color-brand: var(--color-princeton-black);
   /* Primary is calls to action - buttons */
   --color-primary: var(--color-dpulc-primary);
-  /* Secondary is for gentler highlights */
-  --color-secondary: var(--color-sage-200);
-  --color-light-secondary: var(--color-sage-100);
+  /* primary-bright is for gentler highlights */
+  --color-primary-bright: var(--color-sage-200);
+  --color-primary-light: var(--color-sage-100);
   /* Accents are an additional color.
    * Images/highlights/hyperlinks/boxes/cards/etc.
    */
@@ -201,11 +201,11 @@
 
 /* action_icon utilities */
 @utility item-action-icon {
-  @apply hover:text-white hover:bg-accent w-10 h-10 p-2 bg-secondary;
+  @apply hover:text-white hover:bg-accent w-10 h-10 p-2 bg-primary-bright;
 }
 
 @utility pane-action-icon {
-  @apply text-accent hover:bg-secondary w-6 h-6 p-1 bg-background;
+  @apply text-accent hover:bg-primary-bright w-6 h-6 p-1 bg-background;
 }
 
 @utility skip-to-content {

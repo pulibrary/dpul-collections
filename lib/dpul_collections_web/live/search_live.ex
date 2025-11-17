@@ -288,7 +288,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       class={[
         !@expanded && "hidden",
         @expanded && "expanded",
-        "bg-secondary page-y-padding border-t-4 border-b-4 border-accent w-full"
+        "bg-primary-bright page-y-padding border-t-4 border-b-4 border-accent w-full"
       ]}
       aria-expanded={if @expanded, do: "true", else: "false"}
     >

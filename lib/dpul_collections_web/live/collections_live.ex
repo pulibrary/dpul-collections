@@ -191,8 +191,8 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 unit="categories"
                 items={@collection.categories}
                 container_id="categories-container"
-                pill_class="bg-secondary"
-                button_class="bg-secondary/80 hover:bg-secondary/60"
+                pill_class="bg-primary-bright"
+                button_class="bg-primary-bright/80 hover:bg-primary-bright/60"
               />
 
               <.pill_section
