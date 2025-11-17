@@ -70,7 +70,10 @@ defmodule DpulCollectionsWeb.CollectionsLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <div class="grid grid-flow-row auto-rows-max -mb-6 [&>*:nth-child(odd)]:bg-background [&>*:nth-child(even)]:bg-dark-gray [&>*:nth-child(even)]:text-light-text">
+      <div
+        id="collection-page"
+        class="grid grid-flow-row auto-rows-max -mb-6 [&>*:nth-child(odd)]:bg-background [&>*:nth-child(even)]:bg-dark-gray [&>*:nth-child(even)]:text-light-text"
+      >
         <!-- Hero Section -->
         <div class="content-area relative overflow-hidden">
           <div class="left-[15%] absolute z-10">
