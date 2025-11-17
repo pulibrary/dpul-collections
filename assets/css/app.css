@@ -139,7 +139,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   grid-template-rows: 1fr repeat(4, 0px);
-  @apply gap-6;
+  @apply gap-x-6;
 }
 
 /*
@@ -384,18 +384,9 @@
   @apply font-serif;
 }
 
-#collection-description h1,
-#collection-description h2,
-#collection-description h3,
-#collection-description h4,
-#collection-description h5, 
-#collection-description h6 {
-  @apply text-wafer-pink;
-}
-
 #policies a,
 #collection-description a {
-  @apply underline text-princeton-orange-on-black;
+  @apply text-accent;
 }
 
 .contributor-card a {
@@ -416,4 +407,11 @@
       grid-template-areas: 
       "tagline-col image-col";
   }
+}
+
+/* Every odd section has a dark background, so change the card backdrop to
+ * prevent them from glowing. */
+#collection-page > *:nth-child(even) .card {
+  @apply drop-shadow-xl drop-shadow-black;
+  @apply hover:drop-shadow-[0_0_0.7rem_var(--color-black)];
 }

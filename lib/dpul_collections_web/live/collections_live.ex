@@ -30,7 +30,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
     ~H"""
     <div>
       <div class="flex items-center gap-3 mb-2 mt-4">
-        <h2 id={"#{@container_id}-header"} class="text-sm font-sans font-medium text-wafer-pink">
+        <h2 id={"#{@container_id}-header"} class="text-sm font-sans font-medium">
           {@title}
         </h2>
       </div>
@@ -70,7 +70,10 @@ defmodule DpulCollectionsWeb.CollectionsLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <div class="grid grid-flow-row auto-rows-max -mb-6">
+      <div
+        id="collection-page"
+        class="grid grid-flow-row auto-rows-max -mb-6 [&>*:nth-child(odd)]:bg-background [&>*:nth-child(even)]:bg-dark-gray [&>*:nth-child(even)]:text-light-text"
+      >
         <!-- Hero Section -->
         <div class="content-area relative overflow-hidden">
           <div class="left-[15%] absolute z-10">
@@ -86,8 +89,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           </div>
           <div class="page-y-padding relative z-30">
             <div class="hero-container-collection grid grid-cols-1 md:grid-cols-2 gap-0 md:grid-cols-[auto_60%]">
-              
-    <!-- Right Column: Featured Items Mosaic -->
+              <!-- Right Column: Featured Items Mosaic -->
               <div id="collection-mosaic" class="image-col self-start h-120">
                 <div class="w-full h-full relative">
                   <.primary_button
@@ -140,7 +142,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 <div class="flex flex-wrap gap-4 py-4">
                   <a
                     href="#learn-more"
-                    class="btn-secondary bg-dark-gray text-light-text grow md:grow-0"
+                    class="btn-secondary grow md:grow-0"
                   >
                     {gettext("Learn More")}
                   </a>
@@ -157,10 +159,25 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             </div>
           </div>
         </div>
+        <div :if={length(@collection.featured_items) > 0} class="grid-flow auto-rows-max">
+          <.content_separator />
+          <.browse_item_row
+            id="featured-items"
+            layout="content-area"
+            items={@collection.featured_items}
+            title={gettext("Featured Highlights")}
+            show_images={[]}
+            current_path={@current_path}
+            current_scope={@current_scope}
+            color=""
+          >
+          </.browse_item_row>
+        </div>
         <!-- Learn More -->
-        <div id="learn-more" class="grid-flow-row auto-rows-max bg-dark-gray py-6">
+        <div id="learn-more" class="grid-flow-row text-dark-text auto-rows-max">
+          <.content_separator />
           <div class="content-area">
-            <h2 class="uppercase font-semibold text-4xl text-wafer-pink py-6">
+            <h2 class="uppercase font-semibold text-4xl py-6">
               {gettext("Learn More")}
             </h2>
           </div>
@@ -188,40 +205,42 @@ defmodule DpulCollectionsWeb.CollectionsLive do
               />
             </div>
             <div class="[&_a]:text-accent w-full text-lg page-t-padding">
-              <div class="collection-description text-wafer-pink leading-relaxed pb-6">
+              <div class="collection-description leading-relaxed pb-6">
                 {@collection.description |> raw}
               </div>
             </div>
           </div>
         </div>
-        <.content_separator />
         <!-- Recently Updated Items -->
-        <.browse_item_row
-          :if={length(@collection.recently_added) > 0}
-          id="recent-items"
-          layout="home-content-area"
-          items={@collection.recently_added}
-          title={gettext("Recently Added Items")}
-          more_link={
-            ~p"/search?#{%{filter: %{project: [@collection.title |> hd]}, sort_by: "recently_added"}}"
-          }
-          show_images={[]}
-          added?={true}
-          current_path={@current_path}
-        >
-          <p class="my-2">
-            {gettext("Explore the latest additions to our growing collection for")} {@collection.title
-            |> hd}.
-          </p>
-        </.browse_item_row>
+        <div :if={length(@collection.recently_added) > 0}>
+          <.content_separator />
+          <.browse_item_row
+            id="recent-items"
+            layout="content-area"
+            items={@collection.recently_added}
+            title={gettext("Recently Added Items")}
+            more_link={
+              ~p"/search?#{%{filter: %{project: [@collection.title |> hd]}, sort_by: "recently_added"}}"
+            }
+            show_images={[]}
+            added?={true}
+            current_path={@current_path}
+            color=""
+          >
+            <p class="my-2 text-inherit">
+              {gettext("Explore the latest additions to our growing collection for")} {@collection.title
+              |> hd}.
+            </p>
+          </.browse_item_row>
+        </div>
         <!-- Contributors -->
         <div
           :if={length(@collection.contributors) > 0}
-          class="bg-dark-background w-full page-y-padding page-x-padding flex flex-col"
+          class="w-full page-y-padding page-x-padding flex flex-col"
           id="contributors"
         >
           <div class="content-area pb-6">
-            <h2 class="heading text-2xl pb-4 text-wafer-pink">Contributors</h2>
+            <h2 class="heading text-2xl pb-4">Contributors</h2>
             <div class="flex flex-wrap gap-4 pb-6">
               <div
                 :for={contributor <- @collection.contributors}
@@ -259,12 +278,12 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 </div>
               </div>
             </div>
-            <hr class="text-wafer-pink" />
+            <hr />
             <div id="policies">
-              <h3 class="uppercase font-semibold text-xl pt-6 text-wafer-pink">
+              <h3 class="uppercase font-semibold text-xl pt-6">
                 {gettext("Copyright")}
               </h3>
-              <p class="text-wafer-pink">
+              <p>
                 {gettext(
                   "Princeton University Library claims no copyright governing this digital resource.
                 It is provided for free, on a non-commercial, open-access basis, for fair-use academic
@@ -277,17 +296,17 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                   "who will in turn consider such concerns and make reasonable efforts to respond to such concerns"
                 )}.
               </p>
-              <h3 class="uppercase font-semibold text-xl pt-6 text-wafer-pink">
+              <h3 class="uppercase font-semibold text-xl pt-6">
                 {gettext("Preferred Citation")}
               </h3>
-              <p class="text-wafer-pink">
+              <p>
                 [Identification of item], [Sub-collection name (if applicable)], {@collection.title
                 |> hd} Collection, Princeton University Library.
               </p>
-              <h3 class="uppercase font-semibold text-xl pt-6 text-wafer-pink">
+              <h3 class="uppercase font-semibold text-xl pt-6">
                 {gettext("Romanization")}
               </h3>
-              <p class="text-wafer-pink">
+              <p>
                 {gettext("Please refer to the")}
                 <a href="https://www.loc.gov/catdir/cpso/roman.html">
                   {gettext("Library of Congress Romanization tables")}
