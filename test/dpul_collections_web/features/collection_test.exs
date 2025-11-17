@@ -86,6 +86,14 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       )
     end
 
+    test "it links to filtered search result sets", %{conn: conn} do
+      conn
+      |> visit("/collections/sae")
+      |> click_link("Politics and government")
+      |> assert_has("h1", text: "Search Results")
+      |> assert_has("a.category", text: "Politics and government")
+    end
+
     test "collection page is accessible", %{conn: conn} do
       conn
       |> visit("/collections/sae")
