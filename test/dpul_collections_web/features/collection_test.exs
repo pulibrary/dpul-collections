@@ -77,7 +77,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       # Recently Updated cards
       |> assert_has(
         "#recent-items .card",
-        count: 3
+        count: 4
       )
       # Contributors
       |> assert_has(

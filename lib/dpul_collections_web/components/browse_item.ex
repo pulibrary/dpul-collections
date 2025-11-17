@@ -84,7 +84,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
       data-item-id={@thumb_source.id}
       aria-label={first_title(@target_item)}
       class={[
-        "browse-item overflow-hidden -outline-offset-2 relative card flex bg-white flex-col min-w-[250px]",
+        "browse-item overflow-hidden -outline-offset-2 relative card flex bg-white flex-col min-w-[250px] text-dark-text",
         @class
       ]}
     >
