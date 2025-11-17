@@ -11,7 +11,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
   attr :title, :string, required: true
   attr :added?, :boolean, default: false
   attr :more_link, :string, default: nil
-  attr :color, :string, default: "bg-secondary"
+  attr :color, :string, default: "bg-primary-bright"
   attr :layout, :string, default: "content-area"
   attr :rest, :global
   attr :current_scope, :map, required: false, default: nil
@@ -212,7 +212,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
       <:card_footer>
         <div
           :if={@added? && @item.updated_at}
-          class="updated-at w-full bg-light-secondary h-10 p-2 text-right"
+          class="updated-at w-full bg-primary-light h-10 p-2 text-right"
         >
           {"#{gettext("Updated")} #{time_ago(@item.updated_at)}"}
         </div>
