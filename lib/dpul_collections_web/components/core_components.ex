@@ -411,12 +411,13 @@ defmodule DpulCollectionsWeb.CoreComponents do
   attr :class, :any, default: nil
   attr :filter_name, :string, required: true
   attr :filter_value, :string, required: true
+  attr :collection_filter, :string, default: nil
 
   def filter_link_button(assigns) do
     ~H"""
     <.link
       href={
-        ~p"/search?#{%{filter: %{@filter_name => [@filter_value]}} |> DpulCollectionsWeb.Live.Helpers.clean_params()}"
+        ~p"/search?#{%{filter: %{@filter_name => [@filter_value], "project" => [@collection_filter]}} |> DpulCollectionsWeb.Live.Helpers.clean_params()}"
       }
       class={[
         "btn-base-behavior px-3 py-1.5 border-0 flex justify-center items-center text-center h-8 text-nowrap cursor-pointer text-xs h-fit w-full h-full",

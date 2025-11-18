@@ -92,6 +92,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> click_link("Politics and government")
       |> assert_has("h1", text: "Search Results")
       |> assert_has("a.category", text: "Politics and government")
+      |> assert_has("a.project", text: "South Asian Ephemera")
     end
 
     test "collection page is accessible", %{conn: conn} do
