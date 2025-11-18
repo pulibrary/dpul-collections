@@ -51,6 +51,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
               <.filter_link_button
                 filter_name={@unit}
                 filter_value={value}
+                collection_filter={@collection_title}
                 class={@pill_class}
               >
                 {value} ({count})
@@ -199,6 +200,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 container_id="categories-container"
                 pill_class="btn-primary-bright-colors"
                 button_class="bg-primary-bright/80 hover:bg-primary-bright/60"
+                collection_title={@collection.title |> hd}
               />
 
               <.pill_section
@@ -208,6 +210,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 container_id="genres-container"
                 pill_class="btn-secondary-colors"
                 button_class="bg-cloud/80 hover:bg-cloud/60"
+                collection_title={@collection.title |> hd}
               />
             </div>
             <div class="[&_a]:text-accent w-full text-lg page-t-padding">
