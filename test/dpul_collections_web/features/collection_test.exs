@@ -94,7 +94,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> assert_has("a.category", text: "Politics and government")
       |> assert_has("a.project", text: "South Asian Ephemera")
     end
-    
+
     test "a collection without contributors still displays copyright policy", %{conn: conn} do
       conn
       |> visit("/collections/soviet_posters")
