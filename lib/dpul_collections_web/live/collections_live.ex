@@ -42,17 +42,23 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           aria-labelledby={"#{@container_id}-header"}
           class="group max-h-[2.5rem] [&.expanded]:max-h-none flex flex-wrap gap-2 overflow-hidden"
         >
-          <%= for {{name, count}, idx} <- Enum.with_index(@items) do %>
+          <%= for {{value, count}, idx} <- Enum.with_index(@items) do %>
             <li
               aria-setsize={length(@items) + 2}
               aria-posinset={idx + 1}
-              class={"pill-item #{@pill_class} group-[.expanded]:block px-3 py-1.5"}
+              class="pill-item group-[.expanded]:block"
             >
-              <span class="text-xs">{name} ({count})</span>
+              <.filter_link_button
+                filter_name={@unit}
+                filter_value={value}
+                class={@pill_class}
+              >
+                {value} ({count})
+              </.filter_link_button>
             </li>
           <% end %>
-          <li class={"hidden group-[.expanded]:block less-button px-3 py-1.5 #{@button_class}"}>
-            <button class="w-full h-full cursor-pointer text-xs">
+          <li class={"hidden group-[.expanded]:block less-button #{@button_class}"}>
+            <button class="w-full h-full px-3 py-1.5 cursor-pointer text-xs">
               Show less
             </button>
           </li>
@@ -188,19 +194,19 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             <div>
               <.pill_section
                 title={gettext("Subject Areas")}
-                unit="categories"
+                unit="category"
                 items={@collection.categories}
                 container_id="categories-container"
-                pill_class="bg-primary-bright"
+                pill_class="btn-primary-bright-colors"
                 button_class="bg-primary-bright/80 hover:bg-primary-bright/60"
               />
 
               <.pill_section
                 title={gettext("Genres")}
-                unit="genres"
+                unit="genre"
                 items={@collection.genres}
                 container_id="genres-container"
-                pill_class="bg-cloud"
+                pill_class="btn-secondary-colors"
                 button_class="bg-cloud/80 hover:bg-cloud/60"
               />
             </div>

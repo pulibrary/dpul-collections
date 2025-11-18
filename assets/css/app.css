@@ -19,6 +19,7 @@
   --color-wafer-pink: #e2d4c9;
   --color-sage: #d0d3ac;
   --color-dark-sage: #9fa06c;
+  --color-light-cloud: #e1e2e5;
   --color-cloud: #c1ccc3;
   --color-rust: #a0562c;
   --color-dark-blue: #3a4151;
@@ -159,8 +160,7 @@
     last:before:absolute last:before:h-full last:before:w-4 last:before:top-0 last:before:-right-4 group-hover:last:before:bg-zinc-50 last:before:sm:rounded-r-xl;
 }
 
-@utility btn-base { 
-  @apply border-0 border-solid flex justify-center items-center text-center font-bold *:font-bold h-14 text-nowrap uppercase cursor-pointer;
+@utility btn-base-behavior {
   &:hover {
     @apply no-underline;
   }
@@ -176,12 +176,28 @@
   }
 }
 
+@utility btn-base {
+  @apply btn-base-behavior border-0 flex justify-center items-center text-center font-bold *:font-bold h-14 text-nowrap uppercase cursor-pointer;
+}
+
+@utility btn-primary-colors {
+  @apply bg-primary text-dark-text disabled:text-dark-gray hover:bg-[#c5c6b5];
+}
+
+@utility btn-primary-bright-colors {
+  @apply bg-primary-bright text-dark-text disabled:text-dark-gray hover:bg-primary-light;
+}
+
+@utility btn-secondary-colors {
+  @apply bg-cloud text-dark-text hover:bg-light-cloud disabled:text-dark-gray;
+}
+
 @utility btn-primary {
-  @apply btn-base bg-primary text-dark-text disabled:text-[#333333] hover:bg-[#c5c6b5] px-8;
+  @apply btn-base btn-primary-colors px-8;
 }
 
 @utility btn-secondary {
-  @apply btn-base bg-cloud text-dark-text hover:enabled:bg-[#e1e2e5] disabled:text-[#333333] px-8;
+  @apply btn-base btn-secondary-colors px-8;
 }
 
 @utility btn-danger {
@@ -385,7 +401,7 @@
 }
 
 #policies a,
-#collection-description a {
+#collection-description.collection-description a {
   @apply text-accent;
 }
 

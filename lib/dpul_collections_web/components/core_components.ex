@@ -20,6 +20,10 @@ defmodule DpulCollectionsWeb.CoreComponents do
   use Gettext, backend: DpulCollectionsWeb.Gettext
   import Iconify
 
+  use Phoenix.VerifiedRoutes,
+    endpoint: DpulCollectionsWeb.Endpoint,
+    router: DpulCollectionsWeb.Router
+
   @doc """
   Renders flash notices.
 
@@ -399,6 +403,27 @@ defmodule DpulCollectionsWeb.CoreComponents do
     >
       <.icon name={@icon} class="mt-1 h-8 w-8 icon" />
       <div class="mt-[-.25rem]">{@button_text}</div>
+    </.link>
+    """
+  end
+
+  slot :inner_block
+  attr :class, :any, default: nil
+  attr :filter_name, :string, required: true
+  attr :filter_value, :string, required: true
+
+  def filter_link_button(assigns) do
+    ~H"""
+    <.link
+      href={
+        ~p"/search?#{%{filter: %{@filter_name => [@filter_value]}} |> DpulCollectionsWeb.Live.Helpers.clean_params()}"
+      }
+      class={[
+        "btn-base-behavior px-3 py-1.5 border-0 flex justify-center items-center text-center h-8 text-nowrap cursor-pointer text-xs h-fit w-full h-full",
+        @class
+      ]}
+    >
+      {render_slot(@inner_block)}
     </.link>
     """
   end
