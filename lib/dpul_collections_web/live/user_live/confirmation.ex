@@ -31,16 +31,18 @@ defmodule DpulCollectionsWeb.UserLive.Confirmation do
             name={@form[:return_to].name}
             value={@form[:return_to].value}
           />
-          <.primary_button
-            name={@form[:remember_me].name}
-            value="true"
-            phx-disable-with="Logging in..."
-          >
-            {gettext("Keep me logged in on this device")}
-          </.primary_button>
-          <.primary_button phx-disable-with="Logging in...">
-            {gettext("Log me in only this time")}
-          </.primary_button>
+          <div class="flex flex-wrap gap-4 justify-center">
+            <.primary_button
+              name={@form[:remember_me].name}
+              value="true"
+              phx-disable-with="Logging in..."
+            >
+              {gettext("Keep me logged in on this device")}
+            </.primary_button>
+            <.primary_button phx-disable-with="Logging in...">
+              {gettext("Log me in only this time")}
+            </.primary_button>
+          </div>
         </.form>
       </div>
     </Layouts.app>
