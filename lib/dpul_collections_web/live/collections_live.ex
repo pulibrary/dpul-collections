@@ -166,7 +166,12 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             </div>
           </div>
         </div>
-        <div :if={length(@collection.featured_items) > 0} class="grid-flow auto-rows-max">
+        <div
+          :if={length(@collection.featured_items) > 0}
+          id="featured-items-container"
+          phx-update="ignore"
+          class="grid-flow auto-rows-max"
+        >
           <.content_separator />
           <.browse_item_row
             id="featured-items"
