@@ -5,4 +5,4 @@
 # Disallow: /
 # Disable crawling filters - it'll just slow down discovery of useful resources - better that they page.
 User-agent: *
-Disallow: /search*?*filter[
+Disallow: /search*?*filter
