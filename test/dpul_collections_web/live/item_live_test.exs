@@ -515,6 +515,21 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     end
   end
 
+  describe "correction form" do
+    test "correction link opens form in modal", %{conn: conn} do
+      {:ok, view, _html} =
+        conn
+        |> log_in_user(user_fixture())
+        |> live(~p"/i/زلزلہ/item/2")
+
+      # Open dialog
+      view
+      |> element(".metadata button", "Correct")
+      |> render_click()
+    end
+  end
+
+
   # Copied from
   # https://github.com/phoenixframework/phoenix_live_view/blob/v1.0.17/lib/phoenix_live_view/test/live_view_test.ex#L1478C1-L1492C6
   # because we don't have a refute_patched. Remove when

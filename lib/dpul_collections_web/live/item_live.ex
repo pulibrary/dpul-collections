@@ -383,7 +383,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def action_bar(assigns) do
     ~H"""
     <div {@rest}>
-      <div class="flex flex-row justify-left items-center gap-4">
+      <div class="flex flex-row justify-between items-center gap-4">
         <.action_icon
           :if={has_dimensions(@item)}
           icon="pepicons-pencil:ruler"
@@ -415,6 +415,15 @@ defmodule DpulCollectionsWeb.ItemLive do
           phx-target="#user_set_form"
         >
           {gettext("Save")}
+        </.action_icon>
+        <.action_icon
+          icon="hero-exclamation-circle"
+          variant="item-action-icon"
+          phx-click="open_modal"
+          phx-value-item_id={@item.id}
+          phx-target="#user_set_form"
+        >
+          {gettext("Correct")}
         </.action_icon>
         <div class="ml-auto h-full flex-grow pr-4">
           <.rights_icon rights_statement={@item.rights_statement} />
