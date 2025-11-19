@@ -133,7 +133,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                     <p class="text-lg text-dark-text pb-2">
                       {@collection.tagline}
                     </p>
-                    <div class="flex items-center text-dark-text gap-2">
+                    <div class="flex flex-wrap justify-center items-center text-dark-text gap-2">
                       <div class="text-sm bg-cloud rounded-full px-3 py-1">
                         {@collection.item_count} {gettext("Items")}
                       </div>
