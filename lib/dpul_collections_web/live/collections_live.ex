@@ -212,6 +212,15 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 button_class="bg-cloud/80 hover:bg-cloud/60"
                 collection_title={@collection.title |> hd}
               />
+              <.pill_section
+                title={gettext("Languages")}
+                unit="language"
+                items={@collection.languages}
+                container_id="languages-container"
+                pill_class="btn-primary-bright-colors"
+                button_class="bg-primary-bright/80 hover:bg-primary-bright/60"
+                collection_title={@collection.title |> hd}
+              />
             </div>
             <div class="[&_a]:text-accent w-full text-lg page-t-padding">
               <div class="collection-description leading-relaxed pb-6">

@@ -68,6 +68,8 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> refute_has("li", text: "Socioeconomic conditions and development")
       # Genres
       |> assert_has("li", text: "Posters")
+      # Languages
+      |> assert_has("li", text: "Hindi")
       # No more link if it's displaying them all
       |> refute_has("li", text: "+0 more")
       # Recently updated more link
