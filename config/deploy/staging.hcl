@@ -37,7 +37,8 @@ job "dpulc-staging" {
         # Router 2: digital-collections-staging-apply-mw
         # Applies captcha-protect middleware if it's not ajax.
         "traefik.http.routers.digital-collections-staging-apply-mw.rule=Header(`X-Forwarded-Host`, `dpul-collections-staging.lib.princeton.edu`)",
-        "traefik.http.routers.digital-collections-staging-apply-mw.middlewares=captcha-protect@file",
+        # NOTE: Disabled this because we can take the traffic right now. If that changes, put this back in.
+        # "traefik.http.routers.digital-collections-staging-apply-mw.middlewares=captcha-protect@file",
         "traefik.http.routers.digital-collections-staging-apply-mw.priority=10"
       ]
       check {
