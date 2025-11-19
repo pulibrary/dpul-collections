@@ -396,10 +396,6 @@
 @utility zi-home-callout {@apply z-10;}
 @utility zi-card-button {@apply z-100;}
 
-#collection-description {
-  @apply font-serif;
-}
-
 #policies a,
 #collection-description.collection-description a {
   @apply text-accent;
@@ -407,22 +403,6 @@
 
 .contributor-card a {
   @apply underline hover:border-none hover:no-underline;
-}
-
-.hero-container-collection {
-    grid-template-areas: 
-    "image-col"
-    "tagline-col";
-}
-
-.image-col { grid-area: image-col; }
-.tagline-col { grid-area: tagline-col; }
-
-@media (min-width: 768px) {
-  .hero-container-collection {
-      grid-template-areas: 
-      "tagline-col image-col";
-  }
 }
 
 /* Every odd section has a dark background, so change the card backdrop to
