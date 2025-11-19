@@ -24,7 +24,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
     ]
 
     # Add another ID so we know it doesn't include counts from other collections.
-    other_ids = ["3da68e1c-06af-4d17-8603-fc73152e1ef7"]
+    other_ids = ["3da68e1c-06af-4d17-8603-fc73152e1ef7", "118983a5-dd6b-4d7a-bb8c-93fb08248cac"]
 
     (sae_ids ++ other_ids)
     |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
@@ -93,6 +93,23 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> assert_has("h1", text: "Search Results")
       |> assert_has("a.category", text: "Politics and government")
       |> assert_has("a.project", text: "South Asian Ephemera")
+    end
+
+    test "a collection without contributors still displays copyright policy", %{conn: conn} do
+      conn
+      |> visit("/collections/soviet_posters")
+      # Title
+      |> assert_has("h1", text: "Russian")
+      # Contributors
+      |> assert_has(
+        "#contributors .contributor-card",
+        count: 0
+      )
+      # Copyright
+      |> assert_has(
+        "#policies",
+        count: 1
+      )
     end
 
     test "collection page is accessible", %{conn: conn} do

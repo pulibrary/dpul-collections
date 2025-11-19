@@ -4,11 +4,11 @@
 PROJECT_ID=2961c153-54ab-4c6a-b5cd-aa992f4c349b
 # First box in Women Life Freedom Movement
 BOX_ID=82624edb-c360-4d8a-b202-f103ee639e8e
-EXTRA_RESOURCE_IDS="('f134f41f-63c5-4fdf-b801-0774e3bc3b2d','65044ab4-8860-48f5-a0b1-efe06a1b4340','6c7c204f-be40-429d-8561-24b11ba0e6a5','32b45be9-257e-444c-bc3e-89535146ae2c', '256df489-089d-473a-b9bb-c3585bb639af', '04b11c52-1508-4adc-8b0c-4cd8f726de0b', 'f09fc91d-7a9b-47b5-afff-ce7db76b4e92', 'e8abfa75-253f-428a-b3df-0e83ff2b20f9', 'e379b822-27cc-4d0e-bca7-6096ac38f1e6', '1e5ae074-3a6e-494e-9889-6cd01f7f0621', '036b86bf-28b0-4157-8912-6d3d9eeaa5a8', 'd82efa97-c69b-424c-83c2-c461baae8307', '6d2be738-626f-4b3d-a17a-655501d2ad9e')"
+EXTRA_RESOURCE_IDS="('f134f41f-63c5-4fdf-b801-0774e3bc3b2d','65044ab4-8860-48f5-a0b1-efe06a1b4340','6c7c204f-be40-429d-8561-24b11ba0e6a5','32b45be9-257e-444c-bc3e-89535146ae2c', '256df489-089d-473a-b9bb-c3585bb639af', '04b11c52-1508-4adc-8b0c-4cd8f726de0b', 'f09fc91d-7a9b-47b5-afff-ce7db76b4e92', 'e8abfa75-253f-428a-b3df-0e83ff2b20f9', 'e379b822-27cc-4d0e-bca7-6096ac38f1e6', '1e5ae074-3a6e-494e-9889-6cd01f7f0621', '036b86bf-28b0-4157-8912-6d3d9eeaa5a8', 'd82efa97-c69b-424c-83c2-c461baae8307', '6d2be738-626f-4b3d-a17a-655501d2ad9e',  '118983a5-dd6b-4d7a-bb8c-93fb08248cac')"
 EXTRA_RESOURCE_ID_ARRAY=${EXTRA_RESOURCE_IDS/\(/\[}
 EXTRA_RESOURCE_ID_ARRAY=${EXTRA_RESOURCE_ID_ARRAY/\)/\]}
 # For SAE we don't want every member, just the members of one box, so import it but don't get all its boxes/folders.
-NO_MEMBER_IDS="('f99af4de-fed4-4baa-82b1-6e857b230306', 'f09fc91d-7a9b-47b5-afff-ce7db76b4e92')"
+NO_MEMBER_IDS="('f99af4de-fed4-4baa-82b1-6e857b230306', 'f09fc91d-7a9b-47b5-afff-ce7db76b4e92', '118983a5-dd6b-4d7a-bb8c-93fb08248cac')"
 
 # Export the project
 ssh deploy@figgy-web-prod1.princeton.edu "cd /opt/figgy/current && PGPASSWORD=\$FIGGY_DB_RO_PASSWORD psql -d \$FIGGY_DB -U \$FIGGY_DB_RO_USERNAME -h \$FIGGY_DB_HOST -c \"\\copy (select * from orm_resources WHERE id = '$PROJECT_ID') TO '/tmp/project-export.binary' BINARY\""

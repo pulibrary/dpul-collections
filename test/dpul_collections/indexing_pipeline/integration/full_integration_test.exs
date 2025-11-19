@@ -69,15 +69,15 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     AckTracker.wait_for_pipeline_finished(tracker_pid)
 
     # The hydrator pulled all ephemera folders, terms, deletion markers and
-    # removed the hydration cache markers for the deletion marker deleted resource. It also has the one ephemera project.
+    # removed the hydration cache markers for the deletion marker deleted resource. It also has 3 ephemera projects.
     entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
-    assert FiggyTestSupport.total_resource_count() + 1 == entry_count
+    assert FiggyTestSupport.total_resource_count() + 3 == entry_count
 
     # The transformer processed ephemera folders and deletion markers
     # removed the transformation cache markers for the deletion marker deleted resource.
     transformation_cache_entry_count = Repo.aggregate(Figgy.TransformationCacheEntry, :count)
     deletion_marker_count = FiggyTestSupport.deletion_marker_count()
-    total_transformed_count = FiggyTestSupport.ephemera_folder_count() + deletion_marker_count + 1
+    total_transformed_count = FiggyTestSupport.ephemera_folder_count() + deletion_marker_count + 3
 
     # Empty resources are resources with no image file sets
     empty_resource_count = 1

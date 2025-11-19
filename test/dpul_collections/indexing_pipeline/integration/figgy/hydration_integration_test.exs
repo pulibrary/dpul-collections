@@ -59,7 +59,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
              "internal_resource" => "EphemeraFolder",
              "metadata" => %{
                "member_ids" => [
-                 %{"id" => "06838583-59a4-4ab8-ac65-2b5ea9ee6425"}
+                 %{"id" => "483ead2f-bf76-4a2a-82ce-389fd1a9a324"}
                  | _rest
                ]
              }
@@ -67,7 +67,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
 
     assert %{
              "resources" => %{
-               "06838583-59a4-4ab8-ac65-2b5ea9ee6425" => %{
+               "483ead2f-bf76-4a2a-82ce-389fd1a9a324" => %{
                  "internal_resource" => "FileSet"
                }
              },

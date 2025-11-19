@@ -244,11 +244,14 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         </div>
         <!-- Contributors -->
         <div
-          :if={length(@collection.contributors) > 0}
           class="w-full page-y-padding page-x-padding flex flex-col"
           id="contributors"
         >
-          <div class="content-area pb-6">
+          <div
+            :if={length(@collection.contributors) > 0}
+            id="contributors"
+            class="content-area pb-6"
+          >
             <h2 class="heading text-2xl pb-4">Contributors</h2>
             <div class="flex flex-wrap gap-4 pb-6">
               <div
@@ -288,41 +291,41 @@ defmodule DpulCollectionsWeb.CollectionsLive do
               </div>
             </div>
             <hr />
-            <div id="policies">
-              <h3 class="uppercase font-semibold text-xl pt-6">
-                {gettext("Copyright")}
-              </h3>
-              <p>
-                {gettext(
-                  "Princeton University Library claims no copyright governing this digital resource.
-                It is provided for free, on a non-commercial, open-access basis, for fair-use academic
-                and research purposes only. Anyone who claims copyright over any part of these resources
-                and feels that they should not be presented in this manner is invited to"
-                )}
-                <a href="https://library.princeton.edu/form/removal-request">
-                {gettext("contact Princeton University Library")}
-                </a>, {gettext(
-                  "who will in turn consider such concerns and make reasonable efforts to respond to such concerns"
-                )}.
-              </p>
-              <h3 class="uppercase font-semibold text-xl pt-6">
-                {gettext("Preferred Citation")}
-              </h3>
-              <p>
-                [Identification of item], [Sub-collection name (if applicable)], {@collection.title
-                |> hd} Collection, Princeton University Library.
-              </p>
-              <h3 class="uppercase font-semibold text-xl pt-6">
-                {gettext("Romanization")}
-              </h3>
-              <p>
-                {gettext("Please refer to the")}
-                <a href="https://www.loc.gov/catdir/cpso/roman.html">
-                  {gettext("Library of Congress Romanization tables")}
-                </a>
-                {gettext("when searching the collection")}.
-              </p>
-            </div>
+          </div>
+          <div id="policies" class="content-area pb-6">
+            <h3 class="uppercase font-semibold text-xl pt-6">
+              {gettext("Copyright")}
+            </h3>
+            <p>
+              {gettext(
+                "Princeton University Library claims no copyright governing this digital resource.
+              It is provided for free, on a non-commercial, open-access basis, for fair-use academic
+              and research purposes only. Anyone who claims copyright over any part of these resources
+              and feels that they should not be presented in this manner is invited to"
+              )}
+              <a href="https://library.princeton.edu/form/removal-request">
+              {gettext("contact Princeton University Library")}
+              </a>, {gettext(
+                "who will in turn consider such concerns and make reasonable efforts to respond to such concerns"
+              )}.
+            </p>
+            <h3 class="uppercase font-semibold text-xl pt-6">
+              {gettext("Preferred Citation")}
+            </h3>
+            <p>
+              [Identification of item], [Sub-collection name (if applicable)], {@collection.title
+              |> hd} Collection, Princeton University Library.
+            </p>
+            <h3 class="uppercase font-semibold text-xl pt-6">
+              {gettext("Romanization")}
+            </h3>
+            <p>
+              {gettext("Please refer to the")}
+              <a href="https://www.loc.gov/catdir/cpso/roman.html">
+                {gettext("Library of Congress Romanization tables")}
+              </a>
+              {gettext("when searching the collection")}.
+            </p>
           </div>
         </div>
       </div>
