@@ -526,6 +526,10 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       view
       |> element(".metadata button", "Correct")
       |> render_click()
+
+      assert view
+      |> form("#correction-form", name: "me", email: "me@example.com", message: "it is wrong")
+      |> render_submit() =~ "Thank you for submitting a message through the Suggest a Correction form"
     end
   end
 

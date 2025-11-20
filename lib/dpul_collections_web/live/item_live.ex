@@ -258,6 +258,15 @@ defmodule DpulCollectionsWeb.ItemLive do
         current_path={@current_path}
       />
     </div>
+    <div id="correction-form">
+      <.modal
+        id="correction-form-modal"
+        label={gettext("Suggest a correction")}
+      >
+        <div id="correction-form-modal-content" class="mt-4 w-full flex">
+        </div>
+      </.modal>
+    </div>
     """
   end
 
@@ -419,9 +428,9 @@ defmodule DpulCollectionsWeb.ItemLive do
         <.action_icon
           icon="hero-exclamation-circle"
           variant="item-action-icon"
-          phx-click="open_modal"
+          phx-click="open_correction_modal"
           phx-value-item_id={@item.id}
-          phx-target="#user_set_form"
+          phx-target="#correction-form"
         >
           {gettext("Correct")}
         </.action_icon>
@@ -540,6 +549,16 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   # If we're not in the viewer, ignore this event.
   def handle_event("changedCanvas", _, socket), do: {:noreply, socket}
+
+  def handle_event("open_correction_modal", %{"item_id" => item_id}, socket) do
+    {:noreply,
+     socket
+     |> assign(:item_id, item_id)
+     # Notes to self:
+     # We can get rid of a bunch of this Modal stuff with
+     # JS.ignore_attribute on phx-mounted
+     |> push_event("dcjs-open", %{id: "correction-form-modal"})}
+  end
 
   def primary_thumbnail(assigns) do
     ~H"""
