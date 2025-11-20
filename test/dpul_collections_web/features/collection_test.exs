@@ -51,7 +51,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
         text: "Browse Collection"
       )
       # Mosaic
-      |> assert_has("#collection-mosaic .card-darkdrop", count: 4)
+      |> assert_has("#collection-mosaic .card-darkdrop", count: 1)
       # Featured Items
       |> assert_has("#featured-items .browse-item", count: 4)
       # Learn More collapse/expand

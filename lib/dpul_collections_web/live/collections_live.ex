@@ -19,7 +19,8 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         socket =
           assign(socket,
             page_title: collection.title,
-            collection: collection
+            collection: collection,
+            mosaic_title_item: collection.featured_items |> Enum.random()
           )
 
         {:noreply, socket}
@@ -82,7 +83,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         class="grid grid-flow-row auto-rows-max -mb-6 [&>*:nth-child(odd)]:bg-background [&>*:nth-child(even)]:bg-dark-gray [&>*:nth-child(even)]:text-light-text"
       >
         <!-- Hero Section -->
-        <div class="content-area relative overflow-hidden">
+        <div class="content-area relative">
           <div class="left-[15%] absolute z-10">
             <img src="/images/triangle-mosaic.png" alt="" class="mx-auto w-xl" />
           </div>
@@ -95,41 +96,43 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             </h1>
           </div>
           <div class="page-y-padding relative z-30">
-            <div class="hero-container-collection grid grid-cols-1 md:grid-cols-2 gap-0 md:grid-cols-[auto_60%]">
+            <div class="hero-container-collection flex md:flex-row-reverse flex-col gap-0">
               <!-- Right Column: Featured Items Mosaic -->
-              <div id="collection-mosaic" class="image-col self-start h-120">
-                <div class="w-full h-full relative">
+              <div
+                id="collection-mosaic"
+                class="flex flex-col gap-4 w-full grow"
+                phx-update="ignore"
+              >
+                <div class="max-h-120 p-2 card-darkdrop bg-white min-h-0 min-w-0 flex">
+                  <div class="overflow-hidden w-full">
+                    <.link
+                      href={@mosaic_title_item.url}
+                      class="overflow-hidden"
+                      aria-label={"View #{@mosaic_title_item.title |> hd}"}
+                    >
+                      <img
+                        src={"#{@mosaic_title_item.primary_thumbnail_service_url}/full/!#{@mosaic_title_item.primary_thumbnail_width},#{@mosaic_title_item.primary_thumbnail_height}/0/default.jpg"}
+                        width={@mosaic_title_item.primary_thumbnail_width}
+                        height={@mosaic_title_item.primary_thumbnail_height}
+                        class="object-cover object-top max-h-full max-w-full w-full"
+                        alt={@mosaic_title_item.title |> hd}
+                      />
+                    </.link>
+                  </div>
+                </div>
+                <div class="flex justify-items-end">
                   <.primary_button
                     href={~p"/search?#{%{filter: %{project: [@collection.title |> hd]}}}"}
-                    class="btn-primary absolute bottom-[-.5rem] right-0 hidden md:flex"
+                    class="btn-primary hidden md:flex ml-auto"
                   >
                     {gettext("Browse Collection")}
                   </.primary_button>
-                  <%= for {item, index} <-  Enum.with_index(@collection.featured_items) do %>
-                    <.link
-                      href={item.url}
-                      class={"card-darkdrop w-[100%] p-2 bg-white min-h-0 min-w-0 absolute z-[#{index}] drop-shadow-none"}
-                      aria-label={"View #{item.title |> hd}"}
-                    >
-                      <div class="max-h-75 md:max-h-100 h-full w-full overflow-hidden">
-                        <img
-                          src={"#{item.primary_thumbnail_service_url}/full/!#{item.primary_thumbnail_width},#{item.primary_thumbnail_height}/0/default.jpg"}
-                          width={item.primary_thumbnail_width}
-                          height={item.primary_thumbnail_height}
-                          class="object-cover object-top h-full w-full"
-                          alt={item.title |> hd}
-                        />
-                      </div>
-                    </.link>
-                  <% end %>
                 </div>
               </div>
-              
-    <!-- Left Column: Content -->
-              <div class="tagline-col">
+              <!-- Left Column: Content -->
+              <div class="md:max-w-[40%]">
                 <div class="w-full relative z-30">
-                  <div class="w-full h-full bg-white opacity-75 absolute z-40"></div>
-                  <div class="flex flex-wrap gap-4 p-5 relative z-50 -mt-[10rem] md:mt-0">
+                  <div class="flex flex-wrap gap-4 p-5 relative z-50 bg-white/75">
                     <p class="text-lg text-dark-text pb-2">
                       {@collection.tagline}
                     </p>
@@ -195,7 +198,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           </div>
           <div
             id="collection-description"
-            class="content-area grid grid-cols-1 gap-6"
+            class="content-area grid grid-cols-1 gap-6 font-serif"
           >
             <div>
               <.pill_section
@@ -270,10 +273,10 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                     "bg-search flex items-center justify-center relative",
                     "h-full"
                   ]}>
-                    <div class="w-full flex items-center overflow-hidden justify-center gap-2 h-[150px] p-2">
+                    <div class="w-full flex items-center overflow-hidden justify-center gap-2 max-h-[150px] p-2">
                       <img
                         src={contributor.logo}
-                        class="object-cover max-w-full max-h-full"
+                        class="object-contain max-w-full max-h-full"
                         alt=""
                       />
                     </div>
