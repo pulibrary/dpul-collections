@@ -3,3 +3,12 @@
 # To ban all spiders from the entire site uncomment the next two lines:
 # User-agent: *
 # Disallow: /
+# Disable crawling filters - it'll just slow down discovery of useful resources - better that they page.
+User-agent: *
+Disallow: /search*?*filter
+# Don't index the bot challenge page, Google.
+Disallow: /challenge
+# Bots don't browse.
+Disallow: /browse?r
+# Bots can't log in.
+Disallow: /users
