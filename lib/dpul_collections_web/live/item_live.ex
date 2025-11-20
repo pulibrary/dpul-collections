@@ -26,7 +26,14 @@ defmodule DpulCollectionsWeb.ItemLive do
         current_canvas_idx: current_canvas_idx,
         current_content_state_url: current_content_state_url,
         meta_properties: Item.meta_properties(item),
-        display_size: false
+        display_size: false,
+        correction_form:
+          to_form(%{
+            "name" => nil,
+            "email" => nil,
+            "message" => nil
+          }),
+        correction_form_submitted?: false
       )
 
     {:noreply, build_socket(socket, item, path)}
@@ -258,15 +265,10 @@ defmodule DpulCollectionsWeb.ItemLive do
         current_path={@current_path}
       />
     </div>
-    <div id="correction-form">
-      <.modal
-        id="correction-form-modal"
-        label={gettext("Suggest a correction")}
-      >
-        <div id="correction-form-modal-content" class="mt-4 w-full flex">
-        </div>
-      </.modal>
-    </div>
+    <.correction_form_modal
+      correction_form={@correction_form}
+      correction_form_submitted?={@correction_form_submitted?}
+    />
     """
   end
 
@@ -509,6 +511,38 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
+  # TODO: add introductory language with link to the problematic language page
+  def correction_form_modal(assigns) do
+    ~H"""
+    <.modal
+      id="correction-form-modal"
+      label={gettext("Suggest a correction")}
+    >
+      <div id="correction-form-modal-content" class="mt-4 w-full flex">
+        <.form
+          :if={!@correction_form_submitted?}
+          id="correction-form"
+          for={@correction_form}
+          class="flex flex-col gap-2 w-full"
+          phx-submit="send_correction"
+        >
+          <.input type="text" label="Name" field={@correction_form[:name]} />
+          <.input type="email" label="Email" field={@correction_form[:email]} />
+          <.input type="textarea" label="Message" field={@correction_form[:message]} />
+          <div class="flex w-full">
+            <.primary_button>
+              Send
+            </.primary_button>
+          </div>
+        </.form>
+        <p :if={@correction_form_submitted?}>
+          Thank you for your suggestion. We will reach out to you if we have any questions. Our staff will review your suggestion and assess the practicality of its implementation, as well as its conformance to national and international description standards and current best practices in the field. You may not hear back from us, but, rest assured, we assess each suggestion we receive carefully before determining if and how to implement it.
+        </p>
+      </div>
+    </.modal>
+    """
+  end
+
   def handle_event("toggle_size", _opts, socket = %{assigns: %{display_size: display_size}}) do
     socket =
       socket
@@ -558,6 +592,13 @@ defmodule DpulCollectionsWeb.ItemLive do
      # We can get rid of a bunch of this Modal stuff with
      # JS.ignore_attribute on phx-mounted
      |> push_event("dcjs-open", %{id: "correction-form-modal"})}
+  end
+
+  def handle_event("send_correction", _, socket) do
+    # TODO call something here
+    {:noreply,
+     socket
+     |> assign(:correction_form_submitted?, true)}
   end
 
   def primary_thumbnail(assigns) do

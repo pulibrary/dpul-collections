@@ -527,12 +527,14 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       |> element(".metadata button", "Correct")
       |> render_click()
 
-      assert view
-      |> form("#correction-form", name: "me", email: "me@example.com", message: "it is wrong")
-      |> render_submit() =~ "Thank you for submitting a message through the Suggest a Correction form"
+      html =
+        view
+        |> form("#correction-form", name: "me", email: "me@example.com", message: "it is wrong")
+        |> render_submit()
+
+      assert html =~ "Thank you for your suggestion"
     end
   end
-
 
   # Copied from
   # https://github.com/phoenixframework/phoenix_live_view/blob/v1.0.17/lib/phoenix_live_view/test/live_view_test.ex#L1478C1-L1492C6
