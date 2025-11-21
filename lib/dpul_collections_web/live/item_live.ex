@@ -513,7 +513,6 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
-  # TODO: add introductory language with link to the problematic language page
   def correction_form_modal(assigns) do
     ~H"""
     <.modal
@@ -529,6 +528,18 @@ defmodule DpulCollectionsWeb.ItemLive do
           phx-submit="send_correction"
           phx-value-item_id={@item_id}
         >
+          <p>
+            {Phoenix.HTML.raw(
+              gettext(
+                "Please use this area to report errors, omissions, or %{description_link} that appear in the description of this collection. Corrections may include misspellings, incorrect or missing dates, misidentified individuals, places, or events, mislabeled folders, misfiled papers, etc.",
+                description_link:
+                  safe_link(%{
+                    url: "https://library.princeton.edu/about/responsible-collection-description",
+                    label: gettext("problematic language")
+                  })
+              )
+            )}
+          </p>
           <.input type="text" label="Name" field={@correction_form[:name]} />
           <.input type="email" label="Email" field={@correction_form[:email]} />
           <.input type="textarea" label="Message" field={@correction_form[:message]} />

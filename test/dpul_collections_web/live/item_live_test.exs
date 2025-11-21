@@ -528,6 +528,9 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       |> element(".metadata button", "Correct")
       |> render_click()
 
+      assert view
+             |> has_element?("p", "Please use this area to report")
+
       with_mock(DpulCollections.LibanswersApi,
         create_ticket: fn _params ->
           {:ok,
