@@ -20,7 +20,8 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           assign(socket,
             page_title: collection.title,
             collection: collection,
-            mosaic_title_item: collection.featured_items |> then(&if &1 != [], do: Enum.random(&1))
+            mosaic_title_item:
+              collection.featured_items |> then(&if &1 != [], do: Enum.random(&1))
           )
 
         {:noreply, socket}
