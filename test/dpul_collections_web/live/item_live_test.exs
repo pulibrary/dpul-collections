@@ -4,6 +4,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
   alias DpulCollections.Solr
   alias DpulCollectionsWeb.ItemLive
   import DpulCollections.AccountsFixtures
+  import Mock
   @endpoint DpulCollectionsWeb.Endpoint
 
   setup do
@@ -527,12 +528,39 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       |> element(".metadata button", "Correct")
       |> render_click()
 
-      html =
-        view
-        |> form("#correction-form", name: "me", email: "me@example.com", message: "it is wrong")
-        |> render_submit()
+      with_mock(DpulCollections.LibanswersApi,
+        create_ticket: fn _params ->
+          %{
+            "isShared" => false,
+            "ticketUrl" => "http://mylibrary.libanswers.com/admin/ticket?qid=12345",
+            "claimed" => 0
+          }
+        end
+      ) do
+        html =
+          view
+          |> form("#correction-form",
+            name: "me",
+            email: "me@example.com",
+            message: "a correction"
+          )
+          |> render_submit()
 
-      assert html =~ "Thank you for your suggestion"
+        assert html =~ "Thank you for your suggestion"
+
+        assert_called(
+          DpulCollections.LibanswersApi.create_ticket(%{
+            "name" => "me",
+            "email" => "me@example.com",
+            "message" => "a correction",
+            "item_id" => "2"
+          })
+        )
+      end
+    end
+
+    # TODO
+    test "api failure gives appropriate message to user", %{conn: conn} do
     end
   end
 

@@ -11,15 +11,26 @@ defmodule DpulCollections.LibanswersApiTest do
           "https://faq.library.princeton.edu/api/1.1/oauth/token", _ ->
             LibanswersApiFixtures.oauth_response()
 
-          "https://faq.library.princeton.edu/api/1.1/ticket/create", _ ->
+          "https://faq.library.princeton.edu/api/1.1/ticket/create",
+          [
+            form: %{
+              quid: "my_queue",
+              pquestion: "Digital Collections Suggest a Correction Form",
+              pdetails: "a correction\n\nSent from Digital Collections item 2 via Libanswers API",
+              pname: "me",
+              pemail: "me@example.com"
+            },
+            headers: %{"accept" => ["application/json"], "authorization" => "Bearer fake_token"}
+          ] ->
             LibanswersApiFixtures.ticket_create_200()
         end
       ) do
         {:ok, response_body} =
           LibanswersApi.create_ticket(%{
-            name: "me",
-            email: "me@example.com",
-            message: "suggesting a correction"
+            "name" => "me",
+            "email" => "me@example.com",
+            "message" => "a correction",
+            "item_id" => "2"
           })
 
         assert response_body["ticketUrl"] ==
@@ -39,9 +50,10 @@ defmodule DpulCollections.LibanswersApiTest do
       ) do
         {:error, response} =
           LibanswersApi.create_ticket(%{
-            name: "me",
-            email: "me@example.com",
-            message: "suggesting a correction"
+            "name" => "me",
+            "email" => "me@example.com",
+            "message" => "a correction",
+            "item_id" => "2"
           })
 
         assert Map.keys(response.body) == ["error"]

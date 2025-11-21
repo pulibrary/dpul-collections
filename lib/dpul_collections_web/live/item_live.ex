@@ -2,6 +2,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   use DpulCollections.Solr.Constants
   alias DpulCollectionsWeb.Live.Helpers
   alias DpulCollectionsWeb.ContentWarnings
+  alias DpulCollections.LibanswersApi
   import DpulCollectionsWeb.BrowseItem
   use DpulCollectionsWeb, :live_view
   use Gettext, backend: DpulCollectionsWeb.Gettext
@@ -267,6 +268,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     </div>
     <.correction_form_modal
       correction_form={@correction_form}
+      item_id={@item.id}
       correction_form_submitted?={@correction_form_submitted?}
     />
     """
@@ -525,6 +527,7 @@ defmodule DpulCollectionsWeb.ItemLive do
           for={@correction_form}
           class="flex flex-col gap-2 w-full"
           phx-submit="send_correction"
+          phx-value-item_id={@item_id}
         >
           <.input type="text" label="Name" field={@correction_form[:name]} />
           <.input type="email" label="Email" field={@correction_form[:email]} />
@@ -594,8 +597,9 @@ defmodule DpulCollectionsWeb.ItemLive do
      |> push_event("dcjs-open", %{id: "correction-form-modal"})}
   end
 
-  def handle_event("send_correction", _, socket) do
-    # TODO call something here
+  def handle_event("send_correction", params, socket) do
+    LibanswersApi.create_ticket(params)
+
     {:noreply,
      socket
      |> assign(:correction_form_submitted?, true)}

@@ -15,20 +15,18 @@ defmodule DpulCollections.LibanswersApi do
     end
   end
 
-  # def enhance_message(message) do
-  #   "#{@message}\n\nSent from #{current_url} via Libanswers API" if current_url
-  #
-  #   "#{@message}\n\nSent via Libanswers API"
-  # end
-
-  def create_data(%{message: message, name: name, email: email}) do
+  def create_data(params = %{"name" => name, "email" => email}) do
     %{
       quid: config()[:queue_id],
       pquestion: "Digital Collections Suggest a Correction Form",
-      pdetails: message,
+      pdetails: enhance_message(params),
       pname: name,
       pemail: email
     }
+  end
+
+  def enhance_message(%{"message" => message, "item_id" => item_id}) do
+    "#{message}\n\nSent from Digital Collections item #{item_id} via Libanswers API"
   end
 
   def get_token do
@@ -49,18 +47,6 @@ defmodule DpulCollections.LibanswersApi do
       200 -> response.body["access_token"]
       _ -> {:error, response}
     end
-  end
-
-  def extract_token({:ok, body}) do
-    body
-    |> Jason.decode!()
-    |> Map.get("access_token")
-  end
-
-  def extract_ticket_url({:ok, body}) do
-    body
-    |> Jason.decode!()
-    |> Map.get("ticketUrl")
   end
 
   def oauth_url do
