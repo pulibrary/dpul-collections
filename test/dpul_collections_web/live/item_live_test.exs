@@ -530,11 +530,12 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
 
       with_mock(DpulCollections.LibanswersApi,
         create_ticket: fn _params ->
-          %{
-            "isShared" => false,
-            "ticketUrl" => "http://mylibrary.libanswers.com/admin/ticket?qid=12345",
-            "claimed" => 0
-          }
+          {:ok,
+           %{
+             "isShared" => false,
+             "ticketUrl" => "http://mylibrary.libanswers.com/admin/ticket?qid=12345",
+             "claimed" => 0
+           }}
         end
       ) do
         html =
@@ -559,8 +560,65 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       end
     end
 
-    # TODO
+    test "form does not have all required values", %{conn: conn} do
+      {:ok, view, _html} =
+        conn
+        |> log_in_user(user_fixture())
+        |> live(~p"/i/زلزلہ/item/2")
+
+      # Open dialog
+      view
+      |> element(".metadata button", "Correct")
+      |> render_click()
+
+      with_mock(DpulCollections.LibanswersApi,
+        create_ticket: fn _params -> nil end
+      ) do
+        html =
+          view
+          |> form("#correction-form",
+            name: "me",
+            email: "me@example.com"
+          )
+          |> render_submit()
+
+        assert html =~ "Sorry, something went wrong"
+
+        assert_not_called(DpulCollections.LibanswersApi.create_ticket(:_))
+      end
+    end
+
     test "api failure gives appropriate message to user", %{conn: conn} do
+      {:ok, view, _html} =
+        conn
+        |> log_in_user(user_fixture())
+        |> live(~p"/i/زلزلہ/item/2")
+
+      # Open dialog
+      view
+      |> element(".metadata button", "Correct")
+      |> render_click()
+
+      with_mock(Req,
+        post: fn
+          "https://faq.library.princeton.edu/api/1.1/oauth/token", _ ->
+            LibanswersApiFixtures.oauth_response()
+
+          "https://faq.library.princeton.edu/api/1.1/ticket/create", _ ->
+            LibanswersApiFixtures.ticket_create_400()
+        end
+      ) do
+        html =
+          view
+          |> form("#correction-form",
+            name: "me",
+            email: "me@example.com",
+            message: "a correction"
+          )
+          |> render_submit()
+
+        assert html =~ "Sorry, something went wrong"
+      end
     end
   end
 

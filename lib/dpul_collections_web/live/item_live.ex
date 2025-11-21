@@ -6,7 +6,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   import DpulCollectionsWeb.BrowseItem
   use DpulCollectionsWeb, :live_view
   use Gettext, backend: DpulCollectionsWeb.Gettext
-  alias DpulCollections.{Item, Solr}
+  alias DpulCollections.{Item, Solr, Correction}
   alias DpulCollectionsWeb.ContentWarnings
 
   def mount(_params, _session, socket) do
@@ -34,7 +34,7 @@ defmodule DpulCollectionsWeb.ItemLive do
             "email" => nil,
             "message" => nil
           }),
-        correction_form_submitted?: false
+        correction_form_status: :new
       )
 
     {:noreply, build_socket(socket, item, path)}
@@ -269,7 +269,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     <.correction_form_modal
       correction_form={@correction_form}
       item_id={@item.id}
-      correction_form_submitted?={@correction_form_submitted?}
+      correction_form_status={@correction_form_status}
     />
     """
   end
@@ -522,7 +522,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     >
       <div id="correction-form-modal-content" class="mt-4 w-full flex">
         <.form
-          :if={!@correction_form_submitted?}
+          :if={@correction_form_status == :new}
           id="correction-form"
           for={@correction_form}
           class="flex flex-col gap-2 w-full"
@@ -534,12 +534,19 @@ defmodule DpulCollectionsWeb.ItemLive do
           <.input type="textarea" label="Message" field={@correction_form[:message]} />
           <div class="flex w-full">
             <.primary_button>
-              Send
+              {gettext("Send")}
             </.primary_button>
           </div>
         </.form>
-        <p :if={@correction_form_submitted?}>
-          Thank you for your suggestion. We will reach out to you if we have any questions. Our staff will review your suggestion and assess the practicality of its implementation, as well as its conformance to national and international description standards and current best practices in the field. You may not hear back from us, but, rest assured, we assess each suggestion we receive carefully before determining if and how to implement it.
+        <p :if={@correction_form_status == :successful}>
+          {gettext(
+            "Thank you for your suggestion. We will reach out to you if we have any questions. Our staff will review your suggestion and assess the practicality of its implementation, as well as its conformance to national and international description standards and current best practices in the field. You may not hear back from us, but, rest assured, we assess each suggestion we receive carefully before determining if and how to implement it."
+          )}
+        </p>
+        <p :if={@correction_form_status == :failed}>
+          {gettext(
+            "Sorry, something went wrong. Either the message was blank or there was an error with the form submission. Please try again or email the library directly."
+          )}
         </p>
       </div>
     </.modal>
@@ -598,11 +605,19 @@ defmodule DpulCollectionsWeb.ItemLive do
   end
 
   def handle_event("send_correction", params, socket) do
-    LibanswersApi.create_ticket(params)
+    correction = %Correction{} |> Correction.changeset(params)
 
-    {:noreply,
-     socket
-     |> assign(:correction_form_submitted?, true)}
+    with true <- correction.valid?,
+         {:ok, _} <- LibanswersApi.create_ticket(params) do
+      {:noreply,
+       socket
+       |> assign(:correction_form_status, :successful)}
+    else
+      _ ->
+        {:noreply,
+         socket
+         |> assign(:correction_form_status, :failed)}
+    end
   end
 
   def primary_thumbnail(assigns) do
