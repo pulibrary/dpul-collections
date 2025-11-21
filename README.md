@@ -40,11 +40,14 @@ that we can easily use it for testing indexing.
 To refresh fixtures:
 - `cd figgy-fixture-container && ./create-fixture-exports.sh`
 
- To add extra fixtures:
+To add extra fixtures:
 - Edit `figgy-fixture-container/create-fixture-exports.sh` and add an id to the EXTRA_RESOURCE_IDS var
 - `cd figgy-fixture-container && ./create-fixture-exports.sh`
 
 Note that refreshing or adding a new fixture might require you to make adjustments to test expectations.
+
+If someone else updated the fixtures and now your local test suite is failing, run:
+`mix fixtures.setup`
 
 ### Figgy Fixtures: Local Development
 
