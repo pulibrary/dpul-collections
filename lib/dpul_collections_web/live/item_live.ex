@@ -768,7 +768,7 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def copy_element(assigns) do
     ~H"""
-    <div class="rounded-lg border border-gray-300 grid grid-rows-1 grid-cols-5 relative">
+    <div class="rounded-lg border border-gray-300 grid grid-rows-1 grid-cols-1 md:grid-cols-5 relative">
       <p id={@id} class="text-sm text-slate-600 m-2 wrap-anywhere col-span-4">
         {@value}
       </p>
