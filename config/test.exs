@@ -137,3 +137,8 @@ config :phoenix_test,
 
 config :honeybadger, api_key: ""
 config :dpul_collections, sql_sandbox: true
+
+config :dpul_collections, :libanswers,
+  client_id: "my_id",
+  client_secret: "my_secret",
+  queue_id: "my_queue"
