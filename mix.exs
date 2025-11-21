@@ -77,7 +77,7 @@ defmodule DpulCollections.MixProject do
       {:bandit, "~> 1.6"},
       {:excoveralls, "~> 0.18.5", only: :test},
       {:broadway, "~> 1.2"},
-      {:ex_doc, "~> 0.38", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.39", only: :dev, runtime: false},
       {:req, "~> 0.5"},
       {:broadway_dashboard, "~> 0.4"},
       {:honeybadger, "~> 0.23"},
@@ -102,7 +102,7 @@ defmodule DpulCollections.MixProject do
       {:sham, "~> 1.0", only: :test},
       {:oban, "~> 2.19"},
       {:oban_web, "~> 2.11"},
-      {:a11y_audit, "~> 0.2.3", only: :test},
+      {:a11y_audit, "~> 0.3.0", only: :test},
       {:mock, "~> 0.3.0", only: :test},
       {:lazy_html, ">= 0.1.0", only: :test}
     ]
