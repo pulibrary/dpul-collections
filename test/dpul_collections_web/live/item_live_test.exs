@@ -588,6 +588,14 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
         assert html =~ "Sorry, something went wrong"
 
         assert_not_called(DpulCollections.LibanswersApi.create_ticket(:_))
+
+        # You can open it again
+        view
+        |> element(".metadata button", "Correct")
+        |> render_click()
+
+        assert view
+               |> has_element?("dialog#correction-form-modal")
       end
     end
 

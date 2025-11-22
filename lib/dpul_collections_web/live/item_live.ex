@@ -434,7 +434,7 @@ defmodule DpulCollectionsWeb.ItemLive do
           variant="item-action-icon"
           phx-click="open_correction_modal"
           phx-value-item_id={@item.id}
-          phx-target="#correction-form"
+          phx-target="#correction-form-div"
         >
           {gettext("Correct")}
         </.action_icon>
@@ -515,52 +515,54 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def correction_form_modal(assigns) do
     ~H"""
-    <.modal
-      id="correction-form-modal"
-      label={gettext("Suggest a correction")}
-    >
-      <div id="correction-form-modal-content" class="mt-4 w-full flex">
-        <.form
-          :if={@correction_form_status == :new}
-          id="correction-form"
-          for={@correction_form}
-          class="flex flex-col gap-2 w-full"
-          phx-submit="send_correction"
-          phx-value-item_id={@item_id}
-        >
-          <p>
-            {Phoenix.HTML.raw(
-              gettext(
-                "Please use this area to report errors, omissions, or %{description_link} that appear in the description of this collection. Corrections may include misspellings, incorrect or missing dates, misidentified individuals, places, or events, mislabeled folders, misfiled papers, etc.",
-                description_link:
-                  safe_link(%{
-                    url: "https://library.princeton.edu/about/responsible-collection-description",
-                    label: gettext("problematic language")
-                  })
-              )
+    <div id="correction-form-div">
+      <.modal
+        id="correction-form-modal"
+        label={gettext("Suggest a correction")}
+      >
+        <div id="correction-form-modal-content" class="mt-4 w-full flex">
+          <.form
+            :if={@correction_form_status == :new}
+            id="correction-form"
+            for={@correction_form}
+            class="flex flex-col gap-2 w-full"
+            phx-submit="send_correction"
+            phx-value-item_id={@item_id}
+          >
+            <p>
+              {Phoenix.HTML.raw(
+                gettext(
+                  "Please use this area to report errors, omissions, or %{description_link} that appear in the description of this collection. Corrections may include misspellings, incorrect or missing dates, misidentified individuals, places, or events, mislabeled folders, misfiled papers, etc.",
+                  description_link:
+                    safe_link(%{
+                      url: "https://library.princeton.edu/about/responsible-collection-description",
+                      label: gettext("problematic language")
+                    })
+                )
+              )}
+            </p>
+            <.input type="text" label="Name" field={@correction_form[:name]} />
+            <.input type="email" label="Email" field={@correction_form[:email]} />
+            <.input type="textarea" label="Message" field={@correction_form[:message]} />
+            <div class="flex w-full">
+              <.primary_button>
+                {gettext("Send")}
+              </.primary_button>
+            </div>
+          </.form>
+          <p :if={@correction_form_status == :successful}>
+            {gettext(
+              "Thank you for your suggestion. We will reach out to you if we have any questions. Our staff will review your suggestion and assess the practicality of its implementation, as well as its conformance to national and international description standards and current best practices in the field. You may not hear back from us, but, rest assured, we assess each suggestion we receive carefully before determining if and how to implement it."
             )}
           </p>
-          <.input type="text" label="Name" field={@correction_form[:name]} />
-          <.input type="email" label="Email" field={@correction_form[:email]} />
-          <.input type="textarea" label="Message" field={@correction_form[:message]} />
-          <div class="flex w-full">
-            <.primary_button>
-              {gettext("Send")}
-            </.primary_button>
-          </div>
-        </.form>
-        <p :if={@correction_form_status == :successful}>
-          {gettext(
-            "Thank you for your suggestion. We will reach out to you if we have any questions. Our staff will review your suggestion and assess the practicality of its implementation, as well as its conformance to national and international description standards and current best practices in the field. You may not hear back from us, but, rest assured, we assess each suggestion we receive carefully before determining if and how to implement it."
-          )}
-        </p>
-        <p :if={@correction_form_status == :failed}>
-          {gettext(
-            "Sorry, something went wrong. Either the message was blank or there was an error with the form submission. Please try again or email the library directly."
-          )}
-        </p>
-      </div>
-    </.modal>
+          <p :if={@correction_form_status == :failed}>
+            {gettext(
+              "Sorry, something went wrong. Either the message was blank or there was an error with the form submission. Please try again or email the library directly."
+            )}
+          </p>
+        </div>
+      </.modal>
+    </div>
     """
   end
 
@@ -609,9 +611,6 @@ defmodule DpulCollectionsWeb.ItemLive do
     {:noreply,
      socket
      |> assign(:item_id, item_id)
-     # Notes to self:
-     # We can get rid of a bunch of this Modal stuff with
-     # JS.ignore_attribute on phx-mounted
      |> push_event("dcjs-open", %{id: "correction-form-modal"})}
   end
 
