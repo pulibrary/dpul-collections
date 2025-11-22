@@ -59,5 +59,24 @@ defmodule DpulCollections.LibanswersApiTest do
         assert Map.keys(response.body) == ["error"]
       end
     end
+
+    test "handles oauth error" do
+      with_mock(Req,
+        post: fn
+          "https://faq.library.princeton.edu/api/1.1/oauth/token", _ ->
+            LibanswersApiFixtures.oauth_error_response()
+        end
+      ) do
+        {:error, response} =
+          LibanswersApi.create_ticket(%{
+            "name" => "me",
+            "email" => "me@example.com",
+            "message" => "a correction",
+            "item_id" => "2"
+          })
+
+        assert Map.keys(response) == ["error"]
+      end
+    end
   end
 end

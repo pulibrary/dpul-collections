@@ -19,6 +19,17 @@ defmodule LibanswersApiFixtures do
      }}
   end
 
+  def oauth_error_response do
+    {:error,
+     %Req.Response{
+       status: 400,
+       headers: %{
+         "content-type" => ["application/json"]
+       },
+       body: %{"error" => "The client credentials are invalid"}
+     }}
+  end
+
   def ticket_create_200 do
     {:ok,
      %Req.Response{

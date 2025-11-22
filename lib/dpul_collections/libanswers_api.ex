@@ -1,17 +1,17 @@
 defmodule DpulCollections.LibanswersApi do
   def create_ticket(params) do
-    token = get_token()
-
-    {:ok, response} =
-      Req.post(
-        create_ticket_url(),
-        form: create_data(params),
-        headers: %{"accept" => ["application/json"], "authorization" => "Bearer #{token}"}
-      )
-
-    case response.status do
-      200 -> {:ok, response.body}
-      _ -> {:error, response}
+    with {:ok, token} <- get_token(),
+         {:ok, response} <-
+           Req.post(
+             create_ticket_url(),
+             form: create_data(params),
+             headers: %{"accept" => ["application/json"], "authorization" => "Bearer #{token}"}
+           ),
+         %Req.Response{status: 200, body: body} <- response do
+      {:ok, body}
+    else
+      {_, response} -> {:error, response}
+      %Req.Response{status: status, body: body} -> {:error, %{status: status, body: body}}
     end
   end
 
@@ -36,16 +36,18 @@ defmodule DpulCollections.LibanswersApi do
       grant_type: "client_credentials"
     ]
 
-    {:ok, response} =
+    response_tuple =
       Req.post(
         oauth_url(),
         form: form_params,
         headers: %{"accept" => ["application/json"]}
       )
 
-    case response.status do
-      200 -> response.body["access_token"]
-      _ -> {:error, response}
+    with {:ok, response} <- response_tuple,
+         200 <- response.status do
+      {:ok, response.body["access_token"]}
+    else
+      {_, response} -> {:error, response.body}
     end
   end
 
