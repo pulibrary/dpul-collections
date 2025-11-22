@@ -429,6 +429,15 @@ defmodule DpulCollectionsWeb.CoreComponents do
     """
   end
 
+  # used from https://elixirforum.com/t/gettext-html-in-translation/14889/5
+  def safe_link(assigns) do
+    Phoenix.HTML.Safe.to_iodata(~H"""
+    <.link href={@url} class="text-accent" target="_blank">
+      {@label}
+    </.link>
+    """)
+  end
+
   attr :properties, :map, default: %{}
 
   def meta_properties(assigns) do

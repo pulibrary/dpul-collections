@@ -36,7 +36,7 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
       <.modal
         :if={Application.fetch_env!(:dpul_collections, :feature_account_toolbar)}
         id="add-set-modal"
-        label="Save to Set"
+        label={gettext("Save to Set")}
       >
         <div id="add-set-modal-content" class="min-w-[400px] mt-4 w-full flex">
           <.list_sets :if={@mode == :list_sets} {assigns} />

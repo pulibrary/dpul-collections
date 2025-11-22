@@ -156,4 +156,9 @@ if config_env() == :prod do
     tls: :never,
     retries: 2,
     no_mx_lookups: true
+
+  config :dpul_collections, :libanswers,
+    client_id: System.get_env("LIBANSWERS_CLIENT_ID"),
+    client_secret: System.get_env("LIBANSWERS_CLIENT_SECRET"),
+    queue_id: System.get_env("LIBANSWERS_QUEUE_ID")
 end
