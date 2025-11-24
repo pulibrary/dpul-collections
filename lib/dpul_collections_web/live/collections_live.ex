@@ -106,21 +106,20 @@ defmodule DpulCollectionsWeb.CollectionsLive do
               >
                 <div class="max-h-120 p-2 card-darkdrop bg-white min-h-0 min-w-0 flex">
                   <div class="overflow-hidden w-full">
-                    <%= if @mosaic_title_item do %>
-                      <.link
-                        href={@mosaic_title_item.url}
-                        class="overflow-hidden"
-                        aria-label={"View #{@mosaic_title_item.title |> hd}"}
-                      >
-                        <img
-                          src={"#{@mosaic_title_item.primary_thumbnail_service_url}/full/!#{@mosaic_title_item.primary_thumbnail_width},#{@mosaic_title_item.primary_thumbnail_height}/0/default.jpg"}
-                          width={@mosaic_title_item.primary_thumbnail_width}
-                          height={@mosaic_title_item.primary_thumbnail_height}
-                          class="object-cover object-top max-h-full max-w-full w-full"
-                          alt={@mosaic_title_item.title |> hd}
-                        />
-                      </.link>
-                    <% end %>
+                    <.link
+                      :if={@mosaic_title_item}
+                      href={@mosaic_title_item.url}
+                      class="overflow-hidden"
+                      aria-label={"View #{@mosaic_title_item.title |> hd}"}
+                    >
+                      <img
+                        src={"#{@mosaic_title_item.primary_thumbnail_service_url}/full/!#{@mosaic_title_item.primary_thumbnail_width},#{@mosaic_title_item.primary_thumbnail_height}/0/default.jpg"}
+                        width={@mosaic_title_item.primary_thumbnail_width}
+                        height={@mosaic_title_item.primary_thumbnail_height}
+                        class="object-cover object-top max-h-full max-w-full w-full"
+                        alt={@mosaic_title_item.title |> hd}
+                      />
+                    </.link>
                   </div>
                 </div>
                 <div class="flex justify-items-end">
