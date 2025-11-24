@@ -4,6 +4,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
   alias DpulCollections.Solr
   alias DpulCollectionsWeb.ItemLive
   import DpulCollections.AccountsFixtures
+  import Mock
   @endpoint DpulCollectionsWeb.Endpoint
 
   setup do
@@ -512,6 +513,126 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       assert view
              |> element("button", "Create new set")
              |> render_click() =~ "Set name"
+    end
+  end
+
+  describe "correction form" do
+    test "correction link opens form in modal", %{conn: conn} do
+      {:ok, view, _html} =
+        conn
+        |> log_in_user(user_fixture())
+        |> live(~p"/i/زلزلہ/item/2")
+
+      # Open dialog
+      view
+      |> element(".metadata button", "Correct")
+      |> render_click()
+
+      assert view
+             |> has_element?("p", "Please use this area to report")
+
+      with_mock(DpulCollections.LibanswersApi,
+        create_ticket: fn _params ->
+          {:ok,
+           %{
+             "isShared" => false,
+             "ticketUrl" => "http://mylibrary.libanswers.com/admin/ticket?qid=12345",
+             "claimed" => 0
+           }}
+        end
+      ) do
+        html =
+          view
+          |> form("#correction-form",
+            name: "me",
+            email: "me@example.com",
+            message: "a correction"
+          )
+          |> render_submit()
+
+        assert html =~ "Thank you for your suggestion"
+
+        assert_called(
+          DpulCollections.LibanswersApi.create_ticket(%{
+            "name" => "me",
+            "email" => "me@example.com",
+            "message" => "a correction",
+            "item_id" => "2"
+          })
+        )
+      end
+    end
+
+    test "form does not have all required values", %{conn: conn} do
+      {:ok, view, _html} =
+        conn
+        |> log_in_user(user_fixture())
+        |> live(~p"/i/زلزلہ/item/2")
+
+      # Open dialog
+      view
+      |> element(".metadata button", "Correct")
+      |> render_click()
+
+      with_mock(DpulCollections.LibanswersApi,
+        create_ticket: fn _params -> nil end
+      ) do
+        html =
+          view
+          |> form("#correction-form",
+            name: "me",
+            email: "me@example.com"
+          )
+          |> render_submit()
+
+        assert html =~ "Sorry, something went wrong"
+
+        assert_not_called(DpulCollections.LibanswersApi.create_ticket(:_))
+
+        # You can open it again
+        view
+        |> element(".metadata button", "Correct")
+        |> render_click()
+
+        assert view
+               |> has_element?("dialog#correction-form-modal")
+
+        assert view
+               |> has_element?("p", "Please use this area to report")
+      end
+    end
+
+    test "api failure gives appropriate message to user", %{conn: conn} do
+      {:ok, view, _html} =
+        conn
+        |> log_in_user(user_fixture())
+        |> live(~p"/i/زلزلہ/item/2")
+
+      # Open dialog
+      view
+      |> element(".metadata button", "Correct")
+      |> render_click()
+
+      with_mock(Req,
+        post: fn
+          "https://faq.library.princeton.edu/api/1.1/oauth/token", _ ->
+            LibanswersApiFixtures.oauth_response()
+
+          "https://faq.library.princeton.edu/api/1.1/ticket/create", _ ->
+            LibanswersApiFixtures.ticket_create_400()
+        end
+      ) do
+        html =
+          view
+          |> form("#correction-form",
+            name: "me",
+            email: "me@example.com",
+            message: "a correction"
+          )
+          |> render_submit()
+
+        assert html =~ "Sorry, something went wrong"
+      end
     end
   end
 

@@ -2,10 +2,11 @@ defmodule DpulCollectionsWeb.ItemLive do
   use DpulCollections.Solr.Constants
   alias DpulCollectionsWeb.Live.Helpers
   alias DpulCollectionsWeb.ContentWarnings
+  alias DpulCollections.LibanswersApi
   import DpulCollectionsWeb.BrowseItem
   use DpulCollectionsWeb, :live_view
   use Gettext, backend: DpulCollectionsWeb.Gettext
-  alias DpulCollections.{Item, Solr}
+  alias DpulCollections.{Item, Solr, Correction}
   alias DpulCollectionsWeb.ContentWarnings
 
   def mount(_params, _session, socket) do
@@ -26,7 +27,14 @@ defmodule DpulCollectionsWeb.ItemLive do
         current_canvas_idx: current_canvas_idx,
         current_content_state_url: current_content_state_url,
         meta_properties: Item.meta_properties(item),
-        display_size: false
+        display_size: false,
+        correction_form:
+          to_form(%{
+            "name" => nil,
+            "email" => nil,
+            "message" => nil
+          }),
+        correction_form_success?: nil
       )
 
     {:noreply, build_socket(socket, item, path)}
@@ -258,6 +266,11 @@ defmodule DpulCollectionsWeb.ItemLive do
         current_path={@current_path}
       />
     </div>
+    <.correction_form_modal
+      correction_form={@correction_form}
+      item_id={@item.id}
+      correction_form_success?={@correction_form_success?}
+    />
     """
   end
 
@@ -383,7 +396,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def action_bar(assigns) do
     ~H"""
     <div {@rest}>
-      <div class="flex flex-row justify-left items-center gap-4">
+      <div class="flex flex-row justify-between items-center gap-4">
         <.action_icon
           :if={has_dimensions(@item)}
           icon="pepicons-pencil:ruler"
@@ -415,6 +428,15 @@ defmodule DpulCollectionsWeb.ItemLive do
           phx-target="#user_set_form"
         >
           {gettext("Save")}
+        </.action_icon>
+        <.action_icon
+          icon="hero-exclamation-circle"
+          variant="item-action-icon"
+          phx-click="open_correction_modal"
+          phx-value-item_id={@item.id}
+          phx-target="#correction-form-div"
+        >
+          {gettext("Correct")}
         </.action_icon>
         <div class="ml-auto h-full flex-grow pr-4">
           <.rights_icon rights_statement={@item.rights_statement} />
@@ -491,6 +513,68 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
+  def correction_form_modal(assigns) do
+    ~H"""
+    <div
+      id="correction-form-div"
+      phx-hook="CorrectionSubmit"
+    >
+      <.modal
+        id="correction-form-modal"
+        label={gettext("Suggest a correction")}
+        afterClose={
+          # When we hide the modal we have to re-set the form
+          JS.add_class("hidden", to: "#correction-submitted-message")
+          |> JS.remove_class("hidden", to: "#correction-form")
+        }
+      >
+        <div id="correction-form-modal-content" class="mt-4 w-full flex">
+          <.form
+            id="correction-form"
+            for={@correction_form}
+            class="flex flex-col gap-2 w-full"
+            phx-submit="send_correction"
+            phx-value-item_id={@item_id}
+          >
+            <p>
+              {Phoenix.HTML.raw(
+                gettext(
+                  "Please use this area to report errors, omissions, or %{description_link} that appear in the description of this collection. Corrections may include misspellings, incorrect or missing dates, misidentified individuals, places, or events, mislabeled folders, misfiled papers, etc.",
+                  description_link:
+                    safe_link(%{
+                      url: "https://library.princeton.edu/about/responsible-collection-description",
+                      label: gettext("problematic language")
+                    })
+                )
+              )}
+            </p>
+            <.input type="text" label="Name" field={@correction_form[:name]} />
+            <.input type="email" label="Email" field={@correction_form[:email]} />
+            <.input type="textarea" label="Message" field={@correction_form[:message]} />
+            <div class="flex w-full">
+              <.primary_button>
+                {gettext("Send")}
+              </.primary_button>
+            </div>
+          </.form>
+          <div id="correction-submitted-message" class="hidden">
+            <p :if={@correction_form_success?}>
+              {gettext(
+                "Thank you for your suggestion. We will reach out to you if we have any questions. Our staff will review your suggestion and assess the practicality of its implementation, as well as its conformance to national and international description standards and current best practices in the field. You may not hear back from us, but, rest assured, we assess each suggestion we receive carefully before determining if and how to implement it."
+              )}
+            </p>
+            <p :if={!@correction_form_success?}>
+              {gettext(
+                "Sorry, something went wrong. Either the message was blank or there was an error with the form submission. Please try again or email the library directly."
+              )}
+            </p>
+          </div>
+        </div>
+      </.modal>
+    </div>
+    """
+  end
+
   def handle_event("toggle_size", _opts, socket = %{assigns: %{display_size: display_size}}) do
     socket =
       socket
@@ -531,6 +615,31 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   # If we're not in the viewer, ignore this event.
   def handle_event("changedCanvas", _, socket), do: {:noreply, socket}
+
+  def handle_event("open_correction_modal", %{"item_id" => item_id}, socket) do
+    {:noreply,
+     socket
+     |> assign(:item_id, item_id)
+     |> push_event("dcjs-open", %{id: "correction-form-modal"})}
+  end
+
+  def handle_event("send_correction", params, socket) do
+    correction = %Correction{} |> Correction.changeset(params)
+
+    with true <- correction.valid?,
+         {:ok, _} <- LibanswersApi.create_ticket(params) do
+      {:noreply,
+       socket
+       |> assign(:correction_form_success?, true)
+       |> push_event("dpulc:submitCorrection", %{id: "correction-form-modal"})}
+    else
+      _ ->
+        {:noreply,
+         socket
+         |> assign(:correction_form_success?, false)
+         |> push_event("dpulc:submitCorrection", %{id: "correction-form-modal"})}
+    end
+  end
 
   def primary_thumbnail(assigns) do
     ~H"""
