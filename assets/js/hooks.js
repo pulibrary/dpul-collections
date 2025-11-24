@@ -44,6 +44,17 @@ Hooks.Dialog = {
   }
 }
 
+Hooks.CorrectionSubmit = {
+  mounted() {
+    this.handleEvent('dpulc:submitCorrection', (e) =>  {
+      let form = window.document.getElementById('correction-form')
+      form.classList.add('hidden')
+      let message = window.document.getElementById('correction-submitted-message')
+      message.classList.remove('hidden')
+    })
+  }
+}
+
 // Scrolls to the top of the page when an element is mounted. Usually
 // used for slide ins updated via patch.
 Hooks.ScrollTop = {

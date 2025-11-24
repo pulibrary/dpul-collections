@@ -596,6 +596,9 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
 
         assert view
                |> has_element?("dialog#correction-form-modal")
+
+        assert view
+               |> has_element?("p", "Please use this area to report")
       end
     end
 

@@ -34,7 +34,7 @@ defmodule DpulCollectionsWeb.ItemLive do
             "email" => nil,
             "message" => nil
           }),
-        correction_form_status: :new
+        correction_form_success?: nil
       )
 
     {:noreply, build_socket(socket, item, path)}
@@ -269,7 +269,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     <.correction_form_modal
       correction_form={@correction_form}
       item_id={@item.id}
-      correction_form_status={@correction_form_status}
+      correction_form_success?={@correction_form_success?}
     />
     """
   end
@@ -515,14 +515,21 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def correction_form_modal(assigns) do
     ~H"""
-    <div id="correction-form-div">
+    <div
+      id="correction-form-div"
+      phx-hook="CorrectionSubmit"
+    >
       <.modal
         id="correction-form-modal"
         label={gettext("Suggest a correction")}
+        afterClose={
+          # When we hide the modal we have to re-set the form
+          JS.add_class("hidden", to: "#correction-submitted-message")
+          |> JS.remove_class("hidden", to: "#correction-form")
+        }
       >
         <div id="correction-form-modal-content" class="mt-4 w-full flex">
           <.form
-            :if={@correction_form_status == :new}
             id="correction-form"
             for={@correction_form}
             class="flex flex-col gap-2 w-full"
@@ -550,16 +557,18 @@ defmodule DpulCollectionsWeb.ItemLive do
               </.primary_button>
             </div>
           </.form>
-          <p :if={@correction_form_status == :successful}>
-            {gettext(
-              "Thank you for your suggestion. We will reach out to you if we have any questions. Our staff will review your suggestion and assess the practicality of its implementation, as well as its conformance to national and international description standards and current best practices in the field. You may not hear back from us, but, rest assured, we assess each suggestion we receive carefully before determining if and how to implement it."
-            )}
-          </p>
-          <p :if={@correction_form_status == :failed}>
-            {gettext(
-              "Sorry, something went wrong. Either the message was blank or there was an error with the form submission. Please try again or email the library directly."
-            )}
-          </p>
+          <div id="correction-submitted-message" class="hidden">
+            <p :if={@correction_form_success?}>
+              {gettext(
+                "Thank you for your suggestion. We will reach out to you if we have any questions. Our staff will review your suggestion and assess the practicality of its implementation, as well as its conformance to national and international description standards and current best practices in the field. You may not hear back from us, but, rest assured, we assess each suggestion we receive carefully before determining if and how to implement it."
+              )}
+            </p>
+            <p :if={!@correction_form_success?}>
+              {gettext(
+                "Sorry, something went wrong. Either the message was blank or there was an error with the form submission. Please try again or email the library directly."
+              )}
+            </p>
+          </div>
         </div>
       </.modal>
     </div>
@@ -621,12 +630,14 @@ defmodule DpulCollectionsWeb.ItemLive do
          {:ok, _} <- LibanswersApi.create_ticket(params) do
       {:noreply,
        socket
-       |> assign(:correction_form_status, :successful)}
+       |> assign(:correction_form_success?, true)
+       |> push_event("dpulc:submitCorrection", %{id: "correction-form-modal"})}
     else
       _ ->
         {:noreply,
          socket
-         |> assign(:correction_form_status, :failed)}
+         |> assign(:correction_form_success?, false)
+         |> push_event("dpulc:submitCorrection", %{id: "correction-form-modal"})}
     end
   end
 
