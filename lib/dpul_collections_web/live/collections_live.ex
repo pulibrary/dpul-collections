@@ -20,7 +20,8 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           assign(socket,
             page_title: collection.title,
             collection: collection,
-            mosaic_title_item: collection.featured_items |> Enum.random()
+            mosaic_title_item:
+              collection.featured_items |> then(&if &1 != [], do: Enum.random(&1))
           )
 
         {:noreply, socket}
@@ -106,6 +107,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 <div class="max-h-120 p-2 card-darkdrop bg-white min-h-0 min-w-0 flex">
                   <div class="overflow-hidden w-full">
                     <.link
+                      :if={@mosaic_title_item}
                       href={@mosaic_title_item.url}
                       class="overflow-hidden"
                       aria-label={"View #{@mosaic_title_item.title |> hd}"}
