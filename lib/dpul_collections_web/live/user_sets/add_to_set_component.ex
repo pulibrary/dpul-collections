@@ -36,7 +36,7 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
       <.modal
         :if={Application.fetch_env!(:dpul_collections, :feature_account_toolbar)}
         id="add-set-modal"
-        label="Save to Set"
+        label={gettext("Save to Set")}
       >
         <div id="add-set-modal-content" class="min-w-[400px] mt-4 w-full flex">
           <.list_sets :if={@mode == :list_sets} {assigns} />
@@ -72,7 +72,7 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
         class="w-full text-left"
       >
         <span class="grow">
-          Create new set
+          {gettext("Create new set")}
         </span>
       </.primary_button>
       <ul class="flex flex-col gap-2">
@@ -84,7 +84,7 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
             phx-value-set-id={set.id}
           >
             <span class="grow">
-              {set.title} - {set.set_item_count} Items
+              {set.title} - {set.set_item_count} {gettext("Items")}
             </span>
             <.icon :if={set.has_solr_id} name="hero-check-circle" />
           </.secondary_button>
@@ -112,11 +112,11 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
       </.inputs_for>
       <div class="flex w-full">
         <.secondary_button phx-click="display_list_sets" phx-target={@myself}>
-          Cancel
+          {gettext("Cancel")}
         </.secondary_button>
         <div class="grow"></div>
         <.primary_button>
-          Create Set
+          {gettext("Create Set")}
         </.primary_button>
       </div>
     </.form>
