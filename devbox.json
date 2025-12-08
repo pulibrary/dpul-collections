@@ -1,0 +1,24 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.16.0/.schema/devbox.schema.json",
+  "env": {
+    "DEVBOX_COREPACK_ENABLED": "true",
+    "TMPDIR": "/private/tmp/dpulc",
+    "LD_LIBRARY_PATH": "$PWD/.devbox/nix/profile/default/lib",
+    "FONTCONFIG_PATH": "$PWD/.devbox/nix/profile/default/etc/fonts"
+  },
+  "packages": [
+    "github:NixOS/nixpkgs/b044ad6e5e92e70d7a7723864b0ab7a6c25bafda#elixir",
+    "github:NixOS/nixpkgs/586cfaf842c9cf24969b7fbf77425c861f1957ec#erlang",
+    "nodejs@24.11.0"
+  ],
+  "shell": {
+    "init_hook": [
+      "mkdir -p $TMPDIR"
+    ],
+    "scripts": {
+      "test": [
+        "echo \"Error: no test specified\" && exit 1"
+      ]
+    }
+  }
+}
