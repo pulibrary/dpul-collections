@@ -105,7 +105,8 @@ defmodule DpulCollections.MixProject do
       {:a11y_audit, "~> 0.3.0", only: :test},
       {:mock, "~> 0.3.0", only: :test},
       {:lazy_html, ">= 0.1.0", only: :test},
-      {:ex_cldr_locale_display, "~> 1.1"}
+      {:ex_cldr_locale_display, "~> 1.1"},
+      {:goth, "~> 1.4.5"}
     ]
   end
 
