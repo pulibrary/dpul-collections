@@ -22,13 +22,23 @@ defmodule DpulCollections.Application do
         # Start to serve requests, typically the last entry
         DpulCollectionsWeb.Endpoint,
         DpulCollections.IndexMetricsTracker
-      ] ++ filter_pipeline_children()
+      ] ++ filter_pipeline_children() ++ translation_children()
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: DpulCollections.Supervisor]
     Supervisor.start_link(children, opts)
   end
+
+  # Only add translation services if Google Translate's configured.
+  # coveralls-ignore-start
+  def translation_children() do
+    case Application.fetch_env(:goth, :json) do
+      :error -> []
+      _ -> [{Goth, name: DpulCollections.Goth}]
+    end
+  end
+  # coveralls-ignore-end
 
   # coveralls-ignore-start
   def filter_pipeline_children() do

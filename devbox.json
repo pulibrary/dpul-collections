@@ -13,6 +13,16 @@
     "postgresql": {
       "version": "15.7",
       "outputs": ["lib", "out"]
+    },
+    "lastpass-cli": "latest",
+    "elixir-ls":    "latest",
+    "openssl": {
+      "version": "latest",
+      "outputs": ["bin", "dev", "out"]
+    },
+    "ncurses": {
+      "version": "latest",
+      "outputs": ["out", "dev"]
     }
   },
   "shell": {

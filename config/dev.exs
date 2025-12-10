@@ -141,3 +141,11 @@ config :dpul_collections, :libanswers,
   client_id: System.get_env("LIBANSWERS_CLIENT_ID") || "disabled",
   client_secret: System.get_env("LIBANSWERS_CLIENT_SECRET") || "disabled",
   queue_id: System.get_env("LIBANSWERS_QUEUE_ID") || "disabled"
+
+# Google APIs
+case File.read(".translatecredentials.json") do
+  {:ok, content} ->
+    config :goth, json: content
+  _ ->
+    nil
+end
