@@ -53,3 +53,6 @@ screenshots/*
 !devbox.lock
 !.envrc
 !/bin
+
+# Ignore translation credentials.
+.translatecredentials.json

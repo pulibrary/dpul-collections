@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archivist Transcription Viewer</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg-canvas: #e2e8f0;
+            
+            /* Segment Colors */
+            --color-base: #1e293b;
+            --color-del: #ef4444;
+            --color-ins: #2563eb;
+            --color-sub: #f59e0b;
+            --color-note: #8b5cf6;
+
+            /* Box Styles */
+            --box-region-border: rgba(37, 99, 235, 0.2);
+            --box-segment-active: rgba(255, 230, 0, 0.25);
+            --box-segment-border-active: #facc15;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #f1f5f9;
+            overflow: hidden;
+        }
+
+        /* --- Header --- */
+        header {
+            background: white;
+            padding: 0.75rem 1.5rem;
+            border-bottom: 1px solid #cbd5e1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 50px;
+            flex-shrink: 0;
+            z-index: 20;
+        }
+        h1 { margin: 0; font-size: 1rem; color: #334155; font-weight: 700; letter-spacing: -0.01em; }
+        .controls { display: flex; gap: 10px; }
+        button {
+            padding: 0.4rem 0.8rem; border-radius: 4px; border: 1px solid #cbd5e1;
+            background: white; cursor: pointer; font-size: 0.8rem; font-weight: 600;
+            transition: all 0.1s;
+        }
+        button:hover { background: #f8fafc; border-color: #94a3b8; }
+        button.primary { background: var(--primary); color: white; border: none; }
+        button.primary:hover { background: #1d4ed8; }
+
+        /* --- Layout --- */
+        main { display: flex; flex: 1; overflow: hidden; position: relative; }
+
+        /* --- Setup Overlay --- */
+        #setup-view {
+            position: absolute; inset: 0; background: #f8fafc; z-index: 50;
+            padding: 2rem; display: flex; justify-content: center; overflow-y: auto;
+        }
+        .setup-card {
+            background: white; padding: 2rem; border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); width: 100%; max-width: 900px;
+            display: flex; flex-direction: column; gap: 1.25rem; height: fit-content;
+        }
+        .input-group { display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
+        label { font-weight: 600; color: #64748b; font-size: 0.75rem; text-transform: uppercase; }
+        input, textarea {
+            padding: 0.75rem; border: 1px solid #cbd5e1; border-radius: 6px;
+            font-family: monospace; font-size: 12px;
+        }
+        textarea { min-height: 300px; resize: vertical; }
+
+        /* --- Image Pane --- */
+        .image-pane {
+            flex: 2;
+            background: var(--bg-canvas);
+            padding: 2rem;
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        .canvas-wrapper {
+            position: relative;
+            background: white;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            line-height: 0;
+        }
+        #target-image { max-width: 100%; display: block; }
+        .overlay-layer { position: absolute; inset: 0; pointer-events: none; }
+
+        /* Bounding Boxes */
+        .bbox { position: absolute; pointer-events: auto; transition: 0.1s; }
+        
+        .bbox-region { 
+            border: 1px dashed var(--box-region-border); 
+            pointer-events: none; 
+        }
+        .bbox-region::after {
+            content: attr(data-label);
+            position: absolute; top: -14px; left: 0;
+            font-size: 9px; color: var(--primary); font-weight: bold; text-transform: uppercase;
+        }
+
+        .bbox-segment {
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .bbox-segment:hover, .bbox-segment.active {
+            background-color: var(--box-segment-active);
+            border-color: var(--box-segment-border-active);
+            z-index: 100;
+        }
+
+        /* --- Text Pane --- */
+        .text-pane {
+            flex: 1;
+            min-width: 400px;
+            max-width: 600px;
+            background: white;
+            border-left: 1px solid #cbd5e1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+        }
+
+        /* Semantic Region Styling */
+        .region { margin-bottom: 2rem; position: relative; }
+        .region-label {
+            position: absolute; left: -1.5rem; top: 0;
+            font-size: 0.65rem; color: #94a3b8; font-weight: 700;
+            writing-mode: vertical-rl; transform: rotate(180deg);
+            text-transform: uppercase;
+        }
+        
+        /* Deleted Block Region */
+        .region-deleted_block {
+            opacity: 0.6;
+            background: #f1f5f9;
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            position: relative;
+        }
+        .region-deleted_block::after {
+            content: ""; position: absolute; inset: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(239, 68, 68, 0.05) 10px,
+                rgba(239, 68, 68, 0.05) 20px
+            );
+            pointer-events: none;
+        }
+
+        .line {
+            margin-bottom: 0.2rem; 
+            line-height: 1.8;
+            color: var(--color-base);
+        }
+
+        /* Segment Styling */
+        .seg {
+            cursor: pointer;
+            padding: 0.1rem 0.2rem;
+            border-radius: 3px;
+            transition: background 0.1s;
+            display: inline-block; /* Allows transforms/borders to work better */
+        }
+        .seg:hover, .seg.active { background-color: #fef08a; }
+
+        /* Types */
+        .seg-deletion { 
+            text-decoration: line-through; 
+            text-decoration-color: var(--color-del);
+            text-decoration-thickness: 2px;
+            color: #64748b;
+        }
+        .seg-insertion {
+            vertical-align: super;
+            font-size: 0.85em;
+            color: var(--color-ins);
+            font-weight: 600;
+        }
+        .seg-substitution {
+            text-decoration: underline;
+            text-decoration-color: var(--color-sub);
+            text-decoration-style: wavy;
+            color: #b45309;
+        }
+        .seg-handwritten_note {
+            font-family: "Comic Sans MS", "Chalkboard SE", sans-serif;
+            font-style: italic;
+            color: var(--color-note);
+            background: #f3e8ff;
+        }
+
+        /* STYLES (New Feature) */
+        .style-underlined {
+            border-bottom: 2px solid var(--color-base);
+        }
+        .style-circled {
+            border: 2px solid var(--color-base);
+            border-radius: 50%;
+            padding: 2px 8px;
+        }
+        .style-boxed {
+            border: 2px solid var(--color-base);
+            padding: 2px 4px;
+        }
+
+        /* Conflict Resolution: If deleted AND underlined, ensure strike goes through */
+        .seg-deletion.style-underlined {
+            text-decoration: line-through;
+            border-bottom: 2px solid var(--color-del); /* underline becomes delete color */
+        }
+
+        #error-msg { 
+            display: none; background: #fee2e2; color: #991b1b; 
+            padding: 1rem; border-radius: 6px; font-size: 0.9rem; 
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="setup-view">
+    <div class="setup-card">
+        <h2>Data Configuration</h2>
+        <div class="input-group">
+            <label>Image URL</label>
+            <input type="text" id="img-url" placeholder="https://..." />
+        </div>
+        <div class="input-group">
+            <label>JSON Output (Regions -> Lines -> Segments)</label>
+            <textarea id="json-data" spellcheck="false"></textarea>
+        </div>
+        <div id="error-msg"></div>
+        <div style="display:flex; justify-content: flex-end; gap: 10px;">
+            <button onclick="loadExample()">Load Example Data</button>
+            <button class="primary" onclick="launchViewer()">Render Visualization</button>
+        </div>
+    </div>
+</div>
+
+<header>
+    <h1>Archivist Transcription Viewer</h1>
+    <div class="controls">
+        <button onclick="document.getElementById('setup-view').style.display='flex'">Load Data</button>
+    </div>
+</header>
+
+<main>
+    <div class="image-pane">
+        <div class="canvas-wrapper" id="canvas-wrapper">
+            <img id="target-image" src="" alt="Manuscript" />
+            <div id="overlay-layer" class="overlay-layer"></div>
+        </div>
+    </div>
+    <div class="text-pane" id="text-pane">
+        </div>
+</main>
+
+<script>
+    // --- Configuration ---
+    // Hardcoded 1000x1000 normalization
+    const REF_SCALE = 1000;
+
+    // --- Example Data ---
+    const EX_URL = "https://iiif-cloud.princeton.edu/iiif/2/67%2Fb9%2F7c%2F67b97cf5092d4bcd9df273b83ccf6c6f%2Fintermediate_file/full/1000,1626/0/default.jpg";
+    const EX_JSON = [
+      {
+        "region_type": "header",
+        "box_2d": [80, 50, 240, 270],
+        "lines": [
+          {
+            "line_number": 1,
+            "box_2d": [80, 50, 240, 270],
+            "segments": [
+              {
+                "text": "The Bluest Eye",
+                "type": "base",
+                "style": "underlined",
+                "box_2d": [80, 50, 240, 270]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "region_type": "paragraph",
+        "box_2d": [270, 50, 350, 900],
+        "lines": [
+          {
+            "line_number": 1,
+            "box_2d": [270, 50, 310, 900],
+            "segments": [
+              {
+                "text": "A particularly dreary",
+                "type": "deletion",
+                "box_2d": [270, 50, 310, 450]
+              },
+              {
+                "text": " store stands",
+                "type": "base",
+                "box_2d": [270, 460, 310, 600]
+              },
+              {
+                "text": "on the corner",
+                "type": "insertion",
+                "box_2d": [260, 610, 280, 750]
+              }
+            ]
+          },
+          {
+            "line_number": 2,
+            "box_2d": [320, 50, 350, 900],
+            "segments": [
+              {
+                "text": "It is",
+                "type": "base",
+                "box_2d": [320, 50, 350, 150]
+              },
+              {
+                "text": "very",
+                "type": "base",
+                "style": "underlined",
+                "box_2d": [320, 160, 350, 250]
+              },
+              {
+                "text": "important.",
+                "type": "base",
+                "style": "boxed",
+                "box_2d": [320, 260, 350, 450]
+              }
+            ]
+          }
+        ]
+      }
+    ];
+
+    // --- Init ---
+    function loadExample() {
+        document.getElementById('img-url').value = EX_URL;
+        document.getElementById('json-data').value = JSON.stringify(EX_JSON, null, 2);
+    }
+
+    function launchViewer() {
+        const url = document.getElementById('img-url').value.trim();
+        const jsonStr = document.getElementById('json-data').value.trim();
+        const errMsg = document.getElementById('error-msg');
+        
+        errMsg.style.display = 'none';
+
+        try {
+            if(!url || !jsonStr) throw new Error("Missing URL or JSON data");
+            const data = JSON.parse(jsonStr);
+            if(!Array.isArray(data)) throw new Error("JSON root must be an Array of Regions");
+
+            // Setup View
+            document.getElementById('setup-view').style.display = 'none';
+            const img = document.getElementById('target-image');
+            img.src = url;
+            
+            buildUI(data);
+
+        } catch (e) {
+            errMsg.textContent = e.message;
+            errMsg.style.display = 'block';
+        }
+    }
+
+    // --- Build Logic ---
+    function buildUI(regions) {
+        const overlay = document.getElementById('overlay-layer');
+        const textPane = document.getElementById('text-pane');
+        
+        overlay.innerHTML = '';
+        textPane.innerHTML = '';
+
+        let globalCounter = 0;
+
+        regions.forEach((region) => {
+            // 1. Region Box (Image)
+            if(region.box_2d) {
+                const rBox = createBox(region.box_2d, 'bbox-region');
+                rBox.setAttribute('data-label', region.region_type);
+                overlay.appendChild(rBox);
+            }
+
+            // 2. Region Text Container
+            const regionDiv = document.createElement('div');
+            regionDiv.className = `region region-${region.region_type}`;
+            const label = document.createElement('div');
+            label.className = 'region-label';
+            label.textContent = region.region_type;
+            regionDiv.appendChild(label);
+
+            // 3. Lines
+            if(region.lines) {
+                region.lines.forEach(line => {
+                    const lineDiv = document.createElement('div');
+                    lineDiv.className = 'line';
+
+                    if(line.segments) {
+                        line.segments.forEach(seg => {
+                            if(!seg.box_2d) return;
+                            
+                            const uniqueId = `id-${globalCounter++}`;
+
+                            // A. Box on Image
+                            const sBox = createBox(seg.box_2d, 'bbox-segment');
+                            sBox.id = `box-${uniqueId}`;
+                            sBox.onmouseenter = () => activate(uniqueId);
+                            sBox.onmouseleave = () => deactivate(uniqueId);
+                            overlay.appendChild(sBox);
+
+                            // B. Span in Text
+                            const sSpan = document.createElement('span');
+                            
+                            // Combine Type and Style classes
+                            let classes = `seg seg-${seg.type}`;
+                            if (seg.style && seg.style !== 'none') {
+                                classes += ` style-${seg.style}`;
+                            }
+                            
+                            sSpan.className = classes;
+                            sSpan.id = `span-${uniqueId}`;
+                            // Add trailing space for readability unless it's the very end
+                            sSpan.textContent = seg.text + " "; 
+                            sSpan.onmouseenter = () => activate(uniqueId);
+                            sSpan.onmouseleave = () => deactivate(uniqueId);
+
+                            lineDiv.appendChild(sSpan);
+                        });
+                    }
+                    regionDiv.appendChild(lineDiv);
+                });
+            }
+            textPane.appendChild(regionDiv);
+        });
+    }
+
+    function createBox(coords, className) {
+        // Coords are [y1, x1, y2, x2] normalized to 1000
+        const [y1, x1, y2, x2] = coords;
+        const div = document.createElement('div');
+        div.className = `bbox ${className}`;
+        
+        const top = (y1 / REF_SCALE) * 100;
+        const left = (x1 / REF_SCALE) * 100;
+        const height = ((y2 - y1) / REF_SCALE) * 100;
+        const width = ((x2 - x1) / REF_SCALE) * 100;
+
+        div.style.top = `${top}%`;
+        div.style.left = `${left}%`;
+        div.style.height = `${height}%`;
+        div.style.width = `${width}%`;
+        
+        return div;
+    }
+
+    // --- Interaction ---
+    function activate(uid) {
+        const box = document.getElementById(`box-${uid}`);
+        const span = document.getElementById(`span-${uid}`);
+        if(box) box.classList.add('active');
+        if(span) span.classList.add('active');
+    }
+
+    function deactivate(uid) {
+        const box = document.getElementById(`box-${uid}`);
+        const span = document.getElementById(`span-${uid}`);
+        if(box) box.classList.remove('active');
+        if(span) span.classList.remove('active');
+    }
+
+</script>
+</body>
+</html>

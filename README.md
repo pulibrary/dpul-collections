@@ -10,6 +10,7 @@ This project is built in Elixir using Phoenix LiveView as a web framework and Br
 
 - `brew install asdf`
 - `asdf install`
+- `./bin/export_credentials.sh` installs credentials for machine translating.
 
 ### Every time setup
 
