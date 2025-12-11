@@ -163,6 +163,68 @@
             pointer-events: none;
         }
 
+/* 1. Shelf Mark: Boxed, often looks like a label/sticker */
+        .region-shelf_mark {
+            background: #e0f2fe; /* Light blue */
+            border: 2px solid #0ea5e9;
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            display: inline-block; /* Don't take full width if not needed */
+            font-family: monospace;
+            font-weight: bold;
+            color: #0369a1;
+        }
+
+        /* 2. Bookplate: Serif font, paper-like background */
+        .region-bookplate {
+            background: #fef3c7; /* Amber/Paper color */
+            border: 4px double #d97706; /* Double border for "fancy" look */
+            padding: 1.5rem;
+            margin: 1rem 0;
+            text-align: center;
+            font-family: "Times New Roman", serif;
+        }
+        /* Add a little header for the bookplate */
+        .region-bookplate::before {
+            content: "EX LIBRIS / PROVENANCE";
+            display: block;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            color: #d97706;
+            margin-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(217, 119, 6, 0.3);
+        }
+
+        /* 3. Seal: Rounded look to mimic ink stamps */
+        .region-seal {
+            border: 2px dashed #be123c; /* Red/Pink ink color */
+            border-radius: 12px;
+            padding: 1rem;
+            color: #be123c;
+            background: rgba(190, 18, 60, 0.05);
+            transform: rotate(-1deg); /* Slight skew for realism */
+        }
+
+        /* 4. Page Number: Small, usually aligned differently */
+        .region-page_number {
+            text-align: right;
+            font-size: 0.9rem;
+            color: #64748b;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 0.25rem;
+            margin-bottom: 1rem;
+            font-variant-numeric: oldstyle-nums;
+        }
+
+        /* 5. Marginalia: Italicized notes */
+        .region-marginalia {
+            font-style: italic;
+            border-left: 3px solid #8b5cf6; /* Purple accent */
+            padding-left: 1rem;
+            color: #5b21b6;
+            background: #f5f3ff;
+        }
+
         .line {
             margin-bottom: 0.2rem; 
             line-height: 1.8;
@@ -213,6 +275,13 @@
             border: 2px solid var(--color-base);
             border-radius: 50%;
             padding: 2px 8px;
+        }
+        /* If something is BOTH deleted AND circled/boxed, make the border match the deletion color */
+        .seg-deletion.style-circled,
+        .seg-deletion.style-boxed {
+            border-color: var(--color-del); /* Make the circle/box red/grey */
+            color: var(--color-del);        /* Ensure text is deleted color */
+            opacity: 0.8;
         }
         .style-boxed {
             border: 2px solid var(--color-base);
