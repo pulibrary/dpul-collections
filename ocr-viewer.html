@@ -717,14 +717,30 @@
                             
                             const uniqueId = `id-${globalCounter++}`;
 
-                            // A. Box on Image
+                            // --- A. Box on Image ---
                             const sBox = createBox(seg.box_2d, 'bbox-segment');
                             sBox.id = `box-${uniqueId}`;
+                            
+                            // Hover Effects
                             sBox.onmouseenter = () => activate(uniqueId);
                             sBox.onmouseleave = () => deactivate(uniqueId);
+                            
+                            // NEW: Click to scroll to Text
+                            sBox.onclick = (e) => {
+                                e.stopPropagation(); // Prevent clicking through to parent layers
+                                const targetSpan = document.getElementById(`span-${uniqueId}`);
+                                if(targetSpan) {
+                                    targetSpan.scrollIntoView({ 
+                                        behavior: 'smooth', 
+                                        block: 'center' 
+                                    });
+                                    // Optional: momentary flash could be added here
+                                }
+                            };
+
                             overlay.appendChild(sBox);
 
-                            // B. Span in Text
+                            // --- B. Span in Text ---
                             const sSpan = document.createElement('span');
                             
                             // Combine Type and Style classes
@@ -735,10 +751,24 @@
                             
                             sSpan.className = classes;
                             sSpan.id = `span-${uniqueId}`;
-                            // Add trailing space for readability unless it's the very end
                             sSpan.textContent = seg.text + " "; 
+                            
+                            // Hover Effects
                             sSpan.onmouseenter = () => activate(uniqueId);
                             sSpan.onmouseleave = () => deactivate(uniqueId);
+
+                            // NEW: Click to scroll to Image Box
+                            sSpan.onclick = (e) => {
+                                e.stopPropagation();
+                                const targetBox = document.getElementById(`box-${uniqueId}`);
+                                if(targetBox) {
+                                    targetBox.scrollIntoView({ 
+                                        behavior: 'smooth', 
+                                        block: 'center',
+                                        inline: 'center' // Helps if image is zoomed/horizontally scrolled
+                                    });
+                                }
+                            };
 
                             lineDiv.appendChild(sSpan);
                         });
