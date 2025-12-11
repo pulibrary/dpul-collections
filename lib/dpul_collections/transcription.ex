@@ -185,7 +185,7 @@ defmodule DpulCollections.Transcription do
         "responseSchema" => response_schema,
         "responseMimeType" => "application/json",
         "thinkingConfig" => %{
-          "thinkingLevel" => "low"
+          "thinkingLevel" => "high"
         }
       }
     }
