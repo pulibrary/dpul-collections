@@ -640,6 +640,7 @@
                 region.lines.forEach(line => {
                     const lineDiv = document.createElement('div');
                     lineDiv.className = 'line';
+                    lineDiv.dir = 'auto';
 
                     if(line.segments) {
                         line.segments.forEach(seg => {
