@@ -268,7 +268,7 @@
         </div>
     </div>
     <div class="text-pane" id="text-pane">
-        </div>
+    </div>
 </main>
 
 <script>
@@ -279,75 +279,304 @@
     // --- Example Data ---
     const EX_URL = "https://iiif-cloud.princeton.edu/iiif/2/67%2Fb9%2F7c%2F67b97cf5092d4bcd9df273b83ccf6c6f%2Fintermediate_file/full/1000,1626/0/default.jpg";
     const EX_JSON = [
+  {
+    "region_type": "header",
+    "box_2d": [50, 50, 250, 300],
+    "lines": [
       {
-        "region_type": "header",
-        "box_2d": [80, 50, 240, 270],
-        "lines": [
-          {
-            "line_number": 1,
-            "box_2d": [80, 50, 240, 270],
-            "segments": [
-              {
-                "text": "The Bluest Eye",
-                "type": "base",
-                "style": "underlined",
-                "box_2d": [80, 50, 240, 270]
-              }
-            ]
-          }
+        "line_number": 1,
+        "box_2d": [60, 60, 240, 290],
+        "segments": [
+          { "text": "The Bluest Eye", "type": "base", "box_2d": [60, 60, 240, 290], "style": "none" }
+        ]
+      }
+    ]
+  },
+  {
+    "region_type": "deleted_block",
+    "box_2d": [140, 150, 260, 900],
+    "lines": [
+      {
+        "line_number": 1,
+        "box_2d": [145, 150, 180, 850],
+        "segments": [
+          { "text": "On the southeast corner of", "type": "deletion", "box_2d": [145, 150, 180, 850], "style": "none" }
         ]
       },
       {
-        "region_type": "paragraph",
-        "box_2d": [270, 50, 350, 900],
-        "lines": [
-          {
-            "line_number": 1,
-            "box_2d": [270, 50, 310, 900],
-            "segments": [
-              {
-                "text": "A particularly dreary",
-                "type": "deletion",
-                "box_2d": [270, 50, 310, 450]
-              },
-              {
-                "text": " store stands",
-                "type": "base",
-                "box_2d": [270, 460, 310, 600]
-              },
-              {
-                "text": "on the corner",
-                "type": "insertion",
-                "box_2d": [260, 610, 280, 750]
-              }
-            ]
-          },
-          {
-            "line_number": 2,
-            "box_2d": [320, 50, 350, 900],
-            "segments": [
-              {
-                "text": "It is",
-                "type": "base",
-                "box_2d": [320, 50, 350, 150]
-              },
-              {
-                "text": "very",
-                "type": "base",
-                "style": "underlined",
-                "box_2d": [320, 160, 350, 250]
-              },
-              {
-                "text": "important.",
-                "type": "base",
-                "style": "boxed",
-                "box_2d": [320, 260, 350, 450]
-              }
-            ]
-          }
+        "line_number": 2,
+        "box_2d": [180, 150, 210, 890],
+        "segments": [
+          { "text": "Broadway and 31st Street there is a pizza", "type": "deletion", "box_2d": [180, 150, 210, 890], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 3,
+        "box_2d": [210, 150, 240, 870],
+        "segments": [
+          { "text": "parlour where slow-footed teenagers", "type": "deletion", "box_2d": [210, 150, 240, 870], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 4,
+        "box_2d": [240, 150, 265, 660],
+        "segments": [
+          { "text": "group to smoke cigarettes.", "type": "deletion", "box_2d": [240, 150, 265, 660], "style": "none" }
         ]
       }
-    ];
+    ]
+  },
+  {
+    "region_type": "paragraph",
+    "box_2d": [270, 50, 980, 980],
+    "lines": [
+      {
+        "line_number": 1,
+        "box_2d": [270, 50, 325, 980],
+        "segments": [
+          { "text": "A particularly dreary abandoned store stands", "type": "insertion", "box_2d": [270, 50, 305, 450], "style": "none" },
+          { "text": "On the", "type": "deletion", "box_2d": [305, 180, 325, 300], "style": "none" },
+          { "text": "southeast", "type": "insertion", "box_2d": [290, 330, 308, 420], "style": "none" },
+          { "text": "corner of Broadway and 31st Street", "type": "base", "box_2d": [300, 350, 330, 980], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 2,
+        "box_2d": [330, 140, 370, 910],
+        "segments": [
+          { "text": "there stands an abandoned store which", "type": "deletion", "box_2d": [330, 140, 360, 750], "style": "none" },
+          { "text": "particularly dreary", "type": "deletion", "box_2d": [355, 170, 375, 580], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 3,
+        "box_2d": [360, 730, 380, 900],
+        "segments": [
+          { "text": "It does not", "type": "base", "box_2d": [360, 730, 380, 900], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 4,
+        "box_2d": [375, 180, 405, 920],
+        "segments": [
+          { "text": "recede into its background of", "type": "base", "box_2d": [375, 180, 400, 680], "style": "none" },
+          { "text": "empty", "type": "insertion", "box_2d": [370, 830, 385, 900], "style": "none" },
+          { "text": "other", "type": "deletion", "box_2d": [380, 700, 400, 790], "style": "none" },
+          { "text": "stores,", "type": "base", "box_2d": [380, 800, 405, 920], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 5,
+        "box_2d": [400, 190, 425, 910],
+        "segments": [
+          { "text": "but rather foists itself on the eye", "type": "base", "box_2d": [400, 190, 425, 910], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 6,
+        "box_2d": [425, 170, 455, 890],
+        "segments": [
+          { "text": "in a manner that is both", "type": "insertion", "box_2d": [418, 200, 438, 470], "style": "none" },
+          { "text": "as an", "type": "deletion", "box_2d": [430, 170, 448, 260], "style": "none" },
+          { "text": "irritant and a melancholy.", "type": "base", "box_2d": [430, 280, 455, 710], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 7,
+        "box_2d": [450, 165, 478, 890],
+        "segments": [
+          { "text": "Vistors driving along Broadway wonder", "type": "base", "box_2d": [450, 165, 478, 890], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 8,
+        "box_2d": [475, 180, 500, 880],
+        "segments": [
+          { "text": "why it", "type": "base", "box_2d": [475, 180, 500, 300], "style": "none" },
+          { "text": "still", "type": "deletion", "box_2d": [475, 310, 495, 410], "style": "none" },
+          { "text": "has not been torn down", "type": "base", "box_2d": [475, 420, 495, 880], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 9,
+        "box_2d": [495, 175, 522, 830],
+        "segments": [
+          { "text": "while pedestrians in the neighborhood", "type": "base", "box_2d": [495, 175, 522, 830], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 10,
+        "box_2d": [520, 180, 548, 890],
+        "segments": [
+          { "text": "simply look away when they pass it.", "type": "base", "box_2d": [520, 180, 548, 890], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 11,
+        "box_2d": [545, 180, 575, 970],
+        "segments": [
+          { "text": "Those who have lived", "type": "base", "box_2d": [545, 180, 568, 600], "style": "none" },
+          { "text": "in that part of town for", "type": "insertion", "box_2d": [535, 620, 555, 900], "style": "none" },
+          { "text": "here", "type": "deletion", "box_2d": [545, 630, 565, 750], "style": "none" },
+          { "text": "fifty", "type": "insertion", "box_2d": [540, 800, 560, 880], "style": "none" },
+          { "text": "years", "type": "base", "box_2d": [550, 890, 575, 970], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 12,
+        "box_2d": [570, 185, 595, 890],
+        "segments": [
+          { "text": "remember when it was a Hungarian", "type": "base", "box_2d": [570, 185, 595, 890], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 13,
+        "box_2d": [595, 180, 622, 900],
+        "segments": [
+          { "text": "Bakery well known for Brioche and", "type": "base", "box_2d": [595, 180, 622, 900], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 14,
+        "box_2d": [620, 180, 648, 870],
+        "segments": [
+          { "text": "poppy seed bread.", "type": "base", "box_2d": [620, 180, 648, 540], "style": "none" },
+          { "text": "Though", "type": "deletion", "box_2d": [620, 580, 640, 780], "style": "none" },
+          { "text": "So", "type": "base", "box_2d": [620, 820, 638, 870], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 15,
+        "box_2d": [640, 200, 670, 920],
+        "segments": [
+          { "text": "fluid and transient", "type": "base", "box_2d": [645, 200, 670, 580], "style": "none" },
+          { "text": "has", "type": "insertion", "box_2d": [638, 600, 655, 660], "style": "none" },
+          { "text": "is", "type": "deletion", "box_2d": [645, 620, 665, 660], "style": "none" },
+          { "text": "the population", "type": "base", "box_2d": [645, 670, 670, 920], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 16,
+        "box_2d": [665, 180, 692, 840],
+        "segments": [
+          { "text": "in that area", "type": "insertion", "box_2d": [658, 170, 675, 300], "style": "none" },
+          { "text": "these days", "type": "deletion", "box_2d": [665, 220, 685, 420], "style": "none" },
+          { "text": "been that few persons can", "type": "base", "box_2d": [665, 430, 692, 840], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 17,
+        "box_2d": [688, 190, 715, 910],
+        "segments": [
+          { "text": "recall the time before that when it", "type": "base", "box_2d": [688, 190, 715, 910], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 18,
+        "box_2d": [715, 175, 742, 960],
+        "segments": [
+          { "text": "was a pizza parlour where slow-footed", "type": "base", "box_2d": [715, 175, 742, 960], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 19,
+        "box_2d": [740, 180, 768, 930],
+        "segments": [
+          { "text": "teenagers grouped", "type": "base", "box_2d": [740, 180, 765, 560], "style": "none" },
+          { "text": "while they", "type": "insertion", "box_2d": [730, 630, 748, 790], "style": "none" },
+          { "text": "to", "type": "deletion", "box_2d": [742, 580, 760, 620], "style": "none" },
+          { "text": "smoked", "type": "insertion", "box_2d": [740, 630, 760, 730], "style": "none" },
+          { "text": "smoke", "type": "deletion", "box_2d": [742, 630, 760, 740], "style": "none" },
+          { "text": "cigarettes,", "type": "base", "box_2d": [742, 750, 768, 930], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 20,
+        "box_2d": [765, 180, 792, 900],
+        "segments": [
+          { "text": "feel their groins and played wild out-", "type": "base", "box_2d": [765, 180, 792, 900], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 21,
+        "box_2d": [785, 190, 815, 970],
+        "segments": [
+          { "text": "rages).", "type": "base", "box_2d": [790, 200, 815, 310], "style": "none" },
+          { "text": "(in the entire town I should say)", "type": "insertion", "box_2d": [780, 620, 802, 970], "style": "none" },
+          { "text": "Probably no one remembers,", "type": "base", "box_2d": [790, 340, 815, 800], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 22,
+        "box_2d": [815, 200, 840, 950],
+        "segments": [
+          { "text": "even", "type": "deletion", "box_2d": [815, 200, 835, 290], "style": "none" },
+          { "text": "long", "type": "deletion", "box_2d": [815, 310, 840, 410], "style": "none" },
+          { "text": "longer ago when", "type": "base", "box_2d": [815, 440, 840, 750], "style": "none" },
+          { "text": "this street", "type": "insertion", "box_2d": [810, 770, 830, 950], "style": "none" },
+          { "text": "it", "type": "deletion", "box_2d": [815, 900, 830, 940], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 23,
+        "box_2d": [835, 185, 862, 910],
+        "segments": [
+          { "text": "was", "type": "deletion", "box_2d": [835, 185, 855, 270], "style": "none" },
+          { "text": "where", "type": "deletion", "box_2d": [835, 280, 855, 360], "style": "none" },
+          { "text": "Eunice Winder lived", "type": "base", "box_2d": [835, 380, 862, 780], "style": "none" },
+          { "text": "there.", "type": "deletion", "box_2d": [835, 790, 858, 910], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 24,
+        "box_2d": [860, 240, 885, 850],
+        "segments": [
+          { "text": "The Winder family didn't live in a", "type": "base", "box_2d": [860, 240, 885, 850], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 25,
+        "box_2d": [885, 200, 910, 890],
+        "segments": [
+          { "text": "store front because the war was just", "type": "base", "box_2d": [885, 200, 910, 890], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 26,
+        "box_2d": [908, 200, 938, 970],
+        "segments": [
+          { "text": "over and housing", "type": "base", "box_2d": [910, 200, 935, 490], "style": "none" },
+          { "text": "temporary", "type": "insertion", "box_2d": [902, 500, 918, 580], "style": "none" },
+          { "text": "difficulty", "type": "deletion", "box_2d": [910, 500, 938, 660], "style": "none" },
+          { "text": "reporting to the cutbacks at the plant;", "type": "insertion", "box_2d": [898, 660, 925, 970], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 27,
+        "box_2d": [935, 175, 960, 940],
+        "segments": [
+          { "text": "They lived", "type": "insertion", "box_2d": [925, 690, 945, 820], "style": "none" },
+          { "text": "there because", "type": "deletion", "box_2d": [935, 175, 960, 420], "style": "none" },
+          { "text": "they were poor", "type": "base", "box_2d": [935, 430, 960, 700], "style": "none" },
+          { "text": "and", "type": "deletion", "box_2d": [935, 740, 952, 830], "style": "none" },
+          { "text": "sloven", "type": "base", "box_2d": [935, 850, 955, 940], "style": "none" }
+        ]
+      },
+      {
+        "line_number": 28,
+        "box_2d": [955, 200, 985, 940],
+        "segments": [
+          { "text": "and mean.", "type": "deletion", "box_2d": [960, 200, 980, 370], "style": "none" },
+          { "text": "orderly. After all the", "type": "insertion", "box_2d": [948, 360, 970, 600], "style": "none" },
+          { "text": "But,", "type": "base", "box_2d": [960, 400, 980, 470], "style": "none" },
+          { "text": "which they were too,", "type": "deletion", "box_2d": [960, 490, 980, 850], "style": "none" },
+          { "text": "their poverty was congenital, one felt", "type": "insertion", "box_2d": [948, 610, 968, 850], "style": "none" },
+          { "text": "the", "type": "base", "box_2d": [960, 880, 980, 940], "style": "none" }
+        ]
+      }
+    ]
+  }
+];
 
     // --- Init ---
     function loadExample() {
