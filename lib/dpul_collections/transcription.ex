@@ -199,6 +199,20 @@ defmodule DpulCollections.Transcription do
     |> handle_response()
   end
 
+  def get_viewer_url(url) do
+    gemini_url = "#{url}/full/!1000,1000/0/default.jpg"
+    viewer_url = "#{url}/full/!1600,1600/0/default.jpg"
+
+    {:ok, msg} = transcribe_url(gemini_url)
+    data_base64 = Jason.decode!(msg) |> Jason.encode!() |> Base.encode64()
+    params = %{
+      "img" => viewer_url,
+      "base64" => data_base64
+    }
+
+    "https://tpendragon.github.io/ocr-viewer/index.html##{URI.encode_query(params)}"
+  end
+
   defp handle_response(%{"candidates" => [%{"content" => %{"parts" => [%{"text" => response}]}}]}),
     do: {:ok, response}
 
