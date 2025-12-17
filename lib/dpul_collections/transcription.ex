@@ -1,23 +1,33 @@
 defmodule DpulCollections.Transcription do
   @timeout 900_000
-  @model "gemini-3-flash-preview"
+  @flash "gemini-3-flash-preview"
+  @pro "gemini-3-pro-preview"
 
-  def transcribe_url(url) do
+  def model_options do
+    [
+      {"Gemini 3 Pro", @pro},
+      {"Gemini 3 Flash", @flash}
+    ]
+  end
+
+  def default_model, do: @pro
+
+  def transcribe_url(url, transcribe_model \\ @pro, bbox_model \\ @pro) do
     {:ok, encoded_image} = fetch_and_encode(url)
 
-    with {:ok, draft_json} <- step_1_transcribe_content(encoded_image),
-         {:ok, grounded_json} <- step_2_generate_boxes(encoded_image, draft_json) do
+    with {:ok, draft_json} <- step_1_transcribe_content(encoded_image, transcribe_model),
+         {:ok, grounded_json} <- step_2_generate_boxes(encoded_image, draft_json, bbox_model) do
       {:ok, grounded_json}
     else
       {:error, reason} -> {:error, reason}
     end
   end
 
-  def get_viewer_url(url) do
+  def get_viewer_url(url, transcribe_model \\ @pro, bbox_model \\ @pro) do
     gemini_url = "#{url}/full/!2048,2048/0/default.jpg"
     viewer_url = "#{url}/full/!1600,1600/0/default.jpg"
 
-    {:ok, msg} = transcribe_url(gemini_url)
+    {:ok, msg} = transcribe_url(gemini_url, transcribe_model, bbox_model)
     data_base64 = Jason.decode!(msg) |> Jason.encode!() |> Base.encode64()
 
     params = %{
@@ -28,7 +38,7 @@ defmodule DpulCollections.Transcription do
     "https://tpendragon.github.io/ocr-viewer/index.html##{URI.encode_query(params)}"
   end
 
-  defp step_1_transcribe_content(encoded_image) do
+  defp step_1_transcribe_content(encoded_image, model) do
     prompt = """
     You are an expert digital archivist. Transcribe the **ENTIRE contents** of the provided image.
 
@@ -114,10 +124,10 @@ defmodule DpulCollections.Transcription do
       }
     }
 
-    call_gemini(encoded_image, prompt, schema)
+    call_gemini(encoded_image, prompt, schema, model)
   end
 
-  defp step_2_generate_boxes(encoded_image, content_json) do
+  defp step_2_generate_boxes(encoded_image, content_json, model) do
     json_string = Jason.encode!(Jason.decode!(content_json))
 
     prompt = """
@@ -193,10 +203,10 @@ defmodule DpulCollections.Transcription do
       }
     }
 
-    call_gemini(encoded_image, prompt, schema)
+    call_gemini(encoded_image, prompt, schema, model)
   end
 
-  defp call_gemini(data, prompt, schema) do
+  defp call_gemini(data, prompt, schema, model \\ @model) do
     json_body = %{
       "contents" => %{
         "role" => "user",
@@ -220,7 +230,7 @@ defmodule DpulCollections.Transcription do
     }
 
     Req.post!(
-      "https://aiplatform.googleapis.com/v1/projects/pul-gcdc/locations/global/publishers/google/models/#{@model}:generateContent",
+      "https://aiplatform.googleapis.com/v1/projects/pul-gcdc/locations/global/publishers/google/models/#{model}:generateContent",
       auth: {:bearer, auth_token()},
       json: json_body,
       receive_timeout: @timeout
