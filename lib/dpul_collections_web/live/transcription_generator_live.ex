@@ -5,6 +5,7 @@ defmodule DpulCollectionsWeb.TranscriptionGeneratorLive do
 
   def mount(_params, _session, socket) do
     default_model = Transcription.default_model()
+    default_thinking = Transcription.default_thinking_level()
 
     socket =
       socket
@@ -13,7 +14,9 @@ defmodule DpulCollectionsWeb.TranscriptionGeneratorLive do
           to_form(%{
             "url" => nil,
             "transcribe_model" => default_model,
-            "bbox_model" => default_model
+            "bbox_model" => default_model,
+            "transcribe_thinking" => default_thinking,
+            "bbox_thinking" => default_thinking
           }),
         transcription_urls: %{}
       )
@@ -45,8 +48,8 @@ defmodule DpulCollectionsWeb.TranscriptionGeneratorLive do
               </div>
             </div>
 
-            <div class="flex flex-col md:flex-row gap-4">
-              <div class="w-full md:w-1/2">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
                 <.input
                   type="select"
                   label="Transcription Model (Step 1)"
@@ -54,7 +57,15 @@ defmodule DpulCollectionsWeb.TranscriptionGeneratorLive do
                   options={Transcription.model_options()}
                 />
               </div>
-              <div class="w-full md:w-1/2">
+              <div>
+                <.input
+                  type="select"
+                  label="Transcription Thinking Level"
+                  field={@transcribe_form[:transcribe_thinking]}
+                  options={Transcription.thinking_level_options()}
+                />
+              </div>
+              <div>
                 <.input
                   type="select"
                   label="Bounding Box Model (Step 2)"
@@ -62,11 +73,20 @@ defmodule DpulCollectionsWeb.TranscriptionGeneratorLive do
                   options={Transcription.model_options()}
                 />
               </div>
-              <div class="self-end w-full md:w-auto">
-                <.primary_button class="w-full md:w-auto whitespace-nowrap">
-                  Generate
-                </.primary_button>
+              <div>
+                <.input
+                  type="select"
+                  label="Bounding Box Thinking Level"
+                  field={@transcribe_form[:bbox_thinking]}
+                  options={Transcription.thinking_level_options()}
+                />
               </div>
+            </div>
+
+            <div class="flex justify-end">
+              <.primary_button class="w-full md:w-auto whitespace-nowrap">
+                Generate
+              </.primary_button>
             </div>
           </.form>
         </div>
@@ -82,6 +102,10 @@ defmodule DpulCollectionsWeb.TranscriptionGeneratorLive do
             duration={info.duration}
             transcribe_model={info.transcribe_model}
             bbox_model={info.bbox_model}
+            transcribe_thinking={info.transcribe_thinking}
+            bbox_thinking={info.bbox_thinking}
+            usage={info.usage}
+            cost={info.cost}
             url={info.url}
             idx={idx}
             class="bg-white border border-gray-200 shadow-sm overflow-hidden"
@@ -102,9 +126,14 @@ defmodule DpulCollectionsWeb.TranscriptionGeneratorLive do
 
   defp processing_status(assigns) do
     ~H"""
-    <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-      Done ({@duration}s)
-    </span>
+    <div class="flex items-center gap-2">
+      <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+        Done ({@duration}s)
+      </span>
+      <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/20">
+        ${:erlang.float_to_binary(@cost, decimals: 4)}
+      </span>
+    </div>
     """
   end
 
@@ -112,15 +141,20 @@ defmodule DpulCollectionsWeb.TranscriptionGeneratorLive do
     ~H"""
     <div class={@class}>
       <div class="bg-gray-50 px-4 py-2 border-b border-gray-100 flex items-center justify-between">
-        <div class="flex flex-col">
-          <span class="text-xs font-bold uppercase">Source</span>
-          <div class="flex items-center gap-1 text-[0.65rem] text-gray-500 font-mono mt-0.5">
+        <div class="flex flex-col gap-1">
+          <span class="text-xs font-bold uppercase">Models & Thinking</span>
+          <div class="flex items-center gap-1 text-[0.65rem] text-gray-500 font-mono">
             <span title="Transcription Model">{@transcribe_model}</span>
+            <span class="text-gray-400">({@transcribe_thinking})</span>
             <span>&rarr;</span>
             <span title="Bounding Box Model">{@bbox_model}</span>
+            <span class="text-gray-400">({@bbox_thinking})</span>
+          </div>
+          <div :if={@usage} class="text-[0.65rem] text-gray-500">
+            Tokens: {format_number(@usage.total_tokens)} ({format_number(@usage.input_tokens)} in / {format_number(@usage.output_tokens)} out)
           </div>
         </div>
-        <.processing_status link={@link} duration={@duration} />
+        <.processing_status link={@link} duration={@duration} cost={@cost || 0.0} />
       </div>
 
       <div class="p-4 space-y-3">
@@ -172,12 +206,23 @@ defmodule DpulCollectionsWeb.TranscriptionGeneratorLive do
     """
   end
 
-  def handle_event("transcribe", %{"url" => url, "transcribe_model" => tm, "bbox_model" => bm}, socket) do
+  def handle_event(
+        "transcribe",
+        %{
+          "url" => url,
+          "transcribe_model" => tm,
+          "bbox_model" => bm,
+          "transcribe_thinking" => tt,
+          "bbox_thinking" => bt
+        },
+        socket
+      ) do
     task =
       Task.Supervisor.async_nolink(
         DpulCollections.TaskSupervisor,
         fn ->
-          {url, DpulCollections.Transcription.get_viewer_url(url, tm, bm)}
+          opts = [transcribe_thinking: tt, bbox_thinking: bt]
+          {url, DpulCollections.Transcription.get_viewer_url(url, tm, bm, opts)}
         end
       )
 
@@ -185,7 +230,11 @@ defmodule DpulCollectionsWeb.TranscriptionGeneratorLive do
       url: url,
       transcribe_model: tm,
       bbox_model: bm,
+      transcribe_thinking: tt,
+      bbox_thinking: bt,
       link: nil,
+      usage: nil,
+      cost: nil,
       start: System.monotonic_time(:millisecond),
       duration: nil
     }
@@ -197,7 +246,9 @@ defmodule DpulCollectionsWeb.TranscriptionGeneratorLive do
           to_form(%{
             "url" => nil,
             "transcribe_model" => tm,
-            "bbox_model" => bm
+            "bbox_model" => bm,
+            "transcribe_thinking" => tt,
+            "bbox_thinking" => bt
           }),
         transcription_urls: Map.put(socket.assigns.transcription_urls, task.ref, info)
       )
@@ -205,7 +256,7 @@ defmodule DpulCollectionsWeb.TranscriptionGeneratorLive do
     {:noreply, socket}
   end
 
-  def handle_info({ref, {_url, link}}, socket) do
+  def handle_info({ref, {_url, {link, usage, cost}}}, socket) do
     Process.demonitor(ref, [:flush])
 
     # Lookup by Task Reference
@@ -213,7 +264,13 @@ defmodule DpulCollectionsWeb.TranscriptionGeneratorLive do
       end_time = System.monotonic_time(:millisecond)
       duration = Float.round((end_time - info.start) / 1000, 2)
 
-      new_info = Map.merge(info, %{link: link, duration: duration})
+      new_info =
+        Map.merge(info, %{
+          link: link,
+          usage: usage,
+          cost: cost.total,
+          duration: duration
+        })
 
       socket =
         socket
@@ -229,4 +286,14 @@ defmodule DpulCollectionsWeb.TranscriptionGeneratorLive do
     dbg(reason)
     {:noreply, socket}
   end
+
+  defp format_number(num) when is_integer(num) do
+    num
+    |> Integer.to_string()
+    |> String.reverse()
+    |> String.replace(~r/(\d{3})(?=\d)/, "\\1,")
+    |> String.reverse()
+  end
+
+  defp format_number(_), do: "0"
 end
