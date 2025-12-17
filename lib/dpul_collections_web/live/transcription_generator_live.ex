@@ -49,8 +49,9 @@ defmodule DpulCollectionsWeb.TranscriptionGeneratorLive do
           </h2>
 
           <.translation_queue_entry
-            :for={{{url, link}, idx} <- Enum.with_index(@transcription_urls)}
-            link={link}
+            :for={{{url, info}, idx} <- Enum.with_index(@transcription_urls)}
+            link={info.link}
+            duration={info.duration}
             url={url}
             idx={idx}
             class="bg-white border border-gray-200 shadow-sm overflow-hidden"
@@ -72,7 +73,7 @@ defmodule DpulCollectionsWeb.TranscriptionGeneratorLive do
   defp processing_status(assigns) do
     ~H"""
     <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-      Done
+      Done ({@duration}s)
     </span>
     """
   end
@@ -82,7 +83,7 @@ defmodule DpulCollectionsWeb.TranscriptionGeneratorLive do
     <div class={@class}>
       <div class="bg-gray-50 px-4 py-2 border-b border-gray-100 flex items-center justify-between">
         <span class="text-xs font-bold uppercase">Source</span>
-        <.processing_status link={@link} />
+        <.processing_status link={@link} duration={@duration} />
       </div>
 
       <div class="p-4 space-y-3">
@@ -149,7 +150,12 @@ defmodule DpulCollectionsWeb.TranscriptionGeneratorLive do
           to_form(%{
             "url" => nil
           }),
-        transcription_urls: socket.assigns.transcription_urls |> Map.put(url, nil)
+        transcription_urls:
+          Map.put(socket.assigns.transcription_urls, url, %{
+            link: nil,
+            start: System.monotonic_time(:millisecond),
+            duration: nil
+          })
       )
 
     {:noreply, socket}
@@ -158,9 +164,15 @@ defmodule DpulCollectionsWeb.TranscriptionGeneratorLive do
   def handle_info({ref, {url, link}}, socket) do
     Process.demonitor(ref, [:flush])
 
+    end_time = System.monotonic_time(:millisecond)
+    info = socket.assigns.transcription_urls[url]
+    duration = Float.round((end_time - info.start) / 1000, 2)
+
+    new_info = Map.merge(info, %{link: link, duration: duration})
+
     socket =
       socket
-      |> assign(transcription_urls: socket.assigns.transcription_urls |> Map.put(url, link))
+      |> assign(transcription_urls: Map.put(socket.assigns.transcription_urls, url, new_info))
 
     {:noreply, socket}
   end
