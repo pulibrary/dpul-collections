@@ -1,14 +1,19 @@
 defmodule DpulCollectionsWeb.TranscriptionGeneratorLive do
   use DpulCollectionsWeb, :live_view
   use Gettext, backend: DpulCollectionsWeb.Gettext
+  alias DpulCollections.Transcription
 
   def mount(_params, _session, socket) do
+    default_model = Transcription.default_model()
+
     socket =
       socket
       |> assign(
         transcribe_form:
           to_form(%{
-            "url" => nil
+            "url" => nil,
+            "transcribe_model" => default_model,
+            "bbox_model" => default_model
           }),
         transcription_urls: %{}
       )
@@ -25,21 +30,44 @@ defmodule DpulCollectionsWeb.TranscriptionGeneratorLive do
           <.form
             id="transcribe-form"
             for={@transcribe_form}
-            class="flex flex-col md:flex-row gap-4 items-end"
+            class="flex flex-col gap-4"
             phx-submit="transcribe"
           >
-            <div class="w-full">
-              <.input
-                type="text"
-                class="text-sm"
-                label="IIIF URL"
-                placeholder="https://..."
-                field={@transcribe_form[:url]}
-              />
+            <div class="flex flex-col md:flex-row gap-4 items-end">
+              <div class="w-full">
+                <.input
+                  type="text"
+                  class="text-sm"
+                  label="IIIF URL"
+                  placeholder="https://..."
+                  field={@transcribe_form[:url]}
+                />
+              </div>
             </div>
-            <.primary_button class="w-full md:w-auto whitespace-nowrap">
-              Generate
-            </.primary_button>
+
+            <div class="flex flex-col md:flex-row gap-4">
+              <div class="w-full md:w-1/2">
+                <.input
+                  type="select"
+                  label="Transcription Model (Step 1)"
+                  field={@transcribe_form[:transcribe_model]}
+                  options={Transcription.model_options()}
+                />
+              </div>
+              <div class="w-full md:w-1/2">
+                <.input
+                  type="select"
+                  label="Bounding Box Model (Step 2)"
+                  field={@transcribe_form[:bbox_model]}
+                  options={Transcription.model_options()}
+                />
+              </div>
+              <div class="self-end w-full md:w-auto">
+                <.primary_button class="w-full md:w-auto whitespace-nowrap">
+                  Generate
+                </.primary_button>
+              </div>
+            </div>
           </.form>
         </div>
 
@@ -49,10 +77,12 @@ defmodule DpulCollectionsWeb.TranscriptionGeneratorLive do
           </h2>
 
           <.translation_queue_entry
-            :for={{{url, info}, idx} <- Enum.with_index(@transcription_urls)}
+            :for={{{_ref, info}, idx} <- Enum.sort_by(@transcription_urls, fn {_, i} -> i.start end, :desc) |> Enum.with_index()}
             link={info.link}
             duration={info.duration}
-            url={url}
+            transcribe_model={info.transcribe_model}
+            bbox_model={info.bbox_model}
+            url={info.url}
             idx={idx}
             class="bg-white border border-gray-200 shadow-sm overflow-hidden"
           />
@@ -82,7 +112,14 @@ defmodule DpulCollectionsWeb.TranscriptionGeneratorLive do
     ~H"""
     <div class={@class}>
       <div class="bg-gray-50 px-4 py-2 border-b border-gray-100 flex items-center justify-between">
-        <span class="text-xs font-bold uppercase">Source</span>
+        <div class="flex flex-col">
+          <span class="text-xs font-bold uppercase">Source</span>
+          <div class="flex items-center gap-1 text-[0.65rem] text-gray-500 font-mono mt-0.5">
+            <span title="Transcription Model">{@transcribe_model}</span>
+            <span>&rarr;</span>
+            <span title="Bounding Box Model">{@bbox_model}</span>
+          </div>
+        </div>
         <.processing_status link={@link} duration={@duration} />
       </div>
 
@@ -135,46 +172,57 @@ defmodule DpulCollectionsWeb.TranscriptionGeneratorLive do
     """
   end
 
-  def handle_event("transcribe", %{"url" => url}, socket) do
-    Task.Supervisor.async_nolink(
-      DpulCollections.TaskSupervisor,
-      fn ->
-        {url, DpulCollections.Transcription.get_viewer_url(url)}
-      end
-    )
+  def handle_event("transcribe", %{"url" => url, "transcribe_model" => tm, "bbox_model" => bm}, socket) do
+    task =
+      Task.Supervisor.async_nolink(
+        DpulCollections.TaskSupervisor,
+        fn ->
+          {url, DpulCollections.Transcription.get_viewer_url(url, tm, bm)}
+        end
+      )
+
+    info = %{
+      url: url,
+      transcribe_model: tm,
+      bbox_model: bm,
+      link: nil,
+      start: System.monotonic_time(:millisecond),
+      duration: nil
+    }
 
     socket =
       socket
       |> assign(
         transcribe_form:
           to_form(%{
-            "url" => nil
+            "url" => nil,
+            "transcribe_model" => tm,
+            "bbox_model" => bm
           }),
-        transcription_urls:
-          Map.put(socket.assigns.transcription_urls, url, %{
-            link: nil,
-            start: System.monotonic_time(:millisecond),
-            duration: nil
-          })
+        transcription_urls: Map.put(socket.assigns.transcription_urls, task.ref, info)
       )
 
     {:noreply, socket}
   end
 
-  def handle_info({ref, {url, link}}, socket) do
+  def handle_info({ref, {_url, link}}, socket) do
     Process.demonitor(ref, [:flush])
 
-    end_time = System.monotonic_time(:millisecond)
-    info = socket.assigns.transcription_urls[url]
-    duration = Float.round((end_time - info.start) / 1000, 2)
+    # Lookup by Task Reference
+    if info = socket.assigns.transcription_urls[ref] do
+      end_time = System.monotonic_time(:millisecond)
+      duration = Float.round((end_time - info.start) / 1000, 2)
 
-    new_info = Map.merge(info, %{link: link, duration: duration})
+      new_info = Map.merge(info, %{link: link, duration: duration})
 
-    socket =
-      socket
-      |> assign(transcription_urls: Map.put(socket.assigns.transcription_urls, url, new_info))
+      socket =
+        socket
+        |> assign(transcription_urls: Map.put(socket.assigns.transcription_urls, ref, new_info))
 
-    {:noreply, socket}
+      {:noreply, socket}
+    else
+      {:noreply, socket}
+    end
   end
 
   def handle_info({:DOWN, _ref, _, _, reason}, socket) do

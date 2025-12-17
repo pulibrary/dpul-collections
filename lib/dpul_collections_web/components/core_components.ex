@@ -674,24 +674,24 @@ defmodule DpulCollectionsWeb.CoreComponents do
   #   """
   # end
   #
-  # def input(%{type: "select"} = assigns) do
-  #   ~H"""
-  #   <div phx-feedback-for={@name}>
-  #     <.label for={@id}>{@label}</.label>
-  #     <select
-  #       id={@id}
-  #       name={@name}
-  #       class="mt-2 block w-full rounded-md border border-gray-300 bg-white shadow-sm focus:border-zinc-400 focus:ring-0 sm:text-sm"
-  #       multiple={@multiple}
-  #       {@rest}
-  #     >
-  #       <option :if={@prompt} value="">{@prompt}</option>
-  #       {Phoenix.HTML.Form.options_for_select(@options, @value)}
-  #     </select>
-  #     <.error :for={msg <- @errors}>{msg}</.error>
-  #   </div>
-  #   """
-  # end
+  def input(%{type: "select"} = assigns) do
+    ~H"""
+    <div phx-feedback-for={@name}>
+      <.label for={@id}>{@label}</.label>
+      <select
+        id={@id}
+        name={@name}
+        class="mt-2 block w-full rounded-md border border-gray-300 bg-white shadow-sm focus:border-zinc-400 focus:ring-0 sm:text-sm"
+        multiple={@multiple}
+        {@rest}
+      >
+        <option :if={@prompt} value="">{@prompt}</option>
+        {Phoenix.HTML.Form.options_for_select(@options, @value)}
+      </select>
+      <.error :for={msg <- @errors}>{msg}</.error>
+    </div>
+    """
+  end
   #
   def input(%{type: "textarea"} = assigns) do
     ~H"""
