@@ -65,7 +65,7 @@ defmodule DpulCollections.Transcription do
       "base64" => data_base64
     }
 
-    viewer_link = "https://tpendragon.github.io/ocr-viewer/index.html##{URI.encode_query(params)}"
+    viewer_link = "https://tpendragon.github.io/ocr-viewer/section-viewer.html##{URI.encode_query(params)}"
     cost = calculate_cost(usage)
 
     {viewer_link, usage, cost}
@@ -73,32 +73,49 @@ defmodule DpulCollections.Transcription do
 
   defp step_1_transcribe_content(encoded_image, model, thinking_level) do
     prompt = """
-    You are an expert digital archivist. Transcribe the **ENTIRE contents** of the provided image.
+    You are an expert Digital Archivist.
+    Your goal is to transcribe the document while preserving its **Logical Layout**.
 
-    # 1. SCOPE & LAYOUT
-    - **Full Canvas Scan**: Analyze from edge to edge.
-    - **Two-Page Spreads**: If two pages are visible, process both as separate regions but in the same array.
-    - **Orientation**: Detect text orientation automatically.
+    # 1. LAYOUT ANALYSIS
+    - **Standard Blocks**: Paragraphs, headers, and marginalia.
+    - **Visuals**: Images, stamps, seals (provide a description).
+    - **NESTED COLUMNS (Crucial)**: If you encounter a section that is split into columns (e.g., **Signatures**, **Newspaper Columns**, **Lists of Names**), do NOT flatten them.
+        - Create a parent region (e.g., `region_type: "signatures"`).
+        - Create `sub_regions` for each distinct column or block within that parent.
 
-    # 2. CRITICAL VISUAL DISTINCTION: COMPOUND EDITS
-    Text often has multiple markings. Prioritize **TYPE** first, then **STYLE**.
-
-    **Hierarchy of Types:**
-    1. **Deletion**: Strikethrough or stamped out.
-    2. **Insertion**: Written above/below with a caret.
-    3. **Base**: Standard body text.
-
-    **Visual Styles:**
-    - "circled", "underlined", "boxed", "strikethrough"
+    # 2. GRANULARITY: HIGH (CRITICAL)
+    - **Do NOT merge paragraphs.**
+    - If there is a visual line break or indentation indicating a new paragraph, create a **NEW Region** for it.
+    - It is better to have too many paragraph regions than one giant merged region.
 
     # 3. STRUCTURAL HIERARCHY
-    - **Regions**: `paragraph`, `header`, `column`, `marginalia`, `page_number`, `shelf_mark`.
-    - **Lines**: Group text into physical lines.
-    - **Segments**: Split lines into atomic units (base text vs edits).
+    - **General Rule**: Group related content into parent sections (e.g., `region_type: "section"`).
+    - **Body Text**: If you find multiple paragraphs belonging to the same logical section, create a parent region.
+        - **Sub-Regions**: The individual paragraphs MUST be `sub_regions` of that parent.
+    - **Columns/Signatures**: Continue to use `sub_regions` for these as well.
+
+    # 4. TRANSCRIPTION (Markdown)
+    - Transcribe the content using Markdown.
+    - If using `sub_regions`, the parent `markdown_content` can be null or a brief summary.
+    - Transcribe the actual text inside the `sub_regions`.
+    - **CONTINUOUS FLOW**: Do NOT preserve line breaks from the physical paper within a paragraph.
+    - **DE-HYPHENATION**: If a word is hyphenated across two lines (e.g., "exam-" on line 1 and "ple" on line 2), join them into a single word ("example").
+    - Use **Markdown** to denote structure within the block (e.g., **bold** for emphasis, # for headers).
 
     **INSTRUCTION:**
-    Focus strictly on capturing the text content and logical structure. Do NOT generate bounding boxes in this step.
+    Analyze the layout. Use `sub_regions` strictly for multi-column or grouped layouts.
     """
+
+    sub_region_schema = %{
+      "type" => "OBJECT",
+      "properties" => %{
+        "region_type" => %{"type" => "STRING"},
+        "classification" => %{"type" => "STRING", "nullable" => true},
+        "label" => %{"type" => "STRING", "nullable" => true},
+        "markdown_content" => %{"type" => "STRING"}
+      },
+      "required" => ["region_type", "markdown_content"]
+    }
 
     schema = %{
       "type" => "ARRAY",
@@ -111,49 +128,28 @@ defmodule DpulCollections.Transcription do
             "enum" => [
               "paragraph",
               "header",
-              "column",
               "marginalia",
-              "timestamp",
-              "deleted_block",
+              "visual_content",
+              "caption",
+              "footer",
+              "page_number",
               "shelf_mark",
-              "bookplate",
-              "seal",
-              "page_number"
+              "section_break",
+              "signatures",
+              "columns",
+              "section"
             ]
           },
-          "lines" => %{
+          "classification" => %{"type" => "STRING", "nullable" => true},
+          "label" => %{"type" => "STRING", "description" => "E.g. 'Witnesses', 'Principals'"},
+          "markdown_content" => %{"type" => "STRING", "nullable" => true},
+          "sub_regions" => %{
             "type" => "ARRAY",
-            "items" => %{
-              "type" => "OBJECT",
-              "properties" => %{
-                "line_number" => %{"type" => "INTEGER"},
-                "segments" => %{
-                  "type" => "ARRAY",
-                  "items" => %{
-                    "type" => "OBJECT",
-                    "properties" => %{
-                      "text" => %{"type" => "STRING"},
-                      "type" => %{
-                        "type" => "STRING",
-                        "enum" => [
-                          "base",
-                          "insertion",
-                          "deletion",
-                          "substitution",
-                          "handwritten_note"
-                        ]
-                      },
-                      "style" => %{"type" => "ARRAY", "items" => %{"type" => "STRING"}}
-                    },
-                    "required" => ["text", "type"]
-                  }
-                }
-              },
-              "required" => ["segments"]
-            }
+            "description" => "Use ONLY for multi-column layouts like signatures.",
+            "items" => sub_region_schema
           }
         },
-        "required" => ["region_type", "lines"]
+        "required" => ["region_type"]
       }
     }
 
@@ -164,75 +160,54 @@ defmodule DpulCollections.Transcription do
     json_string = Jason.encode!(Jason.decode!(content_json))
 
     prompt = """
-    You are a Computer Vision Expert specializing in **Heavily Edited Manuscripts**.
-    Your task is **Visual Grounding**.
+    You are a Computer Vision Expert. Your task is **Hierarchical Visual Grounding**.
 
     # INPUT CONTEXT
     #{json_string}
 
-    # CRITICAL VISUAL RULES
-    1. **Handwriting Physics**:
-       - **Ascenders/Descenders**: Capture the full height of letters (l, h, g, y).
-       - **Overlap**: Cursive lines often touch. It is OK for boxes to slightly overlap vertically.
+    # INSTRUCTIONS
+    For every region and **sub-region**, detect the bounding box.
 
-    2. **COMPLEX EDITS & INSERTIONS (CRITICAL)**:
-       - **Interlinear Insertions**: If a line has text inserted ABOVE it (e.g., with a caret ^), the Line Box MUST extend upward to include that inserted text.
-       - **Result**: Edited lines will have **TALLER** boxes than regular lines. This is expected behavior.
-       - **Marginalia**: If a line extends into the margin (e.g., a long insertion), extend the box horizontally to catch it.
+    1. **Parent Regions**: If a region has `sub_regions`, the Parent Box must be large enough to encompass ALL its children (the union of the sub-boxes).
+    2. **Sub-Regions**: Generate precise, ink-tight boxes for each individual column or signature block inside the parent.
+    3. **Standard Regions**: Box the entire paragraph or visual element.
 
-    3. **"Zonal" Deletions**:
-       - For blocks of text crossed out with a large scribble (like the "sine wave" at the top), the box should capture the ink of the text AND the strike-through line.
-
-    # GEOMETRY CONSTRAINTS
-    - **Scale**: 0-1000.
-    - **Format**: [ymin, xmin, ymax, xmax].
-    - **Tightness**: Ink-tight.
+    # GEOMETRY
+    - Scale: 0-1000.
+    - Format: [ymin, xmin, ymax, xmax].
 
     # OUTPUT
-    - Return the exact JSON structure with `box_2d` populated.
+    - Return the exact JSON structure with `box_2d` populated for EVERY item (parents and children).
     """
 
-    # Schema remains the same as previous step
+    sub_region_schema_with_box = %{
+      "type" => "OBJECT",
+      "properties" => %{
+        "region_type" => %{"type" => "STRING"},
+        "classification" => %{"type" => "STRING", "nullable" => true},
+        "label" => %{"type" => "STRING", "nullable" => true},
+        "markdown_content" => %{"type" => "STRING"},
+        "box_2d" => %{"type" => "ARRAY", "items" => %{"type" => "INTEGER"}}
+      },
+      "required" => ["region_type", "markdown_content", "box_2d"]
+    }
+
     schema = %{
       "type" => "ARRAY",
       "items" => %{
         "type" => "OBJECT",
         "properties" => %{
           "region_type" => %{"type" => "STRING"},
-          "box_2d" => %{
+          "classification" => %{"type" => "STRING", "nullable" => true},
+          "label" => %{"type" => "STRING", "nullable" => true},
+          "markdown_content" => %{"type" => "STRING", "nullable" => true},
+          "box_2d" => %{"type" => "ARRAY", "items" => %{"type" => "INTEGER"}},
+          "sub_regions" => %{
             "type" => "ARRAY",
-            "description" => "Bounding box [ymin, xmin, ymax, xmax]",
-            "items" => %{"type" => "INTEGER"}
-          },
-          "lines" => %{
-            "type" => "ARRAY",
-            "items" => %{
-              "type" => "OBJECT",
-              "properties" => %{
-                "line_number" => %{"type" => "INTEGER"},
-                "box_2d" => %{
-                  "type" => "ARRAY",
-                  "description" => "Bounding box [ymin, xmin, ymax, xmax]",
-                  "items" => %{"type" => "INTEGER"}
-                },
-                "segments" => %{
-                  "type" => "ARRAY",
-                  "items" => %{
-                    "type" => "OBJECT",
-                    "properties" => %{
-                      "text" => %{"type" => "STRING"},
-                      "type" => %{"type" => "STRING"},
-                      "style" => %{"type" => "ARRAY", "items" => %{"type" => "STRING"}}
-                    },
-                    "required" => ["text", "type"]
-                  }
-                }
-              },
-              "required" => ["box_2d", "segments"]
-            }
+            "items" => sub_region_schema_with_box
           }
         },
-        "required" => ["region_type", "box_2d", "lines"]
+        "required" => ["region_type", "box_2d"]
       }
     }
 
@@ -314,7 +289,8 @@ defmodule DpulCollections.Transcription do
 
   defp maybe_add_thinking(config, "none"), do: config
 
-  defp maybe_add_thinking(config, thinking_level) when thinking_level in ["low", "medium", "high"] do
+  defp maybe_add_thinking(config, thinking_level)
+       when thinking_level in ["low", "medium", "high"] do
     Map.put(config, "thinkingConfig", %{"thinkingLevel" => thinking_level})
   end
 
