@@ -65,7 +65,9 @@ defmodule DpulCollections.Transcription do
       "base64" => data_base64
     }
 
-    viewer_link = "https://tpendragon.github.io/ocr-viewer/section-viewer.html##{URI.encode_query(params)}"
+    viewer_link =
+      "https://tpendragon.github.io/ocr-viewer/section-viewer.html##{URI.encode_query(params)}"
+
     cost = calculate_cost(usage)
 
     {viewer_link, usage, cost}
@@ -82,11 +84,6 @@ defmodule DpulCollections.Transcription do
     - **NESTED COLUMNS (Crucial)**: If you encounter a section that is split into columns (e.g., **Signatures**, **Newspaper Columns**, **Lists of Names**), do NOT flatten them.
         - Create a parent region (e.g., `region_type: "signatures"`).
         - Create `sub_regions` for each distinct column or block within that parent.
-
-    # 2. GRANULARITY: HIGH (CRITICAL)
-    - **Do NOT merge paragraphs.**
-    - If there is a visual line break or indentation indicating a new paragraph, create a **NEW Region** for it.
-    - It is better to have too many paragraph regions than one giant merged region.
 
     # 3. STRUCTURAL HIERARCHY
     - **General Rule**: Group related content into parent sections (e.g., `region_type: "section"`).
