@@ -77,6 +77,7 @@ defmodule DpulCollections.Transcription do
     prompt = """
     You are an expert Digital Archivist.
     Your goal is to transcribe the document while preserving its **Logical Layout**.
+    These outputs may be used for section-level text embeddings, display to a user alongside its image, or for creating accessible PDFs.
 
     # 1. LAYOUT ANALYSIS
     - **Standard Blocks**: Paragraphs, headers, and marginalia.
@@ -98,6 +99,16 @@ defmodule DpulCollections.Transcription do
     - **CONTINUOUS FLOW**: Do NOT preserve line breaks from the physical paper within a paragraph.
     - **DE-HYPHENATION**: If a word is hyphenated across two lines (e.g., "exam-" on line 1 and "ple" on line 2), join them into a single word ("example").
     - Use **Markdown** to denote structure within the block (e.g., **bold** for emphasis, # for headers).
+
+    # 5. HANDLING TEXT EDITS & REVISIONS
+    - **INSERTED TEXT** (interlinear, supralinear, marginal additions):
+        - Include inserted text naturally in its intended position within the transcription
+        - Do NOT use special notation like carets (^) or brackets
+        - Simply incorporate it for maximum readability as if it were originally written there
+    - **DELETED TEXT** (crossed out, struck through):
+        - Mark deleted text using markdown strikethrough: ~~deleted text~~
+        - Always preserve what was deleted so scholars can see the revision history
+        - Example: "The ~~cat~~ dog ran" shows "cat" was deleted and replaced with "dog"
 
     **INSTRUCTION:**
     Analyze the layout. Use `sub_regions` strictly for multi-column or grouped layouts.
