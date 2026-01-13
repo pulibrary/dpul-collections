@@ -62,11 +62,11 @@ jobs:
           build-args: |
             DEPLOY_BRANCH=${{ github.ref_name }}
             DEPLOY_SHA=${{ github.sha }}
-          secret-envs: |
   container-vuln-scan:
     needs: build-and-push-image
     runs-on: ubuntu-latest
     permissions:
+      pull-requests: write
       issues: write
     if:
     steps:
@@ -114,7 +114,7 @@ jobs:
         run: echo "${{ env.SCANNER_OUTPUTS }}"
       - name: Find Comment for scan
         if: github.event_name == 'pull_request'
-        uses: peter-evans/find-comment@v3
+        uses: peter-evans/find-comment@v4
         id: fc
         with:
           issue-number: ${{ github.event.pull_request.number }}
@@ -122,7 +122,7 @@ jobs:
           body-includes: 'Container Scanning Status: '
       - name: Create or update comment
         if: github.event_name == 'pull_request'
-        uses: peter-evans/create-or-update-comment@v4
+        uses: peter-evans/create-or-update-comment@v5
         env:
           SCANNER_OUTPUTS: ${{ steps.scanner.outputs.results }}
         with:
