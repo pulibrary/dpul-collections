@@ -66,7 +66,9 @@ jobs:
   container-vuln-scan:
     needs: build-and-push-image
     runs-on: ubuntu-latest
-    if: 
+    permissions:
+      issues: write
+    if:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
