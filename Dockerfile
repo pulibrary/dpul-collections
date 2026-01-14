@@ -12,9 +12,9 @@
 #   - Ex: hexpm/elixir:1.16.3-erlang-26.2.5-debian-bullseye-20240513-slim
 #
 # renovate: datasource=hexpm-bob depName=elixir
-ARG ELIXIR_VERSION=1.18.4
+ARG ELIXIR_VERSION=1.19.5
 # renovate: datasource=github-tags depName=erlang packageName=erlang/otp
-ARG OTP_VERSION=27.3.4.3
+ARG OTP_VERSION=27.3.4.6
 # renovate: datasource=docker depName=debian packageName=debian
 ARG DEBIAN_VERSION=trixie-20260112-slim
 
@@ -29,7 +29,7 @@ RUN apt-get update -y && apt-get install -y build-essential git curl \
 
 # Install JavaScript dependencies
 # renovate: datasource=node-version depName=node
-ARG NODE_VERSION=24.11.0
+ARG NODE_VERSION=24.13.0
 ENV PATH=/usr/local/node/bin:$PATH
 RUN curl -sL https://github.com/nodenv/node-build/archive/master.tar.gz | tar xz -C /tmp/ && \
     /tmp/node-build-master/bin/node-build "${NODE_VERSION}" /usr/local/node && \

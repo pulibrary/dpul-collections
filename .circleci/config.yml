@@ -2,13 +2,13 @@ version: 2.1
 
 description: Common jobs for testing and building phoenix applications
 orbs:
-  node: circleci/node@7.2.0
+  node: circleci/node@7.2.1
 executors:
   builder:
     parameters:
       elixir_version:
         type: string
-        default: 1.18.4 # datasource=hexpm-bob depName=elixir
+        default: 1.19.5 # datasource=hexpm-bob depName=elixir
       erlang_version:
         type: string
         default: 27.2.2
@@ -32,7 +32,7 @@ executors:
     parameters:
       elixir_version:
         type: string
-        default: 1.18.4 # datasource=hexpm-bob depName=elixir
+        default: 1.19.5 # datasource=hexpm-bob depName=elixir
       erlang_version:
         type: string
         default: 27.2.2
@@ -73,7 +73,7 @@ commands:
           condition: << parameters.include-assets >>
           steps:
             - node/install:
-                node-version: '24.11.0'
+                node-version: '24.13.0'
             - run:
                 name: Install elixir deps
                 command: mix assets.setup
