@@ -77,7 +77,7 @@ defmodule DpulCollections.MixProject do
       {:bandit, "~> 1.6"},
       {:excoveralls, "~> 0.18.5", only: :test},
       {:broadway, "~> 1.2"},
-      {:ex_doc, "~> 0.38", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.39", only: :dev, runtime: false},
       {:req, "~> 0.5"},
       {:broadway_dashboard, "~> 0.4"},
       {:honeybadger, "~> 0.23"},
@@ -86,7 +86,7 @@ defmodule DpulCollections.MixProject do
        runtime: false,
        git: "https://github.com/ftes/phoenix_test_playwright.git",
        branch: "main"},
-      {:live_debugger, "~> 0.4.0", only: :dev},
+      {:live_debugger, "~> 0.5.0", only: :dev},
       {:prom_ex, "~> 1.11.0"},
       {:ecto_psql_extras, "~> 0.6"},
       # Sibyl adds a decorator that automatically wraps a method and makes it
@@ -96,13 +96,13 @@ defmodule DpulCollections.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:ex_cldr_dates_times, "~> 2.0"},
       # Icons
-      {:iconify_ex, "~> 0.6.1"},
+      {:iconify_ex, "~> 0.7.0"},
       # React for Clover Viewer
       {:phoenix_live_react, "~> 0.6"},
       {:sham, "~> 1.0", only: :test},
       {:oban, "~> 2.19"},
       {:oban_web, "~> 2.11"},
-      {:a11y_audit, "~> 0.2.3", only: :test},
+      {:a11y_audit, "~> 0.3.0", only: :test},
       {:mock, "~> 0.3.0", only: :test},
       {:lazy_html, ">= 0.1.0", only: :test}
     ]
