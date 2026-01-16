@@ -1,5 +1,8 @@
 # DpulCollections
 
+[![CircleCI](https://circleci.com/gh/pulibrary/dpul-collections.svg?style=svg)](https://circleci.com/gh/pulibrary/dpul-collections)
+[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)](https://github.com/pulibrary/dpul-collections)
+
 Digital Princeton University Library Collections (aka DPUL Collections) is a discovery application built towards our vision to provide an inspiring environment for global communities to engage with diverse digital collections.
 
 This project is built in Elixir using Phoenix LiveView as a web framework and Broadway for the indexing pipeline.
