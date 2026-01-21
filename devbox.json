@@ -7,13 +7,13 @@
     "FONTCONFIG_PATH":         "$PWD/.devbox/nix/profile/default/etc/fonts"
   },
   "packages": {
-    "github:NixOS/nixpkgs/b044ad6e5e92e70d7a7723864b0ab7a6c25bafda#elixir": "",
-    "github:NixOS/nixpkgs/586cfaf842c9cf24969b7fbf77425c861f1957ec#erlang": "",
-    "nodejs":                                                               "24.11.0",
+    "nodejs": "24.11.0",
     "postgresql": {
       "version": "15.7",
       "outputs": ["lib", "out"]
-    }
+    },
+    "beam27Packages.elixir": "1.18.4",
+    "beam27Packages.erlang": "27.3.4.3"
   },
   "shell": {
     "init_hook": [
