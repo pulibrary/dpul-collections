@@ -1,99 +1,99 @@
 {
   "lockfile_version": "1",
   "packages": {
-    "beam27Packages.elixir@1.18.4": {
-      "last_modified": "2025-12-31T03:27:36Z",
-      "resolved": "github:NixOS/nixpkgs/f665af0cdb70ed27e1bd8f9fdfecaf451260fc55#beam27Packages.elixir",
+    "beam27Packages.elixir_1_19@1.19.5": {
+      "last_modified": "2026-01-09T21:51:34Z",
+      "resolved": "github:NixOS/nixpkgs/45a1530683263666f42d1de4cdda328109d5a676#beam27Packages.elixir_1_19",
       "source": "devbox-search",
-      "version": "1.18.4",
+      "version": "1.19.5",
       "systems": {
         "aarch64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/ildawlxd8nz2vv51ddprhry630ffwmh3-elixir-1.18.4",
+              "path": "/nix/store/vcvl9g5xrlzad9p0jl7973cjjjad9pzx-elixir-1.19.5",
               "default": true
             }
           ],
-          "store_path": "/nix/store/ildawlxd8nz2vv51ddprhry630ffwmh3-elixir-1.18.4"
+          "store_path": "/nix/store/vcvl9g5xrlzad9p0jl7973cjjjad9pzx-elixir-1.19.5"
         },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/zynq1ax5fpq0f37bamymiqhdyqhdmblv-elixir-1.18.4",
+              "path": "/nix/store/cx51p2b6byj53lgbb08cwmd9155vlk8c-elixir-1.19.5",
               "default": true
             }
           ],
-          "store_path": "/nix/store/zynq1ax5fpq0f37bamymiqhdyqhdmblv-elixir-1.18.4"
+          "store_path": "/nix/store/cx51p2b6byj53lgbb08cwmd9155vlk8c-elixir-1.19.5"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/nch2c3rzsxljsag5vwry6ck9mg431diq-elixir-1.18.4",
+              "path": "/nix/store/1gccqz7hsi15719vm249nxd5zs3nsn1m-elixir-1.19.5",
               "default": true
             }
           ],
-          "store_path": "/nix/store/nch2c3rzsxljsag5vwry6ck9mg431diq-elixir-1.18.4"
+          "store_path": "/nix/store/1gccqz7hsi15719vm249nxd5zs3nsn1m-elixir-1.19.5"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/3d2azlhhv0mm58jdb3avda0pclvy034k-elixir-1.18.4",
+              "path": "/nix/store/5kq3kvb462ihgykb7557j4kd4w5nw1pp-elixir-1.19.5",
               "default": true
             }
           ],
-          "store_path": "/nix/store/3d2azlhhv0mm58jdb3avda0pclvy034k-elixir-1.18.4"
+          "store_path": "/nix/store/5kq3kvb462ihgykb7557j4kd4w5nw1pp-elixir-1.19.5"
         }
       }
     },
-    "beam27Packages.erlang@27.3.4.3": {
-      "last_modified": "2025-10-22T20:59:19Z",
-      "resolved": "github:NixOS/nixpkgs/01b6809f7f9d1183a2b3e081f0a1e6f8f415cb09#beam27Packages.erlang",
+    "beam27Packages.erlang@27.3.4.6": {
+      "last_modified": "2025-12-31T03:27:36Z",
+      "resolved": "github:NixOS/nixpkgs/f665af0cdb70ed27e1bd8f9fdfecaf451260fc55#beam27Packages.erlang",
       "source": "devbox-search",
-      "version": "27.3.4.3",
+      "version": "27.3.4.6",
       "systems": {
         "aarch64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/jll9pcb1kilinwk2lcximb79a0wd3dxx-erlang-27.3.4.3",
+              "path": "/nix/store/6m74b7aff36ds9g4fmdzmmngm1zzyn3z-erlang-27.3.4.6",
               "default": true
             }
           ],
-          "store_path": "/nix/store/jll9pcb1kilinwk2lcximb79a0wd3dxx-erlang-27.3.4.3"
+          "store_path": "/nix/store/6m74b7aff36ds9g4fmdzmmngm1zzyn3z-erlang-27.3.4.6"
         },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/yliyhi9qiryq9axa6gsxlqifkzanivc6-erlang-27.3.4.3",
+              "path": "/nix/store/xxwd9dp8yc2cigynk3a0i101qlzkfgq1-erlang-27.3.4.6",
               "default": true
             }
           ],
-          "store_path": "/nix/store/yliyhi9qiryq9axa6gsxlqifkzanivc6-erlang-27.3.4.3"
+          "store_path": "/nix/store/xxwd9dp8yc2cigynk3a0i101qlzkfgq1-erlang-27.3.4.6"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/bjv10k4k0aqh1rflqmlwiz00sz171h8r-erlang-27.3.4.3",
+              "path": "/nix/store/z7mh49ckb30va3cib547l2x5r7n4i764-erlang-27.3.4.6",
               "default": true
             }
           ],
-          "store_path": "/nix/store/bjv10k4k0aqh1rflqmlwiz00sz171h8r-erlang-27.3.4.3"
+          "store_path": "/nix/store/z7mh49ckb30va3cib547l2x5r7n4i764-erlang-27.3.4.6"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/d0zgb8mlfss8fckhdd8yxdyy7jhfchjr-erlang-27.3.4.3",
+              "path": "/nix/store/5vjg30d48cva0xvdwxmbxg1x5k51hjr9-erlang-27.3.4.6",
               "default": true
             }
           ],
-          "store_path": "/nix/store/d0zgb8mlfss8fckhdd8yxdyy7jhfchjr-erlang-27.3.4.3"
+          "store_path": "/nix/store/5vjg30d48cva0xvdwxmbxg1x5k51hjr9-erlang-27.3.4.6"
         }
       }
     },
@@ -101,84 +101,84 @@
       "last_modified": "2025-12-05T15:03:55Z",
       "resolved": "github:NixOS/nixpkgs/a672be65651c80d3f592a89b3945466584a22069?lastModified=1764947035&narHash=sha256-EYHSjVM4Ox4lvCXUMiKKs2vETUSL5mx%2BJ2FfutM7T9w%3D"
     },
-    "nodejs@24.11.0": {
-      "last_modified": "2025-11-15T07:28:48Z",
+    "nodejs@24.12.0": {
+      "last_modified": "2025-12-27T12:56:01Z",
       "plugin_version": "0.0.2",
-      "resolved": "github:NixOS/nixpkgs/1d4c88323ac36805d09657d13a5273aea1b34f0c#nodejs_24",
+      "resolved": "github:NixOS/nixpkgs/3edc4a30ed3903fdf6f90c837f961fa6b49582d1#nodejs_24",
       "source": "devbox-search",
-      "version": "24.11.0",
+      "version": "24.12.0",
       "systems": {
         "aarch64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/kh92nj218v7y267l59c9gh5cj90xjarb-nodejs-24.11.0",
+              "path": "/nix/store/b1h0af3yb3z9jz048phclcqw6ihiww67-nodejs-24.12.0",
               "default": true
             },
             {
               "name": "dev",
-              "path": "/nix/store/l7qvq86rssr0rqgj9aahka6993bxl90b-nodejs-24.11.0-dev"
+              "path": "/nix/store/ksn4nj0nbp0ikmh4scy9x4biqqdswwhy-nodejs-24.12.0-dev"
             },
             {
               "name": "libv8",
-              "path": "/nix/store/q3l7naqajvsr7gg0mfbnbp9idpgri8sk-nodejs-24.11.0-libv8"
+              "path": "/nix/store/3x72bm7l30ib7l7cximrp0sklcq8jqwy-nodejs-24.12.0-libv8"
             }
           ],
-          "store_path": "/nix/store/kh92nj218v7y267l59c9gh5cj90xjarb-nodejs-24.11.0"
+          "store_path": "/nix/store/b1h0af3yb3z9jz048phclcqw6ihiww67-nodejs-24.12.0"
         },
         "aarch64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/a1kicz8hm9rm517mxlqxr6skayfxadf6-nodejs-24.11.0",
+              "path": "/nix/store/9jfsyhcr9c6rpm94lrkibv75jkggvwss-nodejs-24.12.0",
               "default": true
             },
             {
               "name": "dev",
-              "path": "/nix/store/4prl57ccqz6vwa4d30rxhcq3d77prvh8-nodejs-24.11.0-dev"
+              "path": "/nix/store/7izhv9x1yvsmyrhmmyps6bxjjclajm80-nodejs-24.12.0-dev"
             },
             {
               "name": "libv8",
-              "path": "/nix/store/8hv0m3dhaadqf85c8gqb21q483809k3n-nodejs-24.11.0-libv8"
+              "path": "/nix/store/8hl74pnc1qyz68rg10ixw7fz32hcxqkk-nodejs-24.12.0-libv8"
             }
           ],
-          "store_path": "/nix/store/a1kicz8hm9rm517mxlqxr6skayfxadf6-nodejs-24.11.0"
+          "store_path": "/nix/store/9jfsyhcr9c6rpm94lrkibv75jkggvwss-nodejs-24.12.0"
         },
         "x86_64-darwin": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/v578kr414iyvsx7imvs8kzww19kmw5nv-nodejs-24.11.0",
+              "path": "/nix/store/cj1243xswxvnwgifyiyg8axhn0r2vl48-nodejs-24.12.0",
               "default": true
             },
             {
               "name": "dev",
-              "path": "/nix/store/6iqjyc6sp3fvdhvb5040sb39zjim7zjf-nodejs-24.11.0-dev"
+              "path": "/nix/store/kzia3rkaf9vwpn3py23q9v49jpjm6zx7-nodejs-24.12.0-dev"
             },
             {
               "name": "libv8",
-              "path": "/nix/store/rqchj64g3mp1r06642q8vac9vmx47ghk-nodejs-24.11.0-libv8"
+              "path": "/nix/store/xszji81xj7ghjhz7jk0jkhb84nfwyd8f-nodejs-24.12.0-libv8"
             }
           ],
-          "store_path": "/nix/store/v578kr414iyvsx7imvs8kzww19kmw5nv-nodejs-24.11.0"
+          "store_path": "/nix/store/cj1243xswxvnwgifyiyg8axhn0r2vl48-nodejs-24.12.0"
         },
         "x86_64-linux": {
           "outputs": [
             {
               "name": "out",
-              "path": "/nix/store/yz8zgb4x36b33zf553936fmnng7265a3-nodejs-24.11.0",
+              "path": "/nix/store/9z1v3wyrxp6fpyzw21lcakd5w7aknzyc-nodejs-24.12.0",
               "default": true
             },
             {
-              "name": "dev",
-              "path": "/nix/store/7lhsfdhaydi81bagx58087mpd67230yb-nodejs-24.11.0-dev"
+              "name": "libv8",
+              "path": "/nix/store/5yvx909wlis13qd2y1ahwl7ij21ma69a-nodejs-24.12.0-libv8"
             },
             {
-              "name": "libv8",
-              "path": "/nix/store/mah41cip4l8vg5ibg7ijiyg47grff9q3-nodejs-24.11.0-libv8"
+              "name": "dev",
+              "path": "/nix/store/7ll99p08gmpg0n048669p80zjibl5akr-nodejs-24.12.0-dev"
             }
           ],
-          "store_path": "/nix/store/yz8zgb4x36b33zf553936fmnng7265a3-nodejs-24.11.0"
+          "store_path": "/nix/store/9z1v3wyrxp6fpyzw21lcakd5w7aknzyc-nodejs-24.12.0"
         }
       }
     },
