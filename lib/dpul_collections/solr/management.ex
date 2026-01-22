@@ -27,12 +27,10 @@ defmodule DpulCollections.Solr.Management do
     |> Req.Request.put_header("content-type", "application/json")
     |> Req.post!(
       json: %{
-        create: %{
-          name: index.collection,
-          config: index.config_set,
-          numShards: 1,
-          waitForFinalState: true
-        }
+        name: index.collection,
+        config: index.config_set,
+        numShards: 1,
+        waitForFinalState: true
       }
     )
   end
@@ -63,8 +61,8 @@ defmodule DpulCollections.Solr.Management do
   def set_alias(index = %Index{}, alias) do
     index
     |> Index.connect()
-    |> Req.merge(url: "api/c")
+    |> Req.merge(url: "api/aliases")
     |> Req.Request.put_header("content-type", "application/json")
-    |> Req.post!(json: %{"create-alias": %{name: alias, collections: [index.collection]}})
+    |> Req.post!(json: %{name: alias, collections: [index.collection]})
   end
 end
