@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export SOLR_HOST=${SOLR_HOST:="localhost:8983"}
-export ZK_HOST=${ZK_HOST:=$SOLR_HOST}
+export ZK_HOST=${ZK_HOST:="localhost:9983"}
 export SOLR_CONFIG_ROOT=${SOLR_CONFIG_ROOT:="/app/solr/conf"}
 
 solr zk cp file:/opt/solr/security.json zk:/security.json -z $ZK_HOST
