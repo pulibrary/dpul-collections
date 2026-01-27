@@ -18,7 +18,7 @@ executors:
           TEST_POSTGRES_PORT: 5432
           TEST_POSTGRES_FIGGY_HOST: figgy_database
           TEST_POSTGRES_FIGGY_PORT: 5432
-          SOLR_BASE_URL: http://localhost:8983
+          SOLR_BASE_URL: http://localhost:8984
           MIX_ENV: test
       - image: cimg/postgres:15.2
       - image: cimg/postgres:15.2
@@ -131,11 +131,11 @@ jobs:
       - checkout
       - install-deps:
           include-assets: true
-      - run: dockerize -wait tcp://localhost:8983 -timeout 1m
+      - run: dockerize -wait tcp://localhost:8984 -timeout 1m
       - run:
           name: Load config into solr
           command: |
-            SOLR_CONFIG_ROOT=solr/conf ./bin/setup_solr.sh
+            SOLR_CONFIG_ROOT=solr/conf SOLR_HOST=localhost:8984 ./bin/setup_solr.sh
       - run:
           name: Setup fixtures
           command: mix fixtures.setup
