@@ -2,17 +2,20 @@
 
 SOLR_HOST="localhost:8983"
 ZK_HOST="localhost:9983"
+export SOLR_CONFIG_ROOT=${APP_ROOT:="/app/solr/conf"}
 
-# zkcli.sh is deprecated, use zk putfile now.
 solr zk cp file:/opt/solr/security.json zk:/security.json -z $ZK_HOST
+
+cd $SOLR_CONFIG_ROOT
+
+zip -1 -r solr_config.zip ./*
 
 # since we have to log in to the UI, add a user that's simpler to type
 curl --user solr:SolrRocks http://$SOLR_HOST/solr/admin/authentication \
      -H 'Content-type:application/json' \
      -d '{"set-user": {"user":"pass"}}'
 
-# Upload config with solr binary.
-/opt/solr/bin/solr zk upconfig -n dpul-collections -d /app/solr/conf
+curl -X POST "http://solr:SolrRocks@localhost:8983/solr/admin/configs?action=UPLOAD&name=dpul-collections" -H "Content-type:application/octet-stream" --data-binary @solr_config.zip
 
 # Solr 9 API
 curl -X POST "http://solr:SolrRocks@$SOLR_HOST/api/collections" \
