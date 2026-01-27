@@ -26,11 +26,12 @@ executors:
         environment:
           POSTGRES_PASSWORD: "postgres"
       - image: quay.io/pulibrary/ci-solr:9.9-v1.0.2
-        command: solr -cloud -noprompt -f -p 8983
+        command: server/scripts/ci-start.sh
         environment:
           SOLR_MODULES: 'analysis-extras,scripting'
           SOLR_CONFIG_LIB_ENABLED: true
           SOLR_SECURITY_MANAGER_ENABLED: false
+          SOLR_PORT: 8983
     working_directory: ~/project
   formatter:
     parameters:
