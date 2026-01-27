@@ -1,7 +1,7 @@
 #!/bin/bash
 
-SOLR_HOST="localhost:8983"
-ZK_HOST="localhost:9983"
+export SOLR_HOST=${SOLR_HOST:="localhost:8983"}
+export ZK_HOST=${ZK_HOST:=$SOLR_HOST}
 export SOLR_CONFIG_ROOT=${APP_ROOT:="/app/solr/conf"}
 
 solr zk cp file:/opt/solr/security.json zk:/security.json -z $ZK_HOST
@@ -15,7 +15,7 @@ curl --user solr:SolrRocks http://$SOLR_HOST/solr/admin/authentication \
      -H 'Content-type:application/json' \
      -d '{"set-user": {"user":"pass"}}'
 
-curl -X POST "http://solr:SolrRocks@localhost:8983/solr/admin/configs?action=UPLOAD&name=dpul-collections" -H "Content-type:application/octet-stream" --data-binary @solr_config.zip
+curl -X POST "http://solr:SolrRocks@$SOLR_HOST/solr/admin/configs?action=UPLOAD&name=dpul-collections" -H "Content-type:application/octet-stream" --data-binary @solr_config.zip
 
 # Solr 9 API
 curl -X POST "http://solr:SolrRocks@$SOLR_HOST/api/collections" \
