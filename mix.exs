@@ -86,7 +86,7 @@ defmodule DpulCollections.MixProject do
        runtime: false,
        git: "https://github.com/ftes/phoenix_test_playwright.git",
        branch: "main"},
-      {:live_debugger, "~> 0.5.0", only: :dev},
+      {:live_debugger, "~> 0.6.0", only: :dev},
       {:prom_ex, "~> 1.11.0"},
       {:ecto_psql_extras, "~> 0.6"},
       # Sibyl adds a decorator that automatically wraps a method and makes it
