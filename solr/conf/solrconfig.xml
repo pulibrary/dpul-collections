@@ -72,7 +72,6 @@
        The example below can be used to load a solr-contrib along
        with their external dependencies.
     -->
-    <lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-.*\.jar" />
     <lib dir="${solr.install.dir:../../../..}/contrib/langid/lib/" regex=".*\.jar" />
 
   <!-- an exact 'path' can be used instead of a 'dir' to specify a
@@ -249,17 +248,6 @@
     <!-- <infoStream file="INFOSTREAM.txt">false</infoStream> -->
   </indexConfig>
 
-
-  <!-- JMX
-
-       This example enables JMX if and only if an existing MBeanServer
-       is found, use this if you want to configure JMX through JVM
-       parameters. Remove this to disable exposing Solr configuration
-       and statistics to JMX.
-
-       For more details see http://wiki.apache.org/solr/SolrJmx
-    -->
-  <jmx />
   <!-- If you want to connect to a particular server, specify the
        agentId
     -->
@@ -417,7 +405,7 @@
                       to occupy. Note that when this option is specified, the size
                       and initialSize parameters are ignored.
       -->
-    <filterCache class="solr.FastLRUCache"
+    <filterCache class="solr.CaffeineCache"
                  size="512"
                  initialSize="512"
                  autowarmCount="0"/>
@@ -430,7 +418,7 @@
             maxRamMB - the maximum amount of RAM (in MB) that this cache is allowed
                        to occupy
       -->
-    <queryResultCache class="solr.LRUCache"
+    <queryResultCache class="solr.CaffeineCache"
                       size="512"
                       initialSize="512"
                       autowarmCount="0"/>
@@ -441,14 +429,14 @@
          document).  Since Lucene internal document ids are transient,
          this cache will not be autowarmed.
       -->
-    <documentCache class="solr.LRUCache"
+    <documentCache class="solr.CaffeineCache"
                    size="512"
                    initialSize="512"
                    autowarmCount="0"/>
 
     <!-- custom cache currently used by block join -->
     <cache name="perSegFilter"
-           class="solr.search.LRUCache"
+           class="solr.search.CaffeineCache"
            size="10"
            initialSize="0"
            autowarmCount="10"
@@ -1145,7 +1133,7 @@
     <processor class="solr.RunUpdateProcessorFactory"/>
   </updateRequestProcessorChain>
 
-  <updateProcessor class="solr.StatelessScriptUpdateProcessorFactory" name="build-slugs">
+  <updateProcessor class="org.apache.solr.scripting.update.ScriptUpdateProcessorFactory" name="build-slugs">
     <str name="script">slug.js</str>
   </updateProcessor>
 

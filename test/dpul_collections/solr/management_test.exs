@@ -43,6 +43,6 @@ defmodule DpulCollections.Solr.ManagementTest do
     response = Management.create_collection(write_index)
     # Most importantly, it doesn't error, but here's an assertion as a coherence
     # check
-    assert response.body["exception"]["msg"] == "collection already exists: dpulc1"
+    assert response.body["error"]["msg"] == "collection already exists: dpulc1"
   end
 end

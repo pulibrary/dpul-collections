@@ -358,7 +358,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
     end
   end
 
-  defp extract_project_id(_), do: %{}
+  defp extract_project_id(_), do: nil
 
   defp find_ancestor_type(ancestors, resource_type) do
     ancestors
