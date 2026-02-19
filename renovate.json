@@ -14,7 +14,8 @@
     "nodenv",
     "npm",
     "custom.regex",
-    "mix"
+    "mix",
+    "devbox"
   ],
   "packageRules": [
     {
