@@ -22,7 +22,6 @@ import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 import Hooks from "./hooks";
-import {hooks as colocatedHooks} from "phoenix-colocated/dpul_collections"
 import { initLiveReact } from "phoenix_live_react"
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")

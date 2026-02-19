@@ -494,6 +494,46 @@ defmodule DpulCollectionsWeb.CoreComponents do
     """
   end
 
+  attr :id, :string, required: true
+  attr :afterClose, :any, required: false, default: %JS{}
+  attr :label, :string, required: true
+
+  slot :inner_block, doc: "the drawer content"
+
+  def drawer(assigns) do
+    ~H"""
+    <dialog
+      id={@id}
+      phx-hook="Dialog"
+      phx-mounted={JS.ignore_attributes("open")}
+      dcjs-open={JS.dispatch("dpulc:showDialog")}
+      dcjs-close={JS.dispatch("dpulc:closeDialog") |> JS.exec("dcjs-after-close")}
+      dcjs-after-close={@afterClose}
+      phx-remove={JS.exec("dcjs-close")}
+      aria-labelledby={"#{@id}-label"}
+      closedBy="any"
+      class="drawer backdrop:bg-black/50 fixed inset-0 m-0 max-h-full max-w-full h-full w-full bg-transparent open:flex open:justify-end"
+    >
+      <div class="w-full sm:max-w-md h-full bg-background shadow-xl flex flex-col">
+        <div class="flex items-center justify-between px-4 py-4 border-b border-rust/20 bg-sage-100">
+          <h2 id={"#{@id}-label"} class="text-lg font-bold">
+            {@label}
+          </h2>
+          <button
+            type="button"
+            class="p-2 hover:bg-primary-bright rounded-md transition-colors cursor-pointer"
+            phx-click={JS.exec("dcjs-close", to: {:closest, "dialog"})}
+          >
+            <.icon name="hero-x-mark" class="h-5 w-5" />
+            <span class="sr-only">{gettext("Close")}</span>
+          </button>
+        </div>
+        {render_slot(@inner_block)}
+      </div>
+    </dialog>
+    """
+  end
+
   # @doc """
   # Renders a simple form.
   #
