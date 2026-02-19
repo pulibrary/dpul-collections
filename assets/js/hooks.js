@@ -144,6 +144,17 @@ Hooks.ShowPageCount = {
   }
 }
 
+Hooks.SimpleViewer = {
+  mounted() {
+    this.handleEvent('scroll-to-page', ({ page }) => {
+      const target = document.getElementById(`page-${page}`)
+      if (target) target.scrollIntoView({ behavior: 'instant', block: 'start' })
+      const thumb_target = document.getElementById(`thumb-${page}`)
+      if (thumb_target) thumb_target.scrollIntoView({ behavior: 'instant', block: 'start' })
+    })
+  }
+}
+
 Hooks.ResponsivePills = {
   mounted() {
     this.totalCount = this.el.querySelectorAll('.pill-item').length

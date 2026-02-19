@@ -3,6 +3,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   alias DpulCollectionsWeb.Live.Helpers
   alias DpulCollectionsWeb.ContentWarnings
   alias DpulCollections.LibanswersApi
+  alias DpulCollections.IIIF.Manifest
   import DpulCollectionsWeb.BrowseItem
   use DpulCollectionsWeb, :live_view
   use Gettext, backend: DpulCollectionsWeb.Gettext
@@ -20,6 +21,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     # for "no canvas selected"
     current_canvas_idx = (params["current_canvas_idx"] || "0") |> String.to_integer()
     current_content_state_url = content_state_url(item, current_canvas_idx)
+    manifest_canvases = fetch_manifest_canvases(item, socket.assigns[:live_action])
 
     socket =
       assign(socket,
@@ -28,6 +30,9 @@ defmodule DpulCollectionsWeb.ItemLive do
         current_content_state_url: current_content_state_url,
         meta_properties: Item.meta_properties(item),
         display_size: false,
+        show_thumbnails: true,
+        show_grid: false,
+        manifest_canvases: manifest_canvases,
         correction_form:
           to_form(%{
             "name" => nil,
@@ -36,6 +41,13 @@ defmodule DpulCollectionsWeb.ItemLive do
           }),
         correction_form_success?: nil
       )
+
+    socket =
+      if socket.assigns[:live_action] == :viewer and current_canvas_idx > 0 do
+        push_event(socket, "scroll-to-page", %{page: current_canvas_idx - 1})
+      else
+        socket
+      end
 
     {:noreply, build_socket(socket, item, path)}
   end
@@ -327,33 +339,32 @@ defmodule DpulCollectionsWeb.ItemLive do
     <.live_component
       module={DpulCollectionsWeb.PaneComponent}
       id="viewer-pane"
-      class="flex flex-col"
+      class="flex flex-col bottom-0 overflow-hidden"
       translate="-translate-x-full"
       cancel_url={@item.url}
     >
       <:heading>
-        <h1 class="uppercase text-light-text flex-none">{gettext("Viewer")}</h1>
+        <h1 class="text-light-text truncate" dir="auto">
+          <span class="uppercase">{gettext("Viewer")}</span> - {@item.title}
+        </h1>
+        <.action_icon
+          icon="hero-view-columns"
+          phx-click="toggle_thumbnails"
+          variant="pane-action-icon"
+        />
+        <.action_icon
+          icon="hero-squares-2x2"
+          phx-click="toggle_grid"
+          variant="pane-action-icon"
+        />
         <.action_icon
           icon="hero-share"
           phx-click={show_viewer_share_modal()}
           variant="pane-action-icon"
           aria-label={gettext("Share")}
-        >
-        </.action_icon>
+        />
       </:heading>
-      <!-- "relative" here lets Clover fill the full size of main-content. -->
-      <!-- Ignore phoenix updates, since Clover manages switching the canvas. Without this it's jumpy on page switches. -->
-      <div id="clover-viewer" class="main-content grow relative">
-        <div id="clover-viewer-container" class="w-full h-full" phx-update="ignore">
-          {live_react_component(
-            "Components.DpulcViewer",
-            [
-              iiifContent: unverified_url(DpulCollectionsWeb.Endpoint, @current_content_state_url),
-              contentCanvasIndex: @current_canvas_idx
-            ],
-            id: "viewer-component"
-          )}
-        </div>
+      <div id="simple-viewer" class="main-content flex-1 min-h-0 relative flex overflow-hidden" phx-hook="SimpleViewer">
         <div
           :if={Helpers.obfuscate_item?(assigns)}
           class="obfuscation-container flex items-center justify-center bg-background w-full h-full absolute top-0 left-0"
@@ -368,6 +379,83 @@ defmodule DpulCollectionsWeb.ItemLive do
             />
           </div>
         </div>
+        <div
+          :if={@show_grid}
+          class="absolute inset-0 z-20 bg-dark-gray overflow-y-auto p-4"
+        >
+          <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4 max-w-6xl mx-auto">
+            <.link
+              :for={{canvas, idx} <- Enum.with_index(@manifest_canvases)}
+              patch={"#{@item.viewer_url}/#{idx + 1}"}
+              phx-click="toggle_grid"
+              class="bg-white shadow hover:ring-2 hover:ring-accent cursor-pointer"
+            >
+              <div class="w-full bg-light-cloud">
+                <img
+                  src={canvas.thumbnail_url}
+                  class="w-full h-full object-contain"
+                  loading="lazy"
+                />
+              </div>
+              <div class="text-center text-sm py-1 bg-primary-bright">
+                {canvas.label}
+              </div>
+            </.link>
+          </div>
+        </div>
+        <aside
+          id="thumbnail-sidebar"
+          class={[
+            "flex-none h-full bg-primary-light border-r border-primary-bright overflow-y-auto overscroll-contain transition-all duration-300",
+            if(@show_thumbnails, do: "w-48", else: "w-0")
+          ]}
+        >
+          <nav class="p-2 flex flex-col gap-2" :if={@show_thumbnails}>
+            <.link
+              :for={{canvas, idx} <- Enum.with_index(@manifest_canvases)}
+              id={"thumb-#{idx}"}
+              patch={"#{@item.viewer_url}/#{idx + 1}"}
+              href={"#page-#{idx}"}
+              class="thumb-btn block w-full border-2 border-transparent hover:border-primary transition-colors"
+            >
+              <div class="w-full bg-light-cloud">
+                <img
+                  src={canvas.thumbnail_url}
+                  class="w-full h-full object-contain"
+                  loading="lazy"
+                />
+              </div>
+              <span class="block text-center text-sm py-1 bg-primary-bright">
+                {canvas.label}
+              </span>
+            </.link>
+          </nav>
+        </aside>
+        <main
+          id="viewer-scroll-container"
+          class="flex-1 h-full overflow-y-auto overscroll-contain bg-dark-gray p-4"
+        >
+          <div class="flex flex-col items-center gap-4 max-w-4xl mx-auto">
+            <figure
+              :for={{canvas, idx} <- Enum.with_index(@manifest_canvases)}
+              id={"page-#{idx}"}
+              class="w-full bg-white shadow-lg"
+            >
+              <div
+                class="w-full bg-light-cloud"
+              >
+                <img
+                  src={Manifest.image_url(canvas)}
+                  class="w-full h-full object-contain"
+                  loading="lazy"
+                />
+              </div>
+              <figcaption class="text-center text-light-text bg-brand py-2 text-sm">
+                {canvas.label}
+              </figcaption>
+            </figure>
+          </div>
+        </main>
       </div>
       <.share_modal
         path={"#{@item.viewer_url}/#{@current_canvas_idx}"}
@@ -384,6 +472,14 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   defp content_state_url(item, current_canvas_idx) do
     "/iiif/#{item.id}/content_state/#{current_canvas_idx}"
+  end
+
+  defp fetch_manifest_canvases(_item, live_action) when live_action != :viewer, do: []
+
+  defp fetch_manifest_canvases(%{iiif_manifest_url: url}, :viewer) do
+    case Manifest.fetch(url) do
+      {:ok, manifest} -> manifest.canvases
+    end
   end
 
   defp has_dimensions(%{width: [_width | _], height: [_height | _]}), do: true
@@ -583,38 +679,13 @@ defmodule DpulCollectionsWeb.ItemLive do
     {:noreply, socket}
   end
 
-  def handle_event(
-        "changedCanvas",
-        %{"canvas_id" => canvas_id},
-        socket = %{
-          assigns: %{
-            current_canvas_idx: current_canvas_idx,
-            item: item = %{image_canvas_ids: canvas_ids},
-            live_action: :viewer
-          }
-        }
-      )
-      when not is_nil(current_canvas_idx) do
-    idx = Enum.find_index(canvas_ids, fn x -> x == canvas_id end) || 0
-
-    case idx + 1 == current_canvas_idx do
-      # We're already on the correct page, don't do anything.
-      true ->
-        {:noreply, socket}
-
-      # Update the URL to include the canvas number.
-      false ->
-        current_canvas_idx = idx + 1
-
-        {:noreply,
-         socket
-         |> assign(current_canvas_idx: idx + 1)
-         |> push_patch(to: "#{item.viewer_url}/#{current_canvas_idx}", replace: true)}
-    end
+  def handle_event("toggle_thumbnails", _opts, socket = %{assigns: %{show_thumbnails: show}}) do
+    {:noreply, assign(socket, show_thumbnails: !show)}
   end
 
-  # If we're not in the viewer, ignore this event.
-  def handle_event("changedCanvas", _, socket), do: {:noreply, socket}
+  def handle_event("toggle_grid", _opts, socket = %{assigns: %{show_grid: show}}) do
+    {:noreply, assign(socket, show_grid: !show)}
+  end
 
   def handle_event("open_correction_modal", %{"item_id" => item_id}, socket) do
     {:noreply,
