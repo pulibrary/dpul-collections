@@ -130,36 +130,85 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def filters(assigns) do
     ~H"""
-    <section id="filters" class="">
-      <div class="content-area sm:hidden">
-        <.danger_button
-          :if={@total_items > 0}
-          class="w-full"
-          phx-click={JS.toggle_class("hidden", to: "#filter-area")}
-        >
-          <.icon name="hero-adjustments-horizontal" class="h-5" />
-          <span>
-            {gettext("Filters")} ({Enum.count(@search_state.filter)})
-          </span>
-        </.danger_button>
-      </div>
-      <div
-        id="filter-area"
-        class="hidden sm:block border-b-1 border-rust/20 sm:border-b-0"
-      >
-        <div
-          :if={map_size(@search_state.filter) > 0}
-          class="flex gap-6 items-center content-area page-t-padding flex-wrap"
-        >
-          <h2 class="hidden sm:block">Applied Filters:</h2>
-          <.filter_pill
-            :for={{filter_field, filter_settings} <- filter_configuration()}
-            search_state={@search_state}
-            field={filter_field}
-            label={filter_settings.label}
-            filter_value={filter_settings.value_function.(@search_state.filter[filter_field])}
-          />
+    <script :type={Phoenix.LiveView.ColocatedHook} name=".SearchFilter">
+      export default {
+        mounted() {
+          this.input = this.el.querySelector('input[type="search"]');
+          this.options = this.el.querySelector('[data-filter-options]');
+          if (!this.input || !this.options) return;
+
+          this.items = Array.from(this.options.querySelectorAll('label')).map(el => ({
+            el,
+            value: el.querySelector('input[type="checkbox"]')?.value || el.querySelector('span')?.textContent?.trim() || ''
+          }));
+
+          this.input.addEventListener('input', e => {
+            this.search(e.target.value)
+          });
+        },
+
+        async search(query) {
+          if (!query?.trim()) {
+            this.items.forEach(i => { i.el.classList.remove('hidden'); i.el.style.order = ''; });
+            return;
+          }
+
+          const q = query.toLowerCase();
+          this.items.forEach(i => {
+            i.el.classList.toggle('hidden', !i.value.toLowerCase().includes(q));
+          });
+        }
+      }
+    </script>
+    <section id="filters">
+      <div class="content-area py-4">
+        <div class="flex items-center gap-4 flex-wrap">
+          <button
+            type="button"
+            phx-click={JS.exec("dcjs-open", to: "#filter-modal")}
+            class="flex h-full items-center gap-2 px-4 py-2 cursor-pointer bg-accent text-light-text rounded-md font-semibold hover:bg-rust/80 transition-colors"
+          >
+            <.icon name="hero-funnel" class="h-5 w-5" />
+            {gettext("Filters")}
+            <span :if={map_size(@search_state.filter) > 0} class="bg-light-text text-accent px-2 py-1 rounded-full text-xs font-bold">
+              {map_size(@search_state.filter)}
+            </span>
+          </button>
+
+          <div :if={map_size(@search_state.filter) > 0} class="flex flex-wrap gap-2 items-center">
+            <.filter_pill
+              :for={{filter_field, filter_settings} <- filter_configuration()}
+              search_state={@search_state}
+              field={filter_field}
+              label={filter_settings.label}
+              filter_value={filter_settings.value_function.(@search_state.filter[filter_field])}
+            />
+          </div>
         </div>
+      </div>
+
+      <.drawer id="filter-modal" label={gettext("Filter Results")}>
+        <div :if={map_size(@search_state.filter) > 0} class="px-4 py-3 bg-primary-light border-b border-rust/20">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-semibold">{gettext("Active Filters")}</span>
+            <.link
+              patch="/search"
+              class="text-xs text-accent hover:underline"
+            >
+              {gettext("Clear all")}
+            </.link>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <.filter_pill
+              :for={{filter_field, filter_settings} <- filter_configuration()}
+              search_state={@search_state}
+              field={filter_field}
+              label={filter_settings.label}
+              filter_value={filter_settings.value_function.(@search_state.filter[filter_field])}
+            />
+          </div>
+        </div>
+
         <.filter_form_component
           search_state={@search_state}
           total_items={@total_items}
@@ -168,7 +217,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           filter_data={@filter_data}
           expanded_filter={@expanded_filter}
         />
-      </div>
+      </.drawer>
     </section>
     """
   end
@@ -181,43 +230,78 @@ defmodule DpulCollectionsWeb.SearchLive do
       phx-change="checked_filter"
       phx-submit="apply_filters"
       for={@filter_form}
+      class="flex-1 overflow-y-auto"
     >
-      <div class="sm:content-area page-t-padding">
-        <h2 class="text-xl font-normal page-b-padding hidden sm:block">
+      <div class="p-4 flex flex-col gap-4 h-full">
+        <p class="text-sm text-dark-text">
           Filter your {@total_items} results
-        </h2>
-        <div
-          role="tablist"
-          aria-label={gettext("available filters")}
-          class={[
-            "border-t-1 border-rust/20 w-full sm:grid sm:grid-flow-col sm:auto-cols-auto",
-            !@expanded_filter && "border-b-1"
-          ]}
-        >
-          <.filter_tab
+        </p>
+
+        <div class="flex flex-col gap-4" role="tablist" aria-label={gettext("available filters")}>
+          <.filter_section
             :for={{field, filter} <- @filter_data}
-            label={filter.label}
             field={field}
+            filter={filter}
             expanded={field == @expanded_filter}
+            filter_form={@filter_form}
+            year_form={@year_form}
           />
         </div>
       </div>
-      <.filter_panel
-        :for={{field, filter} <- @filter_data}
-        field={field}
-        filter={filter}
-        expanded={field == @expanded_filter}
-        filter_form={@filter_form}
-        {assigns}
-      />
+
+      <%!-- Footer with view results button --%>
+      <div class="sticky bottom-0 px-4 py-4 bg-sage-100 border-t border-rust/20">
+        <.primary_button
+          type="button"
+          phx-click={JS.exec("dcjs-close", to: "#filter-modal")}
+          class="cursor-pointer w-full py-3 font-bold rounded-md"
+        >
+          {gettext("View")} {@total_items} {gettext("Results")}
+        </.primary_button>
+      </div>
     </.form>
     """
   end
 
-  attr :field, :string, required: true
-  attr :filter_value, :string, required: true
-  attr :label, :string, required: true
-  attr :search_state, :map, required: true
+  defp filter_section(assigns) do
+    ~H"""
+    <div class="border border-rust/20 rounded-lg overflow-hidden bg-white">
+      <button
+        role="tab"
+        type="button"
+        phx-click="select_filter_tab"
+        phx-value-filter={@field}
+        aria-controls={"#{@field}-panel"}
+        class={[
+          "cursor-pointer w-full flex items-center justify-between px-4 py-3 text-left font-semibold",
+          "hover:bg-primary-bright transition-colors",
+          @expanded && "bg-primary-bright"
+        ]}
+      >
+        <span>{Gettext.gettext(DpulCollectionsWeb.Gettext, @filter.label)}</span>
+        <.icon
+          name="hero-chevron-down"
+          class={if @expanded, do: "h-5 w-5 transition-transform duration-200 rotate-180", else: "h-5 w-5 transition-transform duration-200"}
+        />
+      </button>
+
+      <div
+        id={"#{@field}-panel"}
+        role="tabpanel"
+        class={["expanded px-4 pb-4 border-t border-rust/10", !@expanded && "hidden"]}
+        aria-expanded="true"
+      >
+        <.filter_input
+          field={@field}
+          filter={@filter}
+          filter_form={@filter_form}
+          year_form={@year_form}
+          filter_configuration={filter_configuration()[@field]}
+        />
+      </div>
+    </div>
+    """
+  end
 
   def filter_pill(assigns = %{filter_value: filter_values}) when is_list(filter_values) do
     ~H"""
@@ -241,7 +325,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       phx-click="remove_filter"
       class={[
         @field,
-        "filter focus:border-3 focus:visible:border-accent focus:border-accent py-1 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue font-sans font-bold text-sm btn-primary hover:text-white hover:bg-accent focus:outline-none active:shadow-none"
+        "filter focus:border-3 focus:visible:border-accent focus:border-accent py-2 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue font-sans font-bold text-sm btn-primary h-full hover:text-white hover:bg-accent focus:outline-none active:shadow-none"
       ]}
     >
       {# These labels are defined explicitly in Solr.Constants, but have to be called here because Constants is defined at compile time.}
@@ -260,66 +344,23 @@ defmodule DpulCollectionsWeb.SearchLive do
     """
   end
 
-  # Buttons are interspersed here to make it work like an accordion on mobile
-  # screen sizes
-  def filter_panel(assigns) do
-    ~H"""
-    <div class={[
-      "group",
-      "#{@expanded && "expanded"}"
-    ]}>
-      <button
-        phx-click={JS.push("select_filter_tab") |> JS.focus_first(to: "##{@field}-panel")}
-        type="button"
-        aria-controls={"#{@field}-panel"}
-        phx-value-filter={@field}
-        class="sm:hidden group-[.expanded]:bg-accent group-[.expanded]:text-light-text p-4 hover:text-dark-text hover:bg-hover-accent cursor-pointer w-full h-full flex items-center text-left"
-      >
-        <span class="grow">
-          {Gettext.gettext(DpulCollectionsWeb.Gettext, @filter.label)}
-        </span>
-        <div class="arrow bg-dark-text group-[.expanded]:bg-light-text group-[.expanded:hover]:bg-dark-text rotate-90 group-[.expanded]:-rotate-90 w-[15px] h-[15px]">
-        </div>
-      </button>
-    </div>
-    <div
-      id={"#{@field}-panel"}
-      role="tabpanel"
-      class={[
-        !@expanded && "hidden",
-        @expanded && "expanded",
-        "bg-primary-bright page-y-padding border-t-4 border-b-4 border-accent w-full"
-      ]}
-      aria-expanded={if @expanded, do: "true", else: "false"}
-    >
-      <div class="content-area flex flex-col gap-6">
-        <div class="flex">
-          <div class="w-full grow">
-            <.filter_input filter_configuration={filter_configuration()[@field]} {assigns} />
-          </div>
-        </div>
-      </div>
-    </div>
-    """
-  end
-
   def filter_input(assigns = %{field: "year"}) do
     ~H"""
-    <div class="w-full flex flex-wrap gap-4">
-      <.input
-        class="flex gap-4 items-end"
-        placeholder={gettext("From")}
-        label={gettext("From")}
-        field={@year_form["from"]}
-      />
-      <.input
-        class="flex gap-4 items-end"
-        placeholder={gettext("To")}
-        label={gettext("To")}
-        field={@year_form["to"]}
-      />
-      <.primary_button type="submit">
-        {gettext("Apply")}
+    <div class="pt-3 space-y-3">
+      <div class="grid grid-cols-2 gap-3">
+        <.input
+          placeholder={gettext("From")}
+          label={gettext("From")}
+          field={@year_form["from"]}
+        />
+        <.input
+          placeholder={gettext("To")}
+          label={gettext("To")}
+          field={@year_form["to"]}
+        />
+      </div>
+      <.primary_button type="submit" class="w-full h-10 text-sm">
+        {gettext("Apply Year Range")}
       </.primary_button>
     </div>
     """
@@ -327,37 +368,32 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def filter_input(assigns) do
     ~H"""
-    <.input
-      type="checkgroup"
-      field={@filter_form[@field]}
-      multiple={true}
-      class="w-full grid gap-6 grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]"
-      options={@filter.data |> Enum.map(fn {value, count} -> {"#{value} [#{count}]", value} end)}
-    />
-    """
-  end
+    <div id={"search-#{@field}"} phx-hook=".SearchFilter" class="pt-3">
+      <div class="relative mb-2" phx-update="ignore" id={"search-wrapper-#{@field}"}>
+        <input
+          type="search"
+          placeholder={gettext("Search filters...")}
+          class="w-full px-3 py-2 text-sm border border-rust/20 rounded-md focus:ring-accent focus:border-accent"
+          autocomplete="off"
+        />
+      </div>
 
-  def filter_tab(assigns) do
-    ~H"""
-    <div class={[
-      "group w-full h-full text-xl font-semibold not-last:border-r-1 border-rust/20",
-      "hidden sm:block",
-      "#{@expanded && "expanded"}"
-    ]}>
-      <button
-        phx-click={JS.push("select_filter_tab") |> JS.focus_first(to: "##{@field}-panel")}
-        type="button"
-        role="tab"
-        aria-controls={"#{@field}-panel"}
-        phx-value-filter={@field}
-        class="group-[.expanded]:bg-accent group-[.expanded]:text-light-text p-4 hover:text-dark-text hover:bg-hover-accent cursor-pointer w-full h-full flex items-center text-left"
-      >
-        <span class="grow">
-          {Gettext.gettext(DpulCollectionsWeb.Gettext, @label)}
-        </span>
-        <div class="arrow bg-dark-text group-[.expanded]:bg-light-text group-[.expanded:hover]:bg-dark-text rotate-90 group-[.expanded]:-rotate-90 w-[15px] h-[15px]">
-        </div>
-      </button>
+      <div data-filter-options class="max-h-52 overflow-y-auto flex flex-col space-y-1">
+        <label
+          :for={{value, count} <- @filter.data}
+          class="flex items-center gap-3 p-2 cursor-pointer hover:bg-sage-100 rounded-md transition-colors"
+        >
+          <input
+            type="checkbox"
+            name={"filter[#{@field}][]"}
+            value={value}
+            checked={value in List.wrap(@filter_form.params[@field])}
+            class="h-5 w-5 rounded border-gray-300 text-accent focus:ring-accent"
+          />
+          <span class="flex-1 text-sm">{value}</span>
+          <span class="text-xs text-gray-500 bg-sage-100 px-2 py-0.5 rounded-full">{count}</span>
+        </label>
+      </div>
     </div>
     """
   end
@@ -729,6 +765,9 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   # Don't do ranges with changed events.
   def handle_event("checked_filter", %{"_target" => ["filter", _filter, _from_or_to]}, socket),
+    do: {:noreply, socket}
+  # Don't process the search boxes.
+  def handle_event("checked_filter", %{"_target" => ["undefined"]}, socket),
     do: {:noreply, socket}
 
   def handle_event(
