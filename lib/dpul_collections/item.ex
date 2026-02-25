@@ -201,8 +201,6 @@ defmodule DpulCollections.Item do
     |> Helpers.clean_params()
   end
 
-  def meta_properties(_item), do: %{}
-
   def meta_description([]), do: nil
 
   def meta_description([description | _rest]) do

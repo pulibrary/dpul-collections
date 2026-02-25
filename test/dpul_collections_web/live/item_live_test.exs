@@ -159,6 +159,13 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
         get(conn, "/item/badid1")
       end
     end
+
+    test "/item/{:id} redirects to a collection when the id refers to an ephemera project", %{
+      conn: conn
+    } do
+      conn = get(conn, "/item/similar-to-1-is-a-project")
+      assert redirected_to(conn, 302) == "/collections/project"
+    end
   end
 
   describe "og:metadata" do
