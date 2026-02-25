@@ -16,28 +16,41 @@ defmodule DpulCollectionsWeb.ItemLive do
   def handle_params(params = %{"id" => id}, uri, socket) do
     item = Solr.find_by_id(id) |> Item.from_solr()
     path = URI.parse(uri).path |> URI.decode()
-    # Initialize current_canvas_idx to be 0 if it's not set. 0 is a filler value
-    # for "no canvas selected"
-    current_canvas_idx = (params["current_canvas_idx"] || "0") |> String.to_integer()
-    current_content_state_url = content_state_url(item, current_canvas_idx)
 
-    socket =
-      assign(socket,
-        page_title: page_title(item, socket),
-        current_canvas_idx: current_canvas_idx,
-        current_content_state_url: current_content_state_url,
-        meta_properties: Item.meta_properties(item),
-        display_size: false,
-        correction_form:
-          to_form(%{
-            "name" => nil,
-            "email" => nil,
-            "message" => nil
-          }),
-        correction_form_success?: nil
-      )
+    # Ensure that the returned Item is a DpulCollections.Item. Otherwise
+    # redirect to the item's URL. This might occur if the id relates to a
+    # DpulCollection, for example.
+    case item do
+      %DpulCollections.Item{} ->
+        # Initialize current_canvas_idx to be 0 if it's not set. 0 is a filler value
+        # for "no canvas selected"
+        current_canvas_idx = (params["current_canvas_idx"] || "0") |> String.to_integer()
+        current_content_state_url = content_state_url(item, current_canvas_idx)
 
-    {:noreply, build_socket(socket, item, path)}
+        socket =
+          assign(socket,
+            page_title: page_title(item, socket),
+            current_canvas_idx: current_canvas_idx,
+            current_content_state_url: current_content_state_url,
+            meta_properties: Item.meta_properties(item),
+            display_size: false,
+            correction_form:
+              to_form(%{
+                "name" => nil,
+                "email" => nil,
+                "message" => nil
+              }),
+            correction_form_success?: nil
+          )
+
+        {:noreply, build_socket(socket, item, path)}
+
+      nil ->
+        raise DpulCollectionsWeb.ItemLive.NotFoundError
+
+      _ ->
+        {:noreply, push_navigate(socket, to: item.url)}
+    end
   end
 
   # Redirect to the slug-ified path if we don't have it.
@@ -55,10 +68,6 @@ defmodule DpulCollectionsWeb.ItemLive do
         url = String.replace(path, ~r/.*\/item\/#{item.id}/, item.url)
         push_patch(socket, to: url, replace: true)
     end
-  end
-
-  defp build_socket(_, nil, _) do
-    raise DpulCollectionsWeb.ItemLive.NotFoundError
   end
 
   defp build_socket(socket, item, _) do
@@ -376,10 +385,6 @@ defmodule DpulCollectionsWeb.ItemLive do
       />
     </.live_component>
     """
-  end
-
-  defp content_state_url(nil, _) do
-    nil
   end
 
   defp content_state_url(item, current_canvas_idx) do
@@ -914,8 +919,6 @@ defmodule DpulCollectionsWeb.ItemLive do
     </div>
     """
   end
-
-  defp page_title(nil, _), do: nil
 
   defp page_title(item, socket) do
     case socket.assigns.live_action do
