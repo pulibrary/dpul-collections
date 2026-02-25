@@ -111,7 +111,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingIntegrationTest do
 
   test "it creates the solr collection" do
     cache_version = 0
-    new_index = %Index{active_collection() | collection: "new_index1"}
+    new_index = %Index{(%Index{} = active_collection()) | collection: "new_index1"}
     assert Solr.Management.collection_exists?(new_index) == false
 
     {:ok, indexer} =

@@ -783,7 +783,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
       folder = FiggyTestSupport.first_ephemera_folder()
 
       related_resource_count =
-        %Resource{folder | metadata: %{folder.metadata | "genre" => [%{"id" => ""}]}}
+        %Resource{
+          (%Resource{} = folder)
+          | metadata: %{folder.metadata | "genre" => [%{"id" => ""}]}
+        }
         |> HydrationConsumer.process(1)
         |> HydrationConsumer.hydration_cache_attributes(1)
         |> get_in([:related_data])
@@ -811,7 +814,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
       folder = IndexingPipeline.get_figgy_resource!("f134f41f-63c5-4fdf-b801-0774e3bc3b2d")
 
       metadata =
-        %Resource{folder | metadata: %{folder.metadata | "member_ids" => []}}
+        %Resource{(%Resource{} = folder) | metadata: %{folder.metadata | "member_ids" => []}}
         |> HydrationConsumer.process(1)
         |> HydrationConsumer.hydration_cache_attributes(1)
         |> get_in([:data])
@@ -831,7 +834,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
       ]
 
       resource_ids =
-        %Resource{folder | metadata: %{folder.metadata | "member_ids" => member_ids}}
+        %Resource{
+          (%Resource{} = folder)
+          | metadata: %{folder.metadata | "member_ids" => member_ids}
+        }
         |> HydrationConsumer.process(1)
         |> HydrationConsumer.hydration_cache_attributes(1)
         |> get_in([:related_data])

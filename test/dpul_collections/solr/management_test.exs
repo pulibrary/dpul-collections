@@ -8,7 +8,7 @@ defmodule DpulCollections.Solr.ManagementTest do
     # If the test below crashes or is force killed `new_index1` might be sitting
     # around, so delete it beforehand just in case so we have a fresh testing
     # environment.
-    Management.delete_collection(%Index{write_index | collection: "new_index1"})
+    Management.delete_collection(%Index{(%Index{} = write_index) | collection: "new_index1"})
     :ok
   end
 
@@ -20,8 +20,8 @@ defmodule DpulCollections.Solr.ManagementTest do
     # alias is pointing to the collection created during setup
     assert original_collection == "dpulc1"
 
-    old_index = %Index{read_index | collection: original_collection}
-    new_index = %Index{write_index | collection: "new_index1"}
+    old_index = %Index{(%Index{} = read_index) | collection: original_collection}
+    new_index = %Index{(%Index{} = write_index) | collection: "new_index1"}
 
     # creating new collection
     refute Management.collection_exists?(new_index)
