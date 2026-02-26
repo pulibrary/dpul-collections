@@ -190,7 +190,7 @@ defmodule DpulCollections.Item do
     {width, height}
   end
 
-  def meta_properties(item = %{title: [title], description: description}) do
+  def meta_properties(item = %{title: [title | _], description: description}) do
     %{
       "og:title" => title,
       "og:description" => meta_description(description),

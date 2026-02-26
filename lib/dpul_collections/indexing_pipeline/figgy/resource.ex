@@ -19,6 +19,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     # of metadata.
     field :visibility, {:array, :string}, virtual: true
     field :state, {:array, :string}, virtual: true
+    field :member_of_collection_ids, {:array, :map}, virtual: true
     field :metadata_resource_id, {:array, :map}, virtual: true
     field :metadata_resource_type, {:array, :string}, virtual: true
   end
@@ -30,13 +31,18 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
 
   def populate_virtual(
         resource = %__MODULE__{
-          metadata: metadata = %{"state" => state, "visibility" => visibility}
+          metadata:
+            metadata = %{
+              "state" => state,
+              "visibility" => visibility
+            }
         }
       ) do
     %{
       resource
       | state: state,
         visibility: visibility,
+        member_of_collection_ids: metadata[:member_of_collection_ids] || [],
         metadata_resource_id: metadata[:resource_id],
         metadata_resource_type: metadata[:resource_type]
     }

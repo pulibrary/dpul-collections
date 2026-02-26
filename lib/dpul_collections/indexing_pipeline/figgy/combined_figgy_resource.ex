@@ -64,6 +64,47 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
 
   def to_solr_document(%__MODULE__{
         related_data: related_data,
+        resource:
+          data = %{"id" => id, "metadata" => metadata, "internal_resource" => "ScannedResource"}
+      }) do
+    metadata = merge_imported(metadata)
+    thumbnail = primary_thumbnail(metadata, related_data)
+
+    %{
+      id: id,
+      title_txtm: extract_title(metadata),
+      alternative_title_txtm: get_in(metadata, ["alternative_title"]),
+      contributor_txt_sort: get_in(metadata, ["contributor"]),
+      content_warning_s: content_warning(metadata),
+      creator_txt_sort: get_in(metadata, ["creator"]),
+      description_txtm: get_in(metadata, ["description"]),
+      digitized_at_dt: digitized_date(data),
+      display_date_s: format_date(metadata),
+      file_count_i: file_count(metadata, related_data),
+      height_txtm: get_in(metadata, ["height"]),
+      holding_location_txt_sort: get_in(metadata, ["holding_location"]),
+      iiif_manifest_url_s: iiif_manifest_url(id),
+      image_canvas_ids_ss: image_canvas_ids(id, metadata, related_data),
+      image_service_urls_ss: image_service_urls(metadata, related_data),
+      keywords_txt_sort: get_in(metadata, ["keywords"]),
+      page_count_txtm: get_in(metadata, ["page_count"]),
+      pdf_url_s: extract_pdf_url(data),
+      primary_thumbnail_service_url_s: extract_service_url(thumbnail),
+      primary_thumbnail_h_w_ratio_f: primary_thumbnail_ratio(original_file(thumbnail)),
+      provenance_txtm: get_in(metadata, ["provenance"]),
+      publisher_txt_sort: get_in(metadata, ["publisher"]),
+      rights_statement_txtm: extract_rights_statement(metadata),
+      series_txt_sort: get_in(metadata, ["series"]),
+      sort_title_txtm: get_in(metadata, ["sort_title"]),
+      updated_at_dt: updated_date(data),
+      width_txtm: get_in(metadata, ["width"]),
+      years_is: extract_years(data),
+      featurable_b: get_in(metadata, ["featurable"]) == ["1"]
+    }
+  end
+
+  def to_solr_document(%__MODULE__{
+        related_data: related_data,
         resource: data = %{"id" => id, "metadata" => metadata}
       }) do
     box_metadata = extract_box_metadata(related_data)
@@ -115,6 +156,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
     }
   end
 
+  def merge_imported(metadata = %{"imported_metadata" => [imported_metadata | _]}) do
+    Map.merge(metadata, imported_metadata, fn k, v1, v2 -> values = v1 ++ v2 end)
+  end
+
+  def merge_imported(metadata), do: metadata
+
   def extract_categories(%{"subject" => subjects}, %{"resources" => resources}) do
     extract_term_ids(subjects, resources)
     |> Enum.map(&get_in(&1, ["metadata", "member_of_vocabulary_id"]))
@@ -147,6 +194,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
   # Remove empty strings from list
   defp remove_empty_strings(field_value) when is_list(field_value) do
     field_value |> Enum.reject(fn v -> v == "" end)
+  end
+
+  defp remove_empty_strings(_) do
+    []
   end
 
   defp digitized_date(%{"created_at" => created_at}) when is_binary(created_at) do
@@ -408,7 +459,21 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
     ["[Missing Title]"]
   end
 
-  defp extract_title(%{"title" => title}), do: title
+  defp extract_title(%{"title" => title}) do
+    # Extract any rdf title values.
+    # Remove dulicate values: ScanndResources can have duplicate titles
+    # in metadata and imported metadata.
+    title
+    |> Enum.map(&extract_rdf_title/1)
+    |> Enum.uniq()
+  end
+
+  defp extract_rdf_title(title) do
+    case title do
+      %{"@value" => value} -> value
+      _ -> title
+    end
+  end
 
   defp extract_rights_statement(%{"rights_statement" => [%{"@id" => url}]}) when is_binary(url) do
     %{
