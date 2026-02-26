@@ -246,7 +246,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
       # Image Canvas IDs
       assert [
-               "https://figgy.princeton.edu/concern/ephemera_folders/26713a31-d615-49fd-adfc-93770b4f66b3/manifest/canvas/f60ce0c9-57fc-4820-b70d-49d1f2b248f9"
+               "https://figgy.example.com/concern/ephemera_folders/26713a31-d615-49fd-adfc-93770b4f66b3/manifest/canvas/f60ce0c9-57fc-4820-b70d-49d1f2b248f9"
                | _rest
              ] = document["image_canvas_ids_ss"]
 
@@ -256,7 +256,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       assert 1.3454 = document["primary_thumbnail_h_w_ratio_f"]
 
       # IIIF Manifest URL
-      assert "https://figgy.princeton.edu/concern/ephemera_folders/26713a31-d615-49fd-adfc-93770b4f66b3/manifest" =
+      assert "https://figgy.example.com/concern/ephemera_folders/26713a31-d615-49fd-adfc-93770b4f66b3/manifest" =
                document["iiif_manifest_url_s"]
 
       # Resource has "none" pdf_type so will not index a pdf url
@@ -376,16 +376,14 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       assert first_description |> String.starts_with?("Collation: Paper") == true
 
       # Image Canvas IDs
-      # TODO: Fix Canvas IDs
-      # assert [
-      #          "https://figgy.princeton.edu/concern/ephemera_folders/26713a31-d615-49fd-adfc-93770b4f66b3/manifest/canvas/f60ce0c9-57fc-4820-b70d-49d1f2b248f9"
-      #          | _rest
-      #        ] = document["image_canvas_ids_ss"]
+      assert [
+               "https://figgy.example.com/concern/scanned_resources/27fd4d29-1170-47a5-891b-f2743873bcef/manifest/canvas/c5bebcd6-7ccb-40fc-a35d-118d6341e290"
+               | _rest
+             ] = document["image_canvas_ids_ss"]
 
       # IIIF Manifest URL
-      # TODO: Fix IIIF Manifest
-      # assert "https://figgy.princeton.edu/concern/ephemera_folders/26713a31-d615-49fd-adfc-93770b4f66b3/manifest" =
-      #          document["iiif_manifest_url_s"]
+      assert "https://figgy.example.com/concern/scanned_resources/27fd4d29-1170-47a5-891b-f2743873bcef/manifest" =
+               document["iiif_manifest_url_s"]
     end
   end
 end

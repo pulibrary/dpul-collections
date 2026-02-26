@@ -83,8 +83,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
       file_count_i: file_count(metadata, related_data),
       height_txtm: get_in(metadata, ["height"]),
       holding_location_txt_sort: get_in(metadata, ["holding_location"]),
-      iiif_manifest_url_s: iiif_manifest_url(id),
-      image_canvas_ids_ss: image_canvas_ids(id, metadata, related_data),
+      iiif_manifest_url_s: iiif_manifest_url(id, "ScannedResource"),
+      image_canvas_ids_ss: image_canvas_ids(id, data, related_data),
       image_service_urls_ss: image_service_urls(metadata, related_data),
       keywords_txt_sort: get_in(metadata, ["keywords"]),
       page_count_txtm: get_in(metadata, ["page_count"]),
@@ -132,8 +132,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
       geographic_origin_txt_sort: extract_term("geographic_origin", metadata, related_data),
       height_txtm: get_in(metadata, ["height"]),
       holding_location_txt_sort: get_in(metadata, ["holding_location"]),
-      iiif_manifest_url_s: iiif_manifest_url(id),
-      image_canvas_ids_ss: image_canvas_ids(id, metadata, related_data),
+      iiif_manifest_url_s: iiif_manifest_url(id, "EphemeraFolder"),
+      image_canvas_ids_ss: image_canvas_ids(id, data, related_data),
       image_service_urls_ss: image_service_urls(metadata, related_data),
       keywords_txt_sort: get_in(metadata, ["keywords"]),
       language_txt_sort: extract_term("language", metadata, related_data),
@@ -157,7 +157,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
   end
 
   def merge_imported(metadata = %{"imported_metadata" => [imported_metadata | _]}) do
-    Map.merge(metadata, imported_metadata, fn k, v1, v2 -> values = v1 ++ v2 end)
+    Map.merge(metadata, imported_metadata, fn _k, v1, v2 -> v1 ++ v2 end)
   end
 
   def merge_imported(metadata), do: metadata
@@ -270,26 +270,32 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
 
   defp primary_thumbnail_ratio(_), do: nil
 
-  defp image_canvas_ids(id, %{"member_ids" => member_ids}, related_data) do
+  defp image_canvas_ids(
+         id,
+         %{"metadata" => %{"member_ids" => member_ids}, "internal_resource" => internal_resource},
+         related_data
+       ) do
     member_ids
-    |> Enum.map(&extract_canvas_id(id, &1, related_data))
+    |> Enum.map(&extract_canvas_id(id, &1, internal_resource, related_data))
     |> Enum.filter(fn url -> url end)
   end
 
   defp image_canvas_ids(_, _, _), do: []
 
   # If the file set is real, generate a canvas ID for it.
-  defp extract_canvas_id(id, %{"id" => file_set_id}, %{"resources" => resources}) do
+  defp extract_canvas_id(id, %{"id" => file_set_id}, internal_resource, %{
+         "resources" => resources
+       }) do
     case resources[file_set_id] do
       nil ->
         nil
 
       _ ->
-        "https://figgy.princeton.edu/concern/ephemera_folders/#{id}/manifest/canvas/#{file_set_id}"
+        iiif_manifest_url(id, internal_resource) <> "/canvas/#{file_set_id}"
     end
   end
 
-  defp extract_canvas_id(_, _, _), do: nil
+  defp extract_canvas_id(_, _, _, _), do: nil
 
   defp image_service_urls(%{"member_ids" => member_ids}, related_data) do
     member_ids
@@ -299,8 +305,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
 
   defp image_service_urls(_, _), do: []
 
-  defp iiif_manifest_url(id) do
-    "https://figgy.princeton.edu/concern/ephemera_folders/#{id}/manifest"
+  defp iiif_manifest_url(id, internal_resource) do
+    figgy_base_url = Application.fetch_env!(:dpul_collections, :web_connections)[:figgy_url]
+    controller = Macro.underscore(internal_resource) <> "s"
+    "#{figgy_base_url}/concern/#{controller}/#{id}/manifest"
   end
 
   # Find the given member ID in the related data.
