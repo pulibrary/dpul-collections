@@ -98,9 +98,9 @@ defmodule DpulCollectionsWeb.HeaderComponent do
                 Español
               </.menu_item>
             </.link>
-            <.link phx-click={JS.dispatch("setLocale", detail: %{locale: "pt_BR"})}>
+            <.link phx-click={JS.dispatch("setLocale", detail: %{locale: "pt"})}>
               <.menu_item>
-                Português do Brasil
+                Português
               </.menu_item>
             </.link>
           </.submenu>

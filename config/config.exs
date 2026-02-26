@@ -93,7 +93,7 @@ config :dpul_collections, :figgy_hydrator, poll_interval: 60000
 
 config :dpul_collections, DpulCollectionsWeb.Gettext,
   default_locale: "en",
-  locales: ~w(en es pt_BR)
+  locales: ~w(en es pt)
 
 config :dpul_collections, :web_connections, figgy_url: "https://figgy.princeton.edu"
 
