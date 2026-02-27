@@ -42,9 +42,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
       resource
       | state: state,
         visibility: visibility,
-        member_of_collection_ids: metadata[:member_of_collection_ids] || [],
-        metadata_resource_id: metadata[:resource_id],
-        metadata_resource_type: metadata[:resource_type]
+        member_of_collection_ids: metadata["member_of_collection_ids"] || [],
+        metadata_resource_id: metadata["resource_id"],
+        metadata_resource_type: metadata["resource_type"]
     }
   end
 

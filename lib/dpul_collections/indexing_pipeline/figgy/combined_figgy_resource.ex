@@ -160,8 +160,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
     Map.merge(metadata, imported_metadata, fn _k, v1, v2 -> v1 ++ v2 end)
   end
 
-  def merge_imported(metadata), do: metadata
-
   def extract_categories(%{"subject" => subjects}, %{"resources" => resources}) do
     extract_term_ids(subjects, resources)
     |> Enum.map(&get_in(&1, ["metadata", "member_of_vocabulary_id"]))
@@ -469,7 +467,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
 
   defp extract_title(%{"title" => title}) do
     # Extract any rdf title values.
-    # Remove dulicate values: ScanndResources can have duplicate titles
+    # Remove duplicate values; ScanndResources can have duplicate titles
     # in metadata and imported metadata.
     title
     |> Enum.map(&extract_rdf_title/1)

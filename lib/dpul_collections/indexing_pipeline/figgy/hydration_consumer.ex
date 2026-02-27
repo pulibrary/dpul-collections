@@ -101,7 +101,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   @spec initial_classification(resource :: %Figgy.Resource{}, cache_version :: integer) ::
           process_return()
   def initial_classification(resource = %Figgy.Resource{id: id}, cache_version) do
-    # islamic_mss_collection_id = "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a"
+    islamic_mss_collection_id = "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a"
     # Just one record for now
     islamic_mss_record_id = "27fd4d29-1170-47a5-891b-f2743873bcef"
 
@@ -115,7 +115,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
       } ->
         ids = Enum.map(resource.member_of_collection_ids, fn m -> m["id"] end)
 
-        if Enum.member?(ids, "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a") do
+        if Enum.member?(ids, islamic_mss_collection_id) do
           {:update, resource}
         else
           {:skip, resource}
