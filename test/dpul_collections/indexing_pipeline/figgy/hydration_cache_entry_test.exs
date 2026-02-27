@@ -26,7 +26,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
                height_txtm: ["200"],
                holding_location_txt_sort: ["holding location"],
                iiif_manifest_url_s:
-                 "https://figgy.princeton.edu/concern/ephemera_folders/3cb7627b-defc-401b-9959-42ebc4488f74/manifest",
+                 "https://figgy.example.com/concern/ephemera_folders/3cb7627b-defc-401b-9959-42ebc4488f74/manifest",
                keywords_txt_sort: ["keyword"],
                page_count_txtm: ["4"],
                provenance_txtm: ["provenance"],
@@ -113,7 +113,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
       doc = HydrationCacheEntry.to_solr_document(entry)
 
       assert doc[:image_canvas_ids_ss] == [
-               "https://figgy.princeton.edu/concern/ephemera_folders/0cff895a-01ea-4895-9c3d-a8c6eaab4013/manifest/canvas/1"
+               "https://figgy.example.com/concern/ephemera_folders/0cff895a-01ea-4895-9c3d-a8c6eaab4013/manifest/canvas/1"
              ]
     end
 

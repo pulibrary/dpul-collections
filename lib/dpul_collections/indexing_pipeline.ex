@@ -353,6 +353,7 @@ defmodule DpulCollections.IndexingPipeline do
           struct(r, [:id, :updated_at, :internal_resource])
           | visibility: fragment("metadata->'visibility'"),
             state: fragment("metadata->'state'"),
+            member_of_collection_ids: fragment("metadata->'member_of_collection_ids'"),
             metadata_resource_id: fragment("metadata->'resource_id'"),
             metadata_resource_type: fragment("metadata->'resource_type'")
         },
@@ -376,6 +377,7 @@ defmodule DpulCollections.IndexingPipeline do
           | visibility: fragment("metadata->'visibility'"),
             state: fragment("metadata->'state'"),
             metadata_resource_id: fragment("metadata->'resource_id'"),
+            member_of_collection_ids: fragment("metadata->'member_of_collection_ids'"),
             metadata_resource_type: fragment("metadata->'resource_type'")
         },
         limit: ^count,
