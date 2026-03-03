@@ -91,7 +91,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   @indexable_resource_types ["EphemeraFolder", "ScannedResource"]
 
   # ScannedResources must belong to one of these collections.
-  @allowed_scanned_resource_collections [
+  @allowed_collections [
     # Islamic Manuscripts
     "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a"
   ]
@@ -122,6 +122,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
       %{internal_resource: internal_resource, state: ["complete"], visibility: ["open"]}
       when internal_resource in @indexable_resource_types ->
         classify_open_resource(resource)
+
+      # Collections need to both update
+      %{internal_resource: "Collection"} ->
+        if id in @allowed_collections do
+          {:update, resource}
+        else
+          {:skip, resource}
+        end
 
       # Projects need to both update and get related.
       %{internal_resource: "EphemeraProject"} ->
@@ -175,7 +183,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
   defp member_of_allowed_collection?(resource) do
     collection_ids = Enum.map(resource.member_of_collection_ids, & &1["id"])
-    Enum.any?(collection_ids, &(&1 in @allowed_scanned_resource_collections))
+    Enum.any?(collection_ids, &(&1 in @allowed_collections))
   end
 
   # If we got a list of them, enrich each one.
@@ -282,7 +290,21 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     end
   end
 
+  # Collections go through.
+  def post_classification(
+        {:update,
+         resource = %Figgy.CombinedFiggyResource{
+           resource: %{
+             internal_resource: "Collection"
+           }
+         }},
+        _cache_version
+      ) do
+    {:update, resource}
+  end
+
   # Every other ephemera project does not.
+  #
 
   # Delete things which have no persisted members.
   @spec post_classification(process_return(), cache_version :: integer) ::
@@ -357,7 +379,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
        when action in [:delete, :update] do
     # Maybe move to HydrationCacheEntry.from?
     attributes = hydration_cache_attributes(process_return, cache_version)
-
     {:ok, _response} = IndexingPipeline.write_hydration_cache_entry(attributes)
   end
 

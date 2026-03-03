@@ -14,6 +14,25 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
           optional(resource_id :: String.t()) => resource_struct :: map()
         }
 
+  # TODO: Move this down in the file
+  def to_solr_document(%__MODULE__{
+        resource: %{
+          "id" => id,
+          "internal_resource" => "Collection",
+          "metadata" => metadata
+        }
+      }) do
+    %{
+      id: id,
+      title_txtm: metadata["title"],
+      description_txtm: metadata["description"],
+      resource_type_s: "collection",
+      tagline_txtm: metadata["description"],
+      authoritative_slug_s: Map.get(metadata, "slug", []) |> Enum.at(0),
+      genre_txt_sort: ["Digital Collection"]
+    }
+  end
+
   # Normally this is set from a HydrationCacheEntry, so data and related_data
   # are maps, not resources. When it's a resource, convert our data.
   # TODO: Have a consistent data and casting mechanism here.

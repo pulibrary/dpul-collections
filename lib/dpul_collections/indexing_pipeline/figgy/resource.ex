@@ -76,6 +76,16 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     }
   end
 
+  def to_combined(resource = %Figgy.Resource{internal_resource: "Collection"}) do
+    %Figgy.CombinedFiggyResource{
+      resource: resource,
+      related_data: %{},
+      related_ids: [],
+      persisted_member_ids: [],
+      latest_updated_marker: CacheEntryMarker.from(resource)
+    }
+  end
+
   defp extract_related_data(resource) do
     %{
       "ancestors" => extract_ancestors(resource),

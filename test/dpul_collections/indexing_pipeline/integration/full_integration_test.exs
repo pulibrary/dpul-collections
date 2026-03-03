@@ -386,4 +386,21 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
                document["iiif_manifest_url_s"]
     end
   end
+
+  describe "an figgy Collection" do
+    test "indexes expected fields" do
+      {hydrator, transformer, indexer, document} =
+        FiggyTestSupport.index_record_id("52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a")
+
+      hydrator |> Broadway.stop(:normal)
+      transformer |> Broadway.stop(:normal)
+      indexer |> Broadway.stop(:normal)
+
+      assert document["title_txtm"] == ["Princeton Digital Library of Islamic Manuscripts"]
+
+      # Description
+      assert %{"description_txtm" => [first_description | _tail]} = document
+      assert first_description |> String.starts_with?("As a result of generous support") == true
+    end
+  end
 end
