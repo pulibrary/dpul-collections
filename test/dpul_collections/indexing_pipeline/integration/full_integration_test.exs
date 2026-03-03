@@ -71,13 +71,13 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # The hydrator pulled all ephemera folders, terms, deletion markers and
     # removed the hydration cache markers for the deletion marker deleted resource. It also has 3 ephemera projects.
     entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
-    assert FiggyTestSupport.total_resource_count() + 3 == entry_count
+    assert FiggyTestSupport.total_resource_count() + 4 == entry_count
 
     # The transformer processed ephemera folders and deletion markers
     # removed the transformation cache markers for the deletion marker deleted resource.
     transformation_cache_entry_count = Repo.aggregate(Figgy.TransformationCacheEntry, :count)
     deletion_marker_count = FiggyTestSupport.deletion_marker_count()
-    total_transformed_count = FiggyTestSupport.ephemera_folder_count() + deletion_marker_count + 3
+    total_transformed_count = FiggyTestSupport.ephemera_folder_count() + deletion_marker_count + 4
 
     # Empty resources are resources with no image file sets
     empty_resource_count = 1
@@ -246,7 +246,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
       # Image Canvas IDs
       assert [
-               "https://figgy.princeton.edu/concern/ephemera_folders/26713a31-d615-49fd-adfc-93770b4f66b3/manifest/canvas/f60ce0c9-57fc-4820-b70d-49d1f2b248f9"
+               "https://figgy.example.com/concern/ephemera_folders/26713a31-d615-49fd-adfc-93770b4f66b3/manifest/canvas/f60ce0c9-57fc-4820-b70d-49d1f2b248f9"
                | _rest
              ] = document["image_canvas_ids_ss"]
 
@@ -256,7 +256,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       assert 1.3454 = document["primary_thumbnail_h_w_ratio_f"]
 
       # IIIF Manifest URL
-      assert "https://figgy.princeton.edu/concern/ephemera_folders/26713a31-d615-49fd-adfc-93770b4f66b3/manifest" =
+      assert "https://figgy.example.com/concern/ephemera_folders/26713a31-d615-49fd-adfc-93770b4f66b3/manifest" =
                document["iiif_manifest_url_s"]
 
       # Resource has "none" pdf_type so will not index a pdf url
@@ -354,6 +354,36 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       {:ok, solr_date, _} = DateTime.from_iso8601(document["updated_at_dt"])
       {:ok, figgy_date, _} = DateTime.from_iso8601(published_at |> Enum.at(0))
       assert solr_date == figgy_date
+    end
+  end
+
+  describe "an Islamic Manuscript Scanned Resource" do
+    test "indexes expected fields" do
+      {hydrator, transformer, indexer, document} =
+        FiggyTestSupport.index_record_id("27fd4d29-1170-47a5-891b-f2743873bcef")
+
+      hydrator |> Broadway.stop(:normal)
+      transformer |> Broadway.stop(:normal)
+      indexer |> Broadway.stop(:normal)
+
+      assert document["title_txtm"] == [
+               "المحاسن المجتمعة في فضل فضايل الخلفاء الاربعة / للشيخ علي الصفوري.",
+               "al-Maḥāsin al-mujtamaʻah fī faḍl faḍāyil al-khulafāʼ al-arbaʻah / lil-Shaykh ʻAlī al-Ṣaffūrī."
+             ]
+
+      # Description
+      assert %{"description_txtm" => [first_description | _tail]} = document
+      assert first_description |> String.starts_with?("Collation: Paper") == true
+
+      # Image Canvas IDs
+      assert [
+               "https://figgy.example.com/concern/scanned_resources/27fd4d29-1170-47a5-891b-f2743873bcef/manifest/canvas/c5bebcd6-7ccb-40fc-a35d-118d6341e290"
+               | _rest
+             ] = document["image_canvas_ids_ss"]
+
+      # IIIF Manifest URL
+      assert "https://figgy.example.com/concern/scanned_resources/27fd4d29-1170-47a5-891b-f2743873bcef/manifest" =
+               document["iiif_manifest_url_s"]
     end
   end
 end

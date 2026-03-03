@@ -147,7 +147,9 @@ defmodule DpulCollectionsWeb.ItemLive do
             />
           </div>
           <div aria-label={gettext("title")}>
-            <h1 class="text-4xl font-bold normal-case" dir="auto">{@item.title}</h1>
+            <%= for title <- @item.title do %>
+              <h1 class="text-4xl font-bold normal-case" dir="auto">{title}</h1>
+            <% end %>
             <div
               :if={!Enum.empty?(@item.transliterated_title) || !Enum.empty?(@item.alternative_title)}
               class="flex flex-col gap-2"

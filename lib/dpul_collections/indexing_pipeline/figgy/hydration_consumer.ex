@@ -87,6 +87,21 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     process(Figgy.Resource.populate_virtual(resource), cache_version)
   end
 
+  # Resource types that are indexable
+  @indexable_resource_types ["EphemeraFolder", "ScannedResource"]
+
+  # ScannedResources must belong to one of these collections.
+  @allowed_scanned_resource_collections [
+    # Islamic Manuscripts
+    "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a"
+  ]
+
+  # While we work on integrating scanned resources, we only want to index
+  # specific resources. We will remove this restriction later.
+  @allowed_islamic_manuscript_resources [
+    "27fd4d29-1170-47a5-891b-f2743873bcef"
+  ]
+
   @related_record_types ["EphemeraProject", "EphemeraBox", "EphemeraTerm", "FileSet"]
   def process(resource, cache_version) do
     resource
@@ -102,9 +117,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
           process_return()
   def initial_classification(resource = %Figgy.Resource{id: id}, cache_version) do
     case resource do
-      # Process open/complete EphemeraFolders
-      %{internal_resource: "EphemeraFolder", state: ["complete"], visibility: ["open"]} ->
-        {:update, resource}
+      # Process open/complete indexable resources (EphemeraFolder, ScannedResource).
+      # ScannedResources are filtered by collection membership.
+      %{internal_resource: internal_resource, state: ["complete"], visibility: ["open"]}
+      when internal_resource in @indexable_resource_types ->
+        classify_open_resource(resource)
 
       # Projects need to both update and get related.
       %{internal_resource: "EphemeraProject"} ->
@@ -114,9 +131,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
       %{internal_resource: internal_resource} when internal_resource in @related_record_types ->
         {:update_related, resource}
 
-      # Delete other EphemeraFolders that are already cached, otherwise we can
-      # skip them.
-      %{internal_resource: "EphemeraFolder"} ->
+      # Delete indexable resources that are already cached but no longer
+      # eligible (e.g. no longer open/complete), otherwise skip them.
+      %{internal_resource: internal_resource} when internal_resource in @indexable_resource_types ->
         existing_resource = IndexingPipeline.get_hydration_cache_entry!(id, cache_version)
 
         if existing_resource do
@@ -125,13 +142,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
           {:skip, resource}
         end
 
-      # Delete EphemeraFolders with DeletionMarkers if they're cached, otherwise
-      # we can skip them.
+      # Delete resources with DeletionMarkers if they're cached, otherwise skip.
       %{
         internal_resource: "DeletionMarker",
         metadata_resource_id: [%{"id" => resource_id}],
-        metadata_resource_type: ["EphemeraFolder"]
-      } ->
+        metadata_resource_type: [resource_type]
+      }
+      when resource_type in @indexable_resource_types ->
         existing_resource =
           IndexingPipeline.get_hydration_cache_entry!(resource_id, cache_version)
 
@@ -144,6 +161,21 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
       _ ->
         {:skip, resource}
     end
+  end
+
+  defp classify_open_resource(%{id: id, internal_resource: "ScannedResource"} = resource) do
+    if member_of_allowed_collection?(resource) && id in @allowed_islamic_manuscript_resources do
+      {:update, resource}
+    else
+      {:skip, resource}
+    end
+  end
+
+  defp classify_open_resource(resource), do: {:update, resource}
+
+  defp member_of_allowed_collection?(resource) do
+    collection_ids = Enum.map(resource.member_of_collection_ids, & &1["id"])
+    Enum.any?(collection_ids, &(&1 in @allowed_scanned_resource_collections))
   end
 
   # If we got a list of them, enrich each one.

@@ -64,38 +64,59 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
 
   def to_solr_document(%__MODULE__{
         related_data: related_data,
+        resource:
+          data = %{"id" => id, "metadata" => metadata, "internal_resource" => "ScannedResource"}
+      }) do
+    metadata = merge_imported(metadata)
+    base_solr_fields(id, data, metadata, related_data, "ScannedResource")
+  end
+
+  # EphemeraFolder (catch-all) — base fields + ephemera-specific fields
+  def to_solr_document(%__MODULE__{
+        related_data: related_data,
         resource: data = %{"id" => id, "metadata" => metadata}
       }) do
     box_metadata = extract_box_metadata(related_data)
     project_metadata = extract_project_metadata(related_data)
+
+    base = base_solr_fields(id, data, metadata, related_data, "EphemeraFolder")
+
+    Map.merge(base, %{
+      barcode_txtm: get_in(metadata, ["barcode"]),
+      box_number_txtm: get_in(box_metadata, ["box_number"]),
+      ephemera_project_title_s: Map.get(project_metadata, "title", []) |> Enum.at(0),
+      ephemera_project_id_s: extract_project_id(related_data),
+      folder_number_txtm: get_in(metadata, ["folder_number"]),
+      genre_txt_sort: extract_term("genre", metadata, related_data),
+      geo_subject_txt_sort: extract_term("geo_subject", metadata, related_data),
+      geographic_origin_txt_sort: extract_term("geographic_origin", metadata, related_data),
+      language_txt_sort: extract_term("language", metadata, related_data),
+      subject_txt_sort: extract_term("subject", metadata, related_data),
+      transliterated_title_txtm: get_in(metadata, ["transliterated_title"]),
+      categories_txt_sort: extract_categories(metadata, related_data)
+    })
+  end
+
+  defp base_solr_fields(id, data, metadata, related_data, internal_resource) do
     thumbnail = primary_thumbnail(metadata, related_data)
 
     %{
       id: id,
       title_txtm: extract_title(metadata),
       alternative_title_txtm: get_in(metadata, ["alternative_title"]),
-      barcode_txtm: get_in(metadata, ["barcode"]),
-      box_number_txtm: get_in(box_metadata, ["box_number"]),
       contributor_txt_sort: get_in(metadata, ["contributor"]),
       content_warning_s: content_warning(metadata),
       creator_txt_sort: get_in(metadata, ["creator"]),
       description_txtm: get_in(metadata, ["description"]),
       digitized_at_dt: digitized_date(data),
       display_date_s: format_date(metadata),
-      ephemera_project_title_s: Map.get(project_metadata, "title", []) |> Enum.at(0),
-      ephemera_project_id_s: extract_project_id(related_data),
       file_count_i: file_count(metadata, related_data),
-      folder_number_txtm: get_in(metadata, ["folder_number"]),
-      genre_txt_sort: extract_term("genre", metadata, related_data),
-      geo_subject_txt_sort: extract_term("geo_subject", metadata, related_data),
-      geographic_origin_txt_sort: extract_term("geographic_origin", metadata, related_data),
       height_txtm: get_in(metadata, ["height"]),
       holding_location_txt_sort: get_in(metadata, ["holding_location"]),
-      iiif_manifest_url_s: iiif_manifest_url(id),
-      image_canvas_ids_ss: image_canvas_ids(id, metadata, related_data),
+      iiif_manifest_url_s: iiif_manifest_url(id, internal_resource),
+      image_canvas_ids_ss: image_canvas_ids(id, data, related_data),
       image_service_urls_ss: image_service_urls(metadata, related_data),
       keywords_txt_sort: get_in(metadata, ["keywords"]),
-      language_txt_sort: extract_term("language", metadata, related_data),
       page_count_txtm: get_in(metadata, ["page_count"]),
       pdf_url_s: extract_pdf_url(data),
       primary_thumbnail_service_url_s: extract_service_url(thumbnail),
@@ -104,16 +125,23 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
       publisher_txt_sort: get_in(metadata, ["publisher"]),
       rights_statement_txtm: extract_rights_statement(metadata),
       series_txt_sort: get_in(metadata, ["series"]),
-      subject_txt_sort: extract_term("subject", metadata, related_data),
       sort_title_txtm: get_in(metadata, ["sort_title"]),
-      transliterated_title_txtm: get_in(metadata, ["transliterated_title"]),
       updated_at_dt: updated_date(data),
       width_txtm: get_in(metadata, ["width"]),
       years_is: extract_years(data),
-      categories_txt_sort: extract_categories(metadata, related_data),
       featurable_b: get_in(metadata, ["featurable"]) == ["1"]
     }
   end
+
+  defp merge_imported(metadata = %{"imported_metadata" => [imported_metadata | _]}) do
+    Map.merge(metadata, imported_metadata, &compare_metadata/3)
+  end
+
+  # If imported metadata has no value for a field, use main metadata value
+  defp compare_metadata(_k, metadata_values, nil), do: metadata_values
+
+  # If imported metadata has values for a field, use the imported values
+  defp compare_metadata(_k, _, imported_metadata_values), do: imported_metadata_values
 
   def extract_categories(%{"subject" => subjects}, %{"resources" => resources}) do
     extract_term_ids(subjects, resources)
@@ -147,6 +175,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
   # Remove empty strings from list
   defp remove_empty_strings(field_value) when is_list(field_value) do
     field_value |> Enum.reject(fn v -> v == "" end)
+  end
+
+  defp remove_empty_strings(_) do
+    []
   end
 
   defp digitized_date(%{"created_at" => created_at}) when is_binary(created_at) do
@@ -219,26 +251,32 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
 
   defp primary_thumbnail_ratio(_), do: nil
 
-  defp image_canvas_ids(id, %{"member_ids" => member_ids}, related_data) do
+  defp image_canvas_ids(
+         id,
+         %{"metadata" => %{"member_ids" => member_ids}, "internal_resource" => internal_resource},
+         related_data
+       ) do
     member_ids
-    |> Enum.map(&extract_canvas_id(id, &1, related_data))
+    |> Enum.map(&extract_canvas_id(id, &1, internal_resource, related_data))
     |> Enum.filter(fn url -> url end)
   end
 
   defp image_canvas_ids(_, _, _), do: []
 
   # If the file set is real, generate a canvas ID for it.
-  defp extract_canvas_id(id, %{"id" => file_set_id}, %{"resources" => resources}) do
+  defp extract_canvas_id(id, %{"id" => file_set_id}, internal_resource, %{
+         "resources" => resources
+       }) do
     case resources[file_set_id] do
       nil ->
         nil
 
       _ ->
-        "https://figgy.princeton.edu/concern/ephemera_folders/#{id}/manifest/canvas/#{file_set_id}"
+        iiif_manifest_url(id, internal_resource) <> "/canvas/#{file_set_id}"
     end
   end
 
-  defp extract_canvas_id(_, _, _), do: nil
+  defp extract_canvas_id(_, _, _, _), do: nil
 
   defp image_service_urls(%{"member_ids" => member_ids}, related_data) do
     member_ids
@@ -248,8 +286,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
 
   defp image_service_urls(_, _), do: []
 
-  defp iiif_manifest_url(id) do
-    "https://figgy.princeton.edu/concern/ephemera_folders/#{id}/manifest"
+  defp iiif_manifest_url(id, internal_resource) do
+    figgy_base_url = Application.fetch_env!(:dpul_collections, :web_connections)[:figgy_url]
+    controller = Macro.underscore(internal_resource) <> "s"
+    "#{figgy_base_url}/concern/#{controller}/#{id}/manifest"
   end
 
   # Find the given member ID in the related data.
@@ -408,7 +448,16 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
     ["[Missing Title]"]
   end
 
-  defp extract_title(%{"title" => title}), do: title
+  defp extract_title(%{"title" => title}) do
+    title |> Enum.map(&extract_rdf_title/1)
+  end
+
+  defp extract_rdf_title(title) do
+    case title do
+      %{"@value" => value} -> value
+      _ -> title
+    end
+  end
 
   defp extract_rights_statement(%{"rights_statement" => [%{"@id" => url}]}) when is_binary(url) do
     %{
