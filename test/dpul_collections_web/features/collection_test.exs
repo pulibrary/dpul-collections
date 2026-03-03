@@ -47,7 +47,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> assert_has("div", text: "3 Languages")
       |> assert_has("div", text: "4 Locations")
       # Browse button
-      |> assert_has("a[href='/search?filter[project][]=South+Asian+Ephemera']",
+      |> assert_has("a[href='/search?filter[collection][]=South+Asian+Ephemera']",
         text: "Browse Collection"
       )
       # Mosaic
@@ -72,7 +72,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> refute_has("li", text: "+0 more")
       # Recently updated more link
       |> assert_has(
-        "a[href='/search?filter[project][]=South+Asian+Ephemera&sort_by=recently_added']"
+        "a[href='/search?filter[collection][]=South+Asian+Ephemera&sort_by=recently_added']"
       )
       # Recently Updated cards
       |> assert_has(
@@ -92,7 +92,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> click_link("Politics and government")
       |> assert_has("h1", text: "Search Results")
       |> assert_has("a.category", text: "Politics and government")
-      |> assert_has("a.project", text: "South Asian Ephemera")
+      |> assert_has("a.collection", text: "South Asian Ephemera")
     end
 
     test "a collection without contributors still displays copyright policy", %{conn: conn} do

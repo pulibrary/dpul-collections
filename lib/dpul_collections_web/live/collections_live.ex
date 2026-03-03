@@ -124,7 +124,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 </div>
                 <div class="flex justify-items-end">
                   <.primary_button
-                    href={~p"/search?#{%{filter: %{project: [@collection.title |> hd]}}}"}
+                    href={~p"/search?#{%{filter: %{collection: [@collection.title |> hd]}}}"}
                     class="btn-primary hidden md:flex ml-auto"
                   >
                     {gettext("Browse Collection")}
@@ -162,7 +162,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
               </div>
               <div class="grid-cols-1 col-span-2 static md:hidden">
                 <.primary_button
-                  href={~p"/search?#{%{filter: %{project: [@collection.title |> hd]}}}"}
+                  href={~p"/search?#{%{filter: %{collection: [@collection.title |> hd]}}}"}
                   class="btn-primary w-full"
                 >
                   {gettext("Browse Collection")}
@@ -239,7 +239,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             items={@collection.recently_added}
             title={gettext("Recently Added Items")}
             more_link={
-              ~p"/search?#{%{filter: %{project: [@collection.title |> hd]}, sort_by: "recently_added"}}"
+              ~p"/search?#{%{filter: %{collection: [@collection.title |> hd]}, sort_by: "recently_added"}}"
             }
             show_images={[]}
             added?={true}

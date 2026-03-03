@@ -72,22 +72,22 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   defp build_socket(socket, item, _) do
     related_items =
-      Solr.related_items(item, %{filter: %{"project" => [item.project]}})["docs"]
+      Solr.related_items(item, %{filter: %{"collection" => [item.collection]}})["docs"]
       |> Enum.map(&Item.from_solr(&1))
 
-    project =
-      Solr.find_by_id(item.project_id)
+    collection =
+      Solr.find_by_id(item.collection_id)
       |> Item.from_solr()
 
-    different_project_related_items =
-      Solr.related_items(item, %{filter: %{"project" => "-#{item.project}"}})["docs"]
+    different_collections_related_items =
+      Solr.related_items(item, %{filter: %{"collection" => "-#{item.collection}"}})["docs"]
       |> Enum.map(&Item.from_solr(&1))
 
     assign(socket,
       item: item,
-      project: project,
+      collection: collection,
       related_items: related_items,
-      different_project_related_items: different_project_related_items
+      different_collections_related_items: different_collections_related_items
     )
   end
 
@@ -230,23 +230,24 @@ defmodule DpulCollectionsWeb.ItemLive do
             {description}
           </div>
           <div
-            :if={@item.project}
+            :if={@item.collection}
             class="text-lg font-medium text-dark-text border-l-4 border-s-sage-500 w-full px-4"
           >
             <div class="text-sage-800 uppercase text-sm font-bold tracking-wide">
               {gettext("Collection")}
             </div>
-            <div :if={@project != nil}>
+            <div :if={@collection != nil}>
               {gettext("Part of")}
-              <.link class="filter-link" navigate={~p"/collections/#{@project.slug}"}>
-                {@project.title}
+              <.link class="filter-link" navigate={~p"/collections/#{@collection.slug}"}>
+                {@collection.title}
               </.link>
               <div class="tagline text-sm font-light py-1">
-                {@project.tagline}
+                {@collection.tagline}
               </div>
             </div>
-            <div :if={@project == nil}>
-              {gettext("Part of")} <.filter_link filter_name="project" filter_value={@item.project} />
+            <div :if={@collection == nil}>
+              {gettext("Part of")}
+              <.filter_link filter_name="collection" filter_value={@item.collection} />
             </div>
           </div>
           <.action_bar class="hidden sm:block" item={@item} current_scope={@current_scope} />
@@ -258,21 +259,21 @@ defmodule DpulCollectionsWeb.ItemLive do
     </div>
     <div id="similar-items">
       <.browse_item_row
-        :if={@item.project}
-        id="related-same-project"
+        :if={@item.collection}
+        id="related-same-collection"
         items={@related_items}
         title={gettext("Similar Items in this Collection")}
-        more_link={~p"/search?filter[similar]=#{@item.id}&filter[project][]=#{@item.project}"}
+        more_link={~p"/search?filter[similar]=#{@item.id}&filter[collection][]=#{@item.collection}"}
         show_images={@show_images}
         current_path={@current_path}
       />
       <.browse_item_row
-        :if={@item.project}
-        id="related-different-project"
-        items={@different_project_related_items}
+        :if={@item.collection}
+        id="related-different-collection"
+        items={@different_collections_related_items}
         title={gettext("Similar Items outside this Collection")}
         color="bg-background"
-        more_link={~p"/search?filter[similar]=#{@item.id}&filter[project]=-#{@item.project}"}
+        more_link={~p"/search?filter[similar]=#{@item.id}&filter[collection]=-#{@item.collection}"}
         show_images={@show_images}
         current_path={@current_path}
       />

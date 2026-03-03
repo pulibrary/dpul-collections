@@ -77,18 +77,30 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   end
 
   def to_combined(resource = %Figgy.Resource{internal_resource: "Collection"}) do
+    related_data = extract_related_data(resource)
+
+    related_data_markers =
+      (Map.values(related_data["ancestors"]) ++ Map.values(related_data["resources"]))
+      |> List.flatten()
+      |> Enum.map(&CacheEntryMarker.from/1)
+
+    all_markers =
+      [CacheEntryMarker.from(resource) | related_data_markers]
+      |> Enum.sort(CacheEntryMarker)
+
+    related_ids = Enum.map(related_data_markers, &Map.get(&1, :id))
+
     %Figgy.CombinedFiggyResource{
       resource: resource,
-      related_data: %{},
-      related_ids: [],
-      persisted_member_ids: [],
-      latest_updated_marker: CacheEntryMarker.from(resource)
+      related_data: related_data,
+      related_ids: related_ids,
+      latest_updated_marker: Enum.at(all_markers, -1)
     }
   end
 
   defp extract_related_data(resource) do
     %{
-      "ancestors" => extract_ancestors(resource),
+      "ancestors" => Map.merge(extract_ancestors(resource), extract_collections(resource)),
       "resources" => fetch_related(resource)
     }
   end
@@ -207,6 +219,26 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   end
 
   defp extract_ancestors(resource_map, _resource), do: resource_map
+
+  @spec extract_collections(related_resource_map(), resource :: %__MODULE__{}) ::
+          related_resource_map()
+  defp extract_collections(resource_map \\ %{}, resource)
+
+  defp extract_collections(
+         resource_map,
+         %{:metadata => %{"member_of_collection_ids" => member_of_collection_ids}}
+       ) do
+    collections =
+      member_of_collection_ids
+      |> Enum.map(&extract_ids_from_value/1)
+      |> IndexingPipeline.get_figgy_resources()
+
+    Enum.reduce(collections, resource_map, fn col, acc ->
+      Map.put(acc, col.id, col)
+    end)
+  end
+
+  defp extract_collections(resource_map, _resource), do: resource_map
 
   # Extract an id string from a value map.
   # Exclude values that have more than one key. These are field like

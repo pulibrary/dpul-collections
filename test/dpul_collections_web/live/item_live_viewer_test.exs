@@ -12,7 +12,7 @@ defmodule DpulCollectionsWeb.ItemLiveViewerTest do
           description_txtm: ["A series of paintings of wizards"],
           title_txtm: ["Gandalf the Grey"],
           file_count_i: 30,
-          ephemera_project_title_s: "Nonexistent Things",
+          collection_titles_ss: ["Nonexistent Things"],
           iiif_viewer_url_s:
             "https://figgy.princeton.edu/concern/ephemera_folders/42b8f9d4-1ab0-4622-b4a9-96ed4c2bec71/viewer",
           image_service_urls_ss: [

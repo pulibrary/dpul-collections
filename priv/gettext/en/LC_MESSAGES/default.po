@@ -326,8 +326,9 @@ msgstr ""
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:7
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
+#: lib/dpul_collections_web/live/item_live.ex:218
 #, elixir-autogen, elixir-format
-msgid "Ephemera Project"
+msgid "Collection"
 msgstr ""
 
 #: lib/dpul_collections/item.ex:97
@@ -873,11 +874,6 @@ msgstr ""
 #: lib/dpul_collections_web/live/user_live/login.ex:25
 #, elixir-autogen, elixir-format
 msgid "You need to reauthenticate to perform sensitive actions on your account."
-msgstr ""
-
-#: lib/dpul_collections_web/live/item_live.ex:218
-#, elixir-autogen, elixir-format
-msgid "Collection"
 msgstr ""
 
 #: lib/dpul_collections_web/live/item_live.ex:221
