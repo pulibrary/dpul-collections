@@ -39,25 +39,33 @@ defmodule DpulCollectionsWeb.BrowseLive do
   def handle_params(%{"focus_id" => focus_id}, _uri, socket) do
     item = Solr.find_by_id(focus_id) |> Item.from_solr()
 
-    # In this view we're going to use one of the spots to show the focused item,
-    # so only get 89 random
-    recommended_items =
-      Solr.related_items(item, SearchState.from_params(%{}), 89)["docs"]
-      |> Enum.map(&Item.from_solr/1)
+    case item do
+      # If there's no item to focus, just redirect.
+      nil ->
+        {:noreply,
+         push_patch(socket, to: "/browse?r=#{Enum.random(1..1_000_000)}", replace: true)}
 
-    liked_items =
-      cond do
-        item.id in Enum.map(socket.assigns.liked_items, fn item -> item.id end) ->
-          socket.assigns.liked_items
+      _ ->
+        # In this view we're going to use one of the spots to show the focused item,
+        # so only get 89 random
+        recommended_items =
+          Solr.related_items(item, SearchState.from_params(%{}), 89)["docs"]
+          |> Enum.map(&Item.from_solr/1)
 
-        # When we come to this link directly liked_items is empty - add the one
-        # we're focusing.
-        true ->
-          [item | socket.assigns.liked_items]
-      end
+        liked_items =
+          cond do
+            item.id in Enum.map(socket.assigns.liked_items, fn item -> item.id end) ->
+              socket.assigns.liked_items
 
-    {:noreply,
-     socket |> assign(items: recommended_items, focused_item: item, liked_items: liked_items)}
+            # When we come to this link directly liked_items is empty - add the one
+            # we're focusing.
+            true ->
+              [item | socket.assigns.liked_items]
+          end
+
+        {:noreply,
+         socket |> assign(items: recommended_items, focused_item: item, liked_items: liked_items)}
+    end
   end
 
   # If neither, generate a random seed and display random items.
