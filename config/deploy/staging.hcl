@@ -10,6 +10,8 @@ job "dpulc-staging" {
   node_pool = "staging"
   update {
     auto_revert       = true
+    healthy_deadline  = "15m"
+    progress_deadline = "20m"
   }
   group "web" {
     count = 2

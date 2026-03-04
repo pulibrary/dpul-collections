@@ -10,6 +10,8 @@ job "dpulc-production" {
   node_pool = "production"
   update {
     auto_revert       = true
+    healthy_deadline  = "15m"
+    progress_deadline = "20m"
   }
   priority = 55
   group "web" {
