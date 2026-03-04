@@ -88,6 +88,12 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
     assert html =~ "Exploring items similar to"
   end
 
+  test "focused browse from link with a non-existent item redirects to browse", %{conn: conn} do
+    conn = get(conn, ~p"/browse/focus/302")
+
+    assert redirected_to(conn, 302) =~ "/browse?r="
+  end
+
   test "click random button", %{conn: conn} do
     Solr.add(SolrTestSupport.mock_solr_documents(90), active_collection())
     Solr.soft_commit(active_collection())
