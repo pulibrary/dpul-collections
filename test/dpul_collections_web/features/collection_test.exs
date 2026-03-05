@@ -142,7 +142,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
         text: "Browse Collection"
       )
       # Featured Items
-      |> refute_has("#featured-items .browse-item", count: 1)
+      |> assert_has("#featured-items .browse-item", count: 1)
       # Recently Updated cards
       |> assert_has(
         "#recent-items .card",

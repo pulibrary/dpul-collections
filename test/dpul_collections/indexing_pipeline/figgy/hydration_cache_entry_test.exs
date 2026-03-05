@@ -674,7 +674,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
               "title" => ["Elham Azar"],
               "date_created" => ["2022"],
               "notice_type" => ["harmful_content"],
-              "content_warning" => [""]
+              "content_warning" => nil
             }
           }
         })
