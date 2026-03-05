@@ -31,7 +31,6 @@
   --color-princeton-orange-on-black: rgb(245, 128, 37);
 
   /* sage mono colors from canva: https://www.canva.com/colors/color-meanings/sage-green/ */
-
   --color-sage-100: #E8E6DC;
   --color-sage-200: #D6D3C0;
   --color-sage-300: #C4BFA4;
@@ -40,7 +39,6 @@
   --color-sage-700: #878057;
   --color-sage-900: #6B6645;
 
-  /* hsl(65, 15%, 70%) */
   --color-dpulc-primary: hsl(65, 15%, 65%);
 
   /* Some semantic colors */
@@ -72,9 +70,102 @@
   --font-serif: "Aleo", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   /* text-tiny */
   --text-tiny: 0.625rem;
-  --text-tiny--line-height: 1.5rem; 
-  --text-tiny--letter-spacing: 0.125rem; 
-  --text-tiny--font-weight: 500; 
+  --text-tiny--line-height: 1.5rem;
+  --text-tiny--letter-spacing: 0.125rem;
+  --text-tiny--font-weight: 500;
+}
+
+@layer base {
+  a {
+    @apply hover:link-hover cursor-pointer;
+  }
+
+  h1 {
+    @apply heading text-2xl;
+  }
+
+  h2 {
+    @apply text-xl font-bold;
+  }
+}
+
+/*
+ * Make LiveView wrapper divs transparent for layout.
+ * This makes it possible to use LiveViews as flex children for example.
+ */
+[data-phx-root-id] { display: contents }
+
+/***
+ * page layout utilities
+ */
+@utility content-area {
+  @apply px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto;
+}
+
+@utility home-content-area {
+  @apply content-area max-w-screen sm:max-w-[80%];
+}
+
+@utility header-x-padding {
+  @apply px-4 sm:px-8 lg:px-10;
+}
+
+@utility header-y-padding {
+  @apply py-4;
+}
+
+@utility heading-y-padding {
+  @apply py-3;
+}
+
+@utility header-s-padding {
+  @apply ps-6 sm:ps-8 lg:ps-10;
+}
+
+@utility header-e-padding {
+  @apply pe-6 sm:pe-8 lg:pe-10;
+}
+
+/* the same as page-t-padding and page-b-padding */
+@utility page-y-padding {
+  @apply py-6;
+}
+
+/* These are broken out in case top and bottom part of page are different
+ * colors */
+@utility page-t-padding {
+  @apply pt-6;
+}
+@utility page-b-padding {
+  @apply pb-6;
+}
+
+/* semantic labels for z-index so we can see them at once and make sure they
+ * don't interfere with one another */
+@utility zi-nav-dropdown {@apply z-100;}
+@utility zi-flash {@apply z-50;}
+@utility zi-home-callout {@apply z-10;}
+@utility zi-card-button {@apply z-100;}
+
+/***
+ * element utilities
+ */
+
+@utility heading {
+  @apply uppercase font-semibold text-dark-text;
+}
+
+@utility link-hover {
+  @apply hover:underline hover:underline-offset-8 hover:decoration-accent hover:decoration-2;
+}
+
+@utility filter-link {
+  @apply text-accent font-semibold;
+}
+
+@utility obfuscate {
+  @apply blur-xl;
+  clip-path: inset(0);
 }
 
 @utility bg-accent {
@@ -89,75 +180,18 @@
   }
 }
 
+@utility skip-to-content {
+  position: absolute;
+  transform: translateY(-150%);
+  transition: transform 150ms ease-in;
+
+  &:focus {
+    transform: translateY(0);
+  }
+}
+
 @utility disabled {
   @apply border-0 border-solid border-(--color-princeton-black) flex justify-center items-center text-center font-bold *:font-bold h-14 text-nowrap uppercase cursor-not-allowed opacity-50 shadow-none;
-}
-
-.browse-link {
-  padding-left: 60px;
-  clip-path: polygon(0 50.72px,50.72px 0%, 100% 0%, 100% 100%, 0% 100%);
-}
-
-.diagonal-drop {
-  padding-left: 30px;
-  clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 25px 100%);
-}
-
-.diagonal-rise {
-  padding-left: 30px;
-  clip-path: polygon(25px 0%, 100% 0%, 100% 100%, 0 100%);
-}
-
-.left-arrow-box {
-  clip-path: polygon(100% 0%, 100% 100%, 40px 100%, 0% 50%, 40px 0%);
-  @apply pl-[20px] bg-primary border-none hover:bg-[#c5c6b5] flex justify-center items-center w-full h-14;
-}
-
-.right-arrow-box {
-  clip-path: polygon(
-    0% 0%,
-    0% 100%,
-    calc(100% - 40px) 100%,
-    100% 50%,
-    calc(100% - 40px) 0%
-  );
-  @apply pr-[20px] bg-primary border-none hover:bg-[#c5c6b5] flex justify-center items-center w-full h-14;
-}
-
-@utility arrow {
-  clip-path: polygon(0% 0%, 100% 50%, 0% 100%);
-}
-
-.btn-arrow {
-  @apply arrow bg-accent cursor-pointer;
-}
-
-.recent-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  grid-template-rows: 1fr repeat(4, 0px);
-  @apply gap-x-6;
-}
-
-#collection-page .recent-container {
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-}
-
-/*
- * Make LiveView wrapper divs transparent for layout.
- * This makes it possible to use LiveViews as flex children for example.
- */
-[data-phx-root-id] { display: contents }
-
-/* This file is for your main application CSS */
-
-/* Helper class for the default table component style that adds
- * rounded corners to the table rows.
- */
-@utility rounded-table-corner {
-  @apply
-    first:before:absolute first:before:h-full first:before:w-4 first:before:top-0 first:before:-left-4 group-hover:first:before:bg-zinc-50 first:before:sm:rounded-l-xl
-    last:before:absolute last:before:h-full last:before:w-4 last:before:top-0 last:before:-right-4 group-hover:last:before:bg-zinc-50 last:before:sm:rounded-r-xl;
 }
 
 @utility btn-base-behavior {
@@ -224,119 +258,6 @@
   @apply text-accent hover:bg-primary-bright w-6 h-6 p-1 bg-background;
 }
 
-@utility skip-to-content {
-  position: absolute;
-  transform: translateY(-150%);
-  transition: transform 150ms ease-in;
-
-  &:focus {
-    transform: translateY(0);
-  }
-}
-
-/***
- * page layout utilities
- */
-@utility content-area {
-  @apply px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto;
-}
-
-@utility home-content-area {
-  @apply content-area max-w-screen sm:max-w-[80%];
-}
-
-@utility header-x-padding {
-  @apply px-4 sm:px-8 lg:px-10;
-}
-
-@utility header-y-padding {
-  @apply py-4;
-}
-
-@utility heading-y-padding {
-  @apply py-3;
-}
-
-@utility header-s-padding {
-  @apply ps-6 sm:ps-8 lg:ps-10;
-}
-
-@utility header-e-padding {
-  @apply pe-6 sm:pe-8 lg:pe-10;
-}
-
-/* the same as page-t-padding and page-b-padding */
-@utility page-y-padding {
-  @apply py-6;
-}
-
-/* These are broken out in case top and bottom part of page are different
- * colors */
-@utility page-t-padding {
-  @apply pt-6;
-}
-@utility page-b-padding {
-  @apply pb-6;
-}
-
-/***
- * element utilities
- */
-
-@utility heading {
-  @apply uppercase font-semibold text-dark-text;
-}
-
-@utility link-hover {
-  @apply hover:underline hover:underline-offset-8 hover:decoration-accent hover:decoration-2;
-}
-
-@utility filter-link {
-  @apply text-accent font-semibold;
-}
-
-@utility obfuscate {
-  @apply blur-xl;
-  clip-path: inset(0);
-}
-
-@layer base {
-  a {
-    @apply hover:link-hover cursor-pointer;
-  }
-
-  h1 {
-    @apply heading text-2xl;
-  }
-
-  h2 {
-    @apply text-xl font-bold;
-  }
-}
-
-[iconify] {
-  background-color: currentColor;
-  -webkit-mask-size: cover;
-  mask-size: cover;
-  min-width: 0.5rem;
-  min-height: 0.5rem;
-}
-
-/* Change the color of the NProgress Bar to match the design */
-
-#nprogress .bar {
-  background: var(--color-rust);
-}
-
-/* Fancy blur effect */
-#nprogress .peg {
-  box-shadow: 0 0 10px var(--color-rust), 0 0 5px var(--color-rust);
-}
-
-.corner-cut {
-  clip-path: polygon(0 50.72px,50.72px 0,100% 0,100% 50.72px,100% calc(100% - 50.72px),calc(100% - 50.72px) 100%,0 100%,0 calc(100% - 50.72px));
-}
-
 @utility card {
   @apply drop-shadow-[0.25rem_0.25rem_0.25rem_var(--color-sage-300)];
   @apply hover:drop-shadow-[0_0_0.7rem_var(--color-sage-600)];
@@ -380,12 +301,88 @@
   }
 }
 
-/* semantic labels for z-index so we can see them at once and make sure they
- * don't interfere with one another */
-@utility zi-nav-dropdown {@apply z-100;}
-@utility zi-flash {@apply z-50;}
-@utility zi-home-callout {@apply z-10;}
-@utility zi-card-button {@apply z-100;}
+/* Helper class for the default table component style that adds
+ * rounded corners to the table rows.
+ */
+@utility rounded-table-corner {
+  @apply
+    first:before:absolute first:before:h-full first:before:w-4 first:before:top-0 first:before:-left-4 group-hover:first:before:bg-zinc-50 first:before:sm:rounded-l-xl
+    last:before:absolute last:before:h-full last:before:w-4 last:before:top-0 last:before:-right-4 group-hover:last:before:bg-zinc-50 last:before:sm:rounded-r-xl;
+}
+
+.browse-link {
+  padding-left: 60px;
+  clip-path: polygon(0 50.72px,50.72px 0%, 100% 0%, 100% 100%, 0% 100%);
+}
+
+.diagonal-drop {
+  padding-left: 30px;
+  clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 25px 100%);
+}
+
+.diagonal-rise {
+  padding-left: 30px;
+  clip-path: polygon(25px 0%, 100% 0%, 100% 100%, 0 100%);
+}
+
+.left-arrow-box {
+  clip-path: polygon(100% 0%, 100% 100%, 40px 100%, 0% 50%, 40px 0%);
+  @apply pl-[20px] bg-primary border-none hover:bg-[#c5c6b5] flex justify-center items-center w-full h-14;
+}
+
+.right-arrow-box {
+  clip-path: polygon(
+    0% 0%,
+    0% 100%,
+    calc(100% - 40px) 100%,
+    100% 50%,
+    calc(100% - 40px) 0%
+  );
+  @apply pr-[20px] bg-primary border-none hover:bg-[#c5c6b5] flex justify-center items-center w-full h-14;
+}
+
+@utility arrow {
+  clip-path: polygon(0% 0%, 100% 50%, 0% 100%);
+}
+
+.btn-arrow {
+  @apply arrow bg-accent cursor-pointer;
+}
+
+.corner-cut {
+  clip-path: polygon(0 50.72px,50.72px 0,100% 0,100% 50.72px,100% calc(100% - 50.72px),calc(100% - 50.72px) 100%,0 100%,0 calc(100% - 50.72px));
+}
+
+.recent-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-rows: 1fr repeat(4, 0px);
+  @apply gap-x-6;
+}
+
+[iconify] {
+  background-color: currentColor;
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  min-width: 0.5rem;
+  min-height: 0.5rem;
+}
+
+/* Change the color of the NProgress Bar to match the design */
+#nprogress .bar {
+  background: var(--color-rust);
+}
+
+/* Fancy blur effect */
+#nprogress .peg {
+  box-shadow: 0 0 10px var(--color-rust), 0 0 5px var(--color-rust);
+}
+
+/* This file is for your main application CSS */
+
+#collection-page .recent-container {
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+}
 
 /* Every odd section has a dark background, so change the card backdrop to
  * prevent them from glowing. */
