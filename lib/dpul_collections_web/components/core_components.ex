@@ -780,7 +780,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
         <h1>
           {render_slot(@inner_block)}
         </h1>
-        <p :if={@subtitle != []} class="mt-2 text-lg">
+        <p :if={@subtitle != []} class="mt-2 text-lg text-dark-text">
           {render_slot(@subtitle)}
         </p>
       </div>

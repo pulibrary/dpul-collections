@@ -254,7 +254,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             current_path={@current_path}
             color=""
           >
-            <p class="my-2 text-inherit">
+            <p class="my-2">
               {gettext("Explore the latest additions to our growing collection for")} {@collection.title
               |> hd}.
             </p>
@@ -274,7 +274,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             <div class="flex flex-wrap gap-4 pb-6">
               <div
                 :for={contributor <- @collection.contributors}
-                class="contributor-card item card-nodrop flex basis-full first:grow lg:basis-[calc(50%-0.5rem)]"
+                class="contributor-card item card-nodrop flex basis-full first:grow lg:basis-[calc(50%-0.5rem)] [&_a]:underline [&_a]:hover:border-none [&_a]:hover:no-underline"
               >
                 <div class="h-full grid-rows-2 bg-sage-100 grid sm:grid-rows-1 sm:grid-cols-6 gap-0">
                   <div class={[
@@ -310,11 +310,11 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             </div>
             <hr />
           </div>
-          <div id="policies" class="content-area pb-6">
+          <div id="policies" class="content-area pb-6 [&_a]:text-accent">
             <h3 class="uppercase font-semibold text-xl pt-6">
               {gettext("Copyright")}
             </h3>
-            <p class="text-inherit">
+            <p>
               {gettext(
                 "Princeton University Library claims no copyright governing this digital resource.
               It is provided for free, on a non-commercial, open-access basis, for fair-use academic
@@ -330,14 +330,14 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             <h3 class="uppercase font-semibold text-xl pt-6">
               {gettext("Preferred Citation")}
             </h3>
-            <p class="text-inherit">
+            <p>
               [Identification of item], [Sub-collection name (if applicable)], {@collection.title
               |> hd} Collection, Princeton University Library.
             </p>
             <h3 class="uppercase font-semibold text-xl pt-6">
               {gettext("Romanization")}
             </h3>
-            <p class="text-inherit">
+            <p>
               {gettext("Please refer to the")}
               <a href="https://www.loc.gov/catdir/cpso/roman.html">
                 {gettext("Library of Congress Romanization tables")}

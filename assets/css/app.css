@@ -77,19 +77,19 @@
   --text-tiny--font-weight: 500; 
 }
 
-.bg-accent {
-  @apply text-light-text;
+@utility bg-accent {
+  @apply bg-(--color-accent) text-light-text;
 }
 
-.bg-brand {
-  @apply text-light-text;
+@utility bg-brand {
+  @apply bg-(--color-brand) text-light-text;
+
+  .dropdown-menu {
+    @apply text-dark-text;
+  }
 }
 
-.bg-brand .dropdown-menu{
-  @apply text-dark-text;
-}
-
-.disabled {
+@utility disabled {
   @apply border-0 border-solid border-(--color-princeton-black) flex justify-center items-center text-center font-bold *:font-bold h-14 text-nowrap uppercase cursor-not-allowed opacity-50 shadow-none;
 }
 
@@ -130,10 +130,6 @@
 
 .btn-arrow {
   @apply arrow bg-accent cursor-pointer;
-}
-
-#search-form:focus-within #search-button {
-  visibility: visible;
 }
 
 .recent-container {
@@ -316,10 +312,6 @@
   h2 {
     @apply text-xl font-bold;
   }
-
-  p {
-    @apply text-dark-text;
-  }
 }
 
 [iconify] {
@@ -345,13 +337,7 @@
   clip-path: polygon(0 50.72px,50.72px 0,100% 0,100% 50.72px,100% calc(100% - 50.72px),calc(100% - 50.72px) 100%,0 100%,0 calc(100% - 50.72px));
 }
 
-/* Prevent page load jank on item page */
-.primary-thumbnail img {
-    width: 100%;
-    height: auto;
-}
-
-.card {
+@utility card {
   @apply drop-shadow-[0.25rem_0.25rem_0.25rem_var(--color-sage-300)];
   @apply hover:drop-shadow-[0_0_0.7rem_var(--color-sage-600)];
   @apply relative;
@@ -361,7 +347,7 @@
   }
 }
 
-.card-darkdrop {
+@utility card-darkdrop {
   @apply drop-shadow-xl;
   @apply hover:drop-shadow-[0_0_0.7rem_var(--color-dark-gray)];
 
@@ -370,7 +356,7 @@
   }
 }
 
-.card-nodrop {
+@utility card-nodrop {
   * {
     @apply no-underline;
   }
@@ -378,20 +364,20 @@
 
 /* note you have to use a relative class on the card where
  * you want the link to extend */
-.card-link {
+@utility card-link {
   @apply before:content-[''] before:absolute before:inset-0 before:z-[1];
 }
 
-.brief-metadata {
- @apply flex-auto flex flex-row gap-4;
-}
+@utility brief-metadata {
+  @apply flex-auto flex flex-row gap-4;
 
-.brief-metadata > div:not(:last-child) {
-  @apply border-e-1 border-search;
-}
+  > div:not(:last-child) {
+    @apply border-e-1 border-search;
+  }
 
-.brief-metadata > div {
-  @apply flex flex-col gap-0 pe-4 py-0 h-min;
+  > div {
+    @apply flex flex-col gap-0 pe-4 py-0 h-min;
+  }
 }
 
 /* semantic labels for z-index so we can see them at once and make sure they
@@ -400,15 +386,6 @@
 @utility zi-flash {@apply z-50;}
 @utility zi-home-callout {@apply z-10;}
 @utility zi-card-button {@apply z-100;}
-
-#policies a,
-#collection-description.collection-description a {
-  @apply text-accent;
-}
-
-.contributor-card a {
-  @apply underline hover:border-none hover:no-underline;
-}
 
 /* Every odd section has a dark background, so change the card backdrop to
  * prevent them from glowing. */

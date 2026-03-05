@@ -684,6 +684,7 @@ defmodule DpulCollectionsWeb.ItemLive do
               width={@item.primary_thumbnail_width}
               height={@item.primary_thumbnail_height}
               class={[
+                "w-full h-auto",
                 Helpers.obfuscate_item?(assigns) && "obfuscate",
                 "thumbnail-#{@item.id}"
               ]}
