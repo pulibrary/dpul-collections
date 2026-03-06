@@ -72,14 +72,14 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # removed the hydration cache markers for the deletion marker deleted resource.
     # It also has 3 ephemera projects and 1 collection.
     entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
-    assert FiggyTestSupport.total_resource_count() + 6 == entry_count
+    assert FiggyTestSupport.total_resource_count() + 5 == entry_count
 
     # The transformer processed ephemera folders, deletion markers,
     # ephemera projects, scanned resources, and collections; then
     # removed the transformation cache markers for the deletion marker deleted resource.
     transformation_cache_entry_count = Repo.aggregate(Figgy.TransformationCacheEntry, :count)
     deletion_marker_count = FiggyTestSupport.deletion_marker_count()
-    total_transformed_count = FiggyTestSupport.ephemera_folder_count() + deletion_marker_count + 6
+    total_transformed_count = FiggyTestSupport.ephemera_folder_count() + deletion_marker_count + 5
 
     # Empty resources are resources with no image file sets
     empty_resource_count = 1
@@ -359,7 +359,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     end
   end
 
-  describe "an Islamic Manuscript Scanned Resource with a two parent Collections" do
+  describe "an Islamic Manuscript Scanned Resource with a parent Collection" do
     test "indexes expected fields" do
       {hydrator, transformer, indexer, document} =
         FiggyTestSupport.index_record_id("27fd4d29-1170-47a5-891b-f2743873bcef")
@@ -377,18 +377,12 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       assert %{"description_txtm" => [first_description | _tail]} = document
       assert first_description |> String.starts_with?("Collation: Paper") == true
 
-      # Parent Collection
-      assert Enum.sort(document["collection_titles_ss"]) ==
-               Enum.sort([
-                 "Middle East Manuscripts",
-                 "Princeton Digital Library of Islamic Manuscripts"
-               ])
+      # only allowed collections are included
+      assert document["collection_titles_ss"] == [
+               "Princeton Digital Library of Islamic Manuscripts"
+             ]
 
-      assert Enum.sort(document["collection_ids_ss"]) ==
-               Enum.sort([
-                 "3bab572e-6603-4abf-8305-16ce6fe3ac5c",
-                 "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a"
-               ])
+      assert document["collection_ids_ss"] == ["52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a"]
 
       # Image Canvas IDs
       assert [

@@ -24,6 +24,20 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     field :metadata_resource_type, {:array, :string}, virtual: true
   end
 
+  @allowed_collections [
+    # Islamic Manuscripts
+    "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a"
+  ]
+
+  # While we work on integrating scanned resources, we only want to index
+  # specific resources. We will remove this restriction later.
+  @allowed_scanned_resources [
+    "27fd4d29-1170-47a5-891b-f2743873bcef"
+  ]
+
+  def allowed_collections, do: @allowed_collections
+  def allowed_scanned_resources, do: @allowed_scanned_resources
+
   @type related_data() :: %{optional(field_name :: String.t()) => related_resource_map()}
   @type related_resource_map() :: %{
           optional(resource_id :: String.t()) => resource_struct :: map()
@@ -231,6 +245,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     collections =
       member_of_collection_ids
       |> Enum.map(&extract_ids_from_value/1)
+      |> Enum.filter(&(&1 in @allowed_collections))
       |> IndexingPipeline.get_figgy_resources()
 
     Enum.reduce(collections, resource_map, fn col, acc ->
