@@ -93,7 +93,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   # ScannedResources must belong to one of these collections.
   @allowed_collections [
     # Islamic Manuscripts
-    "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a"
+    "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a",
+    # Middle East Manuscripts
+    "3bab572e-6603-4abf-8305-16ce6fe3ac5c"
   ]
 
   # While we work on integrating scanned resources, we only want to index
