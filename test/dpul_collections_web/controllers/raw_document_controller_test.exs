@@ -26,6 +26,16 @@ defmodule DpulCollectionsWeb.RawDocumentControllerTest do
       response = json_response(conn, 200)
       assert response["id"] == "27fd4d29-1170-47a5-891b-f2743873bcef"
       assert is_list(response["title_txtm"])
+
+      conn =
+        get(
+          conn,
+          ~p"/i/المحاسن-المجتمعة-في-فضل-فضايل/item/27fd4d29-1170-47a5-891b-f2743873bcef/raw"
+        )
+
+      response = json_response(conn, 200)
+      assert response["id"] == "27fd4d29-1170-47a5-891b-f2743873bcef"
+      assert is_list(response["title_txtm"])
     end
 
     test "returns a 404 error when the item is not found", %{conn: conn} do
