@@ -410,8 +410,11 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       # Description
       assert %{"description_txtm" => [first_description | _tail]} = document
 
-      assert first_description |> String.starts_with?("<div>As a result of generous support") ==
-               true
+      assert first_description |> String.starts_with?("<div>The Collections owe") == true
+
+      # Tagline
+      assert %{"tagline_txtm" => [first_tagline | _tail]} = document
+      assert first_tagline |> String.starts_with?("Manuscripts of the Islamic World") == true
     end
   end
 end
