@@ -72,20 +72,25 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   defp build_socket(socket, item, _) do
     related_items =
-      Solr.related_items(item, %{filter: %{"collection" => [item.collection]}})["docs"]
+      Solr.related_items(item, %{filter: %{"collection" => item.collections}})["docs"]
       |> Enum.map(&Item.from_solr(&1))
 
-    collection =
-      Solr.find_by_id(item.collection_id)
-      |> Item.from_solr()
+    collections =
+      item.collection_ids
+      |> Enum.map(fn id -> Solr.find_by_id(id) |> Item.from_solr() end)
+      |> Enum.reject(&is_nil/1)
 
     different_collections_related_items =
-      Solr.related_items(item, %{filter: %{"collection" => "-#{item.collection}"}})["docs"]
-      |> Enum.map(&Item.from_solr(&1))
+      if item.collections != [] do
+        Solr.related_items(item, %{filter: %{"collection" => {:not, item.collections}}})["docs"]
+        |> Enum.map(&Item.from_solr(&1))
+      else
+        []
+      end
 
     assign(socket,
       item: item,
-      collection: collection,
+      collections: collections,
       related_items: related_items,
       different_collections_related_items: different_collections_related_items
     )
@@ -230,24 +235,28 @@ defmodule DpulCollectionsWeb.ItemLive do
             {description}
           </div>
           <div
-            :if={@item.collection}
+            :if={@item.collections != []}
             class="text-lg font-medium text-dark-text border-l-4 border-s-sage-500 w-full px-4"
           >
             <div class="text-sage-800 uppercase text-sm font-bold tracking-wide">
-              {gettext("Collection")}
+              {ngettext("Collection", "Collections", length(@item.collections))}
             </div>
-            <div :if={@collection != nil}>
+            <div :for={collection <- @collections}>
               {gettext("Part of")}
-              <.link class="filter-link" navigate={~p"/collections/#{@collection.slug}"}>
-                {@collection.title}
+              <.link class="filter-link" navigate={~p"/collections/#{collection.slug}"}>
+                {collection.title}
               </.link>
               <div class="tagline text-sm font-light py-1">
-                {@collection.tagline}
+                {collection.tagline}
               </div>
             </div>
-            <div :if={@collection == nil}>
+            <div :for={
+              title <-
+                @item.collections --
+                  Enum.flat_map(@collections, fn c -> c.title end)
+            }>
               {gettext("Part of")}
-              <.filter_link filter_name="collection" filter_value={@item.collection} />
+              <.filter_link filter_name="collection" filter_value={title} />
             </div>
           </div>
           <.action_bar class="hidden sm:block" item={@item} current_scope={@current_scope} />
@@ -259,21 +268,25 @@ defmodule DpulCollectionsWeb.ItemLive do
     </div>
     <div id="similar-items">
       <.browse_item_row
-        :if={@item.collection}
+        :if={@item.collections != []}
         id="related-same-collection"
         items={@related_items}
         title={gettext("Similar Items in this Collection")}
-        more_link={~p"/search?filter[similar]=#{@item.id}&filter[collection][]=#{@item.collection}"}
+        more_link={
+          ~p"/search?filter[similar]=#{@item.id}&filter[collection][]=#{List.first(@item.collections)}"
+        }
         show_images={@show_images}
         current_path={@current_path}
       />
       <.browse_item_row
-        :if={@item.collection}
+        :if={@item.collections != []}
         id="related-different-collection"
         items={@different_collections_related_items}
         title={gettext("Similar Items outside this Collection")}
         color="bg-background"
-        more_link={~p"/search?filter[similar]=#{@item.id}&filter[collection]=-#{@item.collection}"}
+        more_link={
+          ~p"/search?filter[similar]=#{@item.id}&filter[collection]=-#{List.first(@item.collections)}"
+        }
         show_images={@show_images}
         current_path={@current_path}
       />

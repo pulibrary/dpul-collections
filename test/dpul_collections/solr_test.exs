@@ -218,7 +218,7 @@ defmodule DpulCollections.SolrTest do
       Solr.soft_commit(active_collection())
 
       results =
-        Solr.related_items(%Item{id: "reference", collection: "Latin American Ephemera"}, %{
+        Solr.related_items(%Item{id: "reference", collections: ["Latin American Ephemera"]}, %{
           filter: %{"collection" => "Latin American Ephemera"}
         })
         |> Map.get("docs")
@@ -274,13 +274,71 @@ defmodule DpulCollections.SolrTest do
       Solr.soft_commit(active_collection())
 
       results =
-        Solr.related_items(%Item{id: "reference", collection: "Latin American Ephemera"}, %{
-          filter: %{"collection" => "-Latin American Ephemera"}
+        Solr.related_items(%Item{id: "reference", collections: ["Latin American Ephemera"]}, %{
+          filter: %{"collection" => {:not, ["Latin American Ephemera"]}}
         })
         |> Map.get("docs")
         |> Enum.map(&Map.get(&1, "id"))
 
       assert results == ["other-collection"]
+    end
+
+    test "excludes multiple collections with {:not, list}" do
+      docs = [
+        %{
+          "id" => "in-collection-a-b",
+          "title_txtm" => ["test title 1"],
+          "genre_txt_sort" => ["pamphlets"],
+          "subject_txt_sort" => ["folk art"],
+          "collection_titles_ss" => ["Collection A", "Collection B"],
+          "file_count_i" => 1
+        },
+        %{
+          "id" => "in-collection-a",
+          "title_txtm" => ["item in A"],
+          "genre_txt_sort" => ["pamphlets"],
+          "subject_txt_sort" => ["folk art"],
+          "collection_titles_ss" => ["Collection A"],
+          "file_count_i" => 1
+        },
+        %{
+          "id" => "in-collection-b",
+          "title_txtm" => ["item in B"],
+          "genre_txt_sort" => ["pamphlets"],
+          "subject_txt_sort" => ["folk art"],
+          "collection_titles_ss" => ["Collection B"],
+          "file_count_i" => 1
+        },
+        %{
+          "id" => "in-collection-c",
+          "title_txtm" => ["item in C"],
+          "genre_txt_sort" => ["pamphlets"],
+          "subject_txt_sort" => ["folk art"],
+          "collection_titles_ss" => ["Collection C"],
+          "file_count_i" => 1
+        }
+      ]
+
+      Solr.add(docs, active_collection())
+      Solr.soft_commit(active_collection())
+
+      results =
+        Solr.related_items(
+          %Item{id: "in-collection-a-b", collections: ["Collection A", "Collection B"]},
+          %{
+            filter: %{"collection" => {:not, ["Collection A", "Collection B"]}}
+          }
+        )
+        |> Map.get("docs")
+        |> Enum.map(&Map.get(&1, "id"))
+
+      assert results == ["in-collection-c"]
+    end
+  end
+
+  describe ".generate_filter_query/1" do
+    test "returns nil for a bare negation string" do
+      assert Solr.generate_filter_query({"collection", "-"}) == nil
     end
   end
 
