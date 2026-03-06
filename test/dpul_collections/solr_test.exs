@@ -185,7 +185,7 @@ defmodule DpulCollections.SolrTest do
           "title_txtm" => ["test title 1"],
           "genre_txt_sort" => ["pamphlets"],
           "subject_txt_sort" => ["folk art", "museum exhibits"],
-          "ephemera_project_title_s" => "Latin American Ephemera",
+          "collection_titles_ss" => ["Latin American Ephemera"],
           "file_count_i" => 1
         },
         %{
@@ -193,7 +193,7 @@ defmodule DpulCollections.SolrTest do
           "title_txtm" => ["similar item"],
           "genre_txt_sort" => ["pamphlets"],
           "subject_txt_sort" => ["folk art", "music"],
-          "ephemera_project_title_s" => "Latin American Ephemera",
+          "collection_titles_ss" => ["Latin American Ephemera"],
           "file_count_i" => 1
         },
         %{
@@ -201,15 +201,15 @@ defmodule DpulCollections.SolrTest do
           "title_txtm" => ["item that's not as similar"],
           "genre_txt_sort" => ["pamphlets"],
           "subject_txt_sort" => ["education", "music"],
-          "ephemera_project_title_s" => "Latin American Ephemera",
+          "collection_titles_ss" => ["Latin American Ephemera"],
           "file_count_i" => 1
         },
         %{
-          "id" => "other-project",
+          "id" => "other-collection",
           "title_txtm" => ["similar item"],
           "genre_txt_sort" => ["pamphlets"],
           "subject_txt_sort" => ["folk art", "music"],
-          "ephemera_project_title_s" => "South Asian Ephemera",
+          "collection_titles_ss" => ["South Asian Ephemera"],
           "file_count_i" => 1
         }
       ]
@@ -218,8 +218,8 @@ defmodule DpulCollections.SolrTest do
       Solr.soft_commit(active_collection())
 
       results =
-        Solr.related_items(%Item{id: "reference", project: "Latin American Ephemera"}, %{
-          filter: %{"project" => "Latin American Ephemera"}
+        Solr.related_items(%Item{id: "reference", collections: ["Latin American Ephemera"]}, %{
+          filter: %{"collection" => "Latin American Ephemera"}
         })
         |> Map.get("docs")
         |> Enum.map(&Map.get(&1, "id"))
@@ -234,12 +234,12 @@ defmodule DpulCollections.SolrTest do
           "title_txtm" => ["test title 1"],
           "genre_txt_sort" => ["pamphlets"],
           "subject_txt_sort" => ["folk art", "museum exhibits"],
-          "ephemera_project_title_s" => "Latin American Ephemera",
+          "collection_titles_ss" => ["Latin American Ephemera"],
           "file_count_i" => 1
         },
         %{
-          "id" => "similar-project",
-          "title_txtm" => ["similar project"],
+          "id" => "similar-collection",
+          "title_txtm" => ["similar collection"],
           "resource_type_s" => "collection",
           "genre_txt_sort" => ["pamphlets"],
           "subject_txt_sort" => ["folk art", "museum exhibits"]
@@ -249,7 +249,7 @@ defmodule DpulCollections.SolrTest do
           "title_txtm" => ["similar item"],
           "genre_txt_sort" => ["pamphlets"],
           "subject_txt_sort" => ["folk art", "music"],
-          "ephemera_project_title_s" => "Latin American Ephemera",
+          "collection_titles_ss" => ["Latin American Ephemera"],
           "file_count_i" => 1
         },
         %{
@@ -257,15 +257,15 @@ defmodule DpulCollections.SolrTest do
           "title_txtm" => ["item that's not as similar"],
           "genre_txt_sort" => ["pamphlets"],
           "subject_txt_sort" => ["education", "music"],
-          "ephemera_project_title_s" => "Latin American Ephemera",
+          "collection_titles_ss" => ["Latin American Ephemera"],
           "file_count_i" => 1
         },
         %{
-          "id" => "other-project",
+          "id" => "other-collection",
           "title_txtm" => ["similar item"],
           "genre_txt_sort" => ["pamphlets"],
           "subject_txt_sort" => ["folk art", "music"],
-          "ephemera_project_title_s" => "South Asian Ephemera",
+          "collection_titles_ss" => ["South Asian Ephemera"],
           "file_count_i" => 1
         }
       ]
@@ -274,13 +274,71 @@ defmodule DpulCollections.SolrTest do
       Solr.soft_commit(active_collection())
 
       results =
-        Solr.related_items(%Item{id: "reference", project: "Latin American Ephemera"}, %{
-          filter: %{"project" => "-Latin American Ephemera"}
+        Solr.related_items(%Item{id: "reference", collections: ["Latin American Ephemera"]}, %{
+          filter: %{"collection" => {:not, ["Latin American Ephemera"]}}
         })
         |> Map.get("docs")
         |> Enum.map(&Map.get(&1, "id"))
 
-      assert results == ["other-project"]
+      assert results == ["other-collection"]
+    end
+
+    test "excludes multiple collections with {:not, list}" do
+      docs = [
+        %{
+          "id" => "in-collection-a-b",
+          "title_txtm" => ["test title 1"],
+          "genre_txt_sort" => ["pamphlets"],
+          "subject_txt_sort" => ["folk art"],
+          "collection_titles_ss" => ["Collection A", "Collection B"],
+          "file_count_i" => 1
+        },
+        %{
+          "id" => "in-collection-a",
+          "title_txtm" => ["item in A"],
+          "genre_txt_sort" => ["pamphlets"],
+          "subject_txt_sort" => ["folk art"],
+          "collection_titles_ss" => ["Collection A"],
+          "file_count_i" => 1
+        },
+        %{
+          "id" => "in-collection-b",
+          "title_txtm" => ["item in B"],
+          "genre_txt_sort" => ["pamphlets"],
+          "subject_txt_sort" => ["folk art"],
+          "collection_titles_ss" => ["Collection B"],
+          "file_count_i" => 1
+        },
+        %{
+          "id" => "in-collection-c",
+          "title_txtm" => ["item in C"],
+          "genre_txt_sort" => ["pamphlets"],
+          "subject_txt_sort" => ["folk art"],
+          "collection_titles_ss" => ["Collection C"],
+          "file_count_i" => 1
+        }
+      ]
+
+      Solr.add(docs, active_collection())
+      Solr.soft_commit(active_collection())
+
+      results =
+        Solr.related_items(
+          %Item{id: "in-collection-a-b", collections: ["Collection A", "Collection B"]},
+          %{
+            filter: %{"collection" => {:not, ["Collection A", "Collection B"]}}
+          }
+        )
+        |> Map.get("docs")
+        |> Enum.map(&Map.get(&1, "id"))
+
+      assert results == ["in-collection-c"]
+    end
+  end
+
+  describe ".generate_filter_query/1" do
+    test "returns nil for a bare negation string" do
+      assert Solr.generate_filter_query({"collection", "-"}) == nil
     end
   end
 
@@ -291,7 +349,7 @@ defmodule DpulCollections.SolrTest do
         "title_txtm" => "Doc-1",
         "file_count_i" => 1,
         "updated_at_dt" => DateTime.utc_now() |> DateTime.add(-1, :hour) |> DateTime.to_iso8601(),
-        "ephemera_project_title_s" => "Test Title"
+        "collection_titles_ss" => ["Test Title"]
       }
 
       doc2 = %{
@@ -300,7 +358,7 @@ defmodule DpulCollections.SolrTest do
         "updated_at_dt" =>
           DateTime.utc_now() |> DateTime.add(-5, :minute) |> DateTime.to_iso8601(),
         "title_txtm" => "Doc-2",
-        "ephemera_project_title_s" => "Test Title"
+        "collection_titles_ss" => ["Test Title"]
       }
 
       doc3 = %{
@@ -316,11 +374,11 @@ defmodule DpulCollections.SolrTest do
       records =
         Solr.recently_added(
           1,
-          SearchState.from_params(%{"filter" => %{"project" => "Test Title"}})
+          SearchState.from_params(%{"filter" => %{"collection" => "Test Title"}})
         )
         |> Map.get("docs")
 
-      # Doc-3 would be most recent, but isn't in that project.
+      # Doc-3 would be most recent, but isn't in that collection.
       assert Enum.at(records, 0) |> Map.get("id") == doc2["id"]
     end
 
@@ -383,10 +441,10 @@ defmodule DpulCollections.SolrTest do
     end
   end
 
-  test ".random/3 doesn't return ephemera projects" do
+  test ".random/3 doesn't return collections" do
     Solr.add(%{
-      "id" => "similar-project",
-      "title_txtm" => ["similar project"],
+      "id" => "similar-collection",
+      "title_txtm" => ["similar collection"],
       "resource_type_s" => "collection",
       "genre_txt_sort" => ["pamphlets"],
       "subject_txt_sort" => ["folk art", "museum exhibits"],

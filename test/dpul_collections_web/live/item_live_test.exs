@@ -49,8 +49,8 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           subject_txt_sort: ["subject"],
           transliterated_title_txtm: ["transliterated title"],
           width_txtm: ["200"],
-          ephemera_project_title_s: "Test Project",
-          ephemera_project_id_s: "similar-to-1-is-a-project",
+          collection_titles_ss: ["Test Project", "Second Project"],
+          collection_ids_ss: ["similar-to-1-is-a-project", "similar-to-1-is-a-second-project"],
           tagline_txtm: "This is a tagline.",
           pdf_url_s:
             "https://figgy.example.com/concern/ephemera_folders/3da68e1c-06af-4d17-8603-fc73152e1ef7/pdf"
@@ -85,9 +85,9 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
         },
         %{
           id: "similar-to-1",
-          title_txtm: "Similar Item Same Project",
+          title_txtm: "Similar Item Same Collection",
           file_count_i: 1,
-          ephemera_project_title_s: "Test Project",
+          collection_titles_ss: "Test Project",
           genre_txt_sort: ["genre"],
           subject_txt_sort: ["subject"],
           width_txtm: ["10"],
@@ -98,8 +98,8 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
         %{
           id: "similar-to-1-diff-project",
           file_count_i: 1,
-          title_txtm: "Similar Item Different Project",
-          ephemera_project_title_s: "Different Project",
+          title_txtm: "Similar Item Different Collection",
+          collection_titles_ss: "Different Project",
           genre_txt_sort: ["genre"],
           subject_txt_sort: ["subject"]
         },
@@ -109,6 +109,14 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           tagline_txtm: "This is a tagline.",
           description_txtm: ["This is a test description"],
           authoritative_slug_s: "project",
+          resource_type_s: "collection"
+        },
+        %{
+          id: "similar-to-1-is-a-second-project",
+          title_txtm: "Second Project",
+          tagline_txtm: "Second tagline.",
+          description_txtm: ["Second description"],
+          authoritative_slug_s: "second-project",
           resource_type_s: "collection"
         }
       ],
@@ -218,7 +226,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     end
 
     test "can handle long descriptions", %{conn: conn} do
-      {:ok, _view, html} = live(conn, "/i/similar-item-same-project/item/similar-to-1")
+      {:ok, _view, html} = live(conn, "/i/similar-item-same-collection/item/similar-to-1")
 
       {:ok, document} = Floki.parse_document(html)
 
@@ -379,7 +387,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       assert html =~ "20 cm."
       refute html =~ "Letter Paper"
 
-      {:ok, view, _html} = live(conn, "/i/similar-item-same-project/item/similar-to-1")
+      {:ok, view, _html} = live(conn, "/i/similar-item-same-collection/item/similar-to-1")
 
       html =
         view
@@ -404,19 +412,22 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     test "shows some related items, but no collections", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
 
-      assert view |> has_element?("#related-same-project a", "Similar Item Same Project")
+      assert view |> has_element?("#related-same-collection a", "Similar Item Same Collection")
 
       assert view
-             |> has_element?("#related-different-project a", "Similar Item Different Project")
+             |> has_element?(
+               "#related-different-collection a",
+               "Similar Item Different Collection"
+             )
 
       assert view
-             |> has_element?("#related-different-project .btn-transparent")
+             |> has_element?("#related-different-collection .btn-transparent")
     end
 
     test "doesn't show collection related items for items without a collection", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/i/زلزلہ/item/2")
 
-      refute view |> has_element?("#related-same-project")
+      refute view |> has_element?("#related-same-collection")
     end
   end
 
@@ -434,8 +445,8 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     end
   end
 
-  describe "project display and navigation" do
-    test "creates a link to a project page when one is published", %{conn: conn} do
+  describe "collection display and navigation" do
+    test "creates a link to a collection page when one is published", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
 
       assert view
@@ -443,9 +454,21 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
              |> render() =~ "/collections/project"
     end
 
+    test "displays multiple collections when an item belongs to more than one", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
+
+      assert view
+             |> element("a.filter-link", "Test Project")
+             |> render() =~ "/collections/project"
+
+      assert view
+             |> element("a.filter-link", "Second Project")
+             |> render() =~ "/collections/second-project"
+    end
+
     test "creates a filter link to the project not published", %{conn: conn} do
       {:ok, view, _html} =
-        live(conn, "/i/similar-item-different-project/item/similar-to-1-diff-project")
+        live(conn, "/i/similar-item-different-collection/item/similar-to-1-diff-project")
 
       assert view
              |> element("a.filter-link", "Different Project")

@@ -32,7 +32,7 @@ defmodule DpulCollectionsWeb.ItemLiveMetadataTest do
           width_txtm: ["20"],
           page_count_txtm: ["27"],
           file_count_i: 30,
-          ephemera_project_title_s: "Things",
+          collection_titles_ss: ["Things"],
           box_number_txtm: ["65"],
           folder_number_txtm: ["18"],
           barcode_txtm: ["3334445556"],
@@ -119,9 +119,9 @@ defmodule DpulCollectionsWeb.ItemLiveMetadataTest do
     assert view |> has_element?("dd", "27")
     assert view |> has_element?("dt", "File Count")
     assert view |> has_element?("dd", "30")
-    assert view |> has_element?("dt", "Ephemera Project")
+    assert view |> has_element?("dt", "Collection")
     assert view |> has_element?("dd", "Things")
-    assert view |> has_element?("a[href='/search?filter[project][]=Things']")
+    assert view |> has_element?("a[href='/search?filter[collection][]=Things']")
     assert view |> has_element?("dt", "Box number")
     assert view |> has_element?("dd", "65")
     assert view |> has_element?("dt", "Folder number")

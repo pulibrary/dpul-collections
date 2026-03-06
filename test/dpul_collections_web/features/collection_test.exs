@@ -26,7 +26,10 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
     # Add another ID so we know it doesn't include counts from other collections.
     other_ids = ["3da68e1c-06af-4d17-8603-fc73152e1ef7", "118983a5-dd6b-4d7a-bb8c-93fb08248cac"]
 
-    (sae_ids ++ other_ids)
+    # ScannedResource and Figgy Collection ids.
+    sr_col_ids = ["52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a", "27fd4d29-1170-47a5-891b-f2743873bcef"]
+
+    (sae_ids ++ other_ids ++ sr_col_ids)
     |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
 
     Solr.soft_commit(active_collection())
@@ -34,7 +37,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
     :ok
   end
 
-  describe "the collection page content" do
+  describe "the collection page content for an EphemeraProject" do
     test "it has content for the collection", %{conn: conn} do
       conn
       |> visit("/collections/sae")
@@ -47,7 +50,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> assert_has("div", text: "3 Languages")
       |> assert_has("div", text: "4 Locations")
       # Browse button
-      |> assert_has("a[href='/search?filter[project][]=South+Asian+Ephemera']",
+      |> assert_has("a[href='/search?filter[collection][]=South+Asian+Ephemera']",
         text: "Browse Collection"
       )
       # Mosaic
@@ -72,7 +75,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> refute_has("li", text: "+0 more")
       # Recently updated more link
       |> assert_has(
-        "a[href='/search?filter[project][]=South+Asian+Ephemera&sort_by=recently_added']"
+        "a[href='/search?filter[collection][]=South+Asian+Ephemera&sort_by=recently_added']"
       )
       # Recently Updated cards
       |> assert_has(
@@ -92,7 +95,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> click_link("Politics and government")
       |> assert_has("h1", text: "Search Results")
       |> assert_has("a.category", text: "Politics and government")
-      |> assert_has("a.project", text: "South Asian Ephemera")
+      |> assert_has("a.collection", text: "South Asian Ephemera")
     end
 
     test "a collection without contributors still displays copyright policy", %{conn: conn} do
@@ -116,6 +119,35 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       conn
       |> visit("/collections/sae")
       |> unwrap(&TestUtils.assert_a11y/1)
+    end
+  end
+
+  describe "the collection page content for a Figgy Collection" do
+    test "it has content for the collection", %{conn: conn} do
+      conn
+      |> visit("/collections/islamicmss")
+      # Title
+      |> assert_has("h1", text: "Princeton Digital Library of Islamic Manuscripts")
+      # Subject summary
+      |> refute_has("h2", text: "Subject Areas")
+      # Genre summary
+      |> refute_has("h2", text: "Genres")
+      # Count summary
+      |> assert_has("div", text: "1 items")
+      |> refute_has("div", text: "Languages")
+      |> refute_has("div", text: "Locations")
+      # Browse button
+      |> assert_has(
+        "a[href='/search?filter[collection][]=Princeton+Digital+Library+of+Islamic+Manuscripts']",
+        text: "Browse Collection"
+      )
+      # Featured Items
+      |> assert_has("#featured-items .browse-item", count: 1)
+      # Recently Updated cards
+      |> assert_has(
+        "#recent-items .card",
+        count: 1
+      )
     end
   end
 end

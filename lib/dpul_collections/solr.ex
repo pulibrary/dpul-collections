@@ -17,11 +17,11 @@ defmodule DpulCollections.Solr do
     response.body["response"]["numFound"]
   end
 
-  def project_summary(label, index \\ Index.read_index()) do
+  def collection_summary(label, index \\ Index.read_index()) do
     params =
       %{"per_page" => "0"}
       |> SearchState.from_params()
-      |> SearchState.set_filter("project", label)
+      |> SearchState.set_filter("collection", label)
       |> SearchState.add_filter_count_fields([
         "language",
         "geographic_origin",
@@ -121,7 +121,7 @@ defmodule DpulCollections.Solr do
     raw_query(search_state, index)["response"]
   end
 
-  @filter_fields ["project", "genre", "language", "subject", "year"]
+  @filter_fields ["collection", "genre", "language", "subject", "year"]
   def search(search_state, index \\ Index.read_index()) do
     search_state
     |> SearchState.add_filter_count_fields(@filter_fields)
@@ -226,6 +226,15 @@ defmodule DpulCollections.Solr do
       when is_binary(filter_value) and filter_key in @filter_keys do
     solr_field = @filters[filter_key].solr_field
     "{!tag=#{filter_key}Filter}-#{solr_field}:\"#{filter_value}\""
+  end
+
+  # Filter that excludes all values.
+  # Used to filter out collections for "Similar Items outside this Collection"
+  def generate_filter_query({filter_key, {:not, values}})
+      when is_list(values) and filter_key in @filter_keys do
+    solr_field = @filters[filter_key].solr_field
+    filter_strings = values |> Enum.map(fn value -> ~s(-#{solr_field}:"#{value}") end)
+    "{!tag=#{filter_key}Filter}#{filter_strings |> Enum.join(" ")}"
   end
 
   # Similar filter - display, but handle in the q parameter instead.

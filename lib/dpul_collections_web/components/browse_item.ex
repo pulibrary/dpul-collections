@@ -202,7 +202,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
           <div>{@item.date}</div>
         </div>
         <div
-          :if={@item.genre}
+          :if={length(@item.genre) > 0}
           class="genre"
         >
           <div>{gettext("Genre")}</div>

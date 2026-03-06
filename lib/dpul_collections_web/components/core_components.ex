@@ -417,7 +417,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
     ~H"""
     <.link
       href={
-        ~p"/search?#{%{filter: %{@filter_name => [@filter_value], "project" => [@collection_filter]}} |> DpulCollectionsWeb.Live.Helpers.clean_params()}"
+        ~p"/search?#{%{filter: %{@filter_name => [@filter_value], "collection" => [@collection_filter]}} |> DpulCollectionsWeb.Live.Helpers.clean_params()}"
       }
       class={[
         "btn-base-behavior px-3 py-1.5 border-0 flex justify-center items-center text-center h-8 text-nowrap cursor-pointer text-xs h-fit w-full h-full",

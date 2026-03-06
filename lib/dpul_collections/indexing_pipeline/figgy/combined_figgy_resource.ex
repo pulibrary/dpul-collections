@@ -63,12 +63,37 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
   end
 
   def to_solr_document(%__MODULE__{
+        resource: %{
+          "id" => id,
+          "internal_resource" => "Collection",
+          "metadata" => metadata
+        }
+      }) do
+    %{
+      id: id,
+      title_txtm: metadata["title"],
+      description_txtm: metadata["description"],
+      resource_type_s: "collection",
+      tagline_txtm: metadata["tagline"],
+      authoritative_slug_s: Map.get(metadata, "slug", []) |> Enum.at(0),
+      genre_txt_sort: ["Digital Collection"]
+    }
+  end
+
+  def to_solr_document(%__MODULE__{
         related_data: related_data,
         resource:
           data = %{"id" => id, "metadata" => metadata, "internal_resource" => "ScannedResource"}
       }) do
+    collection_titles = extract_collection_titles(related_data, "Collection")
+
     metadata = merge_imported(metadata)
-    base_solr_fields(id, data, metadata, related_data, "ScannedResource")
+    base = base_solr_fields(id, data, metadata, related_data, "ScannedResource")
+
+    Map.merge(base, %{
+      collection_titles_ss: collection_titles,
+      collection_ids_ss: extract_collection_ids(related_data, "Collection")
+    })
   end
 
   # EphemeraFolder (catch-all) — base fields + ephemera-specific fields
@@ -77,15 +102,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
         resource: data = %{"id" => id, "metadata" => metadata}
       }) do
     box_metadata = extract_box_metadata(related_data)
-    project_metadata = extract_project_metadata(related_data)
-
+    collection_titles = extract_collection_titles(related_data, "EphemeraProject")
     base = base_solr_fields(id, data, metadata, related_data, "EphemeraFolder")
 
     Map.merge(base, %{
       barcode_txtm: get_in(metadata, ["barcode"]),
       box_number_txtm: get_in(box_metadata, ["box_number"]),
-      ephemera_project_title_s: Map.get(project_metadata, "title", []) |> Enum.at(0),
-      ephemera_project_id_s: extract_project_id(related_data),
+      collection_titles_ss: collection_titles,
+      collection_ids_ss: extract_collection_ids(related_data, "EphemeraProject"),
       folder_number_txtm: get_in(metadata, ["folder_number"]),
       genre_txt_sort: extract_term("genre", metadata, related_data),
       geo_subject_txt_sort: extract_term("geo_subject", metadata, related_data),
@@ -368,37 +392,23 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
 
   defp extract_box_metadata(_), do: %{}
 
-  defp extract_project_metadata(%{"ancestors" => ancestors}) when map_size(ancestors) > 0 do
-    project = find_ancestor_type(ancestors, "EphemeraProject")
-
-    cond do
-      is_nil(project) ->
-        %{}
-
-      true ->
-        project
-        |> elem(1)
-        |> get_in(["metadata"])
-    end
+  defp extract_collection_titles(%{"ancestors" => ancestors}, resource_type)
+       when map_size(ancestors) > 0 do
+    ancestors
+    |> Enum.filter(fn {_id, resource} -> resource["internal_resource"] == resource_type end)
+    |> Enum.flat_map(fn {_id, resource} -> get_in(resource, ["metadata", "title"]) || [] end)
   end
 
-  defp extract_project_metadata(_), do: %{}
+  defp extract_collection_titles(_, _), do: []
 
-  defp extract_project_id(%{"ancestors" => ancestors}) when map_size(ancestors) > 0 do
-    project = find_ancestor_type(ancestors, "EphemeraProject")
-
-    cond do
-      is_nil(project) ->
-        ""
-
-      true ->
-        project
-        |> elem(1)
-        |> extract_id_from_map()
-    end
+  defp extract_collection_ids(%{"ancestors" => ancestors}, resource_type)
+       when map_size(ancestors) > 0 do
+    ancestors
+    |> Enum.filter(fn {_id, resource} -> resource["internal_resource"] == resource_type end)
+    |> Enum.map(fn {id, _resource} -> id end)
   end
 
-  defp extract_project_id(_), do: %{}
+  defp extract_collection_ids(_, _resource_type), do: []
 
   defp find_ancestor_type(ancestors, resource_type) do
     ancestors

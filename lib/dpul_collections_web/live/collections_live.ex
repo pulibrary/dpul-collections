@@ -124,7 +124,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 </div>
                 <div class="flex justify-items-end">
                   <.primary_button
-                    href={~p"/search?#{%{filter: %{project: [@collection.title |> hd]}}}"}
+                    href={~p"/search?#{%{filter: %{collection: [@collection.title |> hd]}}}"}
                     class="btn-primary hidden md:flex ml-auto"
                   >
                     {gettext("Browse Collection")}
@@ -142,10 +142,16 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                       <div class="text-sm bg-cloud rounded-full px-3 py-1">
                         {@collection.item_count} {gettext("Items")}
                       </div>
-                      <div class="text-sm bg-cloud rounded-full px-3 py-1">
+                      <div
+                        :if={length(@collection.languages) > 0}
+                        class="text-sm bg-cloud rounded-full px-3 py-1"
+                      >
                         {length(@collection.languages)} {gettext("Languages")}
                       </div>
-                      <div class="text-sm bg-cloud rounded-full px-3 py-1">
+                      <div
+                        :if={length(@collection.geographic_origins) > 0}
+                        class="text-sm bg-cloud rounded-full px-3 py-1"
+                      >
                         {length(@collection.geographic_origins)} {gettext("Locations")}
                       </div>
                     </div>
@@ -162,7 +168,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
               </div>
               <div class="grid-cols-1 col-span-2 static md:hidden">
                 <.primary_button
-                  href={~p"/search?#{%{filter: %{project: [@collection.title |> hd]}}}"}
+                  href={~p"/search?#{%{filter: %{collection: [@collection.title |> hd]}}}"}
                   class="btn-primary w-full"
                 >
                   {gettext("Browse Collection")}
@@ -204,6 +210,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           >
             <div>
               <.pill_section
+                :if={length(@collection.categories) > 0}
                 title={gettext("Subject Areas")}
                 unit="category"
                 items={@collection.categories}
@@ -214,6 +221,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
               />
 
               <.pill_section
+                :if={length(@collection.genres) > 0}
                 title={gettext("Genres")}
                 unit="genre"
                 items={@collection.genres}
@@ -239,7 +247,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             items={@collection.recently_added}
             title={gettext("Recently Added Items")}
             more_link={
-              ~p"/search?#{%{filter: %{project: [@collection.title |> hd]}, sort_by: "recently_added"}}"
+              ~p"/search?#{%{filter: %{collection: [@collection.title |> hd]}, sort_by: "recently_added"}}"
             }
             show_images={[]}
             added?={true}
@@ -306,7 +314,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             <h3 class="uppercase font-semibold text-xl pt-6">
               {gettext("Copyright")}
             </h3>
-            <p>
+            <p class="text-inherit">
               {gettext(
                 "Princeton University Library claims no copyright governing this digital resource.
               It is provided for free, on a non-commercial, open-access basis, for fair-use academic
@@ -322,14 +330,14 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             <h3 class="uppercase font-semibold text-xl pt-6">
               {gettext("Preferred Citation")}
             </h3>
-            <p>
+            <p class="text-inherit">
               [Identification of item], [Sub-collection name (if applicable)], {@collection.title
               |> hd} Collection, Princeton University Library.
             </p>
             <h3 class="uppercase font-semibold text-xl pt-6">
               {gettext("Romanization")}
             </h3>
-            <p>
+            <p class="text-inherit">
               {gettext("Please refer to the")}
               <a href="https://www.loc.gov/catdir/cpso/roman.html">
                 {gettext("Library of Congress Romanization tables")}
