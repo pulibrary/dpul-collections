@@ -90,19 +90,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   # Resource types that are indexable
   @indexable_resource_types ["EphemeraFolder", "ScannedResource"]
 
-  # ScannedResources must belong to one of these collections.
-  @allowed_collections [
-    # Islamic Manuscripts
-    "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a",
-    # Middle East Manuscripts
-    "3bab572e-6603-4abf-8305-16ce6fe3ac5c"
-  ]
-
-  # While we work on integrating scanned resources, we only want to index
-  # specific resources. We will remove this restriction later.
-  @allowed_islamic_manuscript_resources [
-    "27fd4d29-1170-47a5-891b-f2743873bcef"
-  ]
+  @allowed_collections Figgy.Resource.allowed_collections()
+  @allowed_scanned_resources Figgy.Resource.allowed_scanned_resources()
 
   @related_record_types ["EphemeraProject", "EphemeraBox", "EphemeraTerm", "FileSet"]
   def process(resource, cache_version) do
@@ -174,7 +163,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   end
 
   defp classify_open_resource(%{id: id, internal_resource: "ScannedResource"} = resource) do
-    if member_of_allowed_collection?(resource) && id in @allowed_islamic_manuscript_resources do
+    if member_of_allowed_collection?(resource) && id in @allowed_scanned_resources do
       {:update, resource}
     else
       {:skip, resource}

@@ -16,6 +16,20 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ResourceTest do
     end
   end
 
+  describe "allowed lists" do
+    test "allowed_collections returns the allowed collection IDs" do
+      assert Figgy.Resource.allowed_collections() == [
+               "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a"
+             ]
+    end
+
+    test "allowed_scanned_resources returns the allowed scanned resource IDs" do
+      assert Figgy.Resource.allowed_scanned_resources() == [
+               "27fd4d29-1170-47a5-891b-f2743873bcef"
+             ]
+    end
+  end
+
   describe ".to_combined()" do
     test "it grabs vocabularies/categories into related_data" do
       folder = IndexingPipeline.get_figgy_resource!("26713a31-d615-49fd-adfc-93770b4f66b3")
