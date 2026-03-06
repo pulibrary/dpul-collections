@@ -228,6 +228,15 @@ defmodule DpulCollections.Solr do
     "{!tag=#{filter_key}Filter}-#{solr_field}:\"#{filter_value}\""
   end
 
+  # Filter that excludes all values.
+  # Used to filter out collections for "Similar Items outside this Collection"
+  def generate_filter_query({filter_key, {:not, values}})
+      when is_list(values) and filter_key in @filter_keys do
+    solr_field = @filters[filter_key].solr_field
+    filter_strings = values |> Enum.map(fn value -> ~s(-#{solr_field}:"#{value}") end)
+    "{!tag=#{filter_key}Filter}#{filter_strings |> Enum.join(" ")}"
+  end
+
   # Similar filter - display, but handle in the q parameter instead.
   def generate_filter_query({"similar", _filter_value}) do
     nil
