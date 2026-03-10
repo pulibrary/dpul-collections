@@ -30,7 +30,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
 
   defp pill_section(assigns) do
     ~H"""
-    <div>
+    <div :if={length(@items) > 0}>
       <div class="flex items-center gap-3 mb-2 mt-4">
         <h2 id={"#{@container_id}-header"} class="text-sm font-sans font-medium">
           {@title}
@@ -210,7 +210,6 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           >
             <div>
               <.pill_section
-                :if={length(@collection.categories) > 0}
                 title={gettext("Subject Areas")}
                 unit="category"
                 items={@collection.categories}
@@ -221,7 +220,6 @@ defmodule DpulCollectionsWeb.CollectionsLive do
               />
 
               <.pill_section
-                :if={length(@collection.genres) > 0}
                 title={gettext("Genres")}
                 unit="genre"
                 items={@collection.genres}
