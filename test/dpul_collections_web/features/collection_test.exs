@@ -127,7 +127,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       conn
       |> visit("/collections/islamicmss")
       # Title
-      |> assert_has("h1", text: "Princeton Digital Library of Islamic Manuscripts")
+      |> assert_has("h1", text: "Manuscripts of the Islamic World")
       # Subject summary
       |> refute_has("h2", text: "Subject Areas")
       # Genre summary
@@ -138,7 +138,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> refute_has("div", text: "Locations")
       # Browse button
       |> assert_has(
-        "a[href='/search?filter[collection][]=Princeton+Digital+Library+of+Islamic+Manuscripts']",
+        "a[href='/search?filter[collection][]=Manuscripts+of+the+Islamic+World']",
         text: "Browse Collection"
       )
       # Featured Items

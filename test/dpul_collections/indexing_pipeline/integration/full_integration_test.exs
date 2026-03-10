@@ -379,7 +379,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
       # only allowed collections are included
       assert document["collection_titles_ss"] == [
-               "Princeton Digital Library of Islamic Manuscripts"
+               "Manuscripts of the Islamic World"
              ]
 
       assert document["collection_ids_ss"] == ["52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a"]
@@ -405,7 +405,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       transformer |> Broadway.stop(:normal)
       indexer |> Broadway.stop(:normal)
 
-      assert document["title_txtm"] == ["Princeton Digital Library of Islamic Manuscripts"]
+      assert document["title_txtm"] == ["Manuscripts of the Islamic World"]
 
       # Description
       assert %{"description_txtm" => [first_description | _tail]} = document
