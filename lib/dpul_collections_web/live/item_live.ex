@@ -71,18 +71,22 @@ defmodule DpulCollectionsWeb.ItemLive do
   end
 
   defp build_socket(socket, item, _) do
-    related_items =
-      Solr.related_items(item, %{filter: %{"collection" => item.collections}})["docs"]
-      |> Enum.map(&Item.from_solr(&1))
-
     collections =
       item.collection_ids
       |> Enum.map(fn id -> Solr.find_by_id(id) |> Item.from_solr() end)
       |> Enum.reject(&is_nil/1)
 
+    related_items =
+      Solr.related_items(item, %{filter: %{"collection" => item.collections}})["docs"]
+      |> Enum.map(&Item.from_solr(&1))
+
+    # Use the first collection in a the collections list to query for similar
+    # items not in that collection.
     different_collections_related_items =
       if item.collections != [] do
-        Solr.related_items(item, %{filter: %{"collection" => {:not, item.collections}}})["docs"]
+        Solr.related_items(item, %{
+          filter: %{"collection" => "-#{item.collections |> Enum.at(0)}"}
+        })["docs"]
         |> Enum.map(&Item.from_solr(&1))
       else
         []
@@ -272,9 +276,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         id="related-same-collection"
         items={@related_items}
         title={gettext("Similar Items in this Collection")}
-        more_link={
-          ~p"/search?filter[similar]=#{@item.id}&filter[collection][]=#{List.first(@item.collections)}"
-        }
+        more_link={more_similar_link(@item)}
         show_images={@show_images}
         current_path={@current_path}
       />
@@ -284,9 +286,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         items={@different_collections_related_items}
         title={gettext("Similar Items outside this Collection")}
         color="bg-background"
-        more_link={
-          ~p"/search?filter[similar]=#{@item.id}&filter[collection]=-#{List.first(@item.collections)}"
-        }
+        more_link={more_different_link(@item)}
         show_images={@show_images}
         current_path={@current_path}
       />
@@ -942,5 +942,22 @@ defmodule DpulCollectionsWeb.ItemLive do
       :viewer -> "#{gettext("Viewer")} - #{item.title} - #{gettext("Digital Collections")}"
       _ -> "#{item.title} - #{gettext("Digital Collections")}"
     end
+  end
+
+  defp more_similar_link(item = %Item{collections: [collection]}) do
+    "/search?filter[similar]=#{item.id}&filter[collection]=#{collection}"
+  end
+
+  defp more_similar_link(item = %Item{collections: collections}) do
+    collection_filters =
+      collections
+      |> Enum.map(fn col -> "filter[collection][]=#{col}" end)
+      |> Enum.join("&")
+
+    "/search?filter[similar]=#{item.id}&#{collection_filters}"
+  end
+
+  defp more_different_link(item = %Item{collections: [collection | _]}) do
+    "/search?filter[similar]=#{item.id}&filter[collection]=-#{collection}"
   end
 end
