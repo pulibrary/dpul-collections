@@ -24,6 +24,20 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     field :metadata_resource_type, {:array, :string}, virtual: true
   end
 
+  @allowed_collections [
+    # Islamic Manuscripts
+    "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a"
+  ]
+
+  # While we work on integrating scanned resources, we only want to index
+  # specific resources. We will remove this restriction later.
+  @allowed_scanned_resources [
+    "27fd4d29-1170-47a5-891b-f2743873bcef"
+  ]
+
+  def allowed_collections, do: @allowed_collections
+  def allowed_scanned_resources, do: @allowed_scanned_resources
+
   @type related_data() :: %{optional(field_name :: String.t()) => related_resource_map()}
   @type related_resource_map() :: %{
           optional(resource_id :: String.t()) => resource_struct :: map()
@@ -76,9 +90,18 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     }
   end
 
+  def to_combined(resource = %Figgy.Resource{internal_resource: "Collection"}) do
+    %Figgy.CombinedFiggyResource{
+      resource: resource,
+      related_data: %{},
+      related_ids: [],
+      latest_updated_marker: CacheEntryMarker.from(resource)
+    }
+  end
+
   defp extract_related_data(resource) do
     %{
-      "ancestors" => extract_ancestors(resource),
+      "ancestors" => Map.merge(extract_ancestors(resource), extract_collections(resource)),
       "resources" => fetch_related(resource)
     }
   end
@@ -197,6 +220,27 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   end
 
   defp extract_ancestors(resource_map, _resource), do: resource_map
+
+  @spec extract_collections(related_resource_map(), resource :: %__MODULE__{}) ::
+          related_resource_map()
+  defp extract_collections(resource_map \\ %{}, resource)
+
+  defp extract_collections(
+         resource_map,
+         %{:metadata => %{"member_of_collection_ids" => member_of_collection_ids}}
+       ) do
+    collections =
+      member_of_collection_ids
+      |> Enum.map(&extract_ids_from_value/1)
+      |> Enum.filter(&(&1 in @allowed_collections))
+      |> IndexingPipeline.get_figgy_resources()
+
+    Enum.reduce(collections, resource_map, fn col, acc ->
+      Map.put(acc, col.id, col)
+    end)
+  end
+
+  defp extract_collections(resource_map, _resource), do: resource_map
 
   # Extract an id string from a value map.
   # Exclude values that have more than one key. These are field like

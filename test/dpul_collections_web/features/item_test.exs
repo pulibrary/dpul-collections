@@ -192,7 +192,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
         "title_txtm" => ["similar item"],
         "genre_txt_sort" => ["pamphlets"],
         "subject_txt_sort" => ["folk art", "music"],
-        "ephemera_project_title_s" => "Latin American Ephemera",
+        "collection_titles_ss" => ["Latin American Ephemera"],
         "file_count_i" => 1
       }
     ]
@@ -202,7 +202,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
 
     conn
     |> visit("/i/document-1/item/1")
-    |> within("#related-different-project", fn session ->
+    |> within("#related-different-collection", fn session ->
       session
       |> assert_has(".card")
       |> click_link("more items")

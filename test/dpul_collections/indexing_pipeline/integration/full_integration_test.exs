@@ -69,15 +69,17 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     AckTracker.wait_for_pipeline_finished(tracker_pid)
 
     # The hydrator pulled all ephemera folders, terms, deletion markers and
-    # removed the hydration cache markers for the deletion marker deleted resource. It also has 3 ephemera projects.
+    # removed the hydration cache markers for the deletion marker deleted resource.
+    # It also has 3 ephemera projects and 1 collection.
     entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
-    assert FiggyTestSupport.total_resource_count() + 4 == entry_count
+    assert FiggyTestSupport.total_resource_count() + 5 == entry_count
 
-    # The transformer processed ephemera folders and deletion markers
+    # The transformer processed ephemera folders, deletion markers,
+    # ephemera projects, scanned resources, and collections; then
     # removed the transformation cache markers for the deletion marker deleted resource.
     transformation_cache_entry_count = Repo.aggregate(Figgy.TransformationCacheEntry, :count)
     deletion_marker_count = FiggyTestSupport.deletion_marker_count()
-    total_transformed_count = FiggyTestSupport.ephemera_folder_count() + deletion_marker_count + 4
+    total_transformed_count = FiggyTestSupport.ephemera_folder_count() + deletion_marker_count + 5
 
     # Empty resources are resources with no image file sets
     empty_resource_count = 1
@@ -235,8 +237,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
              ]
 
       # Parent EphemeraProject
-      assert document["ephemera_project_title_s"] == "Woman Life Freedom Movement: Iran 2022"
-      assert document["ephemera_project_id_s"] == "2961c153-54ab-4c6a-b5cd-aa992f4c349b"
+      assert document["collection_titles_ss"] == ["Woman Life Freedom Movement: Iran 2022"]
+      assert document["collection_ids_ss"] == ["2961c153-54ab-4c6a-b5cd-aa992f4c349b"]
 
       # Image URLs
       assert [
@@ -276,10 +278,10 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       assert document["title_txtm"] == ["Guatemala information"]
 
       # Parent EphemeraProject
-      assert document["ephemera_project_title_s"] ==
-               "Guatemala News and Information Bureau Archive (1963-2000)"
+      assert document["collection_titles_ss"] ==
+               ["Guatemala News and Information Bureau Archive (1963-2000)"]
 
-      assert document["ephemera_project_id_s"] == "1e63fc3c-f41d-4512-9abc-8ed671a50261"
+      assert document["collection_ids_ss"] == ["1e63fc3c-f41d-4512-9abc-8ed671a50261"]
     end
   end
 
@@ -357,7 +359,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     end
   end
 
-  describe "an Islamic Manuscript Scanned Resource" do
+  describe "an Islamic Manuscript Scanned Resource with a parent Collection" do
     test "indexes expected fields" do
       {hydrator, transformer, indexer, document} =
         FiggyTestSupport.index_record_id("27fd4d29-1170-47a5-891b-f2743873bcef")
@@ -375,6 +377,13 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       assert %{"description_txtm" => [first_description | _tail]} = document
       assert first_description |> String.starts_with?("Collation: Paper") == true
 
+      # only allowed collections are included
+      assert document["collection_titles_ss"] == [
+               "Manuscripts of the Islamic World"
+             ]
+
+      assert document["collection_ids_ss"] == ["52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a"]
+
       # Image Canvas IDs
       assert [
                "https://figgy.example.com/concern/scanned_resources/27fd4d29-1170-47a5-891b-f2743873bcef/manifest/canvas/c5bebcd6-7ccb-40fc-a35d-118d6341e290"
@@ -384,6 +393,28 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       # IIIF Manifest URL
       assert "https://figgy.example.com/concern/scanned_resources/27fd4d29-1170-47a5-891b-f2743873bcef/manifest" =
                document["iiif_manifest_url_s"]
+    end
+  end
+
+  describe "a Figgy Collection" do
+    test "indexes expected fields" do
+      {hydrator, transformer, indexer, document} =
+        FiggyTestSupport.index_record_id("52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a")
+
+      hydrator |> Broadway.stop(:normal)
+      transformer |> Broadway.stop(:normal)
+      indexer |> Broadway.stop(:normal)
+
+      assert document["title_txtm"] == ["Manuscripts of the Islamic World"]
+
+      # Description
+      assert %{"description_txtm" => [first_description | _tail]} = document
+
+      assert first_description |> String.starts_with?("<div>The Collections owe") == true
+
+      # Tagline
+      assert %{"tagline_txtm" => [first_tagline | _tail]} = document
+      assert first_tagline |> String.starts_with?("Manuscripts of the Islamic World") == true
     end
   end
 end

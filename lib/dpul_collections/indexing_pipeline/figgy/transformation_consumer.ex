@@ -88,7 +88,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
     )
   end
 
-  @transformable_resource_types ["EphemeraFolder", "EphemeraProject", "ScannedResource"]
+  @transformable_resource_types [
+    "EphemeraFolder",
+    "EphemeraProject",
+    "ScannedResource",
+    "Collection"
+  ]
 
   def initial_classification(
         resource = %HydrationCacheEntry{data: %{"internal_resource" => internal_resource}},

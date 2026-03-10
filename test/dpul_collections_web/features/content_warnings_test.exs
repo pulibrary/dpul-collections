@@ -21,7 +21,7 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
             "https://example.com/iiif/2/image2",
             "https://example.com/iiif/2/image3"
           ],
-          ephemera_project_title_s: "LGBTQIA+ Ephemera",
+          collection_titles_ss: ["LGBTQIA+ Ephemera"],
           updated_at_dt: DateTime.utc_now() |> DateTime.to_iso8601()
         }
       ],
@@ -97,7 +97,7 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
               "https://example.com/iiif/2/image2",
               "https://example.com/iiif/2/image3"
             ],
-            ephemera_project_title_s: "LGBTQIA+ Ephemera",
+            collection_titles_ss: ["LGBTQIA+ Ephemera"],
             updated_at_dt: DateTime.utc_now() |> DateTime.to_iso8601()
           }
         ],

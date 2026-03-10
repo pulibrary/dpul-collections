@@ -326,9 +326,10 @@ msgstr "Información de descubrimiento"
 #: lib/dpul_collections_web/live/item_live.ex:2
 #: lib/dpul_collections_web/live/search_live.ex:7
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
+#: lib/dpul_collections_web/live/item_live.ex:218
 #, elixir-autogen, elixir-format
-msgid "Ephemera Project"
-msgstr "Colección de efímeras"
+msgid "Collection"
+msgstr "Coleccion"
 
 #: lib/dpul_collections/item.ex:97
 #: lib/dpul_collections/search_result.ex:2
@@ -874,11 +875,6 @@ msgstr "Debe volver a autenticarse para acceder a esta página."
 #, elixir-autogen, elixir-format
 msgid "You need to reauthenticate to perform sensitive actions on your account."
 msgstr "Necesitas volver a autenticarte para realizar acciones confidenciales en tu cuenta."
-
-#: lib/dpul_collections_web/live/item_live.ex:218
-#, elixir-autogen, elixir-format
-msgid "Collection"
-msgstr "Coleccion"
 
 #: lib/dpul_collections_web/live/item_live.ex:221
 #: lib/dpul_collections_web/live/item_live.ex:230

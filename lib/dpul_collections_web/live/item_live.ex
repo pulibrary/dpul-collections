@@ -71,23 +71,32 @@ defmodule DpulCollectionsWeb.ItemLive do
   end
 
   defp build_socket(socket, item, _) do
+    collections =
+      item.collection_ids
+      |> Enum.map(fn id -> Solr.find_by_id(id) |> Item.from_solr() end)
+      |> Enum.reject(&is_nil/1)
+
     related_items =
-      Solr.related_items(item, %{filter: %{"project" => [item.project]}})["docs"]
+      Solr.related_items(item, %{filter: %{"collection" => item.collections}})["docs"]
       |> Enum.map(&Item.from_solr(&1))
 
-    project =
-      Solr.find_by_id(item.project_id)
-      |> Item.from_solr()
-
-    different_project_related_items =
-      Solr.related_items(item, %{filter: %{"project" => "-#{item.project}"}})["docs"]
-      |> Enum.map(&Item.from_solr(&1))
+    # Use the first collection in a the collections list to query for similar
+    # items not in that collection.
+    different_collections_related_items =
+      if item.collections != [] do
+        Solr.related_items(item, %{
+          filter: %{"collection" => "-#{item.collections |> Enum.at(0)}"}
+        })["docs"]
+        |> Enum.map(&Item.from_solr(&1))
+      else
+        []
+      end
 
     assign(socket,
       item: item,
-      project: project,
+      collections: collections,
       related_items: related_items,
-      different_project_related_items: different_project_related_items
+      different_collections_related_items: different_collections_related_items
     )
   end
 
@@ -230,23 +239,28 @@ defmodule DpulCollectionsWeb.ItemLive do
             {description}
           </div>
           <div
-            :if={@item.project}
+            :if={@item.collections != []}
             class="text-lg font-medium text-dark-text border-l-4 border-s-sage-500 w-full px-4"
           >
             <div class="text-sage-800 uppercase text-sm font-bold tracking-wide">
-              {gettext("Collection")}
+              {ngettext("Collection", "Collections", length(@item.collections))}
             </div>
-            <div :if={@project != nil}>
+            <div :for={collection <- @collections}>
               {gettext("Part of")}
-              <.link class="filter-link" navigate={~p"/collections/#{@project.slug}"}>
-                {@project.title}
+              <.link class="filter-link" navigate={~p"/collections/#{collection.slug}"}>
+                {collection.title}
               </.link>
               <div class="tagline text-sm font-light py-1">
-                {@project.tagline}
+                {collection.tagline}
               </div>
             </div>
-            <div :if={@project == nil}>
-              {gettext("Part of")} <.filter_link filter_name="project" filter_value={@item.project} />
+            <div :for={
+              title <-
+                @item.collections --
+                  Enum.flat_map(@collections, fn c -> c.title end)
+            }>
+              {gettext("Part of")}
+              <.filter_link filter_name="collection" filter_value={title} />
             </div>
           </div>
           <.action_bar class="hidden sm:block" item={@item} current_scope={@current_scope} />
@@ -258,21 +272,21 @@ defmodule DpulCollectionsWeb.ItemLive do
     </div>
     <div id="similar-items">
       <.browse_item_row
-        :if={@item.project}
-        id="related-same-project"
+        :if={@item.collections != []}
+        id="related-same-collection"
         items={@related_items}
         title={gettext("Similar Items in this Collection")}
-        more_link={~p"/search?filter[similar]=#{@item.id}&filter[project][]=#{@item.project}"}
+        more_link={more_similar_link(@item)}
         show_images={@show_images}
         current_path={@current_path}
       />
       <.browse_item_row
-        :if={@item.project}
-        id="related-different-project"
-        items={@different_project_related_items}
+        :if={@item.collections != []}
+        id="related-different-collection"
+        items={@different_collections_related_items}
         title={gettext("Similar Items outside this Collection")}
         color="bg-background"
-        more_link={~p"/search?filter[similar]=#{@item.id}&filter[project]=-#{@item.project}"}
+        more_link={more_different_link(@item)}
         show_images={@show_images}
         current_path={@current_path}
       />
@@ -928,5 +942,13 @@ defmodule DpulCollectionsWeb.ItemLive do
       :viewer -> "#{gettext("Viewer")} - #{item.title} - #{gettext("Digital Collections")}"
       _ -> "#{item.title} - #{gettext("Digital Collections")}"
     end
+  end
+
+  defp more_similar_link(item = %Item{collections: collections}) do
+    ~p"/search?#{%{filter: %{similar: item.id, collection: collections}}}"
+  end
+
+  defp more_different_link(item = %Item{collections: [collection | _]}) do
+    ~p"/search?#{%{filter: %{similar: item.id, collection: "-" <> collection}}}"
   end
 end

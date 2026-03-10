@@ -90,17 +90,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   # Resource types that are indexable
   @indexable_resource_types ["EphemeraFolder", "ScannedResource"]
 
-  # ScannedResources must belong to one of these collections.
-  @allowed_scanned_resource_collections [
-    # Islamic Manuscripts
-    "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a"
-  ]
-
-  # While we work on integrating scanned resources, we only want to index
-  # specific resources. We will remove this restriction later.
-  @allowed_islamic_manuscript_resources [
-    "27fd4d29-1170-47a5-891b-f2743873bcef"
-  ]
+  @allowed_collections Figgy.Resource.allowed_collections()
+  @allowed_scanned_resources Figgy.Resource.allowed_scanned_resources()
 
   @related_record_types ["EphemeraProject", "EphemeraBox", "EphemeraTerm", "FileSet"]
   def process(resource, cache_version) do
@@ -122,6 +113,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
       %{internal_resource: internal_resource, state: ["complete"], visibility: ["open"]}
       when internal_resource in @indexable_resource_types ->
         classify_open_resource(resource)
+
+      # Collections need to both update
+      %{internal_resource: "Collection"} ->
+        if id in @allowed_collections do
+          {:update, resource}
+        else
+          {:skip, resource}
+        end
 
       # Projects need to both update and get related.
       %{internal_resource: "EphemeraProject"} ->
@@ -164,7 +163,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   end
 
   defp classify_open_resource(%{id: id, internal_resource: "ScannedResource"} = resource) do
-    if member_of_allowed_collection?(resource) && id in @allowed_islamic_manuscript_resources do
+    if member_of_allowed_collection?(resource) && id in @allowed_scanned_resources do
       {:update, resource}
     else
       {:skip, resource}
@@ -175,7 +174,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
   defp member_of_allowed_collection?(resource) do
     collection_ids = Enum.map(resource.member_of_collection_ids, & &1["id"])
-    Enum.any?(collection_ids, &(&1 in @allowed_scanned_resource_collections))
+    Enum.any?(collection_ids, &(&1 in @allowed_collections))
   end
 
   # If we got a list of them, enrich each one.
@@ -282,7 +281,21 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     end
   end
 
+  # Collections go through.
+  def post_classification(
+        {:update,
+         resource = %Figgy.CombinedFiggyResource{
+           resource: %{
+             internal_resource: "Collection"
+           }
+         }},
+        _cache_version
+      ) do
+    {:update, resource}
+  end
+
   # Every other ephemera project does not.
+  #
 
   # Delete things which have no persisted members.
   @spec post_classification(process_return(), cache_version :: integer) ::
@@ -357,7 +370,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
        when action in [:delete, :update] do
     # Maybe move to HydrationCacheEntry.from?
     attributes = hydration_cache_attributes(process_return, cache_version)
-
     {:ok, _response} = IndexingPipeline.write_hydration_cache_entry(attributes)
   end
 

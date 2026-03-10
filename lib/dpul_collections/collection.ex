@@ -30,7 +30,7 @@ defmodule DpulCollections.Collection do
   def get_featured_items(label) do
     params =
       SearchState.from_params(%{
-        "filter" => %{"project" => label, "featured" => true},
+        "filter" => %{"collection" => label, "featured" => true},
         "per_page" => "4"
       })
 
@@ -41,7 +41,7 @@ defmodule DpulCollections.Collection do
 
   def from_solr(doc = %{}) do
     title = Map.get(doc, "title_ss") || Map.get(doc, "title_txtm") || []
-    summary = project_summary(title |> hd)
+    summary = collection_summary(title |> hd)
 
     %__MODULE__{
       id: doc["id"],
@@ -111,13 +111,13 @@ defmodule DpulCollections.Collection do
   def get_contributors(_), do: []
 
   defp get_recent_items(label) do
-    Solr.recently_added(5, SearchState.from_params(%{"filter" => %{"project" => label}}))
+    Solr.recently_added(5, SearchState.from_params(%{"filter" => %{"collection" => label}}))
     |> Map.get("docs")
     |> Enum.map(&Item.from_solr/1)
   end
 
-  defp project_summary(label) do
-    summary = Solr.project_summary(label)
+  defp collection_summary(label) do
+    summary = Solr.collection_summary(label)
 
     %{
       count: summary.total_items,

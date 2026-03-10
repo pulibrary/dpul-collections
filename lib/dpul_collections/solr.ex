@@ -17,11 +17,11 @@ defmodule DpulCollections.Solr do
     response.body["response"]["numFound"]
   end
 
-  def project_summary(label, index \\ Index.read_index()) do
+  def collection_summary(label, index \\ Index.read_index()) do
     params =
       %{"per_page" => "0"}
       |> SearchState.from_params()
-      |> SearchState.set_filter("project", label)
+      |> SearchState.set_filter("collection", label)
       |> SearchState.add_filter_count_fields([
         "language",
         "geographic_origin",
@@ -121,7 +121,7 @@ defmodule DpulCollections.Solr do
     raw_query(search_state, index)["response"]
   end
 
-  @filter_fields ["project", "genre", "language", "subject", "year"]
+  @filter_fields ["collection", "genre", "language", "subject", "year"]
   def search(search_state, index \\ Index.read_index()) do
     search_state
     |> SearchState.add_filter_count_fields(@filter_fields)
