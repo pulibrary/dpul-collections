@@ -130,7 +130,12 @@ defmodule DpulCollections.Solr.Constants do
   def id_to_title(nil), do: nil
 
   def id_to_title(id) do
-    DpulCollections.Solr.find_by_id(id) |> DpulCollections.Item.from_solr() |> Map.get(:title)
+    DpulCollections.Solr.find_by_id(id)
+    |> DpulCollections.Item.from_solr()
+    |> Map.get(:title)
+    # Choose the first title if there are multiple,
+    # otherwise filters are duplicated.
+    |> Enum.at(0)
   end
 
   # Returns a string version of a date facet.

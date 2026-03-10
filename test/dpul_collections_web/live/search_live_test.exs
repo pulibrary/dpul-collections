@@ -511,6 +511,38 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     refute has_element?(view, ".filter.similar")
   end
 
+  test "similarity filter is not duplicated for items with multiple titles", %{conn: conn} do
+    Solr.add(
+      [
+        %{
+          id: 999,
+          title_txtm: ["First Title", "Second Title"],
+          collection_titles_ss: ["A Collection"]
+        }
+      ],
+      active_collection()
+    )
+
+    Solr.soft_commit(active_collection())
+
+    {:ok, _view, html} = live(conn, "/search?filter[similar]=999")
+    {:ok, document} = Floki.parse_document(html)
+
+    similar_filters =
+      document
+      |> Floki.find(".filter.similar")
+
+    assert length(similar_filters) == 1
+
+    assert similar_filters
+           |> Floki.text()
+           |> TestUtils.clean_string() =~ "First Title"
+
+    refute similar_filters
+           |> Floki.text()
+           |> TestUtils.clean_string() =~ "Second Title"
+  end
+
   test "paginator works as expected", %{conn: conn} do
     # Check that the previous link is hidden on the first page
     {:ok, view, _html} = live(conn, ~p"/search?page=1")
