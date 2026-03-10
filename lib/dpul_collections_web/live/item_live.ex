@@ -944,20 +944,11 @@ defmodule DpulCollectionsWeb.ItemLive do
     end
   end
 
-  defp more_similar_link(item = %Item{collections: [collection]}) do
-    "/search?filter[similar]=#{item.id}&filter[collection]=#{collection}"
-  end
-
   defp more_similar_link(item = %Item{collections: collections}) do
-    collection_filters =
-      collections
-      |> Enum.map(fn col -> "filter[collection][]=#{col}" end)
-      |> Enum.join("&")
-
-    "/search?filter[similar]=#{item.id}&#{collection_filters}"
+    ~p"/search?#{%{filter: %{similar: item.id, collection: collections}}}"
   end
 
   defp more_different_link(item = %Item{collections: [collection | _]}) do
-    "/search?filter[similar]=#{item.id}&filter[collection]=-#{collection}"
+    ~p"/search?#{%{filter: %{similar: item.id, collection: "-" <> collection}}}"
   end
 end
