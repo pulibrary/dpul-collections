@@ -91,24 +91,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   end
 
   def to_combined(resource = %Figgy.Resource{internal_resource: "Collection"}) do
-    related_data = extract_related_data(resource)
-
-    related_data_markers =
-      (Map.values(related_data["ancestors"]) ++ Map.values(related_data["resources"]))
-      |> List.flatten()
-      |> Enum.map(&CacheEntryMarker.from/1)
-
-    all_markers =
-      [CacheEntryMarker.from(resource) | related_data_markers]
-      |> Enum.sort(CacheEntryMarker)
-
-    related_ids = Enum.map(related_data_markers, &Map.get(&1, :id))
-
     %Figgy.CombinedFiggyResource{
       resource: resource,
-      related_data: related_data,
-      related_ids: related_ids,
-      latest_updated_marker: Enum.at(all_markers, -1)
+      related_data: %{},
+      related_ids: [],
+      latest_updated_marker: CacheEntryMarker.from(resource)
     }
   end
 
