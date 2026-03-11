@@ -6,16 +6,23 @@ defmodule DpulCollections.Solr.Client do
   end
 
   def query(index = %Index{}, options) when is_list(options) do
-    {:ok, response} =
-      Req.post(
-        select_url(index),
-        options
-      )
+    Req.post(
+      select_url(index),
+      options
+    )
+    |> parse_req_result
+  end
 
-    case response.status do
-      200 -> {:ok, response}
-      _ -> raise ServerError, message: "Solr server returned with status code: #{response.status}"
-    end
+  def parse_req_result(response = {:ok, %{status: 200}}) do
+    response
+  end
+
+  def parse_req_result({:error, %Req.TransportError{reason: reason}}) do
+    raise ServerError, message: "Req TransportError, reson: #{reason}"
+  end
+
+  def parse_req_result({:ok, %{status: status, body: body}}) do
+    raise ServerError, message: "Solr server returned with status code: #{status}, body #{body}"
   end
 
   def add(index = %Index{}, docs) when is_list(docs) do
@@ -42,30 +49,21 @@ defmodule DpulCollections.Solr.Client do
   end
 
   def delete_all(index = %Index{}) do
-    {:ok, response} =
-      Req.post(
-        update_url(index),
-        json: %{delete: %{query: "*:*"}}
-      )
-
-    case response.status do
-      200 -> {:ok, response}
-      _ -> raise ServerError, message: "Solr server returned with status code: #{response.status}"
-    end
+    Req.post(
+      update_url(index),
+      json: %{delete: %{query: "*:*"}}
+    )
+    |> parse_req_result
   end
 
   def delete_ids(index = %Index{}, ids) do
     ids
     |> Enum.each(fn id ->
-      {:ok, response} =
-        Req.post(
-          update_url(index),
-          json: %{delete: %{query: "id:#{id}"}}
-        )
-
-      if response.status != 200 do
-        raise ServerError, message: "Solr server returned with status code: #{response.status}"
-      end
+      Req.post(
+        update_url(index),
+        json: %{delete: %{query: "id:#{id}"}}
+      )
+      |> parse_req_result
     end)
   end
 
