@@ -43,6 +43,15 @@ defmodule DpulCollections.SolrTest do
         end
       end
     end
+
+    test "when the connection is closed" do
+      with_mock Req, [:passthrough],
+        post: fn _url, _ -> {:error, %Req.TransportError{reason: :closed}} end do
+        assert_raise Solr.Client.ServerError, fn ->
+          Solr.find_by_id("docid")
+        end
+      end
+    end
   end
 
   describe ".search" do

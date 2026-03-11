@@ -6,16 +6,23 @@ defmodule DpulCollections.Solr.Client do
   end
 
   def query(index = %Index{}, options) when is_list(options) do
-    {:ok, response} =
-      Req.post(
-        select_url(index),
-        options
-      )
+    result = Req.post(
+      select_url(index),
+      options
+    )
+    parse_query_result(result)
+  end
 
-    case response.status do
-      200 -> {:ok, response}
-      _ -> raise ServerError, message: "Solr server returned with status code: #{response.status}"
-    end
+  def parse_query_result({:ok, result = %{status: 200}}) do
+    result
+  end
+
+  def parse_query_result({:error, %Req.TransportError{reason: reason}}) do
+    raise ServerError, message: "Req TransportError, reson: #{reason}"
+  end
+
+  def parse_query_result({:ok, %{status: status, body: body}}) do
+    raise ServerError, message: "Solr server returned with status code: #{status}, body #{body}"
   end
 
   def add(index = %Index{}, docs) when is_list(docs) do
