@@ -378,7 +378,7 @@ msgstr ""
 
 #: lib/dpul_collections_web/live/item_live.ex:276
 #, elixir-autogen, elixir-format
-msgid "Item Description"
+msgid "Item Summary"
 msgstr ""
 
 #: lib/dpul_collections/item.ex:89

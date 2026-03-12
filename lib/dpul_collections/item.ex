@@ -15,7 +15,7 @@ defmodule DpulCollections.Item do
     :content_warning,
     :contributor,
     :creator,
-    :description,
+    :summary,
     :digitized_at,
     :date,
     :file_count,
@@ -61,7 +61,7 @@ defmodule DpulCollections.Item do
     ]
   end
 
-  # description is handled differently so it's not in this list
+  # summary is handled differently so it's not in this list
   def metadata_detail_categories do
     [
       {gettext("Descriptive Information"),
@@ -126,7 +126,7 @@ defmodule DpulCollections.Item do
       contributor: doc["contributor_txt_sort"] || [],
       creator: doc["creator_txt_sort"] || [],
       date: doc["display_date_s"],
-      description: doc["description_txtm"] || [],
+      summary: doc["summary_txtm"] || [],
       digitized_at: doc["digitized_at_dt"],
       file_count: doc["file_count_i"],
       folder_number: doc["folder_number_txtm"] || [],
@@ -187,10 +187,10 @@ defmodule DpulCollections.Item do
     {width, height}
   end
 
-  def meta_properties(item = %{title: [title | _], description: description}) do
+  def meta_properties(item = %{title: [title | _], summary: summary}) do
     %{
       "og:title" => title,
-      "og:description" => meta_description(description),
+      "og:description" => meta_description(summary),
       "og:image" =>
         "#{item.primary_thumbnail_service_url}/full/!#{item.primary_thumbnail_width},#{item.primary_thumbnail_height}/0/default.jpg",
       "og:url" => url(~p"/item/#{item.id}")
@@ -200,8 +200,8 @@ defmodule DpulCollections.Item do
 
   def meta_description([]), do: nil
 
-  def meta_description([description | _rest]) do
-    description |> Helpers.truncate(200)
+  def meta_description([summary | _rest]) do
+    summary |> Helpers.truncate(200)
   end
 
   def null_item() do

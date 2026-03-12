@@ -205,7 +205,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             </h2>
           </div>
           <div
-            id="collection-description"
+            id="collection-summary"
             class="content-area grid grid-cols-1 gap-6 font-serif"
           >
             <div>
@@ -230,8 +230,8 @@ defmodule DpulCollectionsWeb.CollectionsLive do
               />
             </div>
             <div class="[&_a]:text-accent w-full text-lg page-t-padding">
-              <div class="collection-description leading-relaxed pb-6">
-                {@collection.description |> raw}
+              <div class="collection-summary leading-relaxed pb-6">
+                {@collection.summary |> raw}
               </div>
             </div>
           </div>

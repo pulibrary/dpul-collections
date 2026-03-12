@@ -54,7 +54,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
     %{
       id: id,
       title_txtm: metadata["title"],
-      description_txtm: metadata["description"],
+      summary_txtm: metadata["description"],
       resource_type_s: "collection",
       tagline_txtm: metadata["tagline"],
       authoritative_slug_s: Map.get(metadata, "slug", []) |> Enum.at(0),
@@ -72,7 +72,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
     %{
       id: id,
       title_txtm: metadata["title"],
-      description_txtm: metadata["description"],
+      summary_txtm: metadata["description"],
       resource_type_s: "collection",
       tagline_txtm: metadata["tagline"],
       authoritative_slug_s: Map.get(metadata, "slug", []) |> Enum.at(0),
@@ -92,7 +92,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
 
     Map.merge(base, %{
       collection_titles_ss: collection_titles,
-      collection_ids_ss: extract_collection_ids(related_data, "Collection")
+      collection_ids_ss: extract_collection_ids(related_data, "Collection"),
+      summary_txtm: get_in(metadata, ["abstract"])
     })
   end
 
@@ -131,7 +132,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
       contributor_txt_sort: get_in(metadata, ["contributor"]),
       content_warning_s: content_warning(metadata),
       creator_txt_sort: get_in(metadata, ["creator"]),
-      description_txtm: get_in(metadata, ["description"]),
+      summary_txtm: get_in(metadata, ["description"]),
       digitized_at_dt: digitized_date(data),
       display_date_s: format_date(metadata),
       file_count_i: file_count(metadata, related_data),
