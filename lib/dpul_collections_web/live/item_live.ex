@@ -232,11 +232,11 @@ defmodule DpulCollectionsWeb.ItemLive do
 
         <div class="metadata sm:row-start-2 sm:col-span-3 sm:col-start-3 flex flex-col gap-8">
           <div
-            :for={description <- @item.description}
+            :for={summary <- @item.summary}
             dir="auto"
             class="text-xl font-medium text-dark-text font-serif"
           >
-            {description}
+            {summary}
           </div>
           <div
             :if={@item.collections != []}
@@ -313,13 +313,13 @@ defmodule DpulCollectionsWeb.ItemLive do
       </:heading>
       <div class="main-content header-x-padding page-y-padding">
         <div class="py-6">
-          <h2 class="sm:border-t-1 border-accent py-3">{gettext("Item Description")}</h2>
+          <h2 class="sm:border-t-1 border-accent py-3">{gettext("Item Summary")}</h2>
           <p
-            :for={description <- @item.description}
+            :for={summary <- @item.summary}
             class="not-last:pb-4"
             dir="auto"
           >
-            {description}
+            {summary}
           </p>
         </div>
         <div

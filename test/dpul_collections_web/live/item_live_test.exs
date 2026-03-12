@@ -21,7 +21,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           content_warning_s: "content warning",
           contributor_txt_sort: ["contributor"],
           creator_txt_sort: ["creator"],
-          description_txtm: ["This is a test description"],
+          summary_txtm: ["This is a test description"],
           display_date_s: "2022",
           file_count_i: 17,
           folder_number_txtm: ["1"],
@@ -92,7 +92,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           subject_txt_sort: ["subject"],
           width_txtm: ["10"],
           height_txtm: ["20"],
-          description_txtm:
+          summary_txtm:
             "This is a really really really long description that has a bunch of information which is too much for a bluesky tweet and so probably we should truncate it. I'm going to keep on rambling here, so that my stream of consciousness is caught in this test."
         },
         %{
@@ -107,7 +107,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           id: "similar-to-1-is-a-project",
           title_txtm: "Test Project",
           tagline_txtm: "This is a tagline.",
-          description_txtm: ["This is a test description"],
+          summary_txtm: ["This is a test description"],
           authoritative_slug_s: "project",
           resource_type_s: "collection"
         },
@@ -115,7 +115,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           id: "similar-to-1-is-a-second-project",
           title_txtm: "Second Project",
           tagline_txtm: "Second tagline.",
-          description_txtm: ["Second description"],
+          summary_txtm: ["Second description"],
           authoritative_slug_s: "second-project",
           resource_type_s: "collection"
         }
@@ -225,7 +225,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
              |> Enum.any?()
     end
 
-    test "can handle long descriptions", %{conn: conn} do
+    test "can handle long og:descriptions", %{conn: conn} do
       {:ok, _view, html} = live(conn, "/i/similar-item-same-collection/item/similar-to-1")
 
       {:ok, document} = Floki.parse_document(html)

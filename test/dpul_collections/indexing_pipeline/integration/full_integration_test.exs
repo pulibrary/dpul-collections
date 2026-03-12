@@ -197,12 +197,12 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       assert document["title_txtm_de"] == ["Ali Bagheri"]
       # Copy Field
       assert document["title_ss"] == ["Ali Bagheri"]
-      # Description
-      assert %{"description_txtm" => [first_description | _tail]} = document
-      assert first_description |> String.starts_with?("Asra-Panahi") == true
+      # Summary
+      assert %{"summary_txtm" => [first_summary | _tail]} = document
+      assert first_summary |> String.starts_with?("Asra-Panahi") == true
       # Language detection
-      assert %{"description_txtm_en" => [first_description | _tail]} = document
-      assert first_description |> String.starts_with?("Asra-Panahi") == true
+      assert %{"summary_txtm_en" => [first_summary | _tail]} = document
+      assert first_summary |> String.starts_with?("Asra-Panahi") == true
       assert %{"detectlang_ss" => ["de", "en"]} = document
 
       # Date fields
@@ -373,9 +373,11 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
                "al-Maḥāsin al-mujtamaʻah fī faḍl faḍāyil al-khulafāʼ al-arbaʻah / lil-Shaykh ʻAlī al-Ṣaffūrī."
              ]
 
-      # Description
-      assert %{"description_txtm" => [first_description | _tail]} = document
-      assert first_description |> String.starts_with?("Collation: Paper") == true
+      # Summary
+      assert %{"summary_txtm" => [first_summary | _tail]} = document
+
+      assert first_summary ==
+               "A brief but thorough treatment of the characteristics and virtues of the four Orthodox caliphs."
 
       # only allowed collections are included
       assert document["collection_titles_ss"] == [
@@ -407,10 +409,10 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
       assert document["title_txtm"] == ["Manuscripts of the Islamic World"]
 
-      # Description
-      assert %{"description_txtm" => [first_description | _tail]} = document
+      # Summary
+      assert %{"summary_txtm" => [first_summary | _tail]} = document
 
-      assert first_description |> String.starts_with?("<div>The Collections owe") == true
+      assert first_summary |> String.starts_with?("<div>The Collections owe") == true
 
       # Tagline
       assert %{"tagline_txtm" => [first_tagline | _tail]} = document

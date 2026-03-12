@@ -20,7 +20,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
                content_warning_s: "content warning",
                contributor_txt_sort: ["contributor"],
                creator_txt_sort: ["creator"],
-               description_txtm: ["Asra-Panahi", "Berlin-Protest", "Elnaz-Rekabi"],
+               summary_txtm: ["Asra-Panahi", "Berlin-Protest", "Elnaz-Rekabi"],
                digitized_at_dt: "2023-05-11T18:45:18.994187Z",
                folder_number_txtm: ["1"],
                height_txtm: ["200"],
@@ -42,28 +42,28 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
       assert %{
                alternative_title_txtm: [],
                content_warning_s: nil,
-               description_txtm: [],
+               summary_txtm: [],
                digitized_at_dt: nil
              } = doc2
 
       assert %{
                alternative_title_txtm: nil,
-               description_txtm: nil,
+               summary_txtm: nil,
                digitized_at_dt: nil,
                content_warning_s: "Explicit -- Nudity and/or Graphic Content"
              } = doc3
     end
 
-    test "includes descriptions if found" do
+    test "includes summaries if found" do
       entries =
         FiggyTestFixtures.hydration_cache_entries()
         |> Tuple.to_list()
 
       [doc1, doc2, doc3] = Enum.map(entries, &HydrationCacheEntry.to_solr_document/1)
 
-      assert doc1[:description_txtm] == ["Asra-Panahi", "Berlin-Protest", "Elnaz-Rekabi"]
-      assert doc2[:description_txtm] == []
-      assert doc3[:description_txtm] == nil
+      assert doc1[:summary_txtm] == ["Asra-Panahi", "Berlin-Protest", "Elnaz-Rekabi"]
+      assert doc2[:summary_txtm] == []
+      assert doc3[:summary_txtm] == nil
     end
 
     test "doesn't convert canvas IDs for missing file sets" do

@@ -379,8 +379,8 @@ msgstr "Informações Institucionais"
 
 #: lib/dpul_collections_web/live/item_live.ex:276
 #, elixir-autogen, elixir-format
-msgid "Item Description"
-msgstr "Descrição do Item"
+msgid "Item Summary"
+msgstr "Resumo do Item"
 
 #: lib/dpul_collections/item.ex:89
 #, elixir-autogen, elixir-format

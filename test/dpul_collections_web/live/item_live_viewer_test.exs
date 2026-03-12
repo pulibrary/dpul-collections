@@ -9,7 +9,7 @@ defmodule DpulCollectionsWeb.ItemLiveViewerTest do
       [
         %{
           id: 1,
-          description_txtm: ["A series of paintings of wizards"],
+          summary_txtm: ["A series of paintings of wizards"],
           title_txtm: ["Gandalf the Grey"],
           file_count_i: 30,
           collection_titles_ss: ["Nonexistent Things"],

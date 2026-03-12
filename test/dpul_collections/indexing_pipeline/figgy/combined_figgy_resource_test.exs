@@ -20,7 +20,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResourceTest do
                authoritative_slug_s: "sae"
              } = doc
 
-      assert hd(doc[:description_txtm]) =~ "already robust <a"
+      assert hd(doc[:summary_txtm]) =~ "already robust <a"
     end
 
     test "converting a featurable EphemeraFolder sets a boolean" do

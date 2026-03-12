@@ -9,7 +9,7 @@ defmodule DpulCollectionsWeb.ItemLiveMetadataTest do
       [
         %{
           id: 1,
-          description_txtm: ["A series of paintings of wizards", "ink and watercolor"],
+          summary_txtm: ["A series of paintings of wizards", "ink and watercolor"],
           title_txtm: ["Gandalf the Grey"],
           transliterated_title_txtm: ["Gandalf the Gray"],
           alternative_title_txtm: ["Gandalf the White"],
@@ -57,7 +57,7 @@ defmodule DpulCollectionsWeb.ItemLiveMetadataTest do
     {:ok, view, _html} = live(conn, "/i/gandalf-the-grey/item/1/metadata")
 
     assert view |> has_element?("h1", "Metadata")
-    assert view |> has_element?("h2", "Item Description")
+    assert view |> has_element?("h2", "Item Summary")
     assert view |> has_element?("p", ~r/\AA series of paintings of wizards\z/)
     assert view |> has_element?("p", ~r/\Aink and watercolor\z/)
     assert view |> has_element?("h2", "Descriptive Information")
