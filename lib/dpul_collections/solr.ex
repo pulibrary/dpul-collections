@@ -26,7 +26,7 @@ defmodule DpulCollections.Solr do
         "language",
         "geographic_origin",
         "category",
-        "genre"
+        "format"
       ])
 
     params
@@ -49,7 +49,7 @@ defmodule DpulCollections.Solr do
     "image_canvas_ids_ss",
     "primary_thumbnail_service_url_s",
     "digitized_at_dt",
-    "genre_txt_sort",
+    "format_txt_sort",
     "updated_at_dt",
     "content_warning_s",
     "geographic_origin_txt_sort",
@@ -121,7 +121,7 @@ defmodule DpulCollections.Solr do
     raw_query(search_state, index)["response"]
   end
 
-  @filter_fields ["collection", "genre", "language", "subject", "year"]
+  @filter_fields ["collection", "format", "language", "subject", "year"]
   def search(search_state, index \\ Index.read_index()) do
     search_state
     |> SearchState.add_filter_count_fields(@filter_fields)
@@ -203,7 +203,7 @@ defmodule DpulCollections.Solr do
   end
 
   def mlt_focus(%{filter: %{"similar" => id}}) do
-    "{!mlt qf=genre_txt_sort,subject_txt_sort,geo_subject_txt_sort,geographic_origin_txt_sort,language_txt_sort,keywords_txt_sort,summary_txtm mintf=1}#{id}"
+    "{!mlt qf=format_txt_sort,subject_txt_sort,geo_subject_txt_sort,geographic_origin_txt_sort,language_txt_sort,keywords_txt_sort,summary_txtm mintf=1}#{id}"
   end
 
   def mlt_focus(_search_state) do

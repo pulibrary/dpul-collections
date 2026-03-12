@@ -70,7 +70,7 @@ defmodule DpulCollections.SolrTest do
       Solr.soft_commit(active_collection())
 
       search_state =
-        SearchState.from_params(%{"filter" => %{"similar" => "2", "genre" => ["Pamphlets"]}})
+        SearchState.from_params(%{"filter" => %{"similar" => "2", "format" => ["Pamphlets"]}})
 
       result = Solr.search(search_state)
       assert result.total_items == 10
@@ -81,12 +81,12 @@ defmodule DpulCollections.SolrTest do
       Solr.soft_commit(active_collection())
 
       search_state =
-        SearchState.from_params(%{"filter" => %{"genre" => ["Folders", "Pamphlets"]}})
+        SearchState.from_params(%{"filter" => %{"format" => ["Folders", "Pamphlets"]}})
 
       result = Solr.search(search_state)
       assert result.total_items == 10
 
-      search_state = SearchState.from_params(%{"filter" => %{"genre" => ["Folders"]}})
+      search_state = SearchState.from_params(%{"filter" => %{"format" => ["Folders"]}})
       result = Solr.search(search_state)
       assert result.total_items == 5
     end
@@ -100,8 +100,8 @@ defmodule DpulCollections.SolrTest do
 
       assert %{
                filter_data: %{
-                 "genre" => %{
-                   label: "Genre",
+                 "format" => %{
+                   label: "Format",
                    data: [
                      {"Folders", 5},
                      {"Pamphlets", 5}
@@ -116,7 +116,7 @@ defmodule DpulCollections.SolrTest do
         Solr.add(
           %{
             id: "document-#{n}",
-            genre_txt_sort: ["Genre #{n}"],
+            format_txt_sort: ["Format #{n}"],
             title_txtm: ["Title #{n}"]
           },
           active_collection()
@@ -128,19 +128,19 @@ defmodule DpulCollections.SolrTest do
       search_state = SearchState.from_params(%{})
       result = Solr.search(search_state)
 
-      assert length(result.filter_data["genre"].data) == 15
+      assert length(result.filter_data["format"].data) == 15
     end
 
     test "returns filter data excluding its own filter" do
       Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
       Solr.soft_commit(active_collection())
 
-      search_state = SearchState.from_params(%{"filter" => %{"genre" => ["Folders"]}})
+      search_state = SearchState.from_params(%{"filter" => %{"format" => ["Folders"]}})
       result = Solr.search(search_state)
 
       assert %{
-               "genre" => %{
-                 label: "Genre",
+               "format" => %{
+                 label: "Format",
                  data: [
                    {"Folders", 5},
                    {"Pamphlets", 5}
@@ -155,13 +155,13 @@ defmodule DpulCollections.SolrTest do
       Solr.soft_commit(active_collection())
 
       search_state =
-        SearchState.from_params(%{"filter" => %{"subject" => ["Arts"], "genre" => ["Folders"]}})
+        SearchState.from_params(%{"filter" => %{"subject" => ["Arts"], "format" => ["Folders"]}})
 
       result = Solr.search(search_state)
 
       assert %{
-               "genre" => %{
-                 label: "Genre",
+               "format" => %{
+                 label: "Format",
                  data: [
                    {"Folders", 5},
                    {"Pamphlets", 5}
@@ -192,7 +192,7 @@ defmodule DpulCollections.SolrTest do
         %{
           "id" => "reference",
           "title_txtm" => ["test title 1"],
-          "genre_txt_sort" => ["pamphlets"],
+          "format_txt_sort" => ["pamphlets"],
           "subject_txt_sort" => ["folk art", "museum exhibits"],
           "collection_titles_ss" => ["Latin American Ephemera"],
           "file_count_i" => 1
@@ -200,7 +200,7 @@ defmodule DpulCollections.SolrTest do
         %{
           "id" => "similar",
           "title_txtm" => ["similar item"],
-          "genre_txt_sort" => ["pamphlets"],
+          "format_txt_sort" => ["pamphlets"],
           "subject_txt_sort" => ["folk art", "music"],
           "collection_titles_ss" => ["Latin American Ephemera"],
           "file_count_i" => 1
@@ -208,7 +208,7 @@ defmodule DpulCollections.SolrTest do
         %{
           "id" => "less-similar",
           "title_txtm" => ["item that's not as similar"],
-          "genre_txt_sort" => ["pamphlets"],
+          "format_txt_sort" => ["pamphlets"],
           "subject_txt_sort" => ["education", "music"],
           "collection_titles_ss" => ["Latin American Ephemera"],
           "file_count_i" => 1
@@ -216,7 +216,7 @@ defmodule DpulCollections.SolrTest do
         %{
           "id" => "other-collection",
           "title_txtm" => ["similar item"],
-          "genre_txt_sort" => ["pamphlets"],
+          "format_txt_sort" => ["pamphlets"],
           "subject_txt_sort" => ["folk art", "music"],
           "collection_titles_ss" => ["South Asian Ephemera"],
           "file_count_i" => 1
@@ -241,7 +241,7 @@ defmodule DpulCollections.SolrTest do
         %{
           "id" => "reference",
           "title_txtm" => ["test title 1"],
-          "genre_txt_sort" => ["pamphlets"],
+          "format_txt_sort" => ["pamphlets"],
           "subject_txt_sort" => ["folk art", "museum exhibits"],
           "collection_titles_ss" => ["Latin American Ephemera"],
           "file_count_i" => 1
@@ -250,13 +250,13 @@ defmodule DpulCollections.SolrTest do
           "id" => "similar-collection",
           "title_txtm" => ["similar collection"],
           "resource_type_s" => "collection",
-          "genre_txt_sort" => ["pamphlets"],
+          "format_txt_sort" => ["pamphlets"],
           "subject_txt_sort" => ["folk art", "museum exhibits"]
         },
         %{
           "id" => "similar",
           "title_txtm" => ["similar item"],
-          "genre_txt_sort" => ["pamphlets"],
+          "format_txt_sort" => ["pamphlets"],
           "subject_txt_sort" => ["folk art", "music"],
           "collection_titles_ss" => ["Latin American Ephemera"],
           "file_count_i" => 1
@@ -264,7 +264,7 @@ defmodule DpulCollections.SolrTest do
         %{
           "id" => "less-similar",
           "title_txtm" => ["item that's not as similar"],
-          "genre_txt_sort" => ["pamphlets"],
+          "format_txt_sort" => ["pamphlets"],
           "subject_txt_sort" => ["education", "music"],
           "collection_titles_ss" => ["Latin American Ephemera"],
           "file_count_i" => 1
@@ -272,7 +272,7 @@ defmodule DpulCollections.SolrTest do
         %{
           "id" => "other-collection",
           "title_txtm" => ["similar item"],
-          "genre_txt_sort" => ["pamphlets"],
+          "format_txt_sort" => ["pamphlets"],
           "subject_txt_sort" => ["folk art", "music"],
           "collection_titles_ss" => ["South Asian Ephemera"],
           "file_count_i" => 1
@@ -403,7 +403,7 @@ defmodule DpulCollections.SolrTest do
       "id" => "similar-collection",
       "title_txtm" => ["similar collection"],
       "resource_type_s" => "collection",
-      "genre_txt_sort" => ["pamphlets"],
+      "format_txt_sort" => ["pamphlets"],
       "subject_txt_sort" => ["folk art", "museum exhibits"],
       # This never happens right now, but to make sure we're filtering on resource type.
       "file_count_i" => 1

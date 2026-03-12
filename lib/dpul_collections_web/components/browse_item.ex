@@ -202,11 +202,11 @@ defmodule DpulCollectionsWeb.BrowseItem do
           <div>{@item.date}</div>
         </div>
         <div
-          :if={length(@item.genre) > 0}
-          class="genre"
+          :if={length(@item.format) > 0}
+          class="format"
         >
-          <div>{gettext("Genre")}</div>
-          <div>{@item.genre}</div>
+          <div>{gettext("Format")}</div>
+          <div>{@item.format}</div>
         </div>
       </:extra_info>
       <:card_footer>

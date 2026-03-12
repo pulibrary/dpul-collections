@@ -116,13 +116,14 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
 
   test "links to filters", %{conn: conn} do
     ["photographs", "posters", "pamphlets"]
-    |> Enum.each(fn genre ->
+    |> Enum.each(fn format ->
       {:ok, view, _} = live(conn, "/")
 
       assert view
-             |> element("#main-content a", String.capitalize(genre))
+             |> element("#main-content a", String.capitalize(format))
              |> render_click() ==
-               {:error, {:live_redirect, %{to: "/search?filter[genre][]=#{genre}", kind: :push}}}
+               {:error,
+                {:live_redirect, %{to: "/search?filter[format][]=#{format}", kind: :push}}}
     end)
   end
 end

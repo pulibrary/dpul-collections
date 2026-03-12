@@ -148,11 +148,11 @@ defmodule DpulCollectionsWeb.ItemLive do
     <div class="bg-background page-y-padding content-area item-page col-start-1 row-start-1">
       <div class="column-layout my-5 flex flex-col sm:grid sm:grid-flow-row sm:auto-rows-0 sm:grid-cols-5 sm:grid-rows-[auto_1fr] sm:content-start gap-x-14 gap-y-4">
         <div class="item-title sm:row-start-1 sm:col-start-3 sm:col-span-3 h-min flex flex-col gap-4">
-          <div aria-label={gettext("genre")}>
+          <div aria-label={gettext("format")}>
             <.filter_link
               class="text-xl uppercase tracking-wide"
-              filter_value={@item.genre |> List.first()}
-              filter_name="genre"
+              filter_value={@item.format |> List.first()}
+              filter_name="format"
             />
           </div>
           <div aria-label={gettext("title")}>

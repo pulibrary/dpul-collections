@@ -42,11 +42,11 @@ defmodule DpulCollectionsWeb.HomeLive do
                 )}
               </div>
               <div class="flex flex-wrap justify-center text-dark-text gap-2">
-                <.genre_link filter="posters" label={gettext("Posters")} />
-                <.genre_link filter="pamphlets" label={gettext("Pamphlets")} />
-                <.genre_link filter="flyers" label={gettext("Flyers")} />
-                <.genre_link filter="leaflets" label={gettext("Leaflets")} />
-                <.genre_link filter="photographs" label={gettext("Photographs")} />
+                <.format_link filter="posters" label={gettext("Posters")} />
+                <.format_link filter="pamphlets" label={gettext("Pamphlets")} />
+                <.format_link filter="flyers" label={gettext("Flyers")} />
+                <.format_link filter="leaflets" label={gettext("Leaflets")} />
+                <.format_link filter="photographs" label={gettext("Photographs")} />
               </div>
               <div class="content-area bg-primary text-light-text px-0 text-xl">
                 <.primary_button href={~p"/browse"}>
@@ -107,12 +107,12 @@ defmodule DpulCollectionsWeb.HomeLive do
     """
   end
 
-  def genre_link(assigns) do
+  def format_link(assigns) do
     ~H"""
     <div class="bg-light-accent rounded-full px-3 py-1">
       <.link
         class="no-underline"
-        navigate={~p"/search?filter[genre][]=#{@filter}"}
+        navigate={~p"/search?filter[format][]=#{@filter}"}
       >
         {@label}
       </.link>

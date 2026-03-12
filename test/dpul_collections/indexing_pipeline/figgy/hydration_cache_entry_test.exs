@@ -250,7 +250,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
       doc = HydrationCacheEntry.to_solr_document(entry)
 
-      assert doc[:genre_txt_sort] == ["Term2"]
+      assert doc[:format_txt_sort] == ["Term2"]
     end
 
     test "uses first image service url when there is no thumbnail_id property" do
@@ -656,7 +656,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      assert %{genre_txt_sort: []} = HydrationCacheEntry.to_solr_document(entry)
+      assert %{format_txt_sort: []} = HydrationCacheEntry.to_solr_document(entry)
     end
 
     test "indexes harmful_content" do

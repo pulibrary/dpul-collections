@@ -24,7 +24,7 @@ defmodule DpulCollectionsWeb.HelpersTest do
             "to" => "",
             "from" => "1900"
           },
-          "genre" => ""
+          "format" => ""
         }
       }
 

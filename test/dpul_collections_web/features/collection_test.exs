@@ -69,7 +69,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> assert_has("li", text: "Socioeconomic conditions and development")
       |> click_button("Show less")
       |> refute_has("li", text: "Socioeconomic conditions and development")
-      # Genres
+      # Formats
       |> assert_has("li", text: "Posters")
       # No more link if it's displaying them all
       |> refute_has("li", text: "+0 more")
@@ -130,8 +130,8 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> assert_has("h1", text: "Manuscripts of the Islamic World")
       # Subject summary
       |> refute_has("h2", text: "Subject Areas")
-      # Genre summary
-      |> refute_has("h2", text: "Genres")
+      # Format summary
+      |> refute_has("h2", text: "Formats")
       # Count summary
       |> assert_has("div", text: "1 items")
       |> refute_has("div", text: "Languages")

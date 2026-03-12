@@ -194,26 +194,26 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     # Clicking the button shows the filters.
     view
-    |> element("button[role=tab]", "Genre")
+    |> element("button[role=tab]", "Format")
     |> render_click()
 
     assert view |> has_element?("div.expanded[role='tabpanel']")
 
     # Clicking the button again hides the filters.
     view
-    |> element("button[role=tab]", "Genre")
+    |> element("button[role=tab]", "Format")
     |> render_click() =~ "Folders"
 
     refute view |> has_element?("div.expanded[role='tabpanel']")
 
-    # Let's toggle it back on so we can click the Folders genre.
+    # Let's toggle it back on so we can click the Folders format.
     view
-    |> element("button[role=tab]", "Genre")
+    |> element("button[role=tab]", "Format")
     |> render_click()
 
     assert view
            |> element("#filter-form")
-           |> render_change(%{_target: ["filter", "genre"], filter: %{genre: ["Folders"]}})
+           |> render_change(%{_target: ["filter", "format"], filter: %{format: ["Folders"]}})
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
            |> Floki.text() =~ "of 50"
@@ -221,12 +221,12 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert view
            |> has_element?(".filter", "Folders")
 
-    # I can pick a second genre to make an OR
+    # I can pick a second format to make an OR
     assert view
            |> element("#filter-form")
            |> render_change(%{
-             _target: ["filter", "genre"],
-             filter: %{genre: ["Folders", "Pamphlets"]}
+             _target: ["filter", "format"],
+             filter: %{format: ["Folders", "Pamphlets"]}
            })
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
@@ -246,7 +246,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     # I can remove it from the checkbox
     assert view
            |> element("#filter-form")
-           |> render_change(%{"_target" => ["filter", "genre"], "filter" => %{"genre" => nil}})
+           |> render_change(%{"_target" => ["filter", "format"], "filter" => %{"format" => nil}})
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
            |> Floki.text() =~ "of 100"
@@ -283,7 +283,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     # Only filters that are in use / active should display
     assert document |> Floki.find(".year.filter") |> Enum.empty?()
-    assert document |> Floki.find(".genre.filter") |> Enum.empty?()
+    assert document |> Floki.find(".format.filter") |> Enum.empty?()
 
     {:ok, _view, html} = live(conn, "/search?filter[year][to]=2025")
 
@@ -296,7 +296,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Floki.text()
            |> TestUtils.clean_string() == "Year Up to 2025"
 
-    assert document |> Floki.find(".genre.filter") |> Enum.empty?()
+    assert document |> Floki.find(".format.filter") |> Enum.empty?()
 
     {:ok, _view, html} = live(conn, "/search?filter[year][from]=2020&filter[year][to]=")
 
@@ -309,9 +309,9 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Floki.text()
            |> TestUtils.clean_string() == "Year 2020 to Now"
 
-    assert document |> Floki.find(".genre.filter") |> Enum.empty?()
+    assert document |> Floki.find(".format.filter") |> Enum.empty?()
 
-    {:ok, _view, html} = live(conn, "/search?filter[genre][]=posters")
+    {:ok, _view, html} = live(conn, "/search?filter[format][]=posters")
 
     {:ok, document} =
       html
@@ -320,11 +320,11 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert document |> Floki.find(".year.filter") |> Enum.empty?()
 
     assert document
-           |> Floki.find(".genre.filter")
+           |> Floki.find(".format.filter")
            |> Floki.text()
-           |> TestUtils.clean_string() == "Genre posters"
+           |> TestUtils.clean_string() == "Format posters"
 
-    {:ok, _view, html} = live(conn, "/search?filter[genre][]=posters&filter[year][to]=2025")
+    {:ok, _view, html} = live(conn, "/search?filter[format][]=posters&filter[year][to]=2025")
 
     {:ok, document} =
       html
@@ -336,9 +336,9 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> TestUtils.clean_string() == "Year Up to 2025"
 
     assert document
-           |> Floki.find(".genre.filter")
+           |> Floki.find(".format.filter")
            |> Floki.text()
-           |> TestUtils.clean_string() == "Genre posters"
+           |> TestUtils.clean_string() == "Format posters"
   end
 
   test "adding and removing filters sets page back to 1", %{conn: conn} do
@@ -364,12 +364,12 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     # selecting a filter goes back to page 1
     view
-    |> element("button[role=tab]", "Genre")
+    |> element("button[role=tab]", "Format")
     |> render_click()
 
     assert view
            |> element("#filter-form")
-           |> render_change(%{_target: ["filter", "genre"], filter: %{genre: ["Folders"]}})
+           |> render_change(%{_target: ["filter", "format"], filter: %{format: ["Folders"]}})
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
            |> Floki.text() =~ "1 - 50 of 105"
@@ -388,7 +388,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     # Removing a pill goes back to page 1
     view
-    |> element("button[role=tab]", "Genre")
+    |> element("button[role=tab]", "Format")
     |> render_click()
 
     assert view
@@ -748,7 +748,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       card_content = item_card |> render()
       # Tagline renders.
       assert card_content =~ "The South Asian Ephemera Collection is an openly accessible"
-      # Digital Collection genre renders
+      # Digital Collection format renders
       assert card_content =~ "Digital Collection"
       # Mosaic images
       assert view |> element("#item-#{sae_id} .search-thumbnail img") |> has_element?
@@ -769,7 +769,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
           %{
             id: "iran",
             title_txtm: "Women's Movement Art",
-            genre_txt_sort: "Ephemera",
+            format_txt_sort: "Ephemera",
             display_date_s: "2024",
             years_is: [2024],
             geographic_origin_txt_sort: "Iran"

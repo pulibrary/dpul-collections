@@ -14,7 +14,7 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
           title_txtm: ["Elham Azar"],
           content_warning_s: "This item depicts images that may be harmful in this specific way.",
           file_count_i: 3,
-          genre_txt_sort: ["pamphlets"],
+          format_txt_sort: ["pamphlets"],
           subject_txt_sort: ["folk art", "museum exhibits"],
           image_service_urls_ss: [
             "https://example.com/iiif/2/image1",
@@ -90,7 +90,7 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
             content_warning_s:
               "This item depicts images that may be harmful in this specific way.",
             file_count_i: 3,
-            genre_txt_sort: ["pamphlets"],
+            format_txt_sort: ["pamphlets"],
             subject_txt_sort: ["folk art", "museum exhibits"],
             image_service_urls_ss: [
               "https://example.com/iiif/2/image1",

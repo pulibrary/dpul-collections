@@ -58,7 +58,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
       resource_type_s: "collection",
       tagline_txtm: metadata["tagline"],
       authoritative_slug_s: Map.get(metadata, "slug", []) |> Enum.at(0),
-      genre_txt_sort: ["Digital Collection"]
+      format_txt_sort: ["Digital Collection"]
     }
   end
 
@@ -76,7 +76,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
       resource_type_s: "collection",
       tagline_txtm: metadata["tagline"],
       authoritative_slug_s: Map.get(metadata, "slug", []) |> Enum.at(0),
-      genre_txt_sort: ["Digital Collection"]
+      format_txt_sort: ["Digital Collection"]
     }
   end
 
@@ -112,7 +112,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
       collection_titles_ss: collection_titles,
       collection_ids_ss: extract_collection_ids(related_data, "EphemeraProject"),
       folder_number_txtm: get_in(metadata, ["folder_number"]),
-      genre_txt_sort: extract_term("genre", metadata, related_data),
+      format_txt_sort: extract_term("genre", metadata, related_data),
       geo_subject_txt_sort: extract_term("geo_subject", metadata, related_data),
       geographic_origin_txt_sort: extract_term("geographic_origin", metadata, related_data),
       language_txt_sort: extract_term("language", metadata, related_data),

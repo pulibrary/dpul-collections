@@ -25,7 +25,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           display_date_s: "2022",
           file_count_i: 17,
           folder_number_txtm: ["1"],
-          genre_txt_sort: ["genre"],
+          format_txt_sort: ["format"],
           geo_subject_txt_sort: ["geo subject"],
           geographic_origin_txt_sort: ["geographic origin"],
           height_txtm: ["200"],
@@ -88,7 +88,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           title_txtm: "Similar Item Same Collection",
           file_count_i: 1,
           collection_titles_ss: "Test Project",
-          genre_txt_sort: ["genre"],
+          format_txt_sort: ["format"],
           subject_txt_sort: ["subject"],
           width_txtm: ["10"],
           height_txtm: ["20"],
@@ -100,7 +100,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           file_count_i: 1,
           title_txtm: "Similar Item Different Collection",
           collection_titles_ss: "Different Project",
-          genre_txt_sort: ["genre"],
+          format_txt_sort: ["format"],
           subject_txt_sort: ["subject"]
         },
         %{

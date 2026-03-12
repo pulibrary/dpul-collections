@@ -130,7 +130,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   #     "id" => "668a21d7-750d-477d-b569-54ad511f13d7",
   #     "internal_resource" => "EphemeraTerm",
   #     "metadata" => %{
-  #       "label" => ["a genre"]
+  #       "label" => ["a genre"]  # Note: Figgy uses "genre", displayed as "Format" in DPUL Collections
   #     }
   #   },
   #   "557cc7c1-9852-471b-ae4d-f1c14be3890b" => %{
