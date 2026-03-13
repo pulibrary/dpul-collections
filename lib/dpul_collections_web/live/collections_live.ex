@@ -220,10 +220,10 @@ defmodule DpulCollectionsWeb.CollectionsLive do
               />
 
               <.pill_section
-                title={gettext("Genres")}
-                unit="genre"
-                items={@collection.genres}
-                container_id="genres-container"
+                title={gettext("Formats")}
+                unit="format"
+                items={@collection.formats}
+                container_id="formats-container"
                 pill_class="btn-secondary-colors"
                 button_class="bg-cloud/80 hover:bg-cloud/60"
                 collection_title={@collection.title |> hd}
@@ -313,17 +313,13 @@ defmodule DpulCollectionsWeb.CollectionsLive do
               {gettext("Copyright")}
             </h3>
             <p>
-              {gettext(
-                "Princeton University Library claims no copyright governing this digital resource.
-              It is provided for free, on a non-commercial, open-access basis, for fair-use academic
-              and research purposes only. Anyone who claims copyright over any part of these resources
-              and feels that they should not be presented in this manner is invited to"
+              {raw(
+                gettext(
+                  "Princeton University Library claims no copyright governing this digital resource. It is provided for free, on a non-commercial, open-access basis, for fair-use academic and research purposes only. Anyone who claims copyright over any part of these resources and feels that they should not be presented in this manner is invited to %{contact_link}, who will in turn consider such concerns and make reasonable efforts to respond to such concerns.",
+                  contact_link:
+                    "<a href=\"https://library.princeton.edu/form/removal-request\">#{gettext("contact Princeton University Library")}</a>"
+                )
               )}
-              <a href="https://library.princeton.edu/form/removal-request">
-              {gettext("contact Princeton University Library")}
-              </a>, {gettext(
-                "who will in turn consider such concerns and make reasonable efforts to respond to such concerns"
-              )}.
             </p>
             <h3 class="uppercase font-semibold text-xl pt-6">
               {gettext("Preferred Citation")}
@@ -336,11 +332,13 @@ defmodule DpulCollectionsWeb.CollectionsLive do
               {gettext("Romanization")}
             </h3>
             <p>
-              {gettext("Please refer to the")}
-              <a href="https://www.loc.gov/catdir/cpso/roman.html">
-                {gettext("Library of Congress Romanization tables")}
-              </a>
-              {gettext("when searching the collection")}.
+              {raw(
+                gettext(
+                  "Please refer to the %{romanization_link} when searching the collection.",
+                  romanization_link:
+                    "<a href=\"https://www.loc.gov/catdir/cpso/roman.html\">#{gettext("Library of Congress Romanization tables")}</a>"
+                )
+              )}
             </p>
           </div>
         </div>

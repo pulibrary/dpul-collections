@@ -12,9 +12,9 @@ defmodule DpulCollections.Collection do
     :summary,
     :item_count,
     :url,
-    genre: ["Digital Collections"],
+    format: ["Digital Collections"],
     categories: [],
-    genres: [],
+    formats: [],
     languages: [],
     geographic_origins: [],
     featured_items: [],
@@ -51,7 +51,7 @@ defmodule DpulCollections.Collection do
       summary: doc |> Map.get("summary_txtm", []) |> Enum.at(0),
       item_count: summary.count,
       categories: summary.categories,
-      genres: summary.genres,
+      formats: summary.formats,
       languages: summary.languages,
       geographic_origins: summary.geographic_origins,
       featured_items: get_featured_items(title |> hd),
@@ -124,7 +124,7 @@ defmodule DpulCollections.Collection do
       languages: summary.filter_data["language"].data,
       geographic_origins: summary.filter_data["geographic_origin"].data,
       categories: summary.filter_data["category"].data,
-      genres: summary.filter_data["genre"].data
+      formats: summary.filter_data["format"].data
     }
   end
 end

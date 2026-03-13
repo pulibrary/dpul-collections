@@ -45,9 +45,9 @@ defmodule DpulCollections.Solr.Constants do
           label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Date Created"),
           value_function: &Function.identity/1
         },
-        "genre" => %{
-          solr_field: "genre_txt_sort",
-          label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Genre"),
+        "format" => %{
+          solr_field: "format_txt_sort",
+          label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Format"),
           # Identity just returns whatever you gave it.
           value_function: &Function.identity/1
         },

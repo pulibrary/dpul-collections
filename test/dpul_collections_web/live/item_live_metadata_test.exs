@@ -19,7 +19,7 @@ defmodule DpulCollectionsWeb.ItemLiveMetadataTest do
           publisher_txt_sort: ["Elrond"],
           language_txt_sort: ["Common", "Elvish"],
           display_date_s: "Durin",
-          genre_txt_sort: ["Paintings"],
+          format_txt_sort: ["Paintings"],
           content_warning_s: "Some people may not want to see this",
           series_txt_sort: ["Lord of the Rings"],
           provenance_txtm: ["Donation of Bilbo Baggins"],
@@ -86,9 +86,9 @@ defmodule DpulCollectionsWeb.ItemLiveMetadataTest do
     assert view |> has_element?("dt", "Date Created")
     assert view |> has_element?("dd", "Durin")
     assert view |> has_element?("a[href='/search?filter[date][]=Durin']")
-    assert view |> has_element?("dt", "Genre")
+    assert view |> has_element?("dt", "Format")
     assert view |> has_element?("dd", "Paintings")
-    assert view |> has_element?("a[href='/search?filter[genre][]=Paintings']")
+    assert view |> has_element?("a[href='/search?filter[format][]=Paintings']")
     assert view |> has_element?("dt", "Content Warning")
     assert view |> has_element?("dd", "Some people may not want to see this")
     assert view |> has_element?("dt", "Series")

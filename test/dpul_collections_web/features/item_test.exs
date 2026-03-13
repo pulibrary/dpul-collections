@@ -190,7 +190,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
       %{
         "id" => "similar",
         "title_txtm" => ["similar item"],
-        "genre_txt_sort" => ["pamphlets"],
+        "format_txt_sort" => ["pamphlets"],
         "subject_txt_sort" => ["folk art", "music"],
         "collection_titles_ss" => ["Latin American Ephemera"],
         "file_count_i" => 1

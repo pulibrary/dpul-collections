@@ -413,11 +413,11 @@ defmodule DpulCollectionsWeb.SearchLive do
               </.link>
             </h2>
             <span
-              aria-label={gettext("genre")}
-              data-field="genre"
+              aria-label={gettext("format")}
+              data-field="format"
               class="w-full sm:w-fit flex-grow sm:flex-none text-gray-600 font-bold text-base uppercase sm:text-right"
             >
-              {@item.genre}
+              {@item.format}
             </span>
           </div>
           <div :if={@item.tagline} class="text-base">{@item.tagline}</div>
@@ -482,11 +482,11 @@ defmodule DpulCollectionsWeb.SearchLive do
               </.link>
             </h2>
             <span
-              aria-label={gettext("genre")}
-              data-field="genre"
+              aria-label={gettext("format")}
+              data-field="format"
               class="w-full sm:w-fit flex-grow sm:flex-none text-gray-600 font-bold text-base uppercase sm:text-right"
             >
-              {@item.genre}
+              {@item.format}
             </span>
           </div>
           <div :if={@sort_by == :recently_added && @item.updated_at} class="updated-at w-full">
