@@ -38,7 +38,8 @@ defmodule DpulCollectionsWeb.ItemLive do
               to_form(%{
                 "name" => nil,
                 "email" => nil,
-                "message" => nil
+                "message" => nil,
+                "feedback" => nil
               }),
             correction_form_success?: nil
           )
@@ -572,6 +573,12 @@ defmodule DpulCollectionsWeb.ItemLive do
             <.input type="text" label="Name" field={@correction_form[:name]} />
             <.input type="email" label="Email" field={@correction_form[:email]} />
             <.input type="textarea" label="Message" field={@correction_form[:message]} />
+            <.input
+              type="textarea"
+              label="Feedback"
+              class="form-helper"
+              field={@correction_form[:feedback]}
+            />
             <div class="flex w-full">
               <.primary_button>
                 {gettext("Send")}
@@ -644,10 +651,11 @@ defmodule DpulCollectionsWeb.ItemLive do
      |> push_event("dcjs-open", %{id: "correction-form-modal"})}
   end
 
-  def handle_event("send_correction", params, socket) do
+  def handle_event("send_correction", params = %{"feedback" => feedback}, socket) do
     correction = %Correction{} |> Correction.changeset(params)
 
-    with true <- correction.valid?,
+    with true <- String.length(feedback) == 0,
+         true <- correction.valid?,
          {:ok, _} <- LibanswersApi.create_ticket(params) do
       {:noreply,
        socket
