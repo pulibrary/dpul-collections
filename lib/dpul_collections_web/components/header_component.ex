@@ -18,14 +18,14 @@ defmodule DpulCollectionsWeb.HeaderComponent do
     <!-- logo -->
       <.link href="https://library.princeton.edu">
         <div class="logo flex-none w-9 sm:hidden">
-          <img src={~p"/images/local-svgs.svg"} alt={gettext("Princeton University Library Logo")} />
+          <img src={~p"/images/local-svgs.svg"} alt={gettext("Princeton University Library")} />
         </div>
         <div class="logo flex-none sm:w-32 md:w-50 hidden sm:flex">
           <!-- the width of the div must match the one on the other side, but keep the image a bit smaller -->
           <img
             class="max-w-40"
             src={~p"/images/pul-logo.svg"}
-            alt={gettext("Princeton University Library Logo")}
+            alt={gettext("Princeton University Library")}
           />
         </div>
       </.link>
