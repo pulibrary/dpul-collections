@@ -161,7 +161,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       }
     </script>
     <section id="filters">
-      <div class="content-area py-4">
+      <div class="content-area py-4 w-full">
         <div class="flex items-center gap-4 flex-wrap">
           <button
             type="button"
@@ -170,12 +170,18 @@ defmodule DpulCollectionsWeb.SearchLive do
           >
             <.icon name="hero-funnel" class="h-5 w-5" />
             {gettext("Filters")}
-            <span :if={map_size(@search_state.filter) > 0} class="bg-light-text text-accent px-2 py-1 rounded-full text-xs font-bold">
+            <span
+              :if={map_size(@search_state.filter) > 0}
+              class="bg-light-text text-accent px-2 py-1 rounded-full text-xs font-bold"
+            >
               {map_size(@search_state.filter)}
             </span>
           </button>
 
-          <div :if={map_size(@search_state.filter) > 0} class="flex flex-wrap gap-2 items-center">
+          <div
+            :if={map_size(@search_state.filter) > 0}
+            class="flex flex-wrap gap-2 items-center w-full"
+          >
             <.filter_pill
               :for={{filter_field, filter_settings} <- filter_configuration()}
               search_state={@search_state}
@@ -188,7 +194,10 @@ defmodule DpulCollectionsWeb.SearchLive do
       </div>
 
       <.drawer id="filter-modal" label={gettext("Filter Results")}>
-        <div :if={map_size(@search_state.filter) > 0} class="px-4 py-3 bg-primary-light border-b border-rust/20">
+        <div
+          :if={map_size(@search_state.filter) > 0}
+          class="px-4 py-3 bg-primary-light border-b border-rust/20"
+        >
           <div class="flex items-center justify-between mb-2">
             <span class="text-sm font-semibold">{gettext("Active Filters")}</span>
             <.link
@@ -265,7 +274,10 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   defp filter_section(assigns) do
     ~H"""
-    <div class="border border-rust/20 rounded-lg overflow-hidden bg-white">
+    <div class={[
+      "border border-rust/20 rounded-lg overflow-hidden bg-white",
+      length(@filter.data) == 0 && "hidden"
+    ]}>
       <button
         role="tab"
         type="button"
@@ -281,7 +293,11 @@ defmodule DpulCollectionsWeb.SearchLive do
         <span>{Gettext.gettext(DpulCollectionsWeb.Gettext, @filter.label)}</span>
         <.icon
           name="hero-chevron-down"
-          class={if @expanded, do: "h-5 w-5 transition-transform duration-200 rotate-180", else: "h-5 w-5 transition-transform duration-200"}
+          class={
+            if @expanded,
+              do: "h-5 w-5 transition-transform duration-200 rotate-180",
+              else: "h-5 w-5 transition-transform duration-200"
+          }
         />
       </button>
 
@@ -325,13 +341,13 @@ defmodule DpulCollectionsWeb.SearchLive do
       phx-click="remove_filter"
       class={[
         @field,
-        "filter focus:border-3 focus:visible:border-accent focus:border-accent py-2 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue font-sans font-bold text-sm btn-primary h-full hover:text-white hover:bg-accent focus:outline-none active:shadow-none"
+        "filter flex max-w-full gap-2 focus:border-3 focus:visible:border-accent focus:border-accent py-2 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue font-sans font-bold text-sm btn-primary h-full hover:text-white hover:bg-accent focus:outline-none active:shadow-none"
       ]}
     >
       {# These labels are defined explicitly in Solr.Constants, but have to be called here because Constants is defined at compile time.}
       {Gettext.gettext(DpulCollectionsWeb.Gettext, @label)}
       <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
-      <span class="filter-text">
+      <span class="filter-text truncate">
         {@filter_value}
       </span>
       <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
@@ -766,6 +782,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   # Don't do ranges with changed events.
   def handle_event("checked_filter", %{"_target" => ["filter", _filter, _from_or_to]}, socket),
     do: {:noreply, socket}
+
   # Don't process the search boxes.
   def handle_event("checked_filter", %{"_target" => ["undefined"]}, socket),
     do: {:noreply, socket}
