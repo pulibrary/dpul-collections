@@ -550,7 +550,6 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     test "correction link opens form in modal", %{conn: conn} do
       {:ok, view, _html} =
         conn
-        |> log_in_user(user_fixture())
         |> live(~p"/i/زلزلہ/item/2")
 
       # Open dialog
@@ -596,7 +595,6 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     test "form does not have all required values", %{conn: conn} do
       {:ok, view, _html} =
         conn
-        |> log_in_user(user_fixture())
         |> live(~p"/i/زلزلہ/item/2")
 
       # Open dialog
@@ -632,10 +630,49 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       end
     end
 
+    test "the form's honeypot field is populated", %{conn: conn} do
+      {:ok, view, _html} =
+        conn
+        |> live(~p"/i/زلزلہ/item/2")
+
+      # Open dialog
+      view
+      |> element(".metadata button", "Correct")
+      |> render_click()
+
+      with_mock(DpulCollections.LibanswersApi,
+        create_ticket: fn _params -> nil end
+      ) do
+        html =
+          view
+          |> form("#correction-form",
+            name: "me",
+            email: "me@example.com",
+            message: "a correction",
+            feedback: "this should be empty"
+          )
+          |> render_submit()
+
+        assert html =~ "Sorry, something went wrong"
+
+        assert_not_called(DpulCollections.LibanswersApi.create_ticket(:_))
+
+        # You can open it again
+        view
+        |> element(".metadata button", "Correct")
+        |> render_click()
+
+        assert view
+               |> has_element?("dialog#correction-form-modal")
+
+        assert view
+               |> has_element?("p", "Please use this area to report")
+      end
+    end
+
     test "api failure gives appropriate message to user", %{conn: conn} do
       {:ok, view, _html} =
         conn
-        |> log_in_user(user_fixture())
         |> live(~p"/i/زلزلہ/item/2")
 
       # Open dialog

@@ -194,6 +194,13 @@
   @apply border-0 border-solid border-(--color-princeton-black) flex justify-center items-center text-center font-bold *:font-bold h-14 text-nowrap uppercase cursor-not-allowed opacity-50 shadow-none;
 }
 
+/* use on a honeypot field */
+/* hides visually, and for screen readers and tabnav */
+/* this needs to be separate so bots don't connect it to the field*/
+@utility form-helper {
+  display: none;
+}
+
 @utility btn-base-behavior {
   &:hover {
     @apply no-underline;
