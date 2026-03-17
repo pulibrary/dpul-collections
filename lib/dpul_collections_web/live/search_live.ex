@@ -341,7 +341,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       phx-click="remove_filter"
       class={[
         @field,
-        "filter flex max-w-full gap-2 focus:border-3 focus:visible:border-accent focus:border-accent py-2 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue font-sans font-bold text-sm btn-primary h-full hover:text-white hover:bg-accent focus:outline-none active:shadow-none"
+        "filter flex max-w-full gap-2 border-transparent border-3 active:border-3 focus:visible:border-accent focus:border-accent py-2 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue font-sans font-bold text-sm btn-primary h-full hover:text-white hover:bg-accent focus:outline-none active:shadow-none"
       ]}
     >
       {# These labels are defined explicitly in Solr.Constants, but have to be called here because Constants is defined at compile time.}
