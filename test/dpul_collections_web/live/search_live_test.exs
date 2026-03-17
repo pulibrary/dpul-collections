@@ -471,6 +471,16 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Enum.empty?()
   end
 
+  test "when date range is empty it doesn't display a label", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/search")
+
+    view
+    |> element("#filter-form")
+    |> render_submit(%{"filter" => %{"year" => %{"from" => "", "to" => ""}}})
+
+    refute has_element?(view, ".filter.year")
+  end
+
   test "unknown filters are ignored", %{conn: conn} do
     {:ok, _view, html} = live(conn, "/search?filter[stuff][]=1")
 
