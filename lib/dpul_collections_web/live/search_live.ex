@@ -239,9 +239,9 @@ defmodule DpulCollectionsWeb.SearchLive do
       phx-change="checked_filter"
       phx-submit="apply_filters"
       for={@filter_form}
-      class="flex-1 overflow-y-auto"
+      class="grow flex flex-col"
     >
-      <div class="p-4 flex flex-col gap-4 h-full">
+      <div class="p-4 flex flex-col gap-4 grow">
         <p class="text-sm text-dark-text">
           Filter your {@total_items} results
         </p>
