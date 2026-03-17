@@ -22,7 +22,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       filter_data: filter_data
     } = Solr.search(search_state)
 
-    filter_data = filter_data |> Map.put("year", %{label: @filters["year"].label, data: []})
+    filter_data = filter_data |> Map.put("year", %{label: @filters["year"].label, data: [true]})
 
     socket =
       socket
@@ -137,24 +137,24 @@ defmodule DpulCollectionsWeb.SearchLive do
           this.options = this.el.querySelector('[data-filter-options]');
           if (!this.input || !this.options) return;
 
-          this.items = Array.from(this.options.querySelectorAll('label')).map(el => ({
-            el,
-            value: el.querySelector('input[type="checkbox"]')?.value || el.querySelector('span')?.textContent?.trim() || ''
-          }));
-
           this.input.addEventListener('input', e => {
             this.search(e.target.value)
           });
         },
 
         async search(query) {
+          const items = Array.from(this.options.querySelectorAll('label')).map(el => ({
+            el,
+            value: el.querySelector('input[type="checkbox"]')?.value || el.querySelector('span')?.textContent?.trim() || ''
+          }));
+
           if (!query?.trim()) {
-            this.items.forEach(i => { i.el.classList.remove('hidden'); i.el.style.order = ''; });
+            items.forEach(i => { i.el.classList.remove('hidden') });
             return;
           }
 
           const q = query.toLowerCase();
-          this.items.forEach(i => {
+          items.forEach(i => {
             i.el.classList.toggle('hidden', !i.value.toLowerCase().includes(q));
           });
         }
