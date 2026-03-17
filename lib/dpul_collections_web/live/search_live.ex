@@ -134,7 +134,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       export default {
         mounted() {
           this.input = this.el.querySelector('input[type="search"]');
-          this.options = this.el.querySelector('[data-filter-options]');
+          this.options = this.el.querySelector('[phx-feedback-for]');
           if (!this.input || !this.options) return;
 
           this.input.addEventListener('input', e => {
