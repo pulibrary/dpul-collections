@@ -3,6 +3,20 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
   use PhoenixTest.Playwright.Case
   alias DpulCollections.Solr
 
+  test "filters are searchable", %{conn: conn} do
+    Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+    Solr.soft_commit(active_collection())
+
+    conn
+    |> visit("/search?q=")
+    |> click_button("Filters")
+    |> click("*[role=tab]", "Format")
+    |> assert_has("label", text: "Pamphlets")
+    |> fill_in("Search Format filters", with: "older")
+    |> assert_has("label", text: "Folder")
+    |> refute_has("label", text: "Pamphlets")
+  end
+
   test "image counts are shown when total files outnumber visible images", %{conn: conn} do
     Solr.add(
       [

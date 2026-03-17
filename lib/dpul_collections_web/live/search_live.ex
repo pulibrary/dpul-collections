@@ -386,11 +386,19 @@ defmodule DpulCollectionsWeb.SearchLive do
     ~H"""
     <div id={"search-#{@field}"} phx-hook=".SearchFilter" class="pt-3">
       <div class="relative mb-2" phx-update="ignore" id={"search-wrapper-#{@field}"}>
+        <label for={"filter-#{@field}-search"} class="sr-only">
+          {gettext("Search")} {Gettext.gettext(DpulCollectionsWeb.Gettext, @filter.label)} {gettext(
+            "filters"
+          )}
+        </label>
         <input
           type="search"
           placeholder={gettext("Search filters...")}
           class="w-full px-3 py-2 text-sm border border-rust/20 rounded-md focus:ring-accent focus:border-accent"
           autocomplete="off"
+          id={"filter-#{@field}-search"}
+          name={"filter[#{@field}][search]"}
+          dir="auto"
         />
       </div>
 
