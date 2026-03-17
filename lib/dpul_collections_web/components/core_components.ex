@@ -512,9 +512,9 @@ defmodule DpulCollectionsWeb.CoreComponents do
       phx-remove={JS.exec("dcjs-close")}
       aria-labelledby={"#{@id}-label"}
       closedBy="any"
-      class="drawer backdrop:bg-black/50 fixed inset-0 m-0 max-h-full max-w-full h-full w-full bg-transparent open:flex open:justify-end"
+      class="drawer pointer-events-none backdrop:bg-black/50 fixed inset-0 m-0 max-h-full max-w-full h-full w-full bg-transparent open:flex open:justify-end"
     >
-      <div class="w-full sm:max-w-md h-full bg-background shadow-xl flex flex-col">
+      <div class="pointer-events-auto w-full sm:max-w-md h-full bg-background shadow-xl flex flex-col">
         <div class="flex items-center justify-between px-4 py-4 border-b border-rust/20 bg-sage-100">
           <h2 id={"#{@id}-label"} class="text-lg font-bold">
             {@label}

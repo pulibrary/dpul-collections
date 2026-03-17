@@ -194,10 +194,10 @@ defmodule DpulCollectionsWeb.SearchLive do
       </div>
 
       <.drawer id="filter-modal" label={gettext("Filter Results")}>
-        <div
-          :if={map_size(@search_state.filter) > 0}
-          class="px-4 py-3 bg-primary-light border-b border-rust/20"
-        >
+        <div class={[
+          "px-4 py-3 bg-primary-light border-b border-rust/20",
+          map_size(@search_state.filter) == 0 && "hidden"
+        ]}>
           <div class="flex items-center justify-between mb-2">
             <span class="text-sm font-semibold">{gettext("Active Filters")}</span>
             <.link
@@ -341,7 +341,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       phx-click="remove_filter"
       class={[
         @field,
-        "filter flex max-w-full gap-2 py-2 px-4 btn-primary no-underline text-sm h-full"
+        "filter flex max-w-full gap-1 py-2 px-4 btn-primary no-underline font-semibold *:font-semibold text-sm h-full"
       ]}
     >
       {# These labels are defined explicitly in Solr.Constants, but have to be called here because Constants is defined at compile time.}
