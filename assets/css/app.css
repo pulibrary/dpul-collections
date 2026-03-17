@@ -76,6 +76,11 @@
 }
 
 @layer base {
+  /* Prevent the page underneath the dialog from scrolling while a dialog is
+   * open. */
+  body:has(dialog[open]) {
+    overflow: hidden
+  }
   a {
     @apply hover:link-hover cursor-pointer;
   }
