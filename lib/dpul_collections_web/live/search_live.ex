@@ -161,7 +161,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       }
     </script>
     <section id="filters">
-      <div class="content-area py-4 w-full">
+      <div id="search-filters" class="content-area py-4 w-full">
         <div class="flex items-center gap-4 flex-wrap">
           <.primary_button
             type="button"
@@ -304,8 +304,8 @@ defmodule DpulCollectionsWeb.SearchLive do
       <div
         id={"#{@field}-panel"}
         role="tabpanel"
-        class={["expanded px-4 pb-4 border-t border-rust/10", !@expanded && "hidden"]}
-        aria-expanded="true"
+        class={["px-4 pb-4 border-t border-rust/10", @expanded && "expanded", !@expanded && "hidden"]}
+        aria-expanded={@expanded}
       >
         <.filter_input
           field={@field}
