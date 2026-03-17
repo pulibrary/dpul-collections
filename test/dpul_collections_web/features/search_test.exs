@@ -12,7 +12,7 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
     |> click_button("Filters")
     |> click("*[role=tab]", "Format")
     |> assert_has("label", text: "Pamphlets")
-    |> fill_in("Search Format filters", with: "older")
+    |> type("#filter-format-search", "older")
     |> assert_has("label", text: "Folder")
     |> refute_has("label", text: "Pamphlets")
   end

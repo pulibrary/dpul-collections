@@ -397,7 +397,6 @@ defmodule DpulCollectionsWeb.SearchLive do
           class="w-full px-3 py-2 text-sm border border-rust/20 rounded-md focus:ring-accent focus:border-accent"
           autocomplete="off"
           id={"filter-#{@field}-search"}
-          name={"filter[#{@field}][search]"}
           dir="auto"
         />
       </div>
