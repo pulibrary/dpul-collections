@@ -163,20 +163,20 @@ defmodule DpulCollectionsWeb.SearchLive do
     <section id="filters">
       <div class="content-area py-4 w-full">
         <div class="flex items-center gap-4 flex-wrap">
-          <button
+          <.primary_button
             type="button"
             phx-click={JS.exec("dcjs-open", to: "#filter-modal")}
-            class="flex h-full items-center gap-2 px-4 py-2 cursor-pointer bg-accent text-light-text rounded-md font-semibold hover:bg-rust/80 transition-colors"
+            class="flex h-full items-center gap-2 px-4 py-2 cursor-pointer"
           >
             <.icon name="hero-funnel" class="h-5 w-5" />
             {gettext("Filters")}
             <span
               :if={map_size(@search_state.filter) > 0}
-              class="bg-light-text text-accent px-2 py-1 rounded-full text-xs font-bold"
+              class="bg-light-text px-2 py-1 rounded-full text-xs font-bold"
             >
               {map_size(@search_state.filter)}
             </span>
-          </button>
+          </.primary_button>
 
           <div
             :if={map_size(@search_state.filter) > 0}
@@ -341,7 +341,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       phx-click="remove_filter"
       class={[
         @field,
-        "filter flex max-w-full gap-2 border-transparent border-3 active:border-3 focus:visible:border-accent focus:border-accent py-2 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue font-sans font-bold text-sm btn-primary h-full hover:text-white hover:bg-accent focus:outline-none active:shadow-none"
+        "filter flex max-w-full gap-2 py-2 px-4 btn-primary no-underline text-sm h-full"
       ]}
     >
       {# These labels are defined explicitly in Solr.Constants, but have to be called here because Constants is defined at compile time.}
