@@ -528,7 +528,9 @@ defmodule DpulCollectionsWeb.CoreComponents do
             <span class="sr-only">{gettext("Close")}</span>
           </button>
         </div>
-        {render_slot(@inner_block)}
+        <div class="flex flex-col overflow-y-auto grow">
+          {render_slot(@inner_block)}
+        </div>
       </div>
     </dialog>
     """
