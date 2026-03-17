@@ -237,7 +237,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     # Removing one pill doesn't remove the other
     assert view
-           |> element(".filter", "Pamphlets")
+           |> element("#search-filters .filter", "Pamphlets")
            |> render_click()
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
@@ -292,7 +292,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       |> Floki.parse_document()
 
     assert document
-           |> Floki.find(".year.filter")
+           |> Floki.find("#search-filters .year.filter")
            |> Floki.text()
            |> TestUtils.clean_string() == "Year Up to 2025"
 
@@ -305,7 +305,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       |> Floki.parse_document()
 
     assert document
-           |> Floki.find(".year.filter")
+           |> Floki.find("#search-filters .year.filter")
            |> Floki.text()
            |> TestUtils.clean_string() == "Year 2020 to Now"
 
@@ -320,7 +320,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert document |> Floki.find(".year.filter") |> Enum.empty?()
 
     assert document
-           |> Floki.find(".format.filter")
+           |> Floki.find("#search-filters .format.filter")
            |> Floki.text()
            |> TestUtils.clean_string() == "Format posters"
 
@@ -331,12 +331,12 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       |> Floki.parse_document()
 
     assert document
-           |> Floki.find(".year.filter")
+           |> Floki.find("#search-filters .year.filter")
            |> Floki.text()
            |> TestUtils.clean_string() == "Year Up to 2025"
 
     assert document
-           |> Floki.find(".format.filter")
+           |> Floki.find("#search-filters .format.filter")
            |> Floki.text()
            |> TestUtils.clean_string() == "Format posters"
   end
@@ -392,7 +392,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     |> render_click()
 
     assert view
-           |> element(".filter", "Folders")
+           |> element("#search-filters .filter", "Folders")
            |> render_click()
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
@@ -490,7 +490,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     # There's a similarity filter.
     assert document
-           |> Floki.find(".filter.similar")
+           |> Floki.find("#search-filters .filter.similar")
            |> Floki.text()
            |> TestUtils.clean_string() == "Similar To Document-2"
 
@@ -505,7 +505,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     # The filter can be removed.
     view
-    |> element(".filter", "Similar")
+    |> element("#search-filters .filter", "Similar")
     |> render_click()
 
     refute has_element?(view, ".filter.similar")
@@ -530,7 +530,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     similar_filters =
       document
-      |> Floki.find(".filter.similar")
+      |> Floki.find("#search-filters .filter.similar")
 
     assert length(similar_filters) == 1
 
