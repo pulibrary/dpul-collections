@@ -259,7 +259,11 @@ defmodule DpulCollections.Solr do
     from = filter_value["from"] || "*"
     to = filter_value["to"] || "*"
     solr_field = @filters[filter_key].solr_field
-    "{!tag=#{filter_key}Filter}#{solr_field}:[#{from} TO #{to}]"
+
+    case [from, to] do
+      ["*", "*"] -> nil
+      _ -> "{!tag=#{filter_key}Filter}#{solr_field}:[#{from} TO #{to}]"
+    end
   end
 
   def generate_filter_query(_), do: nil
