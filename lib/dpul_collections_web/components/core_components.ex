@@ -668,8 +668,8 @@ defmodule DpulCollectionsWeb.CoreComponents do
     ~H"""
     <div phx-feedback-for={@name} class={@class}>
       <label
-        :for={{label, value} <- @options}
-        class="flex items-center gap-2 cursor-pointer"
+        :for={{{label, count}, value} <- @options}
+        class="flex items-center gap-3 p-2 cursor-pointer hover:bg-sage-100 rounded-md"
       >
         <input
           type="checkbox"
@@ -678,10 +678,11 @@ defmodule DpulCollectionsWeb.CoreComponents do
           value={value}
           checked={is_list(@value) && value in (@value || [])}
           multiple={true}
-          class="h-[20px] w-[20px]"
+          class="h-5 w-5 rounded border-gray-300 text-accent text-sm focus:ring-accent"
           {@rest}
         />
-        {label}
+        <span class="flex-1 text-sm">{label}</span>
+        <span class="text-xs text-gray-500 bg-sage-100 px-2 py-0.5 rounded-full">{count}</span>
       </label>
       <.error :for={msg <- @errors}>{msg}</.error>
     </div>

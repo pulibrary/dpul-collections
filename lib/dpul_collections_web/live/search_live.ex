@@ -400,23 +400,14 @@ defmodule DpulCollectionsWeb.SearchLive do
           dir="auto"
         />
       </div>
-
-      <div data-filter-options class="max-h-52 overflow-y-auto flex flex-col space-y-1">
-        <label
-          :for={{value, count} <- @filter.data}
-          class="flex items-center gap-3 p-2 cursor-pointer hover:bg-sage-100 rounded-md transition-colors"
-        >
-          <input
-            type="checkbox"
-            name={"filter[#{@field}][]"}
-            value={value}
-            checked={value in List.wrap(@filter_form.params[@field])}
-            class="h-5 w-5 rounded border-gray-300 text-accent focus:ring-accent"
-          />
-          <span class="flex-1 text-sm">{value}</span>
-          <span class="text-xs text-gray-500 bg-sage-100 px-2 py-0.5 rounded-full">{count}</span>
-        </label>
-      </div>
+      <.input
+        data-filter-options
+        type="checkgroup"
+        field={@filter_form[@field]}
+        multiple={true}
+        class="max-h-52 overflow-y-auto flex flex-col space-y-1"
+        options={@filter.data |> Enum.map(fn {value, count} -> {{value, count}, value} end)}
+      />
     </div>
     """
   end
