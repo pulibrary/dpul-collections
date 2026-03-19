@@ -86,13 +86,26 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
           data = %{"id" => id, "metadata" => metadata, "internal_resource" => "ScannedResource"}
       }) do
     collection_titles = extract_collection_titles(related_data, "Collection")
-
     metadata = merge_imported(metadata)
     base = base_solr_fields(id, data, metadata, related_data, "ScannedResource")
 
     Map.merge(base, %{
       collection_titles_ss: collection_titles,
       collection_ids_ss: extract_collection_ids(related_data, "Collection"),
+      author_txt_sort: get_in(metadata, ["author"]),
+      binding_note_ss: get_in(metadata, ["binding_note"]),
+      call_number_ss: get_in(metadata, ["call_number"]),
+      display_date_ss: get_in(metadata, ["date"]),
+      donor_txt_sort: get_in(metadata, ["donor"]),
+      extent_ss: get_in(metadata, ["extent"]),
+      format_txt_sort: get_in(metadata, ["format"]),
+      identifier_txt_sort: get_in(metadata, ["identifier"]),
+      language_txt_sort: get_in(metadata, ["language"]),
+      notes_ss: get_in(metadata, ["description"]),
+      references_ss: get_in(metadata, ["references"]),
+      scribe_txt_sort: get_in(metadata, ["scribe"]),
+      source_acquisition_ss: get_in(metadata, ["source_acquisition"]),
+      subject_txt_sort: get_in(metadata, ["subject"]),
       summary_txtm: get_in(metadata, ["abstract"])
     })
   end
@@ -200,10 +213,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
   # Remove empty strings from list
   defp remove_empty_strings(field_value) when is_list(field_value) do
     field_value |> Enum.reject(fn v -> v == "" end)
-  end
-
-  defp remove_empty_strings(_) do
-    []
   end
 
   defp digitized_date(%{"created_at" => created_at}) when is_binary(created_at) do
