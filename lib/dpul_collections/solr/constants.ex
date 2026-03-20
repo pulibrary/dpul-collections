@@ -140,9 +140,13 @@ defmodule DpulCollections.Solr.Constants do
 
   # Returns a string version of a date facet.
   def date_value(year_params = %{}) do
-    from = year_params["from"] || gettext("Up")
-    to = year_params["to"] || gettext("Now")
-    "#{from} #{gettext("to")} #{to}"
+    from = year_params["from"]
+    to = year_params["to"]
+
+    case [from, to] do
+      [nil, nil] -> nil
+      _ -> "#{from || gettext("Up")} #{gettext("to")} #{to || gettext("Now")}"
+    end
   end
 
   def date_value(_), do: nil

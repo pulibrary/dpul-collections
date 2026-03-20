@@ -1,6 +1,6 @@
 import LiveReact from "phoenix_live_react"
 import {hooks as colocatedHooks} from "phoenix-colocated/dpul_collections"
-let Hooks = { LiveReact, colocatedHooks };
+let Hooks = { LiveReact, ...colocatedHooks };
 
 Hooks.ToolbarHook = {
   mounted() {
