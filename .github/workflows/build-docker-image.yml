@@ -83,20 +83,18 @@ jobs:
             type=sha
         env:
           DOCKER_METADATA_PR_HEAD_SHA: true
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.20.0
+      - name: Run Grype vulnerability scanner
+        uses: anchore/scan-action@v7
         id: runscanner
         continue-on-error: true
-        env:
-          TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db:2
         with:
-          image-ref: 'ghcr.io/pulibrary/dpul-collections:${{ steps.meta.outputs.version }}'
-          format: 'table'
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
-          output: 'vulnerabilities.table'
+          image: "ghcr.io/pulibrary/dpul-collections:${{ steps.meta.outputs.version }}"
+          fail-build: true
+          severity-cutoff: high
+          output-format: table
+          output-file: "vulnerabilities.table"
+          only-fixed: true
+
       - name: Set variables
         id: scanner
         if: ${{ always() }}
