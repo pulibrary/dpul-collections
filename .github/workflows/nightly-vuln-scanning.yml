@@ -26,6 +26,7 @@ jobs:
           severity-cutoff: high
           output-format: table
           output-file: "vulnerabilities.table"
+          only-fixed: true
       - name: Set variables
         id: scanner
         if: job.steps.runscanner.status == failure()
