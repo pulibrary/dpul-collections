@@ -13,8 +13,20 @@ defmodule DpulCollectionsWeb.SearchLive do
     {:ok, socket}
   end
 
+  # We've searched before - split filters/items to speed things up.
+  def handle_params(params, _uri, socket = %{assigns: %{items: _items}}) do
+    socket = assign_search_state(socket, params)
+    search_state = socket.assigns.search_state
+
+    {:noreply,
+     socket
+     |> start_async(:fetch_filter_data, fn -> Solr.filter_data(search_state) end)
+     |> start_async(:fetch_results, fn -> Solr.search_results(search_state) end)}
+  end
+
   def handle_params(params, _uri, socket) do
-    search_state = SearchState.from_params(params |> Helpers.clean_params())
+    socket = assign_search_state(socket, params)
+    search_state = socket.assigns.search_state
 
     %{
       results: items,
@@ -22,32 +34,54 @@ defmodule DpulCollectionsWeb.SearchLive do
       filter_data: filter_data
     } = Solr.search(search_state)
 
-    filter_data = filter_data |> Map.put("year", %{label: @filters["year"].label, data: [true]})
+    {:noreply,
+     socket
+     |> assign(
+       page_title: "Search Results - Digital Collections",
+       item_counter: item_counter(search_state, total_items),
+       items: items,
+       total_items: total_items,
+       filter_data: with_year_filter(filter_data)
+     )
+     |> assign_new(
+       :expanded_filter,
+       fn -> nil end
+     )}
+  end
 
-    socket =
-      socket
-      |> assign(
-        page_title: "Search Results - Digital Collections",
-        search_state: search_state,
-        item_counter: item_counter(search_state, total_items),
-        items: items,
-        total_items: total_items,
-        filter_data: filter_data,
-        filter_form: to_form(params["filter"] || %{}, as: "filter"),
-        # To put this in filter_form we'd have to make a ChangeSet that can
-        # handle nested parameters.
-        year_form:
-          to_form(
-            get_in(params, [Access.key("filter", %{}), Access.key("year", %{})]),
-            as: "filter[year]"
-          )
-      )
-      |> assign_new(
-        :expanded_filter,
-        fn -> nil end
-      )
+  def handle_async(:fetch_filter_data, {:ok, filter_data}, socket) do
+    {:noreply,
+     socket
+     |> assign(filter_data: with_year_filter(filter_data))}
+  end
 
-    {:noreply, socket}
+  def handle_async(:fetch_results, {:ok, %{results: items, total_items: total_items}}, socket) do
+    {:noreply,
+     socket
+     |> assign(
+       item_counter: item_counter(socket.assigns.search_state, total_items),
+       items: items,
+       total_items: total_items
+     )}
+  end
+
+  defp assign_search_state(socket, params) do
+    search_state = SearchState.from_params(params |> Helpers.clean_params())
+
+    socket
+    |> assign(
+      search_state: search_state,
+      filter_form: to_form(params["filter"] || %{}, as: "filter"),
+      year_form:
+        to_form(
+          get_in(params, [Access.key("filter", %{}), Access.key("year", %{})]),
+          as: "filter[year]"
+        )
+    )
+  end
+
+  defp with_year_filter(filter_data) do
+    filter_data |> Map.put("year", %{label: @filters["year"].label, data: [true]})
   end
 
   defp item_counter(_, 0), do: gettext("No items found")
