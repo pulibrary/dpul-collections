@@ -445,7 +445,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         type="checkgroup"
         field={@filter_form[@field]}
         multiple={true}
-        class="max-h-52 overflow-y-auto flex flex-col space-y-1"
+        class="max-h-100 overflow-y-auto grid grid-cols-1 sm:grid-cols-1 space-y-1"
         options={@filter.data |> Enum.map(fn {value, count} -> {{value, count}, value} end)}
       />
     </div>
