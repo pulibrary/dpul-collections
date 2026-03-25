@@ -170,12 +170,6 @@ defmodule DpulCollectionsWeb.SearchLive do
           >
             <.icon name="hero-funnel" class="h-5 w-5" />
             {gettext("Filters")}
-            <span
-              :if={map_size(@search_state.filter) > 0}
-              class="bg-light-text px-2 py-1 rounded-full text-xs font-bold"
-            >
-              {map_size(@search_state.filter)}
-            </span>
           </.primary_button>
 
           <div
@@ -772,7 +766,9 @@ defmodule DpulCollectionsWeb.SearchLive do
   end
 
   def handle_event("apply_filters", params, socket) do
-    params = params |> Map.merge(%{"page" => 1})
+    params =
+      params |> Map.merge(%{"page" => "1"}) |> SearchState.from_params() |> Helpers.clean_params()
+
     socket = push_patch(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
   end
