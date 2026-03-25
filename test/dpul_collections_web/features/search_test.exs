@@ -15,6 +15,9 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
     |> type("#filter-format-search", "older")
     |> assert_has("label", text: "Folder")
     |> refute_has("label", text: "Pamphlets")
+    |> check("Folder", exact: false)
+    |> assert_has(".filter.format")
+    |> refute_has("label", text: "Pamphlets")
   end
 
   test "image counts are shown when total files outnumber visible images", %{conn: conn} do

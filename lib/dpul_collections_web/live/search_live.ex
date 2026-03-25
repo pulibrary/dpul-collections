@@ -142,6 +142,10 @@ defmodule DpulCollectionsWeb.SearchLive do
           });
         },
 
+        updated() {
+          this.search(this.input.value)
+        },
+
         async search(query) {
           const items = Array.from(this.options.querySelectorAll('label')).map(el => ({
             el,
