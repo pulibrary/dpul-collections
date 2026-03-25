@@ -113,9 +113,11 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   test "items can be sorted by date, ascending and descending", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/search")
 
+    view |> render_click("sort", %{"sort-by" => "date_asc"})
+
     {:ok, document} =
       view
-      |> render_click("sort", %{"sort-by" => "date_asc"})
+      |> render_async()
       |> Floki.parse_document()
 
     assert document
@@ -126,9 +128,11 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Floki.find(~s{a[href="/i/document1/item/1"]})
            |> Enum.empty?()
 
+    view |> render_click("sort", %{"sort-by" => "date_desc"})
+
     {:ok, document} =
       view
-      |> render_click("sort", %{"sort-by" => "date_desc"})
+      |> render_async()
       |> Floki.parse_document()
 
     assert document
@@ -143,9 +147,11 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   test "items can be sorted by recently updated", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/search")
 
+    view |> render_click("sort", %{"sort-by" => "recently_added"})
+
     {:ok, document} =
       view
-      |> render_click("sort", %{"sort-by" => "recently_added"})
+      |> render_async()
       |> Floki.parse_document()
 
     # Note: 100 items are generated in solr_test_support.ex from oldest to newest.
@@ -211,9 +217,12 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     |> element("button", "Format")
     |> render_click()
 
+    view
+    |> element("#filter-form")
+    |> render_change(%{_target: ["filter", "format"], filter: %{format: ["Folders"]}})
+
     assert view
-           |> element("#filter-form")
-           |> render_change(%{_target: ["filter", "format"], filter: %{format: ["Folders"]}})
+           |> render_async()
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
            |> Floki.text() =~ "of 50"
@@ -222,12 +231,15 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> has_element?(".filter", "Folders")
 
     # I can pick a second format to make an OR
+    view
+    |> element("#filter-form")
+    |> render_change(%{
+      _target: ["filter", "format"],
+      filter: %{format: ["Folders", "Pamphlets"]}
+    })
+
     assert view
-           |> element("#filter-form")
-           |> render_change(%{
-             _target: ["filter", "format"],
-             filter: %{format: ["Folders", "Pamphlets"]}
-           })
+           |> render_async()
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
            |> Floki.text() =~ "of 100"
@@ -236,17 +248,23 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert element(view, ".filter", "Pamphlets") != element(view, ".filter", "Folders")
 
     # Removing one pill doesn't remove the other
+    view
+    |> element("#search-filters .filter", "Pamphlets")
+    |> render_click()
+
     assert view
-           |> element("#search-filters .filter", "Pamphlets")
-           |> render_click()
+           |> render_async
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
            |> Floki.text() =~ "of 50"
 
     # I can remove it from the checkbox
+    view
+    |> element("#filter-form")
+    |> render_change(%{"_target" => ["filter", "format"], "filter" => %{"format" => nil}})
+
     assert view
-           |> element("#filter-form")
-           |> render_change(%{"_target" => ["filter", "format"], "filter" => %{"format" => nil}})
+           |> render_async
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
            |> Floki.text() =~ "of 100"
@@ -367,9 +385,12 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     |> element("button", "Format")
     |> render_click()
 
+    view
+    |> element("#filter-form")
+    |> render_change(%{_target: ["filter", "format"], filter: %{format: ["Folders"]}})
+
     assert view
-           |> element("#filter-form")
-           |> render_change(%{_target: ["filter", "format"], filter: %{format: ["Folders"]}})
+           |> render_async()
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
            |> Floki.text() =~ "1 - 50 of 105"
@@ -391,9 +412,12 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     |> element("#format-panel-button", "Format")
     |> render_click()
 
+    view
+    |> element("#search-filters .filter", "Folders")
+    |> render_click()
+
     assert view
-           |> element("#search-filters .filter", "Folders")
-           |> render_click()
+           |> render_async()
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
            |> Floki.text() =~ "1 - 50 of 210"
@@ -452,10 +476,13 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   test "items can be filtered by date range", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/search")
 
+    view
+    |> element("#filter-form")
+    |> render_submit(%{"filter" => %{"year" => %{"from" => "1925", "to" => "1926"}}})
+
     {:ok, document} =
       view
-      |> element("#filter-form")
-      |> render_submit(%{"filter" => %{"year" => %{"from" => "1925", "to" => "1926"}}})
+      |> render_async()
       |> Floki.parse_document()
 
     assert document
@@ -638,9 +665,11 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Floki.find("a[phx-value-page=2]")
            |> Enum.empty?()
 
+    view |> render_click("sort", %{"sort-by" => "date_asc"})
+
     {:ok, document} =
       view
-      |> render_click("sort", %{"sort-by" => "date_asc"})
+      |> render_async()
       |> Floki.parse_document()
 
     assert document
@@ -673,10 +702,13 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     # Check that updating the date query resets the paginator
     {:ok, view, _html} = live(conn, ~p"/search?page=10&per_page=10")
 
+    view
+    |> element("#filter-form")
+    |> render_submit(%{"filter" => %{"year" => %{"from" => nil, "to" => nil}}})
+
     {:ok, document} =
       view
-      |> element("#filter-form")
-      |> render_submit(%{"filter" => %{"year" => %{"from" => nil, "to" => nil}}})
+      |> render_async()
       |> Floki.parse_document()
 
     assert document
