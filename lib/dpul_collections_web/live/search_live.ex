@@ -269,7 +269,6 @@ defmodule DpulCollectionsWeb.SearchLive do
       <%!-- Footer with view results button --%>
       <div class="sticky bottom-0 px-4 py-4 bg-sage-100 border-t border-rust/20">
         <.primary_button
-          type="button"
           phx-click={JS.exec("dcjs-close", to: "#filter-modal")}
           class="cursor-pointer w-full py-3 font-bold rounded-md"
         >
@@ -340,7 +339,7 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def filter_pill(assigns = %{filter_value: filter_value}) when is_binary(filter_value) do
     ~H"""
-    <.link
+    <.primary_button
       :if={@filter_value}
       role="button"
       phx-value-filter-value={@filter_value}
@@ -358,7 +357,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         {@filter_value}
       </span>
       <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
-    </.link>
+    </.primary_button>
     """
   end
 
