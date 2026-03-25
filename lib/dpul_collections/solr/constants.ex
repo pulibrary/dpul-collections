@@ -144,7 +144,6 @@ defmodule DpulCollections.Solr.Constants do
     to = year_params["to"]
 
     case [from, to] do
-      [nil, nil] -> nil
       _ -> "#{from || gettext("Up")} #{gettext("to")} #{to || gettext("Now")}"
     end
   end
