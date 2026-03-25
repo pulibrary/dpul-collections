@@ -491,6 +491,33 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Enum.empty?()
   end
 
+  test "similarity filters aren't lost when filtering other things", %{conn: conn} do
+    {:ok, view, html} = live(conn, "/search?filter[similar]=2")
+
+    {:ok, document} =
+      html
+      |> Floki.parse_document()
+
+    # There's a similarity filter.
+    assert document
+           |> Floki.find("#search-filters .filter.similar")
+           |> Floki.text()
+           |> TestUtils.clean_string() == "Similar To Document-2"
+
+    {:ok, document} =
+      view
+      |> element("#filter-form")
+      |> render_submit(%{"filter" => %{"year" => %{"from" => "1925", "to" => "1926"}}})
+      |> Floki.parse_document()
+
+    assert has_element?(view, ".filter.year")
+
+    assert document
+           |> Floki.find("#search-filters .filter.similar")
+           |> Floki.text()
+           |> TestUtils.clean_string() == "Similar To Document-2"
+  end
+
   test "items can be filtered by similarity", %{conn: conn} do
     {:ok, view, html} = live(conn, "/search?filter[similar]=2")
 
