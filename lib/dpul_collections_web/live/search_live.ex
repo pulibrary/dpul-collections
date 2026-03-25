@@ -225,6 +225,10 @@ defmodule DpulCollectionsWeb.SearchLive do
     """
   end
 
+  def hidden_filters() do
+    @filter_keys -- @filter_fields
+  end
+
   def filter_form_component(assigns) do
     ~H"""
     <.form
@@ -248,6 +252,12 @@ defmodule DpulCollectionsWeb.SearchLive do
             expanded={field == @expanded_filter}
             filter_form={@filter_form}
             year_form={@year_form}
+          />
+
+          <.input
+            :for={hidden_filter <- hidden_filters()}
+            type="hidden"
+            field={@filter_form[hidden_filter]}
           />
         </div>
       </div>

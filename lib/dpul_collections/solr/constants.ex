@@ -28,6 +28,8 @@ defmodule DpulCollections.Solr.Constants do
       }
       @sort_by_keys Enum.map(Map.keys(@valid_sort_by), &to_string/1)
 
+      @filter_fields ["collection", "format", "language", "subject", "year"]
+
       @filters %{
         "contributor" => %{
           solr_field: "contributor_txt_sort",
@@ -143,9 +145,7 @@ defmodule DpulCollections.Solr.Constants do
     from = year_params["from"]
     to = year_params["to"]
 
-    case [from, to] do
-      _ -> "#{from || gettext("Up")} #{gettext("to")} #{to || gettext("Now")}"
-    end
+    "#{from || gettext("Up")} #{gettext("to")} #{to || gettext("Now")}"
   end
 
   def date_value(_), do: nil

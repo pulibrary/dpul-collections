@@ -121,7 +121,6 @@ defmodule DpulCollections.Solr do
     raw_query(search_state, index)["response"]
   end
 
-  @filter_fields ["collection", "format", "language", "subject", "year"]
   def search(search_state, index \\ Index.read_index()) do
     search_state
     |> SearchState.add_filter_count_fields(@filter_fields)
@@ -260,10 +259,7 @@ defmodule DpulCollections.Solr do
     to = filter_value["to"] || "*"
     solr_field = @filters[filter_key].solr_field
 
-    case [from, to] do
-      ["*", "*"] -> nil
-      _ -> "{!tag=#{filter_key}Filter}#{solr_field}:[#{from} TO #{to}]"
-    end
+    "{!tag=#{filter_key}Filter}#{solr_field}:[#{from} TO #{to}]"
   end
 
   def generate_filter_query(_), do: nil
