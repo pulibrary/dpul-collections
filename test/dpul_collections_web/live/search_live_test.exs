@@ -194,21 +194,21 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     # Clicking the button shows the filters.
     view
-    |> element("button[role=tab]", "Format")
+    |> element("button", "Format")
     |> render_click()
 
-    assert view |> has_element?("div.expanded[role='tabpanel']")
+    assert view |> has_element?("#format-panel.expanded")
 
     # Clicking the button again hides the filters.
     view
-    |> element("button[role=tab]", "Format")
+    |> element("button", "Format")
     |> render_click() =~ "Folders"
 
-    refute view |> has_element?("div.expanded[role='tabpanel']")
+    refute view |> has_element?("#format-panel.expanded")
 
     # Let's toggle it back on so we can click the Folders format.
     view
-    |> element("button[role=tab]", "Format")
+    |> element("button", "Format")
     |> render_click()
 
     assert view
@@ -255,7 +255,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     # I can add a year filter
     view
-    |> element("button[role=tab]", "Year")
+    |> element("#year-panel-button", "Year")
     |> render_click()
 
     assert view |> has_element?(".expanded input[name='filter[year][from]']")
@@ -364,7 +364,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     # selecting a filter goes back to page 1
     view
-    |> element("button[role=tab]", "Format")
+    |> element("button", "Format")
     |> render_click()
 
     assert view
@@ -388,7 +388,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     # Removing a pill goes back to page 1
     view
-    |> element("button[role=tab]", "Format")
+    |> element("button", "Format")
     |> render_click()
 
     assert view

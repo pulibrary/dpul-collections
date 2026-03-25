@@ -248,7 +248,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           Filter your {@total_items} results
         </p>
 
-        <div class="flex flex-col gap-4" role="tablist" aria-label={gettext("available filters")}>
+        <div class="flex flex-col gap-4">
           <.filter_section
             :for={{field, filter} <- @filter_data}
             field={field}
@@ -287,11 +287,12 @@ defmodule DpulCollectionsWeb.SearchLive do
       length(@filter.data) == 0 && "hidden"
     ]}>
       <button
-        role="tab"
+        id={"#{@field}-panel-button"}
         type="button"
         phx-click="select_filter_tab"
         phx-value-filter={@field}
         aria-controls={"#{@field}-panel"}
+        aria-expanded={to_string(@expanded)}
         class={[
           "cursor-pointer w-full flex items-center justify-between px-4 py-3 text-left font-semibold",
           "hover:bg-primary-bright transition-colors",
@@ -311,9 +312,7 @@ defmodule DpulCollectionsWeb.SearchLive do
 
       <div
         id={"#{@field}-panel"}
-        role="tabpanel"
         class={["px-4 pb-4 border-t border-rust/10", @expanded && "expanded", !@expanded && "hidden"]}
-        aria-expanded={@expanded}
       >
         <.filter_input
           field={@field}
