@@ -19,7 +19,7 @@ defmodule DpulCollectionsWeb.Features.LocaleTest do
     |> Playwright.type("input#q", " ")
     |> click_button("Buscar")
     |> click_button("Filtros")
-    |> click("*[role=tab]", "Año")
+    |> click("#year-panel-button", "Año")
     |> assert_has("label", text: "De")
   end
 
