@@ -388,7 +388,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     # Removing a pill goes back to page 1
     view
-    |> element("button", "Format")
+    |> element("#format-panel-button", "Format")
     |> render_click()
 
     assert view
