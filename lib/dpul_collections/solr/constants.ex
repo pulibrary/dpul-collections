@@ -28,7 +28,15 @@ defmodule DpulCollections.Solr.Constants do
       }
       @sort_by_keys Enum.map(Map.keys(@valid_sort_by), &to_string/1)
 
-      @filter_fields ["collection", "format", "language", "subject", "year"]
+      @filter_fields [
+        "collection",
+        "format",
+        "language",
+        "geographic_origin",
+        "category",
+        "subject",
+        "year"
+      ]
 
       @filters %{
         "contributor" => %{
