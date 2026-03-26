@@ -113,9 +113,11 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   test "items can be sorted by date, ascending and descending", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/search")
 
+    view |> render_click("sort", %{"sort-by" => "date_asc"})
+
     {:ok, document} =
       view
-      |> render_click("sort", %{"sort-by" => "date_asc"})
+      |> render_async()
       |> Floki.parse_document()
 
     assert document
@@ -126,9 +128,11 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Floki.find(~s{a[href="/i/document1/item/1"]})
            |> Enum.empty?()
 
+    view |> render_click("sort", %{"sort-by" => "date_desc"})
+
     {:ok, document} =
       view
-      |> render_click("sort", %{"sort-by" => "date_desc"})
+      |> render_async()
       |> Floki.parse_document()
 
     assert document
@@ -143,9 +147,11 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   test "items can be sorted by recently updated", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/search")
 
+    view |> render_click("sort", %{"sort-by" => "recently_added"})
+
     {:ok, document} =
       view
-      |> render_click("sort", %{"sort-by" => "recently_added"})
+      |> render_async()
       |> Floki.parse_document()
 
     # Note: 100 items are generated in solr_test_support.ex from oldest to newest.
@@ -194,26 +200,29 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     # Clicking the button shows the filters.
     view
-    |> element("button[role=tab]", "Format")
+    |> element("button", "Format")
     |> render_click()
 
-    assert view |> has_element?("div.expanded[role='tabpanel']")
+    assert view |> has_element?("#format-panel.expanded")
 
     # Clicking the button again hides the filters.
     view
-    |> element("button[role=tab]", "Format")
+    |> element("button", "Format")
     |> render_click() =~ "Folders"
 
-    refute view |> has_element?("div.expanded[role='tabpanel']")
+    refute view |> has_element?("#format-panel.expanded")
 
     # Let's toggle it back on so we can click the Folders format.
     view
-    |> element("button[role=tab]", "Format")
+    |> element("button", "Format")
     |> render_click()
 
+    view
+    |> element("#filter-form")
+    |> render_change(%{_target: ["filter", "format"], filter: %{format: ["Folders"]}})
+
     assert view
-           |> element("#filter-form")
-           |> render_change(%{_target: ["filter", "format"], filter: %{format: ["Folders"]}})
+           |> render_async()
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
            |> Floki.text() =~ "of 50"
@@ -222,12 +231,15 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> has_element?(".filter", "Folders")
 
     # I can pick a second format to make an OR
+    view
+    |> element("#filter-form")
+    |> render_change(%{
+      _target: ["filter", "format"],
+      filter: %{format: ["Folders", "Pamphlets"]}
+    })
+
     assert view
-           |> element("#filter-form")
-           |> render_change(%{
-             _target: ["filter", "format"],
-             filter: %{format: ["Folders", "Pamphlets"]}
-           })
+           |> render_async()
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
            |> Floki.text() =~ "of 100"
@@ -236,17 +248,23 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert element(view, ".filter", "Pamphlets") != element(view, ".filter", "Folders")
 
     # Removing one pill doesn't remove the other
+    view
+    |> element("#search-filters .filter", "Pamphlets")
+    |> render_click()
+
     assert view
-           |> element(".filter", "Pamphlets")
-           |> render_click()
+           |> render_async
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
            |> Floki.text() =~ "of 50"
 
     # I can remove it from the checkbox
+    view
+    |> element("#filter-form")
+    |> render_change(%{"_target" => ["filter", "format"], "filter" => %{"format" => nil}})
+
     assert view
-           |> element("#filter-form")
-           |> render_change(%{"_target" => ["filter", "format"], "filter" => %{"format" => nil}})
+           |> render_async
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
            |> Floki.text() =~ "of 100"
@@ -255,7 +273,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     # I can add a year filter
     view
-    |> element("button[role=tab]", "Year")
+    |> element("#year-panel-button", "Year")
     |> render_click()
 
     assert view |> has_element?(".expanded input[name='filter[year][from]']")
@@ -292,7 +310,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       |> Floki.parse_document()
 
     assert document
-           |> Floki.find(".year.filter")
+           |> Floki.find("#search-filters .year.filter")
            |> Floki.text()
            |> TestUtils.clean_string() == "Year Up to 2025"
 
@@ -305,7 +323,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       |> Floki.parse_document()
 
     assert document
-           |> Floki.find(".year.filter")
+           |> Floki.find("#search-filters .year.filter")
            |> Floki.text()
            |> TestUtils.clean_string() == "Year 2020 to Now"
 
@@ -320,7 +338,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert document |> Floki.find(".year.filter") |> Enum.empty?()
 
     assert document
-           |> Floki.find(".format.filter")
+           |> Floki.find("#search-filters .format.filter")
            |> Floki.text()
            |> TestUtils.clean_string() == "Format posters"
 
@@ -331,12 +349,12 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       |> Floki.parse_document()
 
     assert document
-           |> Floki.find(".year.filter")
+           |> Floki.find("#search-filters .year.filter")
            |> Floki.text()
            |> TestUtils.clean_string() == "Year Up to 2025"
 
     assert document
-           |> Floki.find(".format.filter")
+           |> Floki.find("#search-filters .format.filter")
            |> Floki.text()
            |> TestUtils.clean_string() == "Format posters"
   end
@@ -364,12 +382,15 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     # selecting a filter goes back to page 1
     view
-    |> element("button[role=tab]", "Format")
+    |> element("button", "Format")
     |> render_click()
 
+    view
+    |> element("#filter-form")
+    |> render_change(%{_target: ["filter", "format"], filter: %{format: ["Folders"]}})
+
     assert view
-           |> element("#filter-form")
-           |> render_change(%{_target: ["filter", "format"], filter: %{format: ["Folders"]}})
+           |> render_async()
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
            |> Floki.text() =~ "1 - 50 of 105"
@@ -388,12 +409,15 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     # Removing a pill goes back to page 1
     view
-    |> element("button[role=tab]", "Format")
+    |> element("#format-panel-button", "Format")
+    |> render_click()
+
+    view
+    |> element("#search-filters .filter", "Folders")
     |> render_click()
 
     assert view
-           |> element(".filter", "Folders")
-           |> render_click()
+           |> render_async()
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
            |> Floki.text() =~ "1 - 50 of 210"
@@ -452,10 +476,13 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   test "items can be filtered by date range", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/search")
 
+    view
+    |> element("#filter-form")
+    |> render_submit(%{"filter" => %{"year" => %{"from" => "1925", "to" => "1926"}}})
+
     {:ok, document} =
       view
-      |> element("#filter-form")
-      |> render_submit(%{"filter" => %{"year" => %{"from" => "1925", "to" => "1926"}}})
+      |> render_async()
       |> Floki.parse_document()
 
     assert document
@@ -471,6 +498,16 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Enum.empty?()
   end
 
+  test "when date range is empty it doesn't display a label", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/search")
+
+    view
+    |> element("#filter-form")
+    |> render_submit(%{"filter" => %{"year" => %{"from" => "", "to" => ""}}})
+
+    refute has_element?(view, ".filter.year")
+  end
+
   test "unknown filters are ignored", %{conn: conn} do
     {:ok, _view, html} = live(conn, "/search?filter[stuff][]=1")
 
@@ -479,6 +516,33 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert document
            |> Floki.find(~s{.filter})
            |> Enum.empty?()
+  end
+
+  test "similarity filters aren't lost when filtering other things", %{conn: conn} do
+    {:ok, view, html} = live(conn, "/search?filter[similar]=2")
+
+    {:ok, document} =
+      html
+      |> Floki.parse_document()
+
+    # There's a similarity filter.
+    assert document
+           |> Floki.find("#search-filters .filter.similar")
+           |> Floki.text()
+           |> TestUtils.clean_string() == "Similar To Document-2"
+
+    {:ok, document} =
+      view
+      |> element("#filter-form")
+      |> render_submit(%{"filter" => %{"year" => %{"from" => "1925", "to" => "1926"}}})
+      |> Floki.parse_document()
+
+    assert has_element?(view, ".filter.year")
+
+    assert document
+           |> Floki.find("#search-filters .filter.similar")
+           |> Floki.text()
+           |> TestUtils.clean_string() == "Similar To Document-2"
   end
 
   test "items can be filtered by similarity", %{conn: conn} do
@@ -490,7 +554,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     # There's a similarity filter.
     assert document
-           |> Floki.find(".filter.similar")
+           |> Floki.find("#search-filters .filter.similar")
            |> Floki.text()
            |> TestUtils.clean_string() == "Similar To Document-2"
 
@@ -505,7 +569,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     # The filter can be removed.
     view
-    |> element(".filter", "Similar")
+    |> element("#search-filters .filter", "Similar")
     |> render_click()
 
     refute has_element?(view, ".filter.similar")
@@ -530,7 +594,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     similar_filters =
       document
-      |> Floki.find(".filter.similar")
+      |> Floki.find("#search-filters .filter.similar")
 
     assert length(similar_filters) == 1
 
@@ -601,9 +665,11 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Floki.find("a[phx-value-page=2]")
            |> Enum.empty?()
 
+    view |> render_click("sort", %{"sort-by" => "date_asc"})
+
     {:ok, document} =
       view
-      |> render_click("sort", %{"sort-by" => "date_asc"})
+      |> render_async()
       |> Floki.parse_document()
 
     assert document
@@ -636,10 +702,13 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     # Check that updating the date query resets the paginator
     {:ok, view, _html} = live(conn, ~p"/search?page=10&per_page=10")
 
+    view
+    |> element("#filter-form")
+    |> render_submit(%{"filter" => %{"year" => %{"from" => nil, "to" => nil}}})
+
     {:ok, document} =
       view
-      |> element("#filter-form")
-      |> render_submit(%{"filter" => %{"year" => %{"from" => nil, "to" => nil}}})
+      |> render_async()
       |> Floki.parse_document()
 
     assert document

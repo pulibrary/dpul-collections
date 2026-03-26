@@ -494,6 +494,48 @@ defmodule DpulCollectionsWeb.CoreComponents do
     """
   end
 
+  attr :id, :string, required: true
+  attr :afterClose, :any, required: false, default: %JS{}
+  attr :label, :string, required: true
+
+  slot :inner_block, doc: "the drawer content"
+
+  def drawer(assigns) do
+    ~H"""
+    <dialog
+      id={@id}
+      phx-hook="Dialog"
+      phx-mounted={JS.ignore_attributes("open")}
+      dcjs-open={JS.dispatch("dpulc:showDialog")}
+      dcjs-close={JS.dispatch("dpulc:closeDialog") |> JS.exec("dcjs-after-close")}
+      dcjs-after-close={@afterClose}
+      phx-remove={JS.exec("dcjs-close")}
+      aria-labelledby={"#{@id}-label"}
+      closedBy="any"
+      class="drawer pointer-events-none backdrop:bg-black/50 fixed inset-0 m-0 max-h-full max-w-full h-full w-full bg-transparent open:flex open:justify-end"
+    >
+      <div class="pointer-events-auto w-full sm:max-w-2xl h-full bg-background shadow-xl flex flex-col">
+        <div class="flex items-center justify-between px-4 py-4 border-b border-rust/20 bg-sage-100">
+          <h2 id={"#{@id}-label"} class="text-lg font-bold">
+            {@label}
+          </h2>
+          <button
+            type="button"
+            class="p-2 hover:bg-primary-bright rounded-md transition-colors cursor-pointer"
+            phx-click={JS.exec("dcjs-close", to: {:closest, "dialog"})}
+          >
+            <.icon name="hero-x-mark" class="h-5 w-5" />
+            <span class="sr-only">{gettext("Close")}</span>
+          </button>
+        </div>
+        <div class="flex flex-col overflow-y-auto grow">
+          {render_slot(@inner_block)}
+        </div>
+      </div>
+    </dialog>
+    """
+  end
+
   # @doc """
   # Renders a simple form.
   #
@@ -594,7 +636,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
   attr :type, :string,
     default: "text",
     values: ~w(checkbox color date datetime-local email file month number password
-        range search select tel text textarea time url week checkgroup)
+        range search select tel text textarea time url week checkgroup hidden)
 
   attr :field, Phoenix.HTML.FormField,
     doc: "a form field struct retrieved from the form, for example: @form[:email]"
@@ -628,8 +670,8 @@ defmodule DpulCollectionsWeb.CoreComponents do
     ~H"""
     <div phx-feedback-for={@name} class={@class}>
       <label
-        :for={{label, value} <- @options}
-        class="flex items-center gap-2 cursor-pointer"
+        :for={{{label, count}, value} <- @options}
+        class="flex items-center gap-3 p-2 cursor-pointer hover:bg-sage-100 rounded-md"
       >
         <input
           type="checkbox"
@@ -638,10 +680,11 @@ defmodule DpulCollectionsWeb.CoreComponents do
           value={value}
           checked={is_list(@value) && value in (@value || [])}
           multiple={true}
-          class="h-[20px] w-[20px]"
+          class="h-5 w-5 rounded border-gray-300 text-accent text-sm focus:ring-accent"
           {@rest}
         />
-        {label}
+        <span class="flex-1 text-sm">{label}</span>
+        <span class="text-xs text-gray-500 bg-sage-100 px-2 py-0.5 rounded-full">{count}</span>
       </label>
       <.error :for={msg <- @errors}>{msg}</.error>
     </div>

@@ -15,6 +15,13 @@ defmodule DpulCollections.SearchResult do
     }
   end
 
+  def from_solr(%{"response" => response}) do
+    %__MODULE__{
+      results: response["docs"] |> Enum.map(&Item.from_solr/1),
+      total_items: response["numFound"]
+    }
+  end
+
   @spec facets_to_filter_data(%{filter_key => [filter_value_datum]}) :: %{
           filter_key => %{label: filter_label :: String.t(), data: [filter_value_datum]}
         }
