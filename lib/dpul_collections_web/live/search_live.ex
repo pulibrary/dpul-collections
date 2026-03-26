@@ -139,7 +139,7 @@ defmodule DpulCollectionsWeb.SearchLive do
             </form>
           </div>
         </div>
-        <ul class="grid grid-flow-row auto-rows-max gap-8" id="search-results">
+        <ul class="grid grid-flow-row auto-rows-max gap-8" id="search-results" phx-update="replace">
           <.search_item
             :for={item <- @items}
             search_state={@search_state}
