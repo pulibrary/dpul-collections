@@ -56,7 +56,7 @@ defmodule DpulCollections.MixProject do
       {:phoenix_html, "~> 4.2"},
       {:phoenix_live_reload, "~> 1.5", only: :dev},
       {:phoenix_live_view, "~> 1.1.0"},
-      {:floki, "~> 0.37", only: :test},
+      {:floki, "~> 0.38", only: :test},
       {:phoenix_live_dashboard, "~> 0.8.6"},
       {:esbuild, "~> 0.10", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.4", runtime: Mix.env() == :dev},
@@ -86,7 +86,7 @@ defmodule DpulCollections.MixProject do
        runtime: false,
        git: "https://github.com/ftes/phoenix_test_playwright.git",
        branch: "main"},
-      {:live_debugger, "~> 0.6.0", only: :dev},
+      {:live_debugger, "~> 0.7.0", only: :dev},
       {:prom_ex, "~> 1.11.0"},
       {:ecto_psql_extras, "~> 0.6"},
       # Sibyl adds a decorator that automatically wraps a method and makes it
