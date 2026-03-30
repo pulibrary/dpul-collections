@@ -297,6 +297,11 @@ defmodule DpulCollectionsWeb.SearchLive do
             type="hidden"
             field={@filter_form[hidden_filter]}
           />
+          <input
+            name="q"
+            type="hidden"
+            value={@search_state[:q]}
+          />
         </div>
       </div>
 

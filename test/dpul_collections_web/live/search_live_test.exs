@@ -545,6 +545,19 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> TestUtils.clean_string() == "Similar To Document-2"
   end
 
+  test "keyword search isn't lost when filtering", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/search?q=Document-2")
+
+    assert view |> has_element?("h1 span", "Document-2")
+
+    view
+    |> element("#filter-form")
+    |> render_submit(%{"filter" => %{"year" => %{"from" => "1925", "to" => "1926"}}})
+
+    assert view |> has_element?("h1 span", "Document-2")
+    assert has_element?(view, ".filter.year")
+  end
+
   test "items can be filtered by similarity", %{conn: conn} do
     {:ok, view, html} = live(conn, "/search?filter[similar]=2")
 
