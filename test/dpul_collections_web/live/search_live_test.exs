@@ -518,6 +518,21 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Enum.empty?()
   end
 
+  test "filters are ordered by configuration", %{conn: conn} do
+    {:ok, _view, html} = live(conn, "/search")
+
+    {:ok, document} =
+      html
+      |> Floki.parse_document()
+
+    filter_labels =
+      document
+      |> Floki.find("button[phx-value-filter]")
+      |> Enum.map(fn x -> Floki.text(x) end)
+
+    assert ["Collection", "Format", "Language" | _rest] = filter_labels
+  end
+
   test "similarity filters aren't lost when filtering other things", %{conn: conn} do
     {:ok, view, html} = live(conn, "/search?filter[similar]=2")
 

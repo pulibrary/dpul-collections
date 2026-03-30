@@ -81,7 +81,16 @@ defmodule DpulCollectionsWeb.SearchLive do
   end
 
   defp with_year_filter(filter_data) do
-    filter_data |> Map.put("year", %{label: @filters["year"].label, data: [true]})
+    filter_data
+    |> Map.put("year", %{label: @filters["year"].label, data: [true]})
+    |> order_filters()
+  end
+
+  defp order_filters(filter_data) do
+    filter_data
+    |> Enum.sort_by(fn {label, _} ->
+      Enum.find_index(@filter_fields, fn filter_field -> label == filter_field end)
+    end)
   end
 
   defp item_counter(_, 0), do: gettext("No items found")
