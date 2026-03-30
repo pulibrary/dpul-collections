@@ -667,18 +667,27 @@ defmodule DpulCollectionsWeb.CoreComponents do
   # See https://fly.io/phoenix-files/making-a-checkboxgroup-input/ for
   # inspiration.
   def input(%{type: "checkgroup"} = assigns) do
+    # Change given values to be case insensitive.
+    assigns =
+      assigns
+      |> assign(
+        :case_insensitive_value,
+        ((is_list(assigns.value) && assigns.value) || [])
+        |> Enum.map(fn value -> String.downcase(value) end)
+      )
+
     ~H"""
     <div phx-feedback-for={@name} class={@class}>
       <label
-        :for={{{label, count}, value} <- @options}
+        :for={{{label, count}, option} <- @options}
         class="flex items-center gap-3 p-2 cursor-pointer hover:bg-sage-100 rounded-md"
       >
         <input
           type="checkbox"
-          id={"#{@name}-#{value}"}
+          id={"#{@name}-#{option}"}
           name={@name}
-          value={value}
-          checked={is_list(@value) && value in (@value || [])}
+          value={option}
+          checked={String.downcase(option) in @case_insensitive_value}
           multiple={true}
           class="h-5 w-5 rounded border-gray-300 text-accent text-sm focus:ring-accent"
           {@rest}

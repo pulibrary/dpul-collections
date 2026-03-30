@@ -139,15 +139,16 @@ defmodule DpulCollectionsWeb.SearchLive do
             </form>
           </div>
         </div>
-        <ul class="grid grid-flow-row auto-rows-max gap-8" id="search-results" phx-update="replace">
+        <ul class="grid grid-flow-row auto-rows-max gap-8" id="search-results">
           <.search_item
-            :for={item <- @items}
+            :for={item = %{id: id} <- @items}
             search_state={@search_state}
             item={item}
             sort_by={@search_state.sort_by}
             show_images={@show_images}
             current_scope={@current_scope}
             current_path={@current_path}
+            :key={id}
           />
         </ul>
         <div class="text-center max-w-5xl mx-auto text-lg py-8">
@@ -451,7 +452,10 @@ defmodule DpulCollectionsWeb.SearchLive do
         field={@filter_form[@field]}
         multiple={true}
         class="max-h-100 overflow-y-auto grid grid-cols-1 sm:grid-cols-1 space-y-1"
-        options={@filter.data |> Enum.map(fn {value, count} -> {{value, count}, value} end)}
+        options={
+          @filter.data
+          |> Enum.map(fn {value, count} -> {{value, count}, value} end)
+        }
       />
     </div>
     """

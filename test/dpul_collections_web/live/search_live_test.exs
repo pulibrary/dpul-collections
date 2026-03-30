@@ -558,6 +558,15 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert has_element?(view, ".filter.year")
   end
 
+  test "filters aren't case sensitive", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/search?filter[format][]=FOLDERS")
+
+    assert view |> has_element?(".filter.format", "FOLDERS")
+
+    assert view |> element("input[name='filter[format][]'][value='Folders']") |> render() =~
+             "checked"
+  end
+
   test "items can be filtered by similarity", %{conn: conn} do
     {:ok, view, html} = live(conn, "/search?filter[similar]=2")
 
