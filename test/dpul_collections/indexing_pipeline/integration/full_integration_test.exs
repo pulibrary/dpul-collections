@@ -373,11 +373,41 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
                "al-Maḥāsin al-mujtamaʻah fī faḍl faḍāyil al-khulafāʼ al-arbaʻah / lil-Shaykh ʻAlī al-Ṣaffūrī."
              ]
 
-      # Summary
-      assert %{"summary_txtm" => [first_summary | _tail]} = document
+      assert %{"author_txt_sort" => ["Ṣaffūrī, ʻAlī ibn ʻAbd al-Raḥmān"]} = document
 
-      assert first_summary ==
-               "A brief but thorough treatment of the characteristics and virtues of the four Orthodox caliphs."
+      assert %{
+               "binding_note_ss" => [
+                 "Contemporaneous? type II (with flap) binding in red leather and red marbled paper."
+               ]
+             } = document
+
+      assert %{"call_number_ss" => ["Islamic Manuscripts, Garrett no. 250H"]} = document
+      assert %{"display_date_ss" => ["1704-506"]} = document
+      assert %{"donor_txt_sort" => ["Garrett, Robert, 1875-1961"]} = document
+
+      assert %{
+               "extent_ss" => [
+                 "62 leaves : paper ; 206 x 147 (165 x 115) mm. bound to 206 x 155 mm."
+               ]
+             } = document
+
+      assert %{"format_txt_sort" => ["Manuscript", "Book"]} = document
+
+      assert %{"identifier_txt_sort" => ["http://arks.princeton.edu/ark:/88435/dcwm1180178"]} =
+               document
+
+      assert %{"language_txt_sort" => ["ar"]} = document
+      assert %{"notes_ss" => [first_note | _tail]} = document
+      assert first_note =~ "Collation: Paper"
+      assert %{"references_ss" => ["Brockelmann, C. GAL, SII, 230." | _tail]} = document
+      assert %{"subject_txt_sort" => ["Caliphs—Biography—Early works to 1800" | _tail]} = document
+      assert %{"scribe_txt_sort" => ["ʻAlī Dhīb ibn Muḥammad"]} = document
+
+      assert %{"source_acquisition_ss" => ["Gift ; Robert Garrett, Class of 1897 ; 1942."]} =
+               document
+
+      assert %{"summary_txtm" => [first_summary | _tail]} = document
+      assert first_summary =~ "A brief but thorough treatment"
 
       # only allowed collections are included
       assert document["collection_titles_ss"] == [

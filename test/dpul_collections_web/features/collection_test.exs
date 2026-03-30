@@ -131,10 +131,10 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       # Subject summary
       |> refute_has("h2", text: "Subject Areas")
       # Format summary
-      |> refute_has("h2", text: "Formats")
+      |> assert_has("h2", text: "Formats")
       # Count summary
       |> assert_has("div", text: "1 items")
-      |> refute_has("div", text: "Languages")
+      |> assert_has("div", text: "Languages")
       |> refute_has("div", text: "Locations")
       # Browse button
       |> assert_has(
