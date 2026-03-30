@@ -19,8 +19,8 @@ Many of the conclusions here came from excellent testing from [CRKN-RCDR Blackli
 
 ### Use Cases
 
-1. A patron has come to a librarian asking for a specific and restricted set of material, and only those materials should come back via a URL sent to them. For example: "1970s cuban posters"
-2. I've found search results based on keywords and would like to get an idea of the spread of my results - what subjects are most common, what collections might I do more research in?
+1. As a librarian a patron has come to me asking for all "1970s cuban posters" and I want to create a filter that includes just those materials and send them a link to it so that they can continue their research without me.
+1. As a researcher I want to see all collections and subjects related to a keyword result so that I can discover other potential avenues for finding material related to my topic and get an idea of how likely it is that Princeton will have the kind of material I need.
 
 
 ### Design Guidelines
