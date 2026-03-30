@@ -36,7 +36,7 @@ Filter design should:
 
 ## Decision
 
-![An image of a search interface where filtering results is in a drawer that slides from the right, initiated by a Filters button, with a collapsible section for every filter](images/filters.png)
+![An image of a search interface where filtering results is in a drawer that slides from the right, initiated by a Filters button, with a collapsible section for every filter](design-decisions/images/filters.png)
 
 Filters will:
 
