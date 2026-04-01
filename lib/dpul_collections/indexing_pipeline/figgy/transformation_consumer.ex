@@ -4,6 +4,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
   them into Solr documents, and caches them in a database.
   """
   alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry
+  alias DpulCollections.IndexingPipeline.Figgy.ResourceTypeRegistry
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline.DatabaseProducer
@@ -88,12 +89,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
     )
   end
 
-  @transformable_resource_types [
-    "EphemeraFolder",
-    "EphemeraProject",
-    "ScannedResource",
-    "Collection"
-  ]
+  @transformable_resource_types ResourceTypeRegistry.transformable_types()
 
   def initial_classification(
         resource = %HydrationCacheEntry{data: %{"internal_resource" => internal_resource}},

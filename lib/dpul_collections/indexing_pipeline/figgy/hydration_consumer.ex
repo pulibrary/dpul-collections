@@ -5,6 +5,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy
+  alias DpulCollections.IndexingPipeline.Figgy.ResourceTypeRegistry
   alias DpulCollections.IndexingPipeline.DatabaseProducer
   use Broadway
 
@@ -87,13 +88,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     process(Figgy.Resource.populate_virtual(resource), cache_version)
   end
 
-  # Resource types that are indexable
-  @indexable_resource_types ["EphemeraFolder", "ScannedResource"]
-
-  @allowed_collections Figgy.Resource.allowed_collections()
-  @allowed_scanned_resources Figgy.Resource.allowed_scanned_resources()
-
-  @related_record_types ["EphemeraProject", "EphemeraBox", "EphemeraTerm", "FileSet"]
+  @indexable_resource_types ResourceTypeRegistry.indexable_types()
+  @related_record_types ResourceTypeRegistry.related_record_types()
   def process(resource, cache_version) do
     resource
     # Determine early on if we're deleting, skipping, or updating.
@@ -116,7 +112,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
       # Collections need to both update
       %{internal_resource: "Collection"} ->
-        if id in @allowed_collections do
+        if ResourceTypeRegistry.allowed_collection?(id) do
           {:update, resource}
         else
           {:skip, resource}
@@ -163,7 +159,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   end
 
   defp classify_open_resource(%{id: id, internal_resource: "ScannedResource"} = resource) do
-    if member_of_allowed_collection?(resource) && id in @allowed_scanned_resources do
+    if member_of_allowed_collection?(resource) &&
+         ResourceTypeRegistry.allowed_scanned_resource?(id) do
       {:update, resource}
     else
       {:skip, resource}
@@ -174,7 +171,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
   defp member_of_allowed_collection?(resource) do
     collection_ids = Enum.map(resource.member_of_collection_ids, & &1["id"])
-    Enum.any?(collection_ids, &(&1 in @allowed_collections))
+    Enum.any?(collection_ids, &ResourceTypeRegistry.allowed_collection?/1)
   end
 
   # If we got a list of them, enrich each one.
