@@ -1,6 +1,4 @@
 defmodule DpulCollections.ItemTest do
-  alias DpulCollections.IndexingPipeline.Figgy
-  alias DpulCollections.IndexingPipeline
   alias DpulCollections.Solr
   import SolrTestSupport
   use DpulCollections.DataCase
@@ -19,10 +17,7 @@ defmodule DpulCollections.ItemTest do
     end
 
     test "can build from an Ephemera Project" do
-      IndexingPipeline.get_figgy_resource!("f99af4de-fed4-4baa-82b1-6e857b230306")
-      |> Figgy.Resource.to_combined()
-      |> Figgy.CombinedFiggyResource.to_solr_document()
-      |> Solr.add()
+      FiggyTestSupport.index_record_id_directly("f99af4de-fed4-4baa-82b1-6e857b230306")
 
       Solr.soft_commit()
 
