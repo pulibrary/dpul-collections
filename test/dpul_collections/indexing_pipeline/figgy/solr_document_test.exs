@@ -1,18 +1,16 @@
-defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
+defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocumentTest do
   use DpulCollections.DataCase
   import ExUnit.CaptureLog
-  require Logger
-
-  alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry
   alias DpulCollections.IndexingPipeline
+  alias DpulCollections.IndexingPipeline.Figgy
 
-  describe "to_solr_document/1" do
+  describe "from_cache_entry/1" do
     test "indexes everything it needs to" do
       entries =
         FiggyTestFixtures.hydration_cache_entries()
         |> Tuple.to_list()
 
-      [doc1, doc2, doc3] = Enum.map(entries, &HydrationCacheEntry.to_solr_document/1)
+      [doc1, doc2, doc3] = Enum.map(entries, &Figgy.SolrDocument.from_cache_entry/1)
 
       assert %{
                alternative_title_txtm: ["Zaib-un-Nisa", "Zaibunnisa"],
@@ -59,7 +57,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
         FiggyTestFixtures.hydration_cache_entries()
         |> Tuple.to_list()
 
-      [doc1, doc2, doc3] = Enum.map(entries, &HydrationCacheEntry.to_solr_document/1)
+      [doc1, doc2, doc3] = Enum.map(entries, &Figgy.SolrDocument.from_cache_entry/1)
 
       assert doc1[:summary_txtm] == ["Asra-Panahi", "Berlin-Protest", "Elnaz-Rekabi"]
       assert doc2[:summary_txtm] == []
@@ -110,7 +108,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      doc = HydrationCacheEntry.to_solr_document(entry)
+      doc = Figgy.SolrDocument.from_cache_entry(entry)
 
       assert doc[:image_canvas_ids_ss] == [
                "https://figgy.example.com/concern/ephemera_folders/0cff895a-01ea-4895-9c3d-a8c6eaab4013/manifest/canvas/1"
@@ -163,7 +161,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      doc = HydrationCacheEntry.to_solr_document(entry)
+      doc = Figgy.SolrDocument.from_cache_entry(entry)
 
       # This is the pyramidal derivative.
       assert doc[:image_service_urls_ss] == [
@@ -207,7 +205,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      doc = HydrationCacheEntry.to_solr_document(entry)
+      doc = Figgy.SolrDocument.from_cache_entry(entry)
 
       assert doc[:box_number_txtm] == ["box 1"]
     end
@@ -248,7 +246,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      doc = HydrationCacheEntry.to_solr_document(entry)
+      doc = Figgy.SolrDocument.from_cache_entry(entry)
 
       assert doc[:format_txt_sort] == ["Term2"]
     end
@@ -299,7 +297,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      doc = HydrationCacheEntry.to_solr_document(entry)
+      doc = Figgy.SolrDocument.from_cache_entry(entry)
 
       assert doc[:primary_thumbnail_service_url_s] ==
                "https://iiif-cloud.princeton.edu/iiif/2/0c%2Fff%2F89%2F0cff895a01ea48959c3da8c6eaab4017%2Fintermediate_file"
@@ -354,7 +352,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      doc = HydrationCacheEntry.to_solr_document(entry)
+      doc = Figgy.SolrDocument.from_cache_entry(entry)
 
       assert doc[:primary_thumbnail_service_url_s] ==
                "https://iiif-cloud.princeton.edu/iiif/2/0c%2Fff%2F89%2F0cff895a01ea48959c3da8c6eaab4017%2Fintermediate_file"
@@ -383,7 +381,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      doc = HydrationCacheEntry.to_solr_document(entry)
+      doc = Figgy.SolrDocument.from_cache_entry(entry)
 
       assert doc[:primary_thumbnail_service_url_s] == nil
       assert doc[:primary_thumbnail_h_w_ratio_f] == nil
@@ -426,7 +424,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      doc = HydrationCacheEntry.to_solr_document(entry)
+      doc = Figgy.SolrDocument.from_cache_entry(entry)
 
       assert doc[:image_service_urls_ss] == []
     end
@@ -436,7 +434,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
         FiggyTestFixtures.hydration_cache_entries()
         |> Tuple.to_list()
 
-      [doc1, doc2, doc3] = Enum.map(entries, &HydrationCacheEntry.to_solr_document/1)
+      [doc1, doc2, doc3] = Enum.map(entries, &Figgy.SolrDocument.from_cache_entry/1)
 
       # date marked "approximate"
       {:ok, entry4} =
@@ -516,7 +514,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
             "internal_resource" => "EphemeraFolder",
             "metadata" => %{
               "title" => ["test title 7"],
-              "date_created" => ["29 Raḥab al-Marjab 1342- رحب المرجب 1342 - [July 1923]"]
+              "date_created" => ["29 Raḥab al-Marjab 1342- رحب المرجب 1342 - [July 1923]"]
             }
           }
         })
@@ -556,12 +554,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      doc4 = HydrationCacheEntry.to_solr_document(entry4)
-      doc5 = HydrationCacheEntry.to_solr_document(entry5)
-      doc6 = HydrationCacheEntry.to_solr_document(entry6)
-      doc7 = HydrationCacheEntry.to_solr_document(entry7)
-      doc8 = HydrationCacheEntry.to_solr_document(entry8)
-      doc9 = HydrationCacheEntry.to_solr_document(entry9)
+      doc4 = Figgy.SolrDocument.from_cache_entry(entry4)
+      doc5 = Figgy.SolrDocument.from_cache_entry(entry5)
+      doc6 = Figgy.SolrDocument.from_cache_entry(entry6)
+      doc7 = Figgy.SolrDocument.from_cache_entry(entry7)
+      doc8 = Figgy.SolrDocument.from_cache_entry(entry8)
+      doc9 = Figgy.SolrDocument.from_cache_entry(entry9)
 
       assert doc1[:years_is] == [2022]
       assert doc2[:years_is] == [1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005]
@@ -579,7 +577,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
       assert doc4[:display_date_s] == "2011 - 2013 (approximate)"
       assert doc5[:display_date_s] == nil
       assert doc6[:display_date_s] == "January 26, 1952"
-      assert doc7[:display_date_s] == "29 Raḥab al-Marjab 1342- رحب المرجب 1342 - [July 1923]"
+      assert doc7[:display_date_s] == "29 Raḥab al-Marjab 1342- رحب المرجب 1342 - [July 1923]"
       assert doc8[:display_date_s] == "[2010]"
       assert doc9[:display_date_s] == "September [1954]"
     end
@@ -603,7 +601,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      assert capture_log(fn -> HydrationCacheEntry.to_solr_document(entry) end) =~
+      assert capture_log(fn -> Figgy.SolrDocument.from_cache_entry(entry) end) =~
                "couldn't parse date"
     end
 
@@ -625,7 +623,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      assert %{title_txtm: ["[Missing Title]"]} = HydrationCacheEntry.to_solr_document(entry)
+      assert %{title_txtm: ["[Missing Title]"]} = Figgy.SolrDocument.from_cache_entry(entry)
     end
 
     test "when an entry has a term with no id, the solr document is returned without the term" do
@@ -656,7 +654,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      assert %{format_txt_sort: []} = HydrationCacheEntry.to_solr_document(entry)
+      assert %{format_txt_sort: []} = Figgy.SolrDocument.from_cache_entry(entry)
     end
 
     test "indexes harmful_content" do
@@ -681,7 +679,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
       assert %{
                content_warning_s: "Unspecified"
-             } = HydrationCacheEntry.to_solr_document(entry)
+             } = Figgy.SolrDocument.from_cache_entry(entry)
     end
 
     test "indexes content warning" do
@@ -708,7 +706,168 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
       assert %{
                content_warning_s:
                  "This item depicts images that may be harmful in this specific way."
-             } = HydrationCacheEntry.to_solr_document(entry)
+             } = Figgy.SolrDocument.from_cache_entry(entry)
+    end
+
+    test "featurable EphemeraFolder sets featurable_b to true" do
+      {:ok, entry} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          cache_version: 0,
+          record_id: "aaa-bbb-ccc",
+          related_ids: [],
+          source_cache_order: ~U[2023-05-11 18:45:18.994187Z],
+          source_cache_order_record_id: "aaa-bbb-ccc",
+          data: %{
+            "id" => "aaa-bbb-ccc",
+            "internal_resource" => "EphemeraFolder",
+            "metadata" => %{
+              "title" => ["Featurable folder"],
+              "featurable" => ["1"]
+            }
+          }
+        })
+
+      assert %{featurable_b: true} = Figgy.SolrDocument.from_cache_entry(entry)
+    end
+
+    test "non-featurable EphemeraFolder sets featurable_b to false" do
+      {:ok, entry} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          cache_version: 0,
+          record_id: "ddd-eee-fff",
+          related_ids: [],
+          source_cache_order: ~U[2023-05-11 18:45:18.994187Z],
+          source_cache_order_record_id: "ddd-eee-fff",
+          data: %{
+            "id" => "ddd-eee-fff",
+            "internal_resource" => "EphemeraFolder",
+            "metadata" => %{
+              "title" => ["Non-featurable folder"]
+            }
+          }
+        })
+
+      assert %{featurable_b: false} = Figgy.SolrDocument.from_cache_entry(entry)
+    end
+
+    test "file count filters out members without related resources" do
+      {:ok, entry} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          cache_version: 0,
+          record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
+          related_ids: [],
+          source_cache_order: ~U[2023-05-11 18:45:18.994187Z],
+          source_cache_order_record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
+          related_data: %{
+            "resources" => %{
+              "1" => %{
+                "internal_resource" => "FileSet",
+                "id" => "1",
+                "metadata" => %{
+                  "file_metadata" => [
+                    %{
+                      "id" => %{"id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4017"},
+                      "internal_resource" => "FileMetadata",
+                      "mime_type" => ["image/tiff"],
+                      "use" => [%{"@id" => "http://pcdm.org/use#ServiceFile"}]
+                    }
+                  ]
+                }
+              },
+              "3" => %{
+                "internal_resource" => "FileSet",
+                "id" => "3",
+                "metadata" => %{
+                  "file_metadata" => [
+                    %{
+                      "id" => %{"id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4018"},
+                      "internal_resource" => "FileMetadata",
+                      "mime_type" => ["image/tiff"],
+                      "use" => [%{"@id" => "http://pcdm.org/use#ServiceFile"}]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          data: %{
+            "id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
+            "internal_resource" => "EphemeraFolder",
+            "metadata" => %{
+              "title" => ["Test folder"],
+              "member_ids" => [%{"id" => "1"}, %{"id" => "2"}, %{"id" => "3"}]
+            }
+          }
+        })
+
+      doc = Figgy.SolrDocument.from_cache_entry(entry)
+      # member "2" has no related resource, so file_count should be 2
+      assert doc[:file_count_i] == 2
+    end
+
+    test "converting an EphemeraProject" do
+      {:ok, entry} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          cache_version: 0,
+          record_id: "f99af4de-fed4-4baa-82b1-6e857b230306",
+          related_ids: [],
+          source_cache_order: ~U[2018-12-11 04:34:43.595705Z],
+          source_cache_order_record_id: "f99af4de-fed4-4baa-82b1-6e857b230306",
+          data: %{
+            "id" => "f99af4de-fed4-4baa-82b1-6e857b230306",
+            "internal_resource" => "EphemeraProject",
+            "metadata" => %{
+              "title" => ["South Asian Ephemera"],
+              "description" => [
+                "Complements Princeton's already robust <a href=\"https://lae.princeton.edu/\">archive</a>."
+              ],
+              "tagline" => [
+                "The South Asian Ephemera Collection is an openly accessible repository of items that spans a variety of subjects and languages and supports research, teaching, and private study. Newly acquired materials are digitized and added on an ongoing basis."
+              ],
+              "slug" => ["sae"]
+            }
+          }
+        })
+
+      doc = Figgy.SolrDocument.from_cache_entry(entry)
+
+      assert %{
+               id: "f99af4de-fed4-4baa-82b1-6e857b230306",
+               title_txtm: ["South Asian Ephemera"],
+               resource_type_s: "collection",
+               tagline_txtm: [
+                 "The South Asian Ephemera Collection is an openly accessible repository of items that spans a variety of subjects and languages and supports research, teaching, and private study. Newly acquired materials are digitized and added on an ongoing basis."
+               ],
+               authoritative_slug_s: "sae"
+             } = doc
+
+      assert hd(doc[:summary_txtm]) =~ "already robust <a"
+    end
+
+    test "sets resource_type_s to collection for EphemeraProject" do
+      {:ok, entry} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          cache_version: 0,
+          record_id: "aaa-bbb",
+          related_ids: [],
+          source_cache_order: ~U[2018-12-11 04:34:43.595705Z],
+          source_cache_order_record_id: "aaa-bbb",
+          data: %{
+            "id" => "aaa-bbb",
+            "internal_resource" => "EphemeraProject",
+            "metadata" => %{
+              "title" => ["Test Project"],
+              "description" => ["A description"],
+              "tagline" => ["A tagline"],
+              "slug" => ["test-slug"]
+            }
+          }
+        })
+
+      doc = Figgy.SolrDocument.from_cache_entry(entry)
+      assert doc[:id] == "aaa-bbb"
+      assert doc[:title_txtm] == ["Test Project"]
+      assert doc[:resource_type_s] == "collection"
     end
   end
 end
