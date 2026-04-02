@@ -19,7 +19,7 @@ Many of the conclusions here came from excellent testing from [CRKN-RCDR Blackli
 
 ### Use Cases
 
-1. As a librarian a patron has come to me asking for all "1970s cuban posters" and I want to create a filter that includes just those materials and send them a link to it so that they can continue their research without me.
+1. As a librarian a patron has come to me asking for all "Chilean posters from the 1980s and 90s" and I want to create a result set that includes just those materials and send them a link to it so that they can continue their research without me.
 1. As a researcher I want to see all collections and subjects related to a keyword result so that I can discover other potential avenues for finding material related to my topic and get an idea of how likely it is that Princeton will have the kind of material I need.
 
 
