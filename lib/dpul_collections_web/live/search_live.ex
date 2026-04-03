@@ -13,8 +13,20 @@ defmodule DpulCollectionsWeb.SearchLive do
     {:ok, socket}
   end
 
+  # We've searched before - split filters/items to speed things up.
+  def handle_params(params, _uri, socket = %{assigns: %{items: _items}}) do
+    socket = assign_search_state(socket, params)
+    search_state = socket.assigns.search_state
+
+    {:noreply,
+     socket
+     |> start_async(:fetch_filter_data, fn -> Solr.filter_data(search_state) end)
+     |> start_async(:fetch_results, fn -> Solr.search_results(search_state) end)}
+  end
+
   def handle_params(params, _uri, socket) do
-    search_state = SearchState.from_params(params |> Helpers.clean_params())
+    socket = assign_search_state(socket, params)
+    search_state = socket.assigns.search_state
 
     %{
       results: items,
@@ -22,32 +34,63 @@ defmodule DpulCollectionsWeb.SearchLive do
       filter_data: filter_data
     } = Solr.search(search_state)
 
-    filter_data = filter_data |> Map.put("year", %{label: @filters["year"].label, data: []})
+    {:noreply,
+     socket
+     |> assign(
+       page_title: "Search Results - Digital Collections",
+       item_counter: item_counter(search_state, total_items),
+       items: items,
+       total_items: total_items,
+       filter_data: with_year_filter(filter_data)
+     )
+     |> assign_new(
+       :expanded_filter,
+       fn -> nil end
+     )}
+  end
 
-    socket =
-      socket
-      |> assign(
-        page_title: "Search Results - Digital Collections",
-        search_state: search_state,
-        item_counter: item_counter(search_state, total_items),
-        items: items,
-        total_items: total_items,
-        filter_data: filter_data,
-        filter_form: to_form(params["filter"] || %{}, as: "filter"),
-        # To put this in filter_form we'd have to make a ChangeSet that can
-        # handle nested parameters.
-        year_form:
-          to_form(
-            get_in(params, [Access.key("filter", %{}), Access.key("year", %{})]),
-            as: "filter[year]"
-          )
-      )
-      |> assign_new(
-        :expanded_filter,
-        fn -> nil end
-      )
+  def handle_async(:fetch_filter_data, {:ok, filter_data}, socket) do
+    {:noreply,
+     socket
+     |> assign(filter_data: with_year_filter(filter_data))}
+  end
 
-    {:noreply, socket}
+  def handle_async(:fetch_results, {:ok, %{results: items, total_items: total_items}}, socket) do
+    {:noreply,
+     socket
+     |> assign(
+       item_counter: item_counter(socket.assigns.search_state, total_items),
+       items: items,
+       total_items: total_items
+     )}
+  end
+
+  defp assign_search_state(socket, params) do
+    search_state = SearchState.from_params(params |> Helpers.clean_params())
+
+    socket
+    |> assign(
+      search_state: search_state,
+      filter_form: to_form(params["filter"] || %{}, as: "filter"),
+      year_form:
+        to_form(
+          get_in(params, [Access.key("filter", %{}), Access.key("year", %{})]),
+          as: "filter[year]"
+        )
+    )
+  end
+
+  defp with_year_filter(filter_data) do
+    filter_data
+    |> Map.put("year", %{label: @filters["year"].label, data: [true]})
+    |> order_filters()
+  end
+
+  defp order_filters(filter_data) do
+    filter_data
+    |> Enum.sort_by(fn {label, _} ->
+      Enum.find_index(@filter_fields, fn filter_field -> label == filter_field end)
+    end)
   end
 
   defp item_counter(_, 0), do: gettext("No items found")
@@ -107,13 +150,14 @@ defmodule DpulCollectionsWeb.SearchLive do
         </div>
         <ul class="grid grid-flow-row auto-rows-max gap-8" id="search-results">
           <.search_item
-            :for={item <- @items}
+            :for={item = %{id: id} <- @items}
             search_state={@search_state}
             item={item}
             sort_by={@search_state.sort_by}
             show_images={@show_images}
             current_scope={@current_scope}
             current_path={@current_path}
+            :key={id}
           />
         </ul>
         <div class="text-center max-w-5xl mx-auto text-lg py-8">
@@ -130,36 +174,92 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def filters(assigns) do
     ~H"""
-    <section id="filters" class="">
-      <div class="content-area sm:hidden">
-        <.danger_button
-          :if={@total_items > 0}
-          class="w-full"
-          phx-click={JS.toggle_class("hidden", to: "#filter-area")}
-        >
-          <.icon name="hero-adjustments-horizontal" class="h-5" />
-          <span>
-            {gettext("Filters")} ({Enum.count(@search_state.filter)})
-          </span>
-        </.danger_button>
-      </div>
-      <div
-        id="filter-area"
-        class="hidden sm:block border-b-1 border-rust/20 sm:border-b-0"
-      >
-        <div
-          :if={map_size(@search_state.filter) > 0}
-          class="flex gap-6 items-center content-area page-t-padding flex-wrap"
-        >
-          <h2 class="hidden sm:block">Applied Filters:</h2>
-          <.filter_pill
-            :for={{filter_field, filter_settings} <- filter_configuration()}
-            search_state={@search_state}
-            field={filter_field}
-            label={filter_settings.label}
-            filter_value={filter_settings.value_function.(@search_state.filter[filter_field])}
-          />
+    <script :type={Phoenix.LiveView.ColocatedHook} name=".SearchFilter">
+      export default {
+        mounted() {
+          this.input = this.el.querySelector('input[type="search"]');
+          this.options = this.el.querySelector('[phx-feedback-for]');
+          if (!this.input || !this.options) return;
+
+          this.input.addEventListener('input', e => {
+            this.search(e.target.value)
+          });
+        },
+
+        updated() {
+          this.search(this.input.value)
+        },
+
+        async search(query) {
+          const items = Array.from(this.options.querySelectorAll('label')).map(el => ({
+            el,
+            value: el.querySelector('input[type="checkbox"]')?.value || el.querySelector('span')?.textContent?.trim() || ''
+          }));
+
+          if (!query?.trim()) {
+            items.forEach(i => { i.el.classList.remove('hidden') });
+            return;
+          }
+
+          const q = query.toLowerCase();
+          items.forEach(i => {
+            i.el.classList.toggle('hidden', !i.value.toLowerCase().includes(q));
+          });
+        }
+      }
+    </script>
+    <section id="filters">
+      <div id="search-filters" class="content-area py-4 w-full">
+        <div class="flex items-center gap-4 flex-wrap">
+          <.primary_button
+            type="button"
+            phx-click={JS.exec("dcjs-open", to: "#filter-modal")}
+            class="flex h-full items-center gap-2 px-4 py-2 cursor-pointer"
+          >
+            <.icon name="hero-funnel" class="h-5 w-5" />
+            {gettext("Filters")}
+          </.primary_button>
+
+          <div
+            :if={map_size(@search_state.filter) > 0}
+            class="flex flex-wrap gap-2 items-center w-full"
+          >
+            <.filter_pill
+              :for={{filter_field, filter_settings} <- filter_configuration()}
+              search_state={@search_state}
+              field={filter_field}
+              label={filter_settings.label}
+              filter_value={filter_settings.value_function.(@search_state.filter[filter_field])}
+            />
+          </div>
         </div>
+      </div>
+
+      <.drawer id="filter-modal" label={gettext("Filter Results")}>
+        <div class={[
+          "px-4 py-3 bg-primary-light border-b border-rust/20",
+          map_size(@search_state.filter) == 0 && "hidden"
+        ]}>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-semibold">{gettext("Active Filters")}</span>
+            <.link
+              patch="/search"
+              class="text-xs text-accent hover:underline"
+            >
+              {gettext("Clear all")}
+            </.link>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <.filter_pill
+              :for={{filter_field, filter_settings} <- filter_configuration()}
+              search_state={@search_state}
+              field={filter_field}
+              label={filter_settings.label}
+              filter_value={filter_settings.value_function.(@search_state.filter[filter_field])}
+            />
+          </div>
+        </div>
+
         <.filter_form_component
           search_state={@search_state}
           total_items={@total_items}
@@ -168,9 +268,13 @@ defmodule DpulCollectionsWeb.SearchLive do
           filter_data={@filter_data}
           expanded_filter={@expanded_filter}
         />
-      </div>
+      </.drawer>
     </section>
     """
+  end
+
+  def hidden_filters() do
+    @filter_keys -- @filter_fields
   end
 
   def filter_form_component(assigns) do
@@ -181,43 +285,94 @@ defmodule DpulCollectionsWeb.SearchLive do
       phx-change="checked_filter"
       phx-submit="apply_filters"
       for={@filter_form}
+      class="grow flex flex-col"
     >
-      <div class="sm:content-area page-t-padding">
-        <h2 class="text-xl font-normal page-b-padding hidden sm:block">
+      <div class="p-4 flex flex-col gap-4 grow">
+        <p class="text-sm text-dark-text">
           Filter your {@total_items} results
-        </h2>
-        <div
-          role="tablist"
-          aria-label={gettext("available filters")}
-          class={[
-            "border-t-1 border-rust/20 w-full sm:grid sm:grid-flow-col sm:auto-cols-auto",
-            !@expanded_filter && "border-b-1"
-          ]}
-        >
-          <.filter_tab
+        </p>
+
+        <div class="flex flex-col gap-4">
+          <.filter_section
             :for={{field, filter} <- @filter_data}
-            label={filter.label}
             field={field}
+            filter={filter}
             expanded={field == @expanded_filter}
+            filter_form={@filter_form}
+            year_form={@year_form}
+          />
+
+          <.input
+            :for={hidden_filter <- hidden_filters()}
+            type="hidden"
+            field={@filter_form[hidden_filter]}
+          />
+          <input
+            name="q"
+            type="hidden"
+            value={@search_state[:q]}
           />
         </div>
       </div>
-      <.filter_panel
-        :for={{field, filter} <- @filter_data}
-        field={field}
-        filter={filter}
-        expanded={field == @expanded_filter}
-        filter_form={@filter_form}
-        {assigns}
-      />
+
+      <%!-- Footer with view results button --%>
+      <div class="sticky bottom-0 px-4 py-4 bg-sage-100 border-t border-rust/20">
+        <.primary_button
+          phx-click={JS.exec("dcjs-close", to: "#filter-modal")}
+          class="cursor-pointer w-full py-3 font-bold rounded-md"
+        >
+          {gettext("View")} {@total_items} {gettext("Results")}
+        </.primary_button>
+      </div>
     </.form>
     """
   end
 
-  attr :field, :string, required: true
-  attr :filter_value, :string, required: true
-  attr :label, :string, required: true
-  attr :search_state, :map, required: true
+  defp filter_section(assigns) do
+    ~H"""
+    <div class={[
+      "border border-rust/20 rounded-lg overflow-hidden bg-white",
+      length(@filter.data) == 0 && "hidden"
+    ]}>
+      <button
+        id={"#{@field}-panel-button"}
+        type="button"
+        phx-click="select_filter_tab"
+        phx-value-filter={@field}
+        aria-controls={"#{@field}-panel"}
+        aria-expanded={to_string(@expanded)}
+        class={[
+          "cursor-pointer w-full flex items-center justify-between px-4 py-3 text-left font-semibold",
+          "hover:bg-primary-bright transition-colors",
+          @expanded && "bg-primary-bright"
+        ]}
+      >
+        <span>{Gettext.gettext(DpulCollectionsWeb.Gettext, @filter.label)}</span>
+        <.icon
+          name="hero-chevron-down"
+          class={
+            if @expanded,
+              do: "h-5 w-5 transition-transform duration-200 rotate-180",
+              else: "h-5 w-5 transition-transform duration-200"
+          }
+        />
+      </button>
+
+      <div
+        id={"#{@field}-panel"}
+        class={["px-4 pb-4 border-t border-rust/10", @expanded && "expanded", !@expanded && "hidden"]}
+      >
+        <.filter_input
+          field={@field}
+          filter={@filter}
+          filter_form={@filter_form}
+          year_form={@year_form}
+          filter_configuration={filter_configuration()[@field]}
+        />
+      </div>
+    </div>
+    """
+  end
 
   def filter_pill(assigns = %{filter_value: filter_values}) when is_list(filter_values) do
     ~H"""
@@ -233,7 +388,7 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def filter_pill(assigns = %{filter_value: filter_value}) when is_binary(filter_value) do
     ~H"""
-    <.link
+    <.primary_button
       :if={@filter_value}
       role="button"
       phx-value-filter-value={@filter_value}
@@ -241,17 +396,17 @@ defmodule DpulCollectionsWeb.SearchLive do
       phx-click="remove_filter"
       class={[
         @field,
-        "filter focus:border-3 focus:visible:border-accent focus:border-accent py-1 px-4 shadow-md no-underline rounded-lg bg-primary border-dark-blue font-sans font-bold text-sm btn-primary hover:text-white hover:bg-accent focus:outline-none active:shadow-none"
+        "filter flex max-w-full gap-1 py-2 px-4 btn-primary no-underline font-semibold *:font-semibold text-sm h-full"
       ]}
     >
       {# These labels are defined explicitly in Solr.Constants, but have to be called here because Constants is defined at compile time.}
       {Gettext.gettext(DpulCollectionsWeb.Gettext, @label)}
       <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
-      <span class="filter-text">
+      <span class="filter-text truncate">
         {@filter_value}
       </span>
       <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
-    </.link>
+    </.primary_button>
     """
   end
 
@@ -260,66 +415,23 @@ defmodule DpulCollectionsWeb.SearchLive do
     """
   end
 
-  # Buttons are interspersed here to make it work like an accordion on mobile
-  # screen sizes
-  def filter_panel(assigns) do
-    ~H"""
-    <div class={[
-      "group",
-      "#{@expanded && "expanded"}"
-    ]}>
-      <button
-        phx-click={JS.push("select_filter_tab") |> JS.focus_first(to: "##{@field}-panel")}
-        type="button"
-        aria-controls={"#{@field}-panel"}
-        phx-value-filter={@field}
-        class="sm:hidden group-[.expanded]:bg-accent group-[.expanded]:text-light-text p-4 hover:text-dark-text hover:bg-hover-accent cursor-pointer w-full h-full flex items-center text-left"
-      >
-        <span class="grow">
-          {Gettext.gettext(DpulCollectionsWeb.Gettext, @filter.label)}
-        </span>
-        <div class="arrow bg-dark-text group-[.expanded]:bg-light-text group-[.expanded:hover]:bg-dark-text rotate-90 group-[.expanded]:-rotate-90 w-[15px] h-[15px]">
-        </div>
-      </button>
-    </div>
-    <div
-      id={"#{@field}-panel"}
-      role="tabpanel"
-      class={[
-        !@expanded && "hidden",
-        @expanded && "expanded",
-        "bg-primary-bright page-y-padding border-t-4 border-b-4 border-accent w-full"
-      ]}
-      aria-expanded={if @expanded, do: "true", else: "false"}
-    >
-      <div class="content-area flex flex-col gap-6">
-        <div class="flex">
-          <div class="w-full grow">
-            <.filter_input filter_configuration={filter_configuration()[@field]} {assigns} />
-          </div>
-        </div>
-      </div>
-    </div>
-    """
-  end
-
   def filter_input(assigns = %{field: "year"}) do
     ~H"""
-    <div class="w-full flex flex-wrap gap-4">
-      <.input
-        class="flex gap-4 items-end"
-        placeholder={gettext("From")}
-        label={gettext("From")}
-        field={@year_form["from"]}
-      />
-      <.input
-        class="flex gap-4 items-end"
-        placeholder={gettext("To")}
-        label={gettext("To")}
-        field={@year_form["to"]}
-      />
-      <.primary_button type="submit">
-        {gettext("Apply")}
+    <div class="pt-3 space-y-3">
+      <div class="grid grid-cols-2 gap-3">
+        <.input
+          placeholder={gettext("From")}
+          label={gettext("From")}
+          field={@year_form["from"]}
+        />
+        <.input
+          placeholder={gettext("To")}
+          label={gettext("To")}
+          field={@year_form["to"]}
+        />
+      </div>
+      <.primary_button type="submit" class="w-full h-10 text-sm">
+        {gettext("Apply Year Range")}
       </.primary_button>
     </div>
     """
@@ -327,37 +439,33 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def filter_input(assigns) do
     ~H"""
-    <.input
-      type="checkgroup"
-      field={@filter_form[@field]}
-      multiple={true}
-      class="w-full grid gap-6 grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]"
-      options={@filter.data |> Enum.map(fn {value, count} -> {"#{value} [#{count}]", value} end)}
-    />
-    """
-  end
-
-  def filter_tab(assigns) do
-    ~H"""
-    <div class={[
-      "group w-full h-full text-xl font-semibold not-last:border-r-1 border-rust/20",
-      "hidden sm:block",
-      "#{@expanded && "expanded"}"
-    ]}>
-      <button
-        phx-click={JS.push("select_filter_tab") |> JS.focus_first(to: "##{@field}-panel")}
-        type="button"
-        role="tab"
-        aria-controls={"#{@field}-panel"}
-        phx-value-filter={@field}
-        class="group-[.expanded]:bg-accent group-[.expanded]:text-light-text p-4 hover:text-dark-text hover:bg-hover-accent cursor-pointer w-full h-full flex items-center text-left"
-      >
-        <span class="grow">
-          {Gettext.gettext(DpulCollectionsWeb.Gettext, @label)}
-        </span>
-        <div class="arrow bg-dark-text group-[.expanded]:bg-light-text group-[.expanded:hover]:bg-dark-text rotate-90 group-[.expanded]:-rotate-90 w-[15px] h-[15px]">
-        </div>
-      </button>
+    <div id={"search-#{@field}"} phx-hook=".SearchFilter" class="pt-3">
+      <div class="relative mb-2" phx-update="ignore" id={"search-wrapper-#{@field}"}>
+        <label for={"filter-#{@field}-search"} class="sr-only">
+          {gettext("Search")} {Gettext.gettext(DpulCollectionsWeb.Gettext, @filter.label)} {gettext(
+            "filters"
+          )}
+        </label>
+        <input
+          type="search"
+          placeholder={gettext("Search filters...")}
+          class="w-full px-3 py-2 text-sm border border-rust/20 rounded-md focus:ring-accent focus:border-accent"
+          autocomplete="off"
+          id={"filter-#{@field}-search"}
+          dir="auto"
+        />
+      </div>
+      <.input
+        data-filter-options
+        type="checkgroup"
+        field={@filter_form[@field]}
+        multiple={true}
+        class="max-h-100 overflow-y-auto grid grid-cols-1 sm:grid-cols-1 space-y-1"
+        options={
+          @filter.data
+          |> Enum.map(fn {value, count} -> {{value, count}, value} end)
+        }
+      />
     </div>
     """
   end
@@ -722,13 +830,19 @@ defmodule DpulCollectionsWeb.SearchLive do
   end
 
   def handle_event("apply_filters", params, socket) do
-    params = params |> Map.merge(%{"page" => 1})
+    params =
+      params |> Map.merge(%{"page" => "1"}) |> SearchState.from_params() |> Helpers.clean_params()
+
     socket = push_patch(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
   end
 
   # Don't do ranges with changed events.
   def handle_event("checked_filter", %{"_target" => ["filter", _filter, _from_or_to]}, socket),
+    do: {:noreply, socket}
+
+  # Don't process the search boxes.
+  def handle_event("checked_filter", %{"_target" => ["undefined"]}, socket),
     do: {:noreply, socket}
 
   def handle_event(

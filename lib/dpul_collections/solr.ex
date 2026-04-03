@@ -121,12 +121,24 @@ defmodule DpulCollections.Solr do
     raw_query(search_state, index)["response"]
   end
 
-  @filter_fields ["collection", "format", "language", "subject", "year"]
   def search(search_state, index \\ Index.read_index()) do
+    search_results(search_state, index)
+    |> Map.put(:filter_data, filter_data(search_state, index))
+  end
+
+  def search_results(search_state, index \\ Index.read_index()) do
     search_state
+    |> raw_query(index)
+    |> to_search_result()
+  end
+
+  def filter_data(search_state, index \\ Index.read_index()) do
+    search_state
+    |> Map.put(:per_page, 0)
     |> SearchState.add_filter_count_fields(@filter_fields)
     |> raw_query(index)
     |> to_search_result()
+    |> Map.get(:filter_data)
   end
 
   defp to_search_result(solr_response) do
@@ -259,6 +271,7 @@ defmodule DpulCollections.Solr do
     from = filter_value["from"] || "*"
     to = filter_value["to"] || "*"
     solr_field = @filters[filter_key].solr_field
+
     "{!tag=#{filter_key}Filter}#{solr_field}:[#{from} TO #{to}]"
   end
 
