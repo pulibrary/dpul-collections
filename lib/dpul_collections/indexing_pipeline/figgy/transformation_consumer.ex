@@ -109,7 +109,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
       ) do
     solr_doc =
       hydration_cache_entry
-      |> Figgy.HydrationCacheEntry.to_solr_document()
+      |> Figgy.SolrDocument.from_cache_entry()
 
     # Cache solr document thumbnails
     %{solr_document: solr_doc}
