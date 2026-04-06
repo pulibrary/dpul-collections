@@ -95,7 +95,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
       author_txt_sort: get_in(metadata, ["author"]),
       binding_note_ss: get_in(metadata, ["binding_note"]),
       call_number_ss: get_in(metadata, ["call_number"]),
-      display_date_ss: get_in(metadata, ["date"]),
       donor_txt_sort: get_in(metadata, ["donor"]),
       extent_ss: get_in(metadata, ["extent"]),
       format_txt_sort: get_in(metadata, ["format"]),
@@ -232,6 +231,21 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
   end
 
   defp updated_date(_data), do: nil
+
+  def imported_date(date) when is_list(date) do
+    date
+    |> Enum.map(&imported_date/1)
+  end
+
+  def imported_date(date) when is_binary(date) do
+    case String.split(date, "-", parts: 2) do
+      # If the string is 1704-1704, just return 1704
+      [year, year] -> year
+      _ -> date
+    end
+  end
+
+  def imported_date(data), do: data
 
   defp primary_thumbnail(
          %{"thumbnail_id" => thumbnail_id} = metadata,
@@ -596,6 +610,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
   defp format_date(%{"date_created" => []}) do
     nil
   end
+
+  # MMS-ID dates are imported from JSON, process them.
+  defp format_date(%{"date" => date}), do: imported_date(date)
 
   defp format_date(%{}) do
     # there's no date_created value

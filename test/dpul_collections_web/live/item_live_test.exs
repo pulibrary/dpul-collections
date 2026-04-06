@@ -247,6 +247,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
         live(conn, "/i/المحاسن-المجتمعة-في-فضل-فضايل/item/27fd4d29-1170-47a5-891b-f2743873bcef")
 
       assert view |> has_element?(".item-title a", "Manuscript")
+      assert view |> has_element?(".item-title div[aria-label='date']", "1704")
       assert view |> has_element?("dt", "Subject")
       assert view |> has_element?("dd", "Caliphs—Biography—Early works to 1800")
     end

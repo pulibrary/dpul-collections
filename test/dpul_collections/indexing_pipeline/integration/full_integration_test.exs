@@ -382,7 +382,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
              } = document
 
       assert %{"call_number_ss" => ["Islamic Manuscripts, Garrett no. 250H"]} = document
-      assert %{"display_date_ss" => ["1704-506"]} = document
+      assert %{"display_date_s" => "1704"} = document
       assert %{"donor_txt_sort" => ["Garrett, Robert, 1875-1961"]} = document
 
       assert %{

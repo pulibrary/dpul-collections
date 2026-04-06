@@ -23,6 +23,44 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResourceTest do
       assert hd(doc[:summary_txtm]) =~ "already robust <a"
     end
 
+    test "converting a ScannedResource with MMS-ID metadata but no date doesn't index a date" do
+      doc =
+        IndexingPipeline.get_figgy_resource!("27fd4d29-1170-47a5-891b-f2743873bcef")
+        |> Figgy.Resource.to_combined()
+        |> put_in(
+          [
+            Access.key!(:resource),
+            Access.key!(:metadata),
+            Access.key("imported_metadata"),
+            Access.all(),
+            Access.key!("date")
+          ],
+          nil
+        )
+        |> Figgy.CombinedFiggyResource.to_solr_document()
+
+      assert doc[:display_date_s] == nil
+    end
+
+    test "converting a ScannedResource with MMS-ID metadata but an odd date takes the date as written" do
+      doc =
+        IndexingPipeline.get_figgy_resource!("27fd4d29-1170-47a5-891b-f2743873bcef")
+        |> Figgy.Resource.to_combined()
+        |> put_in(
+          [
+            Access.key!(:resource),
+            Access.key!(:metadata),
+            Access.key("imported_metadata"),
+            Access.all(),
+            Access.key!("date")
+          ],
+          "Seventh of September"
+        )
+        |> Figgy.CombinedFiggyResource.to_solr_document()
+
+      assert doc[:display_date_s] == "Seventh of September"
+    end
+
     test "converting a featurable EphemeraFolder sets a boolean" do
       doc =
         IndexingPipeline.get_figgy_resource!("e8abfa75-253f-428a-b3df-0e83ff2b20f9")
