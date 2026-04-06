@@ -373,7 +373,21 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
                "al-Maḥāsin al-mujtamaʻah fī faḍl faḍāyil al-khulafāʼ al-arbaʻah / lil-Shaykh ʻAlī al-Ṣaffūrī."
              ]
 
-      assert %{"author_txt_sort" => ["Ṣaffūrī, ʻAlī ibn ʻAbd al-Raḥmān"]} = document
+      # Pretty sure this is right - see two authors at https://catalog.princeton.edu/catalog/9963573093506421
+      assert %{
+               "author_txt_sort" => [
+                 "Ṣaffūrī, ʻAlī ibn ʻAbd al-Raḥmān",
+                 "صفوري، علي بن عبد الرحمن"
+               ]
+             } = document
+
+      # Becomes "contributor" because of fallthrough: https://github.com/pulibrary/orangelight/blob/main/app/models/concerns/blacklight/document/json_ld.rb#L118-L121
+      assert %{
+               "related_name_txt_sort" => [
+                 "علي ذيب بن محمد",
+                 "Princeton University. Library. Manuscript. Islamic Manuscripts, Garrett no. 250H"
+               ]
+             } = document
 
       assert %{
                "binding_note_ss" => [

@@ -37,7 +37,8 @@ defmodule DpulCollections.Item do
               :width,
               :metadata_url,
               :viewer_url,
-              :notes
+              :notes,
+              :related_name
             ] ++ Figgy.ImportedCatalogSchema.descriptive_attributes()
 
   def metadata_display_fields do
