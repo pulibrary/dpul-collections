@@ -99,7 +99,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
       extent_ss: get_in(metadata, ["extent"]),
       format_txt_sort: get_in(metadata, ["format"]),
       identifier_txt_sort: get_in(metadata, ["identifier"]),
-      language_txt_sort: get_in(metadata, ["language"]),
+      language_txt_sort: get_in(metadata, ["language"]) |> language(),
       notes_ss: get_in(metadata, ["description"]),
       references_ss: get_in(metadata, ["references"]),
       scribe_txt_sort: get_in(metadata, ["scribe"]),
@@ -623,5 +623,18 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
 
   defp year_string_to_integer(year) do
     Integer.parse(year)
+  end
+
+  defp language(lang) when is_list(lang) do
+    lang
+    |> Enum.map(&language/1)
+  end
+
+  # Convert from language code to label if necessary.
+  defp language(lang) do
+    case Cldr.LocaleDisplay.display_name(lang) do
+      {:ok, label} -> label
+      {:error, _} -> lang
+    end
   end
 end

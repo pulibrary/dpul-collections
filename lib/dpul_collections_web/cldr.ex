@@ -6,5 +6,5 @@ defmodule DpulCollectionsWeb.Cldr do
     # pt-BR is the default value for pt.
     locales: ["en", "es", "pt"],
     gettext: MyPhoenixApp.Gettext,
-    providers: [Cldr.Number, Cldr.Calendar, Cldr.DateTime]
+    providers: [Cldr.Number, Cldr.Calendar, Cldr.DateTime, Cldr.LocaleDisplay]
 end
