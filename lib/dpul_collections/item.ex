@@ -51,7 +51,10 @@ defmodule DpulCollections.Item do
        {
          gettext("People"),
          [
-           {:author, gettext("Author")}
+           {:author, gettext("Author")},
+           {:scribe, gettext("Scribe")},
+           {:donor, gettext("Donor")},
+           {:related_name, gettext("Related Name")}
          ]
        }},
       {:language, gettext("Language")},
@@ -174,7 +177,10 @@ defmodule DpulCollections.Item do
       source_acquisition: doc["source_acquisition_ss"],
       call_number: doc["call_number_ss"],
       notes: doc["notes_ss"],
-      author: doc["author_txt_sort"]
+      author: doc["author_txt_sort"],
+      scribe: doc["scribe_txt_sort"],
+      donor: doc["donor_txt_sort"],
+      related_name: doc["related_name_txt_sort"]
     }
   end
 

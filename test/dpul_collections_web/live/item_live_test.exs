@@ -252,6 +252,18 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       assert view |> has_element?("dd", "Caliphs—Biography—Early works to 1800")
       assert view |> has_element?("dt", "People")
       assert view |> has_element?("dd", "Ṣaffūrī, ʻAlī ibn ʻAbd al-Raḥmān")
+      assert view |> has_element?("dt", "Scribe")
+      assert view |> has_element?("dd", "ʻAlī Dhīb ibn Muḥammad")
+      assert view |> has_element?("dt", "Donor")
+      assert view |> has_element?("dd", "Garrett, Robert, 1875-1961")
+      assert view |> has_element?("dt", "Related")
+      assert view |> has_element?("dd", "علي ذيب بن محمد")
+
+      assert view
+             |> has_element?(
+               "dd",
+               "Princeton University. Library. Manuscript. Islamic Manuscripts, Garrett no. 250H"
+             )
 
       view |> element("a", "View all metadata for this item") |> render_click()
 
