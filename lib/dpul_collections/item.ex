@@ -3,44 +3,30 @@ defmodule DpulCollections.Item do
   alias DpulCollectionsWeb.Live.Helpers
   use DpulCollectionsWeb, :verified_routes
   use Gettext, backend: DpulCollectionsWeb.Gettext
+  use DpulCollections.IndexingPipeline.Figgy.ImportedCatalogSchema.Constants
 
   defstruct [
     :id,
-    :title,
-    :alternative_title,
     :barcode,
     :box_number,
     :collections,
     :collection_ids,
     :content_warning,
-    :contributor,
-    :creator,
     :summary,
     :digitized_at,
-    :date,
     :file_count,
     :format,
-    :geo_subject,
-    :geographic_origin,
     :folder_number,
     :height,
-    :holding_location,
     :iiif_manifest_url,
     :image_canvas_ids,
     :image_service_urls,
     :keywords,
-    :language,
     :page_count,
     :primary_thumbnail_service_url,
     :primary_thumbnail_width,
     :primary_thumbnail_height,
-    :provenance,
-    :publisher,
-    :references,
-    :rights_statement,
     :series,
-    :sort_title,
-    :subject,
     :transliterated_title,
     :updated_at,
     :url,
@@ -48,7 +34,7 @@ defmodule DpulCollections.Item do
     :width,
     :metadata_url,
     :viewer_url
-  ]
+  ] ++ @descriptive_attributes # All Figgy Schema fields.
 
   def metadata_display_fields do
     [
@@ -71,12 +57,14 @@ defmodule DpulCollections.Item do
          {:transliterated_title, gettext("Transliterated Title")},
          {:alternative_title, gettext("Alternative Title")},
          {:sort_title, gettext("Sort Title")},
+         {:identifier, gettext("Identifier")},
          {:creator, gettext("Creator of work")},
          {:contributor, gettext("Contributor")},
          {:publisher, gettext("Publisher")},
          {:language, gettext("Language")},
          {:date, gettext("Date Created")},
          {:format, gettext("Format")},
+         {:extent, gettext("Extent")},
          {:content_warning, gettext("Content Warning")},
          {:series, gettext("Series")},
          {:provenance, gettext("Provenance")},
@@ -122,6 +110,7 @@ defmodule DpulCollections.Item do
       id: id,
       title: title,
       alternative_title: doc["alternative_title_txtm"] || [],
+      identifier: doc["identifier_txt_sort"] || [],
       barcode: doc["barcode_txtm"] || [],
       box_number: doc["box_number_txtm"] || [],
       content_warning: doc["content_warning_s"],
@@ -162,7 +151,8 @@ defmodule DpulCollections.Item do
       metadata_url: generate_metadata_url(id, slug),
       viewer_url: generate_viewer_url(id, slug),
       # ScannedResource specific
-      references: doc["references_ss"]
+      references: doc["references_ss"],
+      extent: doc["extent_ss"]
     }
   end
 
