@@ -250,6 +250,8 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       assert view |> has_element?(".item-title div[aria-label='date']", "1704")
       assert view |> has_element?("dt", "Subject")
       assert view |> has_element?("dd", "Caliphs—Biography—Early works to 1800")
+      assert view |> has_element?("dt", "People")
+      assert view |> has_element?("dd", "Ṣaffūrī, ʻAlī ibn ʻAbd al-Raḥmān")
 
       view |> element("a", "View all metadata for this item") |> render_click()
 
@@ -260,6 +262,16 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       assert view |> has_element?("dt", "Source Acquisition")
       assert view |> has_element?("dt", "Call Number")
       assert view |> has_element?("dt", "Notes")
+    end
+
+    test "doesn't display combined fields if there isn't any values", %{conn: conn} do
+      FiggyTestSupport.index_record_id_directly("ff1b2bed-0ca8-45d4-854e-d8f82fc7572f")
+      Solr.soft_commit(active_collection())
+
+      {:ok, view, _html} =
+        live(conn, "/i/mohammad-rasoulipour/item/ff1b2bed-0ca8-45d4-854e-d8f82fc7572f")
+
+      refute view |> has_element?("dt", "People")
     end
 
     test "displays metadata fields for EphemeraFolders", %{conn: conn} do

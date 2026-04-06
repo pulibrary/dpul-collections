@@ -820,8 +820,9 @@ defmodule DpulCollectionsWeb.ItemLive do
         <.metadata_row
           :for={{field, field_label} <- DpulCollections.Item.metadata_display_fields()}
           field_label={field_label}
-          value={field_value(@item, field)}
+          value={field_value(@item, {field, field_label})}
           field={field}
+          item={@item}
         />
       </dl>
     </div>
@@ -840,9 +841,48 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
-  def metadata_row(assigns) do
+  def metadata_row(%{field_label: {label, sub_fields}} = assigns) when is_list(sub_fields) do
+    assigns =
+      assigns
+      |> assign(:parent_label, label)
+      |> assign(:sub_fields, sub_fields)
+
     ~H"""
     <div class="col-span-2 grid grid-cols-subgrid border-b-1 border-accent pb-4">
+      <dt class="font-bold text-lg">
+        {@parent_label}
+      </dt>
+      <dd>
+        <dl class="col-span-2 grid grid-cols-subgrid flex gap-x-8 gap-y-4">
+          <.metadata_row
+            :for={{field, field_label} <- @sub_fields}
+            field_label={field_label}
+            value={field_value(@item, field)}
+            field={field}
+            nested={true}
+          />
+        </dl>
+      </dd>
+    </div>
+    """
+  end
+
+  def metadata_row(%{nested: true} = assigns) do
+    ~H"""
+    <div>
+      <dt class="font-semibold">
+        {@field_label}
+      </dt>
+      <dd :for={value <- @value} dir="auto" class="col-start-2">
+        <.filter_link filter_value={value} filter_name={"#{@field}"} />
+      </dd>
+    </div>
+    """
+  end
+
+  def metadata_row(assigns) do
+    ~H"""
+    <div class="pb-4 col-span-2 grid grid-cols-subgrid border-b-1 border-accent">
       <dt class="font-bold text-lg">
         {@field_label}
       </dt>
@@ -890,6 +930,15 @@ defmodule DpulCollectionsWeb.ItemLive do
 
     copy_element(%{value: value, id: "iiif-url"})
     |> List.wrap()
+  end
+
+  def field_value(item, {_field, {_label, sub_fields}}) do
+    sub_fields
+    |> Enum.flat_map(&field_value(item, &1))
+  end
+
+  def field_value(item, {field, _field_label}) do
+    field_value(item, field)
   end
 
   def field_value(item, field) do
