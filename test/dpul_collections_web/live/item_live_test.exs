@@ -256,6 +256,10 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       assert view |> has_element?("dt", "References")
       assert view |> has_element?("dt", "Extent")
       assert view |> has_element?("dt", "Identifier")
+      assert view |> has_element?("dt", "Binding Note")
+      assert view |> has_element?("dt", "Source Acquisition")
+      assert view |> has_element?("dt", "Call Number")
+      assert view |> has_element?("dt", "Notes")
     end
 
     test "displays metadata fields for EphemeraFolders", %{conn: conn} do

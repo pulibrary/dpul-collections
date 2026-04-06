@@ -5,40 +5,44 @@ defmodule DpulCollections.Item do
   use Gettext, backend: DpulCollectionsWeb.Gettext
   use DpulCollections.IndexingPipeline.Figgy.ImportedCatalogSchema.Constants
 
+  # All Figgy Schema fields.
   defstruct [
-    :id,
-    :barcode,
-    :box_number,
-    :collections,
-    :collection_ids,
-    :content_warning,
-    :summary,
-    :digitized_at,
-    :file_count,
-    :format,
-    :folder_number,
-    :height,
-    :iiif_manifest_url,
-    :image_canvas_ids,
-    :image_service_urls,
-    :keywords,
-    :page_count,
-    :primary_thumbnail_service_url,
-    :primary_thumbnail_width,
-    :primary_thumbnail_height,
-    :series,
-    :transliterated_title,
-    :updated_at,
-    :url,
-    :pdf_url,
-    :width,
-    :metadata_url,
-    :viewer_url
-  ] ++ @descriptive_attributes # All Figgy Schema fields.
+              :id,
+              :barcode,
+              :box_number,
+              :call_number,
+              :collections,
+              :collection_ids,
+              :content_warning,
+              :summary,
+              :digitized_at,
+              :file_count,
+              :format,
+              :folder_number,
+              :height,
+              :iiif_manifest_url,
+              :image_canvas_ids,
+              :image_service_urls,
+              :keywords,
+              :page_count,
+              :primary_thumbnail_service_url,
+              :primary_thumbnail_width,
+              :primary_thumbnail_height,
+              :series,
+              :transliterated_title,
+              :updated_at,
+              :url,
+              :pdf_url,
+              :width,
+              :metadata_url,
+              :viewer_url,
+              :notes
+            ] ++ @descriptive_attributes
 
   def metadata_display_fields do
     [
       # {field, field_label}
+      {:call_number, gettext("Call Number")},
       {:creator, gettext("Creator of work")},
       {:publisher, gettext("Publisher")},
       {:language, gettext("Language")},
@@ -57,6 +61,7 @@ defmodule DpulCollections.Item do
          {:transliterated_title, gettext("Transliterated Title")},
          {:alternative_title, gettext("Alternative Title")},
          {:sort_title, gettext("Sort Title")},
+         {:call_number, gettext("Call Number")},
          {:identifier, gettext("Identifier")},
          {:creator, gettext("Creator of work")},
          {:contributor, gettext("Contributor")},
@@ -68,8 +73,11 @@ defmodule DpulCollections.Item do
          {:content_warning, gettext("Content Warning")},
          {:series, gettext("Series")},
          {:provenance, gettext("Provenance")},
+         {:source_acquisition, gettext("Source Acquisition")},
          {:references, gettext("References")},
-         {:rights_statement, gettext("Rights Statement")}
+         {:rights_statement, gettext("Rights Statement")},
+         {:notes, gettext("Notes")},
+         {:binding_note, gettext("Binding Note")}
        ]},
       {gettext("Discovery Information"),
        [
@@ -152,7 +160,11 @@ defmodule DpulCollections.Item do
       viewer_url: generate_viewer_url(id, slug),
       # ScannedResource specific
       references: doc["references_ss"],
-      extent: doc["extent_ss"]
+      extent: doc["extent_ss"],
+      binding_note: doc["binding_note_ss"],
+      source_acquisition: doc["source_acquisition_ss"],
+      call_number: doc["call_number_ss"],
+      notes: doc["notes_ss"]
     }
   end
 
