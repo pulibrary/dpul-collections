@@ -250,6 +250,10 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       assert view |> has_element?(".item-title div[aria-label='date']", "1704")
       assert view |> has_element?("dt", "Subject")
       assert view |> has_element?("dd", "Caliphs—Biography—Early works to 1800")
+
+      view |> element("a", "View all metadata for this item") |> render_click()
+
+      assert view |> has_element?("dt", "References")
     end
 
     test "displays metadata fields for EphemeraFolders", %{conn: conn} do

@@ -36,6 +36,7 @@ defmodule DpulCollections.Item do
     :primary_thumbnail_height,
     :provenance,
     :publisher,
+    :references,
     :rights_statement,
     :series,
     :sort_title,
@@ -79,6 +80,7 @@ defmodule DpulCollections.Item do
          {:content_warning, gettext("Content Warning")},
          {:series, gettext("Series")},
          {:provenance, gettext("Provenance")},
+         {:references, gettext("References")},
          {:rights_statement, gettext("Rights Statement")}
        ]},
       {gettext("Discovery Information"),
@@ -158,7 +160,9 @@ defmodule DpulCollections.Item do
       pdf_url: doc["pdf_url_s"],
       width: doc["width_txtm"] || [],
       metadata_url: generate_metadata_url(id, slug),
-      viewer_url: generate_viewer_url(id, slug)
+      viewer_url: generate_viewer_url(id, slug),
+      # ScannedResource specific
+      references: doc["references_ss"]
     }
   end
 
