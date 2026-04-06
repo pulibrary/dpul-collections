@@ -239,7 +239,17 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
   end
 
   describe "page display" do
-    test "displays metadata fields", %{conn: conn} do
+    test "displays metadata fields for MMS-ID ScannedResources", %{conn: conn} do
+      FiggyTestSupport.index_record_id_directly("27fd4d29-1170-47a5-891b-f2743873bcef")
+      Solr.soft_commit(active_collection())
+
+      {:ok, view, _html} =
+        live(conn, "/i/المحاسن-المجتمعة-في-فضل-فضايل/item/27fd4d29-1170-47a5-891b-f2743873bcef")
+
+      assert view |> has_element?(".item-title a", "Manuscript")
+    end
+
+    test "displays metadata fields for EphemeraFolders", %{conn: conn} do
       conn = get(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
 
       {:ok, document} =

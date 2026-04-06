@@ -130,7 +130,7 @@ defmodule DpulCollections.Item do
       digitized_at: doc["digitized_at_dt"],
       file_count: doc["file_count_i"],
       folder_number: doc["folder_number_txtm"] || [],
-      format: doc["format_txt_sort"] || [],
+      format: (doc["format_txt_sort"] || []) |> List.first(),
       geo_subject: doc["geo_subject_txt_sort"] || [],
       geographic_origin: doc["geographic_origin_txt_sort"] || [],
       height: doc["height_txtm"] || [],

@@ -875,7 +875,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
           %{
             id: "iran",
             title_txtm: "Women's Movement Art",
-            format_txt_sort: "Ephemera",
+            format_txt_sort: ["Ephemera", "MoreEphemera"],
             display_date_s: "2024",
             years_is: [2024],
             geographic_origin_txt_sort: "Iran"
@@ -892,6 +892,12 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
              |> has_element?(
                "#item-iran .metadata",
                "Ephemera"
+             )
+
+      refute view
+             |> has_element?(
+               "#item-iran .metadata",
+               "MoreEphemera"
              )
 
       assert view
