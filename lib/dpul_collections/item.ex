@@ -1,9 +1,10 @@
 defmodule DpulCollections.Item do
   alias DpulCollections.Collection
   alias DpulCollectionsWeb.Live.Helpers
+  alias DpulCollections.IndexingPipeline.Figgy
+  require Figgy.ImportedCatalogSchema
   use DpulCollectionsWeb, :verified_routes
   use Gettext, backend: DpulCollectionsWeb.Gettext
-  use DpulCollections.IndexingPipeline.Figgy.ImportedCatalogSchema.Constants
 
   # All Figgy Schema fields.
   defstruct [
@@ -37,7 +38,7 @@ defmodule DpulCollections.Item do
               :metadata_url,
               :viewer_url,
               :notes
-            ] ++ @descriptive_attributes
+            ] ++ Figgy.ImportedCatalogSchema.descriptive_attributes()
 
   def metadata_display_fields do
     [
