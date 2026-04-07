@@ -276,7 +276,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       assert view |> has_element?("dt", "Notes")
     end
 
-    test "doesn't display combined fields if there isn't any values", %{conn: conn} do
+    test "doesn't display combined fields if there aren't any values", %{conn: conn} do
       FiggyTestSupport.index_record_id_directly("ff1b2bed-0ca8-45d4-854e-d8f82fc7572f")
       Solr.soft_commit(active_collection())
 

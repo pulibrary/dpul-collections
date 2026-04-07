@@ -39,7 +39,9 @@ defmodule DpulCollections.Item do
               :viewer_url,
               :notes,
               :related_name
-            ] ++ Figgy.ImportedCatalogSchema.descriptive_attributes() ++ Figgy.ImportedCatalogSchema.marc_relators()
+            ] ++
+              Figgy.ImportedCatalogSchema.descriptive_attributes() ++
+              Figgy.ImportedCatalogSchema.marc_relators()
 
   def metadata_display_fields do
     [

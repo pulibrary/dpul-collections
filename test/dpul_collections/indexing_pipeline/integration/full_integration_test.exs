@@ -373,7 +373,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
                "al-Maḥāsin al-mujtamaʻah fī faḍl faḍāyil al-khulafāʼ al-arbaʻah / lil-Shaykh ʻAlī al-Ṣaffūrī."
              ]
 
-      # Pretty sure this is right - see two authors at https://catalog.princeton.edu/catalog/9963573093506421
+      # These are the same author, one a transliteration. We'll need better data
+      # to index better than this.
       assert %{
                "author_txt_sort" => [
                  "Ṣaffūrī, ʻAlī ibn ʻAbd al-Raḥmān",
