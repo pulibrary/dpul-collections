@@ -816,7 +816,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <h2 class="sr-only">{gettext("Metadata")}</h2>
     <div class="relative overflow-x-auto">
-      <dl class="grid items-start gap-x-8 gap-y-4">
+      <dl class="grid items-baseline gap-x-8 gap-y-4">
         <.metadata_row
           :for={{field, field_label} <- DpulCollections.Item.metadata_display_fields()}
           field_label={field_label}
@@ -848,12 +848,12 @@ defmodule DpulCollectionsWeb.ItemLive do
       |> assign(:sub_fields, sub_fields)
 
     ~H"""
-    <div class="col-span-2 grid grid-cols-subgrid border-b-1 border-accent pb-4">
+    <div class="col-span-2 grid grid-cols-subgrid items-baseline border-b-1 border-accent pb-4">
       <dt class="font-bold text-lg">
         {@parent_label}
       </dt>
       <dd>
-        <dl class="col-span-2 grid grid-cols-subgrid flex gap-x-8 gap-y-4">
+        <dl class="flex flex-col gap-y-4">
           <.metadata_row
             :for={{field, field_label} <- @sub_fields}
             field_label={field_label}
@@ -873,7 +873,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       <dt class="font-bold uppercase text-sm">
         {@field_label}
       </dt>
-      <dd :for={value <- @value} dir="auto" class="col-start-2">
+      <dd :for={value <- @value} dir="auto">
         <.filter_link filter_value={value} filter_name={"#{@field}"} />
       </dd>
     </div>
@@ -882,7 +882,7 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def metadata_row(assigns) do
     ~H"""
-    <div class="pb-4 col-span-2 grid grid-cols-subgrid border-b-1 border-accent">
+    <div class="col-span-2 grid grid-cols-subgrid items-baseline border-b-1 border-accent pb-4">
       <dt class="font-bold text-lg">
         {@field_label}
       </dt>
