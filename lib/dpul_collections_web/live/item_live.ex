@@ -152,7 +152,7 @@ defmodule DpulCollectionsWeb.ItemLive do
           <div aria-label={gettext("format")}>
             <.filter_link
               class="text-xl uppercase tracking-wide"
-              filter_value={@item.format |> List.first()}
+              filter_value={@item.format}
               filter_name="format"
             />
           </div>

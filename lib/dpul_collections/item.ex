@@ -1,57 +1,49 @@
 defmodule DpulCollections.Item do
   alias DpulCollections.Collection
   alias DpulCollectionsWeb.Live.Helpers
+  alias DpulCollections.IndexingPipeline.Figgy
+  require Figgy.ImportedCatalogSchema
   use DpulCollectionsWeb, :verified_routes
   use Gettext, backend: DpulCollectionsWeb.Gettext
 
+  # All Figgy Schema fields.
   defstruct [
-    :id,
-    :title,
-    :alternative_title,
-    :barcode,
-    :box_number,
-    :collections,
-    :collection_ids,
-    :content_warning,
-    :contributor,
-    :creator,
-    :summary,
-    :digitized_at,
-    :date,
-    :file_count,
-    :format,
-    :geo_subject,
-    :geographic_origin,
-    :folder_number,
-    :height,
-    :holding_location,
-    :iiif_manifest_url,
-    :image_canvas_ids,
-    :image_service_urls,
-    :keywords,
-    :language,
-    :page_count,
-    :primary_thumbnail_service_url,
-    :primary_thumbnail_width,
-    :primary_thumbnail_height,
-    :provenance,
-    :publisher,
-    :rights_statement,
-    :series,
-    :sort_title,
-    :subject,
-    :transliterated_title,
-    :updated_at,
-    :url,
-    :pdf_url,
-    :width,
-    :metadata_url,
-    :viewer_url
-  ]
+              :id,
+              :barcode,
+              :box_number,
+              :call_number,
+              :collections,
+              :collection_ids,
+              :content_warning,
+              :summary,
+              :digitized_at,
+              :file_count,
+              :format,
+              :folder_number,
+              :height,
+              :iiif_manifest_url,
+              :image_canvas_ids,
+              :image_service_urls,
+              :keywords,
+              :page_count,
+              :primary_thumbnail_service_url,
+              :primary_thumbnail_width,
+              :primary_thumbnail_height,
+              :series,
+              :transliterated_title,
+              :updated_at,
+              :url,
+              :pdf_url,
+              :width,
+              :metadata_url,
+              :viewer_url,
+              :notes
+            ] ++ Figgy.ImportedCatalogSchema.descriptive_attributes()
 
   def metadata_display_fields do
     [
       # {field, field_label}
+      {:call_number, gettext("Call Number")},
       {:creator, gettext("Creator of work")},
       {:publisher, gettext("Publisher")},
       {:language, gettext("Language")},
@@ -70,16 +62,23 @@ defmodule DpulCollections.Item do
          {:transliterated_title, gettext("Transliterated Title")},
          {:alternative_title, gettext("Alternative Title")},
          {:sort_title, gettext("Sort Title")},
+         {:call_number, gettext("Call Number")},
+         {:identifier, gettext("Identifier")},
          {:creator, gettext("Creator of work")},
          {:contributor, gettext("Contributor")},
          {:publisher, gettext("Publisher")},
          {:language, gettext("Language")},
          {:date, gettext("Date Created")},
          {:format, gettext("Format")},
+         {:extent, gettext("Extent")},
          {:content_warning, gettext("Content Warning")},
          {:series, gettext("Series")},
          {:provenance, gettext("Provenance")},
-         {:rights_statement, gettext("Rights Statement")}
+         {:source_acquisition, gettext("Source Acquisition")},
+         {:references, gettext("References")},
+         {:rights_statement, gettext("Rights Statement")},
+         {:notes, gettext("Notes")},
+         {:binding_note, gettext("Binding Note")}
        ]},
       {gettext("Discovery Information"),
        [
@@ -120,6 +119,7 @@ defmodule DpulCollections.Item do
       id: id,
       title: title,
       alternative_title: doc["alternative_title_txtm"] || [],
+      identifier: doc["identifier_txt_sort"] || [],
       barcode: doc["barcode_txtm"] || [],
       box_number: doc["box_number_txtm"] || [],
       content_warning: doc["content_warning_s"],
@@ -130,7 +130,7 @@ defmodule DpulCollections.Item do
       digitized_at: doc["digitized_at_dt"],
       file_count: doc["file_count_i"],
       folder_number: doc["folder_number_txtm"] || [],
-      format: doc["format_txt_sort"] || [],
+      format: (doc["format_txt_sort"] || []) |> List.first(),
       geo_subject: doc["geo_subject_txt_sort"] || [],
       geographic_origin: doc["geographic_origin_txt_sort"] || [],
       height: doc["height_txtm"] || [],
@@ -158,7 +158,14 @@ defmodule DpulCollections.Item do
       pdf_url: doc["pdf_url_s"],
       width: doc["width_txtm"] || [],
       metadata_url: generate_metadata_url(id, slug),
-      viewer_url: generate_viewer_url(id, slug)
+      viewer_url: generate_viewer_url(id, slug),
+      # ScannedResource specific
+      references: doc["references_ss"],
+      extent: doc["extent_ss"],
+      binding_note: doc["binding_note_ss"],
+      source_acquisition: doc["source_acquisition_ss"],
+      call_number: doc["call_number_ss"],
+      notes: doc["notes_ss"]
     }
   end
 

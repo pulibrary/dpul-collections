@@ -382,7 +382,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
              } = document
 
       assert %{"call_number_ss" => ["Islamic Manuscripts, Garrett no. 250H"]} = document
-      assert %{"display_date_ss" => ["1704-506"]} = document
+      assert %{"display_date_s" => "1704"} = document
       assert %{"donor_txt_sort" => ["Garrett, Robert, 1875-1961"]} = document
 
       assert %{
@@ -396,7 +396,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       assert %{"identifier_txt_sort" => ["http://arks.princeton.edu/ark:/88435/dcwm1180178"]} =
                document
 
-      assert %{"language_txt_sort" => ["ar"]} = document
+      assert %{"language_txt_sort" => ["Arabic"]} = document
       assert %{"notes_ss" => [first_note | _tail]} = document
       assert first_note =~ "Collation: Paper"
       assert %{"references_ss" => ["Brockelmann, C. GAL, SII, 230." | _tail]} = document

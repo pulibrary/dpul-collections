@@ -1,6 +1,12 @@
 defmodule DpulCollections.IndexingPipeline.Figgy.ImportedCatalogSchema do
   alias DpulCollections.IndexingPipeline.Figgy
   use DpulCollections.IndexingPipeline.Figgy.ImportedCatalogSchema.Constants
+
+  # coveralls-ignore-start
+  defmacro descriptive_attributes, do: @descriptive_attributes
+  defmacro marc_relators, do: @marc_relators
+  defmacro iiif_fields, do: @iiif_fields
+  # coveralls-ignore-end
   defstruct @marc_relators ++ @iiif_fields ++ @descriptive_attributes
 
   def from_resource(%Figgy.Resource{metadata: %{"imported_metadata" => [metadata]}}) do
