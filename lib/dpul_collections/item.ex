@@ -37,8 +37,11 @@ defmodule DpulCollections.Item do
               :width,
               :metadata_url,
               :viewer_url,
-              :notes
-            ] ++ Figgy.ImportedCatalogSchema.descriptive_attributes()
+              :notes,
+              :related_name
+            ] ++
+              Figgy.ImportedCatalogSchema.descriptive_attributes() ++
+              Figgy.ImportedCatalogSchema.marc_relators()
 
   def metadata_display_fields do
     [
@@ -46,6 +49,16 @@ defmodule DpulCollections.Item do
       {:call_number, gettext("Call Number")},
       {:creator, gettext("Creator of work")},
       {:publisher, gettext("Publisher")},
+      {:people,
+       {
+         gettext("People"),
+         [
+           {:author, gettext("Author")},
+           {:scribe, gettext("Scribe")},
+           {:donor, gettext("Donor")},
+           {:related_name, gettext("Related Name")}
+         ]
+       }},
       {:language, gettext("Language")},
       {:geographic_origin, gettext("Geographic Origin")},
       {:geo_subject, gettext("Geographic Subject")},
@@ -165,7 +178,11 @@ defmodule DpulCollections.Item do
       binding_note: doc["binding_note_ss"],
       source_acquisition: doc["source_acquisition_ss"],
       call_number: doc["call_number_ss"],
-      notes: doc["notes_ss"]
+      notes: doc["notes_ss"],
+      author: doc["author_txt_sort"],
+      scribe: doc["scribe_txt_sort"],
+      donor: doc["donor_txt_sort"],
+      related_name: doc["related_name_txt_sort"]
     }
   end
 

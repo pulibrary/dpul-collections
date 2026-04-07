@@ -92,7 +92,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
     Map.merge(base, %{
       collection_titles_ss: collection_titles,
       collection_ids_ss: extract_collection_ids(related_data, "Collection"),
-      author_txt_sort: get_in(metadata, ["author"]),
+      # Creator is pulled from author in the catalog: https://github.com/pulibrary/orangelight/blob/main/app/models/concerns/blacklight/document/json_ld.rb
+      creator_txt_sort: [],
+      author_txt_sort: get_in(metadata, ["creator"]),
+      # Contributor is grabbing related names because of fallthrough: https://github.com/pulibrary/orangelight/blob/main/app/models/concerns/blacklight/document/json_ld.rb#L118-L121
+      contributor_txt_sort: [],
+      related_name_txt_sort: get_in(metadata, ["contributor"]),
       binding_note_ss: get_in(metadata, ["binding_note"]),
       call_number_ss: get_in(metadata, ["call_number"]),
       donor_txt_sort: get_in(metadata, ["donor"]),

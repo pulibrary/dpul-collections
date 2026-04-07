@@ -130,6 +130,21 @@ defmodule DpulCollections.Solr.Constants do
           solr_field: "categories_txt_sort",
           label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Categories"),
           value_function: &Function.identity/1
+        },
+        "author" => %{
+          solr_field: "author_txt_sort",
+          label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Author"),
+          value_function: &Function.identity/1
+        },
+        "scribe" => %{
+          solr_field: "scribe_txt_sort",
+          label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Scribe"),
+          value_function: &Function.identity/1
+        },
+        "donor" => %{
+          solr_field: "donor_txt_sort",
+          label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Donor"),
+          value_function: &Function.identity/1
         }
       }
 
