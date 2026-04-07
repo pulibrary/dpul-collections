@@ -870,7 +870,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def metadata_row(%{nested: true} = assigns) do
     ~H"""
     <div>
-      <dt class="font-semibold">
+      <dt class="font-bold uppercase text-sm">
         {@field_label}
       </dt>
       <dd :for={value <- @value} dir="auto" class="col-start-2">
