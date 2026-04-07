@@ -110,7 +110,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
       scribe_txt_sort: get_in(metadata, ["scribe"]),
       source_acquisition_ss: get_in(metadata, ["source_acquisition"]),
       subject_txt_sort: get_in(metadata, ["subject"]),
-      summary_txtm: get_in(metadata, ["abstract"])
+      summary_txtm: get_in(metadata, ["abstract"]),
+      years_is: extract_years(get_in(metadata, ["created"]))
     })
   end
 
@@ -577,10 +578,24 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
     end
   end
 
-  defp extract_years(%{}) do
-    # there's no date_created value
-    nil
+  # Extract years from an ISO 8601 date string.
+  # single: "1704-01-01T00:00:00Z" or
+  # interval: "1704-01-01T00:00:00Z/1704-12-31T23:59:59Z"
+  defp extract_years([iso_string | _]) when is_binary(iso_string) do
+    years =
+      String.split(iso_string, "/")
+      |> Enum.map(fn ds ->
+        {:ok, dt} = NaiveDateTime.from_iso8601(ds)
+        dt.year
+      end)
+
+    case years do
+      [year] -> [year]
+      [start_year, end_year] -> Enum.to_list(start_year..end_year)
+    end
   end
+
+  defp extract_years(_), do: nil
 
   # Apply regexes to date string and return the first
   # year value that matches. If none match, return nil.
