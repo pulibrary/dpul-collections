@@ -556,12 +556,32 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
+      # ScannedResource with a single value (non-interval) ISO 8601 created date
+      {:ok, entry10} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          cache_version: 0,
+          record_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+          related_ids: [],
+          source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
+          source_cache_order_record_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+          data: %{
+            "id" => "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+            "internal_resource" => "ScannedResource",
+            "metadata" => %{
+              "title" => ["test title 10"],
+              "created" => ["1850-06-15T00:00:00Z"],
+              "imported_metadata" => [%{}]
+            }
+          }
+        })
+
       doc4 = HydrationCacheEntry.to_solr_document(entry4)
       doc5 = HydrationCacheEntry.to_solr_document(entry5)
       doc6 = HydrationCacheEntry.to_solr_document(entry6)
       doc7 = HydrationCacheEntry.to_solr_document(entry7)
       doc8 = HydrationCacheEntry.to_solr_document(entry8)
       doc9 = HydrationCacheEntry.to_solr_document(entry9)
+      doc10 = HydrationCacheEntry.to_solr_document(entry10)
 
       assert doc1[:years_is] == [2022]
       assert doc2[:years_is] == [1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005]
@@ -572,6 +592,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
       assert doc7[:years_is] == [1923]
       assert doc8[:years_is] == [2010]
       assert doc9[:years_is] == [1954]
+      assert doc10[:years_is] == [1850]
 
       assert doc1[:display_date_s] == "2022"
       assert doc2[:display_date_s] == "1995 - 2005"
