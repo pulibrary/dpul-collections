@@ -81,9 +81,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResourceTest do
       assert doc[:contents_ss] |> hd() == "Miniatures: fol. 4a: [Firdawsi and the Court Poets]"
     end
 
-    test "converting a ScannedResource with an empty content warning indexes it" do
-    end
-
     test "converting a ScannedResource with MMS-ID metadata but an odd language value takes the language as written" do
       doc =
         IndexingPipeline.get_figgy_resource!("27fd4d29-1170-47a5-891b-f2743873bcef")
