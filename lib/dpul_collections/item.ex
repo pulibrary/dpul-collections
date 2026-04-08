@@ -90,6 +90,7 @@ defmodule DpulCollections.Item do
          {:source_acquisition, gettext("Source Acquisition")},
          {:references, gettext("References")},
          {:rights_statement, gettext("Rights Statement")},
+         {:contents, gettext("Contents")},
          {:notes, gettext("Notes")},
          {:binding_note, gettext("Binding Note")}
        ]},
@@ -182,7 +183,8 @@ defmodule DpulCollections.Item do
       author: doc["author_txt_sort"],
       scribe: doc["scribe_txt_sort"],
       donor: doc["donor_txt_sort"],
-      related_name: doc["related_name_txt_sort"]
+      related_name: doc["related_name_txt_sort"],
+      contents: doc["contents_ss"]
     }
   end
 
