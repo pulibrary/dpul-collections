@@ -61,6 +61,15 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResourceTest do
       assert doc[:display_date_s] == "Seventh of September"
     end
 
+    test "converting a ScannedResource with MMS-ID metadata and contents indexes it" do
+      doc =
+        IndexingPipeline.get_figgy_resource!("1a8c14ca-060c-434f-b999-6191db4c336c")
+        |> Figgy.Resource.to_combined()
+        |> Figgy.CombinedFiggyResource.to_solr_document()
+
+      assert doc[:contents_ss] |> hd() == "Miniatures: fol. 4a: [Firdawsi and the Court Poets]"
+    end
+
     test "converting a ScannedResource with MMS-ID metadata but an odd language value takes the language as written" do
       doc =
         IndexingPipeline.get_figgy_resource!("27fd4d29-1170-47a5-891b-f2743873bcef")

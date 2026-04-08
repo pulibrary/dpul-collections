@@ -111,7 +111,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
       source_acquisition_ss: get_in(metadata, ["source_acquisition"]),
       subject_txt_sort: get_in(metadata, ["subject"]),
       summary_txtm: get_in(metadata, ["abstract"]),
-      years_is: extract_years(get_in(metadata, ["created"]))
+      years_is: extract_years(get_in(metadata, ["created"])),
+      contents_ss: get_in(metadata, ["contents"])
     })
   end
 
@@ -219,6 +220,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
   defp remove_empty_strings(field_value) when is_list(field_value) do
     field_value |> Enum.reject(fn v -> v == "" end)
   end
+
   defp remove_empty_strings(nil), do: []
 
   defp digitized_date(%{"created_at" => created_at}) when is_binary(created_at) do

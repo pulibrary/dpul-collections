@@ -276,6 +276,18 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       assert view |> has_element?("dt", "Notes")
     end
 
+    test "displays content fields for MMS-ID ScannedResources", %{conn: conn} do
+      FiggyTestSupport.index_record_id_directly("1a8c14ca-060c-434f-b999-6191db4c336c")
+      Solr.soft_commit(active_collection())
+
+      {:ok, view, _html} =
+        live(conn, "/i/شاهنامه/item/1a8c14ca-060c-434f-b999-6191db4c336c")
+
+      view |> element("a", "View all metadata for this item") |> render_click()
+
+      assert view |> has_element?("dt", "Contents")
+    end
+
     test "doesn't display combined fields if there aren't any values", %{conn: conn} do
       FiggyTestSupport.index_record_id_directly("ff1b2bed-0ca8-45d4-854e-d8f82fc7572f")
       Solr.soft_commit(active_collection())
