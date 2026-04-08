@@ -9,7 +9,7 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
       <div class="search-browse-container min-h-10 flex flex-wrap bg-search">
         <div class="search-box header-x-padding grow">
           <form id="search-form" class="group w-full h-full" phx-submit="search" phx-target={@myself}>
-            <div class="flex items-center w-full h-full" role="search">
+            <div class="flex items-center w-full h-full space-x-2" role="search">
               <span class="flex-none">
                 <.icon name="hero-magnifying-glass" class="h-8 w-8 icon" />
               </span>
@@ -23,11 +23,18 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
                 dir="auto"
               />
               <.primary_button
+                id="collection-search-button"
+                type="submit"
+                class="btn-primary px-4 h-8 flex-none"
+              >
+                {gettext("Search in this Collection")}<.icon name="hero-arrow-turn-down-left" class="h-6/10 ml-1"/>
+              </.primary_button>
+              <.primary_button
                 id="search-button"
                 type="submit"
                 class="btn-primary px-4 h-8 flex-none mr-2px"
               >
-                {gettext("Search")}
+                {gettext("Search all")}
               </.primary_button>
             </div>
           </form>
