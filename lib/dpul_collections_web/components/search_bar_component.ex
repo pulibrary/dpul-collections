@@ -25,24 +25,12 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
               <.primary_button
                 id="search-button"
                 type="submit"
-                class="btn-primary px-4 h-8 invisible group-focus-within:visible flex-none"
+                class="btn-primary px-4 h-8 flex-none mr-2px"
               >
                 {gettext("Search")}
               </.primary_button>
             </div>
           </form>
-        </div>
-
-        <div
-          class="browse-link min-h-10 flex flex-none justify-end items-center header-e-padding bg-primary ml-auto"
-          role="navigation"
-        >
-          <div class="w-full text-right heading text-xl font-bold">
-            <span><.icon name="hero-square-3-stack-3d" class="p-1 h-8 w-8 icon" /></span>
-            <.link navigate={~p"/browse"} class="pl-2">
-              {gettext("Explore")}
-            </.link>
-          </div>
         </div>
       </div>
       <.content_separator />

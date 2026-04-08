@@ -26,7 +26,6 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
 
     conn
     |> visit("/search?q=")
-    |> assert_has("a", text: "Explore")
     |> unwrap(&TestUtils.assert_a11y/1)
     |> click_button("Filters")
     |> click_button("Format")

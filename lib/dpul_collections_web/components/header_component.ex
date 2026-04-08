@@ -144,7 +144,7 @@ defmodule DpulCollectionsWeb.HeaderComponent do
     ~H"""
     <li
       id={"#{@id}-nav"}
-      class="py-1 px-2 hover:link-hover hover:bg-stone-200 focus:bg-stone-200 md:hover:bg-brand md:focus:bg-brand cursor-pointer"
+      class="py-1 pl-2 hover:link-hover hover:bg-stone-200 focus:bg-stone-200 md:hover:bg-brand md:focus:bg-brand cursor-pointer"
     >
       <button
         class={[
