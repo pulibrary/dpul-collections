@@ -61,13 +61,27 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResourceTest do
       assert doc[:display_date_s] == "Seventh of September"
     end
 
-    test "converting a ScannedResource with MMS-ID metadata and contents indexes it" do
+    # This was the case for
+    # https://figgy.princeton.edu/catalog/72507ee3-850b-4ad6-9098-141257cb319f,
+    # which we'll index eventually.
+    test "converting a ScannedResource with MMS-ID metadata and a nil content_warning is able to convert it without erroring" do
       doc =
         IndexingPipeline.get_figgy_resource!("1a8c14ca-060c-434f-b999-6191db4c336c")
         |> Figgy.Resource.to_combined()
+        |> put_in(
+          [
+            Access.key!(:resource),
+            Access.key!(:metadata),
+            Access.key!("content_warning")
+          ],
+          nil
+        )
         |> Figgy.CombinedFiggyResource.to_solr_document()
 
       assert doc[:contents_ss] |> hd() == "Miniatures: fol. 4a: [Firdawsi and the Court Poets]"
+    end
+
+    test "converting a ScannedResource with an empty content warning indexes it" do
     end
 
     test "converting a ScannedResource with MMS-ID metadata but an odd language value takes the language as written" do
