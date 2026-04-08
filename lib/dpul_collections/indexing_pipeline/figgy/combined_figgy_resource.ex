@@ -219,6 +219,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
   defp remove_empty_strings(field_value) when is_list(field_value) do
     field_value |> Enum.reject(fn v -> v == "" end)
   end
+  defp remove_empty_strings(nil), do: []
 
   defp digitized_date(%{"created_at" => created_at}) when is_binary(created_at) do
     created_at
