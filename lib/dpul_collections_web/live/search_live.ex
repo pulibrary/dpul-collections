@@ -621,7 +621,7 @@ defmodule DpulCollectionsWeb.SearchLive do
             />
             <div
               id={"filecount-#{@item.id}"}
-              class="hidden absolute diagonal-rise -right-px bottom-0 bg-sage-100 pr-4 py-2 text-sm"
+              class="hidden absolute diagonal-rise -right-px -bottom-px bg-sage-100 pr-4 py-2 text-sm"
             >
               {@item.file_count} {gettext("Files")}
             </div>
