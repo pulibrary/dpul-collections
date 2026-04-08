@@ -17,7 +17,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ResourceTypeRegistry do
 
   # Temporary restrictions to allow gradual ingest of different types
   @allowed_collections ["52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a"]
-  @allowed_scanned_resources ["27fd4d29-1170-47a5-891b-f2743873bcef", "72507ee3-850b-4ad6-9098-141257cb319f", "ee3528e9-88a4-4d2b-adee-f05efede87a7", "1a8c14ca-060c-434f-b999-6191db4c336c", "2cc9b5cf-8d33-4f1b-b53f-fcc658770458"]
+  @allowed_scanned_resources [
+    "27fd4d29-1170-47a5-891b-f2743873bcef",
+    "72507ee3-850b-4ad6-9098-141257cb319f",
+    "ee3528e9-88a4-4d2b-adee-f05efede87a7",
+    "1a8c14ca-060c-434f-b999-6191db4c336c",
+    "2cc9b5cf-8d33-4f1b-b53f-fcc658770458"
+  ]
 
   def indexable_types, do: @indexable_types
   def collection_types, do: @collection_types
