@@ -1,7 +1,7 @@
 defmodule DpulCollections.Transcription do
   @timeout 900_000
   @flash "gemini-3-flash-preview"
-  @pro "gemini-3-pro-preview"
+  @pro "gemini-3.1-pro-preview"
 
   # Pricing per million tokens (in USD)
   @price_config %{
