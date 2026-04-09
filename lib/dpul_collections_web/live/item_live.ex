@@ -418,7 +418,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   def action_bar(assigns) do
     ~H"""
     <div {@rest}>
-      <div class="flex flex-row justify-between items-center gap-4">
+      <div class="flex flex-row flex-wrap justify-between items-center gap-x-2 gap-y-1 sm:gap-4">
         <.action_icon
           :if={has_dimensions(@item)}
           icon="pepicons-pencil:ruler"
@@ -507,7 +507,7 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def action_icon(assigns = %{href: _href}) do
     ~H"""
-    <div class="flex text-sm items-center">
+    <div class="flex text-xs sm:text-sm items-center">
       <a
         href={@href}
         class="no-underline justify-center items-center flex flex-col text-center"
@@ -524,7 +524,7 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def action_icon(assigns) do
     ~H"""
-    <div class="flex text-sm items-center">
+    <div class="flex text-xs sm:text-sm items-center">
       <button class="justify-center items-center flex flex-col text-center" {@rest}>
         <div class={["cursor-pointer rounded-full flex justify-center items-center", @variant]}>
           <.icon class="w-full h-full" name={@icon} />
@@ -727,7 +727,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         </div>
       </div>
       <div class="w-full col-span-2 gap-2">
-        <div class="thumbnail-buttons grid grid-cols-2 gap-2">
+        <div class="thumbnail-buttons grid grid-cols-1 sm:grid-cols-2 gap-2">
           <.arrow_button_left id="viewer-link" patch={"#{@item.viewer_url}/1"} replace>
             <span class="w-max flex gap-2 text-sm sm:text-base">
               <.icon name="hero-eye" />{gettext("Look closer")}
