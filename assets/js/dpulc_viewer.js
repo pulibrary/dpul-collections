@@ -29,6 +29,8 @@ const MiradorViewer = {
       windowConfig.canvasId = canvasId;
     }
 
+    /* Settings we can change:
+     * https://github.com/ProjectMirador/mirador/blob/main/src/config/settings.js */
     const viewerInstance = Mirador.viewer(
       {
         id: "mirador-viewer",
@@ -78,6 +80,7 @@ const MiradorViewer = {
       const windowIds = Object.keys(state.windows);
       if (windowIds.length === 0) return;
       const wId = windowIds[0];
+      /* https://github.com/ProjectMirador/mirador/blob/2fcc33667774c62509b2f5eae20908aea39bfbb1/src/state/actions/action-types.js#L3 */
       store.dispatch({
         type: "mirador/UPDATE_COMPANION_WINDOW",
         windowId: wId,
