@@ -59,6 +59,7 @@ defmodule DpulCollectionsWeb.UserSetsLive do
             show_images={@show_images}
             current_scope={@current_scope}
             url={~p"/sets/#{set.id}"}
+            heading_level="h2"
           >
             <:card_buttons>
               <.card_button

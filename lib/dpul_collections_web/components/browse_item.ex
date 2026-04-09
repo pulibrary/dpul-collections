@@ -72,6 +72,10 @@ defmodule DpulCollectionsWeb.BrowseItem do
     default: [],
     doc: "the list of images stored in session that should not be obfuscated"
 
+  attr :heading_level, :string,
+    default: "h3",
+    doc: "the HTML heading level for the card title"
+
   slot :extra_info, required: false
   slot :card_footer, required: false
   slot :card_buttons, required: false
@@ -133,7 +137,11 @@ defmodule DpulCollectionsWeb.BrowseItem do
         <!-- card text area -->
         <div class="grid grid-cols-1 grow">
           <div class="mx-1 px-6 pb-5 bg-white flex flex-col">
-            <h2 class="font-normal tracking-tight py-1 flex-grow" dir="auto">
+            <.dynamic_tag
+              tag_name={@heading_level}
+              class="font-normal tracking-tight py-1 flex-grow"
+              dir="auto"
+            >
               <.link
                 navigate={!@target && (@url || @thumb_source.url)}
                 href={@target != nil && (@url || @thumb_source.url)}
@@ -142,7 +150,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
               >
                 {truncate_title(first_title(@target_item))}
               </.link>
-            </h2>
+            </.dynamic_tag>
             <div class="brief-metadata pt-4 text-gray-700 text-base">
               {render_slot(@extra_info)}
             </div>
@@ -181,6 +189,8 @@ defmodule DpulCollectionsWeb.BrowseItem do
     default: [],
     doc: "the list of images stored in session that should not be obfuscated"
 
+  attr :heading_level, :string, default: "h3"
+
   # make sure to wrap these in a ul
   def browse_li(assigns) do
     ~H"""
@@ -188,6 +198,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
       target_item={@item}
       thumb_source={@item}
       id_prefix={@id_prefix}
+      heading_level={@heading_level}
       target={@target}
       class={@class}
       current_scope={@current_scope}

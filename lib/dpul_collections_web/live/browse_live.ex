@@ -113,6 +113,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
           show_images={@show_images}
           current_scope={@current_scope}
           current_path={@current_path}
+          heading_level="h2"
         />
         <.browse_li
           :for={item <- @items}
@@ -121,6 +122,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
           show_images={@show_images}
           current_scope={@current_scope}
           current_path={@current_path}
+          heading_level="h2"
         />
       </ul>
     </div>
