@@ -18,6 +18,7 @@ defmodule DpulCollectionsWeb.Layouts do
   attr :current_scope, :map,
     default: nil,
     doc: "the current [scope](https://hexdocs.pm/phoenix/scopes.html)"
+
   attr :collection_title, :string, default: ""
 
   attr :content_class, :list, default: ["bg-background", "page-y-padding"]
