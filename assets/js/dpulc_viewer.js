@@ -45,6 +45,7 @@ const MiradorViewer = {
           hideWindowTitle: false,
           sideBarOpen: false,
           defaultView: "single",
+          sideBarPanel: 'canvas',
           panels: {
             info: false,
             attribution: false,
