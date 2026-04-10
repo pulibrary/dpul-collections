@@ -367,22 +367,20 @@ defmodule DpulCollectionsWeb.ItemLive do
         >
         </.action_icon>
       </:heading>
-      <!-- "relative" here lets Clover fill the full size of main-content. -->
-      <!-- Ignore phoenix updates, since Clover manages switching the canvas. Without this it's jumpy on page switches. -->
-      <div id="clover-viewer" class="main-content grow relative">
-        <div id="clover-viewer-container" class="w-full h-full" phx-update="ignore">
-          {live_react_component(
-            "Components.DpulcViewer",
-            [
-              iiifContent: unverified_url(DpulCollectionsWeb.Endpoint, @current_content_state_url),
-              contentCanvasIndex: @current_canvas_idx
-            ],
-            id: "viewer-component"
-          )}
+      <!-- "relative" here lets Mirador fill the full size of main-content. -->
+      <div id="mirador-viewer-wrapper" class="main-content grow relative">
+        <div
+          id="mirador-viewer-container"
+          class="w-full h-full"
+          phx-hook="MiradorViewer"
+          phx-update="ignore"
+          data-manifest-url={@item.iiif_manifest_url}
+          data-canvas-id={Enum.at(@item.image_canvas_ids, max(@current_canvas_idx - 1, 0))}
+        >
         </div>
         <div
           :if={Helpers.obfuscate_item?(assigns)}
-          class="obfuscation-container flex items-center justify-center bg-background w-full h-full absolute top-0 left-0"
+          class="obfuscation-container flex items-center justify-center bg-background w-full h-full z-10 absolute top-0 left-0"
         >
           <div class="max-w-2xl">
             <h2 class="text-3xl font-semibold">
