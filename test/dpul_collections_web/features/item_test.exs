@@ -158,12 +158,13 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
     |> visit("/item/1")
     |> click_link("#viewer-link", "Look closer")
     |> assert_path("/i/document1/item/1/viewer/1")
-    |> click_button("figcaption", "2")
+    |> click_button("div[data-canvas-index='1']", "2")
     |> assert_path("/i/document1/item/1/viewer/2")
 
     # It defaults to the first page Clover opens if not given one.
     conn
     |> visit("/i/document/item/1/viewer")
+    |> assert_has("div[data-canvas-index]")
     |> assert_path("/i/document1/item/1/viewer/1")
   end
 

@@ -103,8 +103,6 @@ const MiradorViewer = {
 
     // Notify LiveView that the canvas changed when the store updates with a new
     // canvas ID.
-    let previousCanvasId = canvasId;
-
     store.subscribe(() => {
       const state = store.getState();
       const windows = state.windows;
@@ -114,10 +112,8 @@ const MiradorViewer = {
 
       const windowState = windows[windowIds[0]];
       if (!windowState) return;
-
       const currentCanvasId = windowState.canvasId;
-      if (currentCanvasId && currentCanvasId !== previousCanvasId) {
-        previousCanvasId = currentCanvasId;
+      if (currentCanvasId) {
         this.pushEvent("changedCanvas", { canvas_id: currentCanvasId });
       }
     });
