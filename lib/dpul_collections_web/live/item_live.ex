@@ -380,7 +380,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         </div>
         <div
           :if={Helpers.obfuscate_item?(assigns)}
-          class="obfuscation-container flex items-center justify-center bg-background w-full h-full absolute top-0 left-0"
+          class="obfuscation-container flex items-center justify-center bg-background w-full h-full z-10 absolute top-0 left-0"
         >
           <div class="max-w-2xl">
             <h2 class="text-3xl font-semibold">
