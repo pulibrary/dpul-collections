@@ -32,6 +32,8 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
                 :if={String.length(@collection_title) > 0}
                 id="collection-search-button"
                 type="submit"
+                name="search"
+                value={@collection_title}
                 class="btn-primary px-4 h-8 grow md:flex-none"
               >
                 {gettext("Search in this Collection")} <.icon name="hero-arrow-turn-down-left" class="h-4/7 ml-1 hidden md:inline"/>
@@ -40,9 +42,11 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
               <.primary_button
                 id="search-button"
                 type="submit"
+                name="search"
+                value="general"
                 class="btn-primary px-4 h-8 grow md:flex-none mr-2px"
               >
-                {gettext("Search all")}
+                {search_label(@collection_title)}
               </.primary_button>
               </div>
             </div>
@@ -54,9 +58,24 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
     """
   end
 
-  def handle_event("search", %{"q" => q}, socket) do
+  def handle_event("search", %{"search" => "general", "q" => q}, socket) do
     params = %{q: q} |> Helpers.clean_params()
     socket = push_navigate(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
+  end
+
+  def handle_event("search", %{"search" => collection_title, "q" => q}, socket) do
+    params = %{q: q, filter: %{collection: [collection_title]}} |> Helpers.clean_params()
+    socket = push_navigate(socket, to: ~p"/search?#{params}")
+    {:noreply, socket}
+  end
+
+  # We're not on a collection page
+  def search_label("") do
+    gettext("Search")
+  end
+
+  def search_label(_) do
+    gettext("Search all")
   end
 end
