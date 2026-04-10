@@ -14,7 +14,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       "1e86cab8-69c0-4e1f-8cf7-c11f274b657f",
       "666fcfd1-dda7-4603-82d1-1863dc97ffc3",
       "8ac0a23b-8c51-4e1c-8bc0-ae307264b895",
-      "f99af4de-fed4-4baa-82b1-6e857b230306",
+      "f99af4de-fed4-4baa-82b1-6e857b230306", # the project
       "e8abfa75-253f-428a-b3df-0e83ff2b20f9",
       "e379b822-27cc-4d0e-bca7-6096ac38f1e6",
       "1e5ae074-3a6e-494e-9889-6cd01f7f0621",

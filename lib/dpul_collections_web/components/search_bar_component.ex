@@ -3,6 +3,8 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
   use Gettext, backend: DpulCollectionsWeb.Gettext
   alias DpulCollectionsWeb.Live.Helpers
 
+  attr :collection_title, :string, default: ""
+
   def render(assigns) do
     ~H"""
     <div class="search-bar cover-with-pane">
@@ -27,6 +29,7 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
 
               <div class="flex items-stretch space-x-2 my-2 text-sm md:text-md w-full md:w-auto">
               <.primary_button
+                :if={String.length(@collection_title) > 0}
                 id="collection-search-button"
                 type="submit"
                 class="btn-primary px-4 h-8 grow md:flex-none"

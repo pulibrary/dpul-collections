@@ -18,6 +18,7 @@ defmodule DpulCollectionsWeb.Layouts do
   attr :current_scope, :map,
     default: nil,
     doc: "the current [scope](https://hexdocs.pm/phoenix/scopes.html)"
+  attr :collection_title, :string, default: ""
 
   attr :content_class, :list, default: ["bg-background", "page-y-padding"]
   attr :display_title, :boolean, default: true
@@ -30,7 +31,11 @@ defmodule DpulCollectionsWeb.Layouts do
     <!-- "relative" here lets us have absolute layout elements that cover all parts of the page except the header. -->
     <div class="relative flex-1 flex flex-col">
       <div class="flex-1 bg-background">
-        <.live_component module={DpulCollectionsWeb.SearchBarComponent} id="search-bar" />
+        <.live_component
+          module={DpulCollectionsWeb.SearchBarComponent}
+          id="search-bar"
+          collection_title={@collection_title}
+        />
         <main id="main-content" class={@content_class}>
           <.flash_group flash={@flash} />
           <.live_component
