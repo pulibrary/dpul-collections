@@ -17,11 +17,9 @@ defmodule DpulCollectionsWeb.Features.SearchBarTest do
     test "submitting a search returns results", %{conn: conn} do
       conn
       |> visit("/search")
-      |> assert_has("#search-button")
+      |> assert_has("#search-button", text: "Search", exact: true)
       |> refute_has("#collection-search-button")
-      # Because the search button is only visible when the input is focused, we use
-      # type instead of fill_in
-      |> Playwright.type("input#q", "Document-3")
+      |> fill_in("Search", with: "Document-3")
       |> click_button("Search")
       |> assert_has("#item-counter", text: "1 - 1 of 1")
     end
@@ -31,23 +29,20 @@ defmodule DpulCollectionsWeb.Features.SearchBarTest do
     test "submitting a search brings you to the results page", %{conn: conn} do
       conn
       |> visit("/")
-      |> Playwright.type("input#q", "Document-3")
+      |> fill_in("Search", with: "Document-3")
       |> click_button("Search")
       |> assert_has("#item-counter", text: "1 - 1 of 1")
     end
   end
 
   describe "on a collection page" do
-    test "submitting a search returns results", %{conn: conn} do
+    test "submitting a search filters to that collection", %{conn: conn} do
       conn
       |> visit("/collections/sae")
-      |> assert_has("#search-button")
+      |> assert_has("#search-button", text: "Search all", exact: true)
       |> assert_has("#collection-search-button")
-      # Because the search button is only visible when the input is focused, we use
-      # type instead of fill_in
-      |> Playwright.type("input#q", "Document-3")
       |> click_button("Search in this Collection")
-      |> assert_has("#item-counter", text: "1 - 1 of 1")
+      |> assert_has("section#filters", text: "Collection South Asian Ephemera")
     end
   end
 
