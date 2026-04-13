@@ -1146,7 +1146,7 @@ msgstr "Pessoas"
 #: lib/dpul_collections_web/components/header_component.ex:28
 #, elixir-autogen, elixir-format,
 msgid "Princeton University Library"
-msgstr "Logotipo da Biblioteca da Universidade de Princeton"
+msgstr "Biblioteca da Universidade de Princeton"
 
 #: lib/dpul_collections/item.ex:91
 #, elixir-autogen, elixir-format
