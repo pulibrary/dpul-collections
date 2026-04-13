@@ -1064,12 +1064,12 @@ msgstr "linguagem problemática"
 #: lib/dpul_collections_web/live/search_live.ex:244
 #, elixir-autogen, elixir-format
 msgid "Active Filters"
-msgstr ""
+msgstr "Filtros Ativos"
 
 #: lib/dpul_collections_web/live/search_live.ex:434
 #, elixir-autogen, elixir-format
 msgid "Apply Year Range"
-msgstr ""
+msgstr "Aplicar Faixa Anual"
 
 #: lib/dpul_collections/item.ex:56
 #: lib/dpul_collections/search_result.ex:2
@@ -1079,23 +1079,23 @@ msgstr ""
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
 #, elixir-autogen, elixir-format
 msgid "Author"
-msgstr ""
+msgstr "Autor"
 
 #: lib/dpul_collections/item.ex:95
 #, elixir-autogen, elixir-format
 msgid "Binding Note"
-msgstr ""
+msgstr "Nota Vinculativa"
 
 #: lib/dpul_collections/item.ex:49
 #: lib/dpul_collections/item.ex:78
 #, elixir-autogen, elixir-format
 msgid "Call Number"
-msgstr ""
+msgstr "Número de Chamada"
 
 #: lib/dpul_collections_web/live/search_live.ex:249
 #, elixir-autogen, elixir-format
 msgid "Clear all"
-msgstr ""
+msgstr "Limpar Tudo"
 
 #: lib/dpul_collections_web/components/core_components.ex:528
 #, elixir-autogen, elixir-format,
@@ -1105,7 +1105,7 @@ msgstr "fechar"
 #: lib/dpul_collections/item.ex:93
 #, elixir-autogen, elixir-format
 msgid "Contents"
-msgstr ""
+msgstr "Conteúdo"
 
 #: lib/dpul_collections/item.ex:58
 #: lib/dpul_collections/search_result.ex:2
@@ -1115,12 +1115,12 @@ msgstr ""
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
 #, elixir-autogen, elixir-format
 msgid "Donor"
-msgstr ""
+msgstr "Doador"
 
 #: lib/dpul_collections/item.ex:86
 #, elixir-autogen, elixir-format
 msgid "Extent"
-msgstr ""
+msgstr "Extensão"
 
 #: lib/dpul_collections_web/live/search_live.ex:238
 #, elixir-autogen, elixir-format,
@@ -1130,17 +1130,17 @@ msgstr "Filtros"
 #: lib/dpul_collections/item.ex:79
 #, elixir-autogen, elixir-format
 msgid "Identifier"
-msgstr ""
+msgstr "Identificador"
 
 #: lib/dpul_collections/item.ex:94
 #, elixir-autogen, elixir-format
 msgid "Notes"
-msgstr ""
+msgstr "Notas"
 
 #: lib/dpul_collections/item.ex:54
 #, elixir-autogen, elixir-format
 msgid "People"
-msgstr ""
+msgstr "Pessoas"
 
 #: lib/dpul_collections_web/components/header_component.ex:21
 #: lib/dpul_collections_web/components/header_component.ex:28
@@ -1151,17 +1151,17 @@ msgstr "Logotipo da Biblioteca da Universidade de Princeton"
 #: lib/dpul_collections/item.ex:91
 #, elixir-autogen, elixir-format
 msgid "References"
-msgstr ""
+msgstr "Referências"
 
 #: lib/dpul_collections/item.ex:59
 #, elixir-autogen, elixir-format
 msgid "Related Name"
-msgstr ""
+msgstr "Nome Relacionado"
 
 #: lib/dpul_collections_web/live/search_live.ex:324
 #, elixir-autogen, elixir-format
 msgid "Results"
-msgstr ""
+msgstr "Resultados"
 
 #: lib/dpul_collections/item.ex:57
 #: lib/dpul_collections/search_result.ex:2
@@ -1171,17 +1171,17 @@ msgstr ""
 #: lib/dpul_collections_web/live/search_live/search_state.ex:2
 #, elixir-autogen, elixir-format
 msgid "Scribe"
-msgstr ""
+msgstr "Escriba"
 
 #: lib/dpul_collections_web/live/search_live.ex:451
 #, elixir-autogen, elixir-format
 msgid "Search filters..."
-msgstr ""
+msgstr "Filtros de pesquisa..."
 
 #: lib/dpul_collections/item.ex:90
 #, elixir-autogen, elixir-format
 msgid "Source Acquisition"
-msgstr ""
+msgstr "Aquisição de Fonte"
 
 #: lib/dpul_collections_web/live/search_live.ex:324
 #, elixir-autogen, elixir-format,
