@@ -11,7 +11,13 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
       <div class="search-browse-container min-h-10 flex flex-wrap bg-search">
         <div class="search-box header-x-padding grow w-full">
           <form id="search-form" class="group w-full h-full" phx-submit="search" phx-target={@myself}>
-            <div class="flex flex-wrap items-center w-full h-full" role="search">
+            <div
+              class={[
+                "flex items-center w-full h-full",
+                String.length(@collection_title) > 0 && "flex-wrap"
+              ]}
+              role="search"
+            >
               <div class="flex items-center grow">
                 <span class="flex-none">
                   <.icon name="hero-magnifying-glass" class="h-8 w-8 icon" />
@@ -27,14 +33,17 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
                 />
               </div>
 
-              <div class="flex items-stretch space-x-2 my-2 text-sm md:text-md w-full md:w-auto">
+              <div class={[
+                "flex items-stretch space-x-2 my-2 text-sm md:text-md md:w-auto",
+                String.length(@collection_title) > 0 && "w-full"
+              ]}>
                 <.primary_button
                   :if={String.length(@collection_title) > 0}
                   id="collection-search-button"
                   type="submit"
                   name="search"
                   value={@collection_title}
-                  class="btn-primary px-4 h-8 grow md:flex-none"
+                  class="btn-primary px-4 h-8 grow"
                 >
                   {gettext("Search in this Collection")}
                   <.icon name="hero-arrow-turn-down-left" class="h-4/7 ml-1 hidden md:inline" />
@@ -45,7 +54,7 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
                   type="submit"
                   name="search"
                   value="all"
-                  class="btn-primary px-4 h-8 grow md:flex-none mr-2px"
+                  class="btn-primary px-4 h-8 mr-2px grow"
                 >
                   {search_label(@collection_title)}
                 </.primary_button>
@@ -70,12 +79,6 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
     socket = push_navigate(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
   end
-
-  # def handle_event("search", %{"q" => q}, socket) do
-  #   params = %{q: q} |> Helpers.clean_params()
-  #   socket = push_navigate(socket, to: ~p"/search?#{params}")
-  #   {:noreply, socket}
-  # end
 
   # We're not on a collection page
   def search_label("") do
