@@ -18,6 +18,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
           alternative_title_txtm: "Alternative Title",
           barcode_txtm: ["barcode"],
           box_number_txtm: ["box 1"],
+          category_subjects_txt: "{\"Minorities, ethnic and racial groups\":[\"Ethnic relations\"],\"Politics and government\":[\"Peace movements\",\"Peace negotiations\"],\"Religion\":[\"Liberation theology\"]}",
           content_warning_s: "content warning",
           contributor_txt_sort: ["contributor"],
           creator_txt_sort: ["creator"],
@@ -324,7 +325,8 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       assert document |> Floki.find(~s{dt:fl-contains("Publisher")}) |> Enum.any?()
       assert document |> Floki.find(~s{.metadata *:fl-contains("publisher")}) |> Enum.any?()
       assert document |> Floki.find(~s{dt:fl-contains("Subject")}) |> Enum.any?()
-      assert document |> Floki.find(~s{.metadata *:fl-contains("subject")}) |> Enum.any?()
+      assert document |> Floki.find(~s{.metadata *:fl-contains("Politics and government")}) |> Enum.any?()
+      assert document |> Floki.find(~s{.metadata *:fl-contains("Peace movements")}) |> Enum.any?()
       assert document |> Floki.find(~s{*:fl-contains("Test Project")}) |> Enum.any?()
       assert document |> Floki.find(~s{*:fl-contains("This is a tagline.")}) |> Enum.any?()
 

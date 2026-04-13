@@ -26,6 +26,7 @@ config :dpul_collections,
 
 # Configures the endpoint
 config :dpul_collections, DpulCollectionsWeb.Endpoint,
+  reloadable_compilers: [:elixir, :app],
   url: [host: "localhost"],
   adapter: Bandit.PhoenixAdapter,
   render_errors: [

@@ -165,7 +165,7 @@ defmodule DpulCollections.Item do
       rights_statement: doc["rights_statement_txtm"] || [],
       series: doc["series_txt_sort"] || [],
       sort_title: doc["sort_title_txtm"] || [],
-      subject: doc["subject_txt_sort"] || [],
+      subject: category_subject(doc["category_subjects_txt"]) || doc["subject_txt_sort"],
       transliterated_title: doc["transliterated_title_txtm"] || [],
       updated_at: doc["updated_at_dt"],
       url: generate_url(id, slug),
@@ -187,6 +187,14 @@ defmodule DpulCollections.Item do
       contents: doc["contents_ss"]
     }
   end
+
+  # write the actual matching funtion for this catchall
+  defp category_subject([value]) do 
+    value
+    |> JSON.decode!()
+  end
+
+  defp category_subject(_), do: nil
 
   defp generate_url(id, slug) do
     "/i/#{slug}/item/#{id}"

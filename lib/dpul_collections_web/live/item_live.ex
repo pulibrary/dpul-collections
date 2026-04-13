@@ -841,6 +841,29 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
+  def metadata_row(%{value: [%{}]} = assigns) do
+    # instead of nothing, put the special treatment for the heading keys and subject links
+    assigns = 
+      assigns
+      |> assign(:value, assigns.value |> hd)
+    ~H"""
+    <div 
+      :for={{heading, list} <- @value} 
+      class="col-span-2 grid grid-cols-subgrid items-baseline border-b-1 border-accent pb-4">
+      <dt class="font-bold text-lg">
+        {heading}
+      </dt>
+      <dd>
+        <dl 
+          :for={list_item <- list}
+          class="flex flex-col gap-y-4">
+          {list_item}
+        </dl>
+      </dd>
+    </div>
+    """
+  end
+
   def metadata_row(%{field_label: {label, sub_fields}} = assigns) when is_list(sub_fields) do
     assigns =
       assigns
