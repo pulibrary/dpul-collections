@@ -80,7 +80,7 @@ defmodule DpulCollections.MixProject do
       {:ex_doc, "~> 0.40", only: :dev, runtime: false},
       {:req, "~> 0.5"},
       {:broadway_dashboard, "~> 0.4"},
-      {:honeybadger, "~> 0.25"},
+      {:honeybadger, "~> 0.26"},
       {:phoenix_test_playwright, "~> 0.7.1",
        only: :test,
        runtime: false,
