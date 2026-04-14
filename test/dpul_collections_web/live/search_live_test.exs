@@ -96,7 +96,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     {:ok, document} =
       view
       |> element("#search-form")
-      |> render_submit(%{"q" => "Document-2"})
+      |> render_submit(%{"search" => "all", "q" => "Document-2"})
       |> follow_redirect(conn)
       |> elem(2)
       |> Floki.parse_document()
@@ -431,7 +431,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     view
     |> element("#search-form")
-    |> render_submit(%{"q" => "Document"})
+    |> render_submit(%{"search" => "all", "q" => "Document"})
 
     assert_redirected(view, "/search?q=Document")
   end
@@ -723,7 +723,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     {:ok, document} =
       view
       |> element("#search-form")
-      |> render_submit(%{"q" => "Document*"})
+      |> render_submit(%{"search" => "all", "q" => "Document*"})
       |> follow_redirect(conn)
       |> elem(2)
       |> Floki.parse_document()

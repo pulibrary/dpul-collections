@@ -29,7 +29,7 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
 
     assert view
            |> element("form")
-           |> render_submit(%{"q" => "cats"}) ==
+           |> render_submit(%{"search" => "all", "q" => "cats"}) ==
              {:error, {:live_redirect, %{kind: :push, to: "/search?q=cats"}}}
   end
 
