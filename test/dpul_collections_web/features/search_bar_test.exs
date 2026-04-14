@@ -1,7 +1,6 @@
 defmodule DpulCollectionsWeb.Features.SearchBarTest do
   use DpulCollections.DataCase
   use PhoenixTest.Playwright.Case
-  alias PhoenixTest.Playwright
   alias DpulCollections.Solr
 
   setup do
