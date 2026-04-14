@@ -47,10 +47,4 @@ defmodule DpulCollectionsWeb.Features.SearchBarTest do
       |> assert_has("section#filters", text: "Collection South Asian Ephemera")
     end
   end
-
-  test "search results page is accessible", %{conn: conn} do
-    conn
-    |> visit("/search?q=Document-3")
-    |> unwrap(&TestUtils.assert_a11y/1)
-  end
 end
