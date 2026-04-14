@@ -131,7 +131,6 @@ defmodule DpulCollectionsWeb.ItemLive do
   end
 
   def filter_link(assigns) do
-    dbg()
     ~H"""
     {@filter_value}
     """
