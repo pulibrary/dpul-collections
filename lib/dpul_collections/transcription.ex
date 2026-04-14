@@ -29,52 +29,8 @@ defmodule DpulCollections.Transcription do
   def default_model, do: @pro
   def default_thinking_level, do: "high"
 
-  def transcribe_url(url, transcribe_model \\ @pro, bbox_model \\ @pro, opts \\ []) do
-    transcribe_thinking = Keyword.get(opts, :transcribe_thinking, "medium")
-    bbox_thinking = Keyword.get(opts, :bbox_thinking, "medium")
-
-    {:ok, encoded_image} = fetch_and_encode(url)
-
-    with {:ok, draft_json, usage1} <-
-           step_1_transcribe_content(encoded_image, transcribe_model, transcribe_thinking),
-         {:ok, grounded_json, usage2} <-
-           step_2_generate_boxes(encoded_image, draft_json, bbox_model, bbox_thinking) do
-      total_usage = %{
-        input_tokens: usage1.input_tokens + usage2.input_tokens,
-        output_tokens: usage1.output_tokens + usage2.output_tokens,
-        total_tokens: usage1.total_tokens + usage2.total_tokens,
-        step1: %{model: transcribe_model, thinking: transcribe_thinking, usage: usage1},
-        step2: %{model: bbox_model, thinking: bbox_thinking, usage: usage2}
-      }
-
-      {:ok, grounded_json, total_usage}
-    else
-      {:error, reason} -> {:error, reason}
-    end
-  end
-
-  def get_viewer_url(url, transcribe_model \\ @pro, bbox_model \\ @pro, opts \\ []) do
-    gemini_url = "#{url}/full/!2048,2048/0/default.jpg"
-    viewer_url = "#{url}/full/!1600,1600/0/default.jpg"
-
-    {:ok, msg, usage} = transcribe_url(gemini_url, transcribe_model, bbox_model, opts)
-    data_base64 = Jason.decode!(msg) |> Jason.encode!() |> Base.encode64()
-
-    params = %{
-      "img" => viewer_url,
-      "base64" => data_base64
-    }
-
-    viewer_link =
-      "https://tpendragon.github.io/ocr-viewer/section-viewer.html##{URI.encode_query(params)}"
-
-    cost = calculate_cost(usage)
-
-    {viewer_link, usage, cost}
-  end
-
-  defp step_1_transcribe_content(encoded_image, model, thinking_level) do
-    prompt = """
+  def default_step_1_prompt do
+    """
     You are an expert Digital Archivist.
     Your goal is to transcribe the document while preserving its **Logical Layout**.
     These outputs may be used for section-level text embeddings, display to a user alongside its image, or for creating accessible PDFs.
@@ -113,6 +69,187 @@ defmodule DpulCollections.Transcription do
     **INSTRUCTION:**
     Analyze the layout. Use `sub_regions` strictly for multi-column or grouped layouts.
     """
+  end
+
+  def default_step_2_prompt do
+    """
+    You are a Computer Vision Expert. Your task is **Hierarchical Visual Grounding**.
+
+    # INPUT CONTEXT
+    {{CONTENT_JSON}}
+
+    # INSTRUCTIONS
+    For every region and **sub-region**, detect the bounding box.
+
+    1. **Parent Regions**: If a region has `sub_regions`, the Parent Box must be large enough to encompass ALL its children (the union of the sub-boxes).
+    2. **Sub-Regions**: Generate precise, ink-tight boxes for each individual column or signature block inside the parent.
+    3. **Standard Regions**: Box the entire paragraph or visual element.
+
+    # GEOMETRY
+    - Scale: 0-1000.
+    - Format: [ymin, xmin, ymax, xmax].
+
+    # OUTPUT
+    - Return the exact JSON structure with `box_2d` populated for EVERY item (parents and children).
+    """
+  end
+
+  def fetch_manifest(url) do
+    case Req.get(url, headers: [{"accept", "application/ld+json"}]) do
+      {:ok, %{status: 200, body: body}} when is_map(body) ->
+        parse_manifest(body)
+
+      {:ok, %{status: status}} ->
+        {:error, "Manifest fetch failed with status: #{status}"}
+
+      {:error, reason} ->
+        {:error, "Manifest fetch failed: #{inspect(reason)}"}
+    end
+  end
+
+  defp parse_manifest(manifest) do
+    label = extract_label(manifest["label"] || manifest["@id"] || "Untitled")
+
+    canvases =
+      cond do
+        # IIIF v3
+        is_list(manifest["items"]) ->
+          manifest["items"]
+          |> Enum.with_index()
+          |> Enum.map(fn {canvas, idx} ->
+            %{
+              id: canvas["id"] || "canvas-#{idx}",
+              label: extract_label(canvas["label"] || "Page #{idx + 1}"),
+              image_service_url: extract_v3_image_service(canvas)
+            }
+          end)
+          |> Enum.filter(& &1.image_service_url)
+
+        # IIIF v2
+        is_list(manifest["sequences"]) ->
+          manifest["sequences"]
+          |> List.first(%{})
+          |> Map.get("canvases", [])
+          |> Enum.with_index()
+          |> Enum.map(fn {canvas, idx} ->
+            %{
+              id: canvas["@id"] || "canvas-#{idx}",
+              label: extract_label(canvas["label"] || "Page #{idx + 1}"),
+              image_service_url: extract_v2_image_service(canvas)
+            }
+          end)
+          |> Enum.filter(& &1.image_service_url)
+
+        true ->
+          []
+      end
+
+    {:ok, label, canvases}
+  end
+
+  defp extract_label(label) when is_binary(label), do: label
+  defp extract_label(label) when is_map(label) do
+    # IIIF v3 label: %{"en" => ["Page 1"]}
+    label
+    |> Map.values()
+    |> List.first([])
+    |> List.first("Untitled")
+  end
+  defp extract_label(label) when is_list(label) do
+    case label do
+      [%{"@value" => value} | _] -> value
+      [first | _] when is_binary(first) -> first
+      _ -> "Untitled"
+    end
+  end
+  defp extract_label(_), do: "Untitled"
+
+  defp extract_v3_image_service(canvas) do
+    with items when is_list(items) <- canvas["items"],
+         page <- List.first(items, %{}),
+         items2 when is_list(items2) <- page["items"],
+         anno <- List.first(items2, %{}),
+         body when is_map(body) <- anno["body"] do
+      url = body["id"] || body["@id"]
+      if url, do: strip_iiif_image_params(url), else: nil
+    else
+      _ -> nil
+    end
+  end
+
+  defp extract_v2_image_service(canvas) do
+    with images when is_list(images) <- canvas["images"],
+         image <- List.first(images, %{}),
+         resource when is_map(resource) <- image["resource"] do
+      cond do
+        is_map(resource["service"]) ->
+          resource["service"]["@id"]
+        is_list(resource["service"]) ->
+          List.first(resource["service"], %{}) |> Map.get("@id")
+        true ->
+          strip_iiif_image_params(resource["@id"])
+      end
+    else
+      _ -> nil
+    end
+  end
+
+  defp strip_iiif_image_params(url) when is_binary(url) do
+    # Strip /full/.../0/default.jpg from image URLs to get the base service URL
+    case Regex.run(~r{^(.+)/full/.+/\d+/default\.\w+$}, url) do
+      [_, base] -> base
+      _ -> url
+    end
+  end
+  defp strip_iiif_image_params(_), do: nil
+
+  def transcribe_url(url, transcribe_model \\ @pro, bbox_model \\ @pro, opts \\ []) do
+    transcribe_thinking = Keyword.get(opts, :transcribe_thinking, "medium")
+    bbox_thinking = Keyword.get(opts, :bbox_thinking, "medium")
+    step_1_prompt = Keyword.get(opts, :step_1_prompt, default_step_1_prompt())
+    step_2_prompt = Keyword.get(opts, :step_2_prompt, default_step_2_prompt())
+
+    {:ok, encoded_image} = fetch_and_encode(url)
+
+    with {:ok, draft_json, usage1} <-
+           step_1_transcribe_content(encoded_image, transcribe_model, transcribe_thinking, step_1_prompt),
+         {:ok, grounded_json, usage2} <-
+           step_2_generate_boxes(encoded_image, draft_json, bbox_model, bbox_thinking, step_2_prompt) do
+      total_usage = %{
+        input_tokens: usage1.input_tokens + usage2.input_tokens,
+        output_tokens: usage1.output_tokens + usage2.output_tokens,
+        total_tokens: usage1.total_tokens + usage2.total_tokens,
+        step1: %{model: transcribe_model, thinking: transcribe_thinking, usage: usage1},
+        step2: %{model: bbox_model, thinking: bbox_thinking, usage: usage2}
+      }
+
+      {:ok, grounded_json, total_usage}
+    else
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  def get_viewer_url(url, transcribe_model \\ @pro, bbox_model \\ @pro, opts \\ []) do
+    gemini_url = "#{url}/full/!2048,2048/0/default.jpg"
+    viewer_url = "#{url}/full/!1600,1600/0/default.jpg"
+
+    {:ok, msg, usage} = transcribe_url(gemini_url, transcribe_model, bbox_model, opts)
+    data_base64 = Jason.decode!(msg) |> Jason.encode!() |> Base.encode64()
+
+    params = %{
+      "img" => viewer_url,
+      "base64" => data_base64
+    }
+
+    viewer_link =
+      "https://tpendragon.github.io/ocr-viewer/section-viewer.html##{URI.encode_query(params)}"
+
+    cost = calculate_cost(usage)
+
+    {viewer_link, usage, cost}
+  end
+
+  defp step_1_transcribe_content(encoded_image, model, thinking_level, prompt) do
 
     sub_region_schema = %{
       "type" => "OBJECT",
@@ -164,29 +301,9 @@ defmodule DpulCollections.Transcription do
     call_gemini(encoded_image, prompt, schema, model, thinking_level)
   end
 
-  defp step_2_generate_boxes(encoded_image, content_json, model, thinking_level) do
+  defp step_2_generate_boxes(encoded_image, content_json, model, thinking_level, prompt_template) do
     json_string = Jason.encode!(Jason.decode!(content_json))
-
-    prompt = """
-    You are a Computer Vision Expert. Your task is **Hierarchical Visual Grounding**.
-
-    # INPUT CONTEXT
-    #{json_string}
-
-    # INSTRUCTIONS
-    For every region and **sub-region**, detect the bounding box.
-
-    1. **Parent Regions**: If a region has `sub_regions`, the Parent Box must be large enough to encompass ALL its children (the union of the sub-boxes).
-    2. **Sub-Regions**: Generate precise, ink-tight boxes for each individual column or signature block inside the parent.
-    3. **Standard Regions**: Box the entire paragraph or visual element.
-
-    # GEOMETRY
-    - Scale: 0-1000.
-    - Format: [ymin, xmin, ymax, xmax].
-
-    # OUTPUT
-    - Return the exact JSON structure with `box_2d` populated for EVERY item (parents and children).
-    """
+    prompt = String.replace(prompt_template, "{{CONTENT_JSON}}", json_string)
 
     sub_region_schema_with_box = %{
       "type" => "OBJECT",
