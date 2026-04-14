@@ -118,7 +118,20 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
+  def filter_link(assigns = %{filter_name: filter_name}) when filter_name in @filter_keys do
+    ~H"""
+    <.link
+      class={["filter-link", @class]}
+      href={~p"/search?#{%{filter: %{@filter_name => [@filter_value]}} |> Helpers.clean_params()}"}
+      {@rest}
+    >
+      {@filter_value}
+    </.link>
+    """
+  end
+
   def filter_link(assigns) do
+    dbg()
     ~H"""
     {@filter_value}
     """
@@ -848,16 +861,21 @@ defmodule DpulCollectionsWeb.ItemLive do
       |> assign(:value, assigns.value |> hd)
     ~H"""
     <div 
-      :for={{heading, list} <- @value} 
       class="col-span-2 grid grid-cols-subgrid items-baseline border-b-1 border-accent pb-4">
       <dt class="font-bold text-lg">
-        {heading}
+        Subject
       </dt>
       <dd>
-        <dl 
-          :for={list_item <- list}
-          class="flex flex-col gap-y-4">
-          {list_item}
+        <dl class="flex flex-col gap-y-4">
+          <div
+            :for={{heading, values} <- @value}>
+            <dt class="font-bold uppercase text-sm">
+              {heading}
+            </dt>
+            <dd :for={value <- values} dir="auto">
+              <.filter_link filter_value={value} filter_name="subject" />
+            </dd>
+          </div>
         </dl>
       </dd>
     </div>
