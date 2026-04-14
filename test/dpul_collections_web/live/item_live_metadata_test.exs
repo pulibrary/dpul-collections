@@ -25,6 +25,8 @@ defmodule DpulCollectionsWeb.ItemLiveMetadataTest do
           provenance_txtm: ["Donation of Bilbo Baggins"],
           rights_statement_txtm: ["Copyright"],
           subject_txt_sort: ["Magic"],
+          category_subjects_txt:
+            "{\"Politics and government\":[\"Magic\",\"Peace negotiations\"]}",
           geo_subject_txt_sort: ["Mordor"],
           keywords_txt_sort: ["wands", "hats"],
           geographic_origin_txt_sort: ["Mountains"],

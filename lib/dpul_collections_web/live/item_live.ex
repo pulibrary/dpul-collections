@@ -119,8 +119,6 @@ defmodule DpulCollectionsWeb.ItemLive do
   end
 
   def filter_link(assigns) do
-    dbg()
-
     ~H"""
     {@filter_value}
     """
@@ -940,7 +938,6 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
-  # manifest url copy element has to become single-column at smaller sizes
   def metadata_pane_row(%{value: [%{}]} = assigns) do
     assigns =
       assigns
