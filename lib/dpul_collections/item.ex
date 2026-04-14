@@ -189,7 +189,7 @@ defmodule DpulCollections.Item do
   end
 
   # write the actual matching funtion for this catchall
-  defp category_subject([value]) do 
+  defp category_subject([value]) do
     value
     |> JSON.decode!()
   end

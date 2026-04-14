@@ -118,19 +118,9 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
-  def filter_link(assigns = %{filter_name: filter_name}) when filter_name in @filter_keys do
-    ~H"""
-    <.link
-      class={["filter-link", @class]}
-      href={~p"/search?#{%{filter: %{@filter_name => [@filter_value]}} |> Helpers.clean_params()}"}
-      {@rest}
-    >
-      {@filter_value}
-    </.link>
-    """
-  end
-
   def filter_link(assigns) do
+    dbg()
+
     ~H"""
     {@filter_value}
     """
@@ -854,25 +844,23 @@ defmodule DpulCollectionsWeb.ItemLive do
   end
 
   def metadata_row(%{value: [%{}]} = assigns) do
-    # instead of nothing, put the special treatment for the heading keys and subject links
-    assigns = 
+    assigns =
       assigns
       |> assign(:value, assigns.value |> hd)
+
     ~H"""
-    <div 
-      class="col-span-2 grid grid-cols-subgrid items-baseline border-b-1 border-accent pb-4">
+    <div class="col-span-2 grid grid-cols-subgrid items-baseline border-b-1 border-accent pb-4">
       <dt class="font-bold text-lg">
-        Subject
+        {@field_label}
       </dt>
       <dd>
         <dl class="flex flex-col gap-y-4">
-          <div
-            :for={{heading, values} <- @value}>
+          <div :for={{heading, values} <- @value}>
             <dt class="font-bold uppercase text-sm">
               {heading}
             </dt>
             <dd :for={value <- values} dir="auto">
-              <.filter_link filter_value={value} filter_name="subject" />
+              <.filter_link filter_value={value} filter_name={"#{@field}"} />
             </dd>
           </div>
         </dl>
@@ -947,6 +935,31 @@ defmodule DpulCollectionsWeb.ItemLive do
       </dt>
       <dd :for={value <- @value} class="py-1">
         {value}
+      </dd>
+    </div>
+    """
+  end
+
+  # manifest url copy element has to become single-column at smaller sizes
+  def metadata_pane_row(%{value: [%{}]} = assigns) do
+    assigns =
+      assigns
+      |> assign(:value, assigns.value |> hd)
+
+    ~H"""
+    <div class="grid grid-cols-2 border-t-1 border-accent py-3">
+      <dt class="font-bold text-lg">
+        {@field_label}
+      </dt>
+      <dd>
+        <dl :for={{heading, values} <- @value} class="py-2" dir="auto">
+          <dt class="font-bold uppercase text-sm">
+            {heading}
+          </dt>
+          <dd :for={value <- values} dir="auto">
+            <.filter_link filter_value={value} filter_name={"#{@field}"} />
+          </dd>
+        </dl>
       </dd>
     </div>
     """

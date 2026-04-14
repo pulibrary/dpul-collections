@@ -138,7 +138,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
       subject_txt_sort: extract_term("subject", metadata, related_data),
       transliterated_title_txtm: get_in(metadata, ["transliterated_title"]),
       categories_txt_sort: extract_categories(metadata, related_data),
-      category_subjects_txt: extract_category_subjects(metadata, related_data),
+      category_subjects_txt: extract_category_subjects(metadata, related_data)
     })
   end
 
@@ -204,14 +204,16 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
     # turn each resource object into a tuple {subject_term, list_of_category_id_maps}
     |> Enum.map(fn term -> {term, get_in(term, ["metadata", "member_of_vocabulary_id"])} end)
     # turn each of the tuples into a new tuple that is {subject_label, category_resource}
-    |> Enum.map(fn {term, category_ids} -> {extract_term_label(term), extract_term(category_ids, resources)|> hd()} end)
+    |> Enum.map(fn {term, category_ids} ->
+      {extract_term_label(term), extract_term(category_ids, resources) |> hd()}
+    end)
     |> Enum.group_by(
       # key function
       fn {_subject, category} -> category end,
       # value function
-      fn {subject, _category} -> subject end 
+      fn {subject, _category} -> subject end
     )
-    |> JSON.encode!
+    |> JSON.encode!()
   end
 
   def extract_category_subjects(_, _), do: nil
