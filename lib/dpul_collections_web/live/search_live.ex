@@ -512,7 +512,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           id={"item-metadata-#{@item.id}"}
         >
           <div class="flex flex-wrap flex-row sm:flex-row justify-between">
-            <h2 dir="auto w-full flex-grow sm:w-fit">
+            <h2 dir="auto" class="w-full flex-grow sm:w-fit">
               <.link
                 navigate={@item.url}
                 class="card-link"
@@ -581,7 +581,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           id={"item-metadata-#{@item.id}"}
         >
           <div class="flex flex-wrap flex-row sm:flex-row justify-between">
-            <h2 dir="auto w-full flex-grow sm:w-fit">
+            <h2 dir="auto" class="w-full flex-grow sm:w-fit">
               <.link
                 navigate={@item.url}
                 class="card-link"
