@@ -72,9 +72,10 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # removed the hydration cache markers for the deletion marker deleted resource.
     # It also has 3 ephemera projects and 1 collection.
     entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
+    scanned_resource_fixture_count = 5
 
-    assert FiggyTestSupport.total_resource_count() + 3 +
-             Figgy.ResourceTypeRegistry.allowed_scanned_resource_count() == entry_count
+    assert FiggyTestSupport.total_resource_count() + 3 + scanned_resource_fixture_count ==
+             entry_count
 
     # The transformer processed ephemera folders, deletion markers,
     # ephemera projects, scanned resources, and collections; then
@@ -84,7 +85,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     total_transformed_count =
       FiggyTestSupport.ephemera_folder_count() + deletion_marker_count + 3 +
-        Figgy.ResourceTypeRegistry.allowed_scanned_resource_count()
+        scanned_resource_fixture_count
 
     # Empty resources are resources with no image file sets
     empty_resource_count = 1

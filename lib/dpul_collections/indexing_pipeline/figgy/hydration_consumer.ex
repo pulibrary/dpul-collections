@@ -158,9 +158,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     end
   end
 
-  defp classify_open_resource(%{id: id, internal_resource: "ScannedResource"} = resource) do
-    if member_of_allowed_collection?(resource) &&
-         ResourceTypeRegistry.allowed_scanned_resource?(id) do
+  defp classify_open_resource(%{internal_resource: "ScannedResource"} = resource) do
+    if member_of_allowed_collection?(resource) do
       {:update, resource}
     else
       {:skip, resource}
