@@ -109,6 +109,36 @@ Remember to check formatting before pushing commits.
 - `mix format` will format your code
 - `mix format --check-formatted` will tell you formatting that must be done.
 
+## Debugging
+
+### Outputting values
+
+`dbg()` will output the most recently defined value; if you pipe to it at the end of a pipeline it will output every value through the pipeline with a line of code before each value.
+
+`IO.inspect(some_variable, label: "Some Variable")` will print out that variable prepended with the label
+
+### Breakpoints
+
+There are two ways to hit breakpoints in a test. With both you have to run the tests through iex because that's what powers the prompt. So either
+- insert `require IEx; IEx.pry()` where you want the breakpoint and run the test with `iex -S mix --trace test path/to/test:line_number`
+- insert `dbg()` where you want the breakpoint and run the test with `iex --dbg pry -S mix --trace test /path/to/test:line_number`
+- (the `--trace` flag on mix test sets the test timeout to `:infinity`)
+
+These work in development also if you run the server through iex.
+
+### Timeouts
+
+There are some timeouts that are too small for certain types of breakpoint debugging. If you're debugging in a feature test, you have to increase the playwright timeout; add something like `timeout: :timer.minutes(20)` into the config for `config :phoenix_test, playwright:` in config/test.exs.
+
+If you're getting database timeouts during your test, try adding the following to the `config :dpul_collections, DpulCollections.Repo` and `config :dpul_collections, DpulCollections.FiggyRepo` lines in config/test.exs:
+```
+  milliseconds, 20 minutes,
+  ownership_timeout: 1_200_000,
+```
+(I can't remember which of these actually helped so if you try it please update this doc)
+
+
+
 ## Production tasks
 
 ### Deployment
