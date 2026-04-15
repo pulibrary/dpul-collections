@@ -1,0 +1,21 @@
+/* The little popup boxes were broken without this. */
+#viewer-pane.translate-x-0 {
+  transform: none !important;
+  translate: none !important;
+}
+
+/* Move zoom/nav and give it dedicated space. */
+#mirador-viewer .mirador-osd-container {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+#mirador-viewer .openseadragon-container {
+  flex: 1 !important;
+}
+
+#mirador-viewer .mirador-canvas-nav {
+  position: relative !important;
+  bottom: auto !important;
+  flex-shrink: 0;
+}
