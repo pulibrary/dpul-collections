@@ -74,4 +74,18 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
     # when visible images equals filecount don't show image total
     |> assert_has("#filecount-1", text: "8 Files")
   end
+
+  test "filters are retained when adding a keyword", %{conn: conn} do
+    Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+    Solr.soft_commit(active_collection())
+
+    conn
+    |> visit("/search?filter[format][]=Pamphlets")
+    |> assert_has(".phx-connected")
+    |> fill_in("Search", with: "Document-3")
+    |> click_button("Search")
+    |> assert_path("/search", query_params: %{q: "Document-3", filter: %{format: ["Pamphlets"]}})
+    |> assert_has("h1 span", text: "Document-3")
+    |> assert_has(".filter.format")
+  end
 end

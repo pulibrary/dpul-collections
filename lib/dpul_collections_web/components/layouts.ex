@@ -20,6 +20,7 @@ defmodule DpulCollectionsWeb.Layouts do
     doc: "the current [scope](https://hexdocs.pm/phoenix/scopes.html)"
 
   attr :collection_title, :string, default: ""
+  attr :search_state, :map, default: %{}
 
   attr :content_class, :list, default: ["bg-background", "page-y-padding"]
   attr :display_title, :boolean, default: true
@@ -36,6 +37,7 @@ defmodule DpulCollectionsWeb.Layouts do
           module={DpulCollectionsWeb.SearchBarComponent}
           id="search-bar"
           collection_title={@collection_title}
+          search_state={@search_state}
         />
         <main id="main-content" class={@content_class}>
           <.flash_group flash={@flash} />
