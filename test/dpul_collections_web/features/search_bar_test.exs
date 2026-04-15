@@ -32,6 +32,7 @@ defmodule DpulCollectionsWeb.Features.SearchBarTest do
       |> assert_has(".phx-connected")
       |> fill_in("Search", with: "Document-3")
       |> click_button("Search")
+      |> assert_has("h1 span", text: "Document-3")
       |> assert_has("#item-counter", text: "1 - 1 of 1")
     end
   end
