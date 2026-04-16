@@ -118,6 +118,29 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResourceTest do
       assert unfeatured_doc[:featurable_b] == false
     end
 
+    test "subjects and subject categories have a grouping relationship" do
+      doc =
+        IndexingPipeline.get_figgy_resource!("e8abfa75-253f-428a-b3df-0e83ff2b20f9")
+        |> Figgy.Resource.to_combined()
+        |> Figgy.CombinedFiggyResource.to_solr_document()
+
+      assert %{
+               categories_txt_sort: [
+                 "Minorities, ethnic and racial groups",
+                 "Politics and government",
+                 "Religion"
+               ],
+               subject_txt_sort: [
+                 "Ethnic relations",
+                 "Peace movements",
+                 "Peace negotiations",
+                 "Liberation theology"
+               ],
+               category_subjects_txt:
+                 "{\"Minorities, ethnic and racial groups\":[\"Ethnic relations\"],\"Politics and government\":[\"Peace movements\",\"Peace negotiations\"],\"Religion\":[\"Liberation theology\"]}"
+             } = doc
+    end
+
     test "file count filters out members without thumbnails" do
       doc =
         IndexingPipeline.get_figgy_resource!("e8abfa75-253f-428a-b3df-0e83ff2b20f9")

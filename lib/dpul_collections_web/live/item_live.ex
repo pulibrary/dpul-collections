@@ -841,6 +841,32 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
+  def metadata_row(%{value: [%{}]} = assigns) do
+    assigns =
+      assigns
+      |> assign(:value, assigns.value |> hd)
+
+    ~H"""
+    <div class="col-span-2 grid grid-cols-subgrid items-baseline border-b-1 border-accent pb-4">
+      <dt class="font-bold text-lg">
+        {@field_label}
+      </dt>
+      <dd>
+        <dl class="flex flex-col gap-y-4">
+          <div :for={{heading, values} <- @value}>
+            <dt class="font-bold uppercase text-sm">
+              {heading}
+            </dt>
+            <dd :for={value <- values} dir="auto">
+              <.filter_link filter_value={value} filter_name={"#{@field}"} />
+            </dd>
+          </div>
+        </dl>
+      </dd>
+    </div>
+    """
+  end
+
   def metadata_row(%{field_label: {label, sub_fields}} = assigns) when is_list(sub_fields) do
     assigns =
       assigns
@@ -907,6 +933,30 @@ defmodule DpulCollectionsWeb.ItemLive do
       </dt>
       <dd :for={value <- @value} class="py-1">
         {value}
+      </dd>
+    </div>
+    """
+  end
+
+  def metadata_pane_row(%{value: [%{}]} = assigns) do
+    assigns =
+      assigns
+      |> assign(:value, assigns.value |> hd)
+
+    ~H"""
+    <div class="grid grid-cols-2 border-t-1 border-accent py-3">
+      <dt class="font-bold text-lg">
+        {@field_label}
+      </dt>
+      <dd>
+        <dl :for={{heading, values} <- @value} class="py-2" dir="auto">
+          <dt class="font-bold uppercase text-sm">
+            {heading}
+          </dt>
+          <dd :for={value <- values} dir="auto">
+            <.filter_link filter_value={value} filter_name={"#{@field}"} />
+          </dd>
+        </dl>
       </dd>
     </div>
     """
