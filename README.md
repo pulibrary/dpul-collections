@@ -128,7 +128,7 @@ These work in development also if you run the server through iex.
 
 ### Timeouts
 
-There are some timeouts that are too small for certain types of breakpoint debugging. If you're debugging in a feature test, you have to increase the playwright timeout; add something like `timeout: :timer.minutes(20)` into the config for `config :phoenix_test, playwright:` in config/test.exs.
+There are some timeouts that are too small for certain types of breakpoint debugging. If you're debugging in a feature test, you have to increase the playwright timeout; add something like `timeout: :timer.minutes(20)` into the config for `config :phoenix_test, playwright:` in config/test.exs. You have to turn this off again when you're done with breakpoints, or else a failing test will take forever to resolve.
 
 If you're getting database timeouts during your test, try adding the following to the `config :dpul_collections, DpulCollections.Repo` and `config :dpul_collections, DpulCollections.FiggyRepo` lines in config/test.exs:
 ```
@@ -137,6 +137,9 @@ If you're getting database timeouts during your test, try adding the following t
 ```
 (I can't remember which of these actually helped so if you try it please update this doc)
 
+### Visual feeedback
+
+There are two settings in config/test.exs for the playwright configuration that you can toggle between true / false -- one to turn off headless mode (and have your browser actually spin up) and one to take a screenshot every time there's a failure in a feature test.
 
 
 ## Production tasks
