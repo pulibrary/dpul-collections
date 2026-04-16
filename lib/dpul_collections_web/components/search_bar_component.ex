@@ -75,14 +75,30 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
     """
   end
 
-  def handle_event("search", params = %{"search" => "all", "q" => q}, socket) do
-    search_state = params["search_state"] |> JSON.decode!()
-    filters = Map.take(search_state, ["filter", "sort_by"])
+  # Search from results page
+  def handle_event(
+        "search",
+        %{"search_state" => search_state, "search" => "all", "q" => q},
+        socket
+      ) do
+    filters =
+      search_state
+      |> JSON.decode!()
+      |> Map.take(["filter", "sort_by"])
+
     params = %{q: q} |> Helpers.clean_params() |> Map.merge(filters)
     socket = push_navigate(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
   end
 
+  # Brand-new search
+  def handle_event("search", %{"search" => "all", "q" => q}, socket) do
+    params = %{q: q} |> Helpers.clean_params()
+    socket = push_navigate(socket, to: ~p"/search?#{params}")
+    {:noreply, socket}
+  end
+
+  # Search within collection
   def handle_event("search", %{"search" => collection_title, "q" => q}, socket) do
     params = %{q: q, filter: %{collection: [collection_title]}} |> Helpers.clean_params()
     socket = push_navigate(socket, to: ~p"/search?#{params}")
