@@ -42,6 +42,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
     test "it has content for the collection", %{conn: conn} do
       conn
       |> visit("/collections/sae")
+      |> assert_has(".phx-connected")
       # Title
       |> assert_has("h1", text: "South Asian Ephemera")
       # Subject summary
@@ -93,6 +94,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
     test "it links to filtered search result sets", %{conn: conn} do
       conn
       |> visit("/collections/sae")
+      |> assert_has(".phx-connected")
       |> click_link("Politics and government")
       |> assert_has("h1", text: "Search Results")
       |> assert_has("button.category", text: "Politics and government")
@@ -102,6 +104,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
     test "a collection without contributors still displays copyright policy", %{conn: conn} do
       conn
       |> visit("/collections/soviet_posters")
+      |> assert_has(".phx-connected")
       # Title
       |> assert_has("h1", text: "Russian")
       # Contributors
@@ -119,6 +122,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
     test "collection page is accessible", %{conn: conn} do
       conn
       |> visit("/collections/sae")
+      |> assert_has(".phx-connected")
       |> unwrap(&TestUtils.assert_a11y/1)
     end
   end
@@ -127,6 +131,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
     test "it has content for the collection", %{conn: conn} do
       conn
       |> visit("/collections/islamicmss")
+      |> assert_has(".phx-connected")
       # Title
       |> assert_has("h1", text: "Manuscripts of the Islamic World")
       # Subject summary

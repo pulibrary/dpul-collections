@@ -9,6 +9,7 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
 
     conn
     |> visit("/search?q=")
+    |> assert_has(".phx-connected")
     |> click_button("Filters")
     |> click_button("Format")
     |> assert_has("label", text: "Pamphlets")
@@ -26,6 +27,7 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
 
     conn
     |> visit("/search?q=")
+    |> assert_has(".phx-connected")
     |> unwrap(&TestUtils.assert_a11y/1)
     |> click_button("Filters")
     |> click_button("Format")
@@ -66,6 +68,7 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
 
     conn
     |> visit("/search?q=")
+    |> assert_has(".phx-connected")
     # when filecount exceeds visible images show image total
     |> assert_has("#item-1", text: "Document-1")
     # when visible images equals filecount don't show image total

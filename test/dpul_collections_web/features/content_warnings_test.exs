@@ -36,6 +36,7 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
     test "on the home page", %{conn: conn} do
       conn
       |> visit("/")
+      |> assert_has(".phx-connected")
       |> assert_has("img.obfuscate", count: 3)
       |> click_link("Why are the images blurred?")
       |> click_button("View content")
@@ -47,11 +48,13 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
       # an item without a content warning isn't obfuscated
       conn
       |> visit("/search?q=Document")
+      |> assert_has(".phx-connected")
       |> refute_has("img.obfuscate")
 
       # an item with a content warning is obfuscated
       conn
       |> visit("/search?q=elham+azar")
+      |> assert_has(".phx-connected")
       |> assert_has(".thumbnail-d4292e58-25d7-4247-bf92-0a5e24ec75d1", count: 3)
       |> assert_has("img.obfuscate", count: 3)
       |> click_link("Why are the images blurred?")
@@ -62,6 +65,7 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
     test "on the standard browse page", %{conn: conn} do
       conn
       |> visit("/browse")
+      |> assert_has(".phx-connected")
       |> assert_has(".thumbnail-d4292e58-25d7-4247-bf92-0a5e24ec75d1", count: 3)
       |> assert_has("img.obfuscate", count: 3)
       |> click_link("Why are the images blurred?")
@@ -72,6 +76,7 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
     test "on the focused browse page", %{conn: conn} do
       conn
       |> visit("/browse/focus/d4292e58-25d7-4247-bf92-0a5e24ec75d1")
+      |> assert_has(".phx-connected")
       # the tiny thumbnail in the toolbar is also obfuscated
       |> assert_has(".thumbnail-d4292e58-25d7-4247-bf92-0a5e24ec75d1", count: 4)
       |> assert_has("img.obfuscate", count: 4)
@@ -108,6 +113,7 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
 
       conn
       |> visit("/item/d4292e58-25d7-4247-bf92-0a5e24ec75d1")
+      |> assert_has(".phx-connected")
       # the large thumbnail is duplicated in the small thumbnail list
       |> assert_has("img.thumbnail-d4292e58-25d7-4247-bf92-0a5e24ec75d1.obfuscate", count: 4)
       |> click_link(
@@ -132,6 +138,7 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
     test "in the viewer", %{conn: conn} do
       conn
       |> visit("/item/d4292e58-25d7-4247-bf92-0a5e24ec75d1")
+      |> assert_has(".phx-connected")
       |> click_link("#viewer-link", "Look closer")
       # the large thumbnail is duplicated in the small thumbnail list
       |> assert_has("h2", text: "Content Warning")
@@ -144,6 +151,7 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
     test "they are still shown after reload, and on other pages", %{conn: conn} do
       conn
       |> visit("/search?q=elham+azar")
+      |> assert_has(".phx-connected")
       |> assert_has("img.obfuscate")
       |> click_link("Why are the images blurred?")
       |> click_button("View content")
@@ -151,10 +159,13 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
       |> unwrap(&Frame.evaluate(&1.frame_id, "window.location.reload()"))
       |> refute_has("img.obfuscate")
       |> visit("/item/d4292e58-25d7-4247-bf92-0a5e24ec75d1")
+      |> assert_has(".phx-connected")
       |> refute_has("img.obfuscate")
       |> visit("/browse")
+      |> assert_has(".phx-connected")
       |> refute_has("img.obfuscate")
       |> visit("/browse/focus/d4292e58-25d7-4247-bf92-0a5e24ec75d1")
+      |> assert_has(".phx-connected")
       |> refute_has("img.obfuscate")
     end
   end

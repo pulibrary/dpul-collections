@@ -12,6 +12,7 @@ defmodule DpulCollectionsWeb.Features.LocaleTest do
 
     conn
     |> visit("/")
+    |> assert_has(".phx-connected")
     |> assert_has("a", text: "Explore")
     |> click_button("Language")
     |> click_link("Español")
@@ -26,6 +27,7 @@ defmodule DpulCollectionsWeb.Features.LocaleTest do
   test "the language dropdown is accessible", %{conn: conn} do
     conn
     |> visit("/")
+    |> assert_has(".phx-connected")
     |> assert_has("#language-nav button[aria-expanded='false']")
     |> refute_has("#language-menu a li")
     |> click_button("Language")
@@ -49,6 +51,7 @@ defmodule DpulCollectionsWeb.Features.LocaleTest do
 
     conn
     |> visit("/")
+    |> assert_has(".phx-connected")
     |> assert_has("#browse-item-9", text: "Updated 3 months ago")
     |> click_button("Language")
     |> click_link("Español")

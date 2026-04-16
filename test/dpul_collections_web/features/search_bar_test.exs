@@ -16,6 +16,7 @@ defmodule DpulCollectionsWeb.Features.SearchBarTest do
     test "submitting a search returns results", %{conn: conn} do
       conn
       |> visit("/search")
+      |> assert_has(".phx-connected")
       |> assert_has("#search-button", text: "Search", exact: true)
       |> refute_has("#collection-search-button")
       |> fill_in("Search", with: "Document-3")
@@ -28,6 +29,7 @@ defmodule DpulCollectionsWeb.Features.SearchBarTest do
     test "submitting a search brings you to the results page", %{conn: conn} do
       conn
       |> visit("/")
+      |> assert_has(".phx-connected")
       |> fill_in("Search", with: "Document-3")
       |> click_button("Search")
       |> assert_has("#item-counter", text: "1 - 1 of 1")
@@ -38,6 +40,7 @@ defmodule DpulCollectionsWeb.Features.SearchBarTest do
     test "submitting a search filters to that collection", %{conn: conn} do
       conn
       |> visit("/collections/sae")
+      |> assert_has(".phx-connected")
       |> assert_has("#search-button", text: "Search all", exact: true)
       |> assert_has("#collection-search-button")
       |> click_button("Search in this Collection")

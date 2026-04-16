@@ -11,11 +11,13 @@ defmodule DpulCollectionsWeb.LoginTest do
 
     conn
     |> visit("/")
+    |> assert_has(".phx-connected")
     |> click_button("My Account")
     |> click_link("Log in")
     |> fill_in("Email", with: user.email)
     |> click_button("Log in with email")
     |> visit("/users/log-in/#{generate_user_magic_link_token(user) |> elem(0)}")
+    |> assert_has(".phx-connected")
     |> click_button("Keep me logged in on this device")
     # wait until flash has loaded
     |> assert_has("#flash-info", text: "Success")
@@ -29,6 +31,7 @@ defmodule DpulCollectionsWeb.LoginTest do
     out =
       conn
       |> visit("/")
+      |> assert_has(".phx-connected")
       |> click_button("My Account")
       |> click_link("Log in")
       |> fill_in("Email", with: "test@example.com")
@@ -41,6 +44,7 @@ defmodule DpulCollectionsWeb.LoginTest do
 
     out
     |> visit("/users/log-in/#{generate_user_magic_link_token(user) |> elem(0)}")
+    |> assert_has(".phx-connected")
     |> click_button("Log me in only this time")
     # wait until flash has loaded
     |> assert_has("#flash-info", text: "Success")
@@ -55,6 +59,7 @@ defmodule DpulCollectionsWeb.LoginTest do
     conn
     |> FiggyTestSupport.feature_login(user)
     |> visit("/")
+    |> assert_has(".phx-connected")
     |> click_button("My Account")
     |> assert_has("a", text: "Log out")
   end
