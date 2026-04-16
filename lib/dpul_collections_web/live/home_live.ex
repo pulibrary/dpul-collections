@@ -42,11 +42,11 @@ defmodule DpulCollectionsWeb.HomeLive do
                 )}
               </div>
               <div class="flex flex-wrap justify-center text-dark-text gap-2">
+                <.format_link filter="digital collection" label={gettext("Digital Collections")} />
                 <.format_link filter="posters" label={gettext("Posters")} />
                 <.format_link filter="pamphlets" label={gettext("Pamphlets")} />
                 <.format_link filter="flyers" label={gettext("Flyers")} />
-                <.format_link filter="leaflets" label={gettext("Leaflets")} />
-                <.format_link filter="photographs" label={gettext("Photographs")} />
+                <.format_link filter="manuscripts" label={gettext("Manuscripts")} />
               </div>
               <div class="content-area bg-primary text-light-text px-0 text-xl">
                 <.primary_button href={~p"/browse"}>
