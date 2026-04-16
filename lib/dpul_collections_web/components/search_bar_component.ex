@@ -76,11 +76,16 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
   end
 
   # Search from results page
-  def handle_event("search", %{"search_state" => search_state, "search" => "all", "q" => q}, socket) do
+  def handle_event(
+        "search",
+        %{"search_state" => search_state, "search" => "all", "q" => q},
+        socket
+      ) do
     filters =
       search_state
       |> JSON.decode!()
       |> Map.take(["filter", "sort_by"])
+
     params = %{q: q} |> Helpers.clean_params() |> Map.merge(filters)
     socket = push_navigate(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
