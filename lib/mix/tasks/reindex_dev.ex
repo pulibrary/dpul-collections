@@ -1,7 +1,7 @@
 defmodule Mix.Tasks.ReindexDev do
   alias DpulCollections.IndexingPipeline.AckTracker
 
-  @moduledoc "Mix task to reindex development: `mix help reindex_dev`. We have this so developers don't have to remember to commit Solr."
+  @moduledoc "Mix task to reindex development: `mix reindex_dev`. We have this so developers don't have to remember to commit Solr."
   use Mix.Task
 
   @shortdoc "Reindexes development and commits the index when it's done"
