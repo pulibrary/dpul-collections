@@ -105,6 +105,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
       format_txt_sort: get_in(metadata, ["format"]),
       identifier_txt_sort: get_in(metadata, ["identifier"]),
       language_txt_sort: get_in(metadata, ["language"]) |> language(),
+      mms_id_ss: extract_mms_id(metadata),
       notes_ss: get_in(metadata, ["description"]),
       references_ss: get_in(metadata, ["references"]),
       scribe_txt_sort: get_in(metadata, ["scribe"]),
@@ -187,6 +188,16 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
 
   # If imported metadata has values for a field, use the imported values
   defp compare_metadata(_k, _, imported_metadata_values), do: imported_metadata_values
+
+  def extract_mms_id(metadata) do
+    with identifiers = [_ | _] <- metadata["source_metadata_identifier"] do
+      Enum.find(identifiers, [], fn x ->
+        String.starts_with?(x, "99") && String.ends_with?(x, "6421")
+      end)
+    else
+      _ -> nil
+    end
+  end
 
   def extract_categories(%{"subject" => subjects}, %{"resources" => resources}) do
     extract_term_ids(subjects, resources)

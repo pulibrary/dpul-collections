@@ -250,6 +250,9 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
 
       assert view |> has_element?(".item-title a", "Manuscript")
       assert view |> has_element?(".item-title div[aria-label='date']", "1704")
+      assert view |> has_element?("dt", "Call Number")
+      assert view |> has_element?("dd", "Islamic Manuscripts, Garrett no. 250H")
+      assert view |> has_element?("div > a", "View in Library Catalog")
       assert view |> has_element?("dt", "Subject")
       assert view |> has_element?("dd", "Caliphs—Biography—Early works to 1800")
       assert view |> has_element?("dt", "People")
