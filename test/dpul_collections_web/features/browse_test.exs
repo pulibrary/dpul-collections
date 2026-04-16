@@ -20,6 +20,7 @@ defmodule DpulCollectionsWeb.BrowseTest do
       conn =
         conn
         |> visit("/browse?r=0")
+        |> assert_has(".phx-connected")
         |> click_button(".browse-item:first-child a", "Save")
         |> fill_in("Email", with: user.email)
         |> click_button("Log in with email")
@@ -33,6 +34,7 @@ defmodule DpulCollectionsWeb.BrowseTest do
 
       conn
       |> visit(path)
+      |> assert_has(".phx-connected")
       |> assert_has("h1", text: "Welcome")
       |> click_button("Log me in only this time")
       # Now we should be back at browse
@@ -51,6 +53,7 @@ defmodule DpulCollectionsWeb.BrowseTest do
       conn
       |> FiggyTestSupport.feature_login(user)
       |> visit("/browse?r=0")
+      |> assert_has(".phx-connected")
       |> click_button(".browse-item:first-child button", "Save")
       |> assert_has("h2", text: "Save to Set")
       |> click_button("Create new set")
@@ -88,6 +91,7 @@ defmodule DpulCollectionsWeb.BrowseTest do
 
     conn
     |> visit("/browse?r=0")
+    |> assert_has(".phx-connected")
     |> unwrap(&TestUtils.assert_a11y/1)
   end
 

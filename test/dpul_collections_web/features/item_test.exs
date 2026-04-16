@@ -25,6 +25,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
     test "clicking the share button works", %{conn: conn} do
       conn
       |> visit("/i/document-1/item/1")
+      |> assert_has(".phx-connected")
       |> stub_clipboard
       |> refute_has("#share-modal")
       # opens the modal
@@ -44,6 +45,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
     test "item metdata pane can copy manifest url", %{conn: conn, sham: sham} do
       conn
       |> visit("/i/document1/item/1/metadata")
+      |> assert_has(".phx-connected")
       |> stub_clipboard
       |> assert_has("#iiif-url", text: "http://localhost:#{sham.port}/manifest/1/manifest")
       |> click_button("Copy")
@@ -53,6 +55,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
     test "viewer pane can copy current url", %{conn: conn} do
       conn
       |> visit("/i/document1/item/1/viewer/1")
+      |> assert_has(".phx-connected")
       |> stub_clipboard
       |> assert_has("h1", text: "Viewer")
       |> assert_has("title", text: "Viewer")
@@ -94,6 +97,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
     test "the 2 copy buttons don't interact", %{conn: conn} do
       conn
       |> visit("/i/document-1/item/1")
+      |> assert_has(".phx-connected")
       |> stub_clipboard
       # use share copy button
       |> click_button("Share")
@@ -114,6 +118,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
   test "links to and from metadata page", %{conn: conn} do
     conn
     |> visit("/i/document1/item/1")
+    |> assert_has(".phx-connected")
     |> click_link("View all metadata for this item")
     |> assert_path("/i/document1/item/1/metadata")
     |> click_link("close pane")
@@ -123,6 +128,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
   test "links to and from viewer page", %{conn: conn} do
     conn
     |> visit("/i/document1/item/1")
+    |> assert_has(".phx-connected")
     |> click_link("#viewer-link", "Look closer")
     |> assert_path("/i/document1/item/1/viewer/1")
     |> click_link("close pane")
@@ -132,6 +138,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
   test "the metadata pane is not part of browser history", %{conn: conn} do
     conn
     |> visit("/search")
+    |> assert_has(".phx-connected")
     |> click_link("Document-1")
     |> click_link("View all metadata for this item")
     |> assert_path("/i/document1/item/1/metadata")
@@ -144,6 +151,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
   test "the viewer pane is not part of browser history", %{conn: conn} do
     conn
     |> visit("/search")
+    |> assert_has(".phx-connected")
     |> click_link("Document-1")
     |> click_link("#viewer-link", "Look closer")
     |> assert_path("/i/document1/item/1/viewer/1")
@@ -156,6 +164,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
   test "the viewer pane changes the URL when clicking a new item", %{conn: conn} do
     conn
     |> visit("/item/1")
+    |> assert_has(".phx-connected")
     |> click_link("#viewer-link", "Look closer")
     |> assert_path("/i/document1/item/1/viewer/1")
     |> click_button("figcaption", "2")
@@ -164,24 +173,28 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
     # It defaults to the first page Clover opens if not given one.
     conn
     |> visit("/i/document/item/1/viewer")
+    |> assert_has(".phx-connected")
     |> assert_path("/i/document1/item/1/viewer/1")
   end
 
   test "item page is accessible", %{conn: conn} do
     conn
     |> visit("/i/document-1/item/1")
+    |> assert_has(".phx-connected")
     |> unwrap(&TestUtils.assert_a11y/1)
   end
 
   test "metadata page is accessible", %{conn: conn} do
     conn
     |> visit("/i/document1/item/1/metadata")
+    |> assert_has(".phx-connected")
     |> unwrap(&TestUtils.assert_a11y/1)
   end
 
   test "viewer page is accessible", %{conn: conn} do
     conn
     |> visit("/i/document1/item/1/viewer/1")
+    |> assert_has(".phx-connected")
     |> unwrap(&TestUtils.assert_a11y(&1, CloverFilter))
   end
 
@@ -202,6 +215,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
 
     conn
     |> visit("/i/document-1/item/1")
+    |> assert_has(".phx-connected")
     |> within("#related-different-collection", fn session ->
       session
       |> assert_has(".card")

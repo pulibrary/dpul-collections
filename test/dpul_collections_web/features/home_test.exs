@@ -9,6 +9,7 @@ defmodule DpulCollectionsWeb.Features.HomeTest do
 
     conn
     |> visit("/")
+    |> assert_has(".phx-connected")
     |> assert_has("a", text: "Explore")
     |> unwrap(&TestUtils.assert_a11y/1)
   end
@@ -16,6 +17,7 @@ defmodule DpulCollectionsWeb.Features.HomeTest do
   test "site title is not shown in header, page has it in h1", %{conn: conn} do
     conn
     |> visit("/")
+    |> assert_has(".phx-connected")
     |> refute_has("header", text: "Digital Collections")
     |> assert_has("h1", text: "Digital Collections")
     |> click_link("pamphlets")
