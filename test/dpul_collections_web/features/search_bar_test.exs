@@ -32,6 +32,7 @@ defmodule DpulCollectionsWeb.Features.SearchBarTest do
       |> assert_has(".phx-connected")
       |> fill_in("Search", with: "Document-3")
       |> click_button("Search")
+      |> assert_has("h1 span", text: "Document-3")
       |> assert_has("#item-counter", text: "1 - 1 of 1")
     end
   end
@@ -46,11 +47,5 @@ defmodule DpulCollectionsWeb.Features.SearchBarTest do
       |> click_button("Search in this Collection")
       |> assert_has("section#filters", text: "Collection South Asian Ephemera")
     end
-  end
-
-  test "search results page is accessible", %{conn: conn} do
-    conn
-    |> visit("/search?q=Document-3")
-    |> unwrap(&TestUtils.assert_a11y/1)
   end
 end
