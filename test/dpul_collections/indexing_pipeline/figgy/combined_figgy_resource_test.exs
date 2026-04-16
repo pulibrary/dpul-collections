@@ -23,6 +23,15 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResourceTest do
       assert hd(doc[:summary_txtm]) =~ "already robust <a"
     end
 
+    test "a ScannedResource with MMSID has expected index values" do
+      doc =
+        IndexingPipeline.get_figgy_resource!("27fd4d29-1170-47a5-891b-f2743873bcef")
+        |> Figgy.Resource.to_combined()
+        |> Figgy.CombinedFiggyResource.to_solr_document()
+
+      assert doc[:mms_id_ss] == "9963573093506421"
+    end
+
     test "converting a ScannedResource with MMS-ID metadata but no date doesn't index a date" do
       doc =
         IndexingPipeline.get_figgy_resource!("27fd4d29-1170-47a5-891b-f2743873bcef")

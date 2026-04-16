@@ -841,6 +841,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
+  # a single field with multiple key / value pairs
   def metadata_row(%{value: [%{}]} = assigns) do
     assigns =
       assigns
@@ -867,6 +868,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
+  # multiple fields grouped together under one main heading
   def metadata_row(%{field_label: {label, sub_fields}} = assigns) when is_list(sub_fields) do
     assigns =
       assigns
@@ -893,6 +895,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
+  # show fields as subheadings, for use inside another dd
   def metadata_row(%{nested: true} = assigns) do
     ~H"""
     <div>
@@ -906,6 +909,30 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
+  # special case for call number
+  def metadata_row(%{field: :call_number} = assigns) do
+    ~H"""
+    <div class="col-span-2 grid grid-cols-subgrid items-baseline border-b-1 border-accent pb-4">
+      <dt class="font-bold text-lg">
+        {@field_label}
+      </dt>
+      <dd :for={value <- @value} dir="auto" class="col-start-2">
+        <.filter_link filter_value={value} filter_name={"#{@field}"} />
+      </dd>
+      <div :if={@item.mms_id} dir="auto" class="col-start-2">
+        <.link
+          class="filter-link"
+          href={"https://catalog.princeton.edu/catalog/#{@item.mms_id |> hd}"}
+          target="_blank"
+        >
+          View in Library Catalog
+        </.link>
+      </div>
+    </div>
+    """
+  end
+
+  # standard metadata row
   def metadata_row(assigns) do
     ~H"""
     <div class="col-span-2 grid grid-cols-subgrid items-baseline border-b-1 border-accent pb-4">
