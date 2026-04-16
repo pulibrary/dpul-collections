@@ -21,6 +21,12 @@ Do these things every time you start new work in this project in dev or test
 - `$ lando start` will run the test and dev database and index services
 - `mix setup` will install and setup dependencies
 
+### Reset Everything
+
+If you have new fixtures to load or have pulled down some new changes and want to restart, do the following:
+
+- `lando destroy -y && lando start && mix setup`
+
 ### Development environment
 
 - `mix phx.server` will start the phoenix endpoint
@@ -50,7 +56,7 @@ To add extra fixtures:
 Note that refreshing or adding a new fixture might require you to make adjustments to test expectations.
 
 If someone else updated the fixtures and now your local test suite is failing, run:
-`mix fixtures.setup`
+`mix reindex_dev`
 
 ### Figgy Fixtures: Local Development
 
@@ -61,12 +67,6 @@ cd figgy-fixture-container && ./create-fixture-exports.sh
 cd ..
 lando destroy -y && lando start && mix setup
 ```
-
-Then when you run the server, commit the index like
-```
-DpulCollections.Solr.commit()
-```
-
 
 ### Figgy Fixtures: Creating Synthetic Fixtures
 
