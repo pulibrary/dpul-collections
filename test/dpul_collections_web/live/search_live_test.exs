@@ -798,6 +798,21 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       assert html =~ "Document-1"
     end
 
+test "display titles and transliterated titles", %{conn: conn} do
+      {:ok, _view, html} = live(conn, "/search?")
+
+      {:ok, document} =
+        html
+        |> Floki.parse_document()
+
+      # There should be a title
+      assert document |> Floki.find(".item-1_title") |> Enum.count() == 1
+
+      # There should be a transliterated title
+       assert document |> Floki.find(".item-1_title_transliterated") |> Enum.count() == 1
+
+    end
+
     test "display large and small thumbnails", %{conn: conn} do
       {:ok, _view, html} = live(conn, "/search?")
 
