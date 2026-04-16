@@ -223,6 +223,8 @@ defmodule DpulCollections.IndexingPipeline do
     Repo.delete(processor_marker)
   end
 
+  def delete_processor_marker(_), do: {:ok, nil}
+
   @doc """
   Writes or updates processor markers
   """

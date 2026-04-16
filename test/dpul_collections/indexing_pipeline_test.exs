@@ -94,6 +94,11 @@ defmodule DpulCollections.IndexingPipelineTest do
         IndexingPipeline.get_processor_marker!(processor_marker.id)
       end
     end
+
+    test "delete_processor_marker/1 does nothing if there isn't one" do
+      assert {:ok, nil} =
+               IndexingPipeline.delete_processor_marker(nil)
+    end
   end
 
   describe "figgy database" do
