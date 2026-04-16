@@ -84,8 +84,49 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
     |> assert_has(".phx-connected")
     |> fill_in("Search", with: "Document-3")
     |> click_button("Search")
-    |> assert_path("/search", query_params: %{q: "Document-3", filter: %{format: ["Pamphlets"]}})
+    |> assert_path("/search",
+      query_params: %{q: "Document-3", filter: %{format: ["Pamphlets"]}, sort_by: "relevance"}
+    )
     |> assert_has("h1 span", text: "Document-3")
     |> assert_has(".filter.format")
+  end
+
+  test "sort_by is retained when adding a keyword", %{conn: conn} do
+    Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+    Solr.soft_commit(active_collection())
+
+    conn
+    |> visit("/search?sort_by=date_asc")
+    |> assert_has(".phx-connected")
+    |> fill_in("Search", with: "Document-3")
+    |> click_button("Search")
+    |> assert_path("/search", query_params: %{q: "Document-3", sort_by: "date_asc"})
+  end
+
+  test "both filters and sort_by are retained when adding a keyword", %{conn: conn} do
+    Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+    Solr.soft_commit(active_collection())
+
+    conn
+    |> visit("/search?filter[format][]=Pamphlets&sort_by=date_asc")
+    |> assert_has(".phx-connected")
+    |> fill_in("Search", with: "Document-3")
+    |> click_button("Search")
+    |> assert_path("/search",
+      query_params: %{q: "Document-3", sort_by: "date_asc", filter: %{format: ["Pamphlets"]}}
+    )
+  end
+
+  test "successfully submit a new search when no filtering has been done", %{conn: conn} do
+    Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+    Solr.soft_commit(active_collection())
+
+    conn
+    |> visit("/search?q=Document-1")
+    |> assert_has(".phx-connected")
+    |> fill_in("Search", with: "Document-3")
+    |> click_button("Search")
+    |> assert_path("/search", query_params: %{q: "Document-3", sort_by: "relevance"})
+    |> assert_has("h1 span", text: "Document-3")
   end
 end
