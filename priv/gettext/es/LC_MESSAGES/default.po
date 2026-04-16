@@ -21,9 +21,9 @@ msgstr "¡Error!"
 msgid "Hang in there while we get back on track"
 msgstr "Aguanta mientras volvemos al buen camino"
 
-#: lib/dpul_collections_web/components/search_bar_component.ex:25
-#: lib/dpul_collections_web/components/search_bar_component.ex:31
-#: lib/dpul_collections_web/components/search_bar_component.ex:85
+#: lib/dpul_collections_web/components/search_bar_component.ex:32
+#: lib/dpul_collections_web/components/search_bar_component.ex:38
+#: lib/dpul_collections_web/components/search_bar_component.ex:110
 #: lib/dpul_collections_web/live/search_live.ex:445
 #, elixir-autogen, elixir-format
 msgid "Search"
@@ -148,6 +148,7 @@ msgstr "navegar"
 
 #: lib/dpul_collections_web/components/header_component.ex:40
 #: lib/dpul_collections_web/live/home_live.ex:36
+#: lib/dpul_collections_web/live/home_live.ex:45
 #: lib/dpul_collections_web/live/item_live.ex:999
 #: lib/dpul_collections_web/live/item_live.ex:1000
 #: lib/dpul_collections_web/live/item_live.ex:1001
@@ -643,15 +644,10 @@ msgstr "Archivos"
 msgid "Filters"
 msgstr "Filtros"
 
-#: lib/dpul_collections_web/live/home_live.ex:47
+#: lib/dpul_collections_web/live/home_live.ex:48
 #, elixir-autogen, elixir-format
 msgid "Flyers"
 msgstr "Prospectos"
-
-#: lib/dpul_collections_web/live/home_live.ex:48
-#, elixir-autogen, elixir-format
-msgid "Leaflets"
-msgstr "Folletos"
 
 #: lib/dpul_collections_web/live/collections_live.ex:169
 #: lib/dpul_collections_web/live/collections_live.ex:208
@@ -696,17 +692,12 @@ msgstr "Mis Conjuntos"
 msgid "Origin"
 msgstr "Origen"
 
-#: lib/dpul_collections_web/live/home_live.ex:46
+#: lib/dpul_collections_web/live/home_live.ex:47
 #, elixir-autogen, elixir-format
 msgid "Pamphlets"
 msgstr "Panfletos"
 
-#: lib/dpul_collections_web/live/home_live.ex:49
-#, elixir-autogen, elixir-format
-msgid "Photographs"
-msgstr "Fotografías"
-
-#: lib/dpul_collections_web/live/home_live.ex:45
+#: lib/dpul_collections_web/live/home_live.ex:46
 #, elixir-autogen, elixir-format
 msgid "Posters"
 msgstr "Pósteres"
@@ -1193,12 +1184,17 @@ msgstr "Abrir"
 msgid "filters"
 msgstr "Filtros"
 
-#: lib/dpul_collections_web/components/search_bar_component.ex:89
+#: lib/dpul_collections_web/components/search_bar_component.ex:114
 #, elixir-autogen, elixir-format
 msgid "Search all"
 msgstr "Buscar todo"
 
-#: lib/dpul_collections_web/components/search_bar_component.ex:48
+#: lib/dpul_collections_web/components/search_bar_component.ex:55
 #, elixir-autogen, elixir-format
 msgid "Search in this Collection"
 msgstr "Buscar en esta colección"
+
+#: lib/dpul_collections_web/live/home_live.ex:49
+#, elixir-autogen, elixir-format
+msgid "Manuscripts"
+msgstr "Manuscritos"
