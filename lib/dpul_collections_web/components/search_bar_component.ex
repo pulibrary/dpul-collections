@@ -12,18 +12,12 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
       <div class="search-browse-container min-h-10 flex flex-wrap bg-search">
         <div class="search-box header-x-padding grow w-full">
           <form id="search-form" class="group w-full h-full" phx-submit="search" phx-target={@myself}>
-
-            <.input
-              :if={Enum.any?(@search_state)}
-              type="hidden"
-              name="applied_filters"
-              value={JSON.encode!(@search_state.filter)} />
-
             <.input
               :if={Enum.any?(@search_state)}
               type="hidden"
               name="search_state"
-              value={JSON.encode!(@search_state)} />
+              value={JSON.encode!(@search_state)}
+            />
             <div
               class={[
                 "flex items-center w-full h-full",
@@ -82,7 +76,8 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
   end
 
   def handle_event("search", params = %{"search" => "all", "q" => q}, socket) do
-    filters = %{filter: params["applied_filters"] |> JSON.decode!()}
+    search_state = params["search_state"] |> JSON.decode!()
+    filters = Map.take(search_state, ["filter", "sort_by"])
     params = %{q: q} |> Helpers.clean_params() |> Map.merge(filters)
     socket = push_navigate(socket, to: ~p"/search?#{params}")
     {:noreply, socket}
