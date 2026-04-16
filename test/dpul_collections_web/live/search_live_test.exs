@@ -423,7 +423,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Floki.text() =~ "1 - 50 of 210"
   end
 
-  test "changing query parameter resets sort_by to default", %{conn: conn} do
+  test "changing query parameter keeps selected sort_by", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/search")
 
     view |> render_click("sort", %{"sort-by" => "date_asc"})
@@ -433,7 +433,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     |> element("#search-form")
     |> render_submit(%{"search" => "all", "q" => "Document"})
 
-    assert_redirected(view, "/search?q=Document")
+    assert_redirected(view, "/search?q=Document&sort_by=date_asc")
   end
 
   test "when sorting by date, a nil date always sorts last", %{conn: conn} do
