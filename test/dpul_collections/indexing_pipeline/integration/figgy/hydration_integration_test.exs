@@ -2,6 +2,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
   use DpulCollections.DataCase
 
   alias DpulCollections.IndexingPipeline.Figgy
+  alias DpulCollections.IndexingPipeline.AckTracker
   alias DpulCollections.IndexingPipeline
 
   def start_producer(cache_version \\ 0) do

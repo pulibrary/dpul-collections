@@ -4,6 +4,7 @@ defmodule FiggyTestSupport do
   alias DpulCollections.Accounts
   alias DpulCollections.{IndexingPipeline, Solr}
   alias DpulCollections.IndexingPipeline.Figgy
+  alias DpulCollections.IndexingPipeline.AckTracker
 
   alias DpulCollections.FiggyRepo
 

@@ -1,4 +1,4 @@
-defmodule AckTracker do
+defmodule DpulCollections.IndexingPipeline.AckTracker do
   alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.Solr
@@ -99,17 +99,6 @@ defmodule AckTracker do
   @impl true
   def handle_call({:reset_count}, _from, %{pid: pid}) do
     {:reply, :ok, %{pid: pid}}
-  end
-
-  def handle_call({:get_count, processor_marker_key}, _from, state) do
-    count =
-      get_in(state, [
-        Access.key(processor_marker_key, %{}),
-        Access.key(1),
-        Access.key(:acked_count, 0)
-      ])
-
-    {:reply, count, state}
   end
 
   def handle_call({:get_last_persisted_marker, processor_marker_key, cache_version}, _from, state) do
