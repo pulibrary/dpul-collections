@@ -21,7 +21,7 @@ jobs:
         id: runscanner
         continue-on-error: true
         with:
-          image: "ghcr.io/pulibrary/dpul-collections:${{ steps.meta.outputs.version }}"
+          image: "ghcr.io/pulibrary/dpul-collections:main"
           fail-build: true
           severity-cutoff: high
           output-format: table
