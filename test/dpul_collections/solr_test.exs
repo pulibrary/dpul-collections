@@ -150,6 +150,41 @@ defmodule DpulCollections.SolrTest do
                result.filter_data
     end
 
+    test "Spanish stemming in qf improves search results" do
+      # "El despertar de los trabajadores" contains "trabajadores" (plural, masculine).
+      # A search for "trabajadora" (singular, feminine) won't match in title_txtm
+      # but will in title_txtm_es because the analyzer performs stemming.
+      Solr.add(
+        [%{id: "spanish-example", title_txtm: ["El despertar de los trabajadores"]}],
+        active_collection()
+      )
+
+      Solr.soft_commit(active_collection())
+
+      search_state = SearchState.from_params(%{"q" => "trabajadora"})
+      result = Solr.search(search_state)
+
+      assert length(result.results) == 1
+      assert hd(result.results).id == "spanish-example"
+    end
+
+    test "English stemming in qf improves search results" do
+      # A search for "updates" should find a document titled "Legislative Update"
+      # because the English analyzer stems "updates" to "update".
+      Solr.add(
+        [%{id: "english-example", title_txtm: ["Legislative Update"]}],
+        active_collection()
+      )
+
+      Solr.soft_commit(active_collection())
+
+      search_state = SearchState.from_params(%{"q" => "updates"})
+      result = Solr.search(search_state)
+
+      assert length(result.results) == 1
+      assert hd(result.results).id == "english-example"
+    end
+
     test "can filter by two facets" do
       Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
       Solr.soft_commit(active_collection())

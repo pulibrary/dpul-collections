@@ -129,4 +129,39 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
     |> assert_path("/search", query_params: %{q: "Document-3", sort_by: "relevance"})
     |> assert_has("h1 span", text: "Document-3")
   end
+
+  test "long search queries don't error", %{conn: conn} do
+    Solr.add(
+      [
+        %{
+          id: 1,
+          title_txtm: [
+            "al-Maḥāsin al-mujtamaʻah fī faḍl faḍāyil al-khulafāʼ al-arbaʻah / lil-Shaykh ʻAlī al-Ṣaffūrī."
+          ],
+          display_date_s: "1704",
+          years_is: [1704],
+          file_count_i: 1,
+          image_service_urls_ss: [
+            "https://example.com/iiif/2/image1"
+          ],
+          image_canvas_ids_ss: [
+            "https://iiif.io/api/cookbook/recipe/0001-mvm-image/canvas/p1"
+          ],
+          primary_thumbnail_service_url_s: "https://example.com/iiif/2/image1"
+        }
+      ],
+      active_collection()
+    )
+
+    Solr.soft_commit(active_collection())
+
+    conn
+    |> visit(
+      "/search?q=al-Maḥāsin+al-mujtamaʻah+fī+faḍl+faḍāyil+al-khulafāʼ+al-arbaʻah+%2F+lil-Shaykh+ʻAlī+al-Ṣaffūrī"
+    )
+    |> assert_has("#item-1",
+      text:
+        "al-Maḥāsin al-mujtamaʻah fī faḍl faḍāyil al-khulafāʼ al-arbaʻah / lil-Shaykh ʻAlī al-Ṣaffūrī."
+    )
+  end
 end
