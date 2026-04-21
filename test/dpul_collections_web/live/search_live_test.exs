@@ -798,7 +798,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       assert html =~ "Document-1"
     end
 
-    test "display titles and transliterated titles", %{conn: conn} do
+    test "displays a title for a record", %{conn: conn} do
       FiggyTestSupport.index_record_id_directly("27fd4d29-1170-47a5-891b-f2743873bcef")
       Solr.soft_commit()
 

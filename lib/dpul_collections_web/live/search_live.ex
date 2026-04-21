@@ -513,14 +513,13 @@ defmodule DpulCollectionsWeb.SearchLive do
         >
           <div class="flex flex-wrap flex-row sm:flex-row justify-between">
             <h2
-              :for={title <- @item.title}
               dir="auto w-full flex-grow sm:w-fit"
             >
               <.link
                 navigate={@item.url}
                 class="card-link"
               >
-                {title}
+                {@item.title}
               </.link>
             </h2>
             <span
