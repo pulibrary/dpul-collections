@@ -380,8 +380,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
              ]
 
       assert document["transliterated_title_txtm"] == [
-                "al-Maḥāsin al-mujtamaʻah fī faḍl faḍāyil al-khulafāʼ al-arbaʻah / lil-Shaykh ʻAlī al-Ṣaffūrī."
-              ]
+               "al-Maḥāsin al-mujtamaʻah fī faḍl faḍāyil al-khulafāʼ al-arbaʻah / lil-Shaykh ʻAlī al-Ṣaffūrī."
+             ]
 
       # These are the same author, one a transliteration. We'll need better data
       # to index better than this.
