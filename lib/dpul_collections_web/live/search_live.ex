@@ -585,6 +585,7 @@ defmodule DpulCollectionsWeb.SearchLive do
               <.link
                 navigate={@item.url}
                 class="card-link"
+                id={"item-title-#{@item.id}"}
               >
                 {@item.title}
               </.link>

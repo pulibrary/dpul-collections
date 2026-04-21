@@ -172,6 +172,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
       rights_statement_txtm: extract_rights_statement(metadata),
       series_txt_sort: get_in(metadata, ["series"]),
       sort_title_txtm: get_in(metadata, ["sort_title"]),
+      transliterated_title_txtm: extract_transliterated_title(metadata),
       updated_at_dt: updated_date(data),
       width_txtm: get_in(metadata, ["width"]),
       years_is: extract_years(data),
@@ -524,7 +525,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
   end
 
   defp extract_title(%{"title" => title}) do
-    title |> Enum.map(&extract_rdf_title/1)
+    title
+    |> Enum.filter(fn
+      %{"@language" => lang} -> not String.ends_with?(lang, "-latn")
+      _ -> true
+    end)
+    |> Enum.map(&extract_rdf_title/1)
   end
 
   defp extract_rdf_title(title) do
@@ -532,6 +538,17 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
       %{"@value" => value} -> value
       _ -> title
     end
+  end
+
+  defp extract_transliterated_title(%{"title" => title}) do
+    title
+    |> Enum.find_value(fn
+      %{"@language" => lang, "@value" => value} ->
+        if String.ends_with?(lang, "-latn"), do: value, else: nil
+
+      _ ->
+        nil
+    end)
   end
 
   defp extract_rights_statement(%{"rights_statement" => [%{"@id" => url}]}) when is_binary(url) do

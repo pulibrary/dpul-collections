@@ -376,7 +376,10 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       indexer |> Broadway.stop(:normal)
 
       assert document["title_txtm"] == [
-               "المحاسن المجتمعة في فضل فضايل الخلفاء الاربعة / للشيخ علي الصفوري.",
+               "المحاسن المجتمعة في فضل فضايل الخلفاء الاربعة / للشيخ علي الصفوري."
+             ]
+
+      assert document["transliterated_title_txtm"] == [
                "al-Maḥāsin al-mujtamaʻah fī faḍl faḍāyil al-khulafāʼ al-arbaʻah / lil-Shaykh ʻAlī al-Ṣaffūrī."
              ]
 
