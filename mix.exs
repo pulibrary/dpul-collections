@@ -125,6 +125,14 @@ defmodule DpulCollections.MixProject do
         "fixtures.setup",
         "reindex_dev"
       ],
+      "setup.ci": [
+        "deps.get",
+        "ecto.setup",
+        "assets.setup.ci",
+        "assets.build",
+        "fixtures.setup",
+        "reindex_dev"
+      ],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: [
@@ -141,6 +149,13 @@ defmodule DpulCollections.MixProject do
         "tailwind.install --if-missing",
         "esbuild.install --if-missing",
         "cmd npm --prefix assets install",
+        "cmd npm --prefix assets exec playwright install chromium --with-deps"
+      ],
+      "assets.setup.ci": [
+        "cmd npm --prefix deps/iconify_ex/assets ci --ignore-scripts",
+        "tailwind.install --if-missing",
+        "esbuild.install --if-missing",
+        "cmd npm --prefix assets ci --ignore-scripts",
         "cmd npm --prefix assets exec playwright install chromium --with-deps"
       ],
       "assets.build": ["tailwind dpul_collections", "esbuild dpul_collections"],
