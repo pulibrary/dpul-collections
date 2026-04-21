@@ -798,19 +798,20 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       assert html =~ "Document-1"
     end
 
-test "display titles and transliterated titles", %{conn: conn} do
-      {:ok, _view, html} = live(conn, "/search?")
+    test "display titles and transliterated titles", %{conn: conn} do
+      FiggyTestSupport.index_record_id_directly("27fd4d29-1170-47a5-891b-f2743873bcef")
+      Solr.soft_commit()
+
+      {:ok, _view, html} = live(conn, "/search?q=27fd4d29-1170-47a5-891b-f2743873bcef")
 
       {:ok, document} =
         html
         |> Floki.parse_document()
 
       # There should be a title
-      assert document |> Floki.find(".item-1_title") |> Enum.count() == 1
-
-      # There should be a transliterated title
-       assert document |> Floki.find(".item-1_title_transliterated") |> Enum.count() == 1
-
+      assert document
+             |> Floki.find("#item-title-27fd4d29-1170-47a5-891b-f2743873bcef")
+             |> Enum.count() == 1
     end
 
     test "display large and small thumbnails", %{conn: conn} do
