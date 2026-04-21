@@ -85,7 +85,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
     >
       <div
         id="collection-page"
-        class="grid grid-flow-row auto-rows-max -mb-6 [&>*:nth-child(odd)]:bg-background [&>*:nth-child(even)]:bg-dark-gray [&>*:nth-child(even)]:text-light-text"
+        class="grid grid-flow-row auto-rows-max -mb-6 [&>*:nth-child(odd)]:bg-background [&>*:nth-child(even)]:bg-neutral-600 [&>*:nth-child(even)]:text-light-text"
       >
         <!-- Hero Section -->
         <div class="content-area relative">
