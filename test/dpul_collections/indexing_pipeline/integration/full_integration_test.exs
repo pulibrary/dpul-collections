@@ -376,9 +376,12 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       indexer |> Broadway.stop(:normal)
 
       assert document["title_txtm"] == [
-               "المحاسن المجتمعة في فضل فضايل الخلفاء الاربعة / للشيخ علي الصفوري.",
-               "al-Maḥāsin al-mujtamaʻah fī faḍl faḍāyil al-khulafāʼ al-arbaʻah / lil-Shaykh ʻAlī al-Ṣaffūrī."
+               "المحاسن المجتمعة في فضل فضايل الخلفاء الاربعة / للشيخ علي الصفوري."
              ]
+
+      assert document["transliterated_title_txtm"] == [
+                "al-Maḥāsin al-mujtamaʻah fī faḍl faḍāyil al-khulafāʼ al-arbaʻah / lil-Shaykh ʻAlī al-Ṣaffūrī."
+              ]
 
       # These are the same author, one a transliteration. We'll need better data
       # to index better than this.
