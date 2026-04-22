@@ -30,6 +30,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResourceTest do
         |> Figgy.CombinedFiggyResource.to_solr_document()
 
       assert doc[:mms_id_ss] == "9963573093506421"
+      # We only need 12 - if we have too many it slows down solr requests.
+      assert doc[:image_service_urls_ss] |> length() == 12
     end
 
     test "converting a ScannedResource with MMS-ID metadata but no date doesn't index a date" do

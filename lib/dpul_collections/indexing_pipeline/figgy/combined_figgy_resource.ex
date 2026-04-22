@@ -161,7 +161,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
       holding_location_txt_sort: get_in(metadata, ["holding_location"]),
       iiif_manifest_url_s: iiif_manifest_url(id, internal_resource),
       image_canvas_ids_ss: image_canvas_ids(id, data, related_data),
-      image_service_urls_ss: image_service_urls(metadata, related_data),
+      image_service_urls_ss: image_service_urls(metadata, related_data) |> Enum.take(12),
       keywords_txt_sort: get_in(metadata, ["keywords"]),
       page_count_txtm: get_in(metadata, ["page_count"]),
       pdf_url_s: extract_pdf_url(data),
