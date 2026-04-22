@@ -21,9 +21,9 @@ msgstr "¡Error!"
 msgid "Hang in there while we get back on track"
 msgstr "Aguanta mientras volvemos al buen camino"
 
-#: lib/dpul_collections_web/components/search_bar_component.ex:25
-#: lib/dpul_collections_web/components/search_bar_component.ex:31
-#: lib/dpul_collections_web/components/search_bar_component.ex:85
+#: lib/dpul_collections_web/components/search_bar_component.ex:36
+#: lib/dpul_collections_web/components/search_bar_component.ex:42
+#: lib/dpul_collections_web/components/search_bar_component.ex:117
 #: lib/dpul_collections_web/live/search_live.ex:445
 #, elixir-autogen, elixir-format
 msgid "Search"
@@ -44,8 +44,8 @@ msgstr "¡Éxito!"
 msgid "close"
 msgstr "cerrar"
 
-#: lib/dpul_collections/item.ex:62
-#: lib/dpul_collections/item.ex:83
+#: lib/dpul_collections/item.ex:63
+#: lib/dpul_collections/item.ex:84
 #: lib/dpul_collections/search_result.ex:2
 #: lib/dpul_collections/solr.ex:3
 #: lib/dpul_collections_web/components/header_component.ex:89
@@ -56,12 +56,12 @@ msgstr "cerrar"
 msgid "Language"
 msgstr "Idioma"
 
-#: lib/dpul_collections_web/live/search_live.ex:765
+#: lib/dpul_collections_web/live/search_live.ex:766
 #, elixir-autogen, elixir-format
 msgid "Next"
 msgstr "Proxima"
 
-#: lib/dpul_collections_web/live/search_live.ex:735
+#: lib/dpul_collections_web/live/search_live.ex:736
 #, elixir-autogen, elixir-format
 msgid "Previous"
 msgstr "Anterior"
@@ -148,9 +148,9 @@ msgstr "navegar"
 
 #: lib/dpul_collections_web/components/header_component.ex:40
 #: lib/dpul_collections_web/live/home_live.ex:36
-#: lib/dpul_collections_web/live/item_live.ex:999
-#: lib/dpul_collections_web/live/item_live.ex:1000
-#: lib/dpul_collections_web/live/item_live.ex:1001
+#: lib/dpul_collections_web/live/item_live.ex:1076
+#: lib/dpul_collections_web/live/item_live.ex:1077
+#: lib/dpul_collections_web/live/item_live.ex:1078
 #, elixir-autogen, elixir-format
 msgid "Digital Collections"
 msgstr "Colecciones Digitales"
@@ -160,7 +160,7 @@ msgstr "Colecciones Digitales"
 msgid "The Trustees of Princeton University"
 msgstr "Los fideicomisarios de la Universidad de Princeton"
 
-#: lib/dpul_collections_web/live/search_live.ex:601
+#: lib/dpul_collections_web/live/search_live.ex:602
 #, elixir-autogen, elixir-format
 msgid "Added"
 msgstr "Añadido"
@@ -194,8 +194,8 @@ msgstr "Año"
 msgid "to"
 msgstr "hasta"
 
-#: lib/dpul_collections/item.ex:50
-#: lib/dpul_collections/item.ex:80
+#: lib/dpul_collections/item.ex:51
+#: lib/dpul_collections/item.ex:81
 #: lib/dpul_collections/search_result.ex:2
 #: lib/dpul_collections/solr.ex:3
 #: lib/dpul_collections_web/live/item_live.ex:2
@@ -205,8 +205,8 @@ msgstr "hasta"
 msgid "Creator of work"
 msgstr "Creador de la obra"
 
-#: lib/dpul_collections/item.ex:63
-#: lib/dpul_collections/item.ex:102
+#: lib/dpul_collections/item.ex:64
+#: lib/dpul_collections/item.ex:103
 #: lib/dpul_collections/search_result.ex:2
 #: lib/dpul_collections/solr.ex:3
 #: lib/dpul_collections_web/live/item_live.ex:2
@@ -216,8 +216,8 @@ msgstr "Creador de la obra"
 msgid "Geographic Origin"
 msgstr "Origen geográfico"
 
-#: lib/dpul_collections/item.ex:51
-#: lib/dpul_collections/item.ex:82
+#: lib/dpul_collections/item.ex:52
+#: lib/dpul_collections/item.ex:83
 #: lib/dpul_collections/search_result.ex:2
 #: lib/dpul_collections/solr.ex:3
 #: lib/dpul_collections_web/live/item_live.ex:2
@@ -227,8 +227,8 @@ msgstr "Origen geográfico"
 msgid "Publisher"
 msgstr "Editor"
 
-#: lib/dpul_collections/item.ex:65
-#: lib/dpul_collections/item.ex:99
+#: lib/dpul_collections/item.ex:66
+#: lib/dpul_collections/item.ex:100
 #: lib/dpul_collections/search_result.ex:2
 #: lib/dpul_collections/solr.ex:3
 #: lib/dpul_collections_web/live/item_live.ex:2
@@ -249,33 +249,33 @@ msgid "No PDF Available"
 msgstr "PDF no disponible"
 
 #: lib/dpul_collections_web/live/item_live.ex:361
-#: lib/dpul_collections_web/live/item_live.ex:1000
+#: lib/dpul_collections_web/live/item_live.ex:1077
 #, elixir-autogen, elixir-format
 msgid "Viewer"
 msgstr "Abrir"
 
-#: lib/dpul_collections/item.ex:76
+#: lib/dpul_collections/item.ex:77
 #, elixir-autogen, elixir-format
 msgid "Alternative Title"
 msgstr "Título Alternativo"
 
-#: lib/dpul_collections/item.ex:116
+#: lib/dpul_collections/item.ex:117
 #, elixir-autogen, elixir-format
 msgid "Barcode"
 msgstr "Código de barras"
 
-#: lib/dpul_collections/item.ex:114
+#: lib/dpul_collections/item.ex:115
 #, elixir-autogen, elixir-format
 msgid "Box number"
 msgstr "Número de caja"
 
-#: lib/dpul_collections/item.ex:87
+#: lib/dpul_collections/item.ex:88
 #: lib/dpul_collections_web/live/item_live.ex:389
 #, elixir-autogen, elixir-format
 msgid "Content Warning"
 msgstr "Advertencia de contenido"
 
-#: lib/dpul_collections/item.ex:81
+#: lib/dpul_collections/item.ex:82
 #: lib/dpul_collections/search_result.ex:2
 #: lib/dpul_collections/solr.ex:3
 #: lib/dpul_collections_web/live/item_live.ex:2
@@ -285,7 +285,7 @@ msgstr "Advertencia de contenido"
 msgid "Contributor"
 msgstr "Colaborador"
 
-#: lib/dpul_collections/item.ex:84
+#: lib/dpul_collections/item.ex:85
 #: lib/dpul_collections/search_result.ex:2
 #: lib/dpul_collections/solr.ex:3
 #: lib/dpul_collections_web/live/item_live.ex:2
@@ -295,17 +295,17 @@ msgstr "Colaborador"
 msgid "Date Created"
 msgstr "Fecha de creación"
 
-#: lib/dpul_collections/item.ex:72
+#: lib/dpul_collections/item.ex:73
 #, elixir-autogen, elixir-format
 msgid "Descriptive Information"
 msgstr "Información descriptiva"
 
-#: lib/dpul_collections/item.ex:97
+#: lib/dpul_collections/item.ex:98
 #, elixir-autogen, elixir-format
 msgid "Discovery Information"
 msgstr "Información de descubrimiento"
 
-#: lib/dpul_collections/item.ex:109
+#: lib/dpul_collections/item.ex:110
 #: lib/dpul_collections/search_result.ex:2
 #: lib/dpul_collections/solr.ex:3
 #: lib/dpul_collections_web/live/item_live.ex:2
@@ -315,13 +315,13 @@ msgstr "Información de descubrimiento"
 msgid "File Count"
 msgstr "Recuento de archivos"
 
-#: lib/dpul_collections/item.ex:115
+#: lib/dpul_collections/item.ex:116
 #, elixir-autogen, elixir-format
 msgid "Folder number"
 msgstr "Número de carpeta"
 
-#: lib/dpul_collections/item.ex:64
-#: lib/dpul_collections/item.ex:100
+#: lib/dpul_collections/item.ex:65
+#: lib/dpul_collections/item.ex:101
 #: lib/dpul_collections/search_result.ex:2
 #: lib/dpul_collections/solr.ex:3
 #: lib/dpul_collections_web/live/item_live.ex:2
@@ -331,22 +331,22 @@ msgstr "Número de carpeta"
 msgid "Geographic Subject"
 msgstr "Tema geográfico"
 
-#: lib/dpul_collections/item.ex:106
+#: lib/dpul_collections/item.ex:107
 #, elixir-autogen, elixir-format
 msgid "Height"
 msgstr "Altura"
 
-#: lib/dpul_collections/item.ex:117
+#: lib/dpul_collections/item.ex:118
 #, elixir-autogen, elixir-format
 msgid "Holding location"
 msgstr "Ubicación del artículo"
 
-#: lib/dpul_collections/item.ex:118
+#: lib/dpul_collections/item.ex:119
 #, elixir-autogen, elixir-format
 msgid "IIIF Manifest URL"
 msgstr "URL del manifiesto IIIF"
 
-#: lib/dpul_collections/item.ex:111
+#: lib/dpul_collections/item.ex:112
 #, elixir-autogen, elixir-format
 msgid "Institutional Information"
 msgstr "Información institucional"
@@ -356,34 +356,34 @@ msgstr "Información institucional"
 msgid "Item Summary"
 msgstr "Resumen del artículo"
 
-#: lib/dpul_collections/item.ex:101
+#: lib/dpul_collections/item.ex:102
 #, elixir-autogen, elixir-format
 msgid "Keywords"
 msgstr "Palabras clave"
 
 #: lib/dpul_collections_web/live/item_live.ex:313
 #: lib/dpul_collections_web/live/item_live.ex:817
-#: lib/dpul_collections_web/live/item_live.ex:999
+#: lib/dpul_collections_web/live/item_live.ex:1076
 #, elixir-autogen, elixir-format
 msgid "Metadata"
 msgstr "Metadatos"
 
-#: lib/dpul_collections/item.ex:108
+#: lib/dpul_collections/item.ex:109
 #, elixir-autogen, elixir-format
 msgid "Page Count"
 msgstr "Número de páginas"
 
-#: lib/dpul_collections/item.ex:104
+#: lib/dpul_collections/item.ex:105
 #, elixir-autogen, elixir-format
 msgid "Physical Characteristics"
 msgstr "Características físicas"
 
-#: lib/dpul_collections/item.ex:89
+#: lib/dpul_collections/item.ex:90
 #, elixir-autogen, elixir-format
 msgid "Provenance"
 msgstr "Procedencia"
 
-#: lib/dpul_collections/item.ex:92
+#: lib/dpul_collections/item.ex:93
 #: lib/dpul_collections/search_result.ex:2
 #: lib/dpul_collections/solr.ex:3
 #: lib/dpul_collections_web/live/item_live.ex:2
@@ -393,27 +393,27 @@ msgstr "Procedencia"
 msgid "Rights Statement"
 msgstr "Derechos"
 
-#: lib/dpul_collections/item.ex:88
+#: lib/dpul_collections/item.ex:89
 #, elixir-autogen, elixir-format
 msgid "Series"
 msgstr "Serie"
 
-#: lib/dpul_collections/item.ex:77
+#: lib/dpul_collections/item.ex:78
 #, elixir-autogen, elixir-format
 msgid "Sort Title"
 msgstr "Título de ordenar"
 
-#: lib/dpul_collections/item.ex:74
+#: lib/dpul_collections/item.ex:75
 #, elixir-autogen, elixir-format
 msgid "Title"
 msgstr "Título"
 
-#: lib/dpul_collections/item.ex:75
+#: lib/dpul_collections/item.ex:76
 #, elixir-autogen, elixir-format
 msgid "Transliterated Title"
 msgstr "Título transliterado"
 
-#: lib/dpul_collections/item.ex:107
+#: lib/dpul_collections/item.ex:108
 #, elixir-autogen, elixir-format
 msgid "Width"
 msgstr "Anchura"
@@ -509,12 +509,12 @@ msgstr "Explorar"
 msgid "Browse - Digital Collections"
 msgstr "Explorar - Colecciones digitales"
 
-#: lib/dpul_collections_web/live/item_live.ex:969
+#: lib/dpul_collections_web/live/item_live.ex:1046
 #, elixir-autogen, elixir-format
 msgid "Copied"
 msgstr "Copiado"
 
-#: lib/dpul_collections_web/live/item_live.ex:968
+#: lib/dpul_collections_web/live/item_live.ex:1045
 #, elixir-autogen, elixir-format
 msgid "Copy"
 msgstr "Copiar"
@@ -539,7 +539,7 @@ msgstr "Ver elementos aleatorios"
 msgid "main image display"
 msgstr "visualización de la imagen principal"
 
-#: lib/dpul_collections_web/live/search_live.ex:725
+#: lib/dpul_collections_web/live/search_live.ex:726
 #, elixir-autogen, elixir-format
 msgid "Search Results Page Navigation"
 msgstr "Resultados de la búsqueda por"
@@ -611,7 +611,7 @@ msgid "Categories"
 msgstr "Categorías"
 
 #: lib/dpul_collections_web/components/browse_item.ex:212
-#: lib/dpul_collections_web/live/search_live.ex:642
+#: lib/dpul_collections_web/live/search_live.ex:643
 #, elixir-autogen, elixir-format
 msgid "Date"
 msgstr "Fecha"
@@ -632,8 +632,8 @@ msgstr "Destacado"
 
 #: lib/dpul_collections_web/components/browse_item.ex:163
 #: lib/dpul_collections_web/live/item_live.ex:199
-#: lib/dpul_collections_web/live/search_live.ex:626
-#: lib/dpul_collections_web/live/search_live.ex:696
+#: lib/dpul_collections_web/live/search_live.ex:627
+#: lib/dpul_collections_web/live/search_live.ex:697
 #, elixir-autogen, elixir-format
 msgid "Files"
 msgstr "Archivos"
@@ -691,7 +691,7 @@ msgstr "Mi Cuenta"
 msgid "My Sets"
 msgstr "Mis Conjuntos"
 
-#: lib/dpul_collections_web/live/search_live.ex:649
+#: lib/dpul_collections_web/live/search_live.ex:650
 #, elixir-autogen, elixir-format
 msgid "Origin"
 msgstr "Origen"
@@ -718,8 +718,8 @@ msgstr "Pósteres"
 msgid "Save"
 msgstr "Guardar"
 
-#: lib/dpul_collections_web/live/search_live.ex:660
-#: lib/dpul_collections_web/live/search_live.ex:666
+#: lib/dpul_collections_web/live/search_live.ex:661
+#: lib/dpul_collections_web/live/search_live.ex:667
 #, elixir-autogen, elixir-format
 msgid "Search Results"
 msgstr "Resultados de la búsqueda"
@@ -834,7 +834,7 @@ msgstr "Debe volver a autenticarse para acceder a esta página."
 msgid "You need to reauthenticate to perform sensitive actions on your account."
 msgstr "Necesitas volver a autenticarte para realizar acciones confidenciales en tu cuenta."
 
-#: lib/dpul_collections/item.ex:113
+#: lib/dpul_collections/item.ex:114
 #: lib/dpul_collections/search_result.ex:2
 #: lib/dpul_collections/solr.ex:3
 #: lib/dpul_collections_web/live/item_live.ex:2
@@ -953,7 +953,7 @@ msgstr "Explore las últimas incorporaciones a nuestra creciente colección de"
 msgid "Featured Highlights"
 msgstr "Destacado"
 
-#: lib/dpul_collections/item.ex:85
+#: lib/dpul_collections/item.ex:86
 #: lib/dpul_collections/search_result.ex:2
 #: lib/dpul_collections/solr.ex:3
 #: lib/dpul_collections_web/components/browse_item.ex:219
@@ -1051,7 +1051,7 @@ msgstr "contactar a la Biblioteca de la Universidad de Princeton"
 
 #: lib/dpul_collections_web/live/item_live.ex:152
 #: lib/dpul_collections_web/live/search_live.ex:524
-#: lib/dpul_collections_web/live/search_live.ex:593
+#: lib/dpul_collections_web/live/search_live.ex:594
 #, elixir-autogen, elixir-format
 msgid "format"
 msgstr "formato"
@@ -1071,7 +1071,7 @@ msgstr "Filtros Activos"
 msgid "Apply Year Range"
 msgstr "Aplicar Rango de Años"
 
-#: lib/dpul_collections/item.ex:56
+#: lib/dpul_collections/item.ex:57
 #: lib/dpul_collections/search_result.ex:2
 #: lib/dpul_collections/solr.ex:3
 #: lib/dpul_collections_web/live/item_live.ex:2
@@ -1081,13 +1081,13 @@ msgstr "Aplicar Rango de Años"
 msgid "Author"
 msgstr "Autor"
 
-#: lib/dpul_collections/item.ex:95
+#: lib/dpul_collections/item.ex:96
 #, elixir-autogen, elixir-format
 msgid "Binding Note"
 msgstr "Nota Vinculante"
 
-#: lib/dpul_collections/item.ex:49
-#: lib/dpul_collections/item.ex:78
+#: lib/dpul_collections/item.ex:50
+#: lib/dpul_collections/item.ex:79
 #, elixir-autogen, elixir-format
 msgid "Call Number"
 msgstr "Número de Llamada"
@@ -1102,12 +1102,12 @@ msgstr "Borrar todo"
 msgid "Close"
 msgstr "cerrar"
 
-#: lib/dpul_collections/item.ex:93
+#: lib/dpul_collections/item.ex:94
 #, elixir-autogen, elixir-format
 msgid "Contents"
 msgstr "Contenido"
 
-#: lib/dpul_collections/item.ex:58
+#: lib/dpul_collections/item.ex:59
 #: lib/dpul_collections/search_result.ex:2
 #: lib/dpul_collections/solr.ex:3
 #: lib/dpul_collections_web/live/item_live.ex:2
@@ -1117,7 +1117,7 @@ msgstr "Contenido"
 msgid "Donor"
 msgstr "Donante"
 
-#: lib/dpul_collections/item.ex:86
+#: lib/dpul_collections/item.ex:87
 #, elixir-autogen, elixir-format
 msgid "Extent"
 msgstr "Medida"
@@ -1127,17 +1127,17 @@ msgstr "Medida"
 msgid "Filter Results"
 msgstr "Filtros"
 
-#: lib/dpul_collections/item.ex:79
+#: lib/dpul_collections/item.ex:80
 #, elixir-autogen, elixir-format
 msgid "Identifier"
 msgstr "Identificador"
 
-#: lib/dpul_collections/item.ex:94
+#: lib/dpul_collections/item.ex:95
 #, elixir-autogen, elixir-format
 msgid "Notes"
 msgstr "Notas"
 
-#: lib/dpul_collections/item.ex:54
+#: lib/dpul_collections/item.ex:55
 #, elixir-autogen, elixir-format
 msgid "People"
 msgstr "Gente"
@@ -1148,12 +1148,12 @@ msgstr "Gente"
 msgid "Princeton University Library"
 msgstr "Biblioteca de la Universidad de Princeton"
 
-#: lib/dpul_collections/item.ex:91
+#: lib/dpul_collections/item.ex:92
 #, elixir-autogen, elixir-format
 msgid "References"
 msgstr "Referencias"
 
-#: lib/dpul_collections/item.ex:59
+#: lib/dpul_collections/item.ex:60
 #, elixir-autogen, elixir-format
 msgid "Related Name"
 msgstr "Nombre Relacionado"
@@ -1163,7 +1163,7 @@ msgstr "Nombre Relacionado"
 msgid "Results"
 msgstr "Resultados"
 
-#: lib/dpul_collections/item.ex:57
+#: lib/dpul_collections/item.ex:58
 #: lib/dpul_collections/search_result.ex:2
 #: lib/dpul_collections/solr.ex:3
 #: lib/dpul_collections_web/live/item_live.ex:2
@@ -1178,7 +1178,7 @@ msgstr "Escriba"
 msgid "Search filters..."
 msgstr "Filtros de búsqueda..."
 
-#: lib/dpul_collections/item.ex:90
+#: lib/dpul_collections/item.ex:91
 #, elixir-autogen, elixir-format
 msgid "Source Acquisition"
 msgstr "Adquisición de Fuente"
@@ -1193,12 +1193,12 @@ msgstr "Abrir"
 msgid "filters"
 msgstr "Filtros"
 
-#: lib/dpul_collections_web/components/search_bar_component.ex:89
+#: lib/dpul_collections_web/components/search_bar_component.ex:121
 #, elixir-autogen, elixir-format
 msgid "Search all"
 msgstr "Buscar todo"
 
-#: lib/dpul_collections_web/components/search_bar_component.ex:48
+#: lib/dpul_collections_web/components/search_bar_component.ex:59
 #, elixir-autogen, elixir-format
-msgid "Search in this Collection"
-msgstr "Buscar en esta colección"
+msgid "In this Collection"
+msgstr "En esta colección"
