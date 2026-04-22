@@ -9,7 +9,7 @@ defmodule DpulCollectionsWeb.SearchLive.FilterSection do
       id={@id}
       class={[
         "border border-rust/20 rounded-lg overflow-hidden bg-white",
-        length(@filter.data) == 0 && "hidden"
+        length(@filter_data) == 0 && "hidden"
       ]}
     >
       <button
@@ -25,7 +25,7 @@ defmodule DpulCollectionsWeb.SearchLive.FilterSection do
           @expanded && "bg-primary-bright"
         ]}
       >
-        <span>{Gettext.gettext(DpulCollectionsWeb.Gettext, @filter.label)}</span>
+        <span>{Gettext.gettext(DpulCollectionsWeb.Gettext, @filter_label)}</span>
         <.icon
           name="hero-chevron-down"
           class={
@@ -42,8 +42,10 @@ defmodule DpulCollectionsWeb.SearchLive.FilterSection do
       >
         <.filter_input
           field={@field}
-          filter={@filter}
-          filter_form={@filter_form}
+          filter_label={@filter_label}
+          filter_data={@filter_data}
+          filter_form_name={@filter_form_name}
+          filter_form_value={@filter_form_value}
           year_form={@year_form}
           filter_configuration={SearchLive.filter_configuration()[@field]}
           myself={@myself}
@@ -80,7 +82,7 @@ defmodule DpulCollectionsWeb.SearchLive.FilterSection do
     <div id={"search-#{@field}"} phx-hook="DpulCollectionsWeb.SearchLive.SearchFilter" class="pt-3">
       <div class="relative mb-2" phx-update="ignore" id={"search-wrapper-#{@field}"}>
         <label for={"filter-#{@field}-search"} class="sr-only">
-          {gettext("Search")} {Gettext.gettext(DpulCollectionsWeb.Gettext, @filter.label)} {gettext(
+          {gettext("Search")} {Gettext.gettext(DpulCollectionsWeb.Gettext, @filter_label)} {gettext(
             "filters"
           )}
         </label>
@@ -96,11 +98,12 @@ defmodule DpulCollectionsWeb.SearchLive.FilterSection do
       <.input
         data-filter-options
         type="checkgroup"
-        field={@filter_form[@field]}
+        name={@filter_form_name}
+        value={@filter_form_value}
         multiple={true}
         class="max-h-100 overflow-y-auto grid grid-cols-1 sm:grid-cols-1 space-y-1"
         options={
-          @filter.data
+          @filter_data
           |> Enum.map(fn {value, count} -> {{value, count}, value} end)
         }
       />

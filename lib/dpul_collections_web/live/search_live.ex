@@ -272,13 +272,15 @@ defmodule DpulCollectionsWeb.SearchLive do
 
         <div class="flex flex-col gap-4">
           <.live_component
-            :for={{field, filter} <- @filter_data}
+            :for={{field, %{data: filter_data, label: label}} <- @filter_data}
             module={FilterSection}
             id={"#{field}-panel-component"}
             field={field}
-            filter={filter}
+            filter_data={filter_data}
+            filter_label={label}
             expanded={field == @expanded_filter}
-            filter_form={@filter_form}
+            filter_form_name={"#{@filter_form[field].name}[]"}
+            filter_form_value={@filter_form[field].value}
             year_form={@year_form}
           />
 
