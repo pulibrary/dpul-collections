@@ -125,6 +125,18 @@ defmodule DpulCollectionsWeb.SearchLive do
             </form>
           </div>
         </div>
+        <ul class="grid grid-flow-row auto-rows-max gap-8" id="search-results" phx-update="stream">
+          <.search_item
+            :for={{dom_id, item} <- @streams.items}
+            id={dom_id}
+            search_state={@search_state}
+            item={item}
+            sort_by={@search_state.sort_by}
+            show_images={@show_images}
+            current_scope={@current_scope}
+            current_path={@current_path}
+          />
+        </ul>
         <div class="text-center max-w-5xl mx-auto text-lg py-8">
           <.paginator
             page={@search_state.page}
