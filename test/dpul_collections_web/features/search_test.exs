@@ -70,7 +70,7 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
     |> visit("/search?q=")
     |> assert_has(".phx-connected")
     # when filecount exceeds visible images show image total
-    |> assert_has("#item-1", text: "Document-1")
+    |> assert_has("#items-1", text: "Document-1")
     # when visible images equals filecount don't show image total
     |> assert_has("#filecount-1", text: "8 Files")
   end
@@ -159,7 +159,7 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
     |> visit(
       "/search?q=al-Maḥāsin+al-mujtamaʻah+fī+faḍl+faḍāyil+al-khulafāʼ+al-arbaʻah+%2F+lil-Shaykh+ʻAlī+al-Ṣaffūrī"
     )
-    |> assert_has("#item-1",
+    |> assert_has("#items-1",
       text:
         "al-Maḥāsin al-mujtamaʻah fī faḍl faḍāyil al-khulafāʼ al-arbaʻah / lil-Shaykh ʻAlī al-Ṣaffūrī."
     )

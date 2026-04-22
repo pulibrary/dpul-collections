@@ -822,29 +822,29 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
         |> Floki.parse_document()
 
       # There should be a maximum of 5 thumbnails on the search results page
-      assert document |> Floki.find("#item-1 img") |> Enum.count() == 7
+      assert document |> Floki.find("#items-1 img") |> Enum.count() == 7
 
       # Odd numbered documents in test data do not have a thumbnail id
       # so the order of thumbnails should be the same as the image member order
       assert document
-             |> Floki.attribute("#item-1 .search-thumbnail img", "src") == [
+             |> Floki.attribute("#items-1 .search-thumbnail img", "src") == [
                "https://example.com/iiif/2/image1/full/!350,350/0/default.jpg"
              ]
 
       assert document
-             |> Floki.attribute("#item-1 .small-thumbnails > :first-child > img", "src") == [
+             |> Floki.attribute("#items-1 .small-thumbnails > :first-child > img", "src") == [
                "https://example.com/iiif/2/image2/square/!350,350/0/default.jpg"
              ]
 
       # Even numbered documents in test data have a thumbnail id so the order
       # of thumbnails should be different from the image member order
       assert document
-             |> Floki.attribute("#item-2 .search-thumbnail img", "src") == [
+             |> Floki.attribute("#items-2 .search-thumbnail img", "src") == [
                "https://example.com/iiif/2/image2/full/!350,350/0/default.jpg"
              ]
 
       assert document
-             |> Floki.attribute("#item-2 .small-thumbnails > :first-child > img", "src") == [
+             |> Floki.attribute("#items-2 .small-thumbnails > :first-child > img", "src") == [
                "https://example.com/iiif/2/image1/square/!350,350/0/default.jpg"
              ]
     end
@@ -863,17 +863,17 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
       {:ok, view, _html} = live(conn, ~p"/search?#{%{q: "South Asian Ephemera"}}")
       # Search result works.
-      item_card = view |> element("#item-#{sae_id}")
+      item_card = view |> element("#items-#{sae_id}")
       assert item_card |> has_element?
       # Link to collection page.
-      assert view |> element("#item-#{sae_id} a[href='/collections/sae']") |> has_element?
+      assert view |> element("#items-#{sae_id} a[href='/collections/sae']") |> has_element?
       card_content = item_card |> render()
       # Tagline renders.
       assert card_content =~ "The South Asian Ephemera Collection is an openly accessible"
       # Digital Collection format renders
       assert card_content =~ "Digital Collection"
       # Mosaic images
-      assert view |> element("#item-#{sae_id} .search-thumbnail img") |> has_element?
+      assert view |> element("#items-#{sae_id} .search-thumbnail img") |> has_element?
       # Stats
       assert card_content =~ "1"
       assert card_content =~ "Items"
@@ -906,25 +906,25 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
       assert view
              |> has_element?(
-               "#item-iran .metadata",
+               "#items-iran .metadata",
                "Ephemera"
              )
 
       refute view
              |> has_element?(
-               "#item-iran .metadata",
+               "#items-iran .metadata",
                "MoreEphemera"
              )
 
       assert view
              |> has_element?(
-               "#item-iran .metadata",
+               "#items-iran .metadata",
                "2024"
              )
 
       assert view
              |> has_element?(
-               "#item-iran .metadata",
+               "#items-iran .metadata",
                "Iran"
              )
     end

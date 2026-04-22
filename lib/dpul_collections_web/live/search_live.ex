@@ -28,9 +28,13 @@ defmodule DpulCollectionsWeb.SearchLive do
      |> assign(
        page_title: "Search Results - Digital Collections",
        item_counter: item_counter(search_state, total_items),
-       items: items,
        total_items: total_items,
        filter_data: with_year_filter(filter_data)
+     )
+     |> stream(
+       :items,
+       items,
+       reset: true
      )
      |> assign_new(
        :expanded_filter,
@@ -121,16 +125,16 @@ defmodule DpulCollectionsWeb.SearchLive do
             </form>
           </div>
         </div>
-        <ul class="grid grid-flow-row auto-rows-max gap-8" id="search-results">
+        <ul class="grid grid-flow-row auto-rows-max gap-8" id="search-results" phx-update="stream">
           <.search_item
-            :for={item = %{id: id} <- @items}
+            :for={{dom_id, item} <- @streams.items}
+            id={dom_id}
             search_state={@search_state}
             item={item}
             sort_by={@search_state.sort_by}
             show_images={@show_images}
             current_scope={@current_scope}
             current_path={@current_path}
-            :key={id}
           />
         </ul>
         <div class="text-center max-w-5xl mx-auto text-lg py-8">
@@ -457,7 +461,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   def search_item(assigns = %{item: %Collection{}}) do
     ~H"""
     <li
-      id={"item-#{@item.id}"}
+      id={@id}
       class="item card"
       data-id={@item.id}
       aria-label={@item.title |> hd}
@@ -525,7 +529,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   def search_item(assigns = %{item: %Item{}}) do
     ~H"""
     <li
-      id={"item-#{@item.id}"}
+      id={@id}
       class="item card"
       aria-label={@item.title |> hd}
       phx-hook="ShowPageCount"
