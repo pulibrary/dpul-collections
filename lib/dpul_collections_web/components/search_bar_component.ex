@@ -9,10 +9,10 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
   def render(assigns) do
     ~H"""
     <div class="subnav-bar cover-with-pane">
-      <div class="search-container min-h-10 flex flex-wrap bg-search">
+      <div class="search-container min-h-[50px] flex flex-wrap bg-search">
         <form
           id="search-form"
-          class="header-x-padding grow group w-full h-full"
+          class="grow group w-full h-full"
           phx-submit="search"
           phx-target={@myself}
         >
@@ -24,12 +24,12 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
           />
           <div
             class={[
-              "flex items-center w-full h-full",
+              "flex items-stretch w-full h-full",
               String.length(@collection_title) > 0 && "flex-wrap"
             ]}
             role="search"
           >
-            <div class="flex items-center grow">
+            <div class="subnav-l-padding flex items-center grow">
               <span class="flex-none">
                 <.icon name="hero-magnifying-glass" class="h-8 w-8 icon" />
               </span>
@@ -45,7 +45,7 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
             </div>
 
             <div class={[
-              "flex items-stretch space-x-2 my-2 text-sm md:text-md md:w-auto",
+              "subnav-buttons flex items-stretch space-x-1 h-full text-sm md:text-base md:w-auto",
               String.length(@collection_title) > 0 && "w-full"
             ]}>
               <.primary_button
@@ -54,9 +54,9 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
                 type="submit"
                 name="search"
                 value={@collection_title}
-                class="btn-primary px-4 h-8 grow"
+                class="grow max-md:subnav-diagonal-left md:subnav-diagonal-middle"
               >
-                {gettext("Search in this Collection")}
+                {gettext("In this Collection")}
                 <.icon name="hero-arrow-turn-down-left" class="h-4/7 ml-1 hidden md:inline" />
               </.primary_button>
 
@@ -65,7 +65,11 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
                 type="submit"
                 name="search"
                 value="all"
-                class="btn-primary px-4 h-8 mr-2px grow"
+                class={[
+                  "grow subnav-diagonal-right",
+                  String.length(@collection_title) > 0 && "subnav-diagonal-right-pair",
+                  String.length(@collection_title) > 0 || "subnav-r-padding"
+                ]}
               >
                 {search_label(@collection_title)}
               </.primary_button>

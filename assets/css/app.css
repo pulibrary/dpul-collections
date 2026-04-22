@@ -115,6 +115,14 @@
   @apply px-4 sm:px-8 lg:px-10;
 }
 
+@utility subnav-l-padding {
+  @apply pl-4 sm:pl-8 lg:pl-10;
+}
+
+@utility subnav-r-padding {
+  @apply pr-6 sm:pr-14 lg:pr-12;
+}
+
 @utility header-y-padding {
   @apply py-4;
 }
@@ -322,39 +330,55 @@
     last:before:absolute last:before:h-full last:before:w-4 last:before:top-0 last:before:-right-4 group-hover:last:before:bg-zinc-50 last:before:sm:rounded-r-xl;
 }
 
-.browse-link {
-  padding-left: 60px;
-  clip-path: polygon(0 50.72px,50.72px 0%, 100% 0%, 100% 100%, 0% 100%);
+@utility subnav-diagonal-left {
+  @apply pr-[70px];
+  clip-path: polygon(0 0, 100% 0, calc(100% - 50px) 100%, 0 100%, 0 100%);
+}
+
+@utility subnav-diagonal-middle {
+  @apply px-[70px];
+  @apply transform-[translateX(50px)];
+  clip-path: polygon(50px 0, 100% 0, calc(100% - 50px) 100%, 0 100%, 0 100%);
+}
+
+@utility subnav-diagonal-right {
+  @apply pl-[70px];
+  clip-path: polygon(50px 0, 100% 0, 100% 100%, 0 100%, 0 100%);
+}
+
+@utility subnav-diagonal-right-pair {
+  @apply max-md:transform-[translateX(-50px)];
+  @apply max-md:pr-[45px];
 }
 
 .diagonal-drop {
   padding-left: 30px;
-  clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 25px 100%);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 25px 100%);
 }
 
 .diagonal-rise {
   padding-left: 30px;
-  clip-path: polygon(25px 0%, 100% 0%, 100% 100%, 0 100%);
+  clip-path: polygon(25px 0, 100% 0, 100% 100%, 0 100%);
 }
 
 .left-arrow-box {
-  clip-path: polygon(100% 0%, 100% 100%, 40px 100%, 0% 50%, 40px 0%);
+  clip-path: polygon(100% 0, 100% 100%, 40px 100%, 0 50%, 40px 0);
   @apply pl-[20px] bg-primary border-none hover:bg-hover-accent flex justify-center items-center w-full h-14;
 }
 
 .right-arrow-box {
   clip-path: polygon(
-    0% 0%,
-    0% 100%,
+    0 0,
+    0 100%,
     calc(100% - 40px) 100%,
     100% 50%,
-    calc(100% - 40px) 0%
+    calc(100% - 40px) 0
   );
   @apply pr-[20px] bg-primary border-none hover:bg-hover-accent flex justify-center items-center w-full h-14;
 }
 
 @utility arrow {
-  clip-path: polygon(0% 0%, 100% 50%, 0% 100%);
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
 }
 
 .btn-arrow {
@@ -362,7 +386,7 @@
 }
 
 .corner-cut {
-  clip-path: polygon(0 50.72px,50.72px 0,100% 0,100% 50.72px,100% calc(100% - 50.72px),calc(100% - 50.72px) 100%,0 100%,0 calc(100% - 50.72px));
+  clip-path: polygon(0 0, calc(100% - 50px) 0, 100% 50px,100% 100%, 50px 100%,0 calc(100% - 50px));
 }
 
 .recent-container {
