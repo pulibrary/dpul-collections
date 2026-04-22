@@ -13,17 +13,6 @@ defmodule DpulCollectionsWeb.SearchLive do
     {:ok, socket}
   end
 
-  # We've searched before - split filters/items to speed things up.
-  def handle_params(params, _uri, socket = %{assigns: %{items: _items}}) do
-    socket = assign_search_state(socket, params)
-    search_state = socket.assigns.search_state
-
-    {:noreply,
-     socket
-     |> start_async(:fetch_filter_data, fn -> Solr.filter_data(search_state) end)
-     |> start_async(:fetch_results, fn -> Solr.search_results(search_state) end)}
-  end
-
   def handle_params(params, _uri, socket) do
     socket = assign_search_state(socket, params)
     search_state = socket.assigns.search_state
@@ -46,22 +35,6 @@ defmodule DpulCollectionsWeb.SearchLive do
      |> assign_new(
        :expanded_filter,
        fn -> nil end
-     )}
-  end
-
-  def handle_async(:fetch_filter_data, {:ok, filter_data}, socket) do
-    {:noreply,
-     socket
-     |> assign(filter_data: with_year_filter(filter_data))}
-  end
-
-  def handle_async(:fetch_results, {:ok, %{results: items, total_items: total_items}}, socket) do
-    {:noreply,
-     socket
-     |> assign(
-       item_counter: item_counter(socket.assigns.search_state, total_items),
-       items: items,
-       total_items: total_items
      )}
   end
 
