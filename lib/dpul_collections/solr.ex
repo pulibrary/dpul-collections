@@ -46,7 +46,6 @@ defmodule DpulCollections.Solr do
     "resource_type_s",
     "slug_s",
     "image_service_urls_ss",
-    "image_canvas_ids_ss",
     "primary_thumbnail_service_url_s",
     "digitized_at_dt",
     "format_txt_sort",
