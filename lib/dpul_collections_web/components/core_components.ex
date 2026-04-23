@@ -684,7 +684,6 @@ defmodule DpulCollectionsWeb.CoreComponents do
       >
         <input
           type="checkbox"
-          id={"#{@name}-#{option}"}
           name={@name}
           value={option}
           checked={String.downcase(option) in @case_insensitive_value}
