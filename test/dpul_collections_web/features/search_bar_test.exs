@@ -44,7 +44,7 @@ defmodule DpulCollectionsWeb.Features.SearchBarTest do
       |> assert_has(".phx-connected")
       |> assert_has("#search-button", text: "Search all", exact: true)
       |> assert_has("#collection-search-button")
-      |> click_button("Search in this Collection")
+      |> click_button("In this Collection")
       |> assert_has("section#filters", text: "Collection South Asian Ephemera")
     end
   end
