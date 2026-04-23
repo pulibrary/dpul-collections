@@ -332,23 +332,23 @@
 
 @utility subnav-diagonal-left {
   @apply pr-[70px];
-  clip-path: polygon(0 0, 100% 0, calc(100% - 50px) 100%, 0 100%, 0 100%);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 40px) 100%, 0 100%, 0 100%);
 }
 
 @utility subnav-diagonal-middle {
   @apply px-[70px];
-  @apply transform-[translateX(50px)];
-  clip-path: polygon(50px 0, 100% 0, calc(100% - 50px) 100%, 0 100%, 0 100%);
+  @apply transform-[translateX(40px)];
+  clip-path: polygon(40px 0, 100% 0, calc(100% - 40px) 100%, 0 100%, 0 100%);
 }
 
 @utility subnav-diagonal-right {
   @apply pl-[70px];
-  clip-path: polygon(50px 0, 100% 0, 100% 100%, 0 100%, 0 100%);
+  clip-path: polygon(40px 0, 100% 0, 100% 100%, 0 100%, 0 100%);
 }
 
 @utility subnav-diagonal-right-pair {
-  @apply max-md:transform-[translateX(-50px)];
-  @apply max-md:pr-[45px];
+  @apply max-md:transform-[translateX(-40px)];
+  @apply max-md:pr-[35px];
 }
 
 .diagonal-drop {
