@@ -197,6 +197,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             current_path={@current_path}
             current_scope={@current_scope}
             color=""
+            arrow_theme="light"
           >
           </.browse_item_row>
         </div>
@@ -255,6 +256,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             added?={true}
             current_path={@current_path}
             color=""
+            arrow_theme="light"
           >
             <p class="my-2">
               {gettext("Explore the latest additions to our growing collection for")} {@collection.title
