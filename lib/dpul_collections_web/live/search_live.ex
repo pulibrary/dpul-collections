@@ -332,8 +332,9 @@ defmodule DpulCollectionsWeb.SearchLive do
       </button>
 
       <div
+        :if={@expanded}
         id={"#{@field}-panel"}
-        class={["px-4 pb-4 border-t border-rust/10", @expanded && "expanded", !@expanded && "hidden"]}
+        class={["px-4 pb-4 border-t border-rust/10 expanded"]}
       >
         <.filter_input
           field={@field}
