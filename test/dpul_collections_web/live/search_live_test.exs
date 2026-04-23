@@ -576,7 +576,9 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
   test "filters aren't case sensitive", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/search?filter[format][]=FOLDERS")
 
-    assert view |> has_element?(".filter.format", "FOLDERS")
+    view
+    |> element("#format-panel-button", "Format")
+    |> render_click()
 
     assert view |> element("input[name='filter[format][]'][value='Folders']") |> render() =~
              "checked"
