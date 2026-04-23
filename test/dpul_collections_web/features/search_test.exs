@@ -21,6 +21,27 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
     |> refute_has("label", text: "Pamphlets")
   end
 
+  test "filters are retained when submitting form and tab is closed", %{conn: conn} do
+    Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+    Solr.soft_commit(active_collection())
+
+    conn
+    |> visit("/search?q=")
+    |> assert_has(".phx-connected")
+    |> click_button("Filters")
+    |> click_button("Format")
+    |> assert_has("label", text: "Pamphlets")
+    |> check("Pamphlets", exact: false)
+    |> click_button("Format")
+    |> click_button("View 5 results")
+    |> refute_has("#filter-modal")
+    |> click_button("Filters")
+    |> click_button("View 5 results")
+    |> assert_has("button.format.filter")
+
+    :timer.sleep(1000)
+  end
+
   test "search page is accessible", %{conn: conn} do
     Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
     Solr.soft_commit(active_collection())
