@@ -764,6 +764,24 @@ defmodule DpulCollectionsWeb.CoreComponents do
     """
   end
 
+  def input(%{type: "hidden", multiple: true, value: value} = assigns) when is_list(value) do
+    ~H"""
+    <input
+      :for={value <- @value || []}
+      type={@type}
+      name={@name}
+      id={@id}
+      value={Phoenix.HTML.Form.normalize_value(@type, value)}
+      {@rest}
+    />
+    """
+  end
+
+  def input(%{type: "hidden", multiple: true} = assigns) do
+    ~H"""
+    """
+  end
+
   # All other inputs text, datetime-local, url, password, etc. are handled here...
   def input(assigns) do
     ~H"""

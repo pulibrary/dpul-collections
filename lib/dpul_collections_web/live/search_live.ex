@@ -332,11 +332,11 @@ defmodule DpulCollectionsWeb.SearchLive do
       </button>
 
       <div
-        :if={@expanded}
         id={"#{@field}-panel"}
-        class={["px-4 pb-4 border-t border-rust/10 expanded"]}
+        class={["px-4 pb-4 border-t border-rust/10", @expanded && "expanded", !@expanded && "hidden"]}
       >
         <.filter_input
+          expanded={@expanded}
           field={@field}
           filter={@filter}
           filter_form={@filter_form}
@@ -408,6 +408,16 @@ defmodule DpulCollectionsWeb.SearchLive do
         {gettext("Apply Year Range")}
       </.primary_button>
     </div>
+    """
+  end
+
+  def filter_input(%{expanded: false} = assigns) do
+    ~H"""
+    <.input
+      type="hidden"
+      field={@filter_form[@field]}
+      multiple={true}
+    />
     """
   end
 
