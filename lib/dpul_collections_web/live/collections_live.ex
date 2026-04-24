@@ -85,7 +85,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
     >
       <div
         id="collection-page"
-        class="grid grid-flow-row auto-rows-max -mb-6 [&>*:nth-child(odd)]:bg-background [&>*:nth-child(even)]:bg-dark-gray [&>*:nth-child(even)]:text-light-text"
+        class="grid grid-flow-row auto-rows-max -mb-6 [&>*:nth-child(odd)]:bg-background [&>*:nth-child(even)]:bg-neutral-600 [&>*:nth-child(even)]:text-light-text"
       >
         <!-- Hero Section -->
         <div class="content-area relative">
@@ -197,6 +197,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             current_path={@current_path}
             current_scope={@current_scope}
             color=""
+            arrow_theme="light"
           >
           </.browse_item_row>
         </div>
@@ -255,6 +256,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             added?={true}
             current_path={@current_path}
             color=""
+            arrow_theme="light"
           >
             <p class="my-2">
               {gettext("Explore the latest additions to our growing collection for")} {@collection.title

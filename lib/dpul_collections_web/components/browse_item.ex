@@ -12,6 +12,8 @@ defmodule DpulCollectionsWeb.BrowseItem do
   attr :added?, :boolean, default: false
   attr :more_link, :string, default: nil
   attr :color, :string, default: "bg-primary-bright"
+  # can be light or dark
+  attr :arrow_theme, :string, default: "dark"
   attr :layout, :string, default: "content-area"
   attr :rest, :global
   attr :current_scope, :map, required: false, default: nil
@@ -49,7 +51,12 @@ defmodule DpulCollectionsWeb.BrowseItem do
               aria_label={gettext("more items")}
               navigate={@more_link}
             >
-              <div class="btn-arrow h-12 w-12"></div>
+              <div class={[
+                "btn-arrow h-12 w-12",
+                @arrow_theme == "dark" && "bg-accent",
+                @arrow_theme == "light" && "bg-primary-light"
+              ]}>
+              </div>
             </.transparent_button>
           </div>
         </div>

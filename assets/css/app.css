@@ -358,7 +358,7 @@
 }
 
 .btn-arrow {
-  @apply arrow bg-accent cursor-pointer;
+  @apply arrow cursor-pointer;
 }
 
 .corner-cut {
