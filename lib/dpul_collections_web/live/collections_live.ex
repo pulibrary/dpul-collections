@@ -212,12 +212,12 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             id="collection-summary"
             class="content-area grid grid-cols-1 md:grid-cols-3 items-baseline gap-6 font-serif"
           >
-            <div class="[&_a]:text-accent text-lg md:col-span-2">
+            <div class="[&_a]:text-accent text-lg row-2 md:col-span-2">
               <div class="collection-summary pb-6 flex flex-col gap-4 [&_h3]:heading [&_h3]:text-md">
                 {@collection.summary |> raw}
               </div>
             </div>
-            <div class="flex flex-col gap-6">
+            <div class="flex flex-col gap-6 row-1 md:row-2">
               <.pill_section
                 title={gettext("Subject Areas")}
                 unit="category"
