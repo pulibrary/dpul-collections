@@ -48,7 +48,7 @@ defmodule DpulCollections.Collection do
       slug: doc["authoritative_slug_s"],
       title: title,
       tagline: doc |> Map.get("tagline_txtm", []) |> Enum.at(0),
-      summary: doc |> Map.get("summary_txtm", []) |> Enum.at(0),
+      summary: doc |> Map.get("summary_txtm", []) |> Enum.at(0) |> process_summary(),
       item_count: summary.count,
       categories: summary.categories,
       formats: summary.formats,
@@ -59,6 +59,16 @@ defmodule DpulCollections.Collection do
       url: "/collections/#{doc["authoritative_slug_s"]}",
       contributors: get_contributors(doc["authoritative_slug_s"])
     }
+  end
+
+  defp process_summary(nil), do: nil
+
+  defp process_summary(summary) do
+    summary
+    # Take all <h# tags and replace them with h3
+    |> String.replace(~r/<([\/]?)h[0-9]/, "<\\1h3")
+    # Get id of <br> - let our page flow handle it.
+    |> String.replace("<br>", "")
   end
 
   def get_contributors("sae") do

@@ -189,7 +189,6 @@ Hooks.ResponsivePills = {
     // Don't recalculate if expanded
     if (this.isExpanded) return
 
-    const ul = this.el.querySelector('.group')
     const allPillItems = this.el.querySelectorAll('.pill-item')
     const pillItemArray = [...allPillItems]
 
@@ -197,11 +196,10 @@ Hooks.ResponsivePills = {
     allPillItems.forEach(item => item.classList.remove('hidden'))
     // The goal is get "more" to show up, so hide all of them from the end until
     // that happens.
-    const ulRectangle = ul.getBoundingClientRect()
     let removedCount = 0
+    let maxRemoveCount = pillItemArray.length - 5
     pillItemArray.reverse().forEach((pill) => {
-      let moreButtonRectangle = this.moreButton.getBoundingClientRect()
-      if(moreButtonRectangle.top > ulRectangle.bottom) {
+      if(removedCount < maxRemoveCount) {
         removedCount++
         pill.classList.add("hidden")
       } else {
