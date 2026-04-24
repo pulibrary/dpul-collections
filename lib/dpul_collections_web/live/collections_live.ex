@@ -30,9 +30,9 @@ defmodule DpulCollectionsWeb.CollectionsLive do
 
   defp pill_section(assigns) do
     ~H"""
-    <div :if={length(@items) > 0}>
-      <div class="flex items-center gap-3 mb-2">
-        <h2 id={"#{@container_id}-header"} class="heading text-sm">
+    <div :if={length(@items) > 0} class="flex flex-col gap-4">
+      <div class="flex items-center gap-3">
+        <h2 id={"#{@container_id}-header"} class="heading text-sm text-end">
           {@title}
         </h2>
       </div>
@@ -212,7 +212,12 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             id="collection-summary"
             class="content-area grid grid-cols-1 md:grid-cols-3 items-baseline gap-6 font-serif"
           >
-            <div class="col-1 md:col-2 md:col-span-1 flex flex-col gap-6">
+            <div class="[&_a]:text-accent text-lg md:col-span-2">
+              <div class="collection-summary pb-6 flex flex-col gap-4 [&_h3]:heading [&_h3]:text-md">
+                {@collection.summary |> raw}
+              </div>
+            </div>
+            <div class="flex flex-col gap-6">
               <.pill_section
                 title={gettext("Subject Areas")}
                 unit="category"
@@ -232,11 +237,6 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 button_class="bg-cloud/80 hover:bg-cloud/60"
                 collection_title={@collection.title |> hd}
               />
-            </div>
-            <div class="[&_a]:text-accent w-full text-lg row-2 md:row-1 md:col-1 md:col-span-2">
-              <div class="collection-summary leading-relaxed pb-6">
-                {@collection.summary |> raw}
-              </div>
             </div>
           </div>
         </div>

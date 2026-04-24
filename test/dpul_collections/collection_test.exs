@@ -25,6 +25,17 @@ defmodule DpulCollections.CollectionTest do
 
       assert length(collection.recently_added) == 1
     end
+
+    test "converts headings" do
+      FiggyTestSupport.index_record_id_directly("f99af4de-fed4-4baa-82b1-6e857b230306")
+      Solr.soft_commit()
+
+      collection = Collection.from_slug("sae")
+
+      assert collection.summary =~ "<h3"
+      assert collection.summary =~ "</h3"
+      refute collection.summary =~ "<br>"
+    end
   end
 
   describe ".get_contributors/1" do
