@@ -3,10 +3,12 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
   use DpulCollections.DataCase
 
   alias DpulCollections.Repo
+  alias DpulCollections.FiggyRepo
   alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline.AckTracker
   alias DpulCollections.{IndexingPipeline, Solr, IndexMetricsTracker}
   import SolrTestSupport
+  import Mock
 
   setup do
     Solr.delete_all(active_collection())
@@ -474,6 +476,95 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       # Tagline
       assert %{"tagline_txtm" => [first_tagline | _tail]} = document
       assert first_tagline |> String.starts_with?("Manuscripts of the Islamic World") == true
+    end
+  end
+
+  @tag capture_log: true
+  test "a full pipeline run there are database errors" do
+    FiggyTestSupport.make_broadway_parallel()
+
+    with_mocks [
+      {FiggyRepo, [:passthrough],
+       all: [
+         in_series([:_], [
+           fn _ -> raise(DBConnection.ConnectionError, "closed") end,
+           fn query -> passthrough([query]) end
+         ])
+       ]},
+      {Repo, [:passthrough],
+       all: [
+         in_series([:_], [
+           fn _ -> raise(DBConnection.ConnectionError, "closed") end,
+           fn query -> passthrough([query]) end
+         ])
+       ],
+       insert: [
+         in_series([:_, :_], [
+           fn _, _ -> raise(DBConnection.ConnectionError, "closed") end,
+           fn changeset, ops -> passthrough([changeset, ops]) end
+         ])
+       ]}
+    ] do
+      {:ok, tracker_pid} = GenServer.start_link(AckTracker, self())
+      AckTracker.reset_count!(tracker_pid)
+      # Start the figgy pipeline in a way that mimics how it is started in
+      # dev and prod (slightly simplified)
+      cache_version = 1
+
+      {:ok, tracker_pid} = GenServer.start_link(AckTracker, self())
+
+      children = [
+        {Figgy.IndexingConsumer,
+         cache_version: cache_version, batch_size: 50, solr_index: active_collection()},
+        {Figgy.TransformationConsumer, cache_version: cache_version, batch_size: 50},
+        {Figgy.HydrationConsumer, cache_version: cache_version, batch_size: 50}
+      ]
+
+      Enum.each(children, fn child ->
+        start_supervised(child)
+      end)
+
+      # Need a little sleep so the first query isn't from AckTracker.
+      :timer.sleep(50)
+      AckTracker.wait_for_pipeline_finished(tracker_pid)
+
+      # The hydrator pulled all ephemera folders, terms, deletion markers and
+      # removed the hydration cache markers for the deletion marker deleted resource.
+      # It also has 3 ephemera projects and 1 collection.
+      entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
+      scanned_resource_fixture_count = 5
+
+      assert FiggyTestSupport.total_resource_count() + scanned_resource_fixture_count ==
+               entry_count
+
+      # The transformer processed ephemera folders, deletion markers,
+      # ephemera projects, scanned resources, and collections; then
+      # removed the transformation cache markers for the deletion marker deleted resource.
+      transformation_cache_entry_count = Repo.aggregate(Figgy.TransformationCacheEntry, :count)
+      deletion_marker_count = FiggyTestSupport.deletion_marker_count()
+
+      total_transformed_count =
+        FiggyTestSupport.ephemera_folder_count() + deletion_marker_count +
+          scanned_resource_fixture_count
+
+      # Empty resources are resources with no image file sets
+      empty_resource_count = 1
+
+      assert total_transformed_count == transformation_cache_entry_count
+
+      # indexed all the documents
+      assert Solr.document_count() + 1 == transformation_cache_entry_count
+
+      # Ensure that the processor markers have the correct cache version
+      hydration_processor_marker = IndexingPipeline.get_processor_marker!("figgy_hydrator", 1)
+
+      transformation_processor_marker =
+        IndexingPipeline.get_processor_marker!("figgy_transformer", 1)
+
+      indexing_processor_marker = IndexingPipeline.get_processor_marker!("figgy_indexer", 1)
+      assert hydration_processor_marker.cache_version == 1
+      assert transformation_processor_marker.cache_version == 1
+      assert indexing_processor_marker.cache_version == 1
     end
   end
 end
