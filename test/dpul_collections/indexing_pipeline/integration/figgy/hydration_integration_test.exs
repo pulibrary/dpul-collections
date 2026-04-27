@@ -82,7 +82,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     hydrator |> Broadway.stop(:normal)
   end
 
-  test "hydration cache entry creation" do
+  test "figgy combined resource creation" do
     {marker1, _marker2, _marker3} = FiggyTestFixtures.markers()
     hydrator = start_producer()
 
@@ -102,7 +102,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     hydrator |> Broadway.stop(:normal)
   end
 
-  test "hydration cache entry creation with cache_version > 0" do
+  test "figgy combined resource creation with cache_version > 0" do
     {marker1, _marker2, _marker3} = FiggyTestFixtures.markers()
     cache_version = 1
     hydrator = start_producer(cache_version)
@@ -127,7 +127,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
   end
 
   test "doesn't override newer hydration cache entries" do
-    # Create a hydration cache entry for a record that has a source_cache_order
+    # Create a figgy combined resource for a record that has a source_cache_order
     # in the future.
     IndexingPipeline.write_figgy_combined_resource(%{
       cache_version: 0,
@@ -143,7 +143,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     MockFiggyHydrationProducer.process(1)
     assert_receive({:ack_status, %{"figgy_hydrator" => %{0 => %{acked_count: 1}}}}, 1_000)
     hydrator |> Broadway.stop(:normal)
-    # Ensure there's only one hydration cache entry.
+    # Ensure there's only one figgy combined resource.
     entries = IndexingPipeline.list_combined_figgy_resources()
     assert length(entries) == 1
     # Ensure that entry has the source_cache_order we set at the beginning.
@@ -152,7 +152,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
   end
 
   test "updates existing hydration cache entries" do
-    # Create a hydration cache entry for a record that has a source_cache_order
+    # Create a figgy combined resource for a record that has a source_cache_order
     # in the past.
     IndexingPipeline.write_figgy_combined_resource(%{
       cache_version: 0,
@@ -168,7 +168,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     MockFiggyHydrationProducer.process(1)
     assert_receive({:ack_status, %{"figgy_hydrator" => %{0 => %{acked_count: 1}}}}, 1_000)
     hydrator |> Broadway.stop(:normal)
-    # Ensure there's only one hydration cache entry.
+    # Ensure there's only one figgy combined resource.
     entries = IndexingPipeline.list_combined_figgy_resources()
     assert length(entries) == 1
     # Ensure that entry has an updated source_cache_order

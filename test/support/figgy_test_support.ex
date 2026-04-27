@@ -87,7 +87,7 @@ defmodule FiggyTestSupport do
     figgy_combined_resource =
       IndexingPipeline.get_figgy_combined_resource!(cache_entry.id)
       # Add a member_id so to_solr_document won't return a deletion marker and
-      # can index - but we don't want that in the hydration cache entry, because
+      # can index - but we don't want that in the figgy combined resource, because
       # that makes hydration cache entries where a bunch of records have the
       # same file set.
       |> put_in([Access.key(:resource), Access.key("metadata")], record.metadata)

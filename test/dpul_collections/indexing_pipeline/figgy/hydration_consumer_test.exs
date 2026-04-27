@@ -131,7 +131,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         }
       }
 
-      # DeletionMarker that corresponds to a resource with a hydration cache entry
+      # DeletionMarker that corresponds to a resource with a figgy combined resource
       ephemera_folder_deletion_marker_message = %Broadway.Message{
         acknowledger: nil,
         data: %Figgy.Resource{
@@ -143,7 +143,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         }
       }
 
-      # DeletionMarker that does not correspond to a resource with a hydration cache entry
+      # DeletionMarker that does not correspond to a resource with a figgy combined resource
       orphaned_deletion_marker_message1 = %Broadway.Message{
         acknowledger: nil,
         data: %Figgy.Resource{
@@ -155,7 +155,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         }
       }
 
-      # DeletionMarker that does not correspond to a resource with a hydration cache entry
+      # DeletionMarker that does not correspond to a resource with a figgy combined resource
       orphaned_deletion_marker_message2 = %Broadway.Message{
         acknowledger: nil,
         data: %Figgy.Resource{
@@ -167,7 +167,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         }
       }
 
-      # Create a hydration cache entry from an ephemera folder message
+      # Create a figgy combined resource from an ephemera folder message
       create_messages =
         [ephemera_folder_message]
         |> Enum.map(&Figgy.HydrationConsumer.handle_message(nil, &1, %{cache_version: 1}))
@@ -184,7 +184,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         |> Enum.map(&Figgy.HydrationConsumer.handle_message(nil, &1, %{cache_version: 1}))
 
       # Only the deletion marker message that has a corresponding resource with
-      # an exisiting hydration cache entry is handled by the default batcher.
+      # an exisiting figgy combined resource is handled by the default batcher.
       batchers = delete_messages |> Enum.map(&Map.get(&1, :batcher))
       assert batchers == [:default, :noop, :noop]
 
@@ -193,8 +193,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         cache_version: 1
       })
 
-      # A transformed hydration cache entry is created which replaces the
-      # existing ephemera folder hydration cache entry. It's metadata field
+      # A transformed figgy combined resource is created which replaces the
+      # existing ephemera folder figgy combined resource. It's metadata field
       # only has the value `deleted` set to true. This signals the
       # transformation consumer to create a transformation cache entry with a
       # solr record that indicates it should be deleted from the index.
@@ -277,7 +277,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         }
       }
 
-      # Create a hydration cache entry from ephemera folder messages
+      # Create a figgy combined resource from ephemera folder messages
       create_messages =
         [ephemera_folder_message_1, ephemera_folder_message_2]
         |> Enum.map(&Figgy.HydrationConsumer.handle_message(nil, &1, %{cache_version: 1}))
@@ -294,8 +294,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
 
       Figgy.HydrationConsumer.handle_batch(:default, messages, nil, %{cache_version: 1})
 
-      # A transformed hydration cache entry is created which replaces an
-      # existing ephemera folder's hydration cache entry. It's metadata field
+      # A transformed figgy combined resource is created which replaces an
+      # existing ephemera folder's figgy combined resource. It's metadata field
       # only has the value `deleted` set to true. This signals the
       # transformation consumer to create a transformation cache entry with a
       # solr record that indicates it should be deleted from the index.
@@ -352,7 +352,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
 
       file_set = IndexingPipeline.get_figgy_resource!("c42bca4b-02c9-44ad-b6bd-132ab27a8986")
 
-      # Create a hydration cache entry from ephemera folder messages
+      # Create a figgy combined resource from ephemera folder messages
       create_messages =
         [ephemera_folder_message]
         |> Enum.map(&Figgy.HydrationConsumer.handle_message(nil, &1, %{cache_version: 1}))
@@ -446,7 +446,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         data: updated_ephemera_term_resource
       }
 
-      # Create a hydration cache entry from ephemera folder messages
+      # Create a figgy combined resource from ephemera folder messages
       create_messages =
         [ephemera_folder_message]
         |> Enum.map(&Figgy.HydrationConsumer.handle_message(nil, &1, %{cache_version: 1}))
@@ -546,7 +546,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         data: updated_file_set_resource
       }
 
-      # Create a hydration cache entry from ephemera folder messages
+      # Create a figgy combined resource from ephemera folder messages
       create_messages =
         [ephemera_folder_message]
         |> Enum.map(&Figgy.HydrationConsumer.handle_message(nil, &1, %{cache_version: 1}))
@@ -628,7 +628,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         data: updated_ephemera_box_resource
       }
 
-      # Create a hydration cache entry from ephemera folder messages
+      # Create a figgy combined resource from ephemera folder messages
       create_messages =
         [ephemera_folder_message]
         |> Enum.map(&Figgy.HydrationConsumer.handle_message(nil, &1, %{cache_version: 1}))
@@ -721,7 +721,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         data: updated_ephemera_project_resource
       }
 
-      # Create a hydration cache entry from ephemera folder messages
+      # Create a figgy combined resource from ephemera folder messages
       create_messages =
         [ephemera_folder_message]
         |> Enum.map(&Figgy.HydrationConsumer.handle_message(nil, &1, %{cache_version: 1}))

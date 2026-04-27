@@ -22,7 +22,7 @@ defmodule DpulCollections.IndexingPipeline.Coherence do
   end
 
   # Check the processor marker for the most recently indexed record.
-  # Get the figgy timestamp for that record from its hydration cache entry.
+  # Get the figgy timestamp for that record from its figgy combined resource.
   defp index_progress_summary(%{cache_version: cache_version}) do
     marker = IndexingPipeline.get_processor_marker!("figgy_indexer", cache_version)
 

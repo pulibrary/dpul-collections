@@ -43,7 +43,7 @@ defmodule DpulCollections.IndexingPipeline.AckTracker do
   end
 
   def wait_for_transformer(tracker_pid, cache_version) do
-    # Get the last hydration cache entry
+    # Get the last figgy combined resource
     hydration_marker =
       IndexingPipeline.get_combined_figgy_resources_since!(nil, 10_000, 1)
       |> Enum.at(-1)

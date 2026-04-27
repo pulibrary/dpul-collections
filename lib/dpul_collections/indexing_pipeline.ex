@@ -26,7 +26,7 @@ defmodule DpulCollections.IndexingPipeline do
   @doc """
   Gets a single figgy_combined_resource.
 
-  Raises `Ecto.NoResultsError` if the Hydration cache entry does not exist.
+  Raises `Ecto.NoResultsError` if the figgy combined resource does not exist.
 
   ## Examples
 
@@ -406,7 +406,7 @@ defmodule DpulCollections.IndexingPipeline do
   @doc """
   Gets a single transformation_cache_entry.
 
-  Raises `Ecto.NoResultsError` if the Hydration cache entry does not exist.
+  Raises `Ecto.NoResultsError` if the figgy combined resource does not exist.
 
   ## Examples
 
