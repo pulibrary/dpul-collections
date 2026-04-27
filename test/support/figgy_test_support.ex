@@ -71,7 +71,7 @@ defmodule FiggyTestSupport do
     marker = IndexingPipeline.DatabaseProducer.CacheEntryMarker.from(record)
 
     cache_attrs =
-      Figgy.Resource.Processor.process(record, 1)
+      Figgy.Resource.to_combined(record)
       |> Figgy.Resource.Processor.figgy_combined_resource_attributes(1)
 
     {:ok, cache_entry} =

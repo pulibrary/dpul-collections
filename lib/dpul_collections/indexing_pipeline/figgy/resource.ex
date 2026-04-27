@@ -57,7 +57,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
       ) do
     result =
       Figgy.Resource.Processor.process(resource, cache_version)
-      |> Figgy.Resource.Processor.persist(cache_version)
   end
 
   @spec to_combined(%__MODULE__{}) :: %Figgy.CombinedFiggyResource{}

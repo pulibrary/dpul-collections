@@ -11,7 +11,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
       # This is "Washo", which we don't have anything labeled with in our test
       # set.
       ephemera_term = IndexingPipeline.get_figgy_resource!("1ebf9915-d865-4dc0-8f6f-56e19ce07248")
-      assert {:skip, _} = Figgy.HydrationConsumer.process(ephemera_term, 1)
+      assert {:error, _} = Figgy.Resource.Processor.process(ephemera_term, 1)
     end
 
     test "handle_message/3 when a message is not a complete and visible EphemeraFolder, it is sent to noop batcher" do

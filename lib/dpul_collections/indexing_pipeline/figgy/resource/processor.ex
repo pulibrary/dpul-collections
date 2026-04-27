@@ -24,16 +24,16 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource.Processor do
   @indexable_resource_types ResourceTypeRegistry.indexable_types()
   @related_record_types ResourceTypeRegistry.related_record_types()
   def process(resource, cache_version) do
-         # Determine early on if we're deleting, skipping, or updating.
-    with {:ok, classified_resources} <- initial_classification(resource, cache_version),
+    # Determine early on if we're deleting, skipping, or updating.
+    with {:ok, classified_resources} <- initial_classification([resource], cache_version),
          # Add extra data
          {:ok, enriched_resources} <- enrich(classified_resources, cache_version),
          # Determine if after enrichment we should continue updating, delete, or skip.
-         {:ok, final_resources) <- post_classification(cache_version),
-         filtered_resources <- Enum.filter(final_resources, fn(resource) -> resource != nil end)
-    do
-      {:ok, persisted_resources} <- persist(persisted_resources)
+         {:ok, final_resources} <- post_classification(enriched_resources, cache_version),
+         {:ok, persisted_resources} <- persist(final_resources, cache_version) do
+      {:ok, persisted_resources}
     end
+
     # resource
     # |> initial_classification(cache_version)
     # |> enrich(cache_version)
@@ -42,6 +42,20 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource.Processor do
 
   @spec initial_classification(resource :: %Figgy.Resource{}, cache_version :: integer) ::
           process_return()
+  def initial_classification(resources, cache_version) when is_list(resources) do
+    classifications =
+      resources
+      |> Enum.map(&initial_classification(&1, cache_version))
+      |> Enum.filter(&match?({:ok, _}, &1))
+      |> Enum.map(fn {:ok, resources} -> resources end)
+      |> List.flatten()
+
+    case classifications do
+      [] -> {:error, nil}
+      _ -> {:ok, classifications}
+    end
+  end
+
   def initial_classification(resource = %Figgy.Resource{id: id}, cache_version) do
     case resource do
       # Process open/complete indexable resources (EphemeraFolder, ScannedResource).
@@ -55,7 +69,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource.Processor do
         if ResourceTypeRegistry.allowed_collection?(id) do
           {:ok, {:update, resource}}
         else
-          {:error, {:skip, resource}}
+          {:error, :skip}
         end
 
       # Projects need to both update and get related.
@@ -74,7 +88,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource.Processor do
         if existing_resource do
           {:ok, {:delete, resource}}
         else
-          {:error, {:skip, resource}}
+          {:error, :skip}
         end
 
       # Delete resources with DeletionMarkers if they're cached, otherwise skip.
@@ -90,11 +104,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource.Processor do
         if existing_resource do
           {:ok, {:delete, resource}}
         else
-          {:error, {:skip, resource}}
+          {:error, :skip}
         end
 
       _ ->
-        {:error, {:skip, resource}}
+        {:error, :skip}
     end
   end
 
@@ -115,8 +129,17 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource.Processor do
 
   # If we got a list of them, enrich each one.
   def enrich(process_list = [{_, _} | _], cache_version) do
-    process_list
-    |> Enum.map(&enrich(&1, cache_version))
+    classifications =
+      process_list
+      |> Enum.map(&enrich(&1, cache_version))
+      |> Enum.filter(&match?({:ok, _}, &1))
+      |> Enum.map(fn {:ok, resources} -> resources end)
+      |> List.flatten()
+
+    case classifications do
+      [] -> {:error, nil}
+      _ -> {:ok, classifications}
+    end
   end
 
   # If it's a related resource, get ids of all records dependent on this one
@@ -135,10 +158,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource.Processor do
         cache_version
       )
 
-    {
-      :update_related,
-      related_record_ids
-    }
+    {:ok,
+     {
+       :update_related,
+       related_record_ids
+     }}
   end
 
   # We don't have the full resource yet, fetch it and re-enrich.
@@ -149,7 +173,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource.Processor do
   # Resources we're updating need to become combined figgy resources.
   def enrich({:update, resource}, _cache_version) do
     combined_resource = Figgy.Resource.to_combined(resource)
-    {:update, combined_resource}
+    {:ok, {:update, combined_resource}}
   end
 
   # Deletion markers need to become DeletionRecords
@@ -162,29 +186,40 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource.Processor do
          }},
         _cache_version
       ) do
-    {:delete,
-     %Figgy.DeletionRecord{
-       marker: CacheEntryMarker.from(resource),
-       internal_resource: resource_type,
-       id: resource_id
-     }}
+    {:ok,
+     {:delete,
+      %Figgy.DeletionRecord{
+        marker: CacheEntryMarker.from(resource),
+        internal_resource: resource_type,
+        id: resource_id
+      }}}
   end
 
   # Deleted resources need to become DeletionRecords
   def enrich({:delete, resource = %Figgy.Resource{}}, _cache_version) do
-    {:delete,
-     %Figgy.DeletionRecord{
-       marker: CacheEntryMarker.from(resource),
-       internal_resource: resource.internal_resource,
-       id: resource.id
-     }}
+    {:ok,
+     {:delete,
+      %Figgy.DeletionRecord{
+        marker: CacheEntryMarker.from(resource),
+        internal_resource: resource.internal_resource,
+        id: resource.id
+      }}}
   end
 
-  def enrich(resource_and_classification, _cache_version), do: resource_and_classification
+  def enrich(resource_and_classification, _cache_version), do: {:ok, resource_and_classification}
 
   def post_classification(process_list = [{_, _} | _], cache_version) do
-    process_list
-    |> Enum.map(&post_classification(&1, cache_version))
+    classifications =
+      process_list
+      |> Enum.map(&post_classification(&1, cache_version))
+      |> Enum.filter(&match?({:ok, _}, &1))
+      |> Enum.map(fn {:ok, resources} -> resources end)
+      |> List.flatten()
+
+    case classifications do
+      [] -> {:error, nil}
+      _ -> {:ok, classifications}
+    end
   end
 
   # Published ephemera projects go through.
@@ -202,21 +237,22 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource.Processor do
       ) do
     case metadata do
       %{"publish" => ["1"]} ->
-        {:update, resource}
+        {:ok, {:update, resource}}
 
       _ ->
         # Delete if we've seen the project before.
         existing_resource = IndexingPipeline.get_figgy_combined_resource!(id, cache_version)
 
         if existing_resource do
-          {:delete,
-           %Figgy.DeletionRecord{
-             marker: marker,
-             internal_resource: resource.resource.internal_resource,
-             id: id
-           }}
+          {:ok,
+           {:delete,
+            %Figgy.DeletionRecord{
+              marker: marker,
+              internal_resource: resource.resource.internal_resource,
+              id: id
+            }}}
         else
-          {:skip, resource}
+          {:error, :skip}
         end
     end
   end
@@ -231,7 +267,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource.Processor do
          }},
         _cache_version
       ) do
-    {:update, resource}
+    {:ok, {:update, resource}}
   end
 
   # Every other ephemera project does not.
@@ -249,30 +285,36 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource.Processor do
          }},
         _cache_version
       ) do
-    {:delete,
-     %Figgy.DeletionRecord{
-       marker: marker,
-       internal_resource: resource.internal_resource,
-       id: resource.id
-     }}
+    {:ok,
+     {:delete,
+      %Figgy.DeletionRecord{
+        marker: marker,
+        internal_resource: resource.internal_resource,
+        id: resource.id
+      }}}
   end
 
   # A related resource returned an empty list, skip.
   def post_classification({:update_related, []}, _cache_version) do
-    {:skip, []}
+    {:error, :skip}
   end
 
   def post_classification(resource_and_classification, _cache_version),
-    do: resource_and_classification
+    do: {:ok, resource_and_classification}
 
   # If we're passed a bunch of process_returns, iterate.
   def persist(action_list = [{_, _} | _], cache_version) do
-    action_list
-    |> Enum.each(&persist(&1, cache_version))
+    classifications =
+      action_list
+      |> Enum.map(&persist(&1, cache_version))
+      |> Enum.filter(&match?({:ok, _}, &1))
+      |> Enum.map(fn {:ok, resources} -> resources end)
+      |> List.flatten()
 
-    # Return the action_list with data stripped..
-    action_list
-    |> Enum.map(fn {action, _} -> {action, nil} end)
+    case classifications do
+      [] -> {:error, nil}
+      _ -> {:ok, nil}
+    end
   end
 
   # If we're passed several IDs, process them in order and persist.
@@ -288,7 +330,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource.Processor do
       |> persist(cache_version)
     end)
 
-    update
+    {:ok, update}
   end
 
   def persist(process_return = {action, _resource}, cache_version)
@@ -298,7 +340,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource.Processor do
     {:ok, _response} = IndexingPipeline.write_figgy_combined_resource(attributes)
   end
 
-  def persist({:skip, _}, _cache_version), do: {:skip, nil}
+  def persist({:skip, _}, _cache_version), do: {:error, nil}
 
   @spec figgy_combined_resource_attributes(
           %Figgy.DeletionRecord{} | %Figgy.CombinedFiggyResource{},
