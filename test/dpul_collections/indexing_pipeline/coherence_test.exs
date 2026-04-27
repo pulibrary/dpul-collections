@@ -5,8 +5,8 @@ defmodule DpulCollections.IndexingPipeline.CoherenceTest do
   alias DpulCollections.IndexingPipeline.Coherence
 
   test "index_parity?/0 is false when the old index is fresher than the new index" do
-    {marker1, marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers(1)
-    FiggyTestFixtures.hydration_cache_markers(2)
+    {marker1, marker2, _marker3} = FiggyTestFixtures.combined_figgy_resource_markers(1)
+    FiggyTestFixtures.combined_figgy_resource_markers(2)
 
     IndexingPipeline.write_processor_marker(%{
       type: "figgy_indexer",
@@ -26,8 +26,8 @@ defmodule DpulCollections.IndexingPipeline.CoherenceTest do
   end
 
   test "index_parity?/0 is true when the new index is fresher than the old index" do
-    {marker1, marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers(1)
-    FiggyTestFixtures.hydration_cache_markers(2)
+    {marker1, marker2, _marker3} = FiggyTestFixtures.combined_figgy_resource_markers(1)
+    FiggyTestFixtures.combined_figgy_resource_markers(2)
 
     IndexingPipeline.write_processor_marker(%{
       type: "figgy_indexer",
@@ -47,8 +47,8 @@ defmodule DpulCollections.IndexingPipeline.CoherenceTest do
   end
 
   test "index_parity?/0 is true when the new index and the old index have equal freshness" do
-    {marker1, _marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers(1)
-    FiggyTestFixtures.hydration_cache_markers(2)
+    {marker1, _marker2, _marker3} = FiggyTestFixtures.combined_figgy_resource_markers(1)
+    FiggyTestFixtures.combined_figgy_resource_markers(2)
 
     IndexingPipeline.write_processor_marker(%{
       type: "figgy_indexer",

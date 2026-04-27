@@ -8,7 +8,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducerTest do
 
   describe "DatabaseProducer" do
     test "handle_demand/2 with initial state and demand > 1 returns hydration cache entries" do
-      {marker1, marker2, marker3} = FiggyTestFixtures.hydration_cache_markers()
+      {marker1, marker2, marker3} = FiggyTestFixtures.combined_figgy_resource_markers()
 
       {:producer, initial_state} = DatabaseProducer.init({Figgy.TransformationProducerSource, 0})
 
@@ -16,7 +16,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducerTest do
         DatabaseProducer.handle_demand(2, initial_state)
 
       ids =
-        Enum.map(messages, fn %Broadway.Message{data: %Figgy.HydrationCacheEntry{record_id: id}} ->
+        Enum.map(messages, fn %Broadway.Message{data: %Figgy.CombinedResource{record_id: id}} ->
           id
         end)
 
@@ -37,7 +37,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducerTest do
     end
 
     test "handle_demand/2 with consecutive state returns a new record" do
-      {marker1, marker2, marker3} = FiggyTestFixtures.hydration_cache_markers()
+      {marker1, marker2, marker3} = FiggyTestFixtures.combined_figgy_resource_markers()
 
       {:producer, initial_state} = DatabaseProducer.init({Figgy.TransformationProducerSource, 0})
 
@@ -58,7 +58,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducerTest do
         DatabaseProducer.handle_demand(1, initial_state)
 
       ids =
-        Enum.map(messages, fn %Broadway.Message{data: %Figgy.HydrationCacheEntry{record_id: id}} ->
+        Enum.map(messages, fn %Broadway.Message{data: %Figgy.CombinedResource{record_id: id}} ->
           id
         end)
 
@@ -78,10 +78,10 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducerTest do
     end
 
     test "handle_demand/2 when the query returns no records" do
-      {_marker1, _marker2, marker3} = FiggyTestFixtures.hydration_cache_markers()
+      {_marker1, _marker2, marker3} = FiggyTestFixtures.combined_figgy_resource_markers()
 
       # Move last_queried marker to a marker 200 years in the future.
-      marker3_cache_entry = IndexingPipeline.list_hydration_cache_entries() |> hd
+      marker3_cache_entry = IndexingPipeline.list_combined_figgy_resources() |> hd
 
       fabricated_marker = %CacheEntryMarker{
         timestamp: DateTime.add(marker3_cache_entry.cache_order, 356 * 10, :day),
@@ -116,7 +116,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducerTest do
 
     test "handle_info/2 with database producer ack, acknowledging first and third record" do
       cache_version = 1
-      {marker1, marker2, marker3} = FiggyTestFixtures.hydration_cache_markers(cache_version)
+      {marker1, marker2, marker3} = FiggyTestFixtures.combined_figgy_resource_markers(cache_version)
 
       {:producer, initial_state} = DatabaseProducer.init({Figgy.TransformationProducerSource, 0})
 
@@ -134,7 +134,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducerTest do
           stored_demand: 0
         })
 
-      acked_hydration_cache_markers =
+      acked_combined_figgy_resource_markers =
         [
           marker1,
           marker3
@@ -143,7 +143,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducerTest do
 
       {:noreply, [], new_state} =
         DatabaseProducer.handle_info(
-          {:ack, :database_producer_ack, acked_hydration_cache_markers},
+          {:ack, :database_producer_ack, acked_combined_figgy_resource_markers},
           initial_state
         )
 
@@ -169,11 +169,11 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducerTest do
              }
 
       initial_state = new_state
-      acked_hydration_cache_markers = [marker2]
+      acked_combined_figgy_resource_markers = [marker2]
 
       {:noreply, [], new_state} =
         DatabaseProducer.handle_info(
-          {:ack, :database_producer_ack, acked_hydration_cache_markers},
+          {:ack, :database_producer_ack, acked_combined_figgy_resource_markers},
           initial_state
         )
 
@@ -195,7 +195,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducerTest do
     end
 
     test "handle_info/2 with database producer ack, nothing to acknowledge" do
-      {marker1, marker2, marker3} = FiggyTestFixtures.hydration_cache_markers(1)
+      {marker1, marker2, marker3} = FiggyTestFixtures.combined_figgy_resource_markers(1)
 
       {:producer, initial_state} = DatabaseProducer.init({Figgy.TransformationProducerSource, 0})
 
@@ -213,7 +213,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducerTest do
           stored_demand: 0
         })
 
-      acked_hydration_cache_markers =
+      acked_combined_figgy_resource_markers =
         [
           marker2
         ]
@@ -221,7 +221,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducerTest do
 
       {:noreply, [], new_state} =
         DatabaseProducer.handle_info(
-          {:ack, :database_producer_ack, acked_hydration_cache_markers},
+          {:ack, :database_producer_ack, acked_combined_figgy_resource_markers},
           initial_state
         )
 
@@ -244,7 +244,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducerTest do
     end
 
     test "handle_info/2 with database producer ack, empty pulled_records" do
-      {marker1, _marker2, marker3} = FiggyTestFixtures.hydration_cache_markers(1)
+      {marker1, _marker2, marker3} = FiggyTestFixtures.combined_figgy_resource_markers(1)
 
       {:producer, initial_state} = DatabaseProducer.init({Figgy.TransformationProducerSource, 0})
 
@@ -258,7 +258,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducerTest do
           stored_demand: 0
         })
 
-      acked_hydration_cache_markers =
+      acked_combined_figgy_resource_markers =
         [
           marker1
         ]
@@ -266,7 +266,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducerTest do
 
       {:noreply, [], new_state} =
         DatabaseProducer.handle_info(
-          {:ack, :database_producer_ack, acked_hydration_cache_markers},
+          {:ack, :database_producer_ack, acked_combined_figgy_resource_markers},
           initial_state
         )
 
@@ -283,7 +283,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducerTest do
     end
 
     test "handle_info/2 with database producer ack, duplicate ack records" do
-      {marker1, marker2, marker3} = FiggyTestFixtures.hydration_cache_markers(1)
+      {marker1, marker2, marker3} = FiggyTestFixtures.combined_figgy_resource_markers(1)
 
       {:producer, initial_state} = DatabaseProducer.init({Figgy.TransformationProducerSource, 0})
 
@@ -302,7 +302,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducerTest do
           stored_demand: 0
         })
 
-      acked_hydration_cache_markers =
+      acked_combined_figgy_resource_markers =
         [
           marker2
         ]
@@ -310,7 +310,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducerTest do
 
       {:noreply, [], new_state} =
         DatabaseProducer.handle_info(
-          {:ack, :database_producer_ack, acked_hydration_cache_markers},
+          {:ack, :database_producer_ack, acked_combined_figgy_resource_markers},
           initial_state
         )
 
@@ -332,7 +332,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducerTest do
     end
 
     test "handle_info/2 with database producer ack, acking after crash and respawn" do
-      {marker1, marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers(1)
+      {marker1, marker2, _marker3} = FiggyTestFixtures.combined_figgy_resource_markers(1)
 
       # Producer sent out marker1 then crashed, started again, then sent out
       # marker1 and marker2.

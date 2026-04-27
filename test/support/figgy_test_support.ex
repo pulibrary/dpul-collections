@@ -72,35 +72,35 @@ defmodule FiggyTestSupport do
 
     cache_attrs =
       Figgy.HydrationConsumer.process(record, 1)
-      |> Figgy.HydrationConsumer.hydration_cache_attributes(1)
+      |> Figgy.HydrationConsumer.figgy_combined_resource_attributes(1)
 
     {:ok, cache_entry} =
-      IndexingPipeline.write_hydration_cache_entry(%{
+      IndexingPipeline.write_figgy_combined_resource(%{
         cache_version: cache_version,
         record_id: marker.id,
         related_ids: cache_attrs.related_ids,
         source_cache_order: marker.timestamp,
         source_cache_order_record_id: marker.id,
-        data: cache_attrs.data
+        resource: cache_attrs.resource
       })
 
-    hydration_cache_entry =
-      IndexingPipeline.get_hydration_cache_entry!(cache_entry.id)
+    figgy_combined_resource =
+      IndexingPipeline.get_figgy_combined_resource!(cache_entry.id)
       # Add a member_id so to_solr_document won't return a deletion marker and
       # can index - but we don't want that in the hydration cache entry, because
       # that makes hydration cache entries where a bunch of records have the
       # same file set.
-      |> put_in([Access.key(:data), Access.key("metadata")], record.metadata)
-      |> put_in([Access.key(:data), Access.key("metadata"), Access.key("member_ids")], [
+      |> put_in([Access.key(:resource), Access.key("metadata")], record.metadata)
+      |> put_in([Access.key(:resource), Access.key("metadata"), Access.key("member_ids")], [
         %{"id" => "06838583-59a4-4ab8-ac65-2b5ea9ee6425"}
       ])
 
-    solr_doc = Figgy.HydrationCacheEntry.to_solr_document(hydration_cache_entry)
+    solr_doc = Figgy.CombinedResource.to_solr_document(figgy_combined_resource)
 
     IndexingPipeline.write_transformation_cache_entry(%{
       cache_version: cache_version,
-      record_id: hydration_cache_entry |> Map.get(:record_id),
-      source_cache_order: hydration_cache_entry |> Map.get(:cache_order),
+      record_id: figgy_combined_resource |> Map.get(:record_id),
+      source_cache_order: figgy_combined_resource |> Map.get(:cache_order),
       data: solr_doc
     })
 

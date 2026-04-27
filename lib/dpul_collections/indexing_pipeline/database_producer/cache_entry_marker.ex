@@ -6,7 +6,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker do
 
   alias DpulCollections.IndexingPipeline.Figgy.{
     TransformationCacheEntry,
-    HydrationCacheEntry,
+    CombinedResource,
     Resource
   }
 
@@ -33,8 +33,8 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker do
     %__MODULE__{timestamp: updated_at, id: id}
   end
 
-  @spec from(%HydrationCacheEntry{}) :: t()
-  def from(%HydrationCacheEntry{cache_order: timestamp, record_id: id}) do
+  @spec from(%CombinedResource{}) :: t()
+  def from(%CombinedResource{cache_order: timestamp, record_id: id}) do
     %__MODULE__{timestamp: timestamp, id: id}
   end
 

@@ -27,7 +27,7 @@ defmodule DpulCollections.IndexingPipeline.Coherence do
     marker = IndexingPipeline.get_processor_marker!("figgy_indexer", cache_version)
 
     hydration_entry =
-      IndexingPipeline.get_hydration_cache_entry!(
+      IndexingPipeline.get_figgy_combined_resource!(
         marker.cache_record_id,
         cache_version
       )

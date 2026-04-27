@@ -5,22 +5,22 @@ defmodule DpulCollections.IndexingPipelineFixtures do
   """
 
   @doc """
-  Generate a hydration_cache_entry.
+  Generate a figgy_combined_resource.
   """
-  def hydration_cache_entry_fixture(attrs \\ %{}) do
-    {:ok, hydration_cache_entry} =
+  def figgy_combined_resource_fixture(attrs \\ %{}) do
+    {:ok, figgy_combined_resource} =
       attrs
       |> Enum.into(%{
         cache_version: 42,
-        data: %{},
+        resource: %{},
         record_id: "some record_id",
         related_ids: [],
         source_cache_order: ~U[2024-07-23 20:05:00Z],
         source_cache_order_record_id: "some record_id"
       })
-      |> DpulCollections.IndexingPipeline.write_hydration_cache_entry()
+      |> DpulCollections.IndexingPipeline.write_figgy_combined_resource()
 
-    hydration_cache_entry
+    figgy_combined_resource
   end
 
   @doc """

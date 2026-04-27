@@ -27,7 +27,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
   end
 
   test "transformation cache entry creation" do
-    {marker1, _marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers()
+    {marker1, _marker2, _marker3} = FiggyTestFixtures.combined_figgy_resource_markers()
 
     transformer = start_transformation_producer()
 
@@ -55,7 +55,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
   end
 
   test "transformation cache entry creation with cache version > 0" do
-    {marker1, _marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers(1)
+    {marker1, _marker2, _marker3} = FiggyTestFixtures.combined_figgy_resource_markers(1)
 
     cache_version = 1
     transformer = start_transformation_producer(cache_version)
@@ -81,7 +81,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
   end
 
   test "doesn't override newer transformation cache entries" do
-    {marker1, _marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers()
+    {marker1, _marker2, _marker3} = FiggyTestFixtures.combined_figgy_resource_markers()
 
     # Create a tranformation cache entry for a record that has a source_cache_order
     # in the future.
@@ -109,7 +109,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
   end
 
   test "updates existing transformation cache entries" do
-    {marker1, _marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers()
+    {marker1, _marker2, _marker3} = FiggyTestFixtures.combined_figgy_resource_markers()
 
     # Create a tranformation cache entry for a record that has a source_cache_order
     # in the past.
@@ -137,7 +137,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
   end
 
   test "loads a marker from the database on startup" do
-    {marker1, marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers()
+    {marker1, marker2, _marker3} = FiggyTestFixtures.combined_figgy_resource_markers()
 
     # Create a marker
     IndexingPipeline.write_processor_marker(%{
@@ -159,15 +159,15 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
     transformer |> Broadway.stop(:normal)
   end
 
-  test "doesn't process non-figgy hydration cache entries" do
-    IndexingPipeline.write_hydration_cache_entry(%{
+  test "doesn't process non-figgy combined resources" do
+    IndexingPipeline.write_figgy_combined_resource(%{
       cache_version: 0,
       record_id: "some-other-id",
       resource_ids: [],
       related_ids: [],
       source_cache_order: ~U[2100-03-09 20:19:33.414040Z],
       source_cache_order_record_id: "some-other-id",
-      data: %{
+      resource: %{
         "non_figgy_property" => "stuff"
       }
     })

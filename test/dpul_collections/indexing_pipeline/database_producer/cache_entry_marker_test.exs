@@ -5,7 +5,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarkerTest
 
   describe "marker comparison" do
     test "sorts markers appropriately" do
-      {marker1, marker2, marker3} = FiggyTestFixtures.hydration_cache_markers()
+      {marker1, marker2, marker3} = FiggyTestFixtures.combined_figgy_resource_markers()
 
       assert Enum.sort([marker1, marker3, marker2], CacheEntryMarker) == [
                marker1,
@@ -29,7 +29,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarkerTest
 
   describe ".from/1" do
     test "it can take a broadway message that has a marker in the metadata" do
-      {marker1, _, _} = FiggyTestFixtures.hydration_cache_markers()
+      {marker1, _, _} = FiggyTestFixtures.combined_figgy_resource_markers()
 
       message = %Broadway.Message{
         acknowledger: nil,
@@ -41,7 +41,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarkerTest
     end
 
     test "it returns a marker if given one" do
-      {marker1, _, _} = FiggyTestFixtures.hydration_cache_markers()
+      {marker1, _, _} = FiggyTestFixtures.combined_figgy_resource_markers()
       assert CacheEntryMarker.from(marker1) == marker1
     end
   end

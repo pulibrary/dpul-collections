@@ -59,12 +59,12 @@ defmodule FiggyTestFixtures do
     end)
   end
 
-  def hydration_cache_entries(cache_version \\ 0) do
+  def combined_figgy_resources(cache_version \\ 0) do
     # This id actually corresponds to an EphemeraTerm
     # description, date_created, date range and other metadata taken from
     #   26713a31-d615-49fd-adfc-93770b4f66b3
     {:ok, entry1} =
-      IndexingPipeline.write_hydration_cache_entry(%{
+      IndexingPipeline.write_figgy_combined_resource(%{
         cache_version: cache_version,
         record_id: "3cb7627b-defc-401b-9959-42ebc4488f74",
         related_ids: [
@@ -98,7 +98,7 @@ defmodule FiggyTestFixtures do
         ],
         source_cache_order: ~U[2018-03-09 20:19:33.414040Z],
         source_cache_order_record_id: "3cb7627b-defc-401b-9959-42ebc4488f74",
-        data: %{
+        resource: %{
           "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
           "internal_resource" => "EphemeraFolder",
           "created_at" => "2023-05-11T18:45:18.994187Z",
@@ -174,13 +174,13 @@ defmodule FiggyTestFixtures do
 
     # date range data taken from 4c8cf820-69f1-4b0e-bf76-41b339af7c50
     {:ok, entry2} =
-      IndexingPipeline.write_hydration_cache_entry(%{
+      IndexingPipeline.write_figgy_combined_resource(%{
         cache_version: cache_version,
         record_id: "69990556-434c-476a-9043-bbf9a1bda5a4",
         related_ids: [],
         source_cache_order: ~U[2018-03-09 20:19:34.465203Z],
         source_cache_order_record_id: "69990556-434c-476a-9043-bbf9a1bda5a4",
-        data: %{
+        resource: %{
           "id" => "69990556-434c-476a-9043-bbf9a1bda5a4",
           "internal_resource" => "EphemeraFolder",
           "metadata" => %{
@@ -207,13 +207,13 @@ defmodule FiggyTestFixtures do
       })
 
     {:ok, entry3} =
-      IndexingPipeline.write_hydration_cache_entry(%{
+      IndexingPipeline.write_figgy_combined_resource(%{
         cache_version: cache_version,
         record_id: "47276197-e223-471c-99d7-405c5f6c5285",
         related_ids: [],
         source_cache_order: ~U[2018-03-09 20:19:34.486004Z],
         source_cache_order_record_id: "47276197-e223-471c-99d7-405c5f6c5285",
-        data: %{
+        resource: %{
           "id" => "47276197-e223-471c-99d7-405c5f6c5285",
           "internal_resource" => "EphemeraFolder",
           "metadata" => %{"title" => ["test title"], "notice_type" => ["explicit_content"]}
@@ -223,8 +223,8 @@ defmodule FiggyTestFixtures do
     {entry1, entry2, entry3}
   end
 
-  def hydration_cache_markers(cache_version \\ 0) do
-    {entry1, entry2, entry3} = hydration_cache_entries(cache_version)
+  def combined_figgy_resource_markers(cache_version \\ 0) do
+    {entry1, entry2, entry3} = combined_figgy_resources(cache_version)
 
     marker1 = %CacheEntryMarker{
       timestamp: entry1.cache_order,

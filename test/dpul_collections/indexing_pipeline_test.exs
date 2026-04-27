@@ -3,38 +3,38 @@ defmodule DpulCollections.IndexingPipelineTest do
 
   alias DpulCollections.IndexingPipeline
 
-  describe "hydration_cache_entries" do
-    alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry
+  describe "combined_figgy_resources" do
+    alias DpulCollections.IndexingPipeline.Figgy.CombinedResource
 
     import DpulCollections.IndexingPipelineFixtures
 
-    test "list_hydration_cache_entries/0 returns all hydration_cache_entries" do
-      hydration_cache_entry = hydration_cache_entry_fixture()
-      assert IndexingPipeline.list_hydration_cache_entries() == [hydration_cache_entry]
+    test "list_combined_figgy_resources/0 returns all combined_figgy_resources" do
+      figgy_combined_resource = figgy_combined_resource_fixture()
+      assert IndexingPipeline.list_combined_figgy_resources() == [figgy_combined_resource]
     end
 
-    test "get_hydration_cache_entry!/1 returns the hydration_cache_entry with given id" do
-      hydration_cache_entry = hydration_cache_entry_fixture()
+    test "get_figgy_combined_resource!/1 returns the figgy_combined_resource with given id" do
+      figgy_combined_resource = figgy_combined_resource_fixture()
 
-      assert IndexingPipeline.get_hydration_cache_entry!(hydration_cache_entry.id) ==
-               hydration_cache_entry
+      assert IndexingPipeline.get_figgy_combined_resource!(figgy_combined_resource.id) ==
+               figgy_combined_resource
     end
 
-    test "delete_hydration_cache_entry/1 deletes the hydration_cache_entry" do
-      hydration_cache_entry = hydration_cache_entry_fixture()
+    test "delete_figgy_combined_resource/1 deletes the figgy_combined_resource" do
+      figgy_combined_resource = figgy_combined_resource_fixture()
 
-      assert {:ok, %HydrationCacheEntry{}} =
-               IndexingPipeline.delete_hydration_cache_entry(hydration_cache_entry)
+      assert {:ok, %CombinedResource{}} =
+               IndexingPipeline.delete_figgy_combined_resource(figgy_combined_resource)
 
       assert_raise Ecto.NoResultsError, fn ->
-        IndexingPipeline.get_hydration_cache_entry!(hydration_cache_entry.id)
+        IndexingPipeline.get_figgy_combined_resource!(figgy_combined_resource.id)
       end
     end
 
-    test "write_hydration_cache_entry/1 upserts a cache entry" do
+    test "write_figgy_combined_resource/1 upserts a cache entry" do
       {:ok, first_write} =
-        IndexingPipeline.write_hydration_cache_entry(%{
-          data: %{},
+        IndexingPipeline.write_figgy_combined_resource(%{
+          resource: %{},
           cache_version: 0,
           record_id: "some record_id",
           related_ids: [],
@@ -43,8 +43,8 @@ defmodule DpulCollections.IndexingPipelineTest do
         })
 
       {:ok, second_write} =
-        IndexingPipeline.write_hydration_cache_entry(%{
-          data: %{},
+        IndexingPipeline.write_figgy_combined_resource(%{
+          resource: %{},
           cache_version: 0,
           record_id: "some record_id",
           related_ids: [],
@@ -53,8 +53,8 @@ defmodule DpulCollections.IndexingPipelineTest do
         })
 
       {:ok, nil} =
-        IndexingPipeline.write_hydration_cache_entry(%{
-          data: %{},
+        IndexingPipeline.write_figgy_combined_resource(%{
+          resource: %{},
           cache_version: 0,
           record_id: "some record_id",
           related_ids: [],
@@ -62,10 +62,10 @@ defmodule DpulCollections.IndexingPipelineTest do
           source_cache_order_record_id: "some record_id"
         })
 
-      reloaded = IndexingPipeline.get_hydration_cache_entry!(second_write.id)
+      reloaded = IndexingPipeline.get_figgy_combined_resource!(second_write.id)
       assert first_write.cache_order != reloaded.cache_order
       assert reloaded.source_cache_order == second_write.source_cache_order
-      assert IndexingPipeline.list_hydration_cache_entries() |> length == 1
+      assert IndexingPipeline.list_combined_figgy_resources() |> length == 1
     end
   end
 
@@ -207,7 +207,7 @@ defmodule DpulCollections.IndexingPipelineTest do
 
     test "delete_cache_version/1 deletes entries for that cache version from each table" do
       for cache_version <- [0, 1] do
-        FiggyTestFixtures.hydration_cache_markers(cache_version)
+        FiggyTestFixtures.combined_figgy_resource_markers(cache_version)
 
         {marker1, _marker2, _marker3} =
           FiggyTestFixtures.transformation_cache_markers(cache_version)
@@ -234,14 +234,14 @@ defmodule DpulCollections.IndexingPipelineTest do
         })
       end
 
-      assert Enum.count(IndexingPipeline.list_hydration_cache_entries()) == 6
+      assert Enum.count(IndexingPipeline.list_combined_figgy_resources()) == 6
       assert Enum.count(IndexingPipeline.list_transformation_cache_entries()) == 6
       assert Enum.count(IndexingPipeline.list_processor_markers()) == 6
 
       IndexingPipeline.delete_cache_version(0)
 
       assert Enum.map(
-               IndexingPipeline.list_hydration_cache_entries(),
+               IndexingPipeline.list_combined_figgy_resources(),
                fn e -> e.cache_version end
              ) == [1, 1, 1]
 

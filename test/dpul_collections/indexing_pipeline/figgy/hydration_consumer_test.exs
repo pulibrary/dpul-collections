@@ -198,14 +198,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
       # only has the value `deleted` set to true. This signals the
       # transformation consumer to create a transformation cache entry with a
       # solr record that indicates it should be deleted from the index.
-      hydration_cache_entries = IndexingPipeline.list_hydration_cache_entries()
-      assert hydration_cache_entries |> length == 1
+      combined_figgy_resources = IndexingPipeline.list_combined_figgy_resources()
+      assert combined_figgy_resources |> length == 1
 
-      hydration_cache_entry = hydration_cache_entries |> hd
-      assert hydration_cache_entry.data["internal_resource"] == "EphemeraFolder"
-      assert hydration_cache_entry.record_id == ephemera_folder_message.data.id
-      assert hydration_cache_entry.data["id"] == ephemera_folder_message.data.id
-      assert hydration_cache_entry.data["metadata"]["deleted"] == true
+      figgy_combined_resource = combined_figgy_resources |> hd
+      assert figgy_combined_resource.resource["internal_resource"] == "EphemeraFolder"
+      assert figgy_combined_resource.record_id == ephemera_folder_message.data.id
+      assert figgy_combined_resource.resource["id"] == ephemera_folder_message.data.id
+      assert figgy_combined_resource.resource["metadata"]["deleted"] == true
     end
 
     test "handle_batch/3 deletes EphemeraFolders when their state or visibility change" do
@@ -299,22 +299,22 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
       # only has the value `deleted` set to true. This signals the
       # transformation consumer to create a transformation cache entry with a
       # solr record that indicates it should be deleted from the index.
-      hydration_cache_entries = IndexingPipeline.list_hydration_cache_entries()
-      assert hydration_cache_entries |> length == 2
+      combined_figgy_resources = IndexingPipeline.list_combined_figgy_resources()
+      assert combined_figgy_resources |> length == 2
 
-      sorted_entries = Enum.sort(hydration_cache_entries, &(&1.record_id >= &2.record_id))
+      sorted_entries = Enum.sort(combined_figgy_resources, &(&1.record_id >= &2.record_id))
 
-      hydration_cache_entry = sorted_entries |> Enum.at(0)
-      assert hydration_cache_entry.data["internal_resource"] == "EphemeraFolder"
-      assert hydration_cache_entry.record_id == ephemera_folder_message_2.data.id
-      assert hydration_cache_entry.data["id"] == ephemera_folder_message_2.data.id
-      assert hydration_cache_entry.data["metadata"]["deleted"] == true
+      figgy_combined_resource = sorted_entries |> Enum.at(0)
+      assert figgy_combined_resource.resource["internal_resource"] == "EphemeraFolder"
+      assert figgy_combined_resource.record_id == ephemera_folder_message_2.data.id
+      assert figgy_combined_resource.resource["id"] == ephemera_folder_message_2.data.id
+      assert figgy_combined_resource.resource["metadata"]["deleted"] == true
 
-      hydration_cache_entry = sorted_entries |> Enum.at(1)
-      assert hydration_cache_entry.data["internal_resource"] == "EphemeraFolder"
-      assert hydration_cache_entry.record_id == ephemera_folder_message_1.data.id
-      assert hydration_cache_entry.data["id"] == ephemera_folder_message_1.data.id
-      assert hydration_cache_entry.data["metadata"]["deleted"] == true
+      figgy_combined_resource = sorted_entries |> Enum.at(1)
+      assert figgy_combined_resource.resource["internal_resource"] == "EphemeraFolder"
+      assert figgy_combined_resource.record_id == ephemera_folder_message_1.data.id
+      assert figgy_combined_resource.resource["id"] == ephemera_folder_message_1.data.id
+      assert figgy_combined_resource.resource["metadata"]["deleted"] == true
     end
 
     test "handle_batch/3 updates an EphemeraFolder when a related EphemeraTerm changes" do
@@ -359,14 +359,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
 
       Figgy.HydrationConsumer.handle_batch(:default, create_messages, nil, %{cache_version: 1})
 
-      hydration_cache_entries = IndexingPipeline.list_hydration_cache_entries()
-      assert hydration_cache_entries |> length == 1
-      hydration_cache_entry = hydration_cache_entries |> Enum.at(0)
-      assert hydration_cache_entry.data["id"] == ephemera_folder_message.data.id
+      combined_figgy_resources = IndexingPipeline.list_combined_figgy_resources()
+      assert combined_figgy_resources |> length == 1
+      figgy_combined_resource = combined_figgy_resources |> Enum.at(0)
+      assert figgy_combined_resource.resource["id"] == ephemera_folder_message.data.id
 
       # Check un-updated term label
       related_resource_entry =
-        hydration_cache_entry.related_data["resources"][updated_ephemera_term_resource.id]
+        figgy_combined_resource.related_data["resources"][updated_ephemera_term_resource.id]
 
       assert related_resource_entry["metadata"]["label"] == ["Organic farming"]
 
@@ -392,22 +392,22 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
 
         Figgy.HydrationConsumer.handle_batch(:default, messages, nil, %{cache_version: 1})
 
-        hydration_cache_entries = IndexingPipeline.list_hydration_cache_entries()
-        assert hydration_cache_entries |> length == 1
-        hydration_cache_entry = hydration_cache_entries |> Enum.at(0)
+        combined_figgy_resources = IndexingPipeline.list_combined_figgy_resources()
+        assert combined_figgy_resources |> length == 1
+        figgy_combined_resource = combined_figgy_resources |> Enum.at(0)
 
-        assert hydration_cache_entry.data["id"] == ephemera_folder_message.data.id
+        assert figgy_combined_resource.resource["id"] == ephemera_folder_message.data.id
 
         # Test that the ephemera folder was updated
-        assert hydration_cache_entry.source_cache_order ==
+        assert figgy_combined_resource.source_cache_order ==
                  updated_ephemera_term_message.data.updated_at
 
-        assert hydration_cache_entry.source_cache_order_record_id ==
+        assert figgy_combined_resource.source_cache_order_record_id ==
                  updated_ephemera_term_message.data.id
 
         # Check updated term label
         related_resource_entry =
-          hydration_cache_entry.related_data["resources"][updated_ephemera_term_resource.id]
+          figgy_combined_resource.related_data["resources"][updated_ephemera_term_resource.id]
 
         assert related_resource_entry["metadata"]["label"] == ["UpdatedTerm"]
       end
@@ -482,17 +482,17 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           cache_version: 1
         })
 
-        hydration_cache_entries = IndexingPipeline.list_hydration_cache_entries()
-        assert hydration_cache_entries |> length == 1
-        hydration_cache_entry = hydration_cache_entries |> Enum.at(0)
+        combined_figgy_resources = IndexingPipeline.list_combined_figgy_resources()
+        assert combined_figgy_resources |> length == 1
+        figgy_combined_resource = combined_figgy_resources |> Enum.at(0)
 
-        assert hydration_cache_entry.data["id"] == ephemera_folder_message.data.id
+        assert figgy_combined_resource.resource["id"] == ephemera_folder_message.data.id
 
         # Test that the ephemera folder was not updated
-        assert hydration_cache_entry.source_cache_order !=
+        assert figgy_combined_resource.source_cache_order !=
                  updated_ephemera_term_message.data.updated_at
 
-        assert hydration_cache_entry.source_cache_order_record_id !=
+        assert figgy_combined_resource.source_cache_order_record_id !=
                  updated_ephemera_term_message.data.id
       end
     end
@@ -575,17 +575,17 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
 
         Figgy.HydrationConsumer.handle_batch(:default, messages, nil, %{cache_version: 1})
 
-        hydration_cache_entries = IndexingPipeline.list_hydration_cache_entries()
-        assert hydration_cache_entries |> length == 1
-        hydration_cache_entry = hydration_cache_entries |> Enum.at(0)
+        combined_figgy_resources = IndexingPipeline.list_combined_figgy_resources()
+        assert combined_figgy_resources |> length == 1
+        figgy_combined_resource = combined_figgy_resources |> Enum.at(0)
 
-        assert hydration_cache_entry.data["id"] == ephemera_folder_message.data.id
+        assert figgy_combined_resource.resource["id"] == ephemera_folder_message.data.id
 
         # Test that the ephemera folder was updated
-        assert hydration_cache_entry.source_cache_order ==
+        assert figgy_combined_resource.source_cache_order ==
                  updated_file_set_message.data.updated_at
 
-        assert hydration_cache_entry.source_cache_order_record_id ==
+        assert figgy_combined_resource.source_cache_order_record_id ==
                  updated_file_set_message.data.id
       end
     end
@@ -635,14 +635,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
 
       Figgy.HydrationConsumer.handle_batch(:default, create_messages, nil, %{cache_version: 1})
 
-      hydration_cache_entries = IndexingPipeline.list_hydration_cache_entries()
-      assert hydration_cache_entries |> length == 1
-      hydration_cache_entry = hydration_cache_entries |> Enum.at(0)
-      assert hydration_cache_entry.data["id"] == ephemera_folder_message.data.id
+      combined_figgy_resources = IndexingPipeline.list_combined_figgy_resources()
+      assert combined_figgy_resources |> length == 1
+      figgy_combined_resource = combined_figgy_resources |> Enum.at(0)
+      assert figgy_combined_resource.resource["id"] == ephemera_folder_message.data.id
 
       # Check un-updated box number
       related_resource_entry =
-        hydration_cache_entry.related_data["ancestors"][updated_ephemera_box_resource.id]
+        figgy_combined_resource.related_data["ancestors"][updated_ephemera_box_resource.id]
 
       assert related_resource_entry["metadata"]["box_number"] == [
                "Woman Life Freedom Movement: Iran 2022"
@@ -663,22 +663,22 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
 
         Figgy.HydrationConsumer.handle_batch(:default, messages, nil, %{cache_version: 1})
 
-        hydration_cache_entries = IndexingPipeline.list_hydration_cache_entries()
-        assert hydration_cache_entries |> length == 1
-        hydration_cache_entry = hydration_cache_entries |> Enum.at(0)
+        combined_figgy_resources = IndexingPipeline.list_combined_figgy_resources()
+        assert combined_figgy_resources |> length == 1
+        figgy_combined_resource = combined_figgy_resources |> Enum.at(0)
 
-        assert hydration_cache_entry.data["id"] == ephemera_folder_message.data.id
+        assert figgy_combined_resource.resource["id"] == ephemera_folder_message.data.id
 
         # Test that the ephemera folder was updated
-        assert hydration_cache_entry.source_cache_order ==
+        assert figgy_combined_resource.source_cache_order ==
                  updated_ephemera_box_message.data.updated_at
 
-        assert hydration_cache_entry.source_cache_order_record_id ==
+        assert figgy_combined_resource.source_cache_order_record_id ==
                  updated_ephemera_box_message.data.id
 
         # Check updated box number
         related_resource_entry =
-          hydration_cache_entry.related_data["ancestors"][updated_ephemera_box_resource.id]
+          figgy_combined_resource.related_data["ancestors"][updated_ephemera_box_resource.id]
 
         assert related_resource_entry["metadata"]["box_number"] == ["different_box"]
       end
@@ -728,14 +728,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
 
       Figgy.HydrationConsumer.handle_batch(:default, create_messages, nil, %{cache_version: 1})
 
-      hydration_cache_entries = IndexingPipeline.list_hydration_cache_entries()
-      assert hydration_cache_entries |> length == 1
-      hydration_cache_entry = hydration_cache_entries |> Enum.at(0)
-      assert hydration_cache_entry.data["id"] == ephemera_folder_message.data.id
+      combined_figgy_resources = IndexingPipeline.list_combined_figgy_resources()
+      assert combined_figgy_resources |> length == 1
+      figgy_combined_resource = combined_figgy_resources |> Enum.at(0)
+      assert figgy_combined_resource.resource["id"] == ephemera_folder_message.data.id
 
       # Check un-updated project title
       related_resource_entry =
-        hydration_cache_entry.related_data["ancestors"][updated_ephemera_project_resource.id]
+        figgy_combined_resource.related_data["ancestors"][updated_ephemera_project_resource.id]
 
       assert related_resource_entry["metadata"]["title"] == [
                "Woman Life Freedom Movement: Iran 2022"
@@ -756,29 +756,29 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
 
         Figgy.HydrationConsumer.handle_batch(:default, messages, nil, %{cache_version: 1})
 
-        hydration_cache_entries = IndexingPipeline.list_hydration_cache_entries()
-        assert hydration_cache_entries |> length == 1
-        hydration_cache_entry = hydration_cache_entries |> Enum.at(0)
+        combined_figgy_resources = IndexingPipeline.list_combined_figgy_resources()
+        assert combined_figgy_resources |> length == 1
+        figgy_combined_resource = combined_figgy_resources |> Enum.at(0)
 
-        assert hydration_cache_entry.data["id"] == ephemera_folder_message.data.id
+        assert figgy_combined_resource.resource["id"] == ephemera_folder_message.data.id
 
         # Test that the ephemera folder was updated
-        assert hydration_cache_entry.source_cache_order ==
+        assert figgy_combined_resource.source_cache_order ==
                  updated_ephemera_project_message.data.updated_at
 
-        assert hydration_cache_entry.source_cache_order_record_id ==
+        assert figgy_combined_resource.source_cache_order_record_id ==
                  updated_ephemera_project_message.data.id
 
         # Check updated project title
         related_resource_entry =
-          hydration_cache_entry.related_data["ancestors"][updated_ephemera_project_resource.id]
+          figgy_combined_resource.related_data["ancestors"][updated_ephemera_project_resource.id]
 
         assert related_resource_entry["metadata"]["title"] == ["Updated EphemeraProject Title"]
       end
     end
   end
 
-  describe "hydration_cache_attributes/1" do
+  describe "figgy_combined_resource_attributes/1" do
     test "it doesn't error when the related resource id is an empty string" do
       folder = FiggyTestSupport.first_ephemera_folder()
 
@@ -788,7 +788,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           | metadata: %{folder.metadata | "genre" => [%{"id" => ""}]}
         }
         |> HydrationConsumer.process(1)
-        |> HydrationConsumer.hydration_cache_attributes(1)
+        |> HydrationConsumer.figgy_combined_resource_attributes(1)
         |> get_in([:related_data])
         |> get_in(["resources"])
         |> Map.keys()
@@ -803,8 +803,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
       metadata =
         folder
         |> HydrationConsumer.process(1)
-        |> HydrationConsumer.hydration_cache_attributes(1)
-        |> get_in([:data])
+        |> HydrationConsumer.figgy_combined_resource_attributes(1)
+        |> get_in([:resource])
         |> get_in([Access.key!(:metadata)])
 
       assert(metadata["deleted"] == true)
@@ -816,8 +816,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
       metadata =
         %Resource{(%Resource{} = folder) | metadata: %{folder.metadata | "member_ids" => []}}
         |> HydrationConsumer.process(1)
-        |> HydrationConsumer.hydration_cache_attributes(1)
-        |> get_in([:data])
+        |> HydrationConsumer.figgy_combined_resource_attributes(1)
+        |> get_in([:resource])
         |> get_in([Access.key!(:metadata)])
 
       assert(metadata["deleted"] == true)
@@ -839,7 +839,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           | metadata: %{folder.metadata | "member_ids" => member_ids}
         }
         |> HydrationConsumer.process(1)
-        |> HydrationConsumer.hydration_cache_attributes(1)
+        |> HydrationConsumer.figgy_combined_resource_attributes(1)
         |> get_in([:related_data])
         |> get_in(["resources"])
         |> Map.keys()
@@ -853,7 +853,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
       resource_ids =
         folder
         |> HydrationConsumer.process(1)
-        |> HydrationConsumer.hydration_cache_attributes(1)
+        |> HydrationConsumer.figgy_combined_resource_attributes(1)
         |> get_in([:related_data])
         |> get_in(["resources"])
         |> Map.keys()
@@ -893,8 +893,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
 
       assert processed.batcher == :default
 
-      cache_entry = DpulCollections.IndexingPipeline.get_hydration_cache_entry!(project.id, 1)
-      assert cache_entry.data["metadata"]["deleted"] == true
+      cache_entry = DpulCollections.IndexingPipeline.get_figgy_combined_resource!(project.id, 1)
+      assert cache_entry.resource["metadata"]["deleted"] == true
     end
 
     test "updates projects that are published" do
@@ -905,7 +905,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
 
       processed = HydrationConsumer.handle_message(nil, message, %{cache_version: 1})
       assert processed.batcher == :default
-      cache_entry = DpulCollections.IndexingPipeline.get_hydration_cache_entry!(project.id, 1)
+      cache_entry = DpulCollections.IndexingPipeline.get_figgy_combined_resource!(project.id, 1)
 
       # No related data
       assert cache_entry.related_data["resources"] == %{}

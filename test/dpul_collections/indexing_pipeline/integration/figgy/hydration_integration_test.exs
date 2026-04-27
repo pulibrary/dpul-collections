@@ -50,7 +50,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
 
     assert_receive({:ack_status, %{"figgy_hydrator" => %{0 => %{acked_count: 1}}}}, 1_000)
 
-    cache_entry = IndexingPipeline.list_hydration_cache_entries() |> hd
+    cache_entry = IndexingPipeline.list_combined_figgy_resources() |> hd
     assert cache_entry.record_id == marker1.id
     assert cache_entry.cache_version == 0
     marker_1_id = marker1.id
@@ -64,7 +64,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
                  | _rest
                ]
              }
-           } = cache_entry.data
+           } = cache_entry.resource
 
     assert %{
              "resources" => %{
@@ -89,7 +89,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     MockFiggyHydrationProducer.process(1)
     assert_receive({:ack_status, %{"figgy_hydrator" => %{0 => %{acked_count: 1}}}}, 1_000)
 
-    cache_entry = IndexingPipeline.list_hydration_cache_entries() |> hd
+    cache_entry = IndexingPipeline.list_combined_figgy_resources() |> hd
     assert cache_entry.record_id == marker1.id
     assert cache_entry.cache_version == 0
     marker_1_id = marker1.id
@@ -97,7 +97,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     assert %{
              "id" => ^marker_1_id,
              "internal_resource" => "EphemeraFolder"
-           } = cache_entry.data
+           } = cache_entry.resource
 
     hydrator |> Broadway.stop(:normal)
   end
@@ -110,7 +110,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     MockFiggyHydrationProducer.process(1, cache_version)
     assert_receive({:ack_status, %{"figgy_hydrator" => %{1 => %{acked_count: 1}}}}, 1_000)
 
-    cache_entry = IndexingPipeline.list_hydration_cache_entries() |> hd
+    cache_entry = IndexingPipeline.list_combined_figgy_resources() |> hd
     assert cache_entry.record_id == marker1.id
     assert cache_entry.cache_version == 1
     marker_1_id = marker1.id
@@ -118,7 +118,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     assert %{
              "id" => ^marker_1_id,
              "internal_resource" => "EphemeraFolder"
-           } = cache_entry.data
+           } = cache_entry.resource
 
     processor_marker = IndexingPipeline.get_processor_marker!("figgy_hydrator", 1)
     assert processor_marker.cache_version == 1
@@ -129,13 +129,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
   test "doesn't override newer hydration cache entries" do
     # Create a hydration cache entry for a record that has a source_cache_order
     # in the future.
-    IndexingPipeline.write_hydration_cache_entry(%{
+    IndexingPipeline.write_figgy_combined_resource(%{
       cache_version: 0,
       record_id: "3da68e1c-06af-4d17-8603-fc73152e1ef7",
       related_ids: [],
       source_cache_order: ~U[2200-03-09 20:19:33.414040Z],
       source_cache_order_record_id: "3da68e1c-06af-4d17-8603-fc73152e1ef7",
-      data: %{}
+      resource: %{}
     })
 
     # Process that past record.
@@ -144,7 +144,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     assert_receive({:ack_status, %{"figgy_hydrator" => %{0 => %{acked_count: 1}}}}, 1_000)
     hydrator |> Broadway.stop(:normal)
     # Ensure there's only one hydration cache entry.
-    entries = IndexingPipeline.list_hydration_cache_entries()
+    entries = IndexingPipeline.list_combined_figgy_resources()
     assert length(entries) == 1
     # Ensure that entry has the source_cache_order we set at the beginning.
     entry = entries |> hd
@@ -154,13 +154,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
   test "updates existing hydration cache entries" do
     # Create a hydration cache entry for a record that has a source_cache_order
     # in the past.
-    IndexingPipeline.write_hydration_cache_entry(%{
+    IndexingPipeline.write_figgy_combined_resource(%{
       cache_version: 0,
       record_id: "3da68e1c-06af-4d17-8603-fc73152e1ef7",
       related_ids: [],
       source_cache_order: ~U[1900-03-09 20:19:33.414040Z],
       source_cache_order_record_id: "3da68e1c-06af-4d17-8603-fc73152e1ef7",
-      data: %{}
+      resource: %{}
     })
 
     # Process that past record.
@@ -169,7 +169,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     assert_receive({:ack_status, %{"figgy_hydrator" => %{0 => %{acked_count: 1}}}}, 1_000)
     hydrator |> Broadway.stop(:normal)
     # Ensure there's only one hydration cache entry.
-    entries = IndexingPipeline.list_hydration_cache_entries()
+    entries = IndexingPipeline.list_combined_figgy_resources()
     assert length(entries) == 1
     # Ensure that entry has an updated source_cache_order
     entry = entries |> hd
@@ -194,7 +194,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     # Make sure the first record that comes back is what we expect
     MockFiggyHydrationProducer.process(1)
     assert_receive({:ack_status, %{"figgy_hydrator" => %{0 => %{acked_count: 1}}}}, 1_000)
-    cache_entry = IndexingPipeline.list_hydration_cache_entries() |> hd
+    cache_entry = IndexingPipeline.list_combined_figgy_resources() |> hd
     assert cache_entry.record_id == marker2.id
     assert cache_entry.cache_version == 0
     hydrator |> Broadway.stop(:normal)

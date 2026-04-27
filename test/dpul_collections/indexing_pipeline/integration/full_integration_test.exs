@@ -72,7 +72,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # The hydrator pulled all ephemera folders, terms, deletion markers and
     # removed the hydration cache markers for the deletion marker deleted resource.
     # It also has 3 ephemera projects and 1 collection.
-    entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
+    entry_count = Repo.aggregate(Figgy.CombinedResource, :count)
     scanned_resource_fixture_count = 5
 
     assert FiggyTestSupport.total_resource_count() + 3 + scanned_resource_fixture_count ==
@@ -145,7 +145,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     transformation_entry =
       Repo.get_by(Figgy.TransformationCacheEntry, record_id: latest_document["id"])
 
-    hydration_entry = Repo.get_by(Figgy.HydrationCacheEntry, record_id: latest_document["id"])
+    hydration_entry = Repo.get_by(Figgy.CombinedResource, record_id: latest_document["id"])
 
     AckTracker.reset_count!(tracker_pid)
 
@@ -165,13 +165,13 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     # hydration entries weren't updated
     hydration_entry_again =
-      Repo.get_by(Figgy.HydrationCacheEntry, record_id: latest_document["id"])
+      Repo.get_by(Figgy.CombinedResource, record_id: latest_document["id"])
 
     assert hydration_entry.cache_order == hydration_entry_again.cache_order
 
     # Rehydration Test
     latest_document = Solr.latest_document()
-    hydration_entry = Repo.get_by(Figgy.HydrationCacheEntry, record_id: latest_document["id"])
+    hydration_entry = Repo.get_by(Figgy.CombinedResource, record_id: latest_document["id"])
 
     AckTracker.reset_count!(tracker_pid)
 
@@ -180,7 +180,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     AckTracker.wait_for_pipeline_finished(tracker_pid)
 
     hydration_entry_again =
-      Repo.get_by(Figgy.HydrationCacheEntry, record_id: latest_document["id"])
+      Repo.get_by(Figgy.CombinedResource, record_id: latest_document["id"])
 
     assert hydration_entry.cache_order != hydration_entry_again.cache_order
 

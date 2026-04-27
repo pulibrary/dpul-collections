@@ -11,63 +11,63 @@ defmodule DpulCollections.IndexingPipeline do
   alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
 
   @doc """
-  Returns the list of hydration_cache_entries.
+  Returns the list of combined_figgy_resources.
 
   ## Examples
 
-      iex> list_hydration_cache_entries()
-      [%Figgy.HydrationCacheEntry{}, ...]
+      iex> list_combined_figgy_resources()
+      [%Figgy.CombinedResource{}, ...]
 
   """
-  def list_hydration_cache_entries do
-    Repo.all(Figgy.HydrationCacheEntry)
+  def list_combined_figgy_resources do
+    Repo.all(Figgy.CombinedResource)
   end
 
   @doc """
-  Gets a single hydration_cache_entry.
+  Gets a single figgy_combined_resource.
 
   Raises `Ecto.NoResultsError` if the Hydration cache entry does not exist.
 
   ## Examples
 
-      iex> get_hydration_cache_entry!(123)
-      %Figgy.HydrationCacheEntry{}
+      iex> get_figgy_combined_resource!(123)
+      %Figgy.CombinedResource{}
 
-      iex> get_hydration_cache_entry!(456)
+      iex> get_figgy_combined_resource!(456)
       ** (Ecto.NoResultsError)
 
   """
-  def get_hydration_cache_entry!(id), do: Repo.get!(Figgy.HydrationCacheEntry, id)
+  def get_figgy_combined_resource!(id), do: Repo.get!(Figgy.CombinedResource, id)
 
-  def get_hydration_cache_entry!(record_id, cache_version) do
-    Repo.get_by(Figgy.HydrationCacheEntry, record_id: record_id, cache_version: cache_version)
+  def get_figgy_combined_resource!(record_id, cache_version) do
+    Repo.get_by(Figgy.CombinedResource, record_id: record_id, cache_version: cache_version)
   end
 
   @doc """
-  Deletes a hydration_cache_entry.
+  Deletes a figgy_combined_resource.
 
   ## Examples
 
-      iex> delete_hydration_cache_entry(hydration_cache_entry)
-      {:ok, %Figgy.HydrationCacheEntry{}}
+      iex> delete_figgy_combined_resource(figgy_combined_resource)
+      {:ok, %Figgy.CombinedResource{}}
 
-      iex> delete_hydration_cache_entry(hydration_cache_entry)
+      iex> delete_figgy_combined_resource(figgy_combined_resource)
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_hydration_cache_entry(%Figgy.HydrationCacheEntry{} = hydration_cache_entry) do
-    Repo.delete(hydration_cache_entry)
+  def delete_figgy_combined_resource(%Figgy.CombinedResource{} = figgy_combined_resource) do
+    Repo.delete(figgy_combined_resource)
   end
 
   @doc """
   Writes or updates hydration cache entries.
   """
-  def write_hydration_cache_entry(attrs \\ %{}) do
+  def write_figgy_combined_resource(attrs \\ %{}) do
     conflict_query =
-      Figgy.HydrationCacheEntry
+      Figgy.CombinedResource
       |> update(
         set: [
-          data: ^attrs.data,
+          resource: ^attrs.resource,
           related_data: ^attrs[:related_data],
           related_ids: ^attrs.related_ids,
           source_cache_order: ^attrs.source_cache_order,
@@ -83,8 +83,8 @@ defmodule DpulCollections.IndexingPipeline do
         # It takes two integers - 1 here is special and for Hydration.
         Repo.query!("SELECT pg_advisory_xact_lock($1, $2)", [attrs.cache_version, 1])
 
-        %Figgy.HydrationCacheEntry{}
-        |> Figgy.HydrationCacheEntry.changeset(attrs)
+        %Figgy.CombinedResource{}
+        |> Figgy.CombinedResource.changeset(attrs)
         |> Repo.insert(
           on_conflict: conflict_query,
           conflict_target: [:cache_version, :record_id]
@@ -95,18 +95,18 @@ defmodule DpulCollections.IndexingPipeline do
     end)
   end
 
-  @spec get_hydration_cache_entries_since!(
+  @spec get_combined_figgy_resources_since!(
           marker :: CacheEntryMarker.t(),
           count :: integer,
           cache_version :: integer
-        ) :: list(Figgy.HydrationCacheEntry)
-  def get_hydration_cache_entries_since!(
+        ) :: list(Figgy.CombinedResource)
+  def get_combined_figgy_resources_since!(
         %CacheEntryMarker{timestamp: cache_order, id: id},
         count,
         cache_version
       ) do
     query =
-      from r in Figgy.HydrationCacheEntry,
+      from r in Figgy.CombinedResource,
         where:
           r.cache_version == ^cache_version and
             ((r.cache_order == ^cache_order and r.record_id > ^id) or
@@ -126,14 +126,14 @@ defmodule DpulCollections.IndexingPipeline do
     Repo.all(query)
   end
 
-  @spec get_hydration_cache_entries_since!(
+  @spec get_combined_figgy_resources_since!(
           nil,
           count :: integer,
           cache_version :: integer
-        ) :: list(Figgy.HydrationCacheEntry)
-  def get_hydration_cache_entries_since!(nil, count, cache_version) do
+        ) :: list(Figgy.CombinedResource)
+  def get_combined_figgy_resources_since!(nil, count, cache_version) do
     query =
-      from r in Figgy.HydrationCacheEntry,
+      from r in Figgy.CombinedResource,
         where: r.cache_version == ^cache_version,
         # Don't pull data or related_data, they're too big to parse in bulk.
         select: [
@@ -150,17 +150,17 @@ defmodule DpulCollections.IndexingPipeline do
     Repo.all(query)
   end
 
-  @spec get_related_hydration_cache_record_ids!(
+  @spec get_related_figgy_combined_resource_record_ids!(
           related_id :: String.t(),
           related_timestamp :: DateTime.t(),
           cache_version :: integer
         ) :: list(String.t())
   @decorate trace()
-  def get_related_hydration_cache_record_ids!(related_id, related_timestamp, cache_version) do
+  def get_related_figgy_combined_resource_record_ids!(related_id, related_timestamp, cache_version) do
     arr = [related_id]
 
     query =
-      from r in Figgy.HydrationCacheEntry,
+      from r in Figgy.CombinedResource,
         select: r.record_id,
         where: r.cache_version == ^cache_version,
         where: r.source_cache_order < ^related_timestamp,
@@ -509,10 +509,10 @@ defmodule DpulCollections.IndexingPipeline do
   end
 
   @doc """
-  Deletes all HydrationCacheEntry, TransformationCacheEntry, and ProcessorMarker with the given cache version
+  Deletes all CombinedResource, TransformationCacheEntry, and ProcessorMarker with the given cache version
   """
   def delete_cache_version(cache_version) do
-    from(h in Figgy.HydrationCacheEntry, where: h.cache_version == ^cache_version)
+    from(h in Figgy.CombinedResource, where: h.cache_version == ^cache_version)
     |> Repo.delete_all(timeout: :infinity)
 
     from(t in Figgy.TransformationCacheEntry, where: t.cache_version == ^cache_version)

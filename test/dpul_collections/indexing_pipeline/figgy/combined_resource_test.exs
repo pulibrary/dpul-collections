@@ -1,18 +1,18 @@
-defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
+defmodule DpulCollections.IndexingPipeline.Figgy.CombinedResourceTest do
   use DpulCollections.DataCase
   import ExUnit.CaptureLog
   require Logger
 
-  alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry
+  alias DpulCollections.IndexingPipeline.Figgy.CombinedResource
   alias DpulCollections.IndexingPipeline
 
   describe "to_solr_document/1" do
     test "indexes everything it needs to" do
       entries =
-        FiggyTestFixtures.hydration_cache_entries()
+        FiggyTestFixtures.combined_figgy_resources()
         |> Tuple.to_list()
 
-      [doc1, doc2, doc3] = Enum.map(entries, &HydrationCacheEntry.to_solr_document/1)
+      [doc1, doc2, doc3] = Enum.map(entries, &CombinedResource.to_solr_document/1)
 
       assert %{
                alternative_title_txtm: ["Zaib-un-Nisa", "Zaibunnisa"],
@@ -56,10 +56,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
     test "includes summaries if found" do
       entries =
-        FiggyTestFixtures.hydration_cache_entries()
+        FiggyTestFixtures.combined_figgy_resources()
         |> Tuple.to_list()
 
-      [doc1, doc2, doc3] = Enum.map(entries, &HydrationCacheEntry.to_solr_document/1)
+      [doc1, doc2, doc3] = Enum.map(entries, &CombinedResource.to_solr_document/1)
 
       assert doc1[:summary_txtm] == ["Asra-Panahi", "Berlin-Protest", "Elnaz-Rekabi"]
       assert doc2[:summary_txtm] == []
@@ -68,7 +68,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
     test "doesn't convert canvas IDs for missing file sets" do
       {:ok, entry} =
-        IndexingPipeline.write_hydration_cache_entry(%{
+        IndexingPipeline.write_figgy_combined_resource(%{
           cache_version: 0,
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           related_ids: [],
@@ -99,7 +99,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
               }
             }
           },
-          data: %{
+          resource: %{
             "id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
             "internal_resource" => "EphemeraFolder",
             "metadata" => %{
@@ -110,7 +110,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      doc = HydrationCacheEntry.to_solr_document(entry)
+      doc = CombinedResource.to_solr_document(entry)
 
       assert doc[:image_canvas_ids_ss] == [
                "https://figgy.example.com/concern/ephemera_folders/0cff895a-01ea-4895-9c3d-a8c6eaab4013/manifest/canvas/1"
@@ -121,7 +121,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
       # Add FileMetadata with both a JP2/Pyramidal derivative, to ensure it
       # picks the pyramidal
       {:ok, entry} =
-        IndexingPipeline.write_hydration_cache_entry(%{
+        IndexingPipeline.write_figgy_combined_resource(%{
           cache_version: 0,
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           related_ids: [],
@@ -152,7 +152,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
               }
             }
           },
-          data: %{
+          resource: %{
             "id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
             "internal_resource" => "EphemeraFolder",
             "metadata" => %{
@@ -163,7 +163,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      doc = HydrationCacheEntry.to_solr_document(entry)
+      doc = CombinedResource.to_solr_document(entry)
 
       # This is the pyramidal derivative.
       assert doc[:image_service_urls_ss] == [
@@ -179,7 +179,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
       # Add FileMetadata with both a JP2/Pyramidal derivative, to ensure it
       # picks the pyramidal
       {:ok, entry} =
-        IndexingPipeline.write_hydration_cache_entry(%{
+        IndexingPipeline.write_figgy_combined_resource(%{
           cache_version: 0,
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           related_ids: [],
@@ -196,7 +196,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
               }
             }
           },
-          data: %{
+          resource: %{
             "id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
             "internal_resource" => "EphemeraFolder",
             "metadata" => %{
@@ -207,14 +207,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      doc = HydrationCacheEntry.to_solr_document(entry)
+      doc = CombinedResource.to_solr_document(entry)
 
       assert doc[:box_number_txtm] == ["box 1"]
     end
 
     test "extracts controlled vocabulary terms with a label" do
       {:ok, entry} =
-        IndexingPipeline.write_hydration_cache_entry(%{
+        IndexingPipeline.write_figgy_combined_resource(%{
           cache_version: 0,
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           related_ids: [],
@@ -238,7 +238,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
               }
             }
           },
-          data: %{
+          resource: %{
             "id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
             "internal_resource" => "EphemeraFolder",
             "metadata" => %{
@@ -248,14 +248,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      doc = HydrationCacheEntry.to_solr_document(entry)
+      doc = CombinedResource.to_solr_document(entry)
 
       assert doc[:format_txt_sort] == ["Term2"]
     end
 
     test "uses first image service url when there is no thumbnail_id property" do
       {:ok, entry} =
-        IndexingPipeline.write_hydration_cache_entry(%{
+        IndexingPipeline.write_figgy_combined_resource(%{
           cache_version: 0,
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           related_ids: [],
@@ -289,7 +289,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
               }
             }
           },
-          data: %{
+          resource: %{
             "id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
             "internal_resource" => "EphemeraFolder",
             "metadata" => %{
@@ -299,7 +299,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      doc = HydrationCacheEntry.to_solr_document(entry)
+      doc = CombinedResource.to_solr_document(entry)
 
       assert doc[:primary_thumbnail_service_url_s] ==
                "https://iiif-cloud.princeton.edu/iiif/2/0c%2Fff%2F89%2F0cff895a01ea48959c3da8c6eaab4017%2Fintermediate_file"
@@ -309,7 +309,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
     test "uses first image service url when thumbnail id does not point to related FileSet" do
       {:ok, entry} =
-        IndexingPipeline.write_hydration_cache_entry(%{
+        IndexingPipeline.write_figgy_combined_resource(%{
           cache_version: 0,
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           related_ids: [],
@@ -343,7 +343,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
               }
             }
           },
-          data: %{
+          resource: %{
             "id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
             "internal_resource" => "EphemeraFolder",
             "metadata" => %{
@@ -354,7 +354,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      doc = HydrationCacheEntry.to_solr_document(entry)
+      doc = CombinedResource.to_solr_document(entry)
 
       assert doc[:primary_thumbnail_service_url_s] ==
                "https://iiif-cloud.princeton.edu/iiif/2/0c%2Fff%2F89%2F0cff895a01ea48959c3da8c6eaab4017%2Fintermediate_file"
@@ -364,7 +364,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
     test "does not add a thumbnail service url when there are no image members" do
       {:ok, entry} =
-        IndexingPipeline.write_hydration_cache_entry(%{
+        IndexingPipeline.write_figgy_combined_resource(%{
           cache_version: 0,
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           related_ids: [],
@@ -373,7 +373,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           related_data: %{
             "resources" => %{}
           },
-          data: %{
+          resource: %{
             "id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
             "internal_resource" => "EphemeraFolder",
             "metadata" => %{
@@ -383,7 +383,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      doc = HydrationCacheEntry.to_solr_document(entry)
+      doc = CombinedResource.to_solr_document(entry)
 
       assert doc[:primary_thumbnail_service_url_s] == nil
       assert doc[:primary_thumbnail_h_w_ratio_f] == nil
@@ -391,7 +391,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
     test "can handle when members do not have the correct file metadata type" do
       {:ok, entry} =
-        IndexingPipeline.write_hydration_cache_entry(%{
+        IndexingPipeline.write_figgy_combined_resource(%{
           cache_version: 0,
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           related_ids: [],
@@ -416,7 +416,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
               }
             }
           },
-          data: %{
+          resource: %{
             "id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
             "internal_resource" => "EphemeraFolder",
             "metadata" => %{
@@ -426,27 +426,27 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      doc = HydrationCacheEntry.to_solr_document(entry)
+      doc = CombinedResource.to_solr_document(entry)
 
       assert doc[:image_service_urls_ss] == []
     end
 
     test "includes date range if found, date if not" do
       entries =
-        FiggyTestFixtures.hydration_cache_entries()
+        FiggyTestFixtures.combined_figgy_resources()
         |> Tuple.to_list()
 
-      [doc1, doc2, doc3] = Enum.map(entries, &HydrationCacheEntry.to_solr_document/1)
+      [doc1, doc2, doc3] = Enum.map(entries, &CombinedResource.to_solr_document/1)
 
       # date marked "approximate"
       {:ok, entry4} =
-        IndexingPipeline.write_hydration_cache_entry(%{
+        IndexingPipeline.write_figgy_combined_resource(%{
           cache_version: 0,
           record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           related_ids: [],
           source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
           source_cache_order_record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
-          data: %{
+          resource: %{
             "id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
             "internal_resource" => "EphemeraFolder",
             "metadata" => %{
@@ -469,13 +469,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
       # empty date_created
       {:ok, entry5} =
-        IndexingPipeline.write_hydration_cache_entry(%{
+        IndexingPipeline.write_figgy_combined_resource(%{
           cache_version: 0,
           record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
           related_ids: [],
           source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
           source_cache_order_record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
-          data: %{
+          resource: %{
             "id" => "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
             "internal_resource" => "EphemeraFolder",
             "metadata" => %{
@@ -487,13 +487,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
       # Add one to exercise date_created with format `.*yyyy`
       {:ok, entry6} =
-        IndexingPipeline.write_hydration_cache_entry(%{
+        IndexingPipeline.write_figgy_combined_resource(%{
           cache_version: 0,
           record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
           related_ids: [],
           source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
           source_cache_order_record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
-          data: %{
+          resource: %{
             "id" => "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
             "internal_resource" => "EphemeraFolder",
             "metadata" => %{
@@ -505,13 +505,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
       # Add one to exercise date_created with format `.*[.*yyyy]`
       {:ok, entry7} =
-        IndexingPipeline.write_hydration_cache_entry(%{
+        IndexingPipeline.write_figgy_combined_resource(%{
           cache_version: 0,
           record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
           related_ids: [],
           source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
           source_cache_order_record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
-          data: %{
+          resource: %{
             "id" => "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
             "internal_resource" => "EphemeraFolder",
             "metadata" => %{
@@ -523,13 +523,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
       # Add one to exercise date_created with format `[yyyy]`
       {:ok, entry8} =
-        IndexingPipeline.write_hydration_cache_entry(%{
+        IndexingPipeline.write_figgy_combined_resource(%{
           cache_version: 0,
           record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
           related_ids: [],
           source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
           source_cache_order_record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
-          data: %{
+          resource: %{
             "id" => "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
             "internal_resource" => "EphemeraFolder",
             "metadata" => %{
@@ -540,13 +540,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
         })
 
       {:ok, entry9} =
-        IndexingPipeline.write_hydration_cache_entry(%{
+        IndexingPipeline.write_figgy_combined_resource(%{
           cache_version: 0,
           record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
           related_ids: [],
           source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
           source_cache_order_record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
-          data: %{
+          resource: %{
             "id" => "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
             "internal_resource" => "EphemeraFolder",
             "metadata" => %{
@@ -558,13 +558,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
       # ScannedResource with a single value (non-interval) ISO 8601 created date
       {:ok, entry10} =
-        IndexingPipeline.write_hydration_cache_entry(%{
+        IndexingPipeline.write_figgy_combined_resource(%{
           cache_version: 0,
           record_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
           related_ids: [],
           source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
           source_cache_order_record_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-          data: %{
+          resource: %{
             "id" => "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
             "internal_resource" => "ScannedResource",
             "metadata" => %{
@@ -575,13 +575,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      doc4 = HydrationCacheEntry.to_solr_document(entry4)
-      doc5 = HydrationCacheEntry.to_solr_document(entry5)
-      doc6 = HydrationCacheEntry.to_solr_document(entry6)
-      doc7 = HydrationCacheEntry.to_solr_document(entry7)
-      doc8 = HydrationCacheEntry.to_solr_document(entry8)
-      doc9 = HydrationCacheEntry.to_solr_document(entry9)
-      doc10 = HydrationCacheEntry.to_solr_document(entry10)
+      doc4 = CombinedResource.to_solr_document(entry4)
+      doc5 = CombinedResource.to_solr_document(entry5)
+      doc6 = CombinedResource.to_solr_document(entry6)
+      doc7 = CombinedResource.to_solr_document(entry7)
+      doc8 = CombinedResource.to_solr_document(entry8)
+      doc9 = CombinedResource.to_solr_document(entry9)
+      doc10 = CombinedResource.to_solr_document(entry10)
 
       assert doc1[:years_is] == [2022]
       assert doc2[:years_is] == [1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005]
@@ -608,13 +608,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
     test "logs dates it can't parse" do
       # date created has a bad date
       {:ok, entry} =
-        IndexingPipeline.write_hydration_cache_entry(%{
+        IndexingPipeline.write_figgy_combined_resource(%{
           cache_version: 0,
           record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
           related_ids: [],
           source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
           source_cache_order_record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
-          data: %{
+          resource: %{
             "id" => "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
             "internal_resource" => "EphemeraFolder",
             "metadata" => %{
@@ -624,19 +624,19 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      assert capture_log(fn -> HydrationCacheEntry.to_solr_document(entry) end) =~
+      assert capture_log(fn -> CombinedResource.to_solr_document(entry) end) =~
                "couldn't parse date"
     end
 
     test "when an entry has no title field the solr document title has a default value" do
       {:ok, entry} =
-        IndexingPipeline.write_hydration_cache_entry(%{
+        IndexingPipeline.write_figgy_combined_resource(%{
           cache_version: 0,
           record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
           related_ids: [],
           source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
           source_cache_order_record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
-          data: %{
+          resource: %{
             "id" => "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
             "internal_resource" => "EphemeraFolder",
             "metadata" => %{
@@ -646,12 +646,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      assert %{title_txtm: ["[Missing Title]"]} = HydrationCacheEntry.to_solr_document(entry)
+      assert %{title_txtm: ["[Missing Title]"]} = CombinedResource.to_solr_document(entry)
     end
 
     test "when an entry has a term with no id, the solr document is returned without the term" do
       {:ok, entry} =
-        IndexingPipeline.write_hydration_cache_entry(%{
+        IndexingPipeline.write_figgy_combined_resource(%{
           cache_version: 0,
           record_id: "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
           related_ids: [],
@@ -666,7 +666,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
               }
             }
           },
-          data: %{
+          resource: %{
             "id" => "f134f41f-63c5-4fdf-b801-0774e3bc3b2d",
             "internal_resource" => "EphemeraFolder",
             "metadata" => %{
@@ -677,18 +677,18 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           }
         })
 
-      assert %{format_txt_sort: []} = HydrationCacheEntry.to_solr_document(entry)
+      assert %{format_txt_sort: []} = CombinedResource.to_solr_document(entry)
     end
 
     test "indexes harmful_content" do
       {:ok, entry} =
-        IndexingPipeline.write_hydration_cache_entry(%{
+        IndexingPipeline.write_figgy_combined_resource(%{
           cache_version: 0,
           record_id: "d4292e58-25d7-4247-bf92-0a5e24ec75d1",
           source_cache_order: ~U[2024-01-11 16:41:04.389944Z],
           related_ids: [],
           source_cache_order_record_id: "d4292e58-25d7-4247-bf92-0a5e24ec75d1",
-          data: %{
+          resource: %{
             "id" => "d4292e58-25d7-4247-bf92-0a5e24ec75d1",
             "internal_resource" => "EphemeraFolder",
             "metadata" => %{
@@ -702,18 +702,18 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
       assert %{
                content_warning_s: "Unspecified"
-             } = HydrationCacheEntry.to_solr_document(entry)
+             } = CombinedResource.to_solr_document(entry)
     end
 
     test "indexes content warning" do
       {:ok, entry} =
-        IndexingPipeline.write_hydration_cache_entry(%{
+        IndexingPipeline.write_figgy_combined_resource(%{
           cache_version: 0,
           record_id: "d4292e58-25d7-4247-bf92-0a5e24ec75d1",
           related_ids: [],
           source_cache_order: ~U[2024-01-11 16:41:04.389944Z],
           source_cache_order_record_id: "d4292e58-25d7-4247-bf92-0a5e24ec75d1",
-          data: %{
+          resource: %{
             "id" => "d4292e58-25d7-4247-bf92-0a5e24ec75d1",
             "internal_resource" => "EphemeraFolder",
             "metadata" => %{
@@ -729,7 +729,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
       assert %{
                content_warning_s:
                  "This item depicts images that may be harmful in this specific way."
-             } = HydrationCacheEntry.to_solr_document(entry)
+             } = CombinedResource.to_solr_document(entry)
     end
   end
 end

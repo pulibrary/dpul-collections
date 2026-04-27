@@ -14,7 +14,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
           optional(resource_id :: String.t()) => resource_struct :: map()
         }
 
-  # Normally this is set from a HydrationCacheEntry, so data and related_data
+  # Normally this is set from a CombinedResource, so data and related_data
   # are maps, not resources. When it's a resource, convert our data.
   # TODO: Have a consistent data and casting mechanism here.
   def to_solr_document(
@@ -26,7 +26,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedFiggyResource do
     %{
       combined
       | # We need string keys everywhere and no atom keys, this is what
-        # HydrationCacheEntry does as part of Ecto, so replicate it here.
+        # CombinedResource does as part of Ecto, so replicate it here.
         resource: resource |> Jason.encode!() |> Jason.decode!(),
         related_data: related_data |> Jason.encode!() |> Jason.decode!()
     }

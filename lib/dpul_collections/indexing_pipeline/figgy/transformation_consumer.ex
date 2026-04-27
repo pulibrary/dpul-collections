@@ -1,9 +1,9 @@
 defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
   @moduledoc """
-  Broadway consumer that demands Figgy.HydrationCacheEntry records, transforms
+  Broadway consumer that demands Figgy.CombinedResource records, transforms
   them into Solr documents, and caches them in a database.
   """
-  alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry
+  alias DpulCollections.IndexingPipeline.Figgy.CombinedResource
   alias DpulCollections.IndexingPipeline.Figgy.ResourceTypeRegistry
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy
@@ -51,7 +51,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
   def handle_message(
         _processor,
         message = %Broadway.Message{
-          data: resource = %HydrationCacheEntry{},
+          data: resource = %CombinedResource{},
           metadata: %{marker: marker}
         },
         %{cache_version: cache_version}
@@ -82,9 +82,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
   end
 
   # # We don't have the full resource yet, fetch it and re-classify.
-  def initial_classification(%HydrationCacheEntry{id: id, data: nil}, cache_version) do
+  def initial_classification(%CombinedResource{id: id, resource: nil}, cache_version) do
     initial_classification(
-      IndexingPipeline.get_hydration_cache_entry!(id),
+      IndexingPipeline.get_figgy_combined_resource!(id),
       cache_version
     )
   end
@@ -92,7 +92,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
   @transformable_resource_types ResourceTypeRegistry.transformable_types()
 
   def initial_classification(
-        resource = %HydrationCacheEntry{data: %{"internal_resource" => internal_resource}},
+        resource = %CombinedResource{resource: %{"internal_resource" => internal_resource}},
         _cache_version
       )
       when internal_resource in @transformable_resource_types do
@@ -104,12 +104,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
   end
 
   def enrich(
-        {:update, hydration_cache_entry = %HydrationCacheEntry{}},
+        {:update, figgy_combined_resource = %CombinedResource{}},
         _cache_version
       ) do
     solr_doc =
-      hydration_cache_entry
-      |> Figgy.HydrationCacheEntry.to_solr_document()
+      figgy_combined_resource
+      |> Figgy.CombinedResource.to_solr_document()
 
     # Cache solr document thumbnails
     %{solr_document: solr_doc}

@@ -267,7 +267,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
     )
   end
 
-  @spec wrap_record(record :: HydrationCacheEntry) :: Broadway.Message.t()
+  @spec wrap_record(record :: CombinedResource) :: Broadway.Message.t()
   defp wrap_record(record) do
     %Broadway.Message{
       data: record,
