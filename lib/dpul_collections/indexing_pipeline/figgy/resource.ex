@@ -51,6 +51,15 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
 
   def populate_virtual(resource), do: resource
 
+  def to_combined_resources(resource = %Figgy.Resource{},
+        cache_version: cache_version,
+        persist: persist
+      ) do
+    result =
+      Figgy.Resource.Processor.process(resource, cache_version)
+      |> Figgy.Resource.Processor.persist(cache_version)
+  end
+
   @spec to_combined(%__MODULE__{}) :: %Figgy.CombinedFiggyResource{}
   def to_combined(resource = %Figgy.Resource{metadata: %{"member_ids" => member_ids}}) do
     related_data = extract_related_data(resource)

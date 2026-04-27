@@ -156,7 +156,11 @@ defmodule DpulCollections.IndexingPipeline do
           cache_version :: integer
         ) :: list(String.t())
   @decorate trace()
-  def get_related_figgy_combined_resource_record_ids!(related_id, related_timestamp, cache_version) do
+  def get_related_figgy_combined_resource_record_ids!(
+        related_id,
+        related_timestamp,
+        cache_version
+      ) do
     arr = [related_id]
 
     query =

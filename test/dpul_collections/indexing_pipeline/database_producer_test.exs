@@ -116,7 +116,9 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducerTest do
 
     test "handle_info/2 with database producer ack, acknowledging first and third record" do
       cache_version = 1
-      {marker1, marker2, marker3} = FiggyTestFixtures.combined_figgy_resource_markers(cache_version)
+
+      {marker1, marker2, marker3} =
+        FiggyTestFixtures.combined_figgy_resource_markers(cache_version)
 
       {:producer, initial_state} = DatabaseProducer.init({Figgy.TransformationProducerSource, 0})
 

@@ -787,8 +787,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           (%Resource{} = folder)
           | metadata: %{folder.metadata | "genre" => [%{"id" => ""}]}
         }
-        |> HydrationConsumer.process(1)
-        |> HydrationConsumer.figgy_combined_resource_attributes(1)
+        |> Resource.Processor.process(1)
+        |> Resource.Processor.figgy_combined_resource_attributes(1)
         |> get_in([:related_data])
         |> get_in(["resources"])
         |> Map.keys()
@@ -802,8 +802,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
 
       metadata =
         folder
-        |> HydrationConsumer.process(1)
-        |> HydrationConsumer.figgy_combined_resource_attributes(1)
+        |> Resource.Processor.process(1)
+        |> Resource.Processor.figgy_combined_resource_attributes(1)
         |> get_in([:resource])
         |> get_in([Access.key!(:metadata)])
 
@@ -815,8 +815,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
 
       metadata =
         %Resource{(%Resource{} = folder) | metadata: %{folder.metadata | "member_ids" => []}}
-        |> HydrationConsumer.process(1)
-        |> HydrationConsumer.figgy_combined_resource_attributes(1)
+        |> Resource.Processor.process(1)
+        |> Resource.Processor.figgy_combined_resource_attributes(1)
         |> get_in([:resource])
         |> get_in([Access.key!(:metadata)])
 
@@ -838,8 +838,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           (%Resource{} = folder)
           | metadata: %{folder.metadata | "member_ids" => member_ids}
         }
-        |> HydrationConsumer.process(1)
-        |> HydrationConsumer.figgy_combined_resource_attributes(1)
+        |> Resource.Processor.process(1)
+        |> Resource.Processor.figgy_combined_resource_attributes(1)
         |> get_in([:related_data])
         |> get_in(["resources"])
         |> Map.keys()
@@ -852,8 +852,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
 
       resource_ids =
         folder
-        |> HydrationConsumer.process(1)
-        |> HydrationConsumer.figgy_combined_resource_attributes(1)
+        |> Resource.Processor.process(1)
+        |> Resource.Processor.figgy_combined_resource_attributes(1)
         |> get_in([:related_data])
         |> get_in(["resources"])
         |> Map.keys()

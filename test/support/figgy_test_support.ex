@@ -71,8 +71,8 @@ defmodule FiggyTestSupport do
     marker = IndexingPipeline.DatabaseProducer.CacheEntryMarker.from(record)
 
     cache_attrs =
-      Figgy.HydrationConsumer.process(record, 1)
-      |> Figgy.HydrationConsumer.figgy_combined_resource_attributes(1)
+      Figgy.Resource.Processor.process(record, 1)
+      |> Figgy.Resource.Processor.figgy_combined_resource_attributes(1)
 
     {:ok, cache_entry} =
       IndexingPipeline.write_figgy_combined_resource(%{
