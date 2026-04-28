@@ -496,7 +496,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           id={"item-metadata-#{@item.id}"}
         >
           <div class="flex flex-wrap flex-row sm:flex-row justify-between">
-            <h2 dir="auto w-full flex-grow sm:w-fit">
+            <h2 dir="auto" class="w-full flex-grow sm:w-fit">
               <.link
                 navigate={@item.url}
                 class="card-link"
@@ -537,7 +537,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     ~H"""
     <li
       id={"item-#{@item.id}"}
-      class="item card"
+      class="item card text-start"
       aria-label={@item.title |> hd}
       phx-hook="ShowPageCount"
       data-id={@item.id}
@@ -565,7 +565,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           id={"item-metadata-#{@item.id}"}
         >
           <div class="flex flex-wrap flex-row sm:flex-row justify-between">
-            <h2 dir="auto w-full flex-grow sm:w-fit">
+            <h2 dir="auto" class="w-full flex-grow sm:w-fit pr-3">
               <.link
                 navigate={@item.url}
                 class="card-link"
