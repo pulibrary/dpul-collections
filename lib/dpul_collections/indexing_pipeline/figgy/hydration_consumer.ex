@@ -2,10 +2,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   @moduledoc """
   Broadway consumer that demands Figgy records and caches them in the database.
   """
-  alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
-  alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy
-  alias DpulCollections.IndexingPipeline.Figgy.ResourceTypeRegistry
   alias DpulCollections.IndexingPipeline.DatabaseProducer
   use Broadway
 
@@ -55,19 +52,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         },
         %{cache_version: cache_version}
       ) do
-    case Figgy.Resource.to_combined_resources(resource,
+    case Figgy.CombinedResource.from(resource,
            cache_version: cache_version,
            persist: true
          ) do
       {:ok, _combined_resources} -> message
       {:error, _} -> Broadway.Message.put_batcher(message, :noop)
     end
-
-    # with {:ok, combined_resources} <- Figgy.Resource.to_combined_resource(resource, persist: true)
-    # resource
-    # |> process(cache_version)
-    # |> persist(cache_version)
-    # |> store_result(message)
   end
 
   @impl Broadway

@@ -62,29 +62,33 @@ defmodule DpulCollections.IndexingPipeline do
   @doc """
   Writes or updates hydration cache entries.
   """
-  def write_figgy_combined_resource(attrs \\ %{}) do
+  def write_figgy_combined_resource(attrs \\ %{})
+
+  def write_figgy_combined_resource(change_set = %Ecto.Changeset{}) do
     conflict_query =
       Figgy.CombinedResource
       |> update(
         set: [
-          resource: ^attrs.resource,
-          related_data: ^attrs[:related_data],
-          related_ids: ^attrs.related_ids,
-          source_cache_order: ^attrs.source_cache_order,
-          source_cache_order_record_id: ^attrs.source_cache_order_record_id,
+          resource: fragment("EXCLUDED.resource"),
+          related_data: fragment("EXCLUDED.related_data"),
+          related_ids: fragment("EXCLUDED.related_ids"),
+          source_cache_order: fragment("EXCLUDED.source_cache_order"),
+          source_cache_order_record_id: fragment("EXCLUDED.source_cache_order_record_id"),
           cache_order: ^DateTime.utc_now()
         ]
       )
-      |> where([c], c.source_cache_order <= ^attrs.source_cache_order)
+      |> where([c], fragment("EXCLUDED.source_cache_order > ?", c.source_cache_order))
 
     Repo.transact(fn ->
       try do
         # Serialize writes for a cache version by acquiring an advisory lock.
         # It takes two integers - 1 here is special and for Hydration.
-        Repo.query!("SELECT pg_advisory_xact_lock($1, $2)", [attrs.cache_version, 1])
+        Repo.query!("SELECT pg_advisory_xact_lock($1, $2)", [
+          Ecto.Changeset.get_field(change_set, :cache_version),
+          1
+        ])
 
-        %Figgy.CombinedResource{}
-        |> Figgy.CombinedResource.changeset(attrs)
+        change_set
         |> Repo.insert(
           on_conflict: conflict_query,
           conflict_target: [:cache_version, :record_id]
@@ -93,6 +97,12 @@ defmodule DpulCollections.IndexingPipeline do
         Ecto.StaleEntryError -> {:ok, nil}
       end
     end)
+  end
+
+  def write_figgy_combined_resource(attrs = %{}) do
+    %Figgy.CombinedResource{}
+    |> Figgy.CombinedResource.changeset(attrs)
+    |> write_figgy_combined_resource()
   end
 
   @spec get_combined_figgy_resources_since!(

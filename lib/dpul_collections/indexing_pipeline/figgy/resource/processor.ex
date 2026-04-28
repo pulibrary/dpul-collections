@@ -33,11 +33,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource.Processor do
          {:ok, persisted_resources} <- persist(final_resources, cache_version) do
       {:ok, persisted_resources}
     end
+  end
 
-    # resource
-    # |> initial_classification(cache_version)
-    # |> enrich(cache_version)
-    # |> post_classification(cache_version)
+  def new_process(resource, cache_version) do
   end
 
   @spec initial_classification(resource :: %Figgy.Resource{}, cache_version :: integer) ::

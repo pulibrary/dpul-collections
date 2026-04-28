@@ -1,5 +1,7 @@
 defmodule DpulCollections.IndexingPipeline.Figgy.CombinedResource do
+  alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy.CombinedResource
+  alias DpulCollections.IndexingPipeline.Figgy.CombinedResource.{Filter, Builder}
   alias DpulCollections.IndexingPipeline.Figgy
   use Ecto.Schema
   import Ecto.Changeset
@@ -38,6 +40,24 @@ defmodule DpulCollections.IndexingPipeline.Figgy.CombinedResource do
       :source_cache_order,
       :source_cache_order_record_id
     ])
+  end
+
+  def from(resource, cache_version: cache_version, persist: _) do
+    results =
+      resource
+      |> Filter.filter(cache_version)
+      |> Builder.build(cache_version)
+      |> Stream.map(fn resource ->
+        IndexingPipeline.write_figgy_combined_resource(resource)
+        :ok
+      end)
+      |> Enum.to_list()
+
+    case results do
+      # Nothing saved
+      [] -> {:error, :skip}
+      _ -> {:ok, nil}
+    end
   end
 
   @spec to_solr_document(%__MODULE__{}) :: %{}
