@@ -101,26 +101,25 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             </h1>
           </div>
           <div class="page-y-padding relative z-30">
-            <div class="hero-container-collection flex md:flex-row-reverse flex-col gap-0">
+            <div class="hero-container-collection flex md:flex-row-reverse w-full gap-0">
               <!-- Right Column: Featured Items Mosaic -->
               <div
                 id="collection-mosaic"
-                class="flex flex-col gap-4 w-full grow"
+                class="flex flex-col gap-4 grow shrink-0"
                 phx-update="ignore"
               >
-                <div class="max-h-120 p-2 card-darkdrop bg-white min-h-0 min-w-0 flex">
-                  <div class="overflow-hidden w-full">
+                <div class="p-2 card-darkdrop bg-white/75 flex justify-center">
+                  <div>
                     <.link
                       :if={@mosaic_title_item}
                       href={@mosaic_title_item.url}
-                      class="overflow-hidden"
                       aria-label={"View #{@mosaic_title_item.title |> hd}"}
                     >
                       <img
                         src={"#{@mosaic_title_item.primary_thumbnail_service_url}/full/!#{@mosaic_title_item.primary_thumbnail_width},#{@mosaic_title_item.primary_thumbnail_height}/0/default.jpg"}
                         width={@mosaic_title_item.primary_thumbnail_width}
                         height={@mosaic_title_item.primary_thumbnail_height}
-                        class="object-cover object-top max-h-full max-w-full w-full"
+                        class="object-contain object-top max-h-[600px]"
                         alt={@mosaic_title_item.title |> hd}
                       />
                     </.link>
@@ -136,7 +135,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 </div>
               </div>
               <!-- Left Column: Content -->
-              <div class="md:max-w-[40%]">
+              <div class="grow-0 shrink-5">
                 <div class="w-full relative z-30">
                   <div class="flex flex-wrap gap-4 p-5 relative z-50 bg-white/75">
                     <p class="text-lg text-dark-text pb-2">
