@@ -9,6 +9,12 @@
       "base_url": "http://lib-solr9-prod.princeton.edu:8983",
       "collection": "dpulc-production2",
       "config_set": "dpulc-production"
+    },
+    {
+      "cache_version": 3,
+      "base_url": "http://lib-solr9-prod.princeton.edu:8983",
+      "collection": "dpulc-production3",
+      "config_set": "dpulc-production"
     }
   ]
 }
