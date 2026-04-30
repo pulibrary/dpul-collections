@@ -118,7 +118,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                       width={@mosaic_title_item.primary_thumbnail_width}
                       height={@mosaic_title_item.primary_thumbnail_height}
                       class={[
-                        (@mosaic_title_item.primary_thumbnail_height >
+                        (@mosaic_title_item.primary_thumbnail_height >=
                            @mosaic_title_item.primary_thumbnail_width && "md:h-[50dvh] w-auto") ||
                           "md:w-30dvw h-auto",
                         "object-contain"
