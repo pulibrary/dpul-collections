@@ -117,7 +117,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                       src={"#{@mosaic_title_item.primary_thumbnail_service_url}/full/!#{@mosaic_title_item.primary_thumbnail_width},#{@mosaic_title_item.primary_thumbnail_height}/0/default.jpg"}
                       width={@mosaic_title_item.primary_thumbnail_width}
                       height={@mosaic_title_item.primary_thumbnail_height}
-                      class="max-h-[50dvh] max-w-full w-auto h-auto"
+                      class="h-[50dvh] max-h-[50dvh] max-w-full w-auto"
                       alt={@mosaic_title_item.title |> hd}
                     />
                   </.link>
