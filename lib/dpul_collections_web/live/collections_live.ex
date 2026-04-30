@@ -119,8 +119,8 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                       height={@mosaic_title_item.primary_thumbnail_height}
                       class={[
                         (@mosaic_title_item.primary_thumbnail_height >
-                           @mosaic_title_item.primary_thumbnail_width && "h-[50dvh] w-auto") ||
-                          "w-30dvw h-auto",
+                           @mosaic_title_item.primary_thumbnail_width && "md:h-[50dvh] w-auto") ||
+                          "md:w-30dvw h-auto",
                         "object-contain"
                       ]}
                       alt={@mosaic_title_item.title |> hd}
