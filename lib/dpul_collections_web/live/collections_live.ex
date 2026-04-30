@@ -104,7 +104,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             <div class="hero-container-collection flex flex-col md:flex-row-reverse w-full">
               <div
                 id="collection-mosaic"
-                class="flex items-center md:items-start gap-4 flex-col md:max-w-[70%]"
+                class="flex items-center md:items-end gap-4 flex-col md:max-w-[70%]"
                 phx-update="ignore"
               >
                 <div class="p-2 card-darkdrop bg-white/75">
