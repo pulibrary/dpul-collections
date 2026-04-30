@@ -101,6 +101,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             </h1>
           </div>
           <div class="page-y-padding relative z-30">
+            <!-- Right Column: Featured Items Mosaic -->
             <div class="hero-container-collection flex flex-col md:flex-row-reverse w-full">
               <div
                 id="collection-mosaic"
@@ -137,7 +138,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                   </.primary_button>
                 </div>
               </div>
-
+              <!-- Left Column: Content -->
               <div class="grow flex-1 min-w-0 w-full">
                 <div class="w-full relative z-30">
                   <div class="flex flex-wrap gap-4 p-5 relative z-50 bg-white/75">
