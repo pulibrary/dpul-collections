@@ -101,41 +101,40 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             </h1>
           </div>
           <div class="page-y-padding relative z-30">
-            <div class="hero-container-collection flex md:flex-row-reverse w-full gap-0">
-              <!-- Right Column: Featured Items Mosaic -->
+            <div class="hero-container-collection flex flex-col md:flex-row-reverse w-full">
               <div
                 id="collection-mosaic"
-                class="flex flex-col gap-4 grow shrink-0"
+                class="flex gap-4 flex-col md:h-full md:shrink-0"
                 phx-update="ignore"
               >
-                <div class="p-2 card-darkdrop bg-white/75 flex justify-center">
-                  <div>
-                    <.link
-                      :if={@mosaic_title_item}
-                      href={@mosaic_title_item.url}
-                      aria-label={"View #{@mosaic_title_item.title |> hd}"}
-                    >
-                      <img
-                        src={"#{@mosaic_title_item.primary_thumbnail_service_url}/full/!#{@mosaic_title_item.primary_thumbnail_width},#{@mosaic_title_item.primary_thumbnail_height}/0/default.jpg"}
-                        width={@mosaic_title_item.primary_thumbnail_width}
-                        height={@mosaic_title_item.primary_thumbnail_height}
-                        class="object-contain object-top max-h-[600px]"
-                        alt={@mosaic_title_item.title |> hd}
-                      />
-                    </.link>
-                  </div>
+                <div class="p-2 card-darkdrop bg-white/75 flex justify-center flex-1 min-h-0">
+                  <.link
+                    :if={@mosaic_title_item}
+                    href={@mosaic_title_item.url}
+                    aria-label={"View #{@mosaic_title_item.title |> hd}"}
+                    class="block h-full max-w-full"
+                  >
+                    <img
+                      src={"#{@mosaic_title_item.primary_thumbnail_service_url}/full/!#{@mosaic_title_item.primary_thumbnail_width},#{@mosaic_title_item.primary_thumbnail_height}/0/default.jpg"}
+                      width={@mosaic_title_item.primary_thumbnail_width}
+                      height={@mosaic_title_item.primary_thumbnail_height}
+                      class="object-contain object-top h-full w-auto max-w-full"
+                      alt={@mosaic_title_item.title |> hd}
+                    />
+                  </.link>
                 </div>
-                <div class="flex justify-items-end">
+
+                <div class="flex justify-end">
                   <.primary_button
                     href={~p"/search?#{%{filter: %{collection: [@collection.title |> hd]}}}"}
-                    class="btn-primary hidden md:flex ml-auto"
+                    class="btn-primary hidden md:flex"
                   >
                     {gettext("Browse Collection")}
                   </.primary_button>
                 </div>
               </div>
-              <!-- Left Column: Content -->
-              <div class="grow-0 shrink-5">
+
+              <div class="grow flex-1 min-w-0 overflow-y-auto">
                 <div class="w-full relative z-30">
                   <div class="flex flex-wrap gap-4 p-5 relative z-50 bg-white/75">
                     <p class="text-lg text-dark-text pb-2">
@@ -161,14 +160,12 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                   </div>
                 </div>
                 <div class="flex flex-wrap gap-4 py-4">
-                  <a
-                    href="#learn-more"
-                    class="btn-secondary grow md:grow-0"
-                  >
+                  <a href="#learn-more" class="btn-secondary grow md:grow-0">
                     {gettext("Learn More")}
                   </a>
                 </div>
               </div>
+
               <div class="grid-cols-1 col-span-2 static md:hidden">
                 <.primary_button
                   href={~p"/search?#{%{filter: %{collection: [@collection.title |> hd]}}}"}
