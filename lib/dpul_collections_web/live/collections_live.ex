@@ -104,21 +104,20 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             <div class="hero-container-collection flex flex-col md:flex-row-reverse w-full">
               <div
                 id="collection-mosaic"
-                class="flex gap-4 flex-col md:h-full md:shrink-0"
+                class="flex items-center md:items-start gap-4 flex-col md:max-w-[70%]"
                 phx-update="ignore"
               >
-                <div class="p-2 card-darkdrop bg-white/75 flex justify-center flex-1 min-h-0">
+                <div class="p-2 card-darkdrop bg-white/75">
                   <.link
                     :if={@mosaic_title_item}
                     href={@mosaic_title_item.url}
                     aria-label={"View #{@mosaic_title_item.title |> hd}"}
-                    class="block h-full max-w-full"
                   >
                     <img
                       src={"#{@mosaic_title_item.primary_thumbnail_service_url}/full/!#{@mosaic_title_item.primary_thumbnail_width},#{@mosaic_title_item.primary_thumbnail_height}/0/default.jpg"}
                       width={@mosaic_title_item.primary_thumbnail_width}
                       height={@mosaic_title_item.primary_thumbnail_height}
-                      class="object-contain object-top h-full w-auto max-w-full"
+                      class="max-h-[50dvh] max-w-full w-auto h-auto"
                       alt={@mosaic_title_item.title |> hd}
                     />
                   </.link>
@@ -134,13 +133,13 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 </div>
               </div>
 
-              <div class="grow flex-1 min-w-0 overflow-y-auto">
+              <div class="grow flex-1 min-w-0 w-full">
                 <div class="w-full relative z-30">
                   <div class="flex flex-wrap gap-4 p-5 relative z-50 bg-white/75">
                     <p class="text-lg text-dark-text pb-2">
                       {@collection.tagline}
                     </p>
-                    <div class="flex flex-wrap justify-center items-center text-dark-text gap-2">
+                    <div class="flex flex-wrap items-center text-dark-text gap-2">
                       <div class="text-sm bg-cloud rounded-full px-3 py-1">
                         {@collection.item_count} {gettext("Items")}
                       </div>
@@ -166,7 +165,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 </div>
               </div>
 
-              <div class="grid-cols-1 col-span-2 static md:hidden">
+              <div class="grid-cols-1 col-span-2 static md:hidden w-full">
                 <.primary_button
                   href={~p"/search?#{%{filter: %{collection: [@collection.title |> hd]}}}"}
                   class="btn-primary w-full"
