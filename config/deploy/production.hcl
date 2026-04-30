@@ -42,7 +42,11 @@ job "dpulc-production" {
         "traefik.http.routers.digital-collections-production-apply-mw.rule=Header(`X-Forwarded-Host`, `digital-collections.princeton.edu`)",
         # NOTE: Disabled this because we can take the traffic right now. If that changes, put this back in.
         # "traefik.http.routers.digital-collections-production-apply-mw.middlewares=captcha-protect@file",
-        "traefik.http.routers.digital-collections-production-apply-mw.priority=10"
+        "traefik.http.routers.digital-collections-production-apply-mw.priority=10",
+        # Health checks lets Traefik keep track of down nodes and lets us monitor uptime.
+        "traefik.http.services.dpulc-production-web.loadbalancer.healthcheck.path=/health",
+        "traefik.http.services.dpulc-production-web.loadbalancer.healthcheck.interval=10s",
+        "traefik.http.services.dpulc-production-web.loadbalancer.healthcheck.timeout=2s"
       ]
       check {
         type = "http"
