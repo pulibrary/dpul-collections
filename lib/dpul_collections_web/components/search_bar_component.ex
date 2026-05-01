@@ -9,7 +9,7 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
   def render(assigns) do
     ~H"""
     <div class="subnav-bar cover-with-pane">
-      <div class="search-container min-h-[48px] flex flex-wrap bg-search">
+      <div class="search-container min-h-[48px] bg-search">
         <form
           id="search-form"
           class="grow group w-full h-full"
