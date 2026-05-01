@@ -181,7 +181,31 @@ defmodule DpulCollectionsWeb.SearchLive do
         }
       }
     </script>
-    <section id="filters">
+    <script :type={Phoenix.LiveView.ColocatedHook} name=".FilterHotkey">
+      export default {
+        mounted() {
+          this.handler = (e) => {
+            // Return unless the `f` key is pressed
+            if (e.key !== 'f') return;
+            // Return if any modifier key is pressed
+            if (e.metaKey || e.ctrlKey || e.altKey) return;
+            const target = e.target;
+            // Return if we are inputting text so we can use the `f` character
+            if (target.tagName === 'INPUT' && target.type === 'text') return;
+
+            e.preventDefault();
+            const modal = document.getElementById('filter-modal');
+            const event = modal.open ? 'dpulc:closeDialog' : 'dpulc:showDialog';
+            modal.dispatchEvent(new Event(event));
+          };
+          window.addEventListener('keydown', this.handler);
+        },
+        destroyed() {
+          window.removeEventListener('keydown', this.handler);
+        }
+      }
+    </script>
+    <section id="filters" phx-hook=".FilterHotkey">
       <div id="search-filters" class="content-area py-4 w-full">
         <div class="flex items-center gap-4 flex-wrap">
           <.primary_button
