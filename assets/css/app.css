@@ -331,6 +331,7 @@
 }
 
 @utility subnav-diagonal-left {
+  @apply pl-[24px];
   @apply pr-[70px];
   clip-path: polygon(0 0, 100% 0, calc(100% - 40px) 100%, 0 100%, 0 100%);
 }
@@ -348,7 +349,6 @@
 
 @utility subnav-diagonal-right-pair {
   @apply max-md:transform-[translateX(-40px)];
-  @apply pr-[35px];
 }
 
 .diagonal-drop {

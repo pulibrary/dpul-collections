@@ -68,8 +68,8 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
                 value="all"
                 class={[
                   "grow subnav-diagonal-right h-[48px]",
-                  String.length(@collection_title) > 0 && "subnav-diagonal-right-pair",
-                  String.length(@collection_title) > 0 || "subnav-r-padding"
+                  "subnav-r-padding",
+                  String.length(@collection_title) > 0 && "subnav-diagonal-right-pair"
                 ]}
               >
                 {search_label(@collection_title)}
