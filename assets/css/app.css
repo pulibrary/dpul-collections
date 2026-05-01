@@ -348,7 +348,7 @@
 
 @utility subnav-diagonal-right-pair {
   @apply max-md:transform-[translateX(-40px)];
-  @apply max-md:pr-[35px];
+  @apply pr-[35px];
 }
 
 .diagonal-drop {

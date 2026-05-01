@@ -24,8 +24,9 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
           />
           <div
             class={[
-              "flex items-stretch w-full h-full",
-              String.length(@collection_title) > 0 && "flex-wrap"
+              "grid md:grid-rows-1 md:grid-cols-[1fr_min-content] items-stretch w-full h-full",
+              String.length(@collection_title) > 0 && "grid-rows-2 grid-cols-1",
+              String.length(@collection_title) > 0 || "grid-rows-1 grid-cols-[1fr_min-content]"
             ]}
             role="search"
           >
@@ -45,8 +46,8 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
             </div>
 
             <div class={[
-              "subnav-buttons flex items-stretch space-x-1 text-sm md:text-base md:w-auto",
-              String.length(@collection_title) > 0 && "w-full"
+              "subnav-buttons flex items-stretch justify-items-stretch space-x-1 text-sm md:text-base md:w-auto",
+              String.length(@collection_title) > 0 && "w-[calc(100%+40px)]"
             ]}>
               <.primary_button
                 :if={String.length(@collection_title) > 0}
