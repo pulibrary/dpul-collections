@@ -22,7 +22,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
   @doc """
   Build a Solr document from a CombinedFiggyResource.
   """
-  def from_combined_figgy_resource(%Figgy.CombinedFiggyResource{related_data: related_data, resource: data}) do
+  def from_combined_figgy_resource(%Figgy.CombinedFiggyResource{
+        related_data: related_data,
+        resource: data
+      }) do
     build(
       data |> Jason.encode!() |> Jason.decode!(),
       related_data |> Jason.encode!() |> Jason.decode!()
