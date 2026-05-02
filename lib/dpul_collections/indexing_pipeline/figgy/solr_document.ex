@@ -19,6 +19,19 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
     build(data, related_data)
   end
 
+  @doc """
+  Build a Solr document from a CombinedFiggyResource.
+  """
+  def from_combined_figgy_resource(%Figgy.CombinedFiggyResource{
+        related_data: related_data,
+        resource: data
+      }) do
+    build(
+      data |> Jason.encode!() |> Jason.decode!(),
+      related_data |> Jason.encode!() |> Jason.decode!()
+    )
+  end
+
   defp build(%{"id" => id, "metadata" => %{"deleted" => true}}, _related_data) do
     %{id: id, deleted: true}
   end
@@ -209,8 +222,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
     field_value |> Enum.reject(fn v -> v == "" end)
   end
 
-  defp remove_empty_strings(nil), do: []
-
   defp digitized_date(%{"created_at" => created_at}) when is_binary(created_at) do
     created_at
   end
@@ -241,8 +252,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
       _ -> date
     end
   end
-
-  def imported_date(data), do: data
 
   defp primary_thumbnail(
          %{"thumbnail_id" => thumbnail_id} = metadata,

@@ -111,14 +111,10 @@ defmodule FiggyTestSupport do
   end
 
   def index_record_id_directly(id) do
-    record = IndexingPipeline.get_figgy_resource!(id)
-    combined = Figgy.Resource.to_combined(record)
-
-    %Figgy.HydrationCacheEntry{
-      data: combined.resource |> Jason.encode!() |> Jason.decode!(),
-      related_data: combined.related_data |> Jason.encode!() |> Jason.decode!()
-    }
-    |> Figgy.SolrDocument.from_cache_entry()
+    IndexingPipeline.get_figgy_resource!(id)
+    |> Figgy.Resource.populate_virtual()
+    |> Figgy.Resource.to_combined()
+    |> Figgy.SolrDocument.from_combined_figgy_resource()
     |> Solr.add()
   end
 
