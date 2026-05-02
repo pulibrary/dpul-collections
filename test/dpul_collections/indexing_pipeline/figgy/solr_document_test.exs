@@ -890,5 +890,116 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocumentTest do
       assert doc[:title_txtm] == ["Test Project"]
       assert doc[:resource_type_s] == "collection"
     end
+
+    test "subjects and subject categories have a grouping relationship" do
+      doc =
+        IndexingPipeline.get_figgy_resource!("e8abfa75-253f-428a-b3df-0e83ff2b20f9")
+        |> Figgy.Resource.to_combined()
+        |> Figgy.SolrDocument.from_combined_figgy_resource()
+
+      assert %{
+               categories_txt_sort: [
+                 "Minorities, ethnic and racial groups",
+                 "Politics and government",
+                 "Religion"
+               ],
+               subject_txt_sort: [
+                 "Ethnic relations",
+                 "Peace movements",
+                 "Peace negotiations",
+                 "Liberation theology"
+               ],
+               category_subjects_txt:
+                 "{\"Minorities, ethnic and racial groups\":[\"Ethnic relations\"],\"Politics and government\":[\"Peace movements\",\"Peace negotiations\"],\"Religion\":[\"Liberation theology\"]}"
+             } = doc
+    end
+
+    test "a ScannedResource with MMSID has expected index values" do
+      doc =
+        IndexingPipeline.get_figgy_resource!("27fd4d29-1170-47a5-891b-f2743873bcef")
+        |> Figgy.Resource.to_combined()
+        |> Figgy.SolrDocument.from_combined_figgy_resource()
+
+      assert doc[:mms_id_ss] == "9963573093506421"
+      # We only need 12 - if we have too many it slows down solr requests.
+      assert doc[:image_service_urls_ss] |> length() == 12
+    end
+
+    test "converting a ScannedResource with MMS-ID metadata but no date doesn't index a date" do
+      doc =
+        IndexingPipeline.get_figgy_resource!("27fd4d29-1170-47a5-891b-f2743873bcef")
+        |> Figgy.Resource.to_combined()
+        |> put_in(
+          [
+            Access.key!(:resource),
+            Access.key!(:metadata),
+            Access.key("imported_metadata"),
+            Access.all(),
+            Access.key!("date")
+          ],
+          nil
+        )
+        |> Figgy.SolrDocument.from_combined_figgy_resource()
+
+      assert doc[:display_date_s] == nil
+    end
+
+    test "converting a ScannedResource with MMS-ID metadata but an odd date takes the date as written" do
+      doc =
+        IndexingPipeline.get_figgy_resource!("27fd4d29-1170-47a5-891b-f2743873bcef")
+        |> Figgy.Resource.to_combined()
+        |> put_in(
+          [
+            Access.key!(:resource),
+            Access.key!(:metadata),
+            Access.key("imported_metadata"),
+            Access.all(),
+            Access.key!("date")
+          ],
+          "Seventh of September"
+        )
+        |> Figgy.SolrDocument.from_combined_figgy_resource()
+
+      assert doc[:display_date_s] == "Seventh of September"
+    end
+
+    # This was the case for
+    # https://figgy.princeton.edu/catalog/72507ee3-850b-4ad6-9098-141257cb319f,
+    # which we'll index eventually.
+    test "converting a ScannedResource with MMS-ID metadata and a nil content_warning is able to convert it without erroring" do
+      doc =
+        IndexingPipeline.get_figgy_resource!("1a8c14ca-060c-434f-b999-6191db4c336c")
+        |> Figgy.Resource.to_combined()
+        |> put_in(
+          [
+            Access.key!(:resource),
+            Access.key!(:metadata),
+            Access.key!("content_warning")
+          ],
+          nil
+        )
+        |> Figgy.SolrDocument.from_combined_figgy_resource()
+
+      assert doc[:contents_ss] |> hd() == "Miniatures: fol. 4a: [Firdawsi and the Court Poets]"
+    end
+
+    test "converting a ScannedResource with MMS-ID metadata but an odd language value takes the language as written" do
+      doc =
+        IndexingPipeline.get_figgy_resource!("27fd4d29-1170-47a5-891b-f2743873bcef")
+        |> Figgy.Resource.to_combined()
+        |> put_in(
+          [
+            Access.key!(:resource),
+            Access.key!(:metadata),
+            Access.key("imported_metadata"),
+            Access.all(),
+            Access.key!("language")
+          ],
+          "Klingon"
+        )
+        |> Figgy.SolrDocument.from_combined_figgy_resource()
+
+      assert doc[:language_txt_sort] == "Klingon"
+    end
   end
 end
