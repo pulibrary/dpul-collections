@@ -168,6 +168,21 @@ defmodule DpulCollections.SolrTest do
       assert hd(result.results).id == "spanish-example"
     end
 
+    test "Spanish stemming in qf allows for searching exact match titles" do
+      Solr.add(
+        [%{id: "spanish-example", title_txtm: ["¿Por qué votar el 6D por la revolución?"]}],
+        active_collection()
+      )
+
+      Solr.soft_commit(active_collection())
+
+      search_state = SearchState.from_params(%{"q" => "¿Por qué votar el 6D por la revolución?"})
+      result = Solr.search(search_state)
+
+      assert length(result.results) == 1
+      assert hd(result.results).id == "spanish-example"
+    end
+
     test "English stemming in qf improves search results" do
       # A search for "updates" should find a document titled "Legislative Update"
       # because the English analyzer stems "updates" to "update".
