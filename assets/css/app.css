@@ -98,7 +98,7 @@
  * Make LiveView wrapper divs transparent for layout.
  * This makes it possible to use LiveViews as flex children for example.
  */
-[data-phx-root-id] { display: contents }
+[data-phx-session], [data-phx-teleported-src] { display: contents }
 
 /***
  * page layout utilities
