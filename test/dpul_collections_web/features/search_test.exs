@@ -2,6 +2,7 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
   use DpulCollections.DataCase
   use PhoenixTest.Playwright.Case
   alias DpulCollections.Solr
+  alias PhoenixTest.Playwright
 
   test "filters are searchable", %{conn: conn} do
     Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
@@ -40,6 +41,48 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
     |> assert_has("button.format.filter")
 
     :timer.sleep(1000)
+  end
+
+  describe "the 'f' filter hotkey" do
+    test "toggles the filter modal open and closed", %{conn: conn} do
+      Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+      Solr.soft_commit(active_collection())
+
+      conn
+      |> visit("/search?q=")
+      |> assert_has(".phx-connected")
+      |> refute_has("#filter-modal")
+      |> Playwright.press("body", "f")
+      |> assert_has("#filter-modal h2", text: "Filter Results")
+      |> Playwright.press("body", "f")
+      |> refute_has("#filter-modal")
+    end
+
+    test "is ignored when typing in the search input", %{conn: conn} do
+      Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+      Solr.soft_commit(active_collection())
+
+      conn
+      |> visit("/search?q=")
+      |> assert_has(".phx-connected")
+      |> Playwright.press("#q", "f")
+      |> refute_has("#filter-modal")
+    end
+
+    test "still toggles after a filter checkbox has been clicked", %{conn: conn} do
+      Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+      Solr.soft_commit(active_collection())
+
+      # Open the modal, then press 'f'
+      conn
+      |> visit("/search?q=")
+      |> assert_has(".phx-connected")
+      |> click_button("Filters")
+      |> click_button("Format")
+      |> check("Pamphlets", exact: false)
+      |> Playwright.press("body", "f")
+      |> refute_has("#filter-modal")
+    end
   end
 
   test "search page is accessible", %{conn: conn} do
