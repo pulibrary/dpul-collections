@@ -108,7 +108,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 class="flex flex-col gap-4 w-full grow"
                 phx-update="ignore"
               >
-                <div class="max-h-120 p-2 card-darkdrop bg-white min-h-0 min-w-0 flex">
+                <div class="max-h-120 p-2 card-darkdrop bg-white/75 min-h-0 min-w-0 flex">
                   <div class="overflow-hidden w-full">
                     <.link
                       :if={@mosaic_title_item}
@@ -120,7 +120,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                         src={"#{@mosaic_title_item.primary_thumbnail_service_url}/full/!#{@mosaic_title_item.primary_thumbnail_width},#{@mosaic_title_item.primary_thumbnail_height}/0/default.jpg"}
                         width={@mosaic_title_item.primary_thumbnail_width}
                         height={@mosaic_title_item.primary_thumbnail_height}
-                        class="object-cover object-top max-h-full max-w-full w-full"
+                        class="object-contain object-top max-h-full max-w-full w-full"
                         alt={@mosaic_title_item.title |> hd}
                       />
                     </.link>
