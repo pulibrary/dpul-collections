@@ -10,9 +10,16 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ResourceTest do
       doc =
         folder
         |> Figgy.Resource.to_combined()
-        |> Figgy.CombinedFiggyResource.to_solr_document()
+        |> Figgy.SolrDocument.from_combined_figgy_resource()
 
       assert doc[:format_txt_sort] == ["Ephemera"]
+    end
+  end
+
+  describe "populate_virtual/1" do
+    test "returns resource unchanged when metadata has no visibility or state" do
+      resource = IndexingPipeline.get_figgy_resource!("f99af4de-fed4-4baa-82b1-6e857b230306")
+      assert Figgy.Resource.populate_virtual(resource) == resource
     end
   end
 

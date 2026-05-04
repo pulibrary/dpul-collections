@@ -1,11 +1,11 @@
 defmodule DpulCollections.ItemTest do
-  alias DpulCollections.IndexingPipeline.Figgy
-  alias DpulCollections.IndexingPipeline
   alias DpulCollections.Solr
   import SolrTestSupport
   use DpulCollections.DataCase
 
   alias DpulCollections.Item
+  alias DpulCollections.IndexingPipeline
+  alias DpulCollections.IndexingPipeline.Figgy
 
   describe ".from_solr/1" do
     test "populates an empty array for image_service_urls if empty" do
@@ -21,7 +21,7 @@ defmodule DpulCollections.ItemTest do
     test "can build from an Ephemera Project" do
       IndexingPipeline.get_figgy_resource!("f99af4de-fed4-4baa-82b1-6e857b230306")
       |> Figgy.Resource.to_combined()
-      |> Figgy.CombinedFiggyResource.to_solr_document()
+      |> Figgy.SolrDocument.from_combined_figgy_resource()
       |> Solr.add()
 
       Solr.soft_commit()

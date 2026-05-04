@@ -95,7 +95,7 @@ defmodule FiggyTestSupport do
         %{"id" => "06838583-59a4-4ab8-ac65-2b5ea9ee6425"}
       ])
 
-    solr_doc = Figgy.HydrationCacheEntry.to_solr_document(hydration_cache_entry)
+    solr_doc = Figgy.SolrDocument.from_cache_entry(hydration_cache_entry)
 
     IndexingPipeline.write_transformation_cache_entry(%{
       cache_version: cache_version,
@@ -114,7 +114,7 @@ defmodule FiggyTestSupport do
     IndexingPipeline.get_figgy_resource!(id)
     |> Figgy.Resource.populate_virtual()
     |> Figgy.Resource.to_combined()
-    |> Figgy.CombinedFiggyResource.to_solr_document()
+    |> Figgy.SolrDocument.from_combined_figgy_resource()
     |> Solr.add()
   end
 
