@@ -62,8 +62,9 @@ defmodule DpulCollections.Solr do
       [
         q: query_param(search_state),
         # https://solr.apache.org/docs/9_4_0/core/org/apache/solr/util/doc-files/min-should-match.html
-        # If more than 6 clauses, only require 90%. Pulled from our catalog.
-        mm: "6<90%",
+        # Require 1 match for 2 terms, terms-2 for 5, and 90% if 6 or greater.
+        # Pulled from LAE configuration.
+        mm: "2<-1 5<-2 6<90%",
         fl: fl,
         sort: sort_param(search_state),
         rows: search_state[:per_page],
@@ -197,8 +198,17 @@ defmodule DpulCollections.Solr do
   end
 
   defp query_param(search_state) do
-    [mlt_focus(search_state), search_state[:q]] |> Enum.reject(&is_nil/1) |> Enum.join(" ")
+    [mlt_focus(search_state), search_state[:q] |> escape_query]
+    |> Enum.reject(&is_nil/1)
+    |> Enum.join(" ")
   end
+
+  # Escape solr characters: https://doc.lucidworks.com/docs/5/fusion/getting-data-out/query-basics/query-language-cheat-sheet
+  defp escape_query(q) when is_binary(q) do
+    Regex.replace(~r/[?*\\\/"]/, q, fn char -> "\\" <> char end)
+  end
+
+  defp escape_query(q), do: q
 
   def mlt_focus(%{filter: %{"similar" => id}}) do
     "{!mlt qf=format_txt_sort,subject_txt_sort,geo_subject_txt_sort,geographic_origin_txt_sort,language_txt_sort,keywords_txt_sort,summary_txtm mintf=1 mindf=1}#{id}"
