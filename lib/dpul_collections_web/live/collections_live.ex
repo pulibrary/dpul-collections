@@ -108,7 +108,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 class="flex flex-col gap-4 w-full grow"
                 phx-update="ignore"
               >
-                <div class="max-h-120 p-2 card-darkdrop bg-white/75 min-h-0 min-w-0 flex">
+                <div class="max-h-120 p-2 card-darkdrop min-h-0 min-w-0 flex">
                   <div class="overflow-hidden w-full">
                     <.link
                       :if={@mosaic_title_item}
