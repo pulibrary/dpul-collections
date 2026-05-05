@@ -8,6 +8,7 @@ defmodule DpulCollectionsWeb.LocalePlugTest do
   setup do
     # Reset locale before each test to avoid interference
     Gettext.put_locale(DpulCollectionsWeb.Gettext, @default_locale)
+    Cldr.put_locale(DpulCollectionsWeb.Cldr, @default_locale)
     :ok
   end
 
@@ -15,6 +16,7 @@ defmodule DpulCollectionsWeb.LocalePlugTest do
     conn = get(conn, "/?locale=es")
 
     assert Gettext.get_locale(DpulCollectionsWeb.Gettext) == "es"
+    assert Cldr.get_locale(DpulCollectionsWeb.Cldr).cldr_locale_name == :es
     assert conn.resp_cookies["locale"][:value] == "es"
     assert get_resp_header(conn, "content-language") == ["es"]
   end

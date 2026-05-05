@@ -200,8 +200,8 @@ defmodule DpulCollectionsWeb.ItemLive do
             <div class="grid grid-cols-2 py-1 pr-2">
               <div class="text-left text-l text-gray-600 font-semibold">
                 {gettext("%{file_min} of %{file_max} images",
-                  file_min: min(@item.file_count, image_thumb_grid_count()),
-                  file_max: @item.file_count
+                  file_min: format_number(min(@item.file_count, image_thumb_grid_count())),
+                  file_max: format_number(@item.file_count)
                 )}
               </div>
               <div class="text-right text-accent uppercase">

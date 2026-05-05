@@ -899,4 +899,13 @@ defmodule DpulCollectionsWeb.CoreComponents do
   def translate_errors(errors, field) when is_list(errors) do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
   end
+
+  @doc """
+  Formats a number using language-specific delimiters
+  """
+  def format_number(number) when is_integer(number) do
+    DpulCollectionsWeb.Cldr.Number.to_string!(number)
+  end
+
+  def format_number(_), do: nil
 end

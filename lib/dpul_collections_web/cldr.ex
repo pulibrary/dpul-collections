@@ -3,6 +3,6 @@ defmodule DpulCollectionsWeb.Cldr do
   """
   use Cldr,
     locales: ["en", "es", "pt"],
-    gettext: MyPhoenixApp.Gettext,
+    gettext: DpulCollectionsWeb.Gettext,
     providers: [Cldr.Number, Cldr.Calendar, Cldr.DateTime, Cldr.LocaleDisplay]
 end

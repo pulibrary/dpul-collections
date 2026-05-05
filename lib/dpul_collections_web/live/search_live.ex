@@ -78,7 +78,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         true -> first_item + per_page - 1
       end
 
-    "#{first_item} - #{last_item} #{gettext("of")} #{total_items}"
+    "#{format_number(first_item)} - #{format_number(last_item)} #{gettext("of")} #{format_number(total_items)}"
   end
 
   attr :current_scope, :map, required: false, default: nil
@@ -286,7 +286,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     >
       <div class="p-4 flex flex-col gap-4 grow">
         <p class="text-sm text-dark-text">
-          Filter your {@total_items} results
+          Filter your {format_number(@total_items)} results
         </p>
 
         <div class="flex flex-col gap-4">
@@ -318,7 +318,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           phx-click={JS.exec("dcjs-close", to: "#filter-modal")}
           class="cursor-pointer w-full py-3 font-bold rounded-md"
         >
-          {gettext("View")} {@total_items} {gettext("Results")}
+          {gettext("View")} {format_number(@total_items)} {gettext("Results")}
         </.primary_button>
       </div>
     </.form>
@@ -471,7 +471,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         class="max-h-100 overflow-y-auto grid grid-cols-1 sm:grid-cols-1 space-y-1"
         options={
           @filter.data
-          |> Enum.map(fn {value, count} -> {{value, count}, value} end)
+          |> Enum.map(fn {value, count} -> {{value, format_number(count)}, value} end)
         }
       />
     </div>
@@ -539,15 +539,15 @@ defmodule DpulCollectionsWeb.SearchLive do
           <div :if={@item.tagline} class="text-base">{@item.tagline}</div>
           <div class="brief-metadata flex flex-auto flex-row gap-4">
             <div class="flex flex-col pe-4 gap-0 py-0 h-min">
-              <div class="text-lg">{@item.item_count}</div>
+              <div class="text-lg">{format_number(@item.item_count)}</div>
               <div class="text-base">Items</div>
             </div>
             <div class="flex flex-col pe-4 gap-0 py-0 h-min">
-              <div class="text-lg">{length(@item.languages)}</div>
+              <div class="text-lg">{format_number(length(@item.languages))}</div>
               <div class="text-base">Languages</div>
             </div>
             <div class="flex flex-col pe-4 gap-0 py-0 h-min">
-              <div class="text-lg">{length(@item.geographic_origins)}</div>
+              <div class="text-lg">{format_number(length(@item.geographic_origins))}</div>
               <div class="text-base">Locations</div>
             </div>
           </div>
@@ -632,7 +632,7 @@ defmodule DpulCollectionsWeb.SearchLive do
               id={"filecount-#{@item.id}"}
               class="hidden absolute diagonal-rise -right-px -bottom-px bg-sage-100 pr-4 py-2 text-sm"
             >
-              {@item.file_count} {gettext("Files")}
+              {format_number(@item.file_count)} {gettext("Files")}
             </div>
           </div>
         </div>
@@ -702,7 +702,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         :if={@item.file_count > 1}
         class="absolute sm:hidden diagonal-rise right-0 bottom-0 bg-sage-100 pr-4 py-2"
       >
-        {@item.file_count} {gettext("Files")}
+        {format_number(@item.file_count)} {gettext("Files")}
       </div>
     </div>
     """
@@ -792,7 +792,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     """
   end
 
-  attr :text, :string, doc: "the page number, or ellipsis"
+  attr :text, :any, doc: "the page number, or ellipsis"
   attr :current_page, :boolean, default: false, doc: "whether this is the current page"
   attr :class, :string
 
@@ -812,7 +812,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       phx-click="paginate"
       phx-value-page={@text}
     >
-      {@text}
+      {format_number(@text)}
     </a>
     """
   end
@@ -820,7 +820,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   def page_link_or_span(assigns = %{current_page: true}) do
     ~H"""
     <span class={[@class, "active bg-accent font-semibold"]}>
-      {@text}
+      {format_number(@text)}
     </span>
     """
   end

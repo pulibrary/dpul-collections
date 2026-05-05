@@ -8,6 +8,7 @@ defmodule DpulCollectionsWeb.SetLocaleHookTest do
   setup do
     # Reset locale before each test to avoid interference
     Gettext.put_locale(DpulCollectionsWeb.Gettext, @default_locale)
+    Cldr.put_locale(DpulCollectionsWeb.Cldr, @default_locale)
     :ok
   end
 
@@ -23,6 +24,7 @@ defmodule DpulCollectionsWeb.SetLocaleHookTest do
     # Assert
     assert updated_socket.assigns.locale == "es"
     assert Gettext.get_locale(DpulCollectionsWeb.Gettext) == "es"
+    assert Cldr.get_locale(DpulCollectionsWeb.Cldr).cldr_locale_name == :es
   end
 
   test "assigns default locale when locale is not in session" do
@@ -38,6 +40,7 @@ defmodule DpulCollectionsWeb.SetLocaleHookTest do
     # Assert
     assert updated_socket.assigns.locale == @default_locale
     assert Gettext.get_locale(DpulCollectionsWeb.Gettext) == @default_locale
+    assert Cldr.get_locale(DpulCollectionsWeb.Cldr).cldr_locale_name == :en
   end
 
   test "handles unexpected session structure gracefully" do
