@@ -43,6 +43,16 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
     :timer.sleep(1000)
   end
 
+  test "search results only display non-empty metadata", %{conn: conn} do
+    Solr.add(SolrTestSupport.mock_solr_documents(1), active_collection())
+    Solr.soft_commit(active_collection())
+
+    conn
+    |> visit("/search?q=")
+    |> assert_has("#item-1 .date")
+    |> refute_has("#item-1 .origin")
+  end
+
   describe "the 'f' filter hotkey" do
     test "toggles the filter modal open and closed", %{conn: conn} do
       Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())

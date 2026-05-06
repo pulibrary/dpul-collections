@@ -125,6 +125,15 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> assert_has(".phx-connected")
       |> unwrap(&TestUtils.assert_a11y/1)
     end
+
+    test "it has recently added items", %{conn: conn} do
+      conn
+      |> visit("/collections/sae")
+      |> assert_has(".phx-connected")
+      |> assert_has("#recent-items h2", text: "Recently Added Items")
+      |> assert_has("#recent-items .card .date")
+      |> assert_has("#recent-items .card .geographic_origin")
+    end
   end
 
   describe "the collection page content for a Figgy Collection" do

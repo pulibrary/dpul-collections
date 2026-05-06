@@ -652,7 +652,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         <div class="text-lg">{@item.date}</div>
       </div>
       <div
-        :if={@item.geographic_origin}
+        :if={length(@item.geographic_origin) > 0}
         class="origin"
       >
         <div class="text-base">{gettext("Origin")}</div>

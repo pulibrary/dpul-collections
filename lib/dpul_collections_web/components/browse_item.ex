@@ -220,11 +220,11 @@ defmodule DpulCollectionsWeb.BrowseItem do
           <div>{@item.date}</div>
         </div>
         <div
-          :if={@item.format}
-          class="format"
+          :if={length(@item.geographic_origin) > 0}
+          class="geographic_origin"
         >
-          <div>{gettext("Format")}</div>
-          <div>{@item.format}</div>
+          <div>{gettext("Origin")}</div>
+          <div>{@item.geographic_origin}</div>
         </div>
       </:extra_info>
       <:card_footer>
