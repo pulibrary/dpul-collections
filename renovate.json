@@ -16,6 +16,7 @@
     "custom.regex",
     "mix"
   ],
+  "minimumReleaseAge": "14 days",
   "packageRules": [
     {
       "matchDatasources": [
