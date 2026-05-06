@@ -237,9 +237,9 @@ defmodule DpulCollectionsWeb.SearchLive do
       </div>
 
       <.drawer id="filter-modal" label={gettext("Filter Results")}>
-        <div class="grid grid-cols-[1fr_minmax(0,36rem)] grid-rows-[auto_1fr] h-full">
+        <div class="grid grid-cols-1 md:grid-cols-[1fr_minmax(0,32rem)] grid-rows-[auto_1fr] h-full">
           <div class="grid grid-cols-subgrid items-baseline col-span-2 px-4 py-4 border-1 border-rust/20 bg-sage-100">
-            <div class="flex">
+            <div class="hidden sm:flex">
               <h2 class="text-lg font-bold">
                 {gettext("Preview")}
               </h2>
@@ -258,7 +258,7 @@ defmodule DpulCollectionsWeb.SearchLive do
               </button>
             </div>
           </div>
-          <div class="p-4 overflow-y-auto">
+          <div class="sm:block hidden p-4 overflow-y-auto">
             <ul class="force-mobile-items grid grid-flow-row auto-rows-max gap-8">
               <.search_item
                 :for={item <- @items}
