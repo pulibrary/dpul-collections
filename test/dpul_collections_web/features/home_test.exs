@@ -23,4 +23,18 @@ defmodule DpulCollectionsWeb.Features.HomeTest do
     |> click_link("pamphlets")
     |> assert_has("header", text: "Digital Collections")
   end
+
+  test "home page has recently added items", %{conn: conn} do
+    Solr.add(SolrTestSupport.mock_solr_documents(5), active_collection())
+    Solr.soft_commit(active_collection())
+
+    conn
+    |> visit("/")
+    |> assert_has(".phx-connected")
+    |> assert_has("#recent-items h2", text: "Recently Added Items")
+    |> assert_has("#browse-item-5", text: "Date")
+    |> assert_has("#browse-item-5", text: "2020")
+    # Test that origin does not appear if geographic_origin is empty
+    |> refute_has("#browse-item-5", text: "Origin")
+  end
 end
