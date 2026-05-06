@@ -22,6 +22,7 @@ defmodule DpulCollectionsWeb.LocalePlug do
 
       locale ->
         Gettext.put_locale(backend, locale)
+        Cldr.put_locale(DpulCollectionsWeb.Cldr, locale)
 
         conn
         |> put_resp_header("content-language", locale_to_language(locale))

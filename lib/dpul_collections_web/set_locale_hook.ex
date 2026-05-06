@@ -7,6 +7,7 @@ defmodule DpulCollectionsWeb.SetLocaleHook do
 
   def on_mount(:default, _params, %{"locale" => locale}, socket) do
     Gettext.put_locale(DpulCollectionsWeb.Gettext, locale)
+    Cldr.put_locale(DpulCollectionsWeb.Cldr, locale)
     {:cont, Phoenix.Component.assign(socket, :locale, locale)}
   end
 
@@ -14,6 +15,7 @@ defmodule DpulCollectionsWeb.SetLocaleHook do
     # Fallback when "locale" is not in session
     default_locale = "en"
     Gettext.put_locale(DpulCollectionsWeb.Gettext, default_locale)
+    Cldr.put_locale(DpulCollectionsWeb.Cldr, default_locale)
     {:cont, Phoenix.Component.assign(socket, :locale, default_locale)}
   end
 end

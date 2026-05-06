@@ -56,7 +56,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 collection_filter={@collection_title}
                 class={@pill_class}
               >
-                {value} ({count})
+                {value} ({format_number(count)})
               </.filter_link_button>
             </li>
           <% end %>
@@ -67,7 +67,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           </li>
           <li class={"more-button invisible group-[.expanded]:invisible less-button px-3 py-1.5 #{@button_class}"}>
             <button class="w-full h-full cursor-pointer text-xs">
-              +<span class="more-count">{length(@items)}</span> more
+              +<span class="more-count">{format_number(length(@items))}</span> more
             </button>
           </li>
         </ul>
@@ -144,19 +144,19 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                     </p>
                     <div class="flex flex-wrap justify-center items-center text-dark-text gap-2">
                       <div class="text-sm bg-cloud rounded-full px-3 py-1">
-                        {@collection.item_count} {gettext("Items")}
+                        {format_number(@collection.item_count)} {gettext("Items")}
                       </div>
                       <div
                         :if={length(@collection.languages) > 0}
                         class="text-sm bg-cloud rounded-full px-3 py-1"
                       >
-                        {length(@collection.languages)} {gettext("Languages")}
+                        {format_number(length(@collection.languages))} {gettext("Languages")}
                       </div>
                       <div
                         :if={length(@collection.geographic_origins) > 0}
                         class="text-sm bg-cloud rounded-full px-3 py-1"
                       >
-                        {length(@collection.geographic_origins)} {gettext("Locations")}
+                        {format_number(length(@collection.geographic_origins))} {gettext("Locations")}
                       </div>
                     </div>
                   </div>

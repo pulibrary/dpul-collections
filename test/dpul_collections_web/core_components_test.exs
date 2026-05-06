@@ -243,4 +243,36 @@ defmodule DpulCollectionsWeb.CoreComponents.ButtonTest do
       assert list == ["not found"]
     end
   end
+
+  describe "format_number" do
+    setup do
+      # reset locale to original value on exit
+      original = Cldr.get_locale(DpulCollectionsWeb.Cldr)
+      on_exit(fn -> Cldr.put_locale(DpulCollectionsWeb.Cldr, original) end)
+      :ok
+    end
+
+    test "uses commas as delimiters if language is English" do
+      Cldr.put_locale(DpulCollectionsWeb.Cldr, "en")
+      assert format_number(1234) == "1,234"
+      assert format_number(1_234_567) == "1,234,567"
+    end
+
+    test "uses periods as delimiters if language is Spanish" do
+      Cldr.put_locale(DpulCollectionsWeb.Cldr, "es")
+      assert format_number(1234) == "1234"
+      assert format_number(10000) == "10.000"
+      assert format_number(1_234_567) == "1.234.567"
+    end
+
+    test "uses periods as delimiters if language is Portuguese" do
+      Cldr.put_locale(DpulCollectionsWeb.Cldr, "pt")
+      assert format_number(1234) == "1.234"
+      assert format_number(1_234_567) == "1.234.567"
+    end
+
+    test "does not error with nil value" do
+      assert format_number(nil) == nil
+    end
+  end
 end

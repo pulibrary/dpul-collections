@@ -167,7 +167,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
               :if={@thumb_source.file_count > 4}
               class="absolute bg-background right-2 top-0 z-10 pr-2 pb-1 diagonal-drop"
             >
-              {@thumb_source.file_count} {gettext("Files")}
+              {format_number(@thumb_source.file_count)} {gettext("Files")}
             </div>
           </div>
           <div class="flex-grow flex w-full flex-col justify-end">
