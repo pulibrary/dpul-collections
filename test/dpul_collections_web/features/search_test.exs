@@ -292,6 +292,7 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
     |> visit(
       "/search?q=al-Maḥāsin+al-mujtamaʻah+fī+faḍl+faḍāyil+al-khulafāʼ+al-arbaʻah+%2F+lil-Shaykh+ʻAlī+al-Ṣaffūrī"
     )
+    |> assert_has(".phx-connected")
     |> assert_has("#item-1",
       text:
         "al-Maḥāsin al-mujtamaʻah fī faḍl faḍāyil al-khulafāʼ al-arbaʻah / lil-Shaykh ʻAlī al-Ṣaffūrī."
