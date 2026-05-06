@@ -238,14 +238,14 @@ defmodule DpulCollectionsWeb.SearchLive do
 
       <.drawer id="filter-modal" label={gettext("Filter Results")}>
         <div class="grid grid-cols-1 md:grid-cols-[1fr_minmax(0,32rem)] grid-rows-[auto_1fr] h-full">
-          <div class="grid grid-cols-subgrid items-baseline col-span-2 px-4 py-4 border-1 border-rust/20 bg-sage-100">
-            <div class="hidden sm:flex">
+          <div class="grid grid-cols-subgrid items-baseline col-span-2 border-1 border-rust/20 bg-sage-100">
+            <div class="hidden sm:flex px-4 py-4">
               <h2 class="text-lg font-bold">
                 {gettext("Preview")}
               </h2>
             </div>
-            <div class="flex items-center justify-between px-4">
-              <h2 class="text-lg font-bold">
+            <div class="flex items-center justify-between border-l border-rust/20 h-full">
+              <h2 class="text-lg font-bold px-4">
                 {gettext("Filter Results")}
               </h2>
               <button
