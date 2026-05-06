@@ -510,7 +510,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
       dcjs-after-close={@afterClose}
       phx-remove={JS.exec("dcjs-close")}
       closedBy="any"
-      class="drawer pointer-events-none backdrop:bg-black/50 fixed inset-0 m-0 max-h-full max-w-full h-full w-full bg-transparent open:flex open:justify-end"
+      class="drawer pointer-events-none backdrop:bg-black/90 fixed inset-0 m-0 max-h-full max-w-full h-full w-full bg-transparent open:flex open:justify-end"
     >
       <div class="pointer-events-auto w-full sm:max-w-6xl h-full bg-background shadow-xl flex flex-col">
         {render_slot(@inner_block)}
