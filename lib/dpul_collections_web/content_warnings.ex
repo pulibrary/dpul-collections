@@ -44,7 +44,8 @@ defmodule DpulCollectionsWeb.ContentWarnings do
       dcjs-open={JS.exec("dcjs-open", to: {:inner, "dialog"})}
     >
       <.link
-        class="flex gap-2 align-center text-rust"
+        id={"open-show-image-banner-#{@item_id}"}
+        class="show-image-banner-link flex gap-2 align-center text-rust"
         phx-click={JS.exec("dcjs-open", to: {:closest, "div"})}
       >
         <span class="flex-none">

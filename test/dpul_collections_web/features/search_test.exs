@@ -136,7 +136,7 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
     # when filecount exceeds visible images show image total
     |> assert_has("#item-1", text: "Document-1")
     # when visible images equals filecount don't show image total
-    |> assert_has("#filecount-1", text: "8 Files")
+    |> assert_has("[data-filecount-id='filecount-1']", text: "8 Files")
   end
 
   test "filters are retained when adding a keyword", %{conn: conn} do

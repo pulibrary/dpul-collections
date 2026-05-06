@@ -20,7 +20,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
       # Open dialog
       view
-      |> element("li:first-child button", "Save")
+      |> element("#search-results li:first-child button", "Save")
       |> render_click()
 
       # Create new set
@@ -813,7 +813,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
       # There should be a title
       assert document
-             |> Floki.find("#item-title-27fd4d29-1170-47a5-891b-f2743873bcef")
+             |> Floki.find("#item-27fd4d29-1170-47a5-891b-f2743873bcef h2")
              |> Enum.count() == 1
     end
 
