@@ -220,8 +220,6 @@
     <!-- copyField commands copy one field to another at the time a document
        is added to the index.  It's used either to index the same field differently,
        or to add multiple fields to the same field for easier/faster searching.
-
-    <copyField source="sourceFieldName" dest="destinationFieldName"/>
     -->
     <copyField source="title_txtm" dest="title_ss"/>
     <copyField source="collection_titles_ss" dest="collection_title_txt_sort"/>

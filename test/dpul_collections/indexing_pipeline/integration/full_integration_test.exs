@@ -73,7 +73,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # removed the hydration cache markers for the deletion marker deleted resource.
     # It also has 3 ephemera projects and 1 collection.
     entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
-    scanned_resource_fixture_count = 5
+    scanned_resource_fixture_count = 6
 
     assert FiggyTestSupport.total_resource_count() + 3 + scanned_resource_fixture_count ==
              entry_count

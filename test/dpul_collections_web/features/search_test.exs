@@ -33,7 +33,7 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
     |> click_button("Format")
     |> assert_has("label", text: "Pamphlets")
     |> check("Pamphlets", exact: false)
-    |> click_button("Format")
+    |> click_button("#format-panel-button", "Format")
     |> click_button("View 5 results")
     |> refute_has("#filter-modal")
     |> click_button("Filters")

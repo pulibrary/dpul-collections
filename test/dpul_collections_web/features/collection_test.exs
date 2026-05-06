@@ -27,8 +27,13 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
     # Add another ID so we know it doesn't include counts from other collections.
     other_ids = ["3da68e1c-06af-4d17-8603-fc73152e1ef7", "118983a5-dd6b-4d7a-bb8c-93fb08248cac"]
 
-    # ScannedResource and Figgy Collection ids.
-    sr_col_ids = ["52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a", "27fd4d29-1170-47a5-891b-f2743873bcef"]
+    # IDs for a collection with scanned resources, manuscripts of the islamic world
+    sr_col_ids = [
+      # collection
+      "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a",
+      # featured item
+      "159ba3f9-feab-49dd-bc71-ca08995006d9"
+    ]
 
     (sae_ids ++ other_ids ++ sr_col_ids)
     |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
