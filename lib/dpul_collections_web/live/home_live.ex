@@ -11,7 +11,7 @@ defmodule DpulCollectionsWeb.HomeLive do
         page_title: "Digital Collections",
         q_: nil,
         recent_items:
-          Solr.recently_added(5)["docs"]
+          Solr.recently_added(4)["docs"]
           |> Enum.map(&Item.from_solr(&1))
       )
 

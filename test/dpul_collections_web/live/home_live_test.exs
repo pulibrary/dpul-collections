@@ -34,7 +34,7 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
   end
 
   describe "recent item blocks" do
-    test "renders 5 cards", %{conn: conn} do
+    test "renders 4 cards", %{conn: conn} do
       Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
       Solr.soft_commit(active_collection())
 
@@ -46,7 +46,7 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
         |> Floki.find(".card-link")
         |> Enum.flat_map(fn a -> Floki.attribute(a, "href") end)
 
-      assert Enum.count(links) == 5
+      assert Enum.count(links) == 4
     end
 
     test "link to recently updated", %{conn: conn} do
