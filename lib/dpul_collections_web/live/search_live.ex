@@ -233,7 +233,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       </div>
 
       <.drawer id="filter-modal" label={gettext("Filter Results")}>
-        <div class="grid grid-cols-[1fr_minmax(0,36rem)] grid-rows-[auto_1fr] h-full gap-0">
+        <div class="grid grid-cols-[1fr_minmax(0,36rem)] grid-rows-[auto_1fr] h-full">
           <div class="grid grid-cols-subgrid items-baseline col-span-2 px-4 py-4 border-1 border-rust/20 bg-sage-100">
             <div class="flex">
               <h2 class="text-lg font-bold">
@@ -254,21 +254,17 @@ defmodule DpulCollectionsWeb.SearchLive do
               </button>
             </div>
           </div>
-          <div class="grid col-span-2 grid-cols-subgrid min-h-0">
-            <div class="flex py-4 px-4 min-h-0">
-              Preview items here..
-            </div>
-            <div class="flex flex-col border-l border-rust/20 min-h-0">
-              <.filter_form_component
-                search_state={@search_state}
-                total_items={@total_items}
-                filter_form={@filter_form}
-                year_form={@year_form}
-                filter_data={@filter_data}
-                expanded_filter={@expanded_filter}
-              />
-            </div>
+          <div class="p-4">
+            Preview items here..
           </div>
+          <.filter_form_component
+            search_state={@search_state}
+            total_items={@total_items}
+            filter_form={@filter_form}
+            year_form={@year_form}
+            filter_data={@filter_data}
+            expanded_filter={@expanded_filter}
+          />
         </div>
       </.drawer>
     </section>
@@ -287,58 +283,56 @@ defmodule DpulCollectionsWeb.SearchLive do
       phx-change="checked_filter"
       phx-submit="apply_filters"
       for={@filter_form}
-      class="grow flex flex-col min-h-0"
+      class="grow flex flex-col min-h-0 border-l border-rust/20"
     >
-      <div class="flex flex-col gap-4 overflow-y-auto grow pt-4 min-h-0">
-        <div class={[
-          "-mt-4 py-3 px-4 bg-primary-light border-b border-rust/20",
-          map_size(@search_state.filter) == 0 && "hidden"
-        ]}>
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-sm font-semibold">{gettext("Active Filters")}</span>
-            <.link
-              patch="/search"
-              class="text-xs text-accent hover:underline"
-            >
-              {gettext("Clear all")}
-            </.link>
-          </div>
-          <div class="flex flex-wrap gap-2">
-            <.filter_pill
-              :for={{filter_field, filter_settings} <- filter_configuration()}
-              search_state={@search_state}
-              field={filter_field}
-              label={filter_settings.label}
-              filter_value={filter_settings.value_function.(@search_state.filter[filter_field])}
-            />
-          </div>
+      <div class={[
+        "py-3 px-4 bg-primary-light border-b border-rust/20",
+        map_size(@search_state.filter) == 0 && "hidden"
+      ]}>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-sm font-semibold">{gettext("Active Filters")}</span>
+          <.link
+            patch="/search"
+            class="text-xs text-accent hover:underline"
+          >
+            {gettext("Clear all")}
+          </.link>
         </div>
+        <div class="flex flex-wrap gap-2">
+          <.filter_pill
+            :for={{filter_field, filter_settings} <- filter_configuration()}
+            search_state={@search_state}
+            field={filter_field}
+            label={filter_settings.label}
+            filter_value={filter_settings.value_function.(@search_state.filter[filter_field])}
+          />
+        </div>
+      </div>
 
-        <p class="text-sm text-dark-text shrink-0 px-4">
+      <div class="flex flex-col gap-4 p-4 overflow-y-auto grow min-h-0">
+        <p class="text-sm text-dark-text">
           Filter your {format_number(@total_items)} results
         </p>
 
-        <div class="flex flex-col gap-4 px-4 pb-4">
-          <.filter_section
-            :for={{field, filter} <- @filter_data}
-            field={field}
-            filter={filter}
-            expanded={field == @expanded_filter}
-            filter_form={@filter_form}
-            year_form={@year_form}
-          />
+        <.filter_section
+          :for={{field, filter} <- @filter_data}
+          field={field}
+          filter={filter}
+          expanded={field == @expanded_filter}
+          filter_form={@filter_form}
+          year_form={@year_form}
+        />
 
-          <.input
-            :for={hidden_filter <- hidden_filters()}
-            type="hidden"
-            field={@filter_form[hidden_filter]}
-          />
-          <input
-            name="q"
-            type="hidden"
-            value={@search_state[:q]}
-          />
-        </div>
+        <.input
+          :for={hidden_filter <- hidden_filters()}
+          type="hidden"
+          field={@filter_form[hidden_filter]}
+        />
+        <input
+          name="q"
+          type="hidden"
+          value={@search_state[:q]}
+        />
       </div>
 
       <%!-- Footer with view results button --%>
