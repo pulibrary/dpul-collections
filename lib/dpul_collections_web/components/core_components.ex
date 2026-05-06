@@ -513,7 +513,6 @@ defmodule DpulCollectionsWeb.CoreComponents do
       closedBy="any"
       class="drawer pointer-events-none backdrop:bg-black/50 fixed inset-0 m-0 max-h-full max-w-full h-full w-full bg-transparent open:flex open:justify-end"
     >
-
       <div class="pointer-events-auto w-full sm:max-w-6xl h-full bg-background shadow-xl flex flex-col">
         {render_slot(@inner_block)}
       </div>
@@ -764,6 +763,24 @@ defmodule DpulCollectionsWeb.CoreComponents do
 
   def input(%{type: "hidden", multiple: true} = assigns) do
     ~H"""
+    """
+  end
+
+  def input(%{type: "hidden"} = assigns) do
+    ~H"""
+    <input
+      type={@type}
+      name={@name}
+      id={@id}
+      value={Phoenix.HTML.Form.normalize_value(@type, @value)}
+      class={[
+        "block w-full text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
+        "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
+        @errors == [] && "border-zinc-300 focus:border-zinc-400",
+        @errors != [] && "border-rose-400 focus:border-rose-400"
+      ]}
+      {@rest}
+    />
     """
   end
 

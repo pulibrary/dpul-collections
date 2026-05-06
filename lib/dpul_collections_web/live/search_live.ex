@@ -289,12 +289,12 @@ defmodule DpulCollectionsWeb.SearchLive do
       for={@filter_form}
       class="grow flex flex-col min-h-0"
     >
-      <div class="flex flex-col gap-4 overflow-y-auto grow min-h-0">
+      <div class="flex flex-col gap-4 overflow-y-auto grow pt-4 min-h-0">
         <div class={[
-          "py-3 px-4 bg-primary-light border-b border-rust/20",
+          "-mt-4 py-3 px-4 bg-primary-light border-b border-rust/20",
           map_size(@search_state.filter) == 0 && "hidden"
         ]}>
-          <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between mb-2">
             <span class="text-sm font-semibold">{gettext("Active Filters")}</span>
             <.link
               patch="/search"
@@ -417,6 +417,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     ~H"""
     <.primary_button
       :if={@filter_value}
+      type="button"
       role="button"
       phx-value-filter-value={@filter_value}
       phx-value-filter={@field}
