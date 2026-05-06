@@ -40,13 +40,12 @@ defmodule DpulCollectionsWeb.ContentWarnings do
   def show_images_banner(assigns) do
     ~H"""
     <div
-      id={"show-image-banner-#{@item_id}"}
       class="show-image-banner absolute top-0 left-0 w-full p-3 bg-white z-2 flex gap-2 align-center"
+      dcjs-open={JS.exec("dcjs-open", to: {:inner, "dialog"})}
     >
       <.link
-        id={"open-show-image-banner-#{@item_id}"}
         class="flex gap-2 align-center text-rust"
-        phx-click={JS.exec("dcjs-open", to: "#show-image-banner-#{@item_id}-dialog")}
+        phx-click={JS.exec("dcjs-open", to: {:closest, "div"})}
       >
         <span class="flex-none">
           <.icon name="hero-eye-slash" class="h-5 w-5 icon mb-[2px]" />
@@ -55,11 +54,11 @@ defmodule DpulCollectionsWeb.ContentWarnings do
           {gettext("Why are the images blurred?")}
         </span>
       </.link>
+      <.content_modal
+        item_id={@item_id}
+        content_warning={@content_warning}
+      />
     </div>
-    <.content_modal
-      item_id={@item_id}
-      content_warning={@content_warning}
-    />
     """
   end
 

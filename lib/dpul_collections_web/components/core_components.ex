@@ -469,14 +469,13 @@ defmodule DpulCollectionsWeb.CoreComponents do
       dcjs-close={JS.dispatch("dpulc:closeDialog") |> JS.exec("dcjs-after-close")}
       dcjs-after-close={@afterClose}
       phx-remove={JS.exec("dcjs-close")}
-      aria-labelledby={"#{@id}-label"}
       closedBy="any"
       class="modal max-w-2xl backdrop:bg-black/50 open:fixed open:top-[50%] open:left-[50%] open:-translate-x-[50%] open:-translate-y-[50%] fixed bg-white rounded-lg shadow-sm text-dark-text"
     >
       <div class="w-full max-w-2xl bg-white shadow-lg rounded-lg p-8 relative">
         <!-- Modal header -->
         <div class="flex items-center justify-between border-b border-gray-300 pb-3">
-          <h2 id={"#{@id}-label"} class="text-xl font-semibold">
+          <h2 class="text-xl font-semibold">
             {@label}
           </h2>
           <button

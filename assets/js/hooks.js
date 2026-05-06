@@ -108,8 +108,8 @@ Hooks.ShowPageCount = {
     let elID = this.el.getAttribute("data-id")
     // subtract large thumbnail from total file count; it has separate layout
     let elFilecount = this.el.getAttribute("data-filecount") - 1
-    let fileCountLabelEl = window.document.getElementById('filecount-'+elID)
-    let containerEl = window.document.getElementById('item-metadata-'+elID)
+    let fileCountLabelEl = window.document.querySelector('[data-filecount-id="filecount-'+elID+'"]')
+    let containerEl = this.el.querySelector(".metadata")
 
     // Handle Resize
     this.handleResize = () => {

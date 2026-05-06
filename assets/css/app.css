@@ -278,6 +278,27 @@
   @apply text-accent hover:bg-primary-bright w-6 h-6 p-1 bg-background;
 }
 
+@utility force-mobile-items {
+  & .item > div {
+    grid-template-rows: auto !important;
+    grid-template-columns: none !important;
+  }
+
+  & .metadata {
+    grid-column: unset !important;
+    grid-column-start: unset !important;
+  }
+
+  & .small-thumbnails {
+    display: none !important;
+  }
+
+  & .search-thumbnail img {
+    height: 200px !important;
+    width: 200px !important;
+  }
+}
+
 @utility card {
   @apply drop-shadow-[0.25rem_0.25rem_0.25rem_var(--color-sage-300)];
   @apply hover:drop-shadow-[0_0_0.7rem_var(--color-sage-600)];
@@ -419,6 +440,7 @@
 #collection-page .recent-container {
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
 }
+
 
 /* Every odd section has a dark background, so change the card backdrop to
  * prevent them from glowing. */

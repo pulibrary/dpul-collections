@@ -96,6 +96,10 @@ defmodule DpulCollectionsWeb.SearchLive do
         year_form={@year_form}
         filter_data={@filter_data}
         expanded_filter={@expanded_filter}
+        items={@items}
+        show_images={@show_images}
+        current_scope={@current_scope}
+        current_path={@current_path}
       />
       <section class="content-area">
         <div class="py-4 flex flex-row justify-between gap-4">
@@ -254,8 +258,19 @@ defmodule DpulCollectionsWeb.SearchLive do
               </button>
             </div>
           </div>
-          <div class="p-4">
-            Preview items here..
+          <div class="p-4 overflow-y-auto">
+            <ul class="force-mobile-items grid grid-flow-row auto-rows-max gap-8">
+              <.search_item
+                :for={item <- @items}
+                search_state={@search_state}
+                item={item}
+                sort_by={@search_state.sort_by}
+                show_images={@show_images}
+                current_scope={@current_scope}
+                current_path={@current_path}
+                id_prefix="filter-"
+              />
+            </ul>
           </div>
           <.filter_form_component
             search_state={@search_state}
@@ -513,10 +528,12 @@ defmodule DpulCollectionsWeb.SearchLive do
     |> Enum.map(fn {k, v} -> {v[:label], k} end)
   end
 
+  attr :id_prefix, :string, required: false, default: nil
+
   def search_item(assigns = %{item: %Collection{}}) do
     ~H"""
     <li
-      id={"item-#{@item.id}"}
+      id={"#{@id_prefix}item-#{@item.id}"}
       class="item card"
       data-id={@item.id}
       aria-label={@item.title |> hd}
@@ -539,10 +556,7 @@ defmodule DpulCollectionsWeb.SearchLive do
             />
           </div>
         </div>
-        <div
-          class="metadata sm:col-span-3 flex flex-col gap-2 sm:gap-4 p-4"
-          id={"item-metadata-#{@item.id}"}
-        >
+        <div class="metadata sm:col-span-3 flex flex-col gap-2 sm:gap-4 p-4">
           <div class="flex flex-wrap flex-row sm:flex-row justify-between">
             <h2 dir="auto" class="w-full flex-grow sm:w-fit">
               <.link
@@ -584,7 +598,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   def search_item(assigns = %{item: %Item{}}) do
     ~H"""
     <li
-      id={"item-#{@item.id}"}
+      id={"#{@id_prefix}item-#{@item.id}"}
       class="item card text-start"
       aria-label={@item.title |> hd}
       phx-hook="ShowPageCount"
@@ -608,16 +622,12 @@ defmodule DpulCollectionsWeb.SearchLive do
           item={@item}
           show_images={@show_images}
         />
-        <div
-          class="metadata sm:col-span-3 sm:col-start-2 flex flex-col gap-2 sm:gap-4 p-4"
-          id={"item-metadata-#{@item.id}"}
-        >
+        <div class="metadata sm:col-span-3 sm:col-start-2 flex flex-col gap-2 sm:gap-4 p-4">
           <div class="flex flex-wrap flex-row sm:flex-row justify-between">
             <h2 dir="auto" class="w-full flex-grow sm:w-fit pr-3">
               <.link
                 navigate={@item.url}
                 class="card-link"
-                id={"item-title-#{@item.id}"}
               >
                 {@item.title}
               </.link>
@@ -653,7 +663,7 @@ defmodule DpulCollectionsWeb.SearchLive do
               show_images={@show_images}
             />
             <div
-              id={"filecount-#{@item.id}"}
+              data-filecount-id={"filecount-#{@item.id}"}
               class="hidden absolute diagonal-rise -right-px -bottom-px bg-sage-100 pr-4 py-2 text-sm"
             >
               {format_number(@item.file_count)} {gettext("Files")}
