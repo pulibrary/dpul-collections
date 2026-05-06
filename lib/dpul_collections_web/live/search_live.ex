@@ -233,11 +233,68 @@ defmodule DpulCollectionsWeb.SearchLive do
       </div>
 
       <.drawer id="filter-modal" label={gettext("Filter Results")}>
+        <div class="grid grid-cols-[1fr_minmax(0,36rem)] grid-rows-[auto_1fr] h-full gap-0">
+          <div class="grid grid-cols-subgrid items-baseline col-span-2 px-4 py-4 border-1 border-rust/20 bg-sage-100">
+            <div class="flex">
+              <h2 class="text-lg font-bold">
+                {gettext("Preview")}
+              </h2>
+            </div>
+            <div class="flex items-center justify-between px-4">
+              <h2 class="text-lg font-bold">
+                {gettext("Filter Results")}
+              </h2>
+              <button
+                type="button"
+                class="p-2 hover:bg-primary-bright rounded-md transition-colors cursor-pointer"
+                phx-click={JS.exec("dcjs-close", to: {:closest, "dialog"})}
+              >
+                <.icon name="hero-x-mark" class="h-5 w-5" />
+                <span class="sr-only">{gettext("Close")}</span>
+              </button>
+            </div>
+          </div>
+          <div class="grid col-span-2 grid-cols-subgrid min-h-0">
+            <div class="flex py-4 px-4 min-h-0">
+              Preview items here..
+            </div>
+            <div class="flex flex-col border-l border-rust/20 min-h-0">
+              <.filter_form_component
+                search_state={@search_state}
+                total_items={@total_items}
+                filter_form={@filter_form}
+                year_form={@year_form}
+                filter_data={@filter_data}
+                expanded_filter={@expanded_filter}
+              />
+            </div>
+          </div>
+        </div>
+      </.drawer>
+    </section>
+    """
+  end
+
+  def hidden_filters() do
+    @filter_keys -- @filter_fields
+  end
+
+  def filter_form_component(assigns) do
+    ~H"""
+    <.form
+      :if={@total_items > 0}
+      id="filter-form"
+      phx-change="checked_filter"
+      phx-submit="apply_filters"
+      for={@filter_form}
+      class="grow flex flex-col min-h-0"
+    >
+      <div class="flex flex-col gap-4 overflow-y-auto grow min-h-0">
         <div class={[
-          "px-4 py-3 bg-primary-light border-b border-rust/20",
+          "py-3 px-4 bg-primary-light border-b border-rust/20",
           map_size(@search_state.filter) == 0 && "hidden"
         ]}>
-          <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center justify-between">
             <span class="text-sm font-semibold">{gettext("Active Filters")}</span>
             <.link
               patch="/search"
@@ -257,39 +314,11 @@ defmodule DpulCollectionsWeb.SearchLive do
           </div>
         </div>
 
-        <.filter_form_component
-          search_state={@search_state}
-          total_items={@total_items}
-          filter_form={@filter_form}
-          year_form={@year_form}
-          filter_data={@filter_data}
-          expanded_filter={@expanded_filter}
-        />
-      </.drawer>
-    </section>
-    """
-  end
-
-  def hidden_filters() do
-    @filter_keys -- @filter_fields
-  end
-
-  def filter_form_component(assigns) do
-    ~H"""
-    <.form
-      :if={@total_items > 0}
-      id="filter-form"
-      phx-change="checked_filter"
-      phx-submit="apply_filters"
-      for={@filter_form}
-      class="grow flex flex-col"
-    >
-      <div class="p-4 flex flex-col gap-4 grow">
-        <p class="text-sm text-dark-text">
+        <p class="text-sm text-dark-text shrink-0 px-4">
           Filter your {format_number(@total_items)} results
         </p>
 
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-4 px-4 pb-4">
           <.filter_section
             :for={{field, filter} <- @filter_data}
             field={field}
@@ -313,7 +342,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       </div>
 
       <%!-- Footer with view results button --%>
-      <div class="sticky bottom-0 px-4 py-4 bg-sage-100 border-t border-rust/20">
+      <div class="shrink-0 px-4 py-4 bg-sage-100 border-t border-rust/20">
         <.primary_button
           phx-click={JS.exec("dcjs-close", to: "#filter-modal")}
           class="cursor-pointer w-full py-3 font-bold rounded-md"
@@ -328,7 +357,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   defp filter_section(assigns) do
     ~H"""
     <div class={[
-      "border border-rust/20 rounded-lg overflow-hidden bg-white",
+      "shrink-0 border border-rust/20 rounded-lg overflow-hidden bg-white",
       length(@filter.data) == 0 && "hidden"
     ]}>
       <button

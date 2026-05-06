@@ -197,6 +197,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     assert html =~ "Filter your 100 results"
     refute html =~ "Applied Filters"
+    assert html =~ "Preview"
 
     # Clicking the button shows the filters.
     view
