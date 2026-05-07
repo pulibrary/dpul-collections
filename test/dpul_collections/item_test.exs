@@ -5,7 +5,6 @@ defmodule DpulCollections.ItemTest do
 
   alias DpulCollections.Item
   alias DpulCollections.IndexingPipeline
-  alias DpulCollections.IndexingPipeline.Figgy
 
   describe ".from_solr/1" do
     test "populates an empty array for image_service_urls if empty" do

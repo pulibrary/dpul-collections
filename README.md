@@ -85,6 +85,7 @@ Steps:
     ```
 - Rename concatenated CSV file.
   - `mv ./fixture-exports/synthetic/synthetic-fixtures.csv ./fixture-exports/synthetic/my-new-fixtures.csv`
+  - Note you won't see it listed in your git status because these files are gitignored to ensure they are only committed intentionally
 - Modify CSV manually if needed.
 - Add fixture description to fixtures.md file
 - Rebuild local figgy fixtures container.

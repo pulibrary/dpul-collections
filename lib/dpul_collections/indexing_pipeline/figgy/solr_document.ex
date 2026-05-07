@@ -136,7 +136,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
       primary_thumbnail_service_url_s: extract_service_url(thumbnail),
       primary_thumbnail_h_w_ratio_f: primary_thumbnail_ratio(original_file(thumbnail)),
       provenance_txtm: get_in(metadata, ["provenance"]),
-      publisher_txt_sort: get_in(metadata, ["publisher"]),
+      publisher_txt_sort: get_in(metadata, ["publisher"]) |> query_safe_strings(),
       rights_statement_txtm: extract_rights_statement(metadata),
       series_txt_sort: get_in(metadata, ["series"]),
       sort_title_txtm: get_in(metadata, ["sort_title"]),
@@ -647,5 +647,17 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
       {:ok, label} -> label
       {:error, _} -> lang
     end
+  end
+
+  defp query_safe_strings(nil) do
+    nil
+  end
+
+  # if a filter has one smart quote and one regular quote, you querying for that
+  # filter errors, ultimately because of the unclosed quote. So just make them
+  # all not-smart
+  defp query_safe_strings(list) do
+    list
+    |> Enum.map(fn str -> String.replace(str, ["“", "”"], "\"") end)
   end
 end
