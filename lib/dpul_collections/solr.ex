@@ -37,6 +37,7 @@ defmodule DpulCollections.Solr do
   @query_field_list [
     "id",
     "title_ss",
+    "transliterated_title_txtm",
     "display_date_s",
     "file_count_i",
     "detectlang_ss",
