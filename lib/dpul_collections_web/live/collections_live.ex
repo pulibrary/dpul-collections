@@ -62,12 +62,12 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           <% end %>
           <li class={"hidden group-[.expanded]:block less-button #{@button_class}"}>
             <button class="w-full h-full px-3 py-1.5 cursor-pointer text-xs">
-              Show less
+              {gettext("Show less")}
             </button>
           </li>
           <li class={"more-button invisible group-[.expanded]:invisible less-button px-3 py-1.5 #{@button_class}"}>
             <button class="w-full h-full cursor-pointer text-xs">
-              +<span class="more-count">{format_number(length(@items))}</span> more
+              +<span class="more-count">{format_number(length(@items))}</span> {gettext("more")}
             </button>
           </li>
         </ul>
@@ -274,7 +274,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             id="contributors"
             class="content-area pb-6"
           >
-            <h2 class="heading text-2xl pb-4">Contributors</h2>
+            <h2 class="heading text-2xl pb-4">{gettext("Contributors")}</h2>
             <div class="flex flex-wrap gap-4 pb-6">
               <div
                 :for={contributor <- @collection.contributors}

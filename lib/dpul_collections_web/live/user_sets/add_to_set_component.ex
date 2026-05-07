@@ -72,7 +72,7 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
         class="w-full text-left"
       >
         <span class="grow">
-          Create new set
+          {gettext("Create new set")}
         </span>
       </.primary_button>
       <ul class="flex flex-col gap-2">
@@ -84,7 +84,9 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
             phx-value-set-id={set.id}
           >
             <span class="grow">
-              {set.title} - {set.set_item_count} Items
+              {set.title} - {ngettext("%{count} Item", "%{count} Items", set.set_item_count,
+                count: format_number(set.set_item_count)
+              )}
             </span>
             <.icon :if={set.has_solr_id} name="hero-check-circle" />
           </.secondary_button>
@@ -105,18 +107,18 @@ defmodule DpulCollectionsWeb.UserSets.AddToSetComponent do
       phx-submit="create_set"
       phx-target={@myself}
     >
-      <.input type="text" required={true} label="Set name" field={@set_form[:title]} />
-      <.input type="textarea" label="Set description" field={@set_form[:description]} />
+      <.input type="text" required={true} label={gettext("Set name")} field={@set_form[:title]} />
+      <.input type="textarea" label={gettext("Set description")} field={@set_form[:description]} />
       <.inputs_for :let={si_form} field={@set_form[:set_items]}>
         <input type="hidden" name={si_form[:solr_id].name} value={si_form[:solr_id].value} />
       </.inputs_for>
       <div class="flex w-full">
         <.secondary_button phx-click="display_list_sets" phx-target={@myself}>
-          Cancel
+          {gettext("Cancel")}
         </.secondary_button>
         <div class="grow"></div>
         <.primary_button>
-          Create Set
+          {gettext("Create Set")}
         </.primary_button>
       </div>
     </.form>

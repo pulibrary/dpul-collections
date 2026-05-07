@@ -56,7 +56,7 @@ defmodule DpulCollectionsWeb.UserSetsLive.Show do
             class="text-md px-3 py-2 flex gap-2 h-10"
             phx-click={JS.exec("dcjs-open", to: "#share-modal")}
           >
-            <.icon name="hero-share" /> Share
+            <.icon name="hero-share" /> {gettext("Share")}
           </.secondary_button>
           <ItemLive.share_modal
             path={~p"/sets/#{@user_set.id}"}
@@ -65,7 +65,11 @@ defmodule DpulCollectionsWeb.UserSetsLive.Show do
           />
         </div>
         <hr />
-        <h2>{length(@user_set.set_items)} Items</h2>
+        <h2>
+          {ngettext("%{count} Item", "%{count} Items", length(@user_set.set_items),
+            count: format_number(length(@user_set.set_items))
+          )}
+        </h2>
         <ul id="set-items" class="grid grid-cols-[repeat(auto-fill,minmax(300px,_1fr))] gap-12 pt-5">
           <.browse_li
             :for={item <- @items}

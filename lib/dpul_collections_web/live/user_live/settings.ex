@@ -28,12 +28,12 @@ defmodule DpulCollectionsWeb.UserLive.Settings do
           <.input
             field={@email_form[:email]}
             type="email"
-            label="Email"
+            label={gettext("Email")}
             autocomplete="username"
             required
           />
           <div>
-            <.primary_button phx-disable-with="Changing...">
+            <.primary_button phx-disable-with={gettext("Changing...")}>
               {gettext("Change Email")}
             </.primary_button>
           </div>

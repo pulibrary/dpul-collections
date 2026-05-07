@@ -286,7 +286,9 @@ defmodule DpulCollectionsWeb.SearchLive do
     >
       <div class="p-4 flex flex-col gap-4 grow">
         <p class="text-sm text-dark-text">
-          Filter your {format_number(@total_items)} results
+          {ngettext("Filter your %{count} result", "Filter your %{count} results", @total_items,
+            count: format_number(@total_items)
+          )}
         </p>
 
         <div class="flex flex-col gap-4">

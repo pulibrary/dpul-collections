@@ -29,7 +29,7 @@ defmodule DpulCollectionsWeb.FooterComponent do
         © 2025 {gettext("The Trustees of Princeton University")}
       </div>
       <div class="university-logo flex-none w-24 sm:w-48">
-        <img src={~p"/images/university-logo.svg"} alt="Princeton University Logo" />
+        <img src={~p"/images/university-logo.svg"} alt={gettext("Princeton University")} />
       </div>
     </footer>
     """
