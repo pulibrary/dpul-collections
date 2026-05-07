@@ -40,7 +40,7 @@ defmodule DpulCollectionsWeb.UserLive.Login do
           readonly={!!@current_scope}
           field={f[:email]}
           type="email"
-          label="Email"
+          label={gettext("Email")}
           autocomplete="username"
           required
           phx-mounted={JS.focus()}

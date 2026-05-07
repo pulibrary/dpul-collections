@@ -570,12 +570,16 @@ defmodule DpulCollectionsWeb.ItemLive do
                 )
               )}
             </p>
-            <.input type="text" label="Name" field={@correction_form[:name]} />
-            <.input type="email" label="Email" field={@correction_form[:email]} />
-            <.input type="textarea" label="Message" field={@correction_form[:message]} />
+            <.input type="text" label={gettext("Name")} field={@correction_form[:name]} />
+            <.input type="email" label={gettext("Email")} field={@correction_form[:email]} />
             <.input
               type="textarea"
-              label="Feedback"
+              label={gettext("Message")}
+              field={@correction_form[:message]}
+            />
+            <.input
+              type="textarea"
+              label={gettext("Feedback")}
               class="form-helper"
               field={@correction_form[:feedback]}
             />
@@ -925,7 +929,7 @@ defmodule DpulCollectionsWeb.ItemLive do
           href={"https://catalog.princeton.edu/catalog/#{@item.mms_id |> hd}"}
           target="_blank"
         >
-          View in Library Catalog
+          {gettext("View in Library Catalog")}
         </.link>
       </div>
     </div>

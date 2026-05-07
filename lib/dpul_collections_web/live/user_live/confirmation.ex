@@ -35,11 +35,11 @@ defmodule DpulCollectionsWeb.UserLive.Confirmation do
             <.primary_button
               name={@form[:remember_me].name}
               value="true"
-              phx-disable-with="Logging in..."
+              phx-disable-with={gettext("Logging in...")}
             >
               {gettext("Keep me logged in on this device")}
             </.primary_button>
-            <.primary_button phx-disable-with="Logging in...">
+            <.primary_button phx-disable-with={gettext("Logging in...")}>
               {gettext("Log me in only this time")}
             </.primary_button>
           </div>
