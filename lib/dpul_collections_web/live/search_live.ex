@@ -401,11 +401,11 @@ defmodule DpulCollectionsWeb.SearchLive do
         type="button"
         phx-click="navigate_to_collection"
         phx-value-title={@filter_value}
-        class="filter-body flex items-center gap-1 py-2 pl-4 pr-2 no-underline hover:underline hover:bg-hover-accent focus-visible:underline focus-visible:bg-hover-accent cursor-pointer text-left"
+        class="filter-body group flex items-center gap-1 py-2 pl-4 pr-2 no-underline hover:bg-hover-accent focus-visible:bg-hover-accent cursor-pointer text-left"
       >
         {Gettext.gettext(DpulCollectionsWeb.Gettext, @label)}
         <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
-        <span class="filter-text truncate">
+        <span class="filter-text truncate group-hover:underline group-focus-visible:underline">
           {@filter_value}
         </span>
       </button>
