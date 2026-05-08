@@ -38,7 +38,7 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
     |> refute_has("#filter-modal")
     |> click_button("Filters")
     |> click_button("View 5 results")
-    |> assert_has("button.format.filter")
+    |> assert_has(".filter.format")
 
     :timer.sleep(1000)
   end
@@ -147,6 +147,65 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
     |> assert_has("#item-1", text: "Document-1")
     # when visible images equals filecount don't show image total
     |> assert_has("#filecount-1", text: "8 Files")
+  end
+
+  describe "filter pill" do
+    test "clicking the dismiss section removes the filter; clicking the body does not",
+         %{conn: conn} do
+      Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+      Solr.soft_commit(active_collection())
+
+      conn
+      |> visit("/search?filter[format][]=Pamphlets")
+      |> assert_has(".phx-connected")
+      |> assert_has(".filter.format", text: "Pamphlets")
+      # Click the body
+      |> Playwright.click("#search-filters .filter.format .filter-body")
+      |> assert_has(".filter.format", text: "Pamphlets")
+      # Click the dismiss section
+      |> Playwright.click("#search-filters .filter.format .filter-dismiss")
+      |> refute_has(".filter.format")
+    end
+
+    test "clicking a collection filter pill body navigates to the collection page",
+         %{conn: conn} do
+      items =
+        SolrTestSupport.mock_solr_documents(2)
+        |> Enum.map(&Map.put(&1, :collection_titles_ss, ["Amazing Project"]))
+
+      Solr.add(
+        [
+          %{
+            id: "d7c889ba-9992-494e-8fe4-2c4a9b3c3d7d",
+            title_txtm: ["Latin American Ephemera"],
+            resource_type_s: "collection",
+            authoritative_slug_s: "lae"
+          }
+          | items
+        ],
+        active_collection()
+      )
+
+      Solr.soft_commit(active_collection())
+
+      conn
+      |> visit("/search?filter[collection][]=Latin+American+Ephemera")
+      |> assert_has(".phx-connected")
+      |> Playwright.click("#search-filters .collection.filter .filter-body")
+      |> assert_path("/collections/lae")
+    end
+
+    test "clicking a collection filter pill when the collection doesn't exist flashes an error",
+         %{conn: conn} do
+      Solr.add(SolrTestSupport.mock_solr_documents(2), active_collection())
+      Solr.soft_commit(active_collection())
+
+      conn
+      |> visit("/search?filter[collection][]=Unindexed+Collection")
+      |> assert_has(".phx-connected")
+      |> Playwright.click("#search-filters .collection.filter .filter-body")
+      |> assert_has("#flash-error", text: "Collection not found")
+    end
   end
 
   test "filters are retained when adding a keyword", %{conn: conn} do

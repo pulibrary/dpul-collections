@@ -327,6 +327,22 @@ defmodule DpulCollections.Solr do
     end
   end
 
+  def find_by_collection_title(title, index \\ Index.read_index()) do
+    {:ok, response} =
+      Client.query(
+        index,
+        params: [
+          q: ~s(resource_type_s:collection AND title_txtm:"#{escape_query(title)}"),
+          rows: 1
+        ]
+      )
+
+    case response.body["response"]["docs"] do
+      [] -> nil
+      [doc | _] -> doc
+    end
+  end
+
   @spec add(list(map()) | String.t(), %Index{}) ::
           {:ok, Req.Response.t()} | {:error, Exception.t()}
   def add(docs, index \\ Index.read_index())

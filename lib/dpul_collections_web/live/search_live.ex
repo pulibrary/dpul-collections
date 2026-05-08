@@ -388,25 +388,53 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def filter_pill(assigns = %{filter_value: filter_value}) when is_binary(filter_value) do
     ~H"""
-    <.primary_button
+    <div
       :if={@filter_value}
-      role="button"
-      phx-value-filter-value={@filter_value}
-      phx-value-filter={@field}
-      phx-click="remove_filter"
       class={[
         @field,
-        "filter flex max-w-full gap-1 py-2 px-4 btn-primary no-underline font-semibold *:font-semibold text-sm h-full"
+        "filter inline-flex max-w-full overflow-hidden bg-primary text-dark-text font-semibold *:font-semibold text-sm h-full"
       ]}
     >
       {# These labels are defined explicitly in Solr.Constants, but have to be called here because Constants is defined at compile time.}
-      {Gettext.gettext(DpulCollectionsWeb.Gettext, @label)}
-      <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
-      <span class="filter-text truncate">
-        {@filter_value}
+      <button
+        :if={@field == "collection"}
+        type="button"
+        phx-click="navigate_to_collection"
+        phx-value-title={@filter_value}
+        class="filter-body flex items-center gap-1 py-2 pl-4 pr-2 no-underline hover:underline hover:bg-hover-accent focus-visible:underline focus-visible:bg-hover-accent cursor-pointer text-left"
+      >
+        {Gettext.gettext(DpulCollectionsWeb.Gettext, @label)}
+        <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
+        <span class="filter-text truncate">
+          {@filter_value}
+        </span>
+      </button>
+      <span
+        :if={@field != "collection"}
+        class="filter-body flex items-center gap-1 py-2 pl-4 pr-2"
+      >
+        {Gettext.gettext(DpulCollectionsWeb.Gettext, @label)}
+        <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
+        <span class="filter-text truncate">
+          {@filter_value}
+        </span>
       </span>
-      <span><.icon name="hero-x-circle" class="ml-2 h-6 w-6 icon" /></span>
-    </.primary_button>
+      <button
+        type="button"
+        class="filter-dismiss flex items-center justify-center px-3 py-2 hover:bg-hover-accent focus-visible:bg-hover-accent cursor-pointer"
+        phx-click="remove_filter"
+        phx-value-filter={@field}
+        phx-value-filter-value={@filter_value}
+        aria-label={
+          gettext("Remove %{label}: %{value} filter",
+            label: Gettext.gettext(DpulCollectionsWeb.Gettext, @label),
+            value: @filter_value
+          )
+        }
+      >
+        <.icon name="hero-x-circle" class="h-6 w-6 icon" />
+      </button>
+    </div>
     """
   end
 
@@ -825,6 +853,16 @@ defmodule DpulCollectionsWeb.SearchLive do
       {format_number(@text)}
     </span>
     """
+  end
+
+  def handle_event("navigate_to_collection", %{"title" => title}, socket) do
+    case Collection.authoritative_slug_from_title(title) do
+      slug when is_binary(slug) ->
+        {:noreply, push_navigate(socket, to: ~p"/collections/#{slug}")}
+
+      _ ->
+        {:noreply, put_flash(socket, :error, gettext("Collection not found"))}
+    end
   end
 
   def handle_event(
