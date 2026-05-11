@@ -801,6 +801,22 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     end
 
     test "displays a title for a record", %{conn: conn} do
+      FiggyTestSupport.index_record_id_directly("3da68e1c-06af-4d17-8603-fc73152e1ef7")
+      Solr.soft_commit()
+
+      {:ok, _view, html} = live(conn, "/search?q=3da68e1c-06af-4d17-8603-fc73152e1ef7")
+
+      {:ok, document} =
+        html
+        |> Floki.parse_document()
+
+      # There should be a title
+      assert document
+             |> Floki.find("#item-title-3da68e1c-06af-4d17-8603-fc73152e1ef7")
+             |> Enum.count() == 1
+    end
+
+    test "displays a transliterated title for a record", %{conn: conn} do
       FiggyTestSupport.index_record_id_directly("27fd4d29-1170-47a5-891b-f2743873bcef")
       Solr.soft_commit()
 
@@ -812,7 +828,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
       # There should be a title
       assert document
-             |> Floki.find("#item-title-27fd4d29-1170-47a5-891b-f2743873bcef")
+             |> Floki.find("#item-translit-title-27fd4d29-1170-47a5-891b-f2743873bcef")
              |> Enum.count() == 1
     end
 

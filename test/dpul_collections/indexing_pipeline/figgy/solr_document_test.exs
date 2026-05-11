@@ -974,7 +974,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocumentTest do
           [
             Access.key!(:resource),
             Access.key!(:metadata),
-            Access.key!("content_warning")
+            "content_warning"
           ],
           nil
         )

@@ -646,6 +646,16 @@ defmodule DpulCollectionsWeb.SearchLive do
               {@item.format}
             </span>
           </div>
+          <div :if={!Enum.empty?(@item.transliterated_title) || !Enum.empty?(@item.alternative_title)}>
+            <h3
+              :for={ttitle <- @item.transliterated_title}
+              dir="auto"
+              class="mt-[-1rem] font-medium text-gray-500"
+              id={"item-translit-title-#{@item.id}"}
+            >
+              {ttitle}
+            </h3>
+          </div>
           <div :if={@sort_by == :recently_added && @item.updated_at} class="updated-at w-full">
             {gettext("Added")} {DpulCollectionsWeb.BrowseItem.time_ago(@item.updated_at)}
           </div>
