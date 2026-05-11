@@ -395,30 +395,11 @@ defmodule DpulCollectionsWeb.SearchLive do
         "filter inline-flex max-w-full overflow-hidden bg-primary text-dark-text font-semibold *:font-semibold text-sm h-full"
       ]}
     >
-      {# These labels are defined explicitly in Solr.Constants, but have to be called here because Constants is defined at compile time.}
-      <button
-        :if={@field == "collection"}
-        type="button"
-        phx-click="navigate_to_collection"
-        phx-value-title={@filter_value}
-        class="filter-body group flex items-center gap-1 py-2 pl-4 pr-2 no-underline hover:bg-hover-accent focus-visible:bg-hover-accent cursor-pointer text-left"
-      >
-        {Gettext.gettext(DpulCollectionsWeb.Gettext, @label)}
-        <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
-        <span class="filter-text truncate group-hover:underline group-focus-visible:underline">
-          {@filter_value}
-        </span>
-      </button>
-      <span
-        :if={@field != "collection"}
-        class="filter-body flex items-center gap-1 py-2 pl-4 pr-2"
-      >
-        {Gettext.gettext(DpulCollectionsWeb.Gettext, @label)}
-        <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
-        <span class="filter-text truncate">
-          {@filter_value}
-        </span>
-      </span>
+      <.filter_pill_body
+        filter_value={@filter_value}
+        field={@field}
+        label={@label}
+      />
       <button
         type="button"
         class="filter-dismiss flex items-center justify-center px-3 py-2 hover:bg-hover-accent focus-visible:bg-hover-accent cursor-pointer"
@@ -440,6 +421,35 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def filter_pill(assigns) do
     ~H"""
+    """
+  end
+
+  def filter_pill_body(assigns = %{field: field}) when field == "collection" do
+    ~H"""
+    <button
+      type="button"
+      phx-click="navigate_to_collection"
+      phx-value-title={@filter_value}
+      class="filter-body group flex items-center gap-1 py-2 pl-4 pr-2 no-underline hover:bg-hover-accent focus-visible:bg-hover-accent cursor-pointer text-left"
+    >
+      {Gettext.gettext(DpulCollectionsWeb.Gettext, @label)}
+      <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
+      <span class="filter-text truncate group-hover:underline group-focus-visible:underline">
+        {@filter_value}
+      </span>
+    </button>
+    """
+  end
+
+  def filter_pill_body(assigns) do
+    ~H"""
+    <span class="filter-body flex items-center gap-1 py-2 pl-4 pr-2">
+      {Gettext.gettext(DpulCollectionsWeb.Gettext, @label)}
+      <span><.icon name="hero-chevron-right" class="p-1 h-4 w-4 icon" /></span>
+      <span class="filter-text truncate">
+        {@filter_value}
+      </span>
+    </span>
     """
   end
 
