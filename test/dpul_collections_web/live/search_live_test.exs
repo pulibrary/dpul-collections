@@ -249,7 +249,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     # Removing one pill doesn't remove the other
     view
-    |> element("#search-filters .filter", "Pamphlets")
+    |> element("#search-filters .filter-dismiss[phx-value-filter-value='Pamphlets']")
     |> render_click()
 
     assert view
@@ -413,7 +413,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     |> render_click()
 
     view
-    |> element("#search-filters .filter", "Folders")
+    |> element("#search-filters .filter-dismiss[phx-value-filter-value='Folders']")
     |> render_click()
 
     assert view
@@ -608,7 +608,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     # The filter can be removed.
     view
-    |> element("#search-filters .filter", "Similar")
+    |> element("#search-filters .similar.filter .filter-dismiss")
     |> render_click()
 
     refute has_element?(view, ".filter.similar")

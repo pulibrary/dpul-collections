@@ -24,7 +24,7 @@ msgstr "Aguanta mientras volvemos al buen camino"
 #: lib/dpul_collections_web/components/search_bar_component.ex:37
 #: lib/dpul_collections_web/components/search_bar_component.ex:43
 #: lib/dpul_collections_web/components/search_bar_component.ex:118
-#: lib/dpul_collections_web/live/search_live.ex:455
+#: lib/dpul_collections_web/live/search_live.ex:483
 #, elixir-autogen, elixir-format
 msgid "Search"
 msgstr "Buscar"
@@ -56,12 +56,12 @@ msgstr "cerrar"
 msgid "Language"
 msgstr "Idioma"
 
-#: lib/dpul_collections_web/live/search_live.ex:776
+#: lib/dpul_collections_web/live/search_live.ex:804
 #, elixir-autogen, elixir-format
 msgid "Next"
 msgstr "Proxima"
 
-#: lib/dpul_collections_web/live/search_live.ex:746
+#: lib/dpul_collections_web/live/search_live.ex:774
 #, elixir-autogen, elixir-format
 msgid "Previous"
 msgstr "Anterior"
@@ -72,14 +72,14 @@ msgstr "Anterior"
 msgid "sort by"
 msgstr "Ordenar por"
 
-#: lib/dpul_collections_web/live/search_live.ex:423
-#: lib/dpul_collections_web/live/search_live.ex:424
+#: lib/dpul_collections_web/live/search_live.ex:451
+#: lib/dpul_collections_web/live/search_live.ex:452
 #, elixir-autogen, elixir-format
 msgid "From"
 msgstr "De"
 
-#: lib/dpul_collections_web/live/search_live.ex:428
-#: lib/dpul_collections_web/live/search_live.ex:429
+#: lib/dpul_collections_web/live/search_live.ex:456
+#: lib/dpul_collections_web/live/search_live.ex:457
 #, elixir-autogen, elixir-format
 msgid "To"
 msgstr "A"
@@ -160,7 +160,7 @@ msgstr "Colecciones Digitales"
 msgid "The Trustees of Princeton University"
 msgstr "Los fideicomisarios de la Universidad de Princeton"
 
-#: lib/dpul_collections_web/live/search_live.ex:612
+#: lib/dpul_collections_web/live/search_live.ex:640
 #, elixir-autogen, elixir-format
 msgid "Added"
 msgstr "Añadido"
@@ -540,7 +540,7 @@ msgstr "Ver elementos aleatorios"
 msgid "main image display"
 msgstr "visualización de la imagen principal"
 
-#: lib/dpul_collections_web/live/search_live.ex:736
+#: lib/dpul_collections_web/live/search_live.ex:764
 #, elixir-autogen, elixir-format
 msgid "Search Results Page Navigation"
 msgstr "Resultados de la búsqueda por"
@@ -612,7 +612,7 @@ msgid "Categories"
 msgstr "Categorías"
 
 #: lib/dpul_collections_web/components/browse_item.ex:219
-#: lib/dpul_collections_web/live/search_live.ex:653
+#: lib/dpul_collections_web/live/search_live.ex:681
 #, elixir-autogen, elixir-format
 msgid "Date"
 msgstr "Fecha"
@@ -633,8 +633,8 @@ msgstr "Destacado"
 
 #: lib/dpul_collections_web/components/browse_item.ex:170
 #: lib/dpul_collections_web/live/item_live.ex:199
-#: lib/dpul_collections_web/live/search_live.ex:637
-#: lib/dpul_collections_web/live/search_live.ex:707
+#: lib/dpul_collections_web/live/search_live.ex:665
+#: lib/dpul_collections_web/live/search_live.ex:735
 #, elixir-autogen, elixir-format
 msgid "Files"
 msgstr "Archivos"
@@ -693,7 +693,7 @@ msgid "My Sets"
 msgstr "Mis Conjuntos"
 
 #: lib/dpul_collections_web/components/browse_item.ex:226
-#: lib/dpul_collections_web/live/search_live.ex:660
+#: lib/dpul_collections_web/live/search_live.ex:688
 #, elixir-autogen, elixir-format
 msgid "Origin"
 msgstr "Origen"
@@ -720,8 +720,8 @@ msgstr "Pósteres"
 msgid "Save"
 msgstr "Guardar"
 
-#: lib/dpul_collections_web/live/search_live.ex:671
-#: lib/dpul_collections_web/live/search_live.ex:677
+#: lib/dpul_collections_web/live/search_live.ex:699
+#: lib/dpul_collections_web/live/search_live.ex:705
 #, elixir-autogen, elixir-format
 msgid "Search Results"
 msgstr "Resultados de la búsqueda"
@@ -1051,8 +1051,8 @@ msgid "contact Princeton University Library"
 msgstr "contactar a la Biblioteca de la Universidad de Princeton"
 
 #: lib/dpul_collections_web/live/item_live.ex:152
-#: lib/dpul_collections_web/live/search_live.ex:534
-#: lib/dpul_collections_web/live/search_live.ex:604
+#: lib/dpul_collections_web/live/search_live.ex:562
+#: lib/dpul_collections_web/live/search_live.ex:632
 #, elixir-autogen, elixir-format
 msgid "format"
 msgstr "formato"
@@ -1067,7 +1067,7 @@ msgstr "lenguaje problemático"
 msgid "Active Filters"
 msgstr "Filtros Activos"
 
-#: lib/dpul_collections_web/live/search_live.ex:434
+#: lib/dpul_collections_web/live/search_live.ex:462
 #, elixir-autogen, elixir-format
 msgid "Apply Year Range"
 msgstr "Aplicar Rango de Años"
@@ -1174,7 +1174,7 @@ msgstr "Resultados"
 msgid "Scribe"
 msgstr "Escriba"
 
-#: lib/dpul_collections_web/live/search_live.ex:461
+#: lib/dpul_collections_web/live/search_live.ex:489
 #, elixir-autogen, elixir-format
 msgid "Search filters..."
 msgstr "Filtros de búsqueda..."
@@ -1189,7 +1189,7 @@ msgstr "Adquisición de Fuente"
 msgid "View"
 msgstr "Abrir"
 
-#: lib/dpul_collections_web/live/search_live.ex:455
+#: lib/dpul_collections_web/live/search_live.ex:483
 #, elixir-autogen, elixir-format
 msgid "filters"
 msgstr "Filtros"
@@ -1272,11 +1272,6 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
-#: lib/dpul_collections_web/components/footer_component.ex:32
-#, elixir-autogen, elixir-format, fuzzy
-msgid "Princeton University Logo"
-msgstr "Biblioteca de la Universidad de Princeton"
-
 #: lib/dpul_collections_web/live/user_sets/add_to_set_component.ex:111
 #, elixir-autogen, elixir-format
 msgid "Set description"
@@ -1300,4 +1295,19 @@ msgstr ""
 #: lib/dpul_collections_web/live/collections_live.ex:70
 #, elixir-autogen, elixir-format
 msgid "more"
+msgstr ""
+
+#: lib/dpul_collections_web/live/search_live.ex:864
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Collection not found"
+msgstr "Coleccion"
+
+#: lib/dpul_collections_web/components/footer_component.ex:32
+#, elixir-autogen, elixir-format, fuzzy
+msgid "Princeton University"
+msgstr "Biblioteca de la Universidad de Princeton"
+
+#: lib/dpul_collections_web/live/search_live.ex:429
+#, elixir-autogen, elixir-format
+msgid "Remove %{label}: %{value} filter"
 msgstr ""

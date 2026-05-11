@@ -38,6 +38,30 @@ defmodule DpulCollections.CollectionTest do
     end
   end
 
+  describe ".authoritative_slug_from_title/1" do
+    test "returns the authoritative slug when a collection with the given title is indexed" do
+      Solr.add(
+        [
+          %{
+            id: "d7c889ba-9992-494e-8fe4-2c4a9b3c3d7d",
+            title_txtm: ["Latin American Ephemera"],
+            resource_type_s: "collection",
+            authoritative_slug_s: "lae"
+          }
+        ],
+        SolrTestSupport.active_collection()
+      )
+
+      Solr.soft_commit()
+
+      assert Collection.authoritative_slug_from_title("Latin American Ephemera") == "lae"
+    end
+
+    test "returns nil when no collection matches the title" do
+      assert Collection.authoritative_slug_from_title("Unindexed Collection") == nil
+    end
+  end
+
   describe ".get_contributors/1" do
     test "returns 3 contributors for lae" do
       assert length(Collection.get_contributors("lae")) == 3

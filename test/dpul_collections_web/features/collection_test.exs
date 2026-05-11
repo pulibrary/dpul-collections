@@ -97,8 +97,8 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> assert_has(".phx-connected")
       |> click_link("Politics and government")
       |> assert_has("h1", text: "Search Results")
-      |> assert_has("button.category", text: "Politics and government")
-      |> assert_has("button.collection", text: "South Asian Ephemera")
+      |> assert_has(".filter.category", text: "Politics and government")
+      |> assert_has(".filter.collection", text: "South Asian Ephemera")
     end
 
     test "a collection without contributors still displays copyright policy", %{conn: conn} do

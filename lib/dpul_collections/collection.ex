@@ -27,6 +27,13 @@ defmodule DpulCollections.Collection do
     |> from_solr()
   end
 
+  def authoritative_slug_from_title(title) do
+    case Solr.find_by_collection_title(title) do
+      %{"authoritative_slug_s" => slug} when is_binary(slug) -> slug
+      _ -> nil
+    end
+  end
+
   def get_featured_items(label) do
     params =
       SearchState.from_params(%{
