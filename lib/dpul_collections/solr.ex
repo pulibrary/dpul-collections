@@ -234,7 +234,7 @@ defmodule DpulCollections.Solr do
   def generate_filter_query({filter_key, "-" <> filter_value})
       when is_binary(filter_value) and filter_key in @filter_keys do
     solr_field = @filters[filter_key].solr_field
-    "{!tag=#{filter_key}Filter}-#{solr_field}:\"#{filter_value}\""
+    "{!tag=#{filter_key}Filter}-#{solr_field}:\"#{filter_value |> escape_query()}\""
   end
 
   # Similar filter - display, but handle in the q parameter instead.
@@ -246,7 +246,7 @@ defmodule DpulCollections.Solr do
   def generate_filter_query({filter_key, filter_value})
       when is_binary(filter_value) and filter_key in @filter_keys do
     solr_field = @filters[filter_key].solr_field
-    "{!tag=#{filter_key}Filter}#{solr_field}:\"#{filter_value}\""
+    "{!tag=#{filter_key}Filter}#{solr_field}:\"#{filter_value |> escape_query()}\""
   end
 
   def generate_filter_query({filter_key, filter_value})
@@ -259,7 +259,12 @@ defmodule DpulCollections.Solr do
   def generate_filter_query({filter_key, values = [filter_value | _]})
       when is_binary(filter_value) and filter_key in @filter_keys do
     solr_field = @filters[filter_key].solr_field
-    filter_strings = values |> Enum.map(fn value -> ~s("#{value}") end)
+
+    filter_strings =
+      values
+      |> Enum.map(&escape_query/1)
+      |> Enum.map(fn value -> ~s("#{value}") end)
+
     "{!tag=#{filter_key}Filter}#{solr_field}:(#{filter_strings |> Enum.join("OR ")})"
   end
 

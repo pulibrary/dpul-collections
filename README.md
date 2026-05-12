@@ -23,7 +23,7 @@ Do these things every time you start new work in this project in dev or test
 
 ### Reset Everything
 
-If you have new fixtures to load or have pulled down some new changes and want to restart, do the following:
+If there are new fixtures you need to load or have pulled down some new changes and want to restart, do the following:
 
 - `lando destroy -y && lando start && mix setup`
 
@@ -46,10 +46,10 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 We import fixtures from Figgy's production database into a Postgres Docker container so
 that we can easily use it for testing indexing.
 
-To refresh fixtures:
+To pull the latest version of all fixture records from figgy into the repo:
 - `cd figgy-fixture-container && ./create-fixture-exports.sh`
 
-To add extra fixtures:
+To add new fixtures:
 - Edit `figgy-fixture-container/create-fixture-exports.sh` and add an id to the EXTRA_RESOURCE_IDS var
 - `cd figgy-fixture-container && ./create-fixture-exports.sh`
 
@@ -63,8 +63,7 @@ If someone else updated the fixtures and now your local test suite is failing, r
 Steps to rebuild figgy fixtures locally:
 
 ```
-cd figgy-fixture-container && ./create-fixture-exports.sh
-cd ..
+cd figgy-fixture-container && ./create-fixture-exports.sh && cd -
 lando destroy -y && lando start && mix setup
 ```
 
@@ -85,7 +84,8 @@ Steps:
     ./create-synthetic-fixtures.sh
     ```
 - Rename concatenated CSV file.
-  - `mv  ./fixture-exports/synthetic/synthetic-fixtures.csv ./fixture-exports/synthetic/my-new-fixtures.csv`
+  - `mv ./fixture-exports/synthetic/synthetic-fixtures.csv ./fixture-exports/synthetic/my-new-fixtures.csv`
+  - Note you won't see it listed in your git status because these files are gitignored to ensure they are only committed intentionally
 - Modify CSV manually if needed.
 - Add fixture description to fixtures.md file
 - Rebuild local figgy fixtures container.

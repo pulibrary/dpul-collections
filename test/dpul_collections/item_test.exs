@@ -4,8 +4,6 @@ defmodule DpulCollections.ItemTest do
   use DpulCollections.DataCase
 
   alias DpulCollections.Item
-  alias DpulCollections.IndexingPipeline
-  alias DpulCollections.IndexingPipeline.Figgy
 
   describe ".from_solr/1" do
     test "populates an empty array for image_service_urls if empty" do
@@ -19,14 +17,11 @@ defmodule DpulCollections.ItemTest do
     end
 
     test "can build from an Ephemera Project" do
-      IndexingPipeline.get_figgy_resource!("f99af4de-fed4-4baa-82b1-6e857b230306")
-      |> Figgy.Resource.to_combined()
-      |> Figgy.SolrDocument.from_combined_figgy_resource()
-      |> Solr.add()
-
+      id = "f99af4de-fed4-4baa-82b1-6e857b230306"
+      FiggyTestSupport.index_record_id_directly(id)
       Solr.soft_commit()
 
-      item = Item.from_solr(Solr.find_by_id("f99af4de-fed4-4baa-82b1-6e857b230306"))
+      item = Item.from_solr(Solr.find_by_id(id))
 
       assert item.title == ["South Asian Ephemera"]
       assert item.slug == "sae"
