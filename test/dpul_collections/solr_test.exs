@@ -150,6 +150,30 @@ defmodule DpulCollections.SolrTest do
                result.filter_data
     end
 
+    test "searching without accents still returns results" do
+      # Example record: https://digital-collections.princeton.edu/i/untitled/item/d50a5a8f-866e-4345-b91d-aed1841cff22
+      Solr.add(
+        [
+          %{
+            id: "spanish-example",
+            title_txtm: ["Test Title"],
+            summary_txtm: [
+              "Sticker images depict the eyes of Venezuela's late President Hugo Chávez Frías."
+            ]
+          }
+        ],
+        active_collection()
+      )
+
+      Solr.soft_commit(active_collection())
+
+      search_state = SearchState.from_params(%{"q" => "Hugo Chavez"})
+      result = Solr.search(search_state)
+
+      assert length(result.results) == 1
+      assert hd(result.results).id == "spanish-example"
+    end
+
     test "Spanish stemming in qf improves search results" do
       # "El despertar de los trabajadores" contains "trabajadores" (plural, masculine).
       # A search for "trabajadora" (singular, feminine) won't match in title_txtm
