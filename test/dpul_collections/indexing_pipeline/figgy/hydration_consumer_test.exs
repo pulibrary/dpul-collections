@@ -208,6 +208,29 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
       assert hydration_cache_entry.data["metadata"]["deleted"] == true
     end
 
+    test "handle_message/3 skips ScannedResources whose member_of_collection_ids is nil" do
+      message = %Broadway.Message{
+        acknowledger: nil,
+        data: %Figgy.Resource{
+          id: "2fa1b92b-9e62-4694-aeab-0c4fab72ac24",
+          updated_at: ~U[2025-08-18 20:19:34.465203Z],
+          internal_resource: "ScannedResource",
+          state: ["complete"],
+          visibility: ["open"],
+          member_of_collection_ids: nil,
+          metadata: %{
+            "title" => ["title"],
+            "state" => ["complete"],
+            "visibility" => ["open"]
+          }
+        }
+      }
+
+      result = Figgy.HydrationConsumer.handle_message(nil, message, %{cache_version: 1})
+
+      assert result.batcher == :noop
+    end
+
     test "handle_batch/3 deletes EphemeraFolders when their state or visibility change" do
       ephemera_folder_message_1 = %Broadway.Message{
         acknowledger: nil,
