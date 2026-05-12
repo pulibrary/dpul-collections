@@ -4,7 +4,6 @@ defmodule DpulCollections.ItemTest do
   use DpulCollections.DataCase
 
   alias DpulCollections.Item
-  alias DpulCollections.IndexingPipeline
 
   describe ".from_solr/1" do
     test "populates an empty array for image_service_urls if empty" do

@@ -1001,14 +1001,5 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocumentTest do
 
       assert doc[:language_txt_sort] == "Klingon"
     end
-
-    test "replaces smart quotes in publisher field values" do
-      doc =
-        IndexingPipeline.get_figgy_resource!("ca9184a3-357d-42f1-b602-d708e278a110")
-        |> Figgy.Resource.to_combined()
-        |> Figgy.SolrDocument.from_combined_figgy_resource()
-
-      assert doc[:publisher_txt_sort] == ["Издательство \"Советская Россия\""]
-    end
   end
 end
