@@ -80,6 +80,8 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> assert_has("li", text: "Posters")
       # No more link if it's displaying them all
       |> refute_has("li", text: "+0 more")
+      # Languages
+      |> assert_has("li", text: "Hindi")
       # Recently updated more link
       |> assert_has(
         "a[href='/search?filter[collection][]=South+Asian+Ephemera&sort_by=recently_added']"
