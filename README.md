@@ -43,35 +43,44 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
 ### Figgy Fixtures
 
-We import fixtures from Figgy's production database into a Postgres Docker container so
-that we can easily use it for testing indexing.
+Our dev and test setup includes a local figgy database that we populate with fixture records. There are 2 ways of updating your local figgy database.
+
+#### Scenario 1: Sync local figgy database to git repository state
+
+If a PR has made changes to the fixtures, your local figgy database needs to get the latest fixtures from the repo. This only requires a lando reset.
+
+Do this when you pull main and it makes your tests fail.
+
+##### Lando reset
+
+- `lando destroy -y && lando start && mix setup`
+
+#### Scenario 2: Refresh fixtures from Figgy (aka sync local figgy database to Figgy state)
+
+If you need to update the existing fixtures because, e.g., the shape of the data from figgy has changed in some way, you need to pull directly from figgy into the repo and include those changes in your PR. You'll also do this after adding new fixtures (see below).
+
+NOTE: This refresh could BREAK TESTS unrelated to the work you are doing!
+
+Because unexpected updates to the data could come through, you may have to spend some time understanding why a test is broken and whether we should fix the test, fix the code, or switch a certain test to use a synthetic fixture instead of a live fixture (see below for the 2 types of fixtures).
+
+##### Fixture refresh
 
 To pull the latest version of all fixture records from figgy into the repo:
-- `cd figgy-fixture-container && ./create-fixture-exports.sh`
+- `cd figgy-fixture-container && ./create-fixture-exports.sh && cd -`
+- do "Lando reset" (see above)
 
-To add new fixtures:
+#### Scenario 3: Add a new fixture
+
+There are two types of fixtures: Live and Synthetic. Live fixtures should be the default; when they get updated it helps us ensure that our code works with actual, current figgy data. Synthetic fixtures should be used when we need to create a record that doesn't exist in Figgy or depend on a data value that is unstable (e.g. we want a resource's state value to be "needs_qa").
+
+##### Add a Live fixture
+
 - Edit `figgy-fixture-container/create-fixture-exports.sh` and add an id to the EXTRA_RESOURCE_IDS var
-- `cd figgy-fixture-container && ./create-fixture-exports.sh`
+- do "Fixture refresh" (see above)
 
-Note that refreshing or adding a new fixture might require you to make adjustments to test expectations.
+##### Add a Synthetic fixture
 
-If someone else updated the fixtures and now your local test suite is failing, run:
-`mix reindex_dev`
-
-### Figgy Fixtures: Local Development
-
-Steps to rebuild figgy fixtures locally:
-
-```
-cd figgy-fixture-container && ./create-fixture-exports.sh && cd -
-lando destroy -y && lando start && mix setup
-```
-
-### Figgy Fixtures: Creating Synthetic Fixtures
-
-Sometimes we need to create fixtures that don't exist in Figgy or are
-unstable (e.g. we want a resource's state value to be "needs_qa"). We can add (and
-modify) synthetic records by importing CSV files into the Figgy fixture database.
+We store synthetic records as CSV files, which we create by exporting them directly from the figgy database. We can then modify them as needed and load them into the local figgy database.
 
 Steps:
 
@@ -83,12 +92,13 @@ Steps:
     IDS_NO_MEMBERS="('7b87fdfa-a760-49b9-85e9-093f2519f2fc')"
     ./create-synthetic-fixtures.sh
     ```
+    - this script puts a synthetic-fixtures.csv in your synthetic fixtures directory, as well as potentially other new csvs called synth-[n]-export.csv
+    - Note you won't see them listed in your git status because these files are gitignored to ensure they are only committed intentionally
 - Rename concatenated CSV file.
   - `mv ./fixture-exports/synthetic/synthetic-fixtures.csv ./fixture-exports/synthetic/my-new-fixtures.csv`
-  - Note you won't see it listed in your git status because these files are gitignored to ensure they are only committed intentionally
 - Modify CSV manually if needed.
 - Add fixture description to fixtures.md file
-- Rebuild local figgy fixtures container.
+- Rebuild the local figgy fixtures container using the "Fixture refresh" process, above
 
 ### Solr credentials
 
