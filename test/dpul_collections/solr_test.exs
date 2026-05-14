@@ -174,6 +174,18 @@ defmodule DpulCollections.SolrTest do
       assert hd(result.results).id == "spanish-example"
     end
 
+    test "searching across fields works as expected" do
+      # Searching for "Ricky Rossello" should handle accents and also search
+      # across the title and summary.
+      FiggyTestSupport.index_record_id_directly("c66a266c-38ce-4442-90ec-e3e329e6d602")
+      Solr.soft_commit(active_collection())
+
+      search_state = SearchState.from_params(%{"q" => "Ricky Rossello"})
+      result = Solr.search(search_state)
+
+      assert length(result.results) == 1
+    end
+
     test "Spanish stemming in qf improves search results" do
       # "El despertar de los trabajadores" contains "trabajadores" (plural, masculine).
       # A search for "trabajadora" (singular, feminine) won't match in title_txtm
