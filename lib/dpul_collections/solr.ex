@@ -72,7 +72,9 @@ defmodule DpulCollections.Solr do
         rows: search_state[:per_page],
         start: pagination_offset(search_state),
         # To do MLT in edismax we have to allow the keyword _query_
-        uf: "* _query_"
+        uf: "* _query_",
+        spellcheck: true,
+        "spellcheck.collate": true
       ]
       |> Keyword.merge(filter_count_params(search_state.filter_count_fields))
       |> Keyword.merge(search_state[:extra_params] || [])
@@ -124,10 +126,17 @@ defmodule DpulCollections.Solr do
   end
 
   def search(search_state, index \\ Index.read_index()) do
-    search_state
-    |> SearchState.add_filter_count_fields(@filter_fields)
-    |> raw_query(index)
-    |> to_search_result()
+    search_state = SearchState.add_filter_count_fields(search_state, @filter_fields)
+    solr_response = raw_query(search_state, index)
+
+    case {search_state[:q], collation_query(solr_response)} do
+      {q, collation} when is_binary(q) and is_binary(collation) ->
+        combined_state = %{search_state | q: "(#{q |> escape_query()}) OR (#{collation})"}
+        raw_query(combined_state, index) |> to_search_result()
+
+      _ ->
+        solr_response |> to_search_result()
+    end
   end
 
   defp to_search_result(solr_response) do
@@ -198,6 +207,12 @@ defmodule DpulCollections.Solr do
 
     query(search_state, index)
   end
+
+  defp collation_query(%{"spellcheck" => %{"collations" => ["collation", query | _]}}) do
+    query
+  end
+
+  defp collation_query(_), do: nil
 
   defp query_param(search_state) do
     [mlt_focus(search_state), search_state[:q] |> escape_query]
