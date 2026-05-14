@@ -66,6 +66,7 @@ defmodule DpulCollections.Solr do
         # Require 1 match for 2 terms, terms-2 for 5, and 90% if 6 or greater.
         # Pulled from LAE configuration.
         mm: "2<-1 5<-2 6<90%",
+        sow: "true",
         fl: fl,
         sort: sort_param(search_state),
         rows: search_state[:per_page],
