@@ -184,6 +184,16 @@ defmodule DpulCollections.SolrTest do
       result = Solr.search(search_state)
 
       assert length(result.results) == 1
+
+      # Searching for "Evo Environment" returns a record across categories /
+      # title
+      FiggyTestSupport.index_record_id_directly("ce55ea72-176b-4468-b486-2859822b065f")
+      Solr.soft_commit(active_collection())
+
+      search_state = SearchState.from_params(%{"q" => "Evo environment"})
+      result = Solr.search(search_state)
+
+      assert length(result.results) == 1
     end
 
     test "Spanish stemming in qf improves search results" do
