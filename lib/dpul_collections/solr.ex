@@ -75,7 +75,7 @@ defmodule DpulCollections.Solr do
         uf: "* _query_",
         spellcheck: true,
         "spellcheck.collate": true,
-        "spellcheck.accuracy": 0,
+        "spellcheck.accuracy": 0.1,
         "spellcheck.dictionary": "wordbreak",
         "spellcheck.dictionary": "default",
         "spellcheck.maxCollationTries": 100
