@@ -178,9 +178,25 @@ defmodule DpulCollections.SolrTest do
       # Searching for "Ricky Rossello" should handle accents and also search
       # across the title and summary.
       FiggyTestSupport.index_record_id_directly("c66a266c-38ce-4442-90ec-e3e329e6d602")
-      Solr.soft_commit(active_collection())
+      FiggyTestSupport.index_record_id_directly("81e36fc2-f7f8-4ed9-b433-a2d72ce0a3ae")
+      Solr.commit(active_collection())
+
+      search_state = SearchState.from_params(%{"q" => "Ric ky Rosselo"})
+      result = Solr.search(search_state)
+
+      assert length(result.results) == 1
 
       search_state = SearchState.from_params(%{"q" => "Ricky Rosselo"})
+      result = Solr.search(search_state)
+
+      assert length(result.results) == 1
+
+      search_state = SearchState.from_params(%{"q" => "Samir"})
+      result = Solr.search(search_state)
+
+      assert length(result.results) == 1
+
+      search_state = SearchState.from_params(%{"q" => "Sami ra"})
       result = Solr.search(search_state)
 
       assert length(result.results) == 1

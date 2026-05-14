@@ -74,7 +74,10 @@ defmodule DpulCollections.Solr do
         # To do MLT in edismax we have to allow the keyword _query_
         uf: "* _query_",
         spellcheck: true,
-        "spellcheck.collate": true
+        "spellcheck.collate": true,
+        "spellcheck.dictionary": "wordbreak",
+        "spellcheck.dictionary": "default",
+        "spellcheck.maxCollationTries": 100
       ]
       |> Keyword.merge(filter_count_params(search_state.filter_count_fields))
       |> Keyword.merge(search_state[:extra_params] || [])
@@ -131,7 +134,24 @@ defmodule DpulCollections.Solr do
 
     case {search_state[:q], collation_query(solr_response)} do
       {q, collation} when is_binary(q) and is_binary(collation) ->
-        combined_state = %{search_state | q: "(#{q |> escape_query()}) OR (#{collation})"}
+        combined_state = %{
+          search_state
+          | # Use a boolean query to do a hybrid search of the original query and
+            # the collation: https://sease.io/2023/12/hybrid-search-with-apache-solr.html
+            q: "{!bool should=$originalSub should=$collationSub}",
+            extra_params: [
+              # Use named parameters so this isn't horrible to look at and we can
+              # escape the query.
+              originalSub: "{!edismax mm='2<-1 5<-2 6<90%' v=$originalQ}",
+              originalQ: q |> escape_query(),
+              collationSub: "{!edismax mm='2<-1 5<-2 6<90%' v=$collationQ}",
+              collationQ: collation,
+              spellcheck: false,
+              # mm should be 0 to say no required match in either should= param: https://solr.apache.org/guide/solr/latest/query-guide/other-parsers.html#boolean-query-parser
+              mm: "0"
+            ]
+        }
+
         raw_query(combined_state, index) |> to_search_result()
 
       _ ->
