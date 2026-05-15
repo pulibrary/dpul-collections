@@ -175,13 +175,14 @@ defmodule DpulCollectionsWeb.SearchItem do
     <div class={[
       "search-thumbnail",
       "row-span-2 col-span-1",
-      "bg-search flex justify-center relative"
+      "grid grid-cols-1 auto-rows-auto gap-2",
+      "bg-search flex justify-center relative p-2"
     ]}>
       <img
         class={[
           "h-[350px] w-[350px]",
-          "sm:h-[225px] md:w-[225px]",
-          "bg-search object-contain p-2",
+          "sm:h-[225px] sm:w-[225px]",
+          "bg-search object-contain",
           Helpers.obfuscate_item?(assigns) && "obfuscate",
           "thumbnail-#{@item.id}",
           "place-self-center"
@@ -189,6 +190,16 @@ defmodule DpulCollectionsWeb.SearchItem do
         src={"#{@thumb}/full/!350,350/0/default.jpg"}
         alt=""
       />
+      <div class="small-thumbnails sm:hidden flex flex-row flex-wrap gap-5 max-h-[100px] justify-start overflow-hidden">
+        <.thumbs
+          :for={{thumb, thumb_num} <- thumbnail_service_urls(1, 6, @item)}
+            :if={@item.file_count > 1}
+            thumb={thumb}
+            thumb_num={thumb_num + 1}
+            item={@item}
+            show_images={@show_images}
+            />
+        </div>
       <div
         :if={@item.file_count > 1}
         class="absolute sm:hidden diagonal-rise right-0 bottom-0 bg-sage-100 pr-4 py-2"
@@ -255,7 +266,7 @@ defmodule DpulCollectionsWeb.SearchItem do
     <div class="relative">
       <img
         class={[
-          "h-[125px] w-[125px] md:h-[125px] md:w-[125px] border border-solid border-gray-400",
+          "h-[100px] w-[100px] sm:h-[125px] sm:w-[125px] border border-solid border-gray-400",
           "object-cover",
           Helpers.obfuscate_item?(assigns) && "obfuscate",
           "thumbnail-#{@item.id}"
