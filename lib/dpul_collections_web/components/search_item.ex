@@ -190,7 +190,13 @@ defmodule DpulCollectionsWeb.SearchItem do
         src={"#{@thumb}/full/!350,350/0/default.jpg"}
         alt=""
       />
-      <div class="small-thumbnails sm:hidden flex flex-row flex-wrap gap-5 max-h-[100px] justify-start overflow-hidden">
+      <div
+        class={["small-thumbnails sm:hidden",
+        "grid grid-template-rows-[auto] grid-cols-[repeat(auto-fit,minmax(96px,_1fr))]",
+        "max-h-[100px] overflow-hidden",
+        "gap-2 justify-between"
+        ]}
+      >
         <.thumbs
           :for={{thumb, thumb_num} <- thumbnail_service_urls(1, 6, @item)}
             :if={@item.file_count > 1}
@@ -263,7 +269,7 @@ defmodule DpulCollectionsWeb.SearchItem do
 
   def thumbs(assigns) do
     ~H"""
-    <div class="relative">
+    <div class="relative w-full sm:w-[125px] flex justify-center">
       <img
         class={[
           "h-[100px] w-[100px] sm:h-[125px] sm:w-[125px] border border-solid border-gray-400",
