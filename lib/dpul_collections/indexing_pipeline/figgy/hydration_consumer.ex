@@ -168,11 +168,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
   defp classify_open_resource(resource), do: {:update, resource}
 
-  defp member_of_allowed_collection?(%{member_of_collection_ids: nil}), do: false
+  defp member_of_allowed_collection?(%{member_of_collection_ids: nil}), do: true
 
   defp member_of_allowed_collection?(resource) do
-    collection_ids = Enum.map(resource.member_of_collection_ids, & &1["id"])
-    Enum.any?(collection_ids, &ResourceTypeRegistry.allowed_collection?/1)
+    # collection_ids = Enum.map(resource.member_of_collection_ids, & &1["id"])
+    # Enum.any?(collection_ids, &ResourceTypeRegistry.allowed_collection?/1)
+    true
   end
 
   # If we got a list of them, enrich each one.
