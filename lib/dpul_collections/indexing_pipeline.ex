@@ -79,6 +79,11 @@ defmodule DpulCollections.IndexingPipeline do
 
     Repo.transact(fn ->
       try do
+        # Disable synchronous commits - our postgres disk is very slow and if postgres
+        # restarts and our indexer reloads, that's totally fine. This will make
+        # it only store the commit in memory, and persist it in the background
+        # in chunks.
+        Repo.query!("SET LOCAL synchronous_commit = OFF", [])
         # Serialize writes for a cache version by acquiring an advisory lock.
         # It takes two integers - 1 here is special and for Hydration.
         Repo.query!("SELECT pg_advisory_xact_lock($1, $2)", [attrs.cache_version, 1])
@@ -229,14 +234,22 @@ defmodule DpulCollections.IndexingPipeline do
   Writes or updates processor markers
   """
   def write_processor_marker(attrs \\ %{}) do
-    %ProcessorMarker{}
-    |> ProcessorMarker.changeset(attrs)
-    |> Repo.insert(
-      on_conflict: [
-        set: [cache_location: attrs.cache_location, cache_record_id: attrs.cache_record_id]
-      ],
-      conflict_target: [:type, :cache_version]
-    )
+    Repo.transact(fn ->
+      # Disable synchronous commits - our postgres disk is very slow and if postgres
+      # restarts and our indexer reloads, that's totally fine. This will make
+      # it only store the commit in memory, and persist it in the background
+      # in chunks.
+      Repo.query!("SET LOCAL synchronous_commit = OFF", [])
+
+      %ProcessorMarker{}
+      |> ProcessorMarker.changeset(attrs)
+      |> Repo.insert(
+        on_conflict: [
+          set: [cache_location: attrs.cache_location, cache_record_id: attrs.cache_record_id]
+        ],
+        conflict_target: [:type, :cache_version]
+      )
+    end)
   end
 
   @doc """
@@ -491,6 +504,11 @@ defmodule DpulCollections.IndexingPipeline do
 
     Repo.transact(fn ->
       try do
+        # Disable synchronous commits - our postgres disk is very slow and if postgres
+        # restarts and our indexer reloads, that's totally fine. This will make
+        # it only store the commit in memory, and persist it in the background
+        # in chunks.
+        Repo.query!("SET LOCAL synchronous_commit = OFF", [])
         # Serialize writes for a cache version by acquiring an advisory lock.
         # It takes two integers - 2 here is special and for Transformation.
         # The lock is released when the transaction closes.
