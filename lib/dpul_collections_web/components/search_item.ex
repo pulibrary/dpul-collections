@@ -180,6 +180,7 @@ defmodule DpulCollectionsWeb.SearchItem do
     ]}>
       <img
         class={[
+          "primary-thumbnail",
           "h-[350px] w-[350px]",
           "sm:h-[225px] sm:w-[225px]",
           "bg-search object-contain",

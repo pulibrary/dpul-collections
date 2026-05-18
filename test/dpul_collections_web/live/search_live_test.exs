@@ -839,32 +839,36 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
         html
         |> Floki.parse_document()
 
-      # There should be a maximum of 5 thumbnails on the search results page
-      assert document |> Floki.find("#item-1 img") |> Enum.count() == 7
+      assert document |> Floki.find("#item-1 img.primary-thumbnail") |> Enum.count() == 1
+
+      # There should be a maximum of 6 small thumbnails on the search results page
+      assert document |> Floki.find("#item-1 .metadata img") |> Enum.count() == 6
 
       # Odd numbered documents in test data do not have a thumbnail id
       # so the order of thumbnails should be the same as the image member order
       assert document
-             |> Floki.attribute("#item-1 .search-thumbnail img", "src") == [
+             |> Floki.attribute("#item-1 img.primary-thumbnail", "src") == [
                "https://example.com/iiif/2/image1/full/!350,350/0/default.jpg"
              ]
 
       assert document
-             |> Floki.attribute("#item-1 .small-thumbnails > :first-child > img", "src") == [
-               "https://example.com/iiif/2/image2/square/!350,350/0/default.jpg"
-             ]
+             |> Floki.attribute("#item-1 .metadata .small-thumbnails > :first-child > img", "src") ==
+               [
+                 "https://example.com/iiif/2/image2/square/!350,350/0/default.jpg"
+               ]
 
       # Even numbered documents in test data have a thumbnail id so the order
       # of thumbnails should be different from the image member order
       assert document
-             |> Floki.attribute("#item-2 .search-thumbnail img", "src") == [
+             |> Floki.attribute("#item-2 img.primary-thumbnail", "src") == [
                "https://example.com/iiif/2/image2/full/!350,350/0/default.jpg"
              ]
 
       assert document
-             |> Floki.attribute("#item-2 .small-thumbnails > :first-child > img", "src") == [
-               "https://example.com/iiif/2/image1/square/!350,350/0/default.jpg"
-             ]
+             |> Floki.attribute("#item-2 .metadata .small-thumbnails > :first-child > img", "src") ==
+               [
+                 "https://example.com/iiif/2/image1/square/!350,350/0/default.jpg"
+               ]
     end
 
     test "displays ephemera projects", %{conn: conn} do
