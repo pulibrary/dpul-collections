@@ -190,22 +190,23 @@ defmodule DpulCollectionsWeb.SearchItem do
         src={"#{@thumb}/full/!350,350/0/default.jpg"}
         alt=""
       />
-      <div
-        class={["small-thumbnails sm:hidden",
-        "grid grid-template-rows-[auto] grid-cols-[repeat(auto-fit,minmax(96px,_1fr))]",
-        "max-h-[100px] overflow-hidden",
-        "gap-2 justify-between"
-        ]}
-      >
+      <div class={[
+        "small-thumbnails sm:hidden",
+        "grid grid-template-rows-[auto]",
+        "grid-cols-[repeat(auto-fill,minmax(80px,1fr))]",
+        "max-h-[80px] overflow-hidden gap-1",
+        @item.file_count > 5 && "justify-evenly",
+        @item.file_count <= 5 && "justify-start"
+      ]}>
         <.thumbs
           :for={{thumb, thumb_num} <- thumbnail_service_urls(1, 6, @item)}
-            :if={@item.file_count > 1}
-            thumb={thumb}
-            thumb_num={thumb_num + 1}
-            item={@item}
-            show_images={@show_images}
-            />
-        </div>
+          :if={@item.file_count > 1}
+          thumb={thumb}
+          thumb_num={thumb_num + 1}
+          item={@item}
+          show_images={@show_images}
+        />
+      </div>
       <div
         :if={@item.file_count > 1}
         class="absolute sm:hidden diagonal-rise right-0 bottom-0 bg-sage-100 pr-4 py-2"
@@ -269,10 +270,10 @@ defmodule DpulCollectionsWeb.SearchItem do
 
   def thumbs(assigns) do
     ~H"""
-    <div class="relative w-full sm:w-[125px] flex justify-center">
+    <div class="relative sm:w-[125px] flex justify-center">
       <img
         class={[
-          "h-[100px] w-[100px] sm:h-[125px] sm:w-[125px] border border-solid border-gray-400",
+          "h-[80px] w-[80px] sm:h-[125px] sm:w-[125px] border border-solid border-gray-400",
           "object-cover",
           Helpers.obfuscate_item?(assigns) && "obfuscate",
           "thumbnail-#{@item.id}"
