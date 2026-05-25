@@ -11,30 +11,35 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
       # This is "Washo", which we don't have anything labeled with in our test
       # set.
       ephemera_term = IndexingPipeline.get_figgy_resource!("1ebf9915-d865-4dc0-8f6f-56e19ce07248")
-      assert {:skip, _} = Figgy.HydrationConsumer.process(ephemera_term, 1)
+      Figgy.HydrationConsumer.process_and_persist(ephemera_term, 1)
+      assert IndexingPipeline.list_hydration_cache_entries() == []
     end
 
-    test "handle_message/3 when a message is not a complete and visible EphemeraFolder, it is sent to noop batcher" do
-      ephemera_folder_message = %Broadway.Message{
-        acknowledger: nil,
-        data: %Figgy.Resource{
-          id: "561ea64a-9cd1-4994-b2a7-ac169f33ba84",
-          updated_at: ~U[2024-04-18 14:28:57.526110Z],
-          internal_resource: "EphemeraFolder",
-          state: ["complete"],
-          visibility: ["open"],
-          metadata: %{
-            "title" => ["title"],
-            "state" => ["complete"],
-            "visibility" => ["open"],
-            "member_ids" => [%{"id" => "96f52803-f3d5-4cab-aba1-eceff648abdc"}]
-          }
+    test "handle_message/3 when a message is not a complete and visible EphemeraFolder, it is not saved" do
+      # First save an ephemera folder that creates a hydration cache entry.
+      ephemera_folder = %Figgy.Resource{
+        id: "561ea64a-9cd1-4994-b2a7-ac169f33ba84",
+        updated_at: ~U[2024-04-18 14:28:57.526110Z],
+        internal_resource: "EphemeraFolder",
+        state: ["complete"],
+        visibility: ["open"],
+        metadata: %{
+          "title" => ["title"],
+          "state" => ["complete"],
+          "visibility" => ["open"],
+          "member_ids" => [%{"id" => "96f52803-f3d5-4cab-aba1-eceff648abdc"}]
         }
       }
 
-      pending_ephemera_folder_message = %Broadway.Message{
-        acknowledger: nil,
-        data: %Figgy.Resource{
+      Figgy.HydrationConsumer.process_and_persist(ephemera_folder, 1)
+
+      # There's only one, and it's the ephemera folder.
+      assert [ephemera_folder_cache_entry] = IndexingPipeline.list_hydration_cache_entries()
+      assert ephemera_folder_cache_entry.data["metadata"]["title"] == ["title"]
+
+      # Mark the above ephemera folder pending - this should mark it deleted.
+      pending_ephemera_folder =
+        %Figgy.Resource{
           id: "561ea64a-9cd1-4994-b2a7-ac169f33ba84",
           updated_at: ~U[2024-04-18 14:28:57.526110Z],
           internal_resource: "EphemeraFolder",
@@ -47,13 +52,17 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
             "member_ids" => [%{"id" => "96f52803-f3d5-4cab-aba1-eceff648abdc"}]
           }
         }
-      }
 
-      restricted_ephemera_folder_message = %Broadway.Message{
-        acknowledger: nil,
-        data: %Figgy.Resource{
+      Figgy.HydrationConsumer.process_and_persist(pending_ephemera_folder, 1)
+      assert [ephemera_folder_cache_entry] = IndexingPipeline.list_hydration_cache_entries()
+      assert ephemera_folder_cache_entry.data["metadata"]["deleted"] == true
+
+      # Mark the above restricted. Continues to be marked deleted, but it's
+      # updated with the new timestamp.
+      restricted_ephemera_folder =
+        %Figgy.Resource{
           id: "561ea64a-9cd1-4994-b2a7-ac169f33ba84",
-          updated_at: ~U[2024-04-18 14:28:57.526110Z],
+          updated_at: ~U[2024-04-18 14:29:57.526110Z],
           internal_resource: "EphemeraFolder",
           state: ["complete"],
           visibility: ["restricted"],
@@ -64,53 +73,57 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
             "member_ids" => [%{"id" => "96f52803-f3d5-4cab-aba1-eceff648abdc"}]
           }
         }
-      }
 
-      ephemera_term_message = %Broadway.Message{
-        acknowledger: nil,
-        data: %Figgy.Resource{
+      Figgy.HydrationConsumer.process_and_persist(restricted_ephemera_folder, 1)
+
+      assert [restricted_ephemera_folder_cache_entry] =
+               IndexingPipeline.list_hydration_cache_entries()
+
+      assert restricted_ephemera_folder_cache_entry.data["metadata"]["deleted"] == true
+
+      assert restricted_ephemera_folder_cache_entry.source_cache_order !=
+               ephemera_folder_cache_entry.source_cache_order
+
+      # Ephemera Terms don't create cache entries.
+      ephemera_term =
+        %Figgy.Resource{
           id: "3cb7627b-defc-401b-9959-42ebc4488f74",
           updated_at: ~U[2018-03-09 20:19:33.414040Z],
           internal_resource: "EphemeraTerm"
         }
-      }
 
-      scanned_resource_message = %Broadway.Message{
-        acknowledger: nil,
-        data: %Figgy.Resource{
+      Figgy.HydrationConsumer.process_and_persist(ephemera_term, 1)
+
+      assert [^restricted_ephemera_folder_cache_entry] =
+               IndexingPipeline.list_hydration_cache_entries()
+
+      # Basic scanned resources get skipped, no new entries.
+      scanned_resource =
+        %Figgy.Resource{
           id: "2fa1b92b-9e62-4694-aeab-0c4fab72ac24",
           updated_at: ~U[2025-08-18 20:19:34.465203Z],
           internal_resource: "ScannedResource"
         }
-      }
 
-      file_set_deletion_marker_message = %Broadway.Message{
-        acknowledger: nil,
-        data: %Figgy.Resource{
+      Figgy.HydrationConsumer.process_and_persist(scanned_resource, 1)
+
+      assert [^restricted_ephemera_folder_cache_entry] =
+               IndexingPipeline.list_hydration_cache_entries()
+
+      # Deletion Markers for things without hydration cache entries get skipped.
+      file_set_deletion_marker =
+        %Figgy.Resource{
           id: "9773417d-1c36-4692-bf81-f387be688460",
           updated_at: ~U[2025-01-02 19:47:21.726083Z],
           internal_resource: "DeletionMarker",
           metadata_resource_id: [%{"id" => "a521113e-e77a-4000-b00a-17c09b3aa757"}],
           metadata_resource_type: ["FileSet"]
         }
-      }
 
-      transformed_messages =
-        [
-          ephemera_folder_message,
-          pending_ephemera_folder_message,
-          restricted_ephemera_folder_message,
-          ephemera_term_message,
-          scanned_resource_message,
-          file_set_deletion_marker_message
-        ]
-        |> Enum.map(&Figgy.HydrationConsumer.handle_message(nil, &1, %{cache_version: 1}))
+      Figgy.HydrationConsumer.process_and_persist(scanned_resource, 1)
 
-      message_batchers =
-        transformed_messages
-        |> Enum.map(&Map.get(&1, :batcher))
-
-      assert message_batchers == [:default, :default, :default, :noop, :noop, :noop]
+      assert [^restricted_ephemera_folder_cache_entry] =
+               IndexingPipeline.list_hydration_cache_entries()
     end
 
     test "handle_batch/3 only processes deletion markers with related resources in the HydrationCache" do
