@@ -5,6 +5,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy
+  alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry
   alias DpulCollections.IndexingPipeline.Figgy.ResourceTypeRegistry
   alias DpulCollections.IndexingPipeline.DatabaseProducer
   use Broadway
@@ -400,7 +401,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         },
         cache_version
       ) do
-    %{
+    %HydrationCacheEntry{
       cache_version: cache_version,
       record_id: id,
       related_ids: [],
@@ -414,7 +415,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         combined_resource = %Figgy.CombinedFiggyResource{resource: resource},
         cache_version
       ) do
-    %{
+    %HydrationCacheEntry{
       cache_version: cache_version,
       record_id: resource.id,
       data: resource,

@@ -812,7 +812,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         }
         |> HydrationConsumer.process(1)
         |> HydrationConsumer.hydration_cache_attributes(1)
-        |> get_in([:related_data])
+        |> get_in([Access.key!(:related_data)])
         |> get_in(["resources"])
         |> Map.keys()
         |> length()
@@ -827,7 +827,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         folder
         |> HydrationConsumer.process(1)
         |> HydrationConsumer.hydration_cache_attributes(1)
-        |> get_in([:data])
+        |> get_in([Access.key!(:data)])
         |> get_in([Access.key!(:metadata)])
 
       assert(metadata["deleted"] == true)
@@ -840,7 +840,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         %Resource{(%Resource{} = folder) | metadata: %{folder.metadata | "member_ids" => []}}
         |> HydrationConsumer.process(1)
         |> HydrationConsumer.hydration_cache_attributes(1)
-        |> get_in([:data])
+        |> get_in([Access.key!(:data)])
         |> get_in([Access.key!(:metadata)])
 
       assert(metadata["deleted"] == true)
@@ -863,7 +863,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         }
         |> HydrationConsumer.process(1)
         |> HydrationConsumer.hydration_cache_attributes(1)
-        |> get_in([:related_data])
+        |> get_in([Access.key!(:related_data)])
         |> get_in(["resources"])
         |> Map.keys()
 
@@ -877,7 +877,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         folder
         |> HydrationConsumer.process(1)
         |> HydrationConsumer.hydration_cache_attributes(1)
-        |> get_in([:related_data])
+        |> get_in([Access.key!(:related_data)])
         |> get_in(["resources"])
         |> Map.keys()
 
