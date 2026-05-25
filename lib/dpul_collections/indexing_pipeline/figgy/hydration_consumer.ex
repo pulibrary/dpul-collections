@@ -363,8 +363,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     id_list
     |> Enum.each(fn id ->
       IndexingPipeline.get_figgy_resource!(id)
-      |> process(cache_version)
-      |> persist(cache_version)
+      |> process_and_persist(cache_version)
     end)
 
     update
