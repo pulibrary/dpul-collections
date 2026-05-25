@@ -120,16 +120,15 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           metadata_resource_type: ["FileSet"]
         }
 
-      Figgy.HydrationConsumer.process_and_persist(scanned_resource, 1)
+      Figgy.HydrationConsumer.process_and_persist(file_set_deletion_marker, 1)
 
       assert [^restricted_ephemera_folder_cache_entry] =
                IndexingPipeline.list_hydration_cache_entries()
     end
 
     test "handle_batch/3 only processes deletion markers with related resources in the HydrationCache" do
-      ephemera_folder_message = %Broadway.Message{
-        acknowledger: nil,
-        data: %Figgy.Resource{
+      ephemera_folder =
+        %Figgy.Resource{
           id: "561ea64a-9cd1-4994-b2a7-ac169f33ba84",
           updated_at: ~U[2024-04-18 14:28:57.526110Z],
           internal_resource: "EphemeraFolder",
@@ -142,83 +141,64 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
             "member_ids" => [%{"id" => "96f52803-f3d5-4cab-aba1-eceff648abdc"}]
           }
         }
-      }
 
       # DeletionMarker that corresponds to a resource with a hydration cache entry
-      ephemera_folder_deletion_marker_message = %Broadway.Message{
-        acknowledger: nil,
-        data: %Figgy.Resource{
+      ephemera_folder_deletion_marker =
+        %Figgy.Resource{
           id: "dced9109-6980-4035-9764-84c08ed5d7db",
           updated_at: ~U[2025-01-02 19:47:21.726083Z],
           internal_resource: "DeletionMarker",
           metadata_resource_id: [%{"id" => "561ea64a-9cd1-4994-b2a7-ac169f33ba84"}],
           metadata_resource_type: ["EphemeraFolder"]
         }
-      }
 
       # DeletionMarker that does not correspond to a resource with a hydration cache entry
-      orphaned_deletion_marker_message1 = %Broadway.Message{
-        acknowledger: nil,
-        data: %Figgy.Resource{
+      orphaned_deletion_marker1 =
+        %Figgy.Resource{
           id: "f8f62bdf-9d7b-438f-9870-1793358e5fe1",
           updated_at: ~U[2025-01-02 19:47:21.726083Z],
           internal_resource: "DeletionMarker",
           metadata_resource_id: [%{"id" => "fc8d345b-6e87-461e-9182-41eaede1fab6"}],
           metadata_resource_type: ["EphemeraFolder"]
         }
-      }
 
       # DeletionMarker that does not correspond to a resource with a hydration cache entry
-      orphaned_deletion_marker_message2 = %Broadway.Message{
-        acknowledger: nil,
-        data: %Figgy.Resource{
+      orphaned_deletion_marker2 =
+        %Figgy.Resource{
           id: "1a2e9bef-e50d-4a9c-81f1-8d8e82f3a8e4",
           updated_at: ~U[2025-01-02 19:47:21.726083Z],
           internal_resource: "DeletionMarker",
           metadata_resource_id: [%{"id" => "e0d4e6f6-29f2-4fd7-9c8a-7293ae0d7689"}],
           metadata_resource_type: ["EphemeraFolder"]
         }
-      }
 
-      # Create a hydration cache entry from an ephemera folder message
-      create_messages =
-        [ephemera_folder_message]
-        |> Enum.map(&Figgy.HydrationConsumer.handle_message(nil, &1, %{cache_version: 1}))
+      # Create a cache entry for the ephemera folder.
+      Figgy.HydrationConsumer.process_and_persist(ephemera_folder, 1)
 
-      Figgy.HydrationConsumer.handle_batch(:default, create_messages, nil, %{cache_version: 1})
+      assert [ephemera_folder_cache_entry] =
+               IndexingPipeline.list_hydration_cache_entries()
 
-      # Process deletion marker messages
-      delete_messages =
-        [
-          ephemera_folder_deletion_marker_message,
-          orphaned_deletion_marker_message1,
-          orphaned_deletion_marker_message2
-        ]
-        |> Enum.map(&Figgy.HydrationConsumer.handle_message(nil, &1, %{cache_version: 1}))
+      # Process the deletion marker - this will update the record and delete it.
+      Figgy.HydrationConsumer.process_and_persist(ephemera_folder_deletion_marker, 1)
 
-      # Only the deletion marker message that has a corresponding resource with
-      # an exisiting hydration cache entry is handled by the default batcher.
-      batchers = delete_messages |> Enum.map(&Map.get(&1, :batcher))
-      assert batchers == [:default, :noop, :noop]
+      assert [deleted_ephemera_folder_cache_entry] =
+               IndexingPipeline.list_hydration_cache_entries()
 
-      # Send the one message with corresponding resource to the default batch handler.
-      Figgy.HydrationConsumer.handle_batch(:default, [delete_messages |> hd], nil, %{
-        cache_version: 1
-      })
+      assert ephemera_folder_cache_entry.record_id ==
+               deleted_ephemera_folder_cache_entry.record_id
 
-      # A transformed hydration cache entry is created which replaces the
-      # existing ephemera folder hydration cache entry. It's metadata field
-      # only has the value `deleted` set to true. This signals the
-      # transformation consumer to create a transformation cache entry with a
-      # solr record that indicates it should be deleted from the index.
-      hydration_cache_entries = IndexingPipeline.list_hydration_cache_entries()
-      assert hydration_cache_entries |> length == 1
+      # It's marked to be deleted.
+      assert deleted_ephemera_folder_cache_entry.data["metadata"]["deleted"] == true
 
-      hydration_cache_entry = hydration_cache_entries |> hd
-      assert hydration_cache_entry.data["internal_resource"] == "EphemeraFolder"
-      assert hydration_cache_entry.record_id == ephemera_folder_message.data.id
-      assert hydration_cache_entry.data["id"] == ephemera_folder_message.data.id
-      assert hydration_cache_entry.data["metadata"]["deleted"] == true
+      # Processing deletion markers after it's gone will do nothing.
+      Figgy.HydrationConsumer.process_and_persist(orphaned_deletion_marker1, 1)
+      Figgy.HydrationConsumer.process_and_persist(orphaned_deletion_marker2, 1)
+
+      assert [reloaded_deleted_ephemera_folder_cache_entry] =
+               IndexingPipeline.list_hydration_cache_entries()
+
+      assert reloaded_deleted_ephemera_folder_cache_entry.cache_order ==
+               deleted_ephemera_folder_cache_entry.cache_order
     end
 
     test "handle_message/3 skips ScannedResources whose member_of_collection_ids is nil" do
