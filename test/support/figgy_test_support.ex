@@ -26,12 +26,9 @@ defmodule FiggyTestSupport do
   end
 
   def first_ephemera_folder do
-    query =
-      from r in Figgy.Resource,
-        where: r.internal_resource == "EphemeraFolder",
-        limit: 1
-
-    FiggyRepo.one(query)
+    # This doesn't literally pull the first one, just the one we've been using
+    # as the first so far.
+    FiggyRepo.get!(Figgy.Resource, "2ebc1872-eb41-4bc6-a523-5069108bf504")
   end
 
   def ephemera_folder_count do
