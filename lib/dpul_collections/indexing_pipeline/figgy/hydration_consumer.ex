@@ -57,8 +57,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         %{cache_version: cache_version}
       ) do
     resource
-    |> process(cache_version)
-    |> persist(cache_version)
+    |> process_and_persist(cache_version)
     |> store_result(message)
   end
 
@@ -69,6 +68,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
   def handle_batch(:noop, messages, _batch_info, _state) do
     messages
+  end
+
+  def process_and_persist(resource, cache_version) do
+    resource
+    |> process(cache_version)
+    |> persist(cache_version)
   end
 
   # Classification requires all figgy resources to have the virtual attributes
@@ -358,8 +363,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     id_list
     |> Enum.each(fn id ->
       IndexingPipeline.get_figgy_resource!(id)
-      |> process(cache_version)
-      |> persist(cache_version)
+      |> process_and_persist(cache_version)
     end)
 
     update
