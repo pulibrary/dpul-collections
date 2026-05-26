@@ -17,6 +17,7 @@
     "mix"
   ],
   "minimumReleaseAge": "14 days",
+  "rangeStrategy": "pin",
   "packageRules": [
     {
       "matchDatasources": [
