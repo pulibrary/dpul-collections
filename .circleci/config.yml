@@ -148,7 +148,7 @@ jobs:
           name: Run tests
           command: mix test --trace
       - store_test_results:
-          path: _build/dev/lib/dpul_collections/test-junit-report.xml
+          path: _build/test/lib/dpul_collections/test-junit-report.xml
       - store_artifacts:
           path: cover
           destination: cover
