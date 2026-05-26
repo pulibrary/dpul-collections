@@ -5,6 +5,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy
+  alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry
   alias DpulCollections.IndexingPipeline.Figgy.ResourceTypeRegistry
   alias DpulCollections.IndexingPipeline.DatabaseProducer
   use Broadway
@@ -364,66 +365,16 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     update
   end
 
-  defp persist(process_return = {action, _resource}, cache_version)
+  defp persist({action, resource}, cache_version)
        when action in [:delete, :update] do
     # Maybe move to HydrationCacheEntry.from?
-    attributes = hydration_cache_attributes(process_return, cache_version)
-    {:ok, _response} = IndexingPipeline.write_hydration_cache_entry(attributes)
+    {:ok, _response} =
+      resource
+      |> HydrationCacheEntry.from(cache_version)
+      |> IndexingPipeline.write_hydration_cache_entry()
   end
 
   defp persist({:skip, _}, _cache_version), do: {:skip, nil}
-
-  @spec hydration_cache_attributes(
-          %Figgy.DeletionRecord{} | %Figgy.CombinedFiggyResource{},
-          cache_version :: integer
-        ) :: %{
-          :handled_data => map(),
-          :related_data => Figgy.CombinedFiggyResource.related_data()
-        }
-  def hydration_cache_attributes({_action, resource}, cache_version),
-    do: hydration_cache_attributes(resource, cache_version)
-
-  # store in HydrationCache:
-  # - cache_version (this only changes manually, we have to hold onto it as state)
-  # - record_id (varchar) - the figgy UUID
-  # - data (blob) - this is the record
-  # - related_data (blob) - map of related data
-  # - related_ids (array<string>) - array of IDs that are contained in
-  #   related_data
-  # - source_cache_order (datetime) - most recent figgy or related resource updated_at
-  # - source_cache_order_record_id (varchar) - record id of the source_cache_order value
-  def hydration_cache_attributes(
-        %Figgy.DeletionRecord{
-          marker: marker,
-          id: id,
-          internal_resource: internal_resource
-        },
-        cache_version
-      ) do
-    %{
-      cache_version: cache_version,
-      record_id: id,
-      related_ids: [],
-      source_cache_order: marker.timestamp,
-      source_cache_order_record_id: marker.id,
-      data: %{internal_resource: internal_resource, id: id, metadata: %{"deleted" => true}}
-    }
-  end
-
-  def hydration_cache_attributes(
-        combined_resource = %Figgy.CombinedFiggyResource{resource: resource},
-        cache_version
-      ) do
-    %{
-      cache_version: cache_version,
-      record_id: resource.id,
-      data: resource,
-      related_data: combined_resource.related_data,
-      related_ids: combined_resource.related_ids,
-      source_cache_order: combined_resource.latest_updated_marker.timestamp,
-      source_cache_order_record_id: combined_resource.latest_updated_marker.id
-    }
-  end
 
   def start_over!(cache_version) do
     String.to_atom("#{__MODULE__}_#{cache_version}")

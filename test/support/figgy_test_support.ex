@@ -72,7 +72,8 @@ defmodule FiggyTestSupport do
 
     cache_attrs =
       Figgy.HydrationConsumer.process(record, 1)
-      |> Figgy.HydrationConsumer.hydration_cache_attributes(1)
+      |> elem(1)
+      |> Figgy.HydrationCacheEntry.from(1)
 
     {:ok, cache_entry} =
       IndexingPipeline.write_hydration_cache_entry(%{

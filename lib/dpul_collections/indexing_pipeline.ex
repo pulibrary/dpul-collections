@@ -8,6 +8,7 @@ defmodule DpulCollections.IndexingPipeline do
   alias DpulCollections.{Repo, FiggyRepo}
 
   alias DpulCollections.IndexingPipeline.Figgy
+  alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry
   alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
 
   @doc """
@@ -62,16 +63,21 @@ defmodule DpulCollections.IndexingPipeline do
   @doc """
   Writes or updates hydration cache entries.
   """
-  def write_hydration_cache_entry(attrs \\ %{}) do
+  def write_hydration_cache_entry(attrs = %HydrationCacheEntry{}),
+    do: write_hydration_cache_entry(Map.from_struct(attrs))
+
+  def write_hydration_cache_entry(attrs = %{}) do
+    # Use EXCLUDED to avoid having to reference attrs in conflict query.
+    # See https://hexdocs.pm/ecto/Ecto.Repo.html#c:insert/2-advanced-upserts
     conflict_query =
       Figgy.HydrationCacheEntry
       |> update(
         set: [
-          data: ^attrs.data,
-          related_data: ^attrs[:related_data],
-          related_ids: ^attrs.related_ids,
-          source_cache_order: ^attrs.source_cache_order,
-          source_cache_order_record_id: ^attrs.source_cache_order_record_id,
+          data: fragment("EXCLUDED.data"),
+          related_data: fragment("EXCLUDED.related_data"),
+          related_ids: fragment("EXCLUDED.related_ids"),
+          source_cache_order: fragment("EXCLUDED.source_cache_order"),
+          source_cache_order_record_id: fragment("EXCLUDED.source_cache_order_record_id"),
           cache_order: ^DateTime.utc_now()
         ]
       )
