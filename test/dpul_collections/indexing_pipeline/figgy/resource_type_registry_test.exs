@@ -35,4 +35,20 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ResourceTypeRegistryTest do
              ]
     end
   end
+
+  describe "processed types" do
+    test "processed_types returns a list" do
+      assert ResourceTypeRegistry.processed_types() == [
+               "EphemeraFolder",
+               "ScannedResource",
+               "EphemeraProject",
+               "Collection",
+               "EphemeraProject",
+               "EphemeraBox",
+               "EphemeraTerm",
+               "FileSet",
+               "DeletionMarker"
+             ]
+    end
+  end
 end
