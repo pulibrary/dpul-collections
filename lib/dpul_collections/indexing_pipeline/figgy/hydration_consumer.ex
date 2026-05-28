@@ -229,10 +229,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     related_records(resource, cache_version)
   end
 
-  def to_hydration_cache_entries(resource, _cache_version) do
-    resource
-  end
-
   defp member_of_allowed_collection?(%{member_of_collection_ids: nil}), do: false
 
   defp member_of_allowed_collection?(resource) do
@@ -246,14 +242,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
       IndexingPipeline.get_figgy_resource!(id)
       |> to_hydration_cache_entries(cache_version)
     end)
-  end
-
-  # If there's a bunch of actions, only no-op if all of them are skips.
-  def store_result(process_list = [{_, _} | _], message) do
-    case Enum.filter(process_list, fn {action, _} -> action != :skip end) do
-      [] -> Broadway.Message.put_batcher(message, :noop)
-      _ -> message
-    end
   end
 
   # @spec store_result(process_return(), message :: Broadway.Message.t()) ::
