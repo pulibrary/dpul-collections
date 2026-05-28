@@ -2,7 +2,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   @moduledoc """
   Broadway consumer that demands Figgy records and caches them in the database.
   """
-  alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy
   alias DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry
@@ -103,13 +102,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
           IndexingPipeline.get_hydration_cache_entry!(resource_id, cache_version)
 
         if existing_resource do
-          deletion_record = %Figgy.DeletionRecord{
-            marker: CacheEntryMarker.from(resource),
-            internal_resource: resource_type,
-            id: resource_id
-          }
-
-          [HydrationCacheEntry.from(deletion_record, cache_version)]
+          [HydrationCacheEntry.from(Figgy.DeletionRecord.from(resource), cache_version)]
         else
           []
         end
@@ -142,13 +135,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
           # NOTE: This is actually a bug, we shouldn't be creating a deletion
           # record if we've never seen it, probably, but we have a test in
           # FullIntegrationTest checking that it exists.
-          deletion_record = %Figgy.DeletionRecord{
-            marker: CacheEntryMarker.from(resource),
-            internal_resource: resource.internal_resource,
-            id: resource.id
-          }
-
-          [HydrationCacheEntry.from(deletion_record, cache_version)]
+          [HydrationCacheEntry.from(Figgy.DeletionRecord.from(resource), cache_version)]
         else
           [HydrationCacheEntry.from(combined_figgy_resource, cache_version)]
         end
@@ -159,13 +146,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
           IndexingPipeline.get_hydration_cache_entry!(resource.id, cache_version)
 
         if existing_resource do
-          deletion_record = %Figgy.DeletionRecord{
-            marker: CacheEntryMarker.from(resource),
-            internal_resource: resource.internal_resource,
-            id: resource.id
-          }
-
-          [HydrationCacheEntry.from(deletion_record, cache_version)]
+          [HydrationCacheEntry.from(Figgy.DeletionRecord.from(resource), cache_version)]
         else
           []
         end
@@ -187,13 +168,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
             # NOTE: This is actually a bug, we shouldn't be creating a deletion
             # record if we've never seen it, probably, but we have a test in
             # FullIntegrationTest checking that it exists.
-            deletion_record = %Figgy.DeletionRecord{
-              marker: CacheEntryMarker.from(resource),
-              internal_resource: resource.internal_resource,
-              id: resource.id
-            }
 
-            [HydrationCacheEntry.from(deletion_record, cache_version)]
+            [HydrationCacheEntry.from(Figgy.DeletionRecord.from(resource), cache_version)]
           else
             [HydrationCacheEntry.from(combined_figgy_resource, cache_version)]
           end
@@ -207,13 +183,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
           IndexingPipeline.get_hydration_cache_entry!(resource.id, cache_version)
 
         if existing_resource do
-          deletion_record = %Figgy.DeletionRecord{
-            marker: CacheEntryMarker.from(resource),
-            internal_resource: resource.internal_resource,
-            id: resource.id
-          }
-
-          [HydrationCacheEntry.from(deletion_record, cache_version)]
+          [HydrationCacheEntry.from(Figgy.DeletionRecord.from(resource), cache_version)]
         else
           []
         end
@@ -237,13 +207,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
           existing_resource = IndexingPipeline.get_hydration_cache_entry!(id, cache_version)
 
           if existing_resource do
-            deletion_record = %Figgy.DeletionRecord{
-              marker: combined_resource.latest_updated_marker,
-              internal_resource: "EphemeraProject",
-              id: id
-            }
-
-            [HydrationCacheEntry.from(deletion_record, cache_version)]
+            [
+              HydrationCacheEntry.from(
+                Figgy.DeletionRecord.from(combined_resource),
+                cache_version
+              )
+            ]
           else
             []
           end
