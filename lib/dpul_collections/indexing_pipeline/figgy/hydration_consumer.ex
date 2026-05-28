@@ -71,8 +71,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     # save them all.
     resource
     |> early_conversion(cache_version)
-    |> process(cache_version)
-    |> to_hydration_cache_entries(cache_version)
+    # |> process(cache_version)
+    # |> to_hydration_cache_entries(cache_version)
     |> save_all()
   end
 
@@ -150,6 +150,51 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
           [HydrationCacheEntry.from(deletion_record, cache_version)]
         else
           [HydrationCacheEntry.from(combined_figgy_resource, cache_version)]
+        end
+
+      _ ->
+        # Delete it if we've seen it before.
+        existing_resource =
+          IndexingPipeline.get_hydration_cache_entry!(resource.id, cache_version)
+
+        if existing_resource do
+          deletion_record = %Figgy.DeletionRecord{
+            marker: CacheEntryMarker.from(resource),
+            internal_resource: resource.internal_resource,
+            id: resource.id
+          }
+
+          [HydrationCacheEntry.from(deletion_record, cache_version)]
+        else
+          []
+        end
+    end
+  end
+
+  # Ingest ScannedResources
+  def early_conversion(resource = %{internal_resource: "ScannedResource"}, cache_version) do
+    case resource do
+      # Process open/complete
+      %{state: ["complete"], visibility: ["open"], member_of_collection_ids: [_ | _]} ->
+        if member_of_allowed_collection?(resource) do
+          combined_figgy_resource = Figgy.Resource.to_combined(resource)
+          # Delete it when it has no member_ids.
+          if combined_figgy_resource.persisted_member_ids == [] do
+            # NOTE: This is actually a bug, we shouldn't be creating a deletion
+            # record if we've never seen it, probably, but we have a test in
+            # FullIntegrationTest checking that it exists.
+            deletion_record = %Figgy.DeletionRecord{
+              marker: CacheEntryMarker.from(resource),
+              internal_resource: resource.internal_resource,
+              id: resource.id
+            }
+
+            [HydrationCacheEntry.from(deletion_record, cache_version)]
+          else
+            [HydrationCacheEntry.from(combined_figgy_resource, cache_version)]
+          end
+        else
+          []
         end
 
       _ ->
