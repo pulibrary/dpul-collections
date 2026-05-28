@@ -146,6 +146,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
             internal_resource: resource.internal_resource,
             id: resource.id
           }
+
           [HydrationCacheEntry.from(deletion_record, cache_version)]
         else
           [HydrationCacheEntry.from(combined_figgy_resource, cache_version)]
@@ -170,8 +171,52 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     end
   end
 
+  def early_conversion(resource = %{internal_resource: "EphemeraProject", id: id}, cache_version) do
+    combined_resource = Figgy.Resource.to_combined(resource)
+
+    Stream.concat(
+      case combined_resource.resource.metadata do
+        %{"publish" => ["1"]} ->
+          # Save published EphemeraProjects, update related records
+          [HydrationCacheEntry.from(combined_resource, cache_version)]
+
+        _ ->
+          # Delete if we've seen it before
+          existing_resource = IndexingPipeline.get_hydration_cache_entry!(id, cache_version)
+
+          if existing_resource do
+            deletion_record = %Figgy.DeletionRecord{
+              marker: combined_resource.latest_updated_marker,
+              internal_resource: "EphemeraProject",
+              id: id
+            }
+
+            [HydrationCacheEntry.from(deletion_record, cache_version)]
+          else
+            []
+          end
+      end,
+      related_records(resource, cache_version)
+    )
+  end
+
+  def early_conversion(resource = %{internal_resource: internal_resource}, cache_version)
+      when internal_resource in @related_record_types do
+    related_records(resource, cache_version)
+  end
+
   def early_conversion(resource, _cache_version) do
     resource
+  end
+
+  def related_records(%{updated_at: timestamp, id: id}, cache_version) do
+    IndexingPipeline.get_related_hydration_cache_record_ids!(id, timestamp, cache_version)
+    |> Stream.flat_map(fn id ->
+      IndexingPipeline.get_figgy_resource!(id)
+      |> early_conversion(cache_version)
+      |> process(cache_version)
+      |> to_hydration_cache_entries(cache_version)
+    end)
   end
 
   # Allow fall-through if early conversion solved it already.
@@ -198,7 +243,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     process(Figgy.Resource.populate_virtual(resource), cache_version)
   end
 
-  def process(resource, cache_version) do
+  def process(resource = %Figgy.Resource{}, cache_version) do
     resource
     # Determine early on if we're deleting, skipping, or updating.
     |> initial_classification(cache_version)
@@ -207,6 +252,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     # Determine if after enrichment we should continue updating, delete, or skip.
     |> post_classification(cache_version)
   end
+
+  def process(fallthrough, _cache_version), do: fallthrough
 
   @spec initial_classification(resource :: %Figgy.Resource{}, cache_version :: integer) ::
           process_return()

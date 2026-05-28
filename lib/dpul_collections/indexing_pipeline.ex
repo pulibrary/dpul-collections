@@ -260,7 +260,8 @@ defmodule DpulCollections.IndexingPipeline do
 
   """
   @decorate trace()
-  def get_figgy_resource!(id), do: FiggyRepo.get!(Figgy.Resource, id)
+  def get_figgy_resource!(id),
+    do: FiggyRepo.get!(Figgy.Resource, id) |> Figgy.Resource.populate_virtual()
 
   @decorate trace()
   def get_figgy_parents(id) do
