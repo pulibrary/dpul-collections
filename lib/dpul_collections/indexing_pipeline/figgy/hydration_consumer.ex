@@ -70,6 +70,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     # Take a resource, convert it into a stream of hydration_cache_entries, then
     # save them all.
     resource
+    |> early_conversion(cache_version)
     |> process(cache_version)
     |> to_hydration_cache_entries(cache_version)
     |> save_all()
@@ -81,6 +82,63 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
     {:ok, nil}
   end
+
+  @indexable_resource_types ResourceTypeRegistry.indexable_types()
+  @related_record_types ResourceTypeRegistry.related_record_types()
+  @processed_types ResourceTypeRegistry.processed_types()
+  # Immediately skip anything not in processed_types.
+  def early_conversion(%{internal_resource: internal_resource}, _cache_version)
+      when internal_resource not in @processed_types do
+    []
+  end
+
+  # DeletionMarkers delete any records it's pointing to it if they've been
+  # processed before.
+  def early_conversion(resource = %{internal_resource: "DeletionMarker"}, cache_version) do
+    case resource do
+      %{
+        metadata_resource_id: [%{"id" => resource_id}],
+        metadata_resource_type: [resource_type]
+      }
+      when resource_type in @indexable_resource_types ->
+        existing_resource =
+          IndexingPipeline.get_hydration_cache_entry!(resource_id, cache_version)
+
+        if existing_resource do
+          deletion_record = %Figgy.DeletionRecord{
+            marker: CacheEntryMarker.from(resource),
+            internal_resource: resource_type,
+            id: resource_id
+          }
+
+          [HydrationCacheEntry.from(deletion_record, cache_version)]
+        else
+          []
+        end
+
+      _ ->
+        []
+    end
+  end
+
+  # Collections only update if they're allowed.
+  def early_conversion(resource = %{internal_resource: "Collection", id: id}, cache_version) do
+    if ResourceTypeRegistry.allowed_collection?(id) do
+      [HydrationCacheEntry.from(resource, cache_version)]
+    else
+      []
+    end
+  end
+
+  def early_conversion(resource, _cache_version) do
+    resource
+  end
+
+  # Allow fall-through if early conversion solved it already.
+  def process(cache_entry = %HydrationCacheEntry{}, _cache_version), do: cache_entry
+  def process(cache_entries = [%HydrationCacheEntry{} | _], _cache_version), do: cache_entries
+  def process(cache_entries = %Stream{}, _cache_version), do: cache_entries
+  def process([], _cache_version), do: []
 
   # Classification requires all figgy resources to have the virtual attributes
   # set. Resources pulled by the hydrator via `get_figgy_resources_since!` have
@@ -100,8 +158,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     process(Figgy.Resource.populate_virtual(resource), cache_version)
   end
 
-  @indexable_resource_types ResourceTypeRegistry.indexable_types()
-  @related_record_types ResourceTypeRegistry.related_record_types()
   def process(resource, cache_version) do
     resource
     # Determine early on if we're deleting, skipping, or updating.
@@ -121,14 +177,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
       %{internal_resource: internal_resource, state: ["complete"], visibility: ["open"]}
       when internal_resource in @indexable_resource_types ->
         classify_open_resource(resource)
-
-      # Collections need to both update
-      %{internal_resource: "Collection"} ->
-        if ResourceTypeRegistry.allowed_collection?(id) do
-          {:update, resource}
-        else
-          {:skip, resource}
-        end
 
       # Projects need to both update and get related.
       %{internal_resource: "EphemeraProject"} ->
@@ -291,22 +339,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     end
   end
 
-  # Collections go through.
-  def post_classification(
-        {:update,
-         resource = %Figgy.CombinedFiggyResource{
-           resource: %{
-             internal_resource: "Collection"
-           }
-         }},
-        _cache_version
-      ) do
-    {:update, resource}
-  end
-
-  # Every other ephemera project does not.
-  #
-
   # Delete things which have no persisted members.
   @spec post_classification(process_return(), cache_version :: integer) ::
           process_return()
@@ -380,6 +412,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   end
 
   defp to_hydration_cache_entries({:skip, _}, _cache_version), do: []
+
+  # Fallthrough in case early_conversion handled it.
+  defp to_hydration_cache_entries(other, _cache_version), do: other
 
   def start_over!(cache_version) do
     String.to_atom("#{__MODULE__}_#{cache_version}")

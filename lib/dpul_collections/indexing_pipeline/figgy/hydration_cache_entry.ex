@@ -68,6 +68,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntry do
     }
   end
 
+  def from(uncombined_resource = %Figgy.Resource{}, cache_version) do
+    from(Figgy.Resource.to_combined(uncombined_resource), cache_version)
+  end
+
   def from(
         combined_resource = %Figgy.CombinedFiggyResource{resource: resource},
         cache_version
