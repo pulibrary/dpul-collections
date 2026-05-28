@@ -244,13 +244,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     end)
   end
 
-  # @spec store_result(process_return(), message :: Broadway.Message.t()) ::
-  #         Broadway.Message.t()
-  # def store_result({:skip, _record}, message), do: Broadway.Message.put_batcher(message, :noop)
-
-  def store_result(_, message),
-    do: message
-
   def start_over!(cache_version) do
     String.to_atom("#{__MODULE__}_#{cache_version}")
     |> Broadway.producer_names()
