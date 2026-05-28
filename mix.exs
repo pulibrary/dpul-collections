@@ -74,7 +74,7 @@ defmodule DpulCollections.MixProject do
       {:gettext, "== 1.0.2"},
       {:jason, "== 1.4.5"},
       {:dns_cluster, "== 0.2.0"},
-      {:bandit, "== 1.11.0"},
+      {:bandit, "== 1.11.1"},
       {:excoveralls, "== 0.18.5", only: :test},
       {:broadway, "== 1.3.0"},
       {:ex_doc, "== 0.40.2", only: :dev, runtime: false},
