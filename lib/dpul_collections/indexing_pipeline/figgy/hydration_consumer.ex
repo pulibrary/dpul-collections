@@ -135,7 +135,21 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     case resource do
       # Process open/complete
       %{state: ["complete"], visibility: ["open"]} ->
-        [HydrationCacheEntry.from(resource, cache_version)]
+        combined_figgy_resource = Figgy.Resource.to_combined(resource)
+        # Delete it it has no member_ids.
+        if combined_figgy_resource.persisted_member_ids == [] do
+          # NOTE: This is actually a bug, we shouldn't be creating a deletion
+          # record if we've never seen it, probably, but we have a test in
+          # FullIntegrationTest checking that it exists.
+          deletion_record = %Figgy.DeletionRecord{
+            marker: CacheEntryMarker.from(resource),
+            internal_resource: resource.internal_resource,
+            id: resource.id
+          }
+          [HydrationCacheEntry.from(deletion_record, cache_version)]
+        else
+          [HydrationCacheEntry.from(combined_figgy_resource, cache_version)]
+        end
 
       _ ->
         # Delete it if we've seen it before.
