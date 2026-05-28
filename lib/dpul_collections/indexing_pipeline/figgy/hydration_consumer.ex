@@ -130,6 +130,32 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     end
   end
 
+  # Ingest EphemeraFolders
+  def early_conversion(resource = %{internal_resource: "EphemeraFolder"}, cache_version) do
+    case resource do
+      # Process open/complete
+      %{state: ["complete"], visibility: ["open"]} ->
+        [HydrationCacheEntry.from(resource, cache_version)]
+
+      _ ->
+        # Delete it if we've seen it before.
+        existing_resource =
+          IndexingPipeline.get_hydration_cache_entry!(resource.id, cache_version)
+
+        if existing_resource do
+          deletion_record = %Figgy.DeletionRecord{
+            marker: CacheEntryMarker.from(resource),
+            internal_resource: resource.internal_resource,
+            id: resource.id
+          }
+
+          [HydrationCacheEntry.from(deletion_record, cache_version)]
+        else
+          []
+        end
+    end
+  end
+
   def early_conversion(resource, _cache_version) do
     resource
   end
