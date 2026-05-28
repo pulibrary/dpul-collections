@@ -67,9 +67,19 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   end
 
   def process_and_persist(resource, cache_version) do
+    # Take a resource, convert it into a stream of hydration_cache_entries, then
+    # save them all.
     resource
     |> process(cache_version)
-    |> persist(cache_version)
+    |> to_hydration_cache_entries(cache_version)
+    |> save_all()
+  end
+
+  defp save_all(resources) do
+    resources
+    |> Enum.each(&IndexingPipeline.write_hydration_cache_entry/1)
+
+    {:ok, nil}
   end
 
   # Classification requires all figgy resources to have the virtual attributes
@@ -325,41 +335,51 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   def post_classification(resource_and_classification, _cache_version),
     do: resource_and_classification
 
-  # If we're passed a bunch of process_returns, iterate.
-  defp persist(action_list = [{_, _} | _], cache_version) do
-    action_list
-    |> Enum.each(&persist(&1, cache_version))
+  # If there's a bunch of actions, only no-op if all of them are skips.
+  def store_result(process_list = [{_, _} | _], message) do
+    case Enum.filter(process_list, fn {action, _} -> action != :skip end) do
+      [] -> Broadway.Message.put_batcher(message, :noop)
+      _ -> message
+    end
+  end
 
-    # Return the action_list with data stripped..
+  @spec store_result(process_return(), message :: Broadway.Message.t()) ::
+          Broadway.Message.t()
+  def store_result({:skip, _record}, message), do: Broadway.Message.put_batcher(message, :noop)
+
+  def store_result(_, message),
+    do: message
+
+  # to_hydration_cache_entries converts a list of actions into a stream of
+  # HydrationCacheEntries. We don't convert to a list so we don't store every
+  # resource in memory to save them later.
+  # If we're passed a bunch of process_returns, iterate.
+  defp to_hydration_cache_entries(action_list = [{_, _} | _], cache_version) do
     action_list
-    |> Enum.map(fn {action, _} -> {action, nil} end)
+    |> Stream.flat_map(&to_hydration_cache_entries(&1, cache_version))
   end
 
   # If we're passed several IDs, process them in order and persist.
-  @spec persist(process_return(), cache_version :: integer) ::
-          {:ok, %Figgy.HydrationCacheEntry{}}
-  defp persist(update = {:update_related, id_list = [id | _]}, cache_version)
+  @spec to_hydration_cache_entries(process_return(), cache_version :: integer) ::
+          [%Figgy.HydrationCacheEntry{}] | []
+  defp to_hydration_cache_entries({:update_related, id_list = [id | _]}, cache_version)
        when is_binary(id) do
     # Do one at a time to prevent memory ballooning.
     id_list
-    |> Enum.each(fn id ->
+    |> Stream.flat_map(fn id ->
       IndexingPipeline.get_figgy_resource!(id)
-      |> process_and_persist(cache_version)
+      |> process(cache_version)
+      |> to_hydration_cache_entries(cache_version)
     end)
-
-    update
   end
 
-  defp persist({action, resource}, cache_version)
+  defp to_hydration_cache_entries({action, resource}, cache_version)
        when action in [:delete, :update] do
     # Maybe move to HydrationCacheEntry.from?
-    {:ok, _response} =
-      resource
-      |> HydrationCacheEntry.from(cache_version)
-      |> IndexingPipeline.write_hydration_cache_entry()
+    [HydrationCacheEntry.from(resource, cache_version)]
   end
 
-  defp persist({:skip, _}, _cache_version), do: {:skip, nil}
+  defp to_hydration_cache_entries({:skip, _}, _cache_version), do: []
 
   def start_over!(cache_version) do
     String.to_atom("#{__MODULE__}_#{cache_version}")
