@@ -95,7 +95,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     nil
   end
 
-  # DeletionMarkers delete any records it's pointing to it if they've been
+  # DeletionMarkers delete any records it's pointing to if they've been
   # processed before.
   def to_hydration_cache_entry(resource = %{internal_resource: "DeletionMarker"}, cache_version) do
     case resource do
@@ -104,12 +104,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         metadata_resource_type: [resource_type]
       }
       when resource_type in @indexable_resource_types ->
-        existing_resource =
-          IndexingPipeline.get_hydration_cache_entry!(resource_id, cache_version)
-
-        if existing_resource do
-          HydrationCacheEntry.from(Figgy.DeletionRecord.from(resource), cache_version)
-        end
+        delete_if_seen(resource_id, resource, cache_version)
 
       _ ->
         nil
@@ -131,23 +126,18 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
       when internal_resource in @indexable_resource_types do
     if process?(resource) do
       combined_figgy_resource = Figgy.Resource.to_combined(resource)
-      # Delete it it has no member_ids.
+
+      # Delete if it has no member_ids.
+      # NOTE: This is actually a bug, we shouldn't be creating a deletion
+      # record if we've never seen it, probably, but we have a test in
+      # FullIntegrationTest checking that it exists.
       if combined_figgy_resource.persisted_member_ids == [] do
-        # NOTE: This is actually a bug, we shouldn't be creating a deletion
-        # record if we've never seen it, probably, but we have a test in
-        # FullIntegrationTest checking that it exists.
         HydrationCacheEntry.from(Figgy.DeletionRecord.from(resource), cache_version)
       else
         HydrationCacheEntry.from(combined_figgy_resource, cache_version)
       end
     else
-      # Delete it if we've seen it before.
-      existing_resource =
-        IndexingPipeline.get_hydration_cache_entry!(resource.id, cache_version)
-
-      if existing_resource do
-        HydrationCacheEntry.from(Figgy.DeletionRecord.from(resource), cache_version)
-      end
+      delete_if_seen(resource.id, resource, cache_version)
     end
   end
 
@@ -159,19 +149,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
     case combined_resource.resource.metadata do
       %{"publish" => ["1"]} ->
-        # Save published EphemeraProjects, update related records
         HydrationCacheEntry.from(combined_resource, cache_version)
 
       _ ->
-        # Delete if we've seen it before
-        existing_resource = IndexingPipeline.get_hydration_cache_entry!(id, cache_version)
-
-        if existing_resource do
-          HydrationCacheEntry.from(
-            Figgy.DeletionRecord.from(combined_resource),
-            cache_version
-          )
-        end
+        delete_if_seen(id, combined_resource, cache_version)
     end
   end
 
@@ -187,11 +168,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
            member_of_collection_ids: [_ | _]
          }
        ) do
-    if member_of_allowed_collection?(resource) do
-      true
-    else
-      false
-    end
+    member_of_allowed_collection?(resource)
   end
 
   # Ephemera Folders must be complete and open.
@@ -204,6 +181,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   end
 
   defp process?(_resource), do: false
+
+  defp delete_if_seen(record_id, source, cache_version) do
+    if IndexingPipeline.get_hydration_cache_entry!(record_id, cache_version) do
+      HydrationCacheEntry.from(Figgy.DeletionRecord.from(source), cache_version)
+    end
+  end
 
   defp member_of_allowed_collection?(resource) do
     collection_ids = Enum.map(resource.member_of_collection_ids, & &1["id"])
