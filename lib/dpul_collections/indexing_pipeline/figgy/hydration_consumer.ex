@@ -126,7 +126,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     end
   end
 
-  # Ingest EphemeraFolders
+  # Ingest EphemeraFolders / ScannedResources
   def to_hydration_cache_entry(resource = %{internal_resource: internal_resource}, cache_version)
       when internal_resource in @indexable_resource_types do
     if process?(resource) do
