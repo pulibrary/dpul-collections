@@ -61,7 +61,11 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
         text: "Browse Collection"
       )
       # Mosaic
-      |> assert_has("#collection-mosaic .card-darkdrop", count: 1)
+      |> assert_has("#collection-mosaic", count: 1)
+      # Banner image
+      |> assert_has(
+        "#collection-mosaic img[src='https://iiif-cloud.princeton.edu/iiif/2/a1%2F2d%2Fdc%2Fa12ddc0476d147c0a3571a109c9e4e32%2Fintermediate_file/354,1297,1549,1032/full/0/default.jpg']"
+      )
       # Featured Items
       |> assert_has("#featured-items .browse-item", count: 4)
       # Learn More collapse/expand
