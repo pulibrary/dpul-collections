@@ -891,6 +891,19 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocumentTest do
       assert doc[:resource_type_s] == "collection"
     end
 
+    test "indexes banner url for an EphemeraProject" do
+      doc =
+        IndexingPipeline.get_figgy_resource!("f99af4de-fed4-4baa-82b1-6e857b230306")
+        |> Figgy.Resource.to_combined()
+        |> Figgy.SolrDocument.from_combined_figgy_resource()
+
+      assert %{
+               title_txtm: ["South Asian Ephemera"],
+               banner_image_s:
+                 "https://iiif-cloud.princeton.edu/iiif/2/a1%2F2d%2Fdc%2Fa12ddc0476d147c0a3571a109c9e4e32%2Fintermediate_file/354,1297,1549,1032/full/0/default.jpg"
+             } = doc
+    end
+
     test "subjects and subject categories have a grouping relationship" do
       doc =
         IndexingPipeline.get_figgy_resource!("e8abfa75-253f-428a-b3df-0e83ff2b20f9")
