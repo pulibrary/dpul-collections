@@ -229,8 +229,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     related_records(resource, cache_version)
   end
 
-  defp member_of_allowed_collection?(%{member_of_collection_ids: nil}), do: false
-
   defp member_of_allowed_collection?(resource) do
     collection_ids = Enum.map(resource.member_of_collection_ids, & &1["id"])
     Enum.any?(collection_ids, &ResourceTypeRegistry.allowed_collection?/1)
