@@ -69,11 +69,10 @@ defmodule FiggyTestSupport do
     marker = IndexingPipeline.DatabaseProducer.CacheEntryMarker.from(record)
 
     cache_attrs =
-      Figgy.HydrationConsumer.to_hydration_cache_entries(
+      Figgy.HydrationConsumer.to_hydration_cache_entry(
         IndexingPipeline.Figgy.Resource.populate_virtual(record),
         1
       )
-      |> Enum.at(0)
 
     {:ok, cache_entry} =
       IndexingPipeline.write_hydration_cache_entry(%{

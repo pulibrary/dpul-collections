@@ -13,8 +13,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           (%Resource{} = folder)
           | metadata: %{folder.metadata | "genre" => [%{"id" => ""}]}
         }
-        |> HydrationConsumer.to_hydration_cache_entries(1)
-        |> Enum.at(0)
+        |> HydrationConsumer.to_hydration_cache_entry(1)
         |> get_in([Access.key!(:related_data)])
         |> get_in(["resources"])
         |> Map.keys()
@@ -28,8 +27,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
       metadata =
         folder
-        |> HydrationConsumer.to_hydration_cache_entries(1)
-        |> Enum.at(0)
+        |> HydrationConsumer.to_hydration_cache_entry(1)
         |> get_in([Access.key!(:data)])
         |> get_in([Access.key!(:metadata)])
 
@@ -41,8 +39,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
       metadata =
         %Resource{(%Resource{} = folder) | metadata: %{folder.metadata | "member_ids" => []}}
-        |> HydrationConsumer.to_hydration_cache_entries(1)
-        |> Enum.at(0)
+        |> HydrationConsumer.to_hydration_cache_entry(1)
         |> get_in([Access.key!(:data)])
         |> get_in([Access.key!(:metadata)])
 
@@ -64,8 +61,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           (%Resource{} = folder)
           | metadata: %{folder.metadata | "member_ids" => member_ids}
         }
-        |> HydrationConsumer.to_hydration_cache_entries(1)
-        |> Enum.at(0)
+        |> HydrationConsumer.to_hydration_cache_entry(1)
         |> get_in([Access.key!(:related_data)])
         |> get_in(["resources"])
         |> Map.keys()
@@ -78,8 +74,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
       resource_ids =
         folder
-        |> HydrationConsumer.to_hydration_cache_entries(1)
-        |> Enum.at(0)
+        |> HydrationConsumer.to_hydration_cache_entry(1)
         |> get_in([Access.key!(:related_data)])
         |> get_in(["resources"])
         |> Map.keys()
