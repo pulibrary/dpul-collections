@@ -66,11 +66,15 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   end
 
   def process_and_persist(resource, cache_version) do
-    # Take a resource, convert it into a stream of hydration_cache_entries, then
-    # save them all.
-    resource
-    |> to_hydration_cache_entries(cache_version)
-    |> save_all()
+    # Convert the resource to a cache entry and append any related records, then
+    # save all of them together.
+    all_resources =
+      Stream.concat(
+        to_hydration_cache_entries(resource, cache_version),
+        related_records(resource, cache_version)
+      )
+
+    save_all(all_resources)
   end
 
   defp save_all(resources) do
@@ -196,51 +200,48 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
       ) do
     combined_resource = Figgy.Resource.to_combined(resource)
 
-    Stream.concat(
-      case combined_resource.resource.metadata do
-        %{"publish" => ["1"]} ->
-          # Save published EphemeraProjects, update related records
-          [HydrationCacheEntry.from(combined_resource, cache_version)]
+    case combined_resource.resource.metadata do
+      %{"publish" => ["1"]} ->
+        # Save published EphemeraProjects, update related records
+        [HydrationCacheEntry.from(combined_resource, cache_version)]
 
-        _ ->
-          # Delete if we've seen it before
-          existing_resource = IndexingPipeline.get_hydration_cache_entry!(id, cache_version)
+      _ ->
+        # Delete if we've seen it before
+        existing_resource = IndexingPipeline.get_hydration_cache_entry!(id, cache_version)
 
-          if existing_resource do
-            [
-              HydrationCacheEntry.from(
-                Figgy.DeletionRecord.from(combined_resource),
-                cache_version
-              )
-            ]
-          else
-            []
-          end
-      end,
-      related_records(resource, cache_version)
-    )
+        if existing_resource do
+          [
+            HydrationCacheEntry.from(
+              Figgy.DeletionRecord.from(combined_resource),
+              cache_version
+            )
+          ]
+        else
+          []
+        end
+    end
   end
 
-  def to_hydration_cache_entries(
-        resource = %{internal_resource: internal_resource},
-        cache_version
-      )
-      when internal_resource in @related_record_types do
-    related_records(resource, cache_version)
-  end
+  def to_hydration_cache_entries(_resource, _cache_version), do: []
 
   defp member_of_allowed_collection?(resource) do
     collection_ids = Enum.map(resource.member_of_collection_ids, & &1["id"])
     Enum.any?(collection_ids, &ResourceTypeRegistry.allowed_collection?/1)
   end
 
-  def related_records(%{updated_at: timestamp, id: id}, cache_version) do
+  def related_records(
+        %{updated_at: timestamp, id: id, internal_resource: internal_resource},
+        cache_version
+      )
+      when internal_resource in @related_record_types do
     IndexingPipeline.get_related_hydration_cache_record_ids!(id, timestamp, cache_version)
     |> Stream.flat_map(fn id ->
       IndexingPipeline.get_figgy_resource!(id)
       |> to_hydration_cache_entries(cache_version)
     end)
   end
+
+  def related_records(_resource, _cache_version), do: []
 
   def start_over!(cache_version) do
     String.to_atom("#{__MODULE__}_#{cache_version}")
