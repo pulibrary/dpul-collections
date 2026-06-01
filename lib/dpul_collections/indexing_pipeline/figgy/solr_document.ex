@@ -48,7 +48,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
       resource_type_s: "collection",
       tagline_txtm: metadata["tagline"],
       authoritative_slug_s: Map.get(metadata, "slug", []) |> Enum.at(0),
-      format_txt_sort: ["Digital Collection"]
+      format_txt_sort: ["Digital Collection"],
+      banner_image_s: Map.get(metadata, "banner_image_url", []) |> Enum.at(0)
     }
   end
 

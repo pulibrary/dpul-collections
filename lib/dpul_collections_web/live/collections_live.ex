@@ -108,24 +108,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 class="flex flex-col gap-4 w-full grow"
                 phx-update="ignore"
               >
-                <div class="max-h-120 p-2 card-darkdrop bg-white min-h-0 min-w-0 flex">
-                  <div class="overflow-hidden w-full">
-                    <.link
-                      :if={@mosaic_title_item}
-                      href={@mosaic_title_item.url}
-                      class="overflow-hidden"
-                      aria-label={"View #{@mosaic_title_item.title |> hd}"}
-                    >
-                      <img
-                        src={"#{@mosaic_title_item.primary_thumbnail_service_url}/full/!#{@mosaic_title_item.primary_thumbnail_width},#{@mosaic_title_item.primary_thumbnail_height}/0/default.jpg"}
-                        width={@mosaic_title_item.primary_thumbnail_width}
-                        height={@mosaic_title_item.primary_thumbnail_height}
-                        class="object-cover object-top max-h-full max-w-full w-full"
-                        alt={@mosaic_title_item.title |> hd}
-                      />
-                    </.link>
-                  </div>
-                </div>
+                <.mosaic_image collection={@collection} mosaic_title_item={@mosaic_title_item} />
                 <div class="flex justify-items-end">
                   <.primary_button
                     href={~p"/search?#{%{filter: %{collection: [@collection.title |> hd]}}}"}
@@ -360,6 +343,46 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         </div>
       </div>
     </Layouts.app>
+    """
+  end
+
+  def mosaic_image(assigns = %{collection: %{banner_image: banner_image}})
+      when is_binary(banner_image) do
+    ~H"""
+    <div class="max-h-120 p-2 bg-white min-h-0 min-w-0 flex">
+      <div class="overflow-hidden w-full">
+        <img
+          src={@collection.banner_image}
+          width="750"
+          height="500"
+          class="object-cover object-top max-h-full max-w-full w-full"
+          alt=""
+        />
+      </div>
+    </div>
+    """
+  end
+
+  def mosaic_image(assigns) do
+    ~H"""
+    <div class="max-h-120 p-2 card-darkdrop bg-white min-h-0 min-w-0 flex">
+      <div class="overflow-hidden w-full">
+        <.link
+          :if={@mosaic_title_item}
+          href={@mosaic_title_item.url}
+          class="overflow-hidden"
+          aria-label={"View #{@mosaic_title_item.title |> hd}"}
+        >
+          <img
+            src={"#{@mosaic_title_item.primary_thumbnail_service_url}/full/!#{@mosaic_title_item.primary_thumbnail_width},#{@mosaic_title_item.primary_thumbnail_height}/0/default.jpg"}
+            width={@mosaic_title_item.primary_thumbnail_width}
+            height={@mosaic_title_item.primary_thumbnail_height}
+            class="object-cover object-top max-h-full max-w-full w-full"
+            alt={@mosaic_title_item.title |> hd}
+          />
+        </.link>
+      </div>
+    </div>
     """
   end
 end
