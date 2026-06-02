@@ -476,4 +476,18 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       assert first_tagline |> String.starts_with?("Manuscripts of the Islamic World") == true
     end
   end
+
+  describe "a PDF resource" do
+    test "indexes the correct thumbnail image" do
+      {hydrator, transformer, indexer, document} =
+        FiggyTestSupport.index_record_id("f700237f-c700-4c1a-9f4e-17eb984d16aa")
+
+      hydrator |> Broadway.stop(:normal)
+      transformer |> Broadway.stop(:normal)
+      indexer |> Broadway.stop(:normal)
+
+      assert document["primary_thumbnail_service_url_s"] ==
+               "https://iiif-cloud.princeton.edu/iiif/2/ce%2Fe0%2Faa%2Fcee0aad70b544bf489f477edfc86d06e%2Fintermediate_file"
+    end
+  end
 end

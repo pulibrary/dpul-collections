@@ -262,7 +262,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
          %{"thumbnail_id" => thumbnail_id} = metadata,
          %{"resources" => resources} = related_data
        )
-       when is_list(thumbnail_id) do
+       when length(thumbnail_id) > 0 do
     thumbnail_member =
       thumbnail_id
       |> Enum.at(0, %{})
@@ -285,10 +285,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
          %{"resources" => resources}
        )
        when length(member_ids) > 0 do
+    # Map each member_id to a file set in the resources map.
+    # Filter out nil values - only image file sets included in resources.
+    # Choose the first file set.
     member_ids
+    |> Enum.map(fn %{"id" => id} -> resources[id] end)
+    |> Enum.filter(& &1)
     |> Enum.at(0)
-    |> Map.get("id")
-    |> then(fn id -> resources[id] end)
   end
 
   defp primary_thumbnail(_, _), do: nil

@@ -261,7 +261,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocumentTest do
           source_cache_order_record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           related_data: %{
             "resources" => %{
-              "1" => %{
+              "2" => %{
                 "internal_resource" => "FileSet",
                 "id" => "9ad621a7b-01ea-4895-9c3d-a8c6eaab4013",
                 "metadata" => %{
@@ -291,7 +291,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocumentTest do
             "id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
             "internal_resource" => "EphemeraFolder",
             "metadata" => %{
-              "member_ids" => [%{"id" => "1"}],
+              "member_ids" => [%{"id" => "1"}, %{"id" => "2"}],
               "title" => ["test title 4"]
             }
           }
