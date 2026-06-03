@@ -38,6 +38,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducerTest do
 
     test "handle_demand/2 with consecutive state returns a new record" do
       {marker1, marker2, marker3} = FiggyTestFixtures.hydration_cache_markers()
+      :timer.sleep(5000)
 
       {:producer, initial_state} = DatabaseProducer.init({Figgy.TransformationProducerSource, 0})
 

@@ -97,7 +97,7 @@ defmodule DpulCollections.IndexingPipeline.DatabaseProducer do
     # fallback.
     if new_state.stored_demand > 0 do
       DpulCollections.IndexMetricsTracker.register_polling_started(source_module, cache_version)
-      Process.send_after(self(), :check_for_updates, 60000)
+      Process.send_after(self(), :check_for_updates, 2000)
     end
 
     {:noreply, Enum.map(records, &wrap_record/1), new_state}

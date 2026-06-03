@@ -28,6 +28,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
 
   test "transformation cache entry creation" do
     {marker1, _marker2, _marker3} = FiggyTestFixtures.hydration_cache_markers()
+    :timer.sleep(5000)
 
     transformer = start_transformation_producer()
 

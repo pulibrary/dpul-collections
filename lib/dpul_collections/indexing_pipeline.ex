@@ -87,7 +87,7 @@ defmodule DpulCollections.IndexingPipeline do
       try do
         # Serialize writes for a cache version by acquiring an advisory lock.
         # It takes two integers - 1 here is special and for Hydration.
-        Repo.query!("SELECT pg_advisory_xact_lock($1, $2)", [attrs.cache_version, 1])
+        # Repo.query!("SELECT pg_advisory_xact_lock($1, $2)", [attrs.cache_version, 1])
 
         %Figgy.HydrationCacheEntry{}
         |> Figgy.HydrationCacheEntry.changeset(attrs)
@@ -111,12 +111,14 @@ defmodule DpulCollections.IndexingPipeline do
         count,
         cache_version
       ) do
+    poll_delay = DateTime.utc_now() |> DateTime.add(-5, :second)
+
     query =
       from r in Figgy.HydrationCacheEntry,
         where:
           r.cache_version == ^cache_version and
             ((r.cache_order == ^cache_order and r.record_id > ^id) or
-               r.cache_order > ^cache_order),
+               r.cache_order > ^cache_order) and r.cache_order < ^poll_delay,
         # Don't pull data or related_data, they're too big to parse in bulk.
         select: [
           :id,
