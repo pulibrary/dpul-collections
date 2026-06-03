@@ -357,14 +357,7 @@ defmodule DpulCollections.IndexingPipeline do
             (r.updated_at >= ^updated_at and
                (r.updated_at > ^updated_at or r.id > ^id) and
                r.updated_at < ^poll_delay),
-        select: %{
-          struct(r, [:id, :updated_at, :internal_resource])
-          | visibility: fragment("metadata->'visibility'"),
-            state: fragment("metadata->'state'"),
-            member_of_collection_ids: fragment("metadata->'member_of_collection_ids'"),
-            metadata_resource_id: fragment("metadata->'resource_id'"),
-            metadata_resource_type: fragment("metadata->'resource_type'")
-        },
+        select: struct(r, [:id, :updated_at, :internal_resource]),
         limit: ^count,
         order_by: [asc: r.updated_at, asc: r.id]
 
@@ -380,14 +373,7 @@ defmodule DpulCollections.IndexingPipeline do
     query =
       from r in Figgy.Resource,
         where: r.internal_resource != "Event" and r.internal_resource != "PreservationObject",
-        select: %{
-          struct(r, [:id, :updated_at, :internal_resource])
-          | visibility: fragment("metadata->'visibility'"),
-            state: fragment("metadata->'state'"),
-            metadata_resource_id: fragment("metadata->'resource_id'"),
-            member_of_collection_ids: fragment("metadata->'member_of_collection_ids'"),
-            metadata_resource_type: fragment("metadata->'resource_type'")
-        },
+        select: struct(r, [:id, :updated_at, :internal_resource]),
         limit: ^count,
         order_by: [asc: r.updated_at, asc: r.id]
 

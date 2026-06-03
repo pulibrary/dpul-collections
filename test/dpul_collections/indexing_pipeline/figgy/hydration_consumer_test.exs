@@ -21,8 +21,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         id: "561ea64a-9cd1-4994-b2a7-ac169f33ba84",
         updated_at: ~U[2024-04-18 14:28:57.526110Z],
         internal_resource: "EphemeraFolder",
-        state: ["complete"],
-        visibility: ["open"],
         metadata: %{
           "title" => ["title"],
           "state" => ["complete"],
@@ -43,8 +41,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           id: "561ea64a-9cd1-4994-b2a7-ac169f33ba84",
           updated_at: ~U[2024-04-18 14:28:57.526110Z],
           internal_resource: "EphemeraFolder",
-          state: ["pending"],
-          visibility: ["open"],
           metadata: %{
             "title" => ["title"],
             "state" => ["pending"],
@@ -64,8 +60,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           id: "561ea64a-9cd1-4994-b2a7-ac169f33ba84",
           updated_at: ~U[2024-04-18 14:29:57.526110Z],
           internal_resource: "EphemeraFolder",
-          state: ["complete"],
-          visibility: ["restricted"],
           metadata: %{
             "title" => ["title"],
             "state" => ["complete"],
@@ -102,7 +96,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         %Figgy.Resource{
           id: "2fa1b92b-9e62-4694-aeab-0c4fab72ac24",
           updated_at: ~U[2025-08-18 20:19:34.465203Z],
-          internal_resource: "ScannedResource"
+          internal_resource: "ScannedResource",
+          metadata: %{}
         }
 
       Figgy.HydrationConsumer.process_and_persist(scanned_resource, 1)
@@ -116,8 +111,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           id: "9773417d-1c36-4692-bf81-f387be688460",
           updated_at: ~U[2025-01-02 19:47:21.726083Z],
           internal_resource: "DeletionMarker",
-          metadata_resource_id: [%{"id" => "a521113e-e77a-4000-b00a-17c09b3aa757"}],
-          metadata_resource_type: ["FileSet"]
+          metadata: %{
+            "resource_id" => [%{"id" => "a521113e-e77a-4000-b00a-17c09b3aa757"}],
+            "resource_type" => ["FileSet"]
+          }
         }
 
       Figgy.HydrationConsumer.process_and_persist(file_set_deletion_marker, 1)
@@ -132,8 +129,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           id: "561ea64a-9cd1-4994-b2a7-ac169f33ba84",
           updated_at: ~U[2024-04-18 14:28:57.526110Z],
           internal_resource: "EphemeraFolder",
-          state: ["complete"],
-          visibility: ["open"],
           metadata: %{
             "title" => ["title"],
             "visibility" => ["open"],
@@ -206,13 +201,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         id: "2fa1b92b-9e62-4694-aeab-0c4fab72ac24",
         updated_at: ~U[2025-08-18 20:19:34.465203Z],
         internal_resource: "ScannedResource",
-        state: ["complete"],
-        visibility: ["open"],
-        member_of_collection_ids: nil,
         metadata: %{
           "title" => ["title"],
           "state" => ["complete"],
-          "visibility" => ["open"]
+          "visibility" => ["open"],
+          "member_of_collection_ids" => nil
         }
       }
 
@@ -225,8 +218,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         id: "05092b7d-d33c-4d4d-885e-b6b8973deec4",
         updated_at: ~U[2025-04-18 14:28:57.52611Z],
         internal_resource: "EphemeraFolder",
-        state: ["complete"],
-        visibility: ["open"],
         metadata: %{
           "cached_parent_id" => [%{"id" => "7b87fdfa-a760-49b9-85e9-093f2519f2fc"}],
           "state" => ["complete"],
@@ -239,8 +230,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         id: "31732974-611e-4c06-8af3-928e553b6c9f",
         updated_at: ~U[2025-04-18 14:29:09.201335Z],
         internal_resource: "EphemeraFolder",
-        state: ["complete"],
-        visibility: ["open"],
         metadata: %{
           "cached_parent_id" => [%{"id" => "7b87fdfa-a760-49b9-85e9-093f2519f2fc"}],
           "state" => ["complete"],
@@ -253,8 +242,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         id: "05092b7d-d33c-4d4d-885e-b6b8973deec4",
         updated_at: ~U[2025-04-19 14:28:57.52611Z],
         internal_resource: "EphemeraFolder",
-        state: ["complete"],
-        visibility: ["restricted"],
         metadata: %{
           "cached_parent_id" => [%{"id" => "7b87fdfa-a760-49b9-85e9-093f2519f2fc"}],
           "state" => ["complete"],
@@ -267,8 +254,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         id: "31732974-611e-4c06-8af3-928e553b6c9f",
         updated_at: ~U[2025-04-19 14:29:09.201335Z],
         internal_resource: "EphemeraFolder",
-        state: ["pending"],
-        visibility: ["open"],
         metadata: %{
           "cached_parent_id" => [%{"id" => "7b87fdfa-a760-49b9-85e9-093f2519f2fc"}],
           "state" => ["pending"],
@@ -313,8 +298,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         id: "05092b7d-d33c-4d4d-885e-b6b8973deec4",
         updated_at: ~U[2024-04-18 14:28:57.526110Z],
         internal_resource: "EphemeraFolder",
-        state: ["complete"],
-        visibility: ["open"],
         metadata: %{
           "cached_parent_id" => [%{"id" => "7b87fdfa-a760-49b9-85e9-093f2519f2fc"}],
           "state" => ["complete"],
@@ -393,8 +376,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         id: "05092b7d-d33c-4d4d-885e-b6b8973deec4",
         updated_at: ~U[2024-04-18 14:28:57.526110Z],
         internal_resource: "EphemeraFolder",
-        state: ["complete"],
-        visibility: ["open"],
         metadata: %{
           "cached_parent_id" => [%{"id" => "7b87fdfa-a760-49b9-85e9-093f2519f2fc"}],
           "state" => ["complete"],
@@ -454,8 +435,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         id: "05092b7d-d33c-4d4d-885e-b6b8973deec4",
         updated_at: ~U[2024-04-18 14:28:57.526110Z],
         internal_resource: "EphemeraFolder",
-        state: ["complete"],
-        visibility: ["open"],
         metadata: %{
           "cached_parent_id" => [%{"id" => "7b87fdfa-a760-49b9-85e9-093f2519f2fc"}],
           "state" => ["complete"],
@@ -531,8 +510,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         id: "561ea64a-9cd1-4994-b2a7-ac169f33ba84",
         updated_at: ~U[2024-04-18 14:28:57.526110Z],
         internal_resource: "EphemeraFolder",
-        state: ["complete"],
-        visibility: ["open"],
         metadata: %{
           "cached_parent_id" => [%{"id" => "82624edb-c360-4d8a-b202-f103ee639e8e"}],
           "state" => ["complete"],
@@ -609,8 +586,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         id: "561ea64a-9cd1-4994-b2a7-ac169f33ba84",
         updated_at: ~U[2024-04-18 14:28:57.526110Z],
         internal_resource: "EphemeraFolder",
-        state: ["complete"],
-        visibility: ["open"],
         metadata: %{
           "cached_parent_id" => [%{"id" => "82624edb-c360-4d8a-b202-f103ee639e8e"}],
           "state" => ["complete"],

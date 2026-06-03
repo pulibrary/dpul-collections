@@ -108,9 +108,33 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     case resource do
       # Process open/complete indexable resources (EphemeraFolder, ScannedResource).
       # ScannedResources are filtered by collection membership.
-      %{internal_resource: internal_resource, state: ["complete"], visibility: ["open"]}
+      resource = %{internal_resource: internal_resource}
       when internal_resource in @indexable_resource_types ->
-        classify_open_resource(resource)
+        # Grab full resource if necessary.
+        full_resource =
+          case resource do
+            %{metadata: nil} ->
+              IndexingPipeline.get_figgy_resource!(id) |> Figgy.Resource.populate_virtual()
+
+            _ ->
+              resource
+          end
+
+        case full_resource do
+          %{state: ["complete"], visibility: ["open"]} ->
+            classify_open_resource(full_resource)
+
+          _ ->
+            # Delete indexable resources that are already cached but no longer
+            # eligible (e.g. no longer open/complete), otherwise skip them.
+            existing_resource = IndexingPipeline.get_hydration_cache_entry!(id, cache_version)
+
+            if existing_resource do
+              {:delete, resource}
+            else
+              {:skip, resource}
+            end
+        end
 
       # Collections need to both update
       %{internal_resource: "Collection"} ->
@@ -127,17 +151,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
       # Process things that could be related records
       %{internal_resource: internal_resource} when internal_resource in @related_record_types ->
         {:update_related, resource}
-
-      # Delete indexable resources that are already cached but no longer
-      # eligible (e.g. no longer open/complete), otherwise skip them.
-      %{internal_resource: internal_resource} when internal_resource in @indexable_resource_types ->
-        existing_resource = IndexingPipeline.get_hydration_cache_entry!(id, cache_version)
-
-        if existing_resource do
-          {:delete, resource}
-        else
-          {:skip, resource}
-        end
 
       # Delete resources with DeletionMarkers if they're cached, otherwise skip.
       %{
