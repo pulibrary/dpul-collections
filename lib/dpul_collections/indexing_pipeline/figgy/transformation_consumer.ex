@@ -38,6 +38,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
       processors: [
         default: [concurrency: System.schedulers_online() * 2]
       ],
+      batchers: [
+        default: [concurrency: 5, batch_size: options[:batch_size]]
+      ],
       context: %{cache_version: options[:cache_version], type: :figgy_transformer}
     )
   end
@@ -57,6 +60,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
     |> persist(marker, cache_version)
 
     message
+  end
+
+  @impl Broadway
+  def handle_batch(:default, messages, _batch_info, _state) do
+    messages
   end
 
   def process(resource, cache_version) do
