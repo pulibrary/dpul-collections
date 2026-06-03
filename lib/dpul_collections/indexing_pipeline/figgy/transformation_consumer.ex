@@ -38,10 +38,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
       processors: [
         default: [concurrency: System.schedulers_online() * 2]
       ],
-      batchers: [
-        default: [batch_size: options[:batch_size]],
-        noop: [batch_size: options[:batch_size]]
-      ],
       context: %{cache_version: options[:cache_version], type: :figgy_transformer}
     )
   end
@@ -59,16 +55,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
     resource
     |> process(cache_version)
     |> persist(marker, cache_version)
-    |> store_result(message)
-  end
 
-  @impl Broadway
-  def handle_batch(:default, messages, _batch_info, _state) do
-    messages
-  end
-
-  def handle_batch(:noop, messages, _batch_info, _state) do
-    messages
+    message
   end
 
   def process(resource, cache_version) do
@@ -126,11 +114,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
   def post_classification(resource_and_classification, _cache_version) do
     resource_and_classification
   end
-
-  def store_result({:skip, _record}, message), do: Broadway.Message.put_batcher(message, :noop)
-
-  def store_result(_, message),
-    do: message
 
   defp persist({action, solr_doc}, marker, cache_version)
        when action in [:delete, :update] do

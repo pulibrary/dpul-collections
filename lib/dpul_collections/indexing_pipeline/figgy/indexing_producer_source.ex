@@ -21,7 +21,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingProducerSource do
 
     :telemetry.attach(
       "transformation-listener-#{producer_pid |> :erlang.pid_to_list()}",
-      [:broadway, :batch_processor, :stop],
+      [:broadway, :processor, :stop],
       &handle_batch_closed(&1, &2, &3, &4, cache_version),
       %{producer_pid: producer_pid}
     )
