@@ -93,7 +93,8 @@ defmodule DpulCollectionsWeb.Router do
         metrics: DpulCollectionsWeb.Telemetry,
         additional_pages: [
           broadway: BroadwayDashboard,
-          index_metrics: DpulCollectionsWeb.LiveDashboard.IndexingMetricsPage
+          index_metrics: DpulCollectionsWeb.LiveDashboard.IndexingMetricsPage,
+          index_validation: DpulCollectionsWeb.LiveDashboard.IndexValidationPage
         ]
 
       oban_dashboard("/oban")
