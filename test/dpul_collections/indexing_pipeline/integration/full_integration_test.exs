@@ -74,9 +74,11 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # It also has 3 ephemera projects and 1 collection.
     entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
     scanned_resource_fixture_count = 6
-    filtered_resource_count = 1 # 8691231a-d06f-4fa2-af5b-d773310564a3 gets filtered out
+    # 8691231a-d06f-4fa2-af5b-d773310564a3 gets filtered out
+    filtered_resource_count = 1
 
-    assert FiggyTestSupport.total_resource_count() + 3 + scanned_resource_fixture_count - filtered_resource_count ==
+    assert FiggyTestSupport.total_resource_count() + 3 + scanned_resource_fixture_count -
+             filtered_resource_count ==
              entry_count
 
     # The transformer processed ephemera folders, deletion markers,

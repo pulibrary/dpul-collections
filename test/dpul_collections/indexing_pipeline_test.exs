@@ -172,6 +172,12 @@ defmodule DpulCollections.IndexingPipelineTest do
              |> Enum.filter(fn x -> x.internal_resource == "Event" end)
              |> Enum.count() == 0
     end
+
+    test "get_figgy_project_folders/1 returns all folders deep" do
+      records = IndexingPipeline.get_figgy_project_folders("f99af4de-fed4-4baa-82b1-6e857b230306")
+
+      assert Enum.to_list(records) |> length() == 15
+    end
   end
 
   describe "transformation_cache_entries" do
