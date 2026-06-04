@@ -268,6 +268,41 @@ defmodule DpulCollections.SolrTest do
     end
   end
 
+  describe "find_all_collections" do
+    test "doesn't return collections" do
+      doc1 = %{
+        "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
+        "title_txtm" => "Doc-1",
+        "file_count_i" => 1,
+        "updated_at_dt" => DateTime.utc_now() |> DateTime.add(-1, :hour) |> DateTime.to_iso8601()
+      }
+
+      doc2 = %{
+        "id" => "26713a31-d615-49fd-adfc-93770b4f66b3",
+        "updated_at_dt" =>
+          DateTime.utc_now() |> DateTime.add(-5, :minute) |> DateTime.to_iso8601(),
+        "title_txtm" => "Collection-1",
+        "resource_type_s" => "collection"
+      }
+
+      doc2 = %{
+        "id" => "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a",
+        "updated_at_dt" =>
+          DateTime.utc_now() |> DateTime.add(-3, :minute) |> DateTime.to_iso8601(),
+        "title_txtm" => "Collection-2",
+        "resource_type_s" => "collection"
+      }
+
+      Solr.add([doc1, doc2], active_collection())
+      Solr.soft_commit(active_collection())
+
+      records = Solr.find_all_collections()
+
+      assert(Enum.count(records)) == 2
+      assert(Enum.map(records, & &1["id"])) == Enum.map([doc1, doc1], & &1["id"])
+    end
+  end
+
   test ".add/1" do
     doc = %{
       "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",

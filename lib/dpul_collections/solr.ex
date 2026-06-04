@@ -350,6 +350,19 @@ defmodule DpulCollections.Solr do
     end
   end
 
+  def find_all_collections(index \\ Index.read_index()) do
+    {:ok, response} =
+      Client.query(
+        index,
+        params: [
+          q: ~s(resource_type_s:collection),
+          rows: 1000
+        ]
+      )
+
+    response.body["response"]["docs"]
+  end
+
   @spec add(list(map()) | String.t(), %Index{}) ::
           {:ok, Req.Response.t()} | {:error, Exception.t()}
   def add(docs, index \\ Index.read_index())
