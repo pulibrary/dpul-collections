@@ -285,7 +285,7 @@ defmodule DpulCollections.SolrTest do
         "resource_type_s" => "collection"
       }
 
-      doc2 = %{
+      doc3 = %{
         "id" => "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a",
         "updated_at_dt" =>
           DateTime.utc_now() |> DateTime.add(-3, :minute) |> DateTime.to_iso8601(),
@@ -293,13 +293,13 @@ defmodule DpulCollections.SolrTest do
         "resource_type_s" => "collection"
       }
 
-      Solr.add([doc1, doc2], active_collection())
+      Solr.add([doc1, doc2, doc3], active_collection())
       Solr.soft_commit(active_collection())
 
       records = Solr.find_all_collections()
 
-      assert(Enum.count(records)) == 2
-      assert(Enum.map(records, & &1["id"])) == Enum.map([doc1, doc1], & &1["id"])
+      assert Enum.count(records) == 2
+      assert Enum.map(records, & &1["id"]) == Enum.map([doc2, doc3], & &1["id"])
     end
   end
 
