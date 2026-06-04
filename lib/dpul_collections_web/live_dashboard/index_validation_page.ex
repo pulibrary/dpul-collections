@@ -11,7 +11,7 @@ defmodule DpulCollectionsWeb.LiveDashboard.IndexValidationPage do
   def mount(_params, _session, socket) do
     socket =
       assign(socket,
-        all_collections: IndexValidator.all_collections()
+        validators: IndexValidator.all_collections()
       )
 
     {:ok, socket}
@@ -20,9 +20,16 @@ defmodule DpulCollectionsWeb.LiveDashboard.IndexValidationPage do
   @impl true
   def render(assigns) do
     ~H"""
-    <.row :for={collection <- @all_collections}>
+    <.row :for={validator <- @validators}>
       <:col>
-        <card_title>{collection.title}</card_title>
+        <card_title>{validator.collection.title}</card_title>
+
+        <.fields_card
+          inner_title="Digital Collections Count"
+          fields={[
+            count: validator.dc_count
+          ]}
+        />
       </:col>
     </.row>
     """

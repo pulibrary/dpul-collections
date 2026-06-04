@@ -26,7 +26,8 @@ defmodule DpulCollectionsWeb.LiveDashboard.IndexValidationPageTest do
         |> put_req_header("authorization", "Basic " <> Base.encode64("admin:test"))
         |> live(~p"/dev/dashboard/index_validation")
 
-      assert has_element?(view, "card_title", "South Asian Ephemera")
+      assert view
+             |> has_element?(".row", ~r(South Asian Ephemera.*Digital Collections Count.*2))
     end
   end
 end
