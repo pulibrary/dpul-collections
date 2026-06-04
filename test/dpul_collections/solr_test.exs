@@ -269,7 +269,7 @@ defmodule DpulCollections.SolrTest do
   end
 
   describe "find_all_collections" do
-    test "doesn't return collections" do
+    test "returns collections" do
       doc1 = %{
         "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
         "title_txtm" => "Doc-1",
