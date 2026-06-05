@@ -40,8 +40,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         default: [concurrency: System.schedulers_online() * 2]
       ],
       batchers: [
-        default: [batch_size: options[:batch_size]],
-        noop: [batch_size: options[:batch_size]]
+        default: [concurrency: 5, batch_size: options[:batch_size]]
       ],
       context: %{cache_version: options[:cache_version], type: :figgy_hydrator}
     )
@@ -58,15 +57,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
       ) do
     resource
     |> process_and_persist(cache_version)
-    |> store_result(message)
+
+    message
   end
 
   @impl Broadway
   def handle_batch(:default, messages, _batch_info, _state) do
-    messages
-  end
-
-  def handle_batch(:noop, messages, _batch_info, _state) do
     messages
   end
 
@@ -328,21 +324,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
   def post_classification(resource_and_classification, _cache_version),
     do: resource_and_classification
-
-  # If there's a bunch of actions, only no-op if all of them are skips.
-  def store_result(process_list = [{_, _} | _], message) do
-    case Enum.filter(process_list, fn {action, _} -> action != :skip end) do
-      [] -> Broadway.Message.put_batcher(message, :noop)
-      _ -> message
-    end
-  end
-
-  @spec store_result(process_return(), message :: Broadway.Message.t()) ::
-          Broadway.Message.t()
-  def store_result({:skip, _record}, message), do: Broadway.Message.put_batcher(message, :noop)
-
-  def store_result(_, message),
-    do: message
 
   # If we're passed a bunch of process_returns, iterate.
   defp persist(action_list = [{_, _} | _], cache_version) do
