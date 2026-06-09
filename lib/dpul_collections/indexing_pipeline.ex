@@ -291,7 +291,7 @@ defmodule DpulCollections.IndexingPipeline do
   def get_figgy_project_folders(id) do
     {:ok, id} = Ecto.UUID.dump(id)
 
-    Figgy.Resource
+    {"deep_members", Figgy.Resource}
     |> recursive_ctes(true)
     |> with_cte("deep_members", as: fragment(@recursive_cte_fragment, ^id))
     |> where(internal_resource: "EphemeraFolder")
