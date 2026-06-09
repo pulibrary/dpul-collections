@@ -1,6 +1,7 @@
 defmodule DpulCollections.IndexValidator do
   alias DpulCollections.Solr
   alias DpulCollections.Collection
+  alias DpulCollections.Item
   alias DpulCollections.IndexingPipeline
 
   defstruct [
@@ -29,7 +30,10 @@ defmodule DpulCollections.IndexValidator do
     figgy_items = 
       IndexingPipeline.get_figgy_project_folders(collection.id) ++
         IndexingPipeline.get_figgy_collection_members(collection.id)
-    dc_items
+    # TODO: make resource to item
+        # |> Enum.map(&:Item.from_
+    # TODO: write a solr function for getting all the items in a collection?
+    dc_items = 
 
     %__MODULE__{
       collection: collection,
