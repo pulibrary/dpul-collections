@@ -8,8 +8,12 @@ defmodule DpulCollections.IndexValidator do
     :dc_count,
     :filtered_figgy_count,
     :total_figgy_count,
+    # IDs that aren't in DC, and that's on purpose.
     :filtered_ids,
-    :missing_ids
+    # IDs that aren't in DC, and should be.
+    :missing_ids,
+    # IDs that aren't in Figgy, but are in DC. Probably a delete problem.
+    :extra_ids
   ]
 
   def all_collections do
