@@ -9,20 +9,28 @@ defmodule DpulCollections.IndexValidator do
     :filtered_figgy_count,
     :total_figgy_count,
     # IDs that aren't in DC, and that's on purpose.
-    :filtered_ids,
+    :filtered_items,
     # IDs that aren't in DC, and should be.
-    :missing_ids,
+    :missing_items,
     # IDs that aren't in Figgy, but are in DC. Probably a delete problem.
-    :extra_ids
+    :extra_items
   ]
 
   def all_collections do
+    # get all the local ids / titles
+    # get all the figgy ids / titles
+    # compute totals, and set memberships
     Solr.find_all_collections()
     |> Enum.map(&Collection.from_solr/1)
     |> Enum.map(&from_collection/1)
   end
 
   def from_collection(collection = %Collection{}) do
+    figgy_items = 
+      IndexingPipeline.get_figgy_project_folders(collection.id) ++
+        IndexingPipeline.get_figgy_collection_members(collection.id)
+    dc_items
+
     %__MODULE__{
       collection: collection,
       dc_count: dc_count(collection),
