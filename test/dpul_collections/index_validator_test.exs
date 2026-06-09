@@ -28,9 +28,11 @@ defmodule DpulCollections.IndexValidatorTest do
       assert sae_validator.dc_count == 2
 
       assert sae_validator.total_figgy_count == 15
+
       # assert sae_validator.filtered_items == [%Item{id: "8691231a-d06f-4fa2-af5b-d773310564a3", title: "Martyrs of Pakistan Navy : Defence and Martyrs Day 2023"}]
-      assert length(sae_validator.missing_items) == 13 # TODO: but later 12
-      assert Enum.member?(sae_validator.missing_items, %Item{id: "d82efa97-c69b-424c-83c2-c461baae8307", title: "امن جمهوریت مسادى حقوق : 8 مارچ-عالمى یوم خواتین- تحریك خواتین پنجاب"})
+      # TODO: but later 12
+      assert length(sae_validator.missing_items) == 13
+      assert Enum.member?(sae_validator.missing_items, "d82efa97-c69b-424c-83c2-c461baae8307")
     end
   end
 end

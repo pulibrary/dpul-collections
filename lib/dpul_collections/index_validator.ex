@@ -3,6 +3,8 @@ defmodule DpulCollections.IndexValidator do
   alias DpulCollections.Collection
   alias DpulCollections.Item
   alias DpulCollections.IndexingPipeline
+  alias DpulCollections.Solr
+  alias DpulCollectionsWeb.SearchLive.SearchState
 
   defstruct [
     :collection,
@@ -18,8 +20,6 @@ defmodule DpulCollections.IndexValidator do
   ]
 
   def all_collections do
-    # get all the local ids / titles
-    # get all the figgy ids / titles
     # compute totals, and set memberships
     Solr.find_all_collections()
     |> Enum.map(&Collection.from_solr/1)
@@ -27,18 +27,26 @@ defmodule DpulCollections.IndexValidator do
   end
 
   def from_collection(collection = %Collection{}) do
-    figgy_items = 
-      IndexingPipeline.get_figgy_project_folders(collection.id) ++
-        IndexingPipeline.get_figgy_collection_members(collection.id)
+    figgy_ids =
+      (IndexingPipeline.get_figgy_project_folders(collection.id) ++
+         IndexingPipeline.get_figgy_collection_members(collection.id))
+      |> Enum.map(&Map.get(&1, :id))
+
     # TODO: make resource to item
-        # |> Enum.map(&:Item.from_
-    # TODO: write a solr function for getting all the items in a collection?
-    dc_items = 
+    # |> Enum.map(&:Item.from_
+    dc_ids =
+      %{"per_page" => "2000000"}
+      |> SearchState.from_params()
+      |> SearchState.set_filter("collection", collection.title)
+      |> Solr.search()
+      |> Map.get(:results)
+      |> Enum.map(&Map.get(&1, :id))
 
     %__MODULE__{
       collection: collection,
       dc_count: dc_count(collection),
-      total_figgy_count: total_figgy_count(collection)
+      total_figgy_count: total_figgy_count(collection),
+      missing_items: figgy_ids -- dc_ids
     }
   end
 
