@@ -1,6 +1,7 @@
 defmodule DpulCollections.IndexValidator do
   alias DpulCollections.Solr
   alias DpulCollections.Collection
+  alias DpulCollections.IndexingPipeline
 
   defstruct [
     :collection,
@@ -33,12 +34,12 @@ defmodule DpulCollections.IndexValidator do
   end
 
   def total_figgy_count(collection) do
-    # Get the Figgy.Resource for the collection
-    # If it's a project, get all ephemera folders deep.
-    # If it's a collection, get everything that has member_of_collection_ids
-    #   with that ID.
-    #
-    # Alternative: Use the Blacklight API, but then we're tied to Blacklight,
-    # Figgy, and have to page later.
+    # We'll run both, one will be empty depending on if collection is a Figgy
+    # Collection or an EphemeraProject.
+    all_resources =
+      IndexingPipeline.get_figgy_project_folders(collection.id) ++
+        IndexingPipeline.get_figgy_collection_members(collection.id)
+
+    length(all_resources)
   end
 end
