@@ -271,8 +271,31 @@ defmodule DpulCollections.IndexingPipeline do
     |> FiggyRepo.all()
   end
 
+  @recursive_cte_fragment """
+    select member.*
+    FROM orm_resources a,
+    jsonb_array_elements(a.metadata->'member_ids') AS b(member)
+    JOIN orm_resources member ON (b.member->>'id')::UUID = member.id
+    WHERE a.id = ?
+    UNION
+    SELECT mem.*
+    FROM deep_members f,
+    jsonb_array_elements(f.metadata->'member_ids') AS g(member)
+    JOIN orm_resources mem ON (g.member->>'id')::UUID = mem.id
+    WHERE f.metadata @> '{"member_ids": [{}]}'
+  """
+
+  @doc """
+  Get all the folders, deep, in the project with the given id
+  """
   def get_figgy_project_folders(id) do
-    []
+    {:ok, id} = Ecto.UUID.dump(id)
+
+    Figgy.Resource
+    |> recursive_ctes(true)
+    |> with_cte("deep_members", as: fragment(@recursive_cte_fragment, ^id))
+    |> where(internal_resource: "EphemeraFolder")
+    |> FiggyRepo.all()
   end
 
   def get_figgy_collection_members(id) do
