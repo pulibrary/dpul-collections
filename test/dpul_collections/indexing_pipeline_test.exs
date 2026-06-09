@@ -178,6 +178,13 @@ defmodule DpulCollections.IndexingPipelineTest do
 
       assert Enum.to_list(records) |> length() == 15
     end
+
+    test "get_figgy_collection_members/1 returns all members" do
+      records =
+        IndexingPipeline.get_figgy_collection_members("52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a")
+
+      assert Enum.to_list(records) |> length() == 5
+    end
   end
 
   describe "transformation_cache_entries" do

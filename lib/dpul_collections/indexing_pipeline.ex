@@ -286,7 +286,7 @@ defmodule DpulCollections.IndexingPipeline do
   """
 
   @doc """
-  Get all the folders, deep, in the project with the given id
+  Get all the folders, deep, in the project with the given Figgy ID
   """
   def get_figgy_project_folders(id) do
     {:ok, id} = Ecto.UUID.dump(id)
@@ -298,7 +298,15 @@ defmodule DpulCollections.IndexingPipeline do
     |> FiggyRepo.all()
   end
 
+  @doc """
+  Get all members of the collection with the given Figgy ID.
+  """
   def get_figgy_collection_members(id) do
+    json = %{"member_of_collection_ids" => [%{"id" => id}]}
+
+    Figgy.Resource
+    |> where([resource], fragment("? @> ?", resource.metadata, ^json))
+    |> FiggyRepo.all()
   end
 
   @doc """
