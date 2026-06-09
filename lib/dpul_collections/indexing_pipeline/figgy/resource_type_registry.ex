@@ -15,6 +15,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ResourceTypeRegistry do
   # Types used in the transformation pipeline
   @transformable_types @indexable_types ++ @collection_types
 
+  # Types that are processed at all.
+  @processed_types @indexable_types ++
+                     @collection_types ++ @related_record_types ++ ["DeletionMarker"]
+
   # Temporary restrictions to allow gradual ingest of different types
   @allowed_collections ["52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a"]
 
@@ -22,5 +26,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ResourceTypeRegistry do
   def collection_types, do: @collection_types
   def related_record_types, do: @related_record_types
   def transformable_types, do: @transformable_types
+  def processed_types, do: @processed_types
   def allowed_collection?(id), do: id in @allowed_collections
 end

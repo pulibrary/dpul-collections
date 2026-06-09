@@ -2,7 +2,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
   use DpulCollections.DataCase
 
   alias DpulCollections.IndexingPipeline
-  alias DpulCollections.IndexingPipeline.Figgy.{Resource, HydrationConsumer, HydrationCacheEntry}
+  alias DpulCollections.IndexingPipeline.Figgy.{Resource, HydrationConsumer}
 
   describe "from/2" do
     test "it doesn't error when the related resource id is an empty string" do
@@ -13,9 +13,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           (%Resource{} = folder)
           | metadata: %{folder.metadata | "genre" => [%{"id" => ""}]}
         }
-        |> HydrationConsumer.process(1)
-        |> elem(1)
-        |> HydrationCacheEntry.from(1)
+        |> HydrationConsumer.to_hydration_cache_entry(1)
         |> get_in([Access.key!(:related_data)])
         |> get_in(["resources"])
         |> Map.keys()
@@ -29,9 +27,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
       metadata =
         folder
-        |> HydrationConsumer.process(1)
-        |> elem(1)
-        |> HydrationCacheEntry.from(1)
+        |> HydrationConsumer.to_hydration_cache_entry(1)
         |> get_in([Access.key!(:data)])
         |> get_in([Access.key!(:metadata)])
 
@@ -43,9 +39,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
       metadata =
         %Resource{(%Resource{} = folder) | metadata: %{folder.metadata | "member_ids" => []}}
-        |> HydrationConsumer.process(1)
-        |> elem(1)
-        |> HydrationCacheEntry.from(1)
+        |> HydrationConsumer.to_hydration_cache_entry(1)
         |> get_in([Access.key!(:data)])
         |> get_in([Access.key!(:metadata)])
 
@@ -67,9 +61,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
           (%Resource{} = folder)
           | metadata: %{folder.metadata | "member_ids" => member_ids}
         }
-        |> HydrationConsumer.process(1)
-        |> elem(1)
-        |> HydrationCacheEntry.from(1)
+        |> HydrationConsumer.to_hydration_cache_entry(1)
         |> get_in([Access.key!(:related_data)])
         |> get_in(["resources"])
         |> Map.keys()
@@ -82,9 +74,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
 
       resource_ids =
         folder
-        |> HydrationConsumer.process(1)
-        |> elem(1)
-        |> HydrationCacheEntry.from(1)
+        |> HydrationConsumer.to_hydration_cache_entry(1)
         |> get_in([Access.key!(:related_data)])
         |> get_in(["resources"])
         |> Map.keys()

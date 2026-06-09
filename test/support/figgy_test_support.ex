@@ -29,6 +29,7 @@ defmodule FiggyTestSupport do
     # This doesn't literally pull the first one, just the one we've been using
     # as the first so far.
     FiggyRepo.get!(Figgy.Resource, "2ebc1872-eb41-4bc6-a523-5069108bf504")
+    |> Figgy.Resource.populate_virtual()
   end
 
   def ephemera_folder_count do
@@ -68,9 +69,10 @@ defmodule FiggyTestSupport do
     marker = IndexingPipeline.DatabaseProducer.CacheEntryMarker.from(record)
 
     cache_attrs =
-      Figgy.HydrationConsumer.process(record, 1)
-      |> elem(1)
-      |> Figgy.HydrationCacheEntry.from(1)
+      Figgy.HydrationConsumer.to_hydration_cache_entry(
+        IndexingPipeline.Figgy.Resource.populate_virtual(record),
+        1
+      )
 
     {:ok, cache_entry} =
       IndexingPipeline.write_hydration_cache_entry(%{
