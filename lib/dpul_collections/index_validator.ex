@@ -27,13 +27,13 @@ defmodule DpulCollections.IndexValidator do
   end
 
   def from_collection(collection = %Collection{}) do
+    # TODO: Pull less data, we just need the IDs, maybe just pluck equivalent.
     figgy_ids =
       (IndexingPipeline.get_figgy_project_folders(collection.id) ++
          IndexingPipeline.get_figgy_collection_members(collection.id))
       |> Enum.map(&Map.get(&1, :id))
 
-    # TODO: make resource to item
-    # |> Enum.map(&:Item.from_
+    # TODO: Pull just the IDs from Solr.
     dc_ids =
       %{"per_page" => "2000000"}
       |> SearchState.from_params()
