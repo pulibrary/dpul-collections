@@ -45,7 +45,8 @@ defmodule DpulCollections.IndexValidator do
       collection: collection,
       dc_count: dc_count(collection),
       total_figgy_count: total_figgy_count(collection),
-      missing_items: figgy_ids -- dc_ids
+      missing_items: figgy_ids -- dc_ids,
+      extra_items: dc_ids -- figgy_ids
     }
   end
 

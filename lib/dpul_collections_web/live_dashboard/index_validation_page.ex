@@ -25,7 +25,7 @@ defmodule DpulCollectionsWeb.LiveDashboard.IndexValidationPage do
         <.card_title title={validator.collection.title} />
 
         <.fields_card
-          inner_title="Digital Collections Count"
+          inner_title="Counts"
           fields={[
             count: validator.dc_count
           ]}

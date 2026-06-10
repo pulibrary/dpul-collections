@@ -34,6 +34,8 @@ defmodule DpulCollectionsWeb.LiveDashboard.IndexValidationPageTest do
                "a[href='https://figgy.princeton.edu/catalog/d82efa97-c69b-424c-83c2-c461baae8307']",
                "d82efa97-c69b-424c-83c2-c461baae8307"
              )
+
+      # TODO: Add Figgy Count, Extra Count, Missing Count
     end
   end
 end

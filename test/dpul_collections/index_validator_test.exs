@@ -12,6 +12,14 @@ defmodule DpulCollections.IndexValidatorTest do
     ]
     |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
 
+    Solr.add([
+      %{
+        "id" => "extra-item",
+        "title_txtm" => ["test title 1"],
+        "collection_titles_ss" => ["South Asian Ephemera"]
+      }
+    ])
+
     Solr.soft_commit(active_collection())
 
     on_exit(fn -> Solr.delete_all(active_collection()) end)
@@ -24,16 +32,15 @@ defmodule DpulCollections.IndexValidatorTest do
       assert length(validators) == 1
 
       sae_validator = hd(validators)
-      assert sae_validator.dc_count == 2
+      assert sae_validator.dc_count == 3
 
       assert sae_validator.total_figgy_count == 15
 
-      # assert sae_validator.filtered_items == [%Item{id: "8691231a-d06f-4fa2-af5b-d773310564a3", title: "Martyrs of Pakistan Navy : Defence and Martyrs Day 2023"}]
-      # TODO: but later 12
       assert length(sae_validator.missing_items) == 13
       assert Enum.member?(sae_validator.missing_items, "d82efa97-c69b-424c-83c2-c461baae8307")
-      # TODO: Test setup for extra items. Add something to Solr via Solr.add
-      # with a map and the collection name.
+
+      assert length(sae_validator.extra_items) == 1
+      assert Enum.member?(sae_validator.extra_items, "extra-item")
     end
   end
 end
