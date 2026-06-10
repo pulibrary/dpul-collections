@@ -22,6 +22,7 @@ defmodule DpulCollections.IndexValidator do
     # compute totals, and set memberships
     Solr.find_all_collections()
     |> Enum.map(&Collection.from_solr/1)
+    |> Enum.sort_by(&Map.get(&1, :title))
     |> Enum.map(&from_collection/1)
   end
 
