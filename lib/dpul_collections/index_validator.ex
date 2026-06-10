@@ -32,14 +32,13 @@ defmodule DpulCollections.IndexValidator do
       IndexingPipeline.get_figgy_project_folders(collection.id) ++
         IndexingPipeline.get_figgy_collection_members(collection.id)
 
-    # TODO: Pull just the IDs from Solr.
     dc_ids =
-      %{"per_page" => "2000000"}
-      |> SearchState.from_params()
+      SearchState.from_params(%{})
+      |> Map.put(:extra_params, fl: "id", rows: 200_000)
       |> SearchState.set_filter("collection", collection.title)
-      |> Solr.search()
-      |> Map.get(:results)
-      |> Enum.map(&Map.get(&1, :id))
+      |> Solr.query()
+      |> Map.get("docs")
+      |> Enum.map(&Map.get(&1, "id"))
 
     %__MODULE__{
       collection: collection,
