@@ -47,6 +47,12 @@ defmodule DpulCollectionsWeb.LiveDashboard.IndexValidationPageTest do
              )
 
       # There's a list of extra items
+      assert view
+             |> has_element?(
+               "a[href='/item/extra-item']",
+               "extra-item"
+             )
+
 
       # TODO: Add Figgy Count, Extra Count, Missing Count
     end

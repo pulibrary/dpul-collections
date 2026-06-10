@@ -38,6 +38,14 @@ defmodule DpulCollectionsWeb.LiveDashboard.IndexValidationPage do
             </li>
           </ul>
         </div>
+        <div :if={length(validator.extra_items) > 0}>
+          <h6>Extra items (In DC, but not Figgy)</h6>
+          <ul>
+            <li :for={id <- validator.extra_items}>
+              <.link href={"/item/#{id}"}>{id}</.link>
+            </li>
+          </ul>
+        </div>
       </:col>
     </.row>
     """
