@@ -1,6 +1,6 @@
 defmodule DpulCollectionsWeb.LiveDashboard.IndexValidationPage do
   alias DpulCollections.IndexValidator
-  use Phoenix.LiveDashboard.PageBuilder
+  use Phoenix.LiveDashboard.PageBuilder, refresher?: false
 
   @impl true
   def menu_link(_, _) do
