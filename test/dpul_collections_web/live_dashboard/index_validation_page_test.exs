@@ -39,12 +39,12 @@ defmodule DpulCollectionsWeb.LiveDashboard.IndexValidationPageTest do
       assert view
              |> has_element?(
                ".row",
-               ~r(South Asian Ephemera\s*Counts\s*dc_count\s*3\s*figgy_count\s*15)
+               ~r(South Asian Ephemera\s*Counts\s*dc_count\s*3\s*figgy_count\s*14)
              )
 
       # There's a list of missing items.
       assert view
-             |> has_element?("h6", "13 Missing items")
+             |> has_element?("h6", "12 Missing items")
 
       assert view
              |> has_element?(

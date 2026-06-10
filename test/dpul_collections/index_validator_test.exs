@@ -34,7 +34,8 @@ defmodule DpulCollections.IndexValidatorTest do
       sae_validator = hd(validators)
       assert sae_validator.dc_count == 3
 
-      assert sae_validator.total_figgy_count == 15
+      # 1 is reading-room, so it gets filtered out.
+      assert sae_validator.public_complete_figgy_count == 14
 
       assert length(sae_validator.missing_items) == 13
       assert Enum.member?(sae_validator.missing_items, "d82efa97-c69b-424c-83c2-c461baae8307")

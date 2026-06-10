@@ -8,10 +8,7 @@ defmodule DpulCollections.IndexValidator do
   defstruct [
     :collection,
     :dc_count,
-    :filtered_figgy_count,
-    :total_figgy_count,
-    # IDs that aren't in DC, and that's on purpose.
-    :filtered_items,
+    :public_complete_figgy_count,
     # IDs that aren't in DC, and should be.
     :missing_items,
     # IDs that aren't in Figgy, but are in DC. Probably a delete problem.
@@ -44,7 +41,7 @@ defmodule DpulCollections.IndexValidator do
     %__MODULE__{
       collection: collection,
       dc_count: dc_count(collection),
-      total_figgy_count: total_figgy_count(collection),
+      public_complete_figgy_count: public_complete_figgy_count(collection),
       missing_items: figgy_ids -- dc_ids,
       extra_items: dc_ids -- figgy_ids
     }
@@ -57,7 +54,7 @@ defmodule DpulCollections.IndexValidator do
     |> Map.get(:total_items)
   end
 
-  def total_figgy_count(collection) do
+  def public_complete_figgy_count(collection) do
     # We'll run both, one will be empty depending on if collection is a Figgy
     # Collection or an EphemeraProject.
     all_resources =

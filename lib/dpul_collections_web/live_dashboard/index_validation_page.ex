@@ -28,11 +28,13 @@ defmodule DpulCollectionsWeb.LiveDashboard.IndexValidationPage do
           inner_title="Counts"
           fields={[
             dc_count: validator.dc_count,
-            figgy_count: validator.total_figgy_count
+            figgy_count: validator.public_complete_figgy_count
           ]}
         />
         <div :if={length(validator.missing_items) > 0}>
-          <h6>{length(validator.missing_items)} Missing items (In Figgy, but not DC)</h6>
+          <h6>
+            {length(validator.missing_items)} Missing items (In Figgy, public, complete, but not DC)
+          </h6>
           <ul>
             <li :for={id <- validator.missing_items}>
               <.link href={"https://figgy.princeton.edu/catalog/#{id}"}>{id}</.link>
