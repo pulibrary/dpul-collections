@@ -22,7 +22,7 @@ defmodule DpulCollectionsWeb.LiveDashboard.IndexValidationPage do
     ~H"""
     <.row :for={validator <- @validators}>
       <:col>
-        <card_title>{validator.collection.title}</card_title>
+        <.card_title title={validator.collection.title} />
 
         <.fields_card
           inner_title="Digital Collections Count"
@@ -30,6 +30,14 @@ defmodule DpulCollectionsWeb.LiveDashboard.IndexValidationPage do
             count: validator.dc_count
           ]}
         />
+        <div :if={length(validator.missing_items) > 0}>
+          <h6>Missing items (In Figgy, but not DC)</h6>
+          <ul>
+            <li :for={id <- validator.missing_items}>
+              <.link href={"https://figgy.princeton.edu/catalog/#{id}"}>{id}</.link>
+            </li>
+          </ul>
+        </div>
       </:col>
     </.row>
     """

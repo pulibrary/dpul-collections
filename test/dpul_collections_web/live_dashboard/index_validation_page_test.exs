@@ -28,6 +28,12 @@ defmodule DpulCollectionsWeb.LiveDashboard.IndexValidationPageTest do
 
       assert view
              |> has_element?(".row", ~r(South Asian Ephemera.*Digital Collections Count.*2))
+
+      assert view
+             |> has_element?(
+               "a[href='https://figgy.princeton.edu/catalog/d82efa97-c69b-424c-83c2-c461baae8307']",
+               "d82efa97-c69b-424c-83c2-c461baae8307"
+             )
     end
   end
 end
