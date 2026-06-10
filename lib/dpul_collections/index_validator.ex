@@ -1,7 +1,6 @@
 defmodule DpulCollections.IndexValidator do
   alias DpulCollections.Solr
   alias DpulCollections.Collection
-  alias DpulCollections.Item
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.Solr
   alias DpulCollectionsWeb.SearchLive.SearchState
@@ -27,11 +26,11 @@ defmodule DpulCollections.IndexValidator do
   end
 
   def from_collection(collection = %Collection{}) do
-    # TODO: Pull less data, we just need the IDs, maybe just pluck equivalent.
+    # Grab both - if it's an EphemeraProject it'll get folders deep, if it's a
+    # Collection then it'll get all members.
     figgy_ids =
-      (IndexingPipeline.get_figgy_project_folders(collection.id) ++
-         IndexingPipeline.get_figgy_collection_members(collection.id))
-      |> Enum.map(&Map.get(&1, :id))
+      IndexingPipeline.get_figgy_project_folders(collection.id) ++
+        IndexingPipeline.get_figgy_collection_members(collection.id)
 
     # TODO: Pull just the IDs from Solr.
     dc_ids =
