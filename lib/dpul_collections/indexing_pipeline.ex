@@ -308,7 +308,9 @@ defmodule DpulCollections.IndexingPipeline do
 
     Figgy.Resource
     |> where([resource], fragment("? @> ?", resource.metadata, ^json))
+    |> select([:id])
     |> FiggyRepo.all()
+    |> Enum.map(&Map.get(&1, :id))
   end
 
   @doc """
