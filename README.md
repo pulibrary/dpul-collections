@@ -88,8 +88,8 @@ Steps:
 - Pull resources from Figgy into a CSV file.
   - Use create-synthetic-fixtures script. Example:
     ```
-    IDS="('43ae3839-287e-4168-b85d-a9350d279402','05092b7d-d33c-4d4d-885e-b6b8973deec4')"
-    IDS_NO_MEMBERS="('7b87fdfa-a760-49b9-85e9-093f2519f2fc')"
+    export IDS="('43ae3839-287e-4168-b85d-a9350d279402','05092b7d-d33c-4d4d-885e-b6b8973deec4')"
+    export IDS_NO_MEMBERS="('7b87fdfa-a760-49b9-85e9-093f2519f2fc')"
     ./create-synthetic-fixtures.sh
     ```
     - this script puts a synthetic-fixtures.csv in your synthetic fixtures directory, as well as potentially other new csvs called synth-[n]-export.csv

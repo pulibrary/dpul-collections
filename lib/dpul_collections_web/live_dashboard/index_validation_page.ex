@@ -33,7 +33,7 @@ defmodule DpulCollectionsWeb.LiveDashboard.IndexValidationPage do
         />
         <div :if={length(validator.missing_items) > 0}>
           <h6>
-            {length(validator.missing_items)} Missing items (In Figgy, public, complete, but not DC)
+            {length(validator.missing_items)} Missing items (In Figgy, public, complete, has member_ids, but not in DC)
           </h6>
           <ul>
             <li :for={id <- validator.missing_items}>

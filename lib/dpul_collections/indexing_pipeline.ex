@@ -293,7 +293,7 @@ defmodule DpulCollections.IndexingPipeline do
   def get_figgy_project_folders(id) do
     {:ok, id} = Ecto.UUID.dump(id)
 
-    json = %{"state" => ["complete"], "visibility" => ["open"]}
+    json = %{"state" => ["complete"], "visibility" => ["open"], "member_ids" => [%{}]}
 
     {"deep_members", Figgy.Resource}
     |> recursive_ctes(true)

@@ -9,3 +9,4 @@
 |pdf-resource-no-thumbnail.csv      | A pdf scanned resource with no thumbnail
 set|
 |sae-reading-room-folder.csv | A folder in the SAE project with reading room visibility, and its box |
+|sae-no-members.csv | A folder in the SAE project with no members |

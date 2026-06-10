@@ -92,7 +92,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
         scanned_resource_fixture_count - filtered_resource_count
 
     # Empty resources are resources with no image file sets
-    empty_resource_count = 1
+    empty_resource_count = 2
 
     assert total_transformed_count == transformation_cache_entry_count
 
