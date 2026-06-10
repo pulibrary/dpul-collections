@@ -33,6 +33,8 @@ defmodule DpulCollections.IndexValidatorTest do
       # TODO: but later 12
       assert length(sae_validator.missing_items) == 13
       assert Enum.member?(sae_validator.missing_items, "d82efa97-c69b-424c-83c2-c461baae8307")
+      # TODO: Test setup for extra items. Add something to Solr via Solr.add
+      # with a map and the collection name.
     end
   end
 end
