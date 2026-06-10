@@ -283,6 +283,8 @@ defmodule DpulCollections.IndexingPipeline do
     jsonb_array_elements(f.metadata->'member_ids') AS g(member)
     JOIN orm_resources mem ON (g.member->>'id')::UUID = mem.id
     WHERE f.metadata @> '{"member_ids": [{}]}'
+    AND mem.internal_resource = 'EphemeraFolder'
+    AND f.internal_resource = 'EphemeraBox'
   """
 
   @doc """

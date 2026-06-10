@@ -2,7 +2,6 @@ defmodule DpulCollections.IndexValidatorTest do
   use DpulCollections.DataCase
   alias DpulCollections.IndexValidator
   alias DpulCollections.Solr
-  alias DpulCollections.Item
 
   setup do
     [
