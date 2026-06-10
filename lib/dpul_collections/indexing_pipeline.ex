@@ -286,7 +286,7 @@ defmodule DpulCollections.IndexingPipeline do
   """
 
   @doc """
-  Get all the folders, deep, in the project with the given Figgy ID
+  Get all the folder IDs, deep, in the project with the given Figgy ID
   """
   def get_figgy_project_folders(id) do
     {:ok, id} = Ecto.UUID.dump(id)
@@ -295,7 +295,9 @@ defmodule DpulCollections.IndexingPipeline do
     |> recursive_ctes(true)
     |> with_cte("deep_members", as: fragment(@recursive_cte_fragment, ^id))
     |> where(internal_resource: "EphemeraFolder")
+    |> select([:id])
     |> FiggyRepo.all()
+    |> Enum.map(&Map.get(&1, :id))
   end
 
   @doc """

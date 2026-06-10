@@ -177,6 +177,7 @@ defmodule DpulCollections.IndexingPipelineTest do
       records = IndexingPipeline.get_figgy_project_folders("f99af4de-fed4-4baa-82b1-6e857b230306")
 
       assert Enum.to_list(records) |> length() == 15
+      assert hd(records) == "e8abfa75-253f-428a-b3df-0e83ff2b20f9"
     end
 
     test "get_figgy_collection_members/1 returns all members" do
