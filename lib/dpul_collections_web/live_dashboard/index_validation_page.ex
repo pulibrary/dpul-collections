@@ -25,13 +25,14 @@ defmodule DpulCollectionsWeb.LiveDashboard.IndexValidationPage do
         <.card_title title={validator.collection.title} />
 
         <.fields_card
-          inner_title="Digital Collections Count"
+          inner_title="Counts"
           fields={[
-            count: validator.dc_count
+            dc_count: validator.dc_count,
+            figgy_count: validator.total_figgy_count
           ]}
         />
         <div :if={length(validator.missing_items) > 0}>
-          <h6>Missing items (In Figgy, but not DC)</h6>
+          <h6>{length(validator.missing_items)} Missing items (In Figgy, but not DC)</h6>
           <ul>
             <li :for={id <- validator.missing_items}>
               <.link href={"https://figgy.princeton.edu/catalog/#{id}"}>{id}</.link>
@@ -39,7 +40,7 @@ defmodule DpulCollectionsWeb.LiveDashboard.IndexValidationPage do
           </ul>
         </div>
         <div :if={length(validator.extra_items) > 0}>
-          <h6>Extra items (In DC, but not Figgy)</h6>
+          <h6>{length(validator.extra_items)} Extra items (In DC, but not Figgy)</h6>
           <ul>
             <li :for={id <- validator.extra_items}>
               <.link href={"/item/#{id}"}>{id}</.link>

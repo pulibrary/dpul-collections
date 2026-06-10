@@ -37,9 +37,15 @@ defmodule DpulCollectionsWeb.LiveDashboard.IndexValidationPageTest do
 
       # There's the count in DC's Solr
       assert view
-             |> has_element?(".row", ~r(South Asian Ephemera.*Digital Collections Count.*3))
+             |> has_element?(
+               ".row",
+               ~r(South Asian Ephemera\s*Counts\s*dc_count\s*3\s*figgy_count\s*15)
+             )
 
       # There's a list of missing items.
+      assert view
+             |> has_element?("h6", "13 Missing items")
+
       assert view
              |> has_element?(
                "a[href='https://figgy.princeton.edu/catalog/d82efa97-c69b-424c-83c2-c461baae8307']",
@@ -48,13 +54,13 @@ defmodule DpulCollectionsWeb.LiveDashboard.IndexValidationPageTest do
 
       # There's a list of extra items
       assert view
+             |> has_element?("h6", "1 Extra items")
+
+      assert view
              |> has_element?(
                "a[href='/item/extra-item']",
                "extra-item"
              )
-
-
-      # TODO: Add Figgy Count, Extra Count, Missing Count
     end
   end
 end
