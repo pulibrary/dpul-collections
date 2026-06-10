@@ -13,6 +13,15 @@ defmodule DpulCollectionsWeb.LiveDashboard.IndexValidationPageTest do
     ]
     |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
 
+    # Add an extra item
+    Solr.add([
+      %{
+        "id" => "extra-item",
+        "title_txtm" => ["test title 1"],
+        "collection_titles_ss" => ["South Asian Ephemera"]
+      }
+    ])
+
     Solr.soft_commit(active_collection())
 
     on_exit(fn -> Solr.delete_all(active_collection()) end)
@@ -26,14 +35,18 @@ defmodule DpulCollectionsWeb.LiveDashboard.IndexValidationPageTest do
         |> put_req_header("authorization", "Basic " <> Base.encode64("admin:test"))
         |> live(~p"/dev/dashboard/index_validation")
 
+      # There's the count in DC's Solr
       assert view
-             |> has_element?(".row", ~r(South Asian Ephemera.*Digital Collections Count.*2))
+             |> has_element?(".row", ~r(South Asian Ephemera.*Digital Collections Count.*3))
 
+      # There's a list of missing items.
       assert view
              |> has_element?(
                "a[href='https://figgy.princeton.edu/catalog/d82efa97-c69b-424c-83c2-c461baae8307']",
                "d82efa97-c69b-424c-83c2-c461baae8307"
              )
+
+      # There's a list of extra items
 
       # TODO: Add Figgy Count, Extra Count, Missing Count
     end
