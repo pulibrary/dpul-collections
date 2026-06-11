@@ -1,5 +1,4 @@
 defmodule DpulCollections.IndexValidator do
-  alias DpulCollections.Solr
   alias DpulCollections.Collection
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.Solr
