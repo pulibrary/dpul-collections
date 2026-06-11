@@ -3,6 +3,8 @@ defmodule DpulCollectionsWeb.CollectionsLive do
   use Gettext, backend: DpulCollectionsWeb.Gettext
   import DpulCollectionsWeb.BrowseItem
   alias DpulCollections.Collection
+  alias DpulCollections.Item
+  alias DpulCollections.Solr
 
   def mount(_params, _session, socket) do
     {:ok, socket}
@@ -20,12 +22,20 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           assign(socket,
             page_title: collection.title,
             collection: collection,
-            mosaic_title_item:
-              collection.featured_items |> then(&if &1 != [], do: Enum.random(&1))
+            mosaic_title_item: mosaic_title_item(collection)
           )
 
         {:noreply, socket}
     end
+  end
+
+  defp mosaic_title_item(%{banner_image: banner_image, banner_image_id: banner_image_id})
+       when is_binary(banner_image) and is_binary(banner_image_id) do
+    Solr.find_by_id(banner_image_id) |> Item.from_solr()
+  end
+
+  defp mosaic_title_item(collection) do
+    collection.featured_items |> then(&if &1 != [], do: Enum.random(&1))
   end
 
   defp pill_section(assigns) do
@@ -346,18 +356,28 @@ defmodule DpulCollectionsWeb.CollectionsLive do
     """
   end
 
-  def mosaic_image(assigns = %{collection: %{banner_image: banner_image}})
-      when is_binary(banner_image) do
+  def mosaic_image(
+        assigns = %{collection: %{banner_image: banner_image, banner_image_id: banner_image_id}}
+      )
+      when is_binary(banner_image) and is_binary(banner_image_id) do
     ~H"""
     <div class="max-h-120 p-2 bg-white min-h-0 min-w-0 flex">
       <div class="overflow-hidden w-full">
-        <img
-          src={@collection.banner_image}
-          width="750"
-          height="500"
-          class="object-cover object-top max-h-full max-w-full w-full"
-          alt=""
-        />
+        <.link
+          :if={@mosaic_title_item}
+          href={@mosaic_title_item.url}
+          class="overflow-hidden"
+          aria-label={"View #{@mosaic_title_item.title |> hd}"}
+        >
+          <img
+            src={@collection.banner_image}
+            width="750"
+            height="500"
+            class="object-cover object-top max-h-full max-w-full w-full"
+            alt=""
+            alt={@mosaic_title_item.title |> hd}
+          />
+        </.link>
       </div>
     </div>
     """
