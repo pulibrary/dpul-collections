@@ -40,27 +40,10 @@ defmodule DpulCollections.IndexValidator do
 
     %__MODULE__{
       collection: collection,
-      dc_count: dc_count(collection),
-      public_complete_figgy_count: public_complete_figgy_count(collection),
+      dc_count: length(dc_ids),
+      public_complete_figgy_count: length(figgy_ids),
       missing_items: figgy_ids -- dc_ids,
       extra_items: dc_ids -- figgy_ids
     }
-  end
-
-  def dc_count(collection) do
-    collection.title
-    |> hd
-    |> Solr.collection_summary()
-    |> Map.get(:total_items)
-  end
-
-  def public_complete_figgy_count(collection) do
-    # We'll run both, one will be empty depending on if collection is a Figgy
-    # Collection or an EphemeraProject.
-    all_resources =
-      IndexingPipeline.get_figgy_project_folders(collection.id) ++
-        IndexingPipeline.get_figgy_collection_members(collection.id)
-
-    length(all_resources)
   end
 end

@@ -1,5 +1,4 @@
 defmodule DpulCollectionsWeb.SearchLive.SearchState do
-  # TODO: We should pull this out and make it a struct.
   use DpulCollections.Solr.Constants
   use Gettext, backend: DpulCollectionsWeb.Gettext
 
