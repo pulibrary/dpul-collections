@@ -291,6 +291,8 @@ defmodule DpulCollections.IndexingPipeline do
   Get all the folder IDs, deep, in the project with the given Figgy ID
   """
   def get_figgy_project_folders(id) do
+    # the uuid comes through as a string and this will cast it to the UUID that
+    # Ecto uses
     {:ok, id} = Ecto.UUID.dump(id)
 
     json = %{"state" => ["complete"], "visibility" => ["open"], "member_ids" => [%{}]}
