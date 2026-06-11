@@ -23,32 +23,39 @@ defmodule DpulCollectionsWeb.LiveDashboard.IndexValidationPage do
     <.row :for={validator <- @validators}>
       <:col>
         <.card_title title={validator.collection.title} />
+        <.row>
+          <:col>
+            <.card inner_title="Digital Collections count">
+              {validator.dc_count}
+            </.card>
+          </:col>
+          <:col>
+            <.card inner_title="Figgy count">
+              {validator.public_complete_figgy_count}
+            </.card>
+          </:col>
+        </.row>
 
-        <.fields_card
-          inner_title="Counts"
-          fields={[
-            dc_count: validator.dc_count,
-            figgy_count: validator.public_complete_figgy_count
-          ]}
-        />
-        <div :if={length(validator.missing_items) > 0}>
-          <h6>
-            {length(validator.missing_items)} Missing items (In Figgy, public, complete, has member_ids, but not in DC)
-          </h6>
+        <.card
+          :if={length(validator.missing_items) > 0}
+          inner_title={"#{length(validator.missing_items)} Missing items (In Figgy, public, complete, has member_ids, but not in DC)"}
+        >
           <ul>
             <li :for={id <- validator.missing_items}>
               <.link href={"https://figgy.princeton.edu/catalog/#{id}"}>{id}</.link>
             </li>
           </ul>
-        </div>
-        <div :if={length(validator.extra_items) > 0}>
-          <h6>{length(validator.extra_items)} Extra items (In DC, but not Figgy)</h6>
+        </.card>
+        <.card
+          :if={length(validator.extra_items) > 0}
+          inner_title={"#{length(validator.extra_items)} Extra items (In DC, but not Figgy)"}
+        >
           <ul>
             <li :for={id <- validator.extra_items}>
               <.link href={"/item/#{id}"}>{id}</.link>
             </li>
           </ul>
-        </div>
+        </.card>
       </:col>
     </.row>
     """
