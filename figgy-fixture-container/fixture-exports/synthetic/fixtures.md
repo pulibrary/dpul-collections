@@ -8,3 +8,5 @@
 |featured_islamic_manuscript.csv      | A featured item in the manuscripts collection, with one fileset and other member_ids removed |
 |pdf-resource-no-thumbnail.csv      | A pdf scanned resource with no thumbnail
 set|
+|sae-reading-room-folder.csv | A folder in the SAE project with reading room visibility, and its box |
+|sae-no-members.csv | A folder in the SAE project with no members |

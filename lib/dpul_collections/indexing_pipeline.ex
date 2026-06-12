@@ -272,6 +272,55 @@ defmodule DpulCollections.IndexingPipeline do
     |> FiggyRepo.all()
   end
 
+  @recursive_cte_fragment """
+    select member.*
+    FROM orm_resources a,
+    jsonb_array_elements(a.metadata->'member_ids') AS b(member)
+    JOIN orm_resources member ON (b.member->>'id')::UUID = member.id
+    WHERE a.id = ?
+    UNION
+    SELECT mem.*
+    FROM deep_members f,
+    jsonb_array_elements(f.metadata->'member_ids') AS g(member)
+    JOIN orm_resources mem ON (g.member->>'id')::UUID = mem.id
+    WHERE f.metadata @> '{"member_ids": [{}]}'
+    AND mem.internal_resource = 'EphemeraFolder'
+    AND f.internal_resource = 'EphemeraBox'
+  """
+
+  @doc """
+  Get all the folder IDs, deep, in the project with the given Figgy ID
+  """
+  def get_figgy_project_folders(id) do
+    # the uuid comes through as a string and this will cast it to the UUID that
+    # Ecto uses
+    {:ok, id} = Ecto.UUID.dump(id)
+
+    json = %{"state" => ["complete"], "visibility" => ["open"], "member_ids" => [%{}]}
+
+    {"deep_members", Figgy.Resource}
+    |> recursive_ctes(true)
+    |> with_cte("deep_members", as: fragment(@recursive_cte_fragment, ^id))
+    |> where(internal_resource: "EphemeraFolder")
+    |> where([resource], fragment("? @> ?", resource.metadata, ^json))
+    |> select([:id])
+    |> FiggyRepo.all()
+    |> Enum.map(&Map.get(&1, :id))
+  end
+
+  @doc """
+  Get all members of the collection with the given Figgy ID.
+  """
+  def get_figgy_collection_members(id) do
+    json = %{"member_of_collection_ids" => [%{"id" => id}]}
+
+    Figgy.Resource
+    |> where([resource], fragment("? @> ?", resource.metadata, ^json))
+    |> select([:id])
+    |> FiggyRepo.all()
+    |> Enum.map(&Map.get(&1, :id))
+  end
+
   @doc """
   Gets multiple resources by id from the Figgy Database
   Note: Postgress IN() clause allows a maximum of 32,767 parameters. Items with

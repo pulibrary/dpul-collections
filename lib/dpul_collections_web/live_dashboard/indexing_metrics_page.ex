@@ -1,4 +1,4 @@
-defmodule DpulCollectionsWeb.IndexingPipeline.DashboardPage do
+defmodule DpulCollectionsWeb.LiveDashboard.IndexingMetricsPage do
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy.IndexingProducerSource
   alias DpulCollections.IndexingPipeline.Figgy.TransformationProducerSource
