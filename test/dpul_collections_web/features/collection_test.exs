@@ -14,6 +14,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       "1e86cab8-69c0-4e1f-8cf7-c11f274b657f",
       "666fcfd1-dda7-4603-82d1-1863dc97ffc3",
       "8ac0a23b-8c51-4e1c-8bc0-ae307264b895",
+      "5f78bc1d-940d-4628-9421-98818e3dea35",
       # the project
       "f99af4de-fed4-4baa-82b1-6e857b230306",
       "e8abfa75-253f-428a-b3df-0e83ff2b20f9",
@@ -53,8 +54,8 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       # Subject summary
       |> assert_has("li", text: "Politics and government")
       # Count summary
-      |> assert_has("div", text: "14 items")
-      |> assert_has("div", text: "3 Languages")
+      |> assert_has("div", text: "15 items")
+      |> assert_has("div", text: "4 Languages")
       |> assert_has("div", text: "4 Locations")
       # Browse button
       |> assert_has("a[href='/search?filter[collection][]=South+Asian+Ephemera']",
@@ -62,9 +63,13 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       )
       # Mosaic
       |> assert_has("#collection-mosaic", count: 1)
+      # Banner item link
+      |> assert_has(
+        "#collection-mosaic a[href='/i/70th-year-womens-indian-association/item/5f78bc1d-940d-4628-9421-98818e3dea35']"
+      )
       # Banner image
       |> assert_has(
-        "#collection-mosaic img[src='https://iiif-cloud.princeton.edu/iiif/2/a1%2F2d%2Fdc%2Fa12ddc0476d147c0a3571a109c9e4e32%2Fintermediate_file/354,1297,1549,1032/full/0/default.jpg']"
+        "#collection-mosaic img[src='https://iiif-cloud.princeton.edu/iiif/2/a1%2F2d%2Fdc%2Fa12ddc0476d147c0a3571a109c9e4e32%2Fintermediate_file/354,1295,1551,1034/full/0/default.jpg']"
       )
       # Featured Items
       |> assert_has("#featured-items .browse-item", count: 4)
