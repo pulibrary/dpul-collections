@@ -317,7 +317,7 @@ defmodule DpulCollections.SolrTest do
     assert Solr.document_count() == 1
   end
 
-  describe ".related_items/1" do
+  describe ".related_items/4" do
     test "returns similar items in the same collection" do
       docs = [
         %{
@@ -421,6 +421,48 @@ defmodule DpulCollections.SolrTest do
         |> Enum.map(&Map.get(&1, "id"))
 
       assert results == ["other-collection"]
+    end
+  end
+
+  describe ".related_collections/2" do
+    test "it returns collections with members that are members of the given collection" do
+      [
+        %{
+          id: "d7c889ba-9992-494e-8fe4-2c4a9b3c3d7d",
+          title_txtm: ["Latin American Ephemera"],
+          resource_type_s: "collection",
+          authoritative_slug_s: "lae"
+        },
+        %{
+          id: "63547919-8acb-412c-94ca-88cfc28585f5",
+          title_txtm: ["Latin American Writers at Princeton"],
+          resource_type_s: "collection",
+          authoritative_slug_s: "latamwriters"
+        },
+        %{
+          "id" => "253265ef-5acb-4ce3-a6db-e2316631b6a8",
+          "title_txtm" => [
+            "2º Festival Artístico en Solidaridad con los Damnificados de Tlatelolco"
+          ],
+          "format_txt_sort" => ["Flyers"],
+          "subject_txt_sort" => ["Arts", "Festivals", "Collective memory", "Protest movements"],
+          "collection_titles_ss" => [
+            "Latin American Ephemera",
+            "Latin American Writers at Princeton"
+          ],
+          "file_count_i" => 1
+        }
+      ]
+      |> Solr.add(active_collection())
+
+      Solr.soft_commit(active_collection())
+
+      results =
+        Solr.related_collections("Latin American Ephemera")
+        |> Enum.map(&Map.get(&1, "title_txtm"))
+        |> List.flatten()
+
+      assert results == ["Latin American Writers at Princeton"]
     end
   end
 

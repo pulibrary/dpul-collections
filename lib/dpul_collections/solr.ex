@@ -157,6 +157,33 @@ defmodule DpulCollections.Solr do
     query(search_state, index)
   end
 
+  def related_collections(label, index \\ Index.read_index()) do
+    # get all the items with the given collection, just the collection facet
+    params =
+      %{"per_page" => "0"}
+      |> SearchState.from_params()
+      |> SearchState.set_filter("collection", label)
+      |> SearchState.add_filter_count_fields([
+        "collection"
+      ])
+
+    result =
+      params
+      |> raw_query(index)
+      |> to_search_result()
+
+    # get all the collection facet values from those items
+    labels =
+      result.filter_data["collection"][:data]
+      |> Enum.map(&elem(&1, 0))
+
+    # then get all the collections with those values as their titles, except the
+    #   one passed in
+    labels
+    |> Enum.reject(fn x -> x == label end)
+    |> Enum.map(&find_by_collection_title/1)
+  end
+
   def recently_added(
         count,
         search_state \\ SearchState.from_params(%{}),
