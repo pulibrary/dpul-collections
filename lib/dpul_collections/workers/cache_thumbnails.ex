@@ -33,7 +33,19 @@ defmodule DpulCollections.Workers.CacheThumbnails do
 
   # Don't attempt to cache deleted records, or collections
   defp cache_images(%{"deleted" => true}), do: :ok
-  defp cache_images(%{"resource_type_s" => "collection"}), do: :ok
+
+  defp cache_images(solr_document = %{"resource_type_s" => "collection"}) do
+    collection =
+      solr_document
+      |> DpulCollections.Collection.from_solr()
+
+    task = Task.async(__MODULE__, :cache_iiif_image, [collection.banner_image])
+
+    # Run task with 10 minute timeout
+    Task.await(task, 600_000)
+
+    :ok
+  end
 
   defp cache_images(solr_document) do
     item =
@@ -49,7 +61,7 @@ defmodule DpulCollections.Workers.CacheThumbnails do
       |> List.insert_at(0, item.primary_thumbnail_service_url)
       |> Enum.reject(&is_nil/1)
       |> Enum.uniq()
-      |> Enum.map(fn url -> Task.async(__MODULE__, :cache_iiif_image, [url]) end)
+      |> Enum.map(fn url -> Task.async(__MODULE__, :cache_iiif_item_image, [url]) end)
 
     # Cache larger primary thumbnail image
     primary_thumbnail_task =
@@ -58,7 +70,7 @@ defmodule DpulCollections.Workers.CacheThumbnails do
           []
 
         _ ->
-          Task.async(__MODULE__, :cache_iiif_image, [
+          Task.async(__MODULE__, :cache_iiif_item_image, [
             item.primary_thumbnail_service_url,
             primary_thumbnail_configuration(item)
           ])
@@ -71,17 +83,19 @@ defmodule DpulCollections.Workers.CacheThumbnails do
     :ok
   end
 
-  def cache_iiif_image(base_url) do
-    thumbnail_configurations() |> Enum.each(&cache_iiif_image(base_url, &1))
+  def cache_iiif_item_image(base_url) do
+    thumbnail_configurations() |> Enum.each(&cache_iiif_item_image(base_url, &1))
   end
 
-  def cache_iiif_image(base_url, configuration) do
+  def cache_iiif_item_image(base_url, configuration) do
     {region, width, height} = configuration
-    url = "/#{region}/#{width},#{height}/0/default.jpg"
+    path = "/#{region}/#{width},#{height}/0/default.jpg"
+    cache_iiif_image(base_url <> path)
+  end
 
+  def cache_iiif_image(url) when is_binary(url) do
     options =
       [
-        base_url: base_url,
         url: url,
         headers: %{"x-cache-iiif-request" => ["true"]}
       ]
@@ -90,4 +104,6 @@ defmodule DpulCollections.Workers.CacheThumbnails do
 
     {:ok, %{status: 200}} = Req.request(options)
   end
+
+  def cache_iiif_image(_), do: true
 end
