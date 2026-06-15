@@ -5,7 +5,7 @@ defmodule DpulCollectionsWeb.SearchLive do
   alias DpulCollections.Solr
   use Solr.Constants
   alias DpulCollectionsWeb.Live.Helpers
-  alias DpulCollectionsWeb.SearchLive.SearchState
+  alias DpulCollections.Search.SearchState
   import DpulCollectionsWeb.SearchItem
 
   def mount(_params, _session, socket) do

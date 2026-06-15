@@ -2,7 +2,7 @@ defmodule DpulCollections.IndexValidator do
   alias DpulCollections.Collection
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.Solr
-  alias DpulCollectionsWeb.SearchLive.SearchState
+  alias DpulCollections.Search.SearchState
 
   defstruct [
     :collection,

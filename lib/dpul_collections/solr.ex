@@ -1,9 +1,9 @@
 defmodule DpulCollections.Solr do
   require Logger
   use DpulCollections.Solr.Constants
-  alias DpulCollectionsWeb.SearchLive.SearchState
+  alias DpulCollections.Search.SearchState
   alias DpulCollections.Solr.Index
-  alias DpulCollections.SearchResult
+  alias DpulCollections.Search.SearchResult
   alias DpulCollections.Solr.Client
 
   @spec document_count(%Index{}) :: integer()
