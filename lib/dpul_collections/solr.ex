@@ -180,8 +180,8 @@ defmodule DpulCollections.Solr do
     # then get all the collections with those values as their titles, except the
     #   one passed in
     labels
+    |> Enum.reject(fn x -> x == label end)
     |> Enum.map(&find_by_collection_title/1)
-    |> Enum.reject(fn x -> x["title_txtm"] == [label] end)
   end
 
   def recently_added(
