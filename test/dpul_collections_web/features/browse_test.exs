@@ -1,7 +1,6 @@
 defmodule DpulCollectionsWeb.BrowseTest do
   use DpulCollections.DataCase
   use PhoenixTest.Playwright.Case
-  alias PhoenixTest.Playwright.Frame
   alias DpulCollections.Solr
   import DpulCollections.AccountsFixtures
 
@@ -97,6 +96,6 @@ defmodule DpulCollectionsWeb.BrowseTest do
 
   def scroll_down(conn) do
     conn
-    |> unwrap(&Frame.evaluate(&1.frame_id, "window.scrollTo(0, document.body.scrollHeight);"))
+    |> evaluate("window.scrollTo(0, document.body.scrollHeight);")
   end
 end
