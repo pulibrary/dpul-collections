@@ -29,7 +29,7 @@ defmodule DpulCollections.Workers.CacheThumbnailsTest do
         :ets.new(:cached_paths, [:named_table, :public])
 
         Req.Test.stub(DpulCollections.Workers.CacheThumbnails, fn conn ->
-          # Insert reqested path into ETS table
+          # Insert requested path into ETS table
           %{request_path: request_path} = conn
           :ets.insert(:cached_paths, {request_path, request_path})
 
@@ -69,9 +69,46 @@ defmodule DpulCollections.Workers.CacheThumbnailsTest do
       end)
     end
 
-    test "collection documents do not raise an error" do
+    test "collection documents are cached when they have a banner_image value" do
       Oban.Testing.with_testing_mode(:inline, fn ->
-        doc = %{id: 1, resource_type_s: "collection"}
+        doc = %{
+          id: 1,
+          resource_type_s: "collection",
+          title_ss: ["collection"],
+          banner_image_s:
+            "https://example.com/iiif/2/image1/354,1295,1551,1034/750,/0/default.jpg"
+        }
+
+        # Setup ETS table to store image paths.
+        # Acts as storage for paths that are requested in different
+        # processes so they can be tested after the job has run.
+        :ets.new(:cached_paths, [:named_table, :public])
+
+        Req.Test.stub(DpulCollections.Workers.CacheThumbnails, fn conn ->
+          # Insert requested path into ETS table
+          %{request_path: request_path} = conn
+          :ets.insert(:cached_paths, {request_path, request_path})
+
+          conn
+          |> Plug.Conn.put_resp_content_type("image/jpeg")
+          |> Plug.Conn.send_resp(200, "image")
+        end)
+
+        {:ok, %Oban.Job{state: state}} =
+          Oban.insert(DpulCollections.Workers.CacheThumbnails.new(%{solr_document: doc}))
+
+        assert state == "completed"
+
+        cached_paths = :ets.tab2list(:cached_paths) |> Enum.map(fn t -> elem(t, 0) end)
+
+        assert cached_paths
+               |> Enum.member?("/iiif/2/image1/354,1295,1551,1034/750,/0/default.jpg")
+      end)
+    end
+
+    test "collection documents do not error when they don't have a banner_image value" do
+      Oban.Testing.with_testing_mode(:inline, fn ->
+        doc = %{id: 1, resource_type_s: "collection", title_ss: ["collection"]}
 
         {:ok, %Oban.Job{state: state}} =
           Oban.insert(DpulCollections.Workers.CacheThumbnails.new(%{solr_document: doc}))
