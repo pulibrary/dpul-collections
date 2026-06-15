@@ -1,4 +1,4 @@
-defmodule DpulCollections.SearchResult do
+defmodule DpulCollections.Search.SearchResult do
   use DpulCollections.Solr.Constants
   alias DpulCollections.Item
   defstruct [:results, :total_items, :filter_data]

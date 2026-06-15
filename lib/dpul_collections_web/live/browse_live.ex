@@ -1,5 +1,5 @@
 defmodule DpulCollectionsWeb.BrowseLive do
-  alias DpulCollectionsWeb.SearchLive.SearchState
+  alias DpulCollections.Search.SearchState
   alias DpulCollectionsWeb.BrowseItem
   use DpulCollectionsWeb, :live_view
   use Gettext, backend: DpulCollectionsWeb.Gettext

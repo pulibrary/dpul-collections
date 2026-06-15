@@ -1,6 +1,6 @@
 defmodule DpulCollections.Collection do
   alias DpulCollections.Item
-  alias DpulCollectionsWeb.SearchLive.SearchState
+  alias DpulCollections.Search.SearchState
   alias DpulCollections.Solr
   use Gettext, backend: DpulCollectionsWeb.Gettext
 

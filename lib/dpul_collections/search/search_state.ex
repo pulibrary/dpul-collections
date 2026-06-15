@@ -1,4 +1,4 @@
-defmodule DpulCollectionsWeb.SearchLive.SearchState do
+defmodule DpulCollections.Search.SearchState do
   use DpulCollections.Solr.Constants
   use Gettext, backend: DpulCollectionsWeb.Gettext
 

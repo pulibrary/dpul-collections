@@ -1,5 +1,5 @@
 defmodule DpulCollections.SolrTest do
-  alias DpulCollectionsWeb.SearchLive.SearchState
+  alias DpulCollections.Search.SearchState
   use DpulCollections.DataCase
   alias DpulCollections.Item
   alias DpulCollections.Solr
