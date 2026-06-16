@@ -150,6 +150,18 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> assert_has("#recent-items .card .date")
       |> assert_has("#recent-items .card .geographic_origin")
     end
+
+    @tag browser_context_opts: [
+           viewport: %{width: 375, height: 667}
+         ]
+    test "there is no horizontal scroll on mobile", %{conn: conn} do
+      conn
+      |> visit("/collections/sae")
+      |> PhoenixTest.Playwright.evaluate(
+        "document.documentElement.scrollWidth == document.documentElement.clientWidth",
+        &assert(&1 == true)
+      )
+    end
   end
 
   describe "the collection page content for a Figgy Collection" do
