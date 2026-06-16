@@ -18,7 +18,7 @@ defmodule DpulCollections.Solr.Client do
   end
 
   def parse_req_result({:error, %Req.TransportError{reason: reason}}) do
-    raise ServerError, message: "Req TransportError, reson: #{reason}"
+    raise ServerError, message: "Req TransportError, reason: #{reason}"
   end
 
   def parse_req_result({:ok, %{status: status, body: body}}) do
@@ -30,6 +30,7 @@ defmodule DpulCollections.Solr.Client do
       update_url(index),
       json: docs
     )
+    |> parse_req_result
   end
 
   def add(index = %Index{}, doc), do: add(index, [doc])

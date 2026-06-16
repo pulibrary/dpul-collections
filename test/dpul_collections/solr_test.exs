@@ -667,6 +667,50 @@ defmodule DpulCollections.SolrTest do
     end
   end
 
+  describe ".add/2" do
+    test "an exception is logged when indexing a document raises a solr error" do
+      doc = %{
+        # No title
+        "id" => "3cb7627b-defc-401b-9959-42ebc4488f74"
+      }
+
+      log = capture_log(fn -> Solr.add([doc], active_collection()) end)
+      assert log =~ "Error indexing solr document"
+    end
+
+    test "a valid solr document is indexed when in the same batch as an invalid solr document" do
+      valid_doc = %{
+        "id" => "e0602353-4429-4405-b080-064952f9b267",
+        "title_txtm" => ["test title 1"]
+      }
+
+      invalid_doc = %{
+        # No title
+        "id" => "3cb7627b-defc-401b-9959-42ebc4488f74"
+      }
+
+      log = capture_log(fn -> Solr.add([valid_doc, invalid_doc], active_collection()) end)
+      assert log =~ "Error indexing solr document"
+
+      Solr.soft_commit(active_collection())
+      assert Solr.find_by_id(valid_doc["id"])["id"] == valid_doc["id"]
+    end
+
+    test "when the connection to solr times out" do
+      doc = %{
+        "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
+        "title_txtm" => ["test title 1"]
+      }
+
+      with_mock Req, [:passthrough],
+        post: fn _url, _ -> {:error, %Req.TransportError{reason: :timeout}} end do
+        log = capture_log(fn -> Solr.add([doc], active_collection()) end)
+        assert log =~ "Error indexing solr document"
+        assert log =~ "Req TransportError, reason: timeout"
+      end
+    end
+  end
+
   test "write operations use a default collection if none specified" do
     {:ok, response} = Solr.commit()
     assert response.body["responseHeader"]["status"] == 0
@@ -760,34 +804,6 @@ defmodule DpulCollections.SolrTest do
 
     assert Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")["slug_s"] ==
              "cómo-reforma-educacional-beneficia"
-  end
-
-  test "an exception is logged when indexing a document raises a solr error" do
-    doc = %{
-      # No title
-      "id" => "3cb7627b-defc-401b-9959-42ebc4488f74"
-    }
-
-    assert capture_log(fn -> Solr.add([doc], active_collection()) end) =~
-             "error indexing solr document"
-  end
-
-  test "a valid solr document is indexed when in the same batch as an invalid solr document" do
-    valid_doc = %{
-      "id" => "e0602353-4429-4405-b080-064952f9b267",
-      "title_txtm" => ["test title 1"]
-    }
-
-    invalid_doc = %{
-      # No title
-      "id" => "3cb7627b-defc-401b-9959-42ebc4488f74"
-    }
-
-    assert capture_log(fn -> Solr.add([valid_doc, invalid_doc], active_collection()) end) =~
-             "error indexing solr document"
-
-    Solr.soft_commit(active_collection())
-    assert Solr.find_by_id(valid_doc["id"])["id"] == valid_doc["id"]
   end
 
   describe ".find_by_slug" do
