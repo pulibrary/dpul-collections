@@ -24,7 +24,7 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
           />
           <div
             class={[
-              "grid md:grid-rows-1 md:grid-cols-[1fr_min-content] items-stretch w-full h-full",
+              "grid md:grid-rows-1 md:grid-cols-[1fr_min-content] items-stretch w-full h-full overflow-x-hidden",
               String.length(@collection_title) > 0 && "grid-rows-2 grid-cols-1",
               String.length(@collection_title) > 0 || "grid-rows-1 grid-cols-[1fr_min-content]"
             ]}
