@@ -205,4 +205,38 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       )
     end
   end
+
+  describe "a collection with related collections" do
+    setup do
+      [
+        # Manuscripts of the Islamic World collection
+        "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a",
+        # Middle East Manuscripts collection
+        "3bab572e-6603-4abf-8305-16ce6fe3ac5c",
+        # a manuscript in both of the above collections
+        "27fd4d29-1170-47a5-891b-f2743873bcef"
+      ]
+      |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
+
+      Solr.soft_commit(active_collection())
+      on_exit(fn -> Solr.delete_all(active_collection()) end)
+      :ok
+    end
+
+    test "it has content for the collection", %{conn: conn} do
+      conn
+      |> visit("/collections/islamicmss")
+      |> assert_has(".phx-connected")
+      # Related Collections cards
+      |> assert_has(
+        "#related-collections .card",
+        count: 1
+      )
+
+      # link to related collections search result page
+      # |> assert_has(
+      #   "a[href='search?filter[related][]=Russian+and+East+European+Posters']"
+      # )
+    end
+  end
 end
