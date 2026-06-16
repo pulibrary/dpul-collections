@@ -395,25 +395,21 @@ defmodule DpulCollections.Solr do
   def add(docs, index \\ Index.read_index())
 
   def add(docs, index) when is_list(docs) do
-    {:ok, response} =
+    try do
       Client.add(index, docs)
-
-    if response.status != 200 do
-      docs |> Enum.each(&add/1)
+    rescue
+      Client.ServerError ->
+        docs |> Enum.each(&add/1)
     end
-
-    response
   end
 
   def add(doc, index) when not is_list(doc) do
-    {:ok, response} =
+    try do
       Client.add(index, doc)
-
-    if response.status != 200 do
-      Logger.warning("error indexing solr document with id: #{doc["id"]} #{response.body}")
+    rescue
+      e in Client.ServerError ->
+        Logger.warning("Error indexing solr document with id: #{doc["id"]} #{e.message}")
     end
-
-    response
   end
 
   @spec commit(String.t()) :: {:ok, Req.Response.t()} | {:error, Exception.t()}
