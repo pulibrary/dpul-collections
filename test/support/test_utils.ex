@@ -1,4 +1,4 @@
-alias PhoenixTest.Playwright.Frame
+alias PlaywrightEx.Frame
 
 defmodule TestUtils do
   def clean_string(string) do
@@ -22,10 +22,11 @@ defmodule TestUtils do
   end
 
   defp run_a11y(%{frame_id: frame_id}) do
-    Frame.evaluate(frame_id, A11yAudit.JS.axe_core())
+    Frame.evaluate(frame_id, expression: A11yAudit.JS.axe_core(), timeout: 5000)
 
-    frame_id
-    |> Frame.evaluate("axe.run()")
+    {:ok, json} = Frame.evaluate(frame_id, expression: "axe.run()", timeout: 5000)
+
+    json
     |> A11yAudit.Results.from_json()
   end
 end

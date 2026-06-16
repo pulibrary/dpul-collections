@@ -127,12 +127,17 @@ config :phoenix_test,
   otp_app: :dpul_collections,
   endpoint: DpulCollectionsWeb.Endpoint,
   playwright: [
-    browser: :chromium,
-    headless: System.get_env("PW_HEADLESS", "true") in ~w(t true),
+    browser_pool: :chromium_pool,
+    browser_pools: [
+      [
+        id: :chromium_pool,
+        headless: System.get_env("PW_HEADLESS", "true") in ~w(t true),
+        browser_launch_timeout: 10_000
+      ]
+    ],
     js_logger: false,
     screenshot: System.get_env("PW_SCREENSHOT", "false") in ~w(t true),
-    trace: System.get_env("PW_TRACE", "false") in ~w(t true),
-    browser_launch_timeout: 10_000
+    trace: System.get_env("PW_TRACE", "false") in ~w(t true)
   ]
 
 config :honeybadger, api_key: ""

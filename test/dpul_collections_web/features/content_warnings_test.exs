@@ -1,7 +1,6 @@
 defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
   use DpulCollections.DataCase
   use PhoenixTest.Playwright.Case
-  alias PhoenixTest.Playwright.Frame
   alias DpulCollections.Solr
 
   setup do
@@ -156,7 +155,7 @@ defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
       |> click_link("Why are the images blurred?")
       |> click_button("View content")
       |> refute_has("img.obfuscate")
-      |> unwrap(&Frame.evaluate(&1.frame_id, "window.location.reload()"))
+      |> evaluate("window.location.reload()")
       |> refute_has("img.obfuscate")
       |> visit("/item/d4292e58-25d7-4247-bf92-0a5e24ec75d1")
       |> assert_has(".phx-connected")

@@ -32,7 +32,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
         <div class="page-t-padding" />
         <h2>{@title}</h2>
         {render_slot(@inner_block)}
-        <div class="flex gap-8 justify-stretch page-t-padding">
+        <div class="flex gap-6 justify-stretch page-t-padding">
           <!-- cards -->
           <ul class="w-full recent-container">
             <.browse_li
@@ -45,9 +45,9 @@ defmodule DpulCollectionsWeb.BrowseItem do
               current_path={@current_path}
             />
           </ul>
-          <div :if={@more_link} class="w-16 flex-none content-center">
+          <div :if={@more_link} class="w-12 flex-none content-center">
             <.transparent_button
-              class="w-16 h-16"
+              class="w-12 h-12"
               aria_label={gettext("more items")}
               navigate={@more_link}
             >

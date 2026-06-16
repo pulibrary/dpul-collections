@@ -1,7 +1,6 @@
 defmodule DpulCollectionsWeb.Features.ItemViewTest do
   use DpulCollections.DataCase
   use PhoenixTest.Playwright.Case
-  alias PhoenixTest.Playwright.Frame
   alias PhoenixTest.Playwright
   alias DpulCollections.Solr
 
@@ -16,9 +15,7 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
   # error in console.
   def stub_clipboard(conn) do
     conn
-    |> unwrap(
-      &Frame.evaluate(&1.frame_id, "window.navigator.clipboard.writeText = function() {}")
-    )
+    |> evaluate("window.navigator.clipboard.writeText = function() {}")
   end
 
   describe "copy buttons" do
@@ -227,6 +224,6 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
 
   def go_back(conn) do
     conn
-    |> unwrap(&Frame.evaluate(&1.frame_id, "window.history.back()"))
+    |> evaluate("window.history.back()")
   end
 end
