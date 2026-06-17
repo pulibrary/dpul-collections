@@ -21,6 +21,8 @@ defmodule DpulCollectionsWeb.BrowseItem do
 
   slot :intro, doc: "the optional inner block that renders above the images"
 
+  # This is a container / wrapper div for `li` card components; it includes a title
+  # and a 'more' link, as well as an optional slot for some descriptive text
   def card_row(assigns) do
     ~H"""
     <div class={["grid-row", @color]} {@rest}>
