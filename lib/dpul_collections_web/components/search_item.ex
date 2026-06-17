@@ -96,13 +96,25 @@ defmodule DpulCollectionsWeb.SearchItem do
         />
       </div>
       <div class="grid-rows-2 bg-sage-100 grid sm:grid-rows-1 sm:grid-cols-4 gap-0">
-        <.large_thumb
+        <div
           :if={@item.file_count && length(@item.image_service_urls) > 0}
-          thumb={elem(hd(thumbnail_service_urls(0, 1, @item)), 0)}
-          thumb_num={0}
-          item={@item}
-          show_images={@show_images}
-        />
+          class="row-span-2 col-span-1 relative"
+        >
+          <.large_thumb
+            thumb={elem(hd(thumbnail_service_urls(0, 1, @item)), 0)}
+            thumb_num={0}
+            item={@item}
+            show_images={@show_images}
+          />
+          <%!-- Mobile-only --%>
+          <div class="absolute right-0 top-0 p-2 z-10 sm:hidden">
+            <UserSets.AddToSetComponent.add_button
+              current_scope={@current_scope}
+              item_id={@item.id}
+              current_path={@current_path}
+            />
+          </div>
+        </div>
         <div
           class="metadata sm:col-span-3 sm:col-start-2 flex flex-col gap-2 sm:gap-4 p-4"
           id={"item-metadata-#{@item.id}"}
@@ -142,11 +154,13 @@ defmodule DpulCollectionsWeb.SearchItem do
             <div class="grow">
               <.search_brief_metadata item={@item} />
             </div>
-            <UserSets.AddToSetComponent.add_button
-              current_scope={@current_scope}
-              item_id={@item.id}
-              current_path={@current_path}
-            />
+            <div class="hidden sm:flex">
+              <UserSets.AddToSetComponent.add_button
+                current_scope={@current_scope}
+                item_id={@item.id}
+                current_path={@current_path}
+              />
+            </div>
           </div>
           <div class="small-thumbnails hidden sm:flex flex-row flex-wrap gap-5 max-h-[125px] justify-start overflow-hidden">
             <.thumbs
@@ -264,6 +278,13 @@ defmodule DpulCollectionsWeb.SearchItem do
       >
         <div class="text-base">{gettext("Origin")}</div>
         <div class="text-lg">{@item.geographic_origin}</div>
+      </div>
+      <div
+        :if={length(@item.publisher) > 0}
+        class="publisher"
+      >
+        <div class="text-base">{gettext("Publisher")}</div>
+        <div class="text-lg">{@item.publisher}</div>
       </div>
     </div>
     """

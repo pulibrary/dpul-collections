@@ -49,7 +49,13 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
 
     conn
     |> visit("/search?q=")
+    # Has Date label and value
     |> assert_has("#item-1 .date")
+    |> assert_has("#item-1", text: "2024")
+    # Has Publisher label and value
+    |> assert_has("#item-1 .publisher")
+    |> assert_has("#item-1", text: "PublisherInc")
+    # Does not display orgin if item does not have geographic_orgin
     |> refute_has("#item-1 .origin")
   end
 
