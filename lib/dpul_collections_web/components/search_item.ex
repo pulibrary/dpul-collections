@@ -270,21 +270,21 @@ defmodule DpulCollectionsWeb.SearchItem do
         class="date"
       >
         <div class="text-base">{gettext("Date")}</div>
-        <div class="text-lg">{@item.date}</div>
+        <div class="text-lg font-semibold">{@item.date}</div>
       </div>
       <div
         :if={length(@item.geographic_origin) > 0}
         class="origin"
       >
         <div class="text-base">{gettext("Origin")}</div>
-        <div class="text-lg">{@item.geographic_origin}</div>
+        <div class="text-lg font-semibold">{@item.geographic_origin}</div>
       </div>
       <div
         :if={length(@item.publisher) > 0}
         class="publisher"
       >
         <div class="text-base">{gettext("Publisher")}</div>
-        <div class="text-lg">{@item.publisher}</div>
+        <div class="text-lg font-semibold">{@item.publisher}</div>
       </div>
     </div>
     """
