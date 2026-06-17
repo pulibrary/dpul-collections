@@ -275,22 +275,30 @@ defmodule DpulCollectionsWeb.ItemLive do
       <.browse_item_row
         :if={@item.collections != []}
         id="related-same-collection"
-        items={@related_items}
         title={gettext("Similar Items in this Collection")}
         more_link={more_similar_link(@item)}
-        show_images={@show_images}
-        current_path={@current_path}
-      />
+      >
+        <.item_browse_li
+          :for={item <- @related_items}
+          show_images={@show_images}
+          item={item}
+          current_path={@current_path}
+        />
+      </.browse_item_row>
       <.browse_item_row
         :if={@item.collections != []}
         id="related-different-collection"
-        items={@different_collections_related_items}
         title={gettext("Similar Items outside this Collection")}
         color="bg-background"
         more_link={more_different_link(@item)}
-        show_images={@show_images}
-        current_path={@current_path}
-      />
+      >
+        <.item_browse_li
+          :for={item <- @different_collections_related_items}
+          show_images={@show_images}
+          item={item}
+          current_path={@current_path}
+        />
+      </.browse_item_row>
     </div>
     <.correction_form_modal
       correction_form={@correction_form}

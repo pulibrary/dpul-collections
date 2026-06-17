@@ -184,14 +184,17 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           <.browse_item_row
             id="featured-items"
             layout="content-area"
-            items={@collection.featured_items}
             title={gettext("Featured Highlights")}
-            show_images={[]}
-            current_path={@current_path}
-            current_scope={@current_scope}
             color=""
             arrow_theme="light"
           >
+            <.item_browse_li
+              :for={item <- @collection.featured_items}
+              show_images={[]}
+              item={item}
+              current_scope={@current_scope}
+              current_path={@current_path}
+            />
           </.browse_item_row>
         </div>
         <!-- Learn More -->
@@ -250,21 +253,25 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           <.browse_item_row
             id="recent-items"
             layout="content-area"
-            items={@collection.recently_added}
             title={gettext("Recently Added Items")}
             more_link={
               ~p"/search?#{%{filter: %{collection: [@collection.title |> hd]}, sort_by: "recently_added"}}"
             }
-            show_images={[]}
-            added?={true}
-            current_path={@current_path}
             color=""
             arrow_theme="light"
           >
-            <p class="my-2">
-              {gettext("Explore the latest additions to our growing collection for")} {@collection.title
-              |> hd}.
-            </p>
+            <:intro>
+              <p class="my-2">
+                {gettext("Explore the latest additions to")} {@collection.title |> hd}.
+              </p>
+            </:intro>
+            <.item_browse_li
+              :for={item <- @collection.recently_added}
+              show_images={[]}
+              item={item}
+              added?={true}
+              current_path={@current_path}
+            />
           </.browse_item_row>
         </div>
         <!-- Contributors -->

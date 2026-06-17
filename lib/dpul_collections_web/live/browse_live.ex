@@ -104,7 +104,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
     <div>
       <.liked_items {assigns} />
       <ul id="browse-items" class="grid grid-cols-[repeat(auto-fit,minmax(300px,_1fr))] gap-6 pt-5">
-        <.browse_li
+        <.item_browse_li
           :if={@focused_item}
           item={@focused_item}
           likeable?={false}
@@ -115,7 +115,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
           current_path={@current_path}
           heading_level="h2"
         />
-        <.browse_li
+        <.item_browse_li
           :for={item <- @items}
           item={item}
           target="_blank"
