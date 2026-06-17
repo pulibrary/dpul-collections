@@ -264,24 +264,24 @@ defmodule DpulCollectionsWeb.SearchItem do
 
   defp search_brief_metadata(assigns) do
     ~H"""
-    <div class="brief-metadata flex-wrap">
+    <div class="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2">
       <div
         :if={@item.date}
-        class="date"
+        class="date grid grid-cols-subgrid col-span-2"
       >
         <div class="text-base">{gettext("Date")}</div>
         <div class="text-lg font-semibold">{@item.date}</div>
       </div>
       <div
         :if={length(@item.geographic_origin) > 0}
-        class="origin"
+        class="origin grid grid-cols-subgrid col-span-2"
       >
         <div class="text-base">{gettext("Origin")}</div>
         <div class="text-lg font-semibold">{@item.geographic_origin}</div>
       </div>
       <div
         :if={length(@item.publisher) > 0}
-        class="publisher"
+        class="publisher grid grid-cols-subgrid col-span-2"
       >
         <div class="text-base">{gettext("Publisher")}</div>
         <div class="text-lg font-semibold">{@item.publisher}</div>
