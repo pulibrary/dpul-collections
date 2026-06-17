@@ -86,22 +86,28 @@ defmodule DpulCollectionsWeb.HomeLive do
         </div>
         <.content_separator />
 
-        <.browse_item_row
+        <.card_row
           id="recent-items"
           layout="home-content-area"
           color="bg-background"
-          items={@recent_items}
           title={gettext("Recently Added Items")}
           more_link={~p"/search?sort_by=recently_added"}
-          show_images={@show_images}
-          current_scope={@current_scope}
-          current_path={@current_path}
-          added?={true}
         >
-          <p class="my-2 font-regular">
-            {gettext("Our collections are constantly growing. Discover something new!")}
-          </p>
-        </.browse_item_row>
+          <:intro>
+            <p class="my-2 font-regular">
+              {gettext("Our collections are constantly growing. Discover something new!")}
+            </p>
+          </:intro>
+          <.item_browse_card_li
+            :for={item <- @recent_items}
+            show_images={@show_images}
+            item={item}
+            added?={true}
+            likeable?={false}
+            current_scope={@current_scope}
+            current_path={@current_path}
+          />
+        </.card_row>
       </div>
     </Layouts.app>
     """

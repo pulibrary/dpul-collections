@@ -71,7 +71,7 @@ defmodule DpulCollectionsWeb.UserSetsLive.Show do
           )}
         </h2>
         <ul id="set-items" class="grid grid-cols-[repeat(auto-fill,minmax(300px,_1fr))] gap-12 pt-5">
-          <.browse_li
+          <.item_browse_card_li
             :for={item <- @items}
             show_images={@show_images}
             item={item}

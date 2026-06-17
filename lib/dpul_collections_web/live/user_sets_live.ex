@@ -50,7 +50,7 @@ defmodule DpulCollectionsWeb.UserSetsLive do
       <div id="browse" class="content-area">
         <h1>{gettext("My Sets")}</h1>
         <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-5">
-          <.card_li
+          <.item_card_li
             :for={{set, item} <- @sets_with_items}
             id_prefix="set"
             target_item={set}
@@ -73,7 +73,7 @@ defmodule DpulCollectionsWeb.UserSetsLive do
             <:extra_info>
               {set.description}
             </:extra_info>
-          </.card_li>
+          </.item_card_li>
         </ul>
       </div>
     </Layouts.app>

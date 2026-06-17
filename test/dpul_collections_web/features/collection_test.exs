@@ -5,46 +5,43 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
   import SolrTestSupport
 
   setup_all do
-    sae_ids = [
-      "01c4dc49-2ff9-49f6-98ce-fb6ca1c8ddcc",
-      "d5610085-745c-46f2-b344-8bc5f6dd3dfb",
-      "e906307b-2475-499f-80b7-194b6e0ae74e",
-      "cb88573a-9091-411c-a366-f1747d76aca7",
-      "8b6f89a7-984c-4a83-85a5-fdfba899e0c3",
-      "1e86cab8-69c0-4e1f-8cf7-c11f274b657f",
-      "666fcfd1-dda7-4603-82d1-1863dc97ffc3",
-      "8ac0a23b-8c51-4e1c-8bc0-ae307264b895",
-      "5f78bc1d-940d-4628-9421-98818e3dea35",
-      # the project
-      "f99af4de-fed4-4baa-82b1-6e857b230306",
-      "e8abfa75-253f-428a-b3df-0e83ff2b20f9",
-      "e379b822-27cc-4d0e-bca7-6096ac38f1e6",
-      "1e5ae074-3a6e-494e-9889-6cd01f7f0621",
-      "036b86bf-28b0-4157-8912-6d3d9eeaa5a8",
-      "d82efa97-c69b-424c-83c2-c461baae8307",
-      "39a1a1a0-7ba6-4de9-8a44-f081811c2b34"
-    ]
-
-    # Add another ID so we know it doesn't include counts from other collections.
-    other_ids = ["3da68e1c-06af-4d17-8603-fc73152e1ef7", "118983a5-dd6b-4d7a-bb8c-93fb08248cac"]
-
-    # IDs for a collection with scanned resources, manuscripts of the islamic world
-    sr_col_ids = [
-      # collection
-      "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a",
-      # featured item
-      "159ba3f9-feab-49dd-bc71-ca08995006d9"
-    ]
-
-    (sae_ids ++ other_ids ++ sr_col_ids)
-    |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
-
-    Solr.soft_commit(active_collection())
     on_exit(fn -> Solr.delete_all(active_collection()) end)
     :ok
   end
 
   describe "the collection page content for an EphemeraProject" do
+    setup do
+      sae_ids = [
+        "01c4dc49-2ff9-49f6-98ce-fb6ca1c8ddcc",
+        "d5610085-745c-46f2-b344-8bc5f6dd3dfb",
+        "e906307b-2475-499f-80b7-194b6e0ae74e",
+        "cb88573a-9091-411c-a366-f1747d76aca7",
+        "8b6f89a7-984c-4a83-85a5-fdfba899e0c3",
+        "1e86cab8-69c0-4e1f-8cf7-c11f274b657f",
+        "666fcfd1-dda7-4603-82d1-1863dc97ffc3",
+        "8ac0a23b-8c51-4e1c-8bc0-ae307264b895",
+        "5f78bc1d-940d-4628-9421-98818e3dea35",
+        # the project
+        "f99af4de-fed4-4baa-82b1-6e857b230306",
+        "e8abfa75-253f-428a-b3df-0e83ff2b20f9",
+        "e379b822-27cc-4d0e-bca7-6096ac38f1e6",
+        "1e5ae074-3a6e-494e-9889-6cd01f7f0621",
+        "036b86bf-28b0-4157-8912-6d3d9eeaa5a8",
+        "d82efa97-c69b-424c-83c2-c461baae8307",
+        "39a1a1a0-7ba6-4de9-8a44-f081811c2b34"
+      ]
+
+      # Add another ID so we know it doesn't include counts from other collections.
+      other_ids = ["3da68e1c-06af-4d17-8603-fc73152e1ef7", "118983a5-dd6b-4d7a-bb8c-93fb08248cac"]
+
+      (sae_ids ++ other_ids)
+      |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
+
+      Solr.soft_commit(active_collection())
+      on_exit(fn -> Solr.delete_all(active_collection()) end)
+      :ok
+    end
+
     test "it has content for the collection", %{conn: conn} do
       conn
       |> visit("/collections/sae")
@@ -165,6 +162,21 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
   end
 
   describe "the collection page content for a Figgy Collection" do
+    setup do
+      [
+        # Manuscripts of the islamic world collection
+        "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a",
+        # featured item
+        "159ba3f9-feab-49dd-bc71-ca08995006d9"
+      ]
+      |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
+
+      Solr.soft_commit(active_collection())
+
+      on_exit(fn -> Solr.delete_all(active_collection()) end)
+      :ok
+    end
+
     test "it has content for the collection", %{conn: conn} do
       conn
       |> visit("/collections/islamicmss")

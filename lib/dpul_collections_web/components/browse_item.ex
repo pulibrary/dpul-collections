@@ -7,43 +7,34 @@ defmodule DpulCollectionsWeb.BrowseItem do
   alias DpulCollectionsWeb.Live.Helpers
   alias DpulCollectionsWeb.ContentWarnings
 
-  attr :items, :list, required: true
   attr :title, :string, required: true
-  attr :added?, :boolean, default: false
   attr :more_link, :string, default: nil
   attr :color, :string, default: "bg-primary-bright"
   # can be light or dark
   attr :arrow_theme, :string, default: "dark"
   attr :layout, :string, default: "content-area"
   attr :rest, :global
-  attr :current_scope, :map, required: false, default: nil
-  attr :current_path, :string, required: true
 
-  attr :show_images, :list,
-    default: [],
-    doc: "the list of images stored in session that should not be obfuscated"
+  slot :inner_block,
+    required: true,
+    doc: "the item components to go inside the row; they'll be placed inside a ul element"
 
-  slot :inner_block, doc: "the optional inner block that renders above the images"
+  slot :intro, doc: "the optional inner block that renders above the images"
 
-  def browse_item_row(assigns) do
+  # This is a container / wrapper div for `li` card components; it includes a title
+  # and a 'more' link, as well as an optional slot for some descriptive text
+  def card_row(assigns) do
     ~H"""
     <div class={["grid-row", @color]} {@rest}>
       <div class={@layout}>
         <div class="page-t-padding" />
         <h2>{@title}</h2>
-        {render_slot(@inner_block)}
+        {render_slot(@intro)}
         <div class="flex gap-6 justify-stretch page-t-padding">
           <!-- cards -->
+          <!-- TODO maybe rename this recent-container class? -->
           <ul class="w-full recent-container">
-            <.browse_li
-              :for={item <- @items}
-              show_images={@show_images}
-              item={item}
-              added?={@added?}
-              likeable?={false}
-              current_scope={@current_scope}
-              current_path={@current_path}
-            />
+            {render_slot(@inner_block)}
           </ul>
           <div :if={@more_link} class="w-12 flex-none content-center">
             <.transparent_button
@@ -88,7 +79,8 @@ defmodule DpulCollectionsWeb.BrowseItem do
   slot :card_buttons, required: false
 
   # make sure to wrap these in a ul
-  def card_li(assigns) do
+  # The basic item card, providing slots for buttons, footers, etc
+  def item_card_li(assigns = %{thumb_source: %Item{}}) do
     ~H"""
     <li
       id={"#{@id_prefix}-#{@target_item.id}"}
@@ -199,9 +191,10 @@ defmodule DpulCollectionsWeb.BrowseItem do
   attr :heading_level, :string, default: "h3"
 
   # make sure to wrap these in a ul
-  def browse_li(assigns) do
+  # the "browse" flavor of item card
+  def item_browse_card_li(assigns) do
     ~H"""
-    <.card_li
+    <.item_card_li
       target_item={@item}
       thumb_source={@item}
       id_prefix={@id_prefix}
@@ -250,7 +243,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
           current_path={@current_path}
         />
       </:card_buttons>
-    </.card_li>
+    </.item_card_li>
     """
   end
 
