@@ -15,6 +15,7 @@ defmodule DpulCollections.Collection do
     :url,
     :banner_image,
     :banner_image_id,
+    :banner_item,
     format: ["Digital Collections"],
     categories: [],
     formats: [],
@@ -38,8 +39,18 @@ defmodule DpulCollections.Collection do
   def load_related_records(collection) do
     updates = [
       related_collections: get_related_collections(collection.title |> hd),
+      banner_item: get_banner_item(collection)
     ]
     struct!(collection, updates)
+  end
+
+  defp get_banner_item(%{banner_image: banner_image, banner_image_id: banner_image_id})
+       when is_binary(banner_image) and is_binary(banner_image_id) do
+    Solr.find_by_id(banner_image_id) |> Item.from_solr()
+  end
+
+  defp get_banner_item(collection) do
+    collection.featured_items |> then(&if &1 != [], do: Enum.random(&1))
   end
 
   def authoritative_slug_from_title(title) do
