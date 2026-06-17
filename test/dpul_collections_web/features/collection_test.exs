@@ -235,6 +235,9 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
         count: 1
       )
 
+      # TODO test to ensure it doesn't display collections that aren't indexed
+
+      # also click on the arrow and assert that 
       # link to related collections search result page
       # |> assert_has(
       #   "a[href='search?filter[related][]=Russian+and+East+European+Posters']"

@@ -5,6 +5,19 @@ defmodule DpulCollections.CollectionTest do
   alias DpulCollections.Collection
 
   describe ".from_solr/1" do
+    test "converts headings" do
+      FiggyTestSupport.index_record_id_directly("f99af4de-fed4-4baa-82b1-6e857b230306")
+      Solr.soft_commit()
+
+      collection = Collection.from_slug("sae")
+
+      assert collection.summary =~ "<h3"
+      assert collection.summary =~ "</h3"
+      refute collection.summary =~ "<br>"
+    end
+  end
+
+  describe ".load_related_records" do
     test "populates recent items" do
       sae_ids = [
         # Project
@@ -21,20 +34,9 @@ defmodule DpulCollections.CollectionTest do
 
       Solr.soft_commit()
 
-      collection = Collection.from_slug("sae")
+      collection = Collection.from_slug("sae") |> Collection.load_related_records()
 
       assert length(collection.recently_added) == 1
-    end
-
-    test "converts headings" do
-      FiggyTestSupport.index_record_id_directly("f99af4de-fed4-4baa-82b1-6e857b230306")
-      Solr.soft_commit()
-
-      collection = Collection.from_slug("sae")
-
-      assert collection.summary =~ "<h3"
-      assert collection.summary =~ "</h3"
-      refute collection.summary =~ "<br>"
     end
   end
 

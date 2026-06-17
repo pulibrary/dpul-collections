@@ -32,47 +32,11 @@ defmodule DpulCollections.Collection do
     |> from_solr()
   end
 
-  def load_related_records(nil), do: nil
-
-  # avoid recursively loading related collections into infinity
-  # TODO: also move in the things only used on collection page, that do extra queries
-  def load_related_records(collection) do
-    updates = [
-      related_collections: get_related_collections(collection.title |> hd),
-      banner_item: get_banner_item(collection)
-    ]
-    struct!(collection, updates)
-  end
-
-  defp get_banner_item(%{banner_image: banner_image, banner_image_id: banner_image_id})
-       when is_binary(banner_image) and is_binary(banner_image_id) do
-    Solr.find_by_id(banner_image_id) |> Item.from_solr()
-  end
-
-  defp get_banner_item(collection) do
-    collection.featured_items |> then(&if &1 != [], do: Enum.random(&1))
-  end
-
   def authoritative_slug_from_title(title) do
     case Solr.find_by_collection_title(title) do
       %{"authoritative_slug_s" => slug} when is_binary(slug) -> slug
       _ -> nil
     end
-  end
-
-  def get_featured_items(label) do
-    params =
-      SearchState.from_params(%{
-        "filter" => %{"collection" => label, "featured" => true},
-        "per_page" => "4"
-      })
-
-    Solr.query(params)["docs"] |> Enum.map(&Item.from_solr/1)
-  end
-
-  def get_related_collections(label) do
-    Solr.related_collections(label)
-    |> Enum.map(&from_solr/1)
   end
 
   def from_solr(nil), do: nil
@@ -95,10 +59,47 @@ defmodule DpulCollections.Collection do
       languages: summary.languages,
       geographic_origins: summary.geographic_origins,
       featured_items: get_featured_items(title |> hd),
-      recently_added: get_recent_items(title |> hd),
       url: "/collections/#{doc["authoritative_slug_s"]}",
       contributors: get_contributors(doc["authoritative_slug_s"])
     }
+  end
+
+  def load_related_records(nil), do: nil
+
+  # avoid recursively loading related collections into infinity
+  # Since we're here anyway, put everything in that does a query and is only
+  # needed on the collection show page
+  def load_related_records(collection) do
+    updates = [
+      banner_item: get_banner_item(collection),
+      recently_added: get_recent_items(collection.title |> hd),
+      related_collections: get_related_collections(collection.title |> hd)
+    ]
+    struct!(collection, updates)
+  end
+
+  defp get_banner_item(%{banner_image: banner_image, banner_image_id: banner_image_id})
+       when is_binary(banner_image) and is_binary(banner_image_id) do
+    Solr.find_by_id(banner_image_id) |> Item.from_solr()
+  end
+
+  defp get_banner_item(collection) do
+    collection.featured_items |> then(&if &1 != [], do: Enum.random(&1))
+  end
+
+  def get_related_collections(label) do
+    Solr.related_collections(label)
+    |> Enum.map(&from_solr/1)
+  end
+
+  defp get_featured_items(label) do
+    params =
+      SearchState.from_params(%{
+        "filter" => %{"collection" => label, "featured" => true},
+        "per_page" => "4"
+      })
+
+    Solr.query(params)["docs"] |> Enum.map(&Item.from_solr/1)
   end
 
   defp process_summary(nil), do: nil

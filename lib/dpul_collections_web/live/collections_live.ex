@@ -141,47 +141,49 @@ defmodule DpulCollectionsWeb.CollectionsLive do
 
   def featured_and_related(assigns) do
     ~H"""
-    <.content_separator />
-    <div
-      :if={length(@collection.featured_items) > 0}
-      id="featured-items-container"
-      phx-update="ignore"
-      class="grid-flow auto-rows-max"
-    >
-      <.card_row
-        id="featured-items"
-        layout="content-area"
-        title={gettext("Featured Highlights")}
-        color=""
-        arrow_theme="light"
+    <div>
+      <.content_separator />
+      <div
+        :if={length(@collection.featured_items) > 0}
+        id="featured-items-container"
+        phx-update="ignore"
+        class="grid-flow auto-rows-max"
       >
-        <.item_browse_card_li
-          :for={item <- @collection.featured_items}
-          show_images={[]}
-          item={item}
-          current_scope={@current_scope}
-          current_path={@current_path}
-        />
-      </.card_row>
-    </div>
-    <div
-      :if={length(@collection.related_collections) > 0}
-      id="related-collections-container"
-      phx-update="ignore"
-      class="grid-flow auto-rows-max"
-    >
-      <.card_row
-        id="related-collections"
-        layout="content-area"
-        title={gettext("Related Collections")}
-        color=""
-        arrow_theme="light"
+        <.card_row
+          id="featured-items"
+          layout="content-area"
+          title={gettext("Featured Highlights")}
+          color=""
+          arrow_theme="light"
+        >
+          <.item_browse_card_li
+            :for={item <- @collection.featured_items}
+            show_images={[]}
+            item={item}
+            current_scope={@current_scope}
+            current_path={@current_path}
+          />
+        </.card_row>
+      </div>
+      <div
+        :if={length(@collection.related_collections) > 0}
+        id="related-collections-container"
+        phx-update="ignore"
+        class="grid-flow auto-rows-max"
       >
-        <.collection_card_li
-          :for={item <- @collection.related_collections}
-          collection={item}
-        />
-      </.card_row>
+        <.card_row
+          id="related-collections"
+          layout="content-area"
+          title={gettext("Related Collections")}
+          color=""
+          arrow_theme="light"
+        >
+          <.collection_card_li
+            :for={item <- @collection.related_collections}
+            collection={item}
+          />
+        </.card_row>
+      </div>
     </div>
     """
   end
