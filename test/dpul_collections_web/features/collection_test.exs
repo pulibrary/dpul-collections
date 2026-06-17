@@ -213,6 +213,8 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
         "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a",
         # Middle East Manuscripts collection
         "3bab572e-6603-4abf-8305-16ce6fe3ac5c",
+        # TODO: add some more collections so that we have more than a single
+        # row, use the featured item for this
         # a manuscript in both of the above collections
         "27fd4d29-1170-47a5-891b-f2743873bcef"
       ]

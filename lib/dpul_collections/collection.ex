@@ -22,12 +22,24 @@ defmodule DpulCollections.Collection do
     geographic_origins: [],
     featured_items: [],
     recently_added: [],
-    contributors: []
+    related_collections: [],
+    contributors: [],
   ]
 
   def from_slug(slug) do
     Solr.find_by_slug(slug)
     |> from_solr()
+  end
+
+  def load_related_records(nil), do: nil
+
+  # avoid recursively loading related collections into infinity
+  # TODO: also move in the things only used on collection page, that do extra queries
+  def load_related_records(collection) do
+    updates = [
+      related_collections: get_related_collections(collection.title |> hd),
+    ]
+    struct!(collection, updates)
   end
 
   def authoritative_slug_from_title(title) do
@@ -45,6 +57,11 @@ defmodule DpulCollections.Collection do
       })
 
     Solr.query(params)["docs"] |> Enum.map(&Item.from_solr/1)
+  end
+
+  def get_related_collections(label) do
+    Solr.related_collections(label)
+    |> Enum.map(&from_solr/1)
   end
 
   def from_solr(nil), do: nil
