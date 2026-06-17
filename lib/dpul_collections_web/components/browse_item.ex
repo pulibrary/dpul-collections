@@ -21,7 +21,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
 
   slot :intro, doc: "the optional inner block that renders above the images"
 
-  def browse_item_row(assigns) do
+  def card_row(assigns) do
     ~H"""
     <div class={["grid-row", @color]} {@rest}>
       <div class={@layout}>
@@ -77,6 +77,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
   slot :card_buttons, required: false
 
   # make sure to wrap these in a ul
+  # The basic item card, providing slots for buttons, footers, etc
   def item_card_li(assigns = %{thumb_source: %Item{}}) do
     ~H"""
     <li
@@ -188,7 +189,8 @@ defmodule DpulCollectionsWeb.BrowseItem do
   attr :heading_level, :string, default: "h3"
 
   # make sure to wrap these in a ul
-  def item_browse_li(assigns) do
+  # the "browse" flavor of item card
+  def item_browse_card_li(assigns) do
     ~H"""
     <.item_card_li
       target_item={@item}

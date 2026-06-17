@@ -272,33 +272,33 @@ defmodule DpulCollectionsWeb.ItemLive do
       <.share_modal path={@item.url} id="share-modal" heading={gettext("Share this item")} />
     </div>
     <div id="similar-items">
-      <.browse_item_row
+      <.card_row
         :if={@item.collections != []}
         id="related-same-collection"
         title={gettext("Similar Items in this Collection")}
         more_link={more_similar_link(@item)}
       >
-        <.item_browse_li
+        <.item_browse_card_li
           :for={item <- @related_items}
           show_images={@show_images}
           item={item}
           current_path={@current_path}
         />
-      </.browse_item_row>
-      <.browse_item_row
+      </.card_row>
+      <.card_row
         :if={@item.collections != []}
         id="related-different-collection"
         title={gettext("Similar Items outside this Collection")}
         color="bg-background"
         more_link={more_different_link(@item)}
       >
-        <.item_browse_li
+        <.item_browse_card_li
           :for={item <- @different_collections_related_items}
           show_images={@show_images}
           item={item}
           current_path={@current_path}
         />
-      </.browse_item_row>
+      </.card_row>
     </div>
     <.correction_form_modal
       correction_form={@correction_form}

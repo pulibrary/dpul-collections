@@ -86,7 +86,7 @@ defmodule DpulCollectionsWeb.HomeLive do
         </div>
         <.content_separator />
 
-        <.browse_item_row
+        <.card_row
           id="recent-items"
           layout="home-content-area"
           color="bg-background"
@@ -98,7 +98,7 @@ defmodule DpulCollectionsWeb.HomeLive do
               {gettext("Our collections are constantly growing. Discover something new!")}
             </p>
           </:intro>
-          <.item_browse_li
+          <.item_browse_card_li
             :for={item <- @recent_items}
             show_images={@show_images}
             item={item}
@@ -107,7 +107,7 @@ defmodule DpulCollectionsWeb.HomeLive do
             current_scope={@current_scope}
             current_path={@current_path}
           />
-        </.browse_item_row>
+        </.card_row>
       </div>
     </Layouts.app>
     """

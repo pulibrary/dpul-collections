@@ -181,21 +181,21 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           class="grid-flow auto-rows-max"
         >
           <.content_separator />
-          <.browse_item_row
+          <.card_row
             id="featured-items"
             layout="content-area"
             title={gettext("Featured Highlights")}
             color=""
             arrow_theme="light"
           >
-            <.item_browse_li
+            <.item_browse_card_li
               :for={item <- @collection.featured_items}
               show_images={[]}
               item={item}
               current_scope={@current_scope}
               current_path={@current_path}
             />
-          </.browse_item_row>
+          </.card_row>
         </div>
         <!-- Learn More -->
         <div id="learn-more" class="grid-flow-row text-dark-text auto-rows-max page-b-padding">
@@ -250,7 +250,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         <!-- Recently Updated Items -->
         <div :if={length(@collection.recently_added) > 0}>
           <.content_separator />
-          <.browse_item_row
+          <.card_row
             id="recent-items"
             layout="content-area"
             title={gettext("Recently Added Items")}
@@ -265,14 +265,14 @@ defmodule DpulCollectionsWeb.CollectionsLive do
                 {gettext("Explore the latest additions to")} {@collection.title |> hd}.
               </p>
             </:intro>
-            <.item_browse_li
+            <.item_browse_card_li
               :for={item <- @collection.recently_added}
               show_images={[]}
               item={item}
               added?={true}
               current_path={@current_path}
             />
-          </.browse_item_row>
+          </.card_row>
         </div>
         <!-- Contributors -->
         <div
