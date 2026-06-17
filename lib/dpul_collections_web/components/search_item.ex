@@ -264,7 +264,7 @@ defmodule DpulCollectionsWeb.SearchItem do
 
   defp search_brief_metadata(assigns) do
     ~H"""
-    <div class="brief-metadata">
+    <div class="brief-metadata flex-wrap">
       <div
         :if={@item.date}
         class="date"
