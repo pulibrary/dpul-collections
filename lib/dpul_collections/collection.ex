@@ -3,6 +3,7 @@ defmodule DpulCollections.Collection do
   alias DpulCollections.Search.SearchState
   alias DpulCollections.Solr
   use Gettext, backend: DpulCollectionsWeb.Gettext
+  use DpulCollectionsWeb, :verified_routes
 
   defstruct [
     :id,
@@ -86,8 +87,7 @@ defmodule DpulCollections.Collection do
     [
       %{
         id: "aisls",
-        logo:
-          "https://dpul.princeton.edu/uploads/spotlight/attachment/file/587/AILS_Logo_New.png",
+        logo: ~p"/images/sae/AILS_Logo_New.png",
         url: "https://www.aisls.org/",
         label: "The American Institute for Sri Lankan Studies (AISLS)",
         description: ~s"""
@@ -101,8 +101,7 @@ defmodule DpulCollections.Collection do
     [
       %{
         id: "clir",
-        logo:
-          "https://lae.princeton.edu/assets/CLIR_logo-8c0e18a0823a74ff69d628b3cd226d32d7f6c37a85408023de0c1e38f76df6b8.gif",
+        logo: ~p"/images/lae/CLIR_logo.gif",
         label: "Council on Library and Information Resources",
         url: "https://www.clir.org/",
         description:
@@ -110,8 +109,7 @@ defmodule DpulCollections.Collection do
       },
       %{
         id: "larrp",
-        logo:
-          "https://lae.princeton.edu/assets/larrp-53632ea58cc61411babf45947b707dbc0be401f21ef72a5560aa1ed1192f2ac1.gif",
+        logo: ~p"/images/lae/larrp.gif",
         label: "Latin Americanist Research Resources Project",
         url: "http://www.crl.edu/programs/larrp",
         description:
@@ -120,8 +118,7 @@ defmodule DpulCollections.Collection do
       %{
         id: "dartmouth",
         label: "Dartmouth Libraries",
-        logo:
-          "https://lae.princeton.edu/assets/dartmouth_logo-9bfe6d626202b0620c409d67646d7691790d0fbc93e60914cb7ac054b39c8db1.png",
+        logo: ~p"/images/lae/dartmouth_logo.png",
         url: "https://www.library.dartmouth.edu/",
         description:
           "Thanks to Dartmouth Libraries for their contributions to Latin American Ephemera."
