@@ -228,6 +228,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
               </.link>
             </.dynamic_tag>
             <div class="brief-metadata pt-4 text-gray-700 text-base">
+              <!-- TODO: truncate the tagline if it's too long -->
               {@collection.tagline}
             </div>
           </div>
