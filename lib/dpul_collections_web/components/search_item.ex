@@ -21,7 +21,7 @@ defmodule DpulCollectionsWeb.SearchItem do
           "search-thumbnail",
           "row-span-2 col-span-1",
           "bg-search flex justify-center relative",
-          "h-[350px]"
+          "h-full"
         ]}>
           <div class="grid grid-cols-2 w-full gap-2 h-[350px] p-2">
             <img
@@ -38,8 +38,8 @@ defmodule DpulCollectionsWeb.SearchItem do
           class="metadata sm:col-span-3 flex flex-col gap-2 sm:gap-4 p-4"
           id={"item-metadata-#{@item.id}"}
         >
-          <div class="flex flex-wrap flex-row sm:flex-row justify-between">
-            <h2 dir="auto" class="w-full flex-grow sm:w-fit">
+          <div class="flex flex-wrap sm:flex-nowrap flex-row justify-between">
+            <h2 dir="auto" class="w-full flex-grow sm:w-auto sm:min-w-0">
               <.link
                 navigate={@item.url}
                 class="card-link"
@@ -96,57 +96,73 @@ defmodule DpulCollectionsWeb.SearchItem do
         />
       </div>
       <div class="grid-rows-2 bg-sage-100 grid sm:grid-rows-1 sm:grid-cols-4 gap-0">
-        <.large_thumb
-          :if={@item.file_count && length(@item.image_service_urls) > 0}
-          thumb={elem(hd(thumbnail_service_urls(0, 1, @item)), 0)}
-          thumb_num={0}
-          item={@item}
-          show_images={@show_images}
-        />
         <div
-          class="metadata sm:col-span-3 sm:col-start-2 flex flex-col gap-2 sm:gap-4 p-4"
-          id={"item-metadata-#{@item.id}"}
+          :if={@item.file_count && length(@item.image_service_urls) > 0}
+          class="row-span-2 col-span-1 relative"
         >
-          <div class="flex flex-wrap flex-row sm:flex-row justify-between">
-            <h2 dir="auto" class="w-full flex-grow sm:w-fit pr-3">
-              <.link
-                navigate={@item.url}
-                class="card-link"
-                id={"item-title-#{@item.id}"}
-              >
-                {@item.title}
-              </.link>
-            </h2>
-            <span
-              aria-label={gettext("format")}
-              data-field="format"
-              class="w-full sm:w-fit flex-grow sm:flex-none text-gray-600 font-bold text-base uppercase sm:text-right"
-            >
-              {@item.format}
-            </span>
-          </div>
-          <div :if={!Enum.empty?(@item.transliterated_title) || !Enum.empty?(@item.alternative_title)}>
-            <h3
-              :for={ttitle <- @item.transliterated_title}
-              dir="auto"
-              class="mt-[-1rem] font-medium text-gray-500"
-              id={"item-translit-title-#{@item.id}"}
-            >
-              {ttitle}
-            </h3>
-          </div>
-          <div :if={@sort_by == :recently_added && @item.updated_at} class="updated-at w-full">
-            {gettext("Added")} {DpulCollectionsWeb.BrowseItem.time_ago(@item.updated_at)}
-          </div>
-          <div class="flex">
-            <div class="grow">
-              <.search_brief_metadata item={@item} />
-            </div>
+          <.large_thumb
+            thumb={elem(hd(thumbnail_service_urls(0, 1, @item)), 0)}
+            thumb_num={0}
+            item={@item}
+            show_images={@show_images}
+          />
+          <%!-- Mobile-only --%>
+          <div class="absolute right-0 top-0 p-2 z-10 sm:hidden">
             <UserSets.AddToSetComponent.add_button
               current_scope={@current_scope}
               item_id={@item.id}
               current_path={@current_path}
             />
+          </div>
+        </div>
+        <div
+          class="metadata sm:col-span-3 sm:col-start-2 flex flex-col gap-2 sm:gap-4 p-4"
+          id={"item-metadata-#{@item.id}"}
+        >
+          <div class="flex flex-col sm:flex-row gap-2 sm:gap-4">
+            <div class="flex flex-col gap-2 sm:gap-4 grow min-w-0">
+              <h2 dir="auto" class="w-full min-w-0">
+                <.link
+                  navigate={@item.url}
+                  class="card-link"
+                  id={"item-title-#{@item.id}"}
+                >
+                  {@item.title}
+                </.link>
+              </h2>
+              <div :if={
+                !Enum.empty?(@item.transliterated_title) || !Enum.empty?(@item.alternative_title)
+              }>
+                <h3
+                  :for={ttitle <- @item.transliterated_title}
+                  dir="auto"
+                  class="mt-[-1rem] font-medium text-gray-500"
+                  id={"item-translit-title-#{@item.id}"}
+                >
+                  {ttitle}
+                </h3>
+              </div>
+              <div :if={@sort_by == :recently_added && @item.updated_at} class="updated-at w-full">
+                {gettext("Added")} {DpulCollectionsWeb.BrowseItem.time_ago(@item.updated_at)}
+              </div>
+              <.search_brief_metadata item={@item} />
+            </div>
+            <div class="flex flex-col gap-2 sm:gap-4 shrink-0 order-first sm:order-none sm:items-end">
+              <span
+                aria-label={gettext("format")}
+                data-field="format"
+                class="w-full sm:w-auto text-gray-600 font-bold text-base uppercase sm:text-right"
+              >
+                {@item.format}
+              </span>
+              <div class="hidden sm:flex">
+                <UserSets.AddToSetComponent.add_button
+                  current_scope={@current_scope}
+                  item_id={@item.id}
+                  current_path={@current_path}
+                />
+              </div>
+            </div>
           </div>
           <div class="small-thumbnails hidden sm:flex flex-row flex-wrap gap-5 max-h-[125px] justify-start overflow-hidden">
             <.thumbs
@@ -176,7 +192,8 @@ defmodule DpulCollectionsWeb.SearchItem do
       "search-thumbnail",
       "row-span-2 col-span-1",
       "grid grid-cols-1 auto-rows-auto gap-2",
-      "bg-search flex justify-center relative p-2"
+      "bg-search flex justify-center relative p-2",
+      "h-full"
     ]}>
       <img
         class={[
@@ -250,20 +267,29 @@ defmodule DpulCollectionsWeb.SearchItem do
 
   defp search_brief_metadata(assigns) do
     ~H"""
-    <div class="brief-metadata">
-      <div
-        :if={@item.date}
-        class="date"
-      >
-        <div class="text-base">{gettext("Date")}</div>
-        <div class="text-lg">{@item.date}</div>
-      </div>
-      <div
-        :if={length(@item.geographic_origin) > 0}
-        class="origin"
-      >
-        <div class="text-base">{gettext("Origin")}</div>
-        <div class="text-lg">{@item.geographic_origin}</div>
+    <div class="brief-metadata-wrap">
+      <div>
+        <div
+          :if={length(@item.publisher) > 0}
+          class="publisher"
+        >
+          <div class="text-base">{gettext("Publisher")}</div>
+          <div class="text-lg font-semibold">{@item.publisher}</div>
+        </div>
+        <div
+          :if={@item.date}
+          class="date"
+        >
+          <div class="text-base">{gettext("Date")}</div>
+          <div class="text-lg font-semibold">{@item.date}</div>
+        </div>
+        <div
+          :if={length(@item.geographic_origin) > 0}
+          class="origin"
+        >
+          <div class="text-base">{gettext("Origin")}</div>
+          <div class="text-lg font-semibold">{@item.geographic_origin}</div>
+        </div>
       </div>
     </div>
     """

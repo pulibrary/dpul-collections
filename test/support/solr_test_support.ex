@@ -61,6 +61,7 @@ if Mix.env() == :test do
           primary_thumbnail_service_url_s: thumbnail_url,
           iiif_manifest_url_s: manifest_url,
           collection_titles_ss: ["Amazing Project"],
+          publisher_txt_sort: ["PublisherInc"],
           updated_at_dt:
             DateTime.utc_now() |> DateTime.add(-100 + 1 * n, :day) |> DateTime.to_iso8601()
         }

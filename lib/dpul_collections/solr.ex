@@ -53,7 +53,8 @@ defmodule DpulCollections.Solr do
     "updated_at_dt",
     "content_warning_s",
     "geographic_origin_txt_sort",
-    "tagline_txtm"
+    "tagline_txtm",
+    "publisher_txt_sort"
   ]
 
   def raw_query(search_state, index \\ Index.read_index()) do
