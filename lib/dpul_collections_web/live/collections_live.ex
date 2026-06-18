@@ -9,8 +9,9 @@ defmodule DpulCollectionsWeb.CollectionsLive do
   end
 
   def handle_params(%{"slug" => slug}, _uri, socket) do
-    collection = Collection.from_slug(slug)
-                 |> Collection.load_related_records()
+    collection =
+      Collection.from_slug(slug)
+      |> Collection.load_related_records()
 
     case collection do
       nil ->
@@ -41,7 +42,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
       >
         <.collection_hero collection={@collection} banner_item={@banner_item} />
         <.featured_and_related
-          :if={(length(@collection.featured_items) > 0) || (length(@collection.related_collections) > 0)}
+          :if={length(@collection.featured_items) > 0 || length(@collection.related_collections) > 0}
           collection={@collection}
           current_scope={@current_scope}
           current_path={@current_path}
@@ -406,7 +407,6 @@ defmodule DpulCollectionsWeb.CollectionsLive do
     </div>
     """
   end
-
 
   def banner_image(
         assigns = %{collection: %{banner_image: banner_image, banner_image_id: banner_image_id}}

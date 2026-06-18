@@ -24,7 +24,7 @@ defmodule DpulCollections.Collection do
     featured_items: [],
     recently_added: [],
     related_collections: [],
-    contributors: [],
+    contributors: []
   ]
 
   def from_slug(slug) do
@@ -75,6 +75,7 @@ defmodule DpulCollections.Collection do
       recently_added: get_recent_items(collection.title |> hd),
       related_collections: get_related_collections(collection.title |> hd)
     ]
+
     struct!(collection, updates)
   end
 

@@ -182,10 +182,12 @@ defmodule DpulCollectionsWeb.BrowseItem do
     <li
       id={"related-collection-#{@collection.id}"}
       aria-label={first_title(@collection)}
-      class={[
-        "browse-item overflow-hidden -outline-offset-2 relative card flex bg-white flex-col min-w-[250px] text-dark-text",
-        # @class
-      ]}
+      class={
+        [
+          "browse-item overflow-hidden -outline-offset-2 relative card flex bg-white flex-col min-w-[250px] text-dark-text"
+          # @class
+        ]
+      }
     >
       <div class="-outline-offset-1 flex-grow flex flex-col">
         <!-- thumbs -->
@@ -193,13 +195,13 @@ defmodule DpulCollectionsWeb.BrowseItem do
           <div class="flex flex-col gap-2 h-[12rem]">
             <!-- main thumbnail -->
             <div class="min-h-0 grow">
-
-          <img
-            src={@collection.banner_image}
-            width="750"
-            class="thumbnail bg-slate-400 text-white w-full object-contain",
-            alt=""
-          />
+              <img
+                src={@collection.banner_image}
+                width="750"
+                class="thumbnail bg-slate-400 text-white w-full object-contain"
+                ,
+                alt=""
+              />
               <!--
               <.thumb
                 thumb={thumbnail_service_url(@thumb_source)}
