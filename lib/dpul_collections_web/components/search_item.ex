@@ -21,7 +21,7 @@ defmodule DpulCollectionsWeb.SearchItem do
           "search-thumbnail",
           "row-span-2 col-span-1",
           "bg-search flex justify-center relative",
-          "h-[350px]"
+          "h-full"
         ]}>
           <div class="grid grid-cols-2 w-full gap-2 h-[350px] p-2">
             <img
@@ -190,7 +190,8 @@ defmodule DpulCollectionsWeb.SearchItem do
       "search-thumbnail",
       "row-span-2 col-span-1",
       "grid grid-cols-1 auto-rows-auto gap-2",
-      "bg-search flex justify-center relative p-2"
+      "bg-search flex justify-center relative p-2",
+      "h-full"
     ]}>
       <img
         class={[
