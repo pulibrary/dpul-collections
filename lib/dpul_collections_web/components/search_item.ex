@@ -267,6 +267,13 @@ defmodule DpulCollectionsWeb.SearchItem do
     ~H"""
     <div class="brief-metadata flex-wrap">
       <div
+        :if={length(@item.publisher) > 0}
+        class="publisher"
+      >
+        <div class="text-base">{gettext("Publisher")}</div>
+        <div class="text-lg font-semibold">{@item.publisher}</div>
+      </div>
+      <div
         :if={@item.date}
         class="date"
       >
@@ -279,13 +286,6 @@ defmodule DpulCollectionsWeb.SearchItem do
       >
         <div class="text-base">{gettext("Origin")}</div>
         <div class="text-lg font-semibold">{@item.geographic_origin}</div>
-      </div>
-      <div
-        :if={length(@item.publisher) > 0}
-        class="publisher"
-      >
-        <div class="text-base">{gettext("Publisher")}</div>
-        <div class="text-lg font-semibold">{@item.publisher}</div>
       </div>
     </div>
     """
