@@ -225,6 +225,7 @@ defmodule DpulCollections.Item do
   def meta_properties(item = %{title: [title | _], summary: summary}) do
     %{
       "og:title" => title,
+      "description" => meta_description(summary),
       "og:description" => meta_description(summary),
       "og:image" =>
         "#{item.primary_thumbnail_service_url}/full/!#{item.primary_thumbnail_width},#{item.primary_thumbnail_height}/0/default.jpg",
