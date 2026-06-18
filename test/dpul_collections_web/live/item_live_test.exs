@@ -179,7 +179,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
   end
 
   describe "og:metadata" do
-    test "displays og:metadata fields in the header", %{conn: conn} do
+    test "displays metadata fields in the header", %{conn: conn} do
       {:ok, _view, html} = live(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1")
 
       {:ok, document} = Floki.parse_document(html)
@@ -199,6 +199,12 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       assert document
              |> Floki.find(
                ~s{meta[property="og:description"][content="This is a test description"]}
+             )
+             |> Enum.any?()
+
+      assert document
+             |> Floki.find(
+               ~s{meta[property="description"][content="This is a test description"]}
              )
              |> Enum.any?()
 
