@@ -38,8 +38,8 @@ defmodule DpulCollectionsWeb.SearchItem do
           class="metadata sm:col-span-3 flex flex-col gap-2 sm:gap-4 p-4"
           id={"item-metadata-#{@item.id}"}
         >
-          <div class="flex flex-wrap flex-row sm:flex-row justify-between">
-            <h2 dir="auto" class="w-full flex-grow sm:w-fit">
+          <div class="flex flex-wrap sm:flex-nowrap flex-row justify-between">
+            <h2 dir="auto" class="w-full flex-grow sm:w-auto sm:min-w-0">
               <.link
                 navigate={@item.url}
                 class="card-link"
@@ -119,8 +119,8 @@ defmodule DpulCollectionsWeb.SearchItem do
           class="metadata sm:col-span-3 sm:col-start-2 flex flex-col gap-2 sm:gap-4 p-4"
           id={"item-metadata-#{@item.id}"}
         >
-          <div class="flex flex-wrap flex-row sm:flex-row justify-between">
-            <h2 dir="auto" class="w-full flex-grow sm:w-fit pr-3">
+          <div class="flex flex-wrap sm:flex-nowrap flex-row justify-between">
+            <h2 dir="auto" class="w-full flex-grow sm:w-auto sm:min-w-0 pr-3">
               <.link
                 navigate={@item.url}
                 class="card-link"
