@@ -203,9 +203,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
              |> Enum.any?()
 
       assert document
-             |> Floki.find(
-               ~s{meta[property="description"][content="This is a test description"]}
-             )
+             |> Floki.find(~s{meta[property="description"][content="This is a test description"]})
              |> Enum.any?()
 
       assert document
