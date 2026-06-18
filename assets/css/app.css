@@ -321,6 +321,22 @@
   }
 }
 
+/* Wrapping variant of brief-metadata. Applies the flex-wrap class and makes it so
+ * that a separator border line at the end of a line is not rendered when the text
+ * wraps to a new line.
+ */
+@utility brief-metadata-wrap {
+  @apply flex-auto overflow-hidden;
+
+  > div {
+    @apply flex flex-row flex-wrap gap-y-4 -ms-4;
+  }
+
+  > div > div {
+    @apply flex flex-col gap-0 px-4 py-0 h-min border-s-1 border-search;
+  }
+}
+
 /* Helper class for the default table component style that adds
  * rounded corners to the table rows.
  */
