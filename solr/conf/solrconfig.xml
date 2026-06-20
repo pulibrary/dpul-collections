@@ -685,6 +685,10 @@
     -->
 
   <requestHandler name="/select" class="solr.SearchHandler">
+    <!-- Sandboxing to solr_sandbox_key -->
+    <lst name="appends">
+      <str name="fq">{!field f=solr_sandbox_key_s v=$solr_sandbox_key}</str>
+    </lst>
     <!-- default values for query parameters can be specified, these
          will be overridden by parameters in the request
       -->

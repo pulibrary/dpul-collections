@@ -1,6 +1,6 @@
 defmodule DpulCollections.SolrTest do
   alias DpulCollections.Search.SearchState
-  use DpulCollections.DataCase
+  use DpulCollections.DataCase, async: true
   alias DpulCollections.Item
   alias DpulCollections.Solr
   import ExUnit.CaptureLog
@@ -303,18 +303,48 @@ defmodule DpulCollections.SolrTest do
     end
   end
 
-  test ".add/1" do
-    doc = %{
-      "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
-      "title_txtm" => ["test title 1"]
-    }
+  describe ".add/1" do
+    test "adds a doc to the index" do
+      doc = %{
+        "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
+        "title_txtm" => ["test title 1"]
+      }
 
-    assert Solr.document_count() == 0
+      assert Solr.document_count() == 0
 
-    Solr.add([doc], active_collection())
-    Solr.soft_commit(active_collection())
+      Solr.add([doc], active_collection())
+      Solr.soft_commit(active_collection())
 
-    assert Solr.document_count() == 1
+      assert Solr.document_count() == 1
+    end
+
+    test "can sandbox" do
+      start_key = ProcessTree.get(:solr_sandbox_key)
+      on_exit(fn -> 
+        Process.put(:solr_sandbox_key, start_key)
+      end)
+      doc = %{
+        "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
+        "title_txtm" => ["test title 1"]
+      }
+
+      assert Solr.document_count() == 0
+
+      Solr.add([doc], active_collection())
+      Solr.soft_commit(active_collection())
+
+      doc = Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")
+      assert doc["solr_sandbox_key_s"] == ProcessTree.get(:solr_sandbox_key)
+      assert Solr.document_count() == 1
+
+      # Change the sandbox.
+      Process.put(:solr_sandbox_key, "test-change-#{System.unique_integer([:positive])}")
+      assert Solr.document_count() == 0
+      doc = Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")
+      assert nil == doc
+
+      # TODO: Figure out how to have the same ID across two sandboxes.
+    end
   end
 
   describe ".related_items/4" do

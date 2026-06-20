@@ -57,6 +57,13 @@ defmodule DpulCollections.DataCase do
     if !tags[:async] do
       DpulCollections.Solr.delete_all(SolrTestSupport.active_collection())
       on_exit(fn -> DpulCollections.Solr.delete_all(SolrTestSupport.active_collection()) end)
+    else
+      key = "test-#{System.unique_integer([:positive])}"
+      Process.put(:solr_sandbox_key, key)
+      DpulCollections.Solr.delete_all(SolrTestSupport.active_collection())
+      on_exit(fn -> 
+        DpulCollections.Solr.delete_all(SolrTestSupport.active_collection())
+      end)
     end
   end
 
