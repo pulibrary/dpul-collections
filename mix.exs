@@ -102,7 +102,8 @@ defmodule DpulCollections.MixProject do
       {:mock, "== 0.3.9", only: :test},
       {:lazy_html, "== 0.1.11", only: :test},
       {:ex_cldr_locale_display, "== 1.7.3"},
-      {:junit_formatter, "== 3.4.0", only: [:test]}
+      {:junit_formatter, "== 3.4.0", only: [:test]},
+      {:flow, "== 1.2.4"}
     ]
   end
 

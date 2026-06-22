@@ -17,9 +17,10 @@ defmodule DpulCollections.IndexValidator do
   def all_collections do
     # compute totals, and set memberships
     Solr.find_all_collections()
-    |> Enum.map(&Collection.from_solr/1)
+    |> Flow.from_enumerable(max_demand: 1)
+    |> Flow.map(&Collection.from_solr/1)
+    |> Flow.map(&from_collection/1)
     |> Enum.sort_by(&Map.get(&1, :title))
-    |> Enum.map(&from_collection/1)
   end
 
   def from_collection(collection = %Collection{}) do
