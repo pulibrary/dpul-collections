@@ -182,12 +182,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
     <li
       id={"related-collection-#{@collection.id}"}
       aria-label={first_title(@collection)}
-      class={
-        [
-          "browse-item overflow-hidden -outline-offset-2 relative card flex bg-white flex-col min-w-[250px] text-dark-text"
-          # @class
-        ]
-      }
+      class="card browse-item overflow-hidden -outline-offset-2 relative card flex bg-white flex-col min-w-[250px] text-dark-text"
     >
       <div class="-outline-offset-1 flex-grow flex flex-col">
         <!-- thumbs -->

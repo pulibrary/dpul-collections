@@ -3,6 +3,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
   use PhoenixTest.Playwright.Case
   alias DpulCollections.Solr
   import SolrTestSupport
+  import Mock
 
   setup_all do
     on_exit(fn -> Solr.delete_all(active_collection()) end)
@@ -208,20 +209,23 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
 
   describe "a collection with related collections" do
     setup do
-      [
-        # Manuscripts of the Islamic World collection
-        "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a",
-        # Middle East Manuscripts collection
-        "3bab572e-6603-4abf-8305-16ce6fe3ac5c",
-        # Robert Garrett collection
-        "3b230de6-e7d3-4482-8f19-d76c8491cec3",
-        # Collections Donated to Princeton University Library
-        "62339f65-ce6d-4c85-ab77-67c70abb8709",
-        # featured item, it's in 4 collections (but more could be added to the
-        # CSV since it's a synthetic fixture)
-        "159ba3f9-feab-49dd-bc71-ca08995006d9"
-      ]
-      |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
+      with_mock DpulCollections.IndexingPipeline.Figgy.ResourceTypeRegistry, [:passthrough],
+        allowed_collection?: fn _ -> true end do
+        [
+          # Manuscripts of the Islamic World collection
+          "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a",
+          # Middle East Manuscripts collection
+          "3bab572e-6603-4abf-8305-16ce6fe3ac5c",
+          # Robert Garrett collection
+          "3b230de6-e7d3-4482-8f19-d76c8491cec3",
+          # Collections Donated to Princeton University Library
+          "62339f65-ce6d-4c85-ab77-67c70abb8709",
+          # featured item, it's in 4 collections (but more could be added to the
+          # CSV since it's a synthetic fixture)
+          "159ba3f9-feab-49dd-bc71-ca08995006d9"
+        ]
+        |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
+      end
 
       Solr.soft_commit(active_collection())
       on_exit(fn -> Solr.delete_all(active_collection()) end)
@@ -230,6 +234,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
 
     test "it has content for the collection", %{conn: conn} do
       conn
+      # |> visit("/collections/princetoncollectors")
       |> visit("/collections/islamicmss")
       |> assert_has(".phx-connected")
       # Related Collections cards
@@ -237,15 +242,13 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       # sure it's not found)
       |> assert_has(
         "#related-collections .card",
-        count: 1
+        text: "Collections Donated to Princeton"
       )
-
-      # TODO test to ensure it doesn't display collections that aren't indexed
 
       # also click on the arrow and assert that 
       # link to related collections search result page
       # |> assert_has(
-      #   "a[href='search?filter[related][]=Russian+and+East+European+Posters']"
+      #   "a[href='search?filter[related_collections][]=Russian+and+East+European+Posters']"
       # )
     end
   end
