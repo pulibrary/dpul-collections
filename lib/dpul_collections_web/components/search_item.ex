@@ -136,7 +136,7 @@ defmodule DpulCollectionsWeb.SearchItem do
                 <h3
                   :for={ttitle <- @item.transliterated_title}
                   dir="auto"
-                  class="mt-[-1rem] font-medium text-gray-500"
+                  class="mt-[-1rem] font-medium text-gray-600"
                   id={"item-translit-title-#{@item.id}"}
                 >
                   {ttitle}
@@ -273,22 +273,22 @@ defmodule DpulCollectionsWeb.SearchItem do
           :if={length(@item.publisher) > 0}
           class="publisher"
         >
-          <div class="text-base">{gettext("Publisher")}</div>
-          <div class="text-lg font-semibold">{@item.publisher}</div>
+          <div class="text-base text-gray-500">{gettext("Publisher")}</div>
+          <div class="text-lg">{@item.publisher}</div>
         </div>
         <div
           :if={@item.date}
           class="date"
         >
-          <div class="text-base">{gettext("Date")}</div>
-          <div class="text-lg font-semibold">{@item.date}</div>
+          <div class="text-base text-gray-500">{gettext("Date")}</div>
+          <div class="text-lg">{@item.date}</div>
         </div>
         <div
           :if={length(@item.geographic_origin) > 0}
           class="origin"
         >
-          <div class="text-base">{gettext("Origin")}</div>
-          <div class="text-lg font-semibold">{@item.geographic_origin}</div>
+          <div class="text-base text-gray-500">{gettext("Origin")}</div>
+          <div class="text-lg">{@item.geographic_origin}</div>
         </div>
       </div>
     </div>
