@@ -48,10 +48,18 @@ defmodule DpulCollectionsWeb.HomeLive do
                 <.format_link filter="leaflets" label={gettext("Leaflets")} />
                 <.format_link filter="photographs" label={gettext("Photographs")} />
               </div>
-              <div class="content-area bg-primary text-light-text px-0 text-xl">
-                <.primary_button href={~p"/browse"}>
-                  {gettext("Explore")}
-                </.primary_button>
+              <div class="columns-2">
+                <div class="content-area bg-primary text-light-text px-0 text-xl">
+                  <.primary_button href={~p"/search"}>
+                    {gettext("Search All")}
+                  </.primary_button>
+                </div>
+
+                <div class="content-area bg-primary text-light-text px-0 text-xl">
+                  <.primary_button href={~p"/browse"}>
+                    {gettext("Explore")}
+                  </.primary_button>
+                </div>
               </div>
             </div>
           </div>
