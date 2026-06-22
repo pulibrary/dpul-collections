@@ -66,7 +66,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       )
       # Banner image
       |> assert_has(
-        "#collection-banner img[src='https://iiif-cloud.princeton.edu/iiif/2/a1%2F2d%2Fdc%2Fa12ddc0476d147c0a3571a109c9e4e32%2Fintermediate_file/354,1295,1551,1034/full/0/default.jpg']"
+        "#collection-banner img[src='https://iiif-cloud.princeton.edu/iiif/2/a1%2F2d%2Fdc%2Fa12ddc0476d147c0a3571a109c9e4e32%2Fintermediate_file/354,1295,1551,1034/750,/0/default.jpg']"
       )
       # Featured Items
       |> assert_has("#featured-items .browse-item", count: 4)
