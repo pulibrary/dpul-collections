@@ -213,10 +213,13 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
         "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a",
         # Middle East Manuscripts collection
         "3bab572e-6603-4abf-8305-16ce6fe3ac5c",
-        # TODO: add some more collections so that we have more than a single
-        # row, use the featured item for this
-        # a manuscript in both of the above collections
-        "27fd4d29-1170-47a5-891b-f2743873bcef"
+        # Robert Garrett collection
+        "3b230de6-e7d3-4482-8f19-d76c8491cec3",
+        # Collections Donated to Princeton University Library
+        "62339f65-ce6d-4c85-ab77-67c70abb8709",
+        # featured item, it's in 4 collections (but more could be added to the
+        # CSV since it's a synthetic fixture)
+        "159ba3f9-feab-49dd-bc71-ca08995006d9"
       ]
       |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
 
@@ -230,6 +233,8 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> visit("/collections/islamicmss")
       |> assert_has(".phx-connected")
       # Related Collections cards
+      # TODO assert it has specific cards and not others (e.g. index LAE, make
+      # sure it's not found)
       |> assert_has(
         "#related-collections .card",
         count: 1

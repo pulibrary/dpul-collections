@@ -24,18 +24,17 @@ BOX_ID=82624edb-c360-4d8a-b202-f103ee639e8e
 # 6d2be738-626f-4b3d-a17a-655501d2ad9e - Монтян Захистить! Кандидат, який живе поруч з вами, an item from print ephemera form Ukraine (note it's also in Princeton Slavic collections), has a mods file attached
 # 118983a5-dd6b-4d7a-bb8c-93fb08248cac - Russian and East European posters project, a collection with no contributor blocks, used to test layout
 # 52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a - Manuscripts of the Islamic World collection
-# 3bab572e-6603-4abf-8305-16ce6fe3ac5c - Middle East Manuscripts collection
-# 27fd4d29-1170-47a5-891b-f2743873bcef - المحاسن المجتمعة في فضل فضايل الخلفاء الاربعة a manuscript in both of the above collections
-# ee3528e9-88a4-4d2b-adee-f05efede87a7 - شاهنامه. a manuscript in both collections, added due to popularity
-# 1a8c14ca-060c-434f-b999-6191db4c336c - [شاهنامه]. a manuscript in both collections, added due to popularity
-# 2cc9b5cf-8d33-4f1b-b53f-fcc658770458 - کتاب شاهنامه. a manuscript in both collections, added due to popularity
+# 27fd4d29-1170-47a5-891b-f2743873bcef - المحاسن المجتمعة في فضل فضايل الخلفاء الاربعة a manuscript in the above collection (and also Middle East Manuscripts)
+# ee3528e9-88a4-4d2b-adee-f05efede87a7 - شاهنامه. a manuscript in the above collection (and also Middle East Manuscripts), added due to popularity
+# 1a8c14ca-060c-434f-b999-6191db4c336c - [شاهنامه]. a manuscript in the above collection (and also Middle East Manuscripts), added due to popularity
+# 2cc9b5cf-8d33-4f1b-b53f-fcc658770458 - کتاب شاهنامه. a manuscript in the above collection (and also Middle East Manuscripts), added due to popularity
 # c66a266c-38ce-4442-90ec-e3e329e6d602 - Ricky renuncia., an LAE item, used for
 # testing search results
 # ce55ea72-176b-4468-b486-2859822b065f - Pando. 100 logros. Evo 2006-2009. an LAE item, used for testing search results
 # 5f78bc1d-940d-4628-9421-98818e3dea35 - 70th year of Women's Indian Association, an SAE item, used for collection banner cropping tests
 
 # Note! Update the comment above when adding new IDs here!!!
-EXTRA_RESOURCE_IDS="('f134f41f-63c5-4fdf-b801-0774e3bc3b2d','65044ab4-8860-48f5-a0b1-efe06a1b4340','6c7c204f-be40-429d-8561-24b11ba0e6a5','32b45be9-257e-444c-bc3e-89535146ae2c', '256df489-089d-473a-b9bb-c3585bb639af', '04b11c52-1508-4adc-8b0c-4cd8f726de0b', 'f09fc91d-7a9b-47b5-afff-ce7db76b4e92', 'e8abfa75-253f-428a-b3df-0e83ff2b20f9', 'e379b822-27cc-4d0e-bca7-6096ac38f1e6', '1e5ae074-3a6e-494e-9889-6cd01f7f0621', '036b86bf-28b0-4157-8912-6d3d9eeaa5a8', 'd82efa97-c69b-424c-83c2-c461baae8307', '6d2be738-626f-4b3d-a17a-655501d2ad9e',  '118983a5-dd6b-4d7a-bb8c-93fb08248cac', '52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a', '3bab572e-6603-4abf-8305-16ce6fe3ac5c', '27fd4d29-1170-47a5-891b-f2743873bcef', 'ee3528e9-88a4-4d2b-adee-f05efede87a7', '1a8c14ca-060c-434f-b999-6191db4c336c', '2cc9b5cf-8d33-4f1b-b53f-fcc658770458', 'c66a266c-38ce-4442-90ec-e3e329e6d602', 'ce55ea72-176b-4468-b486-2859822b065f', '5f78bc1d-940d-4628-9421-98818e3dea35')"
+EXTRA_RESOURCE_IDS="('f134f41f-63c5-4fdf-b801-0774e3bc3b2d','65044ab4-8860-48f5-a0b1-efe06a1b4340','6c7c204f-be40-429d-8561-24b11ba0e6a5','32b45be9-257e-444c-bc3e-89535146ae2c', '256df489-089d-473a-b9bb-c3585bb639af', '04b11c52-1508-4adc-8b0c-4cd8f726de0b', 'f09fc91d-7a9b-47b5-afff-ce7db76b4e92', 'e8abfa75-253f-428a-b3df-0e83ff2b20f9', 'e379b822-27cc-4d0e-bca7-6096ac38f1e6', '1e5ae074-3a6e-494e-9889-6cd01f7f0621', '036b86bf-28b0-4157-8912-6d3d9eeaa5a8', 'd82efa97-c69b-424c-83c2-c461baae8307', '6d2be738-626f-4b3d-a17a-655501d2ad9e',  '118983a5-dd6b-4d7a-bb8c-93fb08248cac', '52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a', '27fd4d29-1170-47a5-891b-f2743873bcef', 'ee3528e9-88a4-4d2b-adee-f05efede87a7', '1a8c14ca-060c-434f-b999-6191db4c336c', '2cc9b5cf-8d33-4f1b-b53f-fcc658770458', 'c66a266c-38ce-4442-90ec-e3e329e6d602', 'ce55ea72-176b-4468-b486-2859822b065f', '5f78bc1d-940d-4628-9421-98818e3dea35')"
 EXTRA_RESOURCE_ID_ARRAY=${EXTRA_RESOURCE_IDS/\(/\[}
 EXTRA_RESOURCE_ID_ARRAY=${EXTRA_RESOURCE_ID_ARRAY/\)/\]}
 # For some projects we don't want every member, just the members of one box, so import it but don't get all its boxes/folders.
