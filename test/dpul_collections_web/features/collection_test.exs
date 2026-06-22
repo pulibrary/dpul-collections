@@ -59,7 +59,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> assert_has("a[href='/search?filter[collection][]=South+Asian+Ephemera']",
         text: "Browse Collection"
       )
-      # Mosaic
+      # Banner image area
       |> assert_has("#collection-banner", count: 1)
       # Banner item link
       |> assert_has(
@@ -207,6 +207,43 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
     end
   end
 
+  describe "A collection with no banner image selected" do
+    setup do
+      with_mock DpulCollections.IndexingPipeline.Figgy.ResourceTypeRegistry, [:passthrough],
+        allowed_collection?: fn _ -> true end do
+        [
+          # Middle East Manuscripts collection
+          "3bab572e-6603-4abf-8305-16ce6fe3ac5c",
+          # featured item
+          "159ba3f9-feab-49dd-bc71-ca08995006d9"
+        ]
+        |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
+      end
+
+      Solr.soft_commit(active_collection())
+      on_exit(fn -> Solr.delete_all(active_collection()) end)
+      :ok
+    end
+
+    test "it uses a featured item banner image fallback", %{conn: conn} do
+      conn
+      |> visit("/collections/middle-east-mss")
+      |> assert_has(".phx-connected")
+      # Title
+      |> assert_has("h1", text: "Middle East Manuscripts")
+      # Banner image area
+      |> assert_has("#collection-banner", count: 1)
+      # Banner item link
+      |> assert_has(
+        "#collection-banner a[href='/i/work-botany-arabic/item/159ba3f9-feab-49dd-bc71-ca08995006d9']"
+      )
+      # Banner image
+      |> assert_has(
+        "#collection-banner img[src='https://iiif-cloud.princeton.edu/iiif/2/63%2Fc9%2Ff8%2F63c9f84fc5314a19aef8a2d54f468267%2Fintermediate_file/full/!453,800/0/default.jpg']"
+      )
+    end
+  end
+
   describe "a collection with related collections" do
     setup do
       with_mock DpulCollections.IndexingPipeline.Figgy.ResourceTypeRegistry, [:passthrough],
@@ -240,13 +277,16 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       # Related Collections cards
       # TODO assert it has specific cards and not others (e.g. index LAE, make
       # sure it's not found)
-      |> assert_has(
-        "#related-collections .card",
-        text: "Collections Donated to Princeton"
-      )
+      # see #1283
+      |> within("#related-collection-62339f65-ce6d-4c85-ab77-67c70abb8709", fn session ->
+        session
+        |> assert_has("img")
+        |> assert_has("div", text: "Collections Donated to Princeton")
+      end)
 
-      # also click on the arrow and assert that 
+      # TODO click on the arrow and assert that 
       # link to related collections search result page
+      # see #1284
       # |> assert_has(
       #   "a[href='search?filter[related_collections][]=Russian+and+East+European+Posters']"
       # )
