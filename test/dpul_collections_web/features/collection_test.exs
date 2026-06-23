@@ -275,9 +275,6 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> visit("/collections/islamicmss")
       |> assert_has(".phx-connected")
       # Related Collections cards
-      # TODO assert it has specific cards and not others (e.g. index LAE, make
-      # sure it's not found)
-      # see #1283
       |> within("#related-collection-62339f65-ce6d-4c85-ab77-67c70abb8709", fn session ->
         session
         |> assert_has("img")
