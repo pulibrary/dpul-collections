@@ -32,7 +32,11 @@ defmodule DpulCollectionsWeb.Live.Helpers do
     item.content_warning && !Enum.member?(show_images, item.id)
   end
 
-  def truncate(text, max_length, omission \\ "...") do
+  def truncate(text, max_length, omission \\ "...")
+
+  def truncate(nil, _, _), do: nil
+
+  def truncate(text, max_length, omission) do
     if String.length(text) > max_length do
       String.slice(text, 0, max_length - String.length(omission)) <> omission
     else

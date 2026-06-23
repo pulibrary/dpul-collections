@@ -279,12 +279,16 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
         session
         |> assert_has("img")
         |> assert_has("div", text: "Collections Donated to Princeton")
+        |> assert_has(".brief-metadata", text: "People donate some pretty interesting things")
       end)
       # Related Collections card with a featured item but no banner in fixture has an image
+      # long tagline is truncated
       |> within("#related-collection-3bab572e-6603-4abf-8305-16ce6fe3ac5c", fn session ->
         session
         |> assert_has("img")
         |> assert_has("div", text: "Middle East Manuscripts")
+        |> refute_has(".brief-metadata", text: "and digitization")
+        |> assert_has(".brief-metadata", text: "...")
       end)
 
       # TODO click on the arrow and assert that 
