@@ -100,6 +100,15 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
              {:error, {:redirect, %{to: "/browse"}}}
   end
 
+  test "link to search all", %{conn: conn} do
+    {:ok, view, _} = live(conn, "/")
+
+    assert view
+           |> element("#main-content a", "Search All")
+           |> render_click() ==
+             {:error, {:redirect, %{to: "/search"}}}
+  end
+
   test "page title", %{conn: conn} do
     {:ok, _, html} = live(conn, "/")
 
