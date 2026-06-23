@@ -1,5 +1,6 @@
 defmodule DpulCollections.Collection do
   alias DpulCollections.Item
+  alias DpulCollectionsWeb.Live.Helpers
   alias DpulCollections.Search.SearchState
   alias DpulCollections.Solr
   use Gettext, backend: DpulCollectionsWeb.Gettext
@@ -173,6 +174,21 @@ defmodule DpulCollections.Collection do
     Solr.recently_added(5, SearchState.from_params(%{"filter" => %{"collection" => label}}))
     |> Map.get("docs")
     |> Enum.map(&Item.from_solr/1)
+  end
+
+  def meta_properties(collection = %{title: [title | _], summary: summary}) do
+    %{
+      "og:title" => title,
+      "description" => summary,
+      "og:description" => summary
+    }
+    |> Helpers.clean_params()
+  end
+
+  def meta_description([]), do: nil
+
+  def meta_description([summary | _rest]) do
+    summary |> Helpers.truncate(200)
   end
 
   defp collection_summary(label) do
