@@ -422,7 +422,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           aria-label={"View #{@banner_item.title |> hd}"}
         >
           <img
-            src={@collection.banner_image}
+            src={Collection.banner_source(@collection)}
             width="750"
             height="500"
             class="object-cover object-top max-h-full max-w-full w-full"
@@ -445,11 +445,11 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           aria-label={"View #{@banner_item.title |> hd}"}
         >
           <img
-            src={"#{@banner_item.primary_thumbnail_service_url}/full/!#{@banner_item.primary_thumbnail_width},#{@banner_item.primary_thumbnail_height}/0/default.jpg"}
+            src={Collection.banner_source(@collection)}
             width={@banner_item.primary_thumbnail_width}
             height={@banner_item.primary_thumbnail_height}
             class="object-cover object-top max-h-full max-w-full w-full"
-            alt={@banner_item.title |> hd}
+            alt=""
           />
         </.link>
       </div>

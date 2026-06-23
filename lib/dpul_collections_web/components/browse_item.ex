@@ -185,25 +185,15 @@ defmodule DpulCollectionsWeb.BrowseItem do
       class="card browse-item overflow-hidden -outline-offset-2 relative card flex bg-white flex-col min-w-[250px] text-dark-text"
     >
       <div class="-outline-offset-1 flex-grow flex flex-col">
-        <!-- thumbs -->
+        <!-- thumbnail -->
         <div class="px-2 pt-2 bg-white overflow-clip">
-          <div class="flex flex-col gap-2 h-[12rem]">
-            <!-- main thumbnail -->
+          <div class="flex flex-col gap-2 h-[10rem]">
             <div class="min-h-0 grow">
               <img
-                src={@collection.banner_image}
-                width="750"
+                src={Collection.banner_source(@collection)}
                 class="thumbnail bg-slate-400 text-white w-full object-contain"
-                ,
                 alt=""
               />
-              <!--
-              <.thumb
-                thumb={thumbnail_service_url(@thumb_source)}
-                item={@thumb_source}
-                show_images={@show_images}
-              />
-    -->
             </div>
           </div>
         </div>

@@ -274,11 +274,17 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       # |> visit("/collections/princetoncollectors")
       |> visit("/collections/islamicmss")
       |> assert_has(".phx-connected")
-      # Related Collections cards
+      # Related Collections card with banner in fixture has an image
       |> within("#related-collection-62339f65-ce6d-4c85-ab77-67c70abb8709", fn session ->
         session
         |> assert_has("img")
         |> assert_has("div", text: "Collections Donated to Princeton")
+      end)
+      # Related Collections card with a featured item but no banner in fixture has an image
+      |> within("#related-collection-3bab572e-6603-4abf-8305-16ce6fe3ac5c", fn session ->
+        session
+        |> assert_has("img")
+        |> assert_has("div", text: "Middle East Manuscripts")
       end)
 
       # TODO click on the arrow and assert that 

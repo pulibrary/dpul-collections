@@ -79,6 +79,17 @@ defmodule DpulCollections.Collection do
     struct!(collection, updates)
   end
 
+  def banner_source(%__MODULE__{banner_image: banner_image})
+      when is_binary(banner_image) do
+    banner_image
+  end
+
+  def banner_source(collection = %__MODULE__{}) do
+    banner_item = get_banner_item(collection)
+
+    "#{banner_item.primary_thumbnail_service_url}/full/!#{banner_item.primary_thumbnail_width},#{banner_item.primary_thumbnail_height}/0/default.jpg"
+  end
+
   defp get_banner_item(%{banner_image: banner_image, banner_image_id: banner_image_id})
        when is_binary(banner_image) and is_binary(banner_image_id) do
     Solr.find_by_id(banner_image_id) |> Item.from_solr()
