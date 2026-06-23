@@ -440,7 +440,24 @@ defmodule DpulCollections.SolrTest do
           authoritative_slug_s: "latamwriters"
         },
         %{
-          "id" => "253265ef-5acb-4ce3-a6db-e2316631b6a8",
+          id: "f99af4de-fed4-4baa-82b1-6e857b230306",
+          title_txtm: ["South Asian Ephemera"],
+          resource_type_s: "collection",
+          authoritative_slug_s: "sae"
+        },
+        %{
+          "id" => "8b6f89a7-984c-4a83-85a5-fdfba899e0c3",
+          "title_txtm" => [
+            "आमरण अनशन"
+          ],
+          "format_txt_sort" => ["Posters"],
+          "collection_titles_ss" => [
+            "South Asian Ephemera"
+          ],
+          "file_count_i" => 1
+        },
+        %{
+          "id" => "e379b822-27cc-4d0e-bca7-6096ac38f1e6",
           "title_txtm" => [
             "2º Festival Artístico en Solidaridad con los Damnificados de Tlatelolco"
           ],

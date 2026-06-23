@@ -98,13 +98,16 @@ defmodule DpulCollections.Solr do
     facet_params =
       filter_count_fields
       |> Enum.flat_map(fn field ->
-        # For every field we request counts for exclude any filters we've set on
+        # For every field we request counts for, default to excluding the filters we've set on
         # that field when calculating it (ex=exclude), and name it after our shorthand field (key).
         # See https://solr.apache.org/guide/solr/latest/query-guide/faceting.html#tagging-and-excluding-filters
         case @filters[field] do
           # For range filters don't facet - we'll render custom range boxes.
           %{type: :range} ->
             []
+
+          %{filter_count: "include"} ->
+            [{:"facet.field", "{!key=#{field}}#{@filters[field].solr_field}"}]
 
           _ ->
             [{:"facet.field", "{!ex=#{field}Filter key=#{field}}#{@filters[field].solr_field}"}]
@@ -165,7 +168,7 @@ defmodule DpulCollections.Solr do
       |> SearchState.from_params()
       |> SearchState.set_filter("collection", label)
       |> SearchState.add_filter_count_fields([
-        "collection"
+        "collection_and"
       ])
 
     result =
@@ -175,7 +178,7 @@ defmodule DpulCollections.Solr do
 
     # get all the collection facet values from those items
     labels =
-      result.filter_data["collection"][:data]
+      result.filter_data["collection_and"][:data]
       |> Enum.map(&elem(&1, 0))
 
     # then get all the collections with those values as their titles, except the
