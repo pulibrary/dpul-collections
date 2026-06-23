@@ -202,7 +202,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
           <div class="mx-1 px-2 pt-1 pb-5 bg-white flex flex-col">
             <.dynamic_tag
               tag_name={@heading_level}
-              class="font-normal tracking-tight py-1 flex-grow"
+              class="font-normal tracking-tight py-1"
               dir="auto"
             >
               <.link
