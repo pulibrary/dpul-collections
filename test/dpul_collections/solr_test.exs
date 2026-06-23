@@ -588,6 +588,31 @@ defmodule DpulCollections.SolrTest do
     end
   end
 
+  describe ".recent_collections/3" do
+    test "returns only collections" do
+      collection = %{
+        "id" => "coll1",
+        "title_txtm" => "Collection-1",
+        "resource_type_s" => "collection"
+      }
+
+      document = %{
+        "id" => "doc2",
+        "title_txtm" => "Doc-1",
+        "file_count_i" => 1
+      }
+
+      Solr.add([collection, document], active_collection())
+      Solr.soft_commit(active_collection())
+
+      records =
+        Solr.recent_collections(2, SearchState.from_params(%{}))
+        |> Map.get("docs")
+
+      assert [%{"id" => "coll1"}] = records
+    end
+  end
+
   test ".random/3 doesn't return collections" do
     Solr.add(%{
       "id" => "similar-collection",

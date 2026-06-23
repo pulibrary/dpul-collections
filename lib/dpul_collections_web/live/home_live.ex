@@ -2,7 +2,7 @@ defmodule DpulCollectionsWeb.HomeLive do
   use DpulCollectionsWeb, :live_view
   use Gettext, backend: DpulCollectionsWeb.Gettext
   import DpulCollectionsWeb.BrowseItem
-  alias DpulCollections.{Item, Solr}
+  alias DpulCollections.{Collection, Item, Solr}
   alias DpulCollectionsWeb.MosaicImages
 
   def mount(_params, _session, socket) do
@@ -10,9 +10,9 @@ defmodule DpulCollectionsWeb.HomeLive do
       assign(socket,
         page_title: "Digital Collections",
         q_: nil,
-        recent_items:
-          Solr.recently_added(4)["docs"]
-          |> Enum.map(&Item.from_solr(&1))
+        recent_items: Solr.recently_added(4)["docs"] |> Enum.map(&Item.from_solr(&1)),
+        recent_collections:
+          Solr.recent_collections(3)["docs"] |> Enum.map(&Collection.from_solr(&1))
       )
 
     {:ok, socket}
@@ -107,6 +107,29 @@ defmodule DpulCollectionsWeb.HomeLive do
             item={item}
             added?={true}
             likeable?={false}
+            current_scope={@current_scope}
+            current_path={@current_path}
+          />
+        </.card_row>
+
+        <.card_row
+          id="collections"
+          layout="home-content-area"
+          color="bg-background"
+          title={gettext("Collections")}
+          more_link={~p"/search?filter[format][]=Digital+Collection"}
+        >
+          <:intro>
+            <p class="my-2 font-regular">
+              {gettext(
+                "Explore collections curated by our staff to discover related items, their backstory, and context."
+              )}
+            </p>
+          </:intro>
+          <.collection_browse_card_li
+            :for={collection <- @recent_collections}
+            show_images={@show_images}
+            collection={collection}
             current_scope={@current_scope}
             current_path={@current_path}
           />
