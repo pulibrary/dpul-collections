@@ -84,6 +84,14 @@ defmodule DpulCollections.Solr.Constants do
           # Identity just returns whatever you gave it.
           value_function: &Function.identity/1
         },
+        "collection_and" => %{
+          solr_field: "collection_titles_ss",
+          label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Collection"),
+          # Identity just returns whatever you gave it.
+          value_function: &Function.identity/1,
+          # default is "exclude"
+          filter_count: "include"
+        },
         "publisher" => %{
           solr_field: "publisher_txt_sort",
           label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Publisher"),
