@@ -148,6 +148,19 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
   def to_hydration_cache_entry(_resource, _cache_version), do: nil
 
+  # We're being asked by a HydrationCacheEntry, convert appropriately.
+  def process?(
+        resource = %{
+          "internal_resource" => _
+        }
+      ) do
+    # Convert all the top-level keys into atoms if possible, should cover all
+    # the Figgy.Resource properties. If not, String.to_existing_atom will
+    # raise.
+    atom_map = for {key, val} <- resource, into: %{}, do: {String.to_existing_atom(key), val}
+    process?(atom_map)
+  end
+
   # Collections / EphemeraProjects must be published
   def process?(%{
         internal_resource: internal_resource,

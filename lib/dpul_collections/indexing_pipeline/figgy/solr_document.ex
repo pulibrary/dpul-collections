@@ -425,6 +425,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
        when map_size(ancestors) > 0 do
     ancestors
     |> Enum.filter(fn {_id, resource} -> resource["internal_resource"] == resource_type end)
+    # Only index collection titles that are gonna get processed.
+    |> Enum.filter(fn {_id, resource} -> Figgy.HydrationConsumer.process?(resource) end)
     |> Enum.flat_map(fn {_id, resource} -> get_in(resource, ["metadata", "title"]) || [] end)
   end
 
@@ -434,6 +436,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
        when map_size(ancestors) > 0 do
     ancestors
     |> Enum.filter(fn {_id, resource} -> resource["internal_resource"] == resource_type end)
+    |> Enum.filter(fn {_id, resource} -> Figgy.HydrationConsumer.process?(resource) end)
     |> Enum.map(fn {id, _resource} -> id end)
   end
 
