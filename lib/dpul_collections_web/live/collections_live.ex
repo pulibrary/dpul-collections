@@ -291,11 +291,6 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         color=""
         arrow_theme="light"
       >
-        <:intro>
-          <p class="my-2">
-            {gettext("Explore the latest additions to")} {@collection.title |> hd}.
-          </p>
-        </:intro>
         <.item_browse_card_li
           :for={item <- @collection.recently_added}
           show_images={[]}
