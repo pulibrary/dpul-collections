@@ -2,6 +2,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
   use ExUnit.Case
   use PhoenixTest.Playwright.Case
   alias DpulCollections.Solr
+  alias PhoenixTest.Playwright
   import SolrTestSupport
   import Mock
 
@@ -277,7 +278,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       # Featured Highlights are initially visible
       |> assert_has("#featured-items .browse-item")
       |> refute_has("#related-collection-62339f65-ce6d-4c85-ab77-67c70abb8709")
-      |> click_button("Related Collections")
+      |> Playwright.click("#related-collections-tab")
       # Now Related collections are visible
       |> refute_has("#featured-items .browse-item")
       # Related Collections card with banner in fixture has an image

@@ -368,7 +368,7 @@
 }
 
 @utility active-tab {
-  @apply bg-rust;
+  @apply bg-accent;
 }
 
 .diagonal-drop {

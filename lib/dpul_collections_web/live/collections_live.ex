@@ -146,13 +146,13 @@ defmodule DpulCollectionsWeb.CollectionsLive do
       <.content_separator />
       <div class="tab-list content-area flex flex-row" role="tablist">
         <.tab_button
-          id="tab1"
+          id="featured-items-tab"
           label="Featured Highlights"
           pane="featured-items-container"
           active?={true}
         />
         <.tab_button
-          id="tab2"
+          id="related-collections-tab"
           label="Related Collections"
           pane="related-collections-container"
           active?={false}
