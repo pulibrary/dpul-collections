@@ -274,7 +274,7 @@ defmodule DpulCollectionsWeb.SearchItem do
           class="publisher"
         >
           <div class="text-base text-gray-600">{gettext("Publisher")}</div>
-          <div class="text-lg">{@item.publisher}</div>
+          <div class="text-lg">{@item.publisher |> Enum.at(0)}</div>
         </div>
         <div
           :if={@item.date}

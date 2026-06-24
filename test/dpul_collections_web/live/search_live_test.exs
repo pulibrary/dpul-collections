@@ -951,4 +951,24 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
              )
     end
   end
+
+  test "only one publisher is displayed on item card", %{conn: conn} do
+    Solr.add(
+      [
+        %{
+          id: 999,
+          title_txtm: ["An Item Title"],
+          publisher_txt_sort: ["Publisher1", "Publisher2"]
+        }
+      ],
+      active_collection()
+    )
+
+    Solr.soft_commit(active_collection())
+
+    {:ok, view, _html} = live(conn, "/search?q=999")
+
+    refute view |> has_element?(".publisher div", "Publisher1Publisher2")
+    assert view |> has_element?(".publisher div", "Publisher1")
+  end
 end
