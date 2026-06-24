@@ -149,7 +149,10 @@ defmodule DpulCollectionsWeb.ItemLive do
     <div class="bg-background page-y-padding content-area item-page col-start-1 row-start-1">
       <div class="column-layout my-5 flex flex-col sm:grid sm:grid-flow-row sm:auto-rows-0 sm:grid-cols-5 sm:grid-rows-[auto_1fr] sm:content-start gap-x-14 gap-y-4">
         <div class="item-title sm:row-start-1 sm:col-start-3 sm:col-span-3 h-min flex flex-col gap-4">
-          <div aria-label={gettext("format")}>
+          <div
+            :if={@item.format}
+            aria-label={gettext("format")}
+          >
             <.filter_link
               class="text-xl uppercase tracking-wide"
               filter_value={@item.format}
@@ -180,11 +183,11 @@ defmodule DpulCollectionsWeb.ItemLive do
               </p>
             </div>
           </div>
-          <div aria-label={gettext("date")}>
-            <p
-              :if={@item.date}
-              class="text-xl font-medium text-dark-text"
-            >
+          <div
+            :if={@item.date}
+            aria-label={gettext("date")}
+          >
+            <p class="text-xl font-medium text-dark-text">
               {@item.date}
             </p>
           </div>

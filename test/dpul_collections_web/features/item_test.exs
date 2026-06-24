@@ -222,6 +222,32 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
     |> assert_has("#item-counter", text: "1 - 1 of 1")
   end
 
+  describe "item title section" do
+    test "when item has display date and format", %{conn: conn} do
+      conn
+      |> visit("/i/document1/item/1")
+      |> assert_has(".item-title > [aria-label='date']")
+      |> assert_has(".item-title > [aria-label='format']")
+    end
+
+    test "when item does not have display date or format", %{conn: conn} do
+      docs = [
+        %{
+          id: "nodate",
+          title_txtm: ["Document-nodate"]
+        }
+      ]
+
+      Solr.add(docs, active_collection())
+      Solr.soft_commit(active_collection())
+
+      conn
+      |> visit("/i/documentnodate/item/nodate")
+      |> refute_has(".item-title > div[aria-label='date']")
+      |> refute_has(".item-title > div[aria-label='format']")
+    end
+  end
+
   def go_back(conn) do
     conn
     |> evaluate("window.history.back()")
