@@ -1,5 +1,5 @@
 defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
-  use DpulCollections.DataCase, async: true
+  use DpulCollections.DataCase
   import Mock
 
   alias DpulCollections.IndexingPipeline

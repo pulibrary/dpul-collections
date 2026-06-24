@@ -1,6 +1,6 @@
 defmodule DpulCollectionsWeb.BrowseTest do
-  use DpulCollections.DataCase, async: true
-  use PhoenixTest.Playwright.Case, async: true
+  use DpulCollections.DataCase
+  use PhoenixTest.Playwright.Case
   alias DpulCollections.Solr
   import DpulCollections.AccountsFixtures
 

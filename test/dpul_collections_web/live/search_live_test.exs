@@ -117,7 +117,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     {:ok, document} =
       view
-      |> render_async()
+      |> render()
       |> Floki.parse_document()
 
     assert document
@@ -132,7 +132,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     {:ok, document} =
       view
-      |> render_async()
+      |> render()
       |> Floki.parse_document()
 
     assert document
@@ -151,7 +151,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     {:ok, document} =
       view
-      |> render_async()
+      |> render()
       |> Floki.parse_document()
 
     # Note: 100 items are generated in solr_test_support.ex from oldest to newest.
@@ -222,7 +222,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     |> render_change(%{_target: ["filter", "format"], filter: %{format: ["Folders"]}})
 
     assert view
-           |> render_async()
+           |> render()
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
            |> Floki.text() =~ "of 50"
@@ -239,7 +239,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     })
 
     assert view
-           |> render_async()
+           |> render()
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
            |> Floki.text() =~ "of 100"
@@ -253,7 +253,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     |> render_click()
 
     assert view
-           |> render_async
+           |> render()
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
            |> Floki.text() =~ "of 50"
@@ -264,7 +264,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     |> render_change(%{"_target" => ["filter", "format"], "filter" => %{"format" => nil}})
 
     assert view
-           |> render_async
+           |> render()
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
            |> Floki.text() =~ "of 100"
@@ -390,7 +390,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     |> render_change(%{_target: ["filter", "format"], filter: %{format: ["Folders"]}})
 
     assert view
-           |> render_async()
+           |> render()
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
            |> Floki.text() =~ "1 - 50 of 105"
@@ -417,7 +417,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     |> render_click()
 
     assert view
-           |> render_async()
+           |> render()
            |> Floki.parse_document!()
            |> Floki.find("#item-counter")
            |> Floki.text() =~ "1 - 50 of 210"
@@ -482,7 +482,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     {:ok, document} =
       view
-      |> render_async()
+      |> render()
       |> Floki.parse_document()
 
     assert document
@@ -708,7 +708,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     {:ok, document} =
       view
-      |> render_async()
+      |> render()
       |> Floki.parse_document()
 
     assert document
@@ -747,7 +747,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
     {:ok, document} =
       view
-      |> render_async()
+      |> render()
       |> Floki.parse_document()
 
     assert document
