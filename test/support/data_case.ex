@@ -49,25 +49,16 @@ defmodule DpulCollections.DataCase do
       end
 
       # Clear out the email inbox.
-      Swoosh.Adapters.Local.Storage.Memory.delete_all()
+      # Swoosh.Adapters.Local.Storage.Memory.delete_all()
 
       Ecto.Adapters.SQL.Sandbox.stop_owner(pid)
     end)
 
-    if !tags[:async] do
-      DpulCollections.Solr.delete_all(SolrTestSupport.active_collection())
-      on_exit(fn -> DpulCollections.Solr.delete_all(SolrTestSupport.active_collection()) end)
-    else
+    if tags[:async] do
       key = "test-#{System.unique_integer([:positive])}"
       Process.put(:solr_sandbox_key, key)
+    else
       DpulCollections.Solr.delete_all(SolrTestSupport.active_collection())
-
-      on_exit(fn ->
-        DpulCollections.Solr.delete_all(
-          SolrTestSupport.active_collection()
-          |> Map.put(:sandbox_key, key)
-        )
-      end)
     end
   end
 

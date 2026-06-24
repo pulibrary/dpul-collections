@@ -78,7 +78,7 @@ defmodule DpulCollections.MixProject do
       {:excoveralls, "== 0.18.5", only: :test},
       {:broadway, "== 1.3.0"},
       {:ex_doc, "== 0.40.2", only: :dev, runtime: false},
-      {:req, "== 0.6.1"},
+      {:req, "== 0.6.2"},
       {:broadway_dashboard, "== 0.4.1"},
       {:honeybadger, "== 0.28.0"},
       {:phoenix_test_playwright, "~> 0.14.0", only: :test, runtime: false},

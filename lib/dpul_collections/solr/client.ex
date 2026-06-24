@@ -50,12 +50,11 @@ defmodule DpulCollections.Solr.Client do
   end
 
   def delete_all(index = %Index{sandbox_key: sandbox_key}) do
-    query =
-      if is_binary(sandbox_key) do
-        "solr_sandbox_key_s:#{sandbox_key}"
-      else
-        "*:*"
-      end
+    query = cond do
+      sandbox_key == "all" -> "*:*"
+      is_binary(sandbox_key) -> "solr_sandbox_key_s:#{sandbox_key}"
+      true -> "-solr_sandbox_key_s:[* TO *]"
+    end
 
     Req.post(
       update_url(index),
@@ -97,7 +96,10 @@ defmodule DpulCollections.Solr.Client do
     |> Req.merge(params: [fq: "solr_sandbox_key_s:#{index.sandbox_key}"])
   end
 
-  defp sandbox(req, _index), do: req
+  defp sandbox(req, _index) do
+    req
+    |> Req.merge(params: [fq: "-solr_sandbox_key_s:[* TO *]"])
+  end
 
   defp update_url(index) do
     Index.connect(index)

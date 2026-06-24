@@ -115,7 +115,7 @@ defmodule FiggyTestSupport do
     |> Figgy.Resource.populate_virtual()
     |> Figgy.Resource.to_combined()
     |> Figgy.SolrDocument.from_combined_figgy_resource()
-    |> Solr.add()
+    |> Solr.add(SolrTestSupport.active_collection())
   end
 
   def index_record_id(id) do

@@ -20,6 +20,7 @@ defmodule DpulCollectionsWeb.Endpoint do
   # See https://hexdocs.pm/phoenix_ecto/main.html#concurrent-browser-tests
   if Application.compile_env(:dpul_collections, :sql_sandbox) do
     plug Phoenix.Ecto.SQL.Sandbox
+    plug DpulCollectionsWeb.SolrSandboxPlug
   end
 
   socket "/live", Phoenix.LiveView.Socket,

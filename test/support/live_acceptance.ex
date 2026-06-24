@@ -14,6 +14,7 @@ defmodule LiveAcceptance do
 
     metadata = socket.assigns.phoenix_ecto_sandbox
     Phoenix.Ecto.SQL.Sandbox.allow(metadata, Ecto.Adapters.SQL.Sandbox)
+    DpulCollections.Solr.Sandbox.allow(metadata)
     {:cont, socket}
   end
 end
