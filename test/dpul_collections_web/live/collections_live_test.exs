@@ -48,9 +48,7 @@ defmodule DpulCollectionsWeb.CollectionsLiveTest do
              |> Enum.any?()
 
       assert document
-             |> Floki.find(
-               ~s{meta[property="og:description"][content="This is a tagline."]}
-             )
+             |> Floki.find(~s{meta[property="og:description"][content="This is a tagline."]})
              |> Enum.any?()
 
       assert document
