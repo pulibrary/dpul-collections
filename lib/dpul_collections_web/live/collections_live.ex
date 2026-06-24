@@ -168,6 +168,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         <.card_row
           id="featured-items"
           title={gettext("Featured Highlights")}
+          hide_title?={true}
           layout="content-area"
           color=""
           arrow_theme="light"
@@ -192,6 +193,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           id="related-collections"
           layout="content-area"
           title={gettext("Related Collections")}
+          hide_title?={true}
           color=""
           arrow_theme="light"
         >

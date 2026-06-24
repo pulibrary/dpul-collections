@@ -9,6 +9,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
   alias DpulCollectionsWeb.ContentWarnings
 
   attr :title, :string, required: true
+  attr :hide_title?, :boolean, default: false
   attr :more_link, :string, default: nil
   attr :color, :string, default: "bg-primary-bright"
   # can be light or dark
@@ -28,8 +29,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
     ~H"""
     <div class={["grid-row", @color]} {@rest}>
       <div class={@layout}>
-        <div class="page-t-padding" />
-        <h2>{@title}</h2>
+        <h2 class={[@hide_title? && "sr-only", "page-t-padding"]}>{@title}</h2>
         {render_slot(@intro)}
         <div class="flex gap-6 justify-stretch page-t-padding">
           <!-- cards -->
