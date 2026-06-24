@@ -1,5 +1,5 @@
 defmodule DpulCollectionsWeb.CorrectionTest do
-  use DpulCollections.DataCase
+  use DpulCollections.DataCase, async: true
   alias DpulCollections.Correction
 
   describe "changeset" do

@@ -1,6 +1,6 @@
 defmodule DpulCollectionsWeb.Features.HomeTest do
-  use DpulCollections.DataCase
-  use PhoenixTest.Playwright.Case, headless: false
+  use DpulCollections.DataCase, async: true
+  use PhoenixTest.Playwright.Case, async: true
   alias DpulCollections.Solr
 
   test "home page is accessible", %{conn: conn} do

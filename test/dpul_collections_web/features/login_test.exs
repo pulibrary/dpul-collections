@@ -1,7 +1,7 @@
 defmodule DpulCollectionsWeb.LoginTest do
   alias DpulCollections.Accounts
-  use DpulCollections.DataCase
-  use PhoenixTest.Playwright.Case
+  use DpulCollections.DataCase, async: true
+  use PhoenixTest.Playwright.Case, async: true
   import DpulCollections.AccountsFixtures
 
   # This makes sure that the SQL sandbox works with LiveView by navigating

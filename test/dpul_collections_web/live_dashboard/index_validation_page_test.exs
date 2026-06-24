@@ -24,7 +24,6 @@ defmodule DpulCollectionsWeb.LiveDashboard.IndexValidationPageTest do
 
     Solr.soft_commit(active_collection())
 
-    on_exit(fn -> Solr.delete_all(active_collection()) end)
     :ok
   end
 

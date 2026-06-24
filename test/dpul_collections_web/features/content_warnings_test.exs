@@ -1,6 +1,6 @@
 defmodule DpulCollectionsWeb.Features.ContentWarningsTest do
-  use DpulCollections.DataCase
-  use PhoenixTest.Playwright.Case
+  use DpulCollections.DataCase, async: true
+  use PhoenixTest.Playwright.Case, async: true
   alias DpulCollections.Solr
 
   setup do

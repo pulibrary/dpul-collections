@@ -1,5 +1,5 @@
 defmodule DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarkerTest do
-  use DpulCollections.DataCase
+  use DpulCollections.DataCase, async: true
 
   alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
 

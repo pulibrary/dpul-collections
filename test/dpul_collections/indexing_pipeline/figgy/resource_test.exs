@@ -1,5 +1,5 @@
 defmodule DpulCollections.IndexingPipeline.Figgy.ResourceTest do
-  use DpulCollections.DataCase
+  use DpulCollections.DataCase, async: true
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy
 

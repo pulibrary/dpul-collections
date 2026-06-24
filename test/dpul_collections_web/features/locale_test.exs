@@ -1,6 +1,6 @@
 defmodule DpulCollectionsWeb.Features.LocaleTest do
-  use DpulCollections.DataCase
-  use PhoenixTest.Playwright.Case
+  use DpulCollections.DataCase, async: true
+  use PhoenixTest.Playwright.Case, async: true
   alias PhoenixTest.Playwright
   alias DpulCollections.Solr
 

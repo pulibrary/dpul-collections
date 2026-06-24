@@ -4,11 +4,6 @@ defmodule DpulCollections.Solr.IndexTest do
   alias DpulCollections.Solr.Index
   import SolrTestSupport
 
-  setup do
-    Solr.delete_all(active_collection())
-    on_exit(fn -> Solr.delete_all(active_collection()) end)
-  end
-
   test ".connect/1 setting auth works" do
     index = %Index{
       base_url: "http://localhost:8983",

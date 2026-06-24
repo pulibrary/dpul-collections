@@ -1,5 +1,5 @@
 defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
-  use DpulCollections.DataCase
+  use DpulCollections.DataCase, async: true
 
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy.{Resource, HydrationConsumer}

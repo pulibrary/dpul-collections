@@ -8,11 +8,6 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
   alias DpulCollections.{IndexingPipeline, Solr, IndexMetricsTracker}
   import SolrTestSupport
 
-  setup do
-    Solr.delete_all(active_collection())
-    on_exit(fn -> Solr.delete_all(active_collection()) end)
-  end
-
   @tag sandbox: false
   test "a full pipeline run of all 3 stages, then re-run of each stage" do
     # Start the figgy pipeline in a way that mimics how it is started in

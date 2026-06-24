@@ -1,6 +1,6 @@
 defmodule DpulCollectionsWeb.Features.SearchBarTest do
-  use DpulCollections.DataCase
-  use PhoenixTest.Playwright.Case
+  use DpulCollections.DataCase, async: true
+  use PhoenixTest.Playwright.Case, async: true
   alias DpulCollections.Solr
 
   setup do
@@ -8,7 +8,6 @@ defmodule DpulCollectionsWeb.Features.SearchBarTest do
     # index a sae project so there's a collection page
     FiggyTestSupport.index_record_id_directly("f99af4de-fed4-4baa-82b1-6e857b230306")
     Solr.soft_commit(active_collection())
-    on_exit(fn -> Solr.delete_all(active_collection()) end)
     :ok
   end
 

@@ -39,8 +39,6 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
     |> click_button("Filters")
     |> click_button("View 5 results")
     |> assert_has(".filter.format")
-
-    :timer.sleep(1000)
   end
 
   test "search results only display non-empty metadata", %{conn: conn} do

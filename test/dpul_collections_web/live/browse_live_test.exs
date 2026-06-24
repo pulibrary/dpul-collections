@@ -4,10 +4,6 @@ defmodule DpulCollectionsWeb.BrowseLiveTest do
   alias DpulCollections.Solr
   @endpoint DpulCollectionsWeb.Endpoint
 
-  setup do
-    on_exit(fn -> Solr.delete_all(active_collection()) end)
-  end
-
   test "GET /", %{conn: conn} do
     conn = get(conn, ~p"/browse")
     assert redirected_to(conn, 302) =~ "/browse?r="

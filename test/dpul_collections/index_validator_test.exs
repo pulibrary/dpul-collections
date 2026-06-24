@@ -1,5 +1,5 @@
 defmodule DpulCollections.IndexValidatorTest do
-  use DpulCollections.DataCase
+  use DpulCollections.DataCase, async: true
   alias DpulCollections.IndexValidator
   alias DpulCollections.Solr
 
@@ -22,7 +22,6 @@ defmodule DpulCollections.IndexValidatorTest do
 
     Solr.soft_commit(active_collection())
 
-    on_exit(fn -> Solr.delete_all(active_collection()) end)
     :ok
   end
 

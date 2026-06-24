@@ -1,7 +1,7 @@
 defmodule DpulCollections.ItemTest do
   alias DpulCollections.Solr
   import SolrTestSupport
-  use DpulCollections.DataCase
+  use DpulCollections.DataCase, async: true
 
   alias DpulCollections.Item
 
@@ -10,10 +10,6 @@ defmodule DpulCollections.ItemTest do
       item = Item.from_solr(%{"title_ss" => ["Title"]})
 
       assert item.image_service_urls == []
-    end
-
-    setup do
-      on_exit(fn -> Solr.delete_all(active_collection()) end)
     end
 
     test "can build from an Ephemera Project" do

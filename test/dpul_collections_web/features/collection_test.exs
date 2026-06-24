@@ -1,13 +1,9 @@
 defmodule DpulCollectionsWeb.Features.CollectionViewTest do
   use ExUnit.Case
-  use PhoenixTest.Playwright.Case
+  use DpulCollections.DataCase, async: true
+  use PhoenixTest.Playwright.Case, async: true
   alias DpulCollections.Solr
   import SolrTestSupport
-
-  setup_all do
-    on_exit(fn -> Solr.delete_all(active_collection()) end)
-    :ok
-  end
 
   describe "the collection page content for an EphemeraProject" do
     setup do
@@ -38,7 +34,6 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
 
       Solr.soft_commit(active_collection())
-      on_exit(fn -> Solr.delete_all(active_collection()) end)
       :ok
     end
 
@@ -173,7 +168,6 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
 
       Solr.soft_commit(active_collection())
 
-      on_exit(fn -> Solr.delete_all(active_collection()) end)
       :ok
     end
 
