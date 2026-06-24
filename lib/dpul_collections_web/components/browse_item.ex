@@ -199,10 +199,10 @@ defmodule DpulCollectionsWeb.BrowseItem do
         </div>
         <!-- card text area -->
         <div class="grid grid-cols-1 grow">
-          <div class="mx-1 px-2 pt-1 pb-5 bg-white flex flex-col">
+          <div class="mx-1 px-6 pb-5 bg-white flex flex-col">
             <.dynamic_tag
               tag_name={@heading_level}
-              class="font-normal tracking-tight py-1"
+              class="font-normal tracking-tight py-1 pt-4"
               dir="auto"
             >
               <.link
