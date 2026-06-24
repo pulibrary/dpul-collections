@@ -210,8 +210,8 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
 
   describe "A collection with no banner image selected" do
     setup do
-      with_mock DpulCollections.IndexingPipeline.Figgy.ResourceTypeRegistry, [:passthrough],
-        allowed_collection?: fn _ -> true end do
+      with_mock DpulCollections.IndexingPipeline.Figgy.HydrationConsumer, [:passthrough],
+        process?: fn _ -> true end do
         [
           # Middle East Manuscripts collection
           "3bab572e-6603-4abf-8305-16ce6fe3ac5c",
@@ -247,8 +247,8 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
 
   describe "a collection with related collections" do
     setup do
-      with_mock DpulCollections.IndexingPipeline.Figgy.ResourceTypeRegistry, [:passthrough],
-        allowed_collection?: fn _ -> true end do
+      with_mock DpulCollections.IndexingPipeline.Figgy.HydrationConsumer, [:passthrough],
+        process?: fn _ -> true end do
         [
           # Manuscripts of the Islamic World collection
           "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a",

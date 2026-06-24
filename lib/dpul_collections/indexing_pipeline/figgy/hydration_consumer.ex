@@ -86,6 +86,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   end
 
   @indexable_resource_types ResourceTypeRegistry.indexable_types()
+  @collection_types ResourceTypeRegistry.collection_types()
   @related_record_types ResourceTypeRegistry.related_record_types()
   @processed_types ResourceTypeRegistry.processed_types()
 
@@ -111,16 +112,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     end
   end
 
-  # Collections only update if they're allowed.
-  def to_hydration_cache_entry(
-        resource = %{internal_resource: "Collection", id: id},
-        cache_version
-      ) do
-    if ResourceTypeRegistry.allowed_collection?(id) do
-      HydrationCacheEntry.from(resource, cache_version)
-    end
-  end
-
   # Ingest EphemeraFolders / ScannedResources
   def to_hydration_cache_entry(resource = %{internal_resource: internal_resource}, cache_version)
       when internal_resource in @indexable_resource_types do
@@ -142,45 +133,55 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   end
 
   def to_hydration_cache_entry(
-        resource = %{internal_resource: "EphemeraProject", id: id},
+        resource = %{internal_resource: internal_resource, id: id},
         cache_version
-      ) do
+      )
+      when internal_resource in @collection_types do
     combined_resource = Figgy.Resource.to_combined(resource)
 
-    case combined_resource.resource.metadata do
-      %{"publish" => ["1"]} ->
-        HydrationCacheEntry.from(combined_resource, cache_version)
-
-      _ ->
-        delete_if_seen(id, combined_resource, cache_version)
+    if process?(combined_resource.resource) do
+      HydrationCacheEntry.from(combined_resource, cache_version)
+    else
+      delete_if_seen(id, combined_resource, cache_version)
     end
   end
 
   def to_hydration_cache_entry(_resource, _cache_version), do: nil
 
+  # Collections / EphemeraProjects must be published
+  def process?(%{
+        internal_resource: internal_resource,
+        metadata: %{
+          "publish" => ["1"]
+        }
+      })
+      when internal_resource in @collection_types do
+    true
+  end
+
   # Scanned resources must be complete, open, and a member of an allowed
   # collection.
-  defp process?(
-         resource = %{
-           internal_resource: "ScannedResource",
-           state: ["complete"],
-           visibility: ["open"],
-           member_of_collection_ids: [_ | _]
-         }
-       ) do
+  def process?(
+        resource = %{
+          internal_resource: "ScannedResource",
+          state: ["complete"],
+          visibility: ["open"],
+          member_of_collection_ids: [_ | _]
+        }
+      ) do
     member_of_allowed_collection?(resource)
   end
 
   # Ephemera Folders must be complete and open.
-  defp process?(%{
-         internal_resource: "EphemeraFolder",
-         state: ["complete"],
-         visibility: ["open"]
-       }) do
+  def process?(%{
+        internal_resource: "EphemeraFolder",
+        state: ["complete"],
+        visibility: ["open"]
+      }) do
     true
   end
 
-  defp process?(_resource), do: false
+  def process?(_resource), do: false
 
   defp delete_if_seen(record_id, source, cache_version) do
     if IndexingPipeline.get_hydration_cache_entry!(record_id, cache_version) do

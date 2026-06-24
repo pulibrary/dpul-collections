@@ -439,7 +439,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
       assert %{"years_is" => [1704]} = document
 
-      # only allowed collections are included
+      # only published collections are included
       assert document["collection_titles_ss"] == [
                "Manuscripts of the Islamic World"
              ]
