@@ -274,6 +274,12 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       # |> visit("/collections/princetoncollectors")
       |> visit("/collections/islamicmss")
       |> assert_has(".phx-connected")
+      # Featured Highlights are initially visible
+      |> assert_has("#featured-items .browse-item")
+      |> refute_has("#related-collection-62339f65-ce6d-4c85-ab77-67c70abb8709")
+      |> click_button("Related Collections")
+      # Now Related collections are visible
+      |> refute_has("#featured-items .browse-item")
       # Related Collections card with banner in fixture has an image
       |> within("#related-collection-62339f65-ce6d-4c85-ab77-67c70abb8709", fn session ->
         session

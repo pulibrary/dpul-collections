@@ -367,6 +367,10 @@
   @apply max-md:transform-[translateX(-40px)];
 }
 
+@utility active-tab {
+  @apply bg-rust;
+}
+
 .diagonal-drop {
   padding-left: 30px;
   clip-path: polygon(0 0, 100% 0, 100% 100%, 25px 100%);

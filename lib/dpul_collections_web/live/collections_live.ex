@@ -144,11 +144,35 @@ defmodule DpulCollectionsWeb.CollectionsLive do
     ~H"""
     <div>
       <.content_separator />
+      <div class={[
+        "tab-header"
+      ]}>
+        <ul>
+          <li
+            class="tab-option"
+            phx-click={
+              set_active_tab("#tab1")
+              |> show_active_content("#featured-items-container")
+            }
+          >
+            <button id="tab1" class="tab active-tab">Featured Highlights</button>
+          </li>
+          <li
+            class="tab-option"
+            phx-click={
+              set_active_tab("#tab2")
+              |> show_active_content("#related-collections-container")
+            }
+          >
+            <button id="tab2" class="tab">Related Collections</button>
+          </li>
+        </ul>
+      </div>
       <div
         :if={length(@collection.featured_items) > 0}
         id="featured-items-container"
         phx-update="ignore"
-        class="grid-flow auto-rows-max"
+        class="grid-flow auto-rows-max tab-content"
       >
         <.card_row
           id="featured-items"
@@ -170,7 +194,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         :if={length(@collection.related_collections) > 0}
         id="related-collections-container"
         phx-update="ignore"
-        class="grid-flow auto-rows-max"
+        class="grid-flow auto-rows-max tab-content hidden"
       >
         <.card_row
           id="related-collections"
@@ -187,6 +211,18 @@ defmodule DpulCollectionsWeb.CollectionsLive do
       </div>
     </div>
     """
+  end
+
+  defp set_active_tab(js \\ %JS{}, tab) do
+    js
+    |> JS.remove_class("active-tab", to: "button.active-tab")
+    |> JS.add_class("active-tab", to: tab)
+  end
+
+  defp show_active_content(js, to) do
+    js
+    |> JS.hide(to: "div.tab-content")
+    |> JS.show(to: to)
   end
 
   def learn_more(assigns) do
