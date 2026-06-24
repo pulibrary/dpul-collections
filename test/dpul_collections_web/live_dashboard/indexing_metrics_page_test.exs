@@ -4,7 +4,7 @@ defmodule DpulCollectionsWeb.LiveDashboard.IndexingMetricsPageTest do
   alias DpulCollections.IndexingPipeline.Figgy.HydrationProducerSource
   alias DpulCollections.IndexingPipeline.Metrics
   alias DpulCollections.IndexingPipeline
-  use DpulCollectionsWeb.ConnCase
+  use DpulCollectionsWeb.ConnCase, async: true
   import Phoenix.LiveViewTest
   @endpoint DpulCollectionsWeb.Endpoint
 

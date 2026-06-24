@@ -1,5 +1,5 @@
 defmodule DpulCollectionsWeb.HelpersTest do
-  use DpulCollectionsWeb.ConnCase
+  use DpulCollectionsWeb.ConnCase, async: true
   alias DpulCollectionsWeb.Live.Helpers
 
   describe "clean_params/2" do

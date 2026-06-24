@@ -1,6 +1,6 @@
 defmodule DpulCollectionsWeb.LiveDashboard.IndexValidationPageTest do
   alias DpulCollections.Solr
-  use DpulCollectionsWeb.ConnCase
+  use DpulCollectionsWeb.ConnCase, async: true
   import Phoenix.LiveViewTest
   @endpoint DpulCollectionsWeb.Endpoint
 

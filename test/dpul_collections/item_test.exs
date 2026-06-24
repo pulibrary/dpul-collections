@@ -1,6 +1,5 @@
 defmodule DpulCollections.ItemTest do
   alias DpulCollections.Solr
-  import SolrTestSupport
   use DpulCollections.DataCase, async: true
 
   alias DpulCollections.Item

@@ -1,5 +1,5 @@
 defmodule DpulCollectionsWeb.ItemLiveMetadataTest do
-  use DpulCollectionsWeb.ConnCase
+  use DpulCollectionsWeb.ConnCase, async: true
   import Phoenix.LiveViewTest
   alias DpulCollections.Solr
   @endpoint DpulCollectionsWeb.Endpoint

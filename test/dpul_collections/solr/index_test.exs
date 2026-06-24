@@ -1,8 +1,6 @@
 defmodule DpulCollections.Solr.IndexTest do
   use DpulCollections.DataCase
-  alias DpulCollections.Solr
   alias DpulCollections.Solr.Index
-  import SolrTestSupport
 
   test ".connect/1 setting auth works" do
     index = %Index{
