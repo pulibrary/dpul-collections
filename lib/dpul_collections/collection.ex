@@ -176,11 +176,15 @@ defmodule DpulCollections.Collection do
     |> Enum.map(&Item.from_solr/1)
   end
 
-  def meta_properties(collection = %{title: [title | _], summary: summary}) do
+  def meta_properties(
+        collection = %{title: [title | _], summary: summary, banner_image: banner_image, url: url}
+      ) do
     %{
       "og:title" => title,
       "description" => summary,
-      "og:description" => summary
+      "og:description" => summary,
+      "og:image" => banner_image,
+      "og:url" => url
     }
     |> Helpers.clean_params()
   end

@@ -15,8 +15,9 @@ defmodule DpulCollectionsWeb.CollectionsLiveTest do
           tagline_txtm: "This is a tagline.",
           summary_txtm: ["This is a test description"],
           authoritative_slug_s: "project",
-          resource_type_s: "collection"
-        },
+          resource_type_s: "collection",
+          banner_image_s: "https://example.com/iiif/2/image2/full/!453,600/0/default.jpg"
+        }
       ],
       active_collection()
     )
@@ -38,9 +39,7 @@ defmodule DpulCollectionsWeb.CollectionsLiveTest do
       {:ok, document} = Floki.parse_document(html)
 
       assert document
-             |> Floki.find(
-               ~s{meta[property="og:title"][content="Test Project"]}
-             )
+             |> Floki.find(~s{meta[property="og:title"][content="Test Project"]})
              |> Enum.any?()
 
       assert document
@@ -60,7 +59,7 @@ defmodule DpulCollectionsWeb.CollectionsLiveTest do
              |> Enum.any?()
 
       assert document
-             |> Floki.find(~s{meta[property="og:url"][content="http://localhost:4002/item/1"]})
+             |> Floki.find(~s{meta[property="og:url"][content="/collections/project"]})
              |> Enum.any?()
     end
   end
