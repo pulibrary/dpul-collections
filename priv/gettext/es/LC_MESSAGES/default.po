@@ -1322,4 +1322,4 @@ msgstr "Buscar todo"
 #: lib/dpul_collections_web/live/collections_live.ex:202
 #, elixir-autogen, elixir-format
 msgid "Related Collections"
-msgstr ""
+msgstr "Colecciones relacionadas"
