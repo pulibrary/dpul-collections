@@ -186,6 +186,7 @@ defmodule DpulCollections.Solr do
     labels
     |> Enum.reject(fn x -> x == label end)
     |> Enum.map(&find_by_collection_title/1)
+    |> Enum.reject(&is_nil/1)
   end
 
   def recently_added(

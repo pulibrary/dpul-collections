@@ -2,7 +2,9 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
   use ExUnit.Case
   use PhoenixTest.Playwright.Case
   alias DpulCollections.Solr
+  alias PhoenixTest.Playwright
   import SolrTestSupport
+  import Mock
 
   setup_all do
     on_exit(fn -> Solr.delete_all(active_collection()) end)
@@ -58,15 +60,15 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> assert_has("a[href='/search?filter[collection][]=South+Asian+Ephemera']",
         text: "Browse Collection"
       )
-      # Mosaic
-      |> assert_has("#collection-mosaic", count: 1)
+      # Banner image area
+      |> assert_has("#collection-banner", count: 1)
       # Banner item link
       |> assert_has(
-        "#collection-mosaic a[href='/i/70th-year-womens-indian-association/item/5f78bc1d-940d-4628-9421-98818e3dea35']"
+        "#collection-banner a[href='/i/70th-year-womens-indian-association/item/5f78bc1d-940d-4628-9421-98818e3dea35']"
       )
       # Banner image
       |> assert_has(
-        "#collection-mosaic img[src='https://iiif-cloud.princeton.edu/iiif/2/a1%2F2d%2Fdc%2Fa12ddc0476d147c0a3571a109c9e4e32%2Fintermediate_file/354,1295,1551,1034/full/0/default.jpg']"
+        "#collection-banner img[src='https://iiif-cloud.princeton.edu/iiif/2/a1%2F2d%2Fdc%2Fa12ddc0476d147c0a3571a109c9e4e32%2Fintermediate_file/354,1295,1551,1034/750,/0/default.jpg']"
       )
       # Featured Items
       |> assert_has("#featured-items .browse-item", count: 4)
@@ -203,6 +205,105 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
         "#recent-items .card",
         count: 1
       )
+    end
+  end
+
+  describe "A collection with no banner image selected" do
+    setup do
+      with_mock DpulCollections.IndexingPipeline.Figgy.ResourceTypeRegistry, [:passthrough],
+        allowed_collection?: fn _ -> true end do
+        [
+          # Middle East Manuscripts collection
+          "3bab572e-6603-4abf-8305-16ce6fe3ac5c",
+          # featured item
+          "159ba3f9-feab-49dd-bc71-ca08995006d9"
+        ]
+        |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
+      end
+
+      Solr.soft_commit(active_collection())
+      on_exit(fn -> Solr.delete_all(active_collection()) end)
+      :ok
+    end
+
+    test "it uses a featured item banner image fallback", %{conn: conn} do
+      conn
+      |> visit("/collections/middle-east-mss")
+      |> assert_has(".phx-connected")
+      # Title
+      |> assert_has("h1", text: "Middle East Manuscripts")
+      # Banner image area
+      |> assert_has("#collection-banner", count: 1)
+      # Banner item link
+      |> assert_has(
+        "#collection-banner a[href='/i/work-botany-arabic/item/159ba3f9-feab-49dd-bc71-ca08995006d9']"
+      )
+      # Banner image
+      |> assert_has(
+        "#collection-banner img[src='https://iiif-cloud.princeton.edu/iiif/2/63%2Fc9%2Ff8%2F63c9f84fc5314a19aef8a2d54f468267%2Fintermediate_file/full/!453,800/0/default.jpg']"
+      )
+    end
+  end
+
+  describe "a collection with related collections" do
+    setup do
+      with_mock DpulCollections.IndexingPipeline.Figgy.ResourceTypeRegistry, [:passthrough],
+        allowed_collection?: fn _ -> true end do
+        [
+          # Manuscripts of the Islamic World collection
+          "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a",
+          # Middle East Manuscripts collection
+          "3bab572e-6603-4abf-8305-16ce6fe3ac5c",
+          # Robert Garrett collection
+          "3b230de6-e7d3-4482-8f19-d76c8491cec3",
+          # Collections Donated to Princeton University Library
+          "62339f65-ce6d-4c85-ab77-67c70abb8709",
+          # featured item, it's in 4 collections (but more could be added to the
+          # CSV since it's a synthetic fixture)
+          "159ba3f9-feab-49dd-bc71-ca08995006d9"
+        ]
+        |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
+      end
+
+      Solr.soft_commit(active_collection())
+      on_exit(fn -> Solr.delete_all(active_collection()) end)
+      :ok
+    end
+
+    test "it has content for the collection", %{conn: conn} do
+      conn
+      # |> visit("/collections/princetoncollectors")
+      |> visit("/collections/islamicmss")
+      |> assert_has(".phx-connected")
+      # Featured Highlights are initially visible
+      |> assert_has("#featured-items .browse-item")
+      |> refute_has("#related-collection-62339f65-ce6d-4c85-ab77-67c70abb8709")
+      |> Playwright.click("#related-collections-tab")
+      # Now Related collections are visible
+      |> refute_has("#featured-items .browse-item")
+      # Related Collections card with banner in fixture has an image
+      |> within("#related-collection-62339f65-ce6d-4c85-ab77-67c70abb8709", fn session ->
+        session
+        |> assert_has("img")
+        |> assert_has("div", text: "Collections Donated to Princeton")
+        |> assert_has(".brief-metadata", text: "People donate some pretty interesting things")
+      end)
+      # Related Collections card with a featured item but no banner in fixture has an image
+      # long tagline is truncated
+      |> within("#related-collection-3bab572e-6603-4abf-8305-16ce6fe3ac5c", fn session ->
+        session
+        |> assert_has("img")
+        |> assert_has("div", text: "Middle East Manuscripts")
+        |> refute_has(".brief-metadata", text: "and digitization")
+        |> assert_has(".brief-metadata", text: "...")
+      end)
+
+      # TODO click on the arrow and assert that 
+      # link to related collections search result page
+      # see #1284
+      # |> assert_has(
+      #   "a[href='search?filter[related_collections][]=Russian+and+East+European+Posters']"
+      # )
     end
   end
 end

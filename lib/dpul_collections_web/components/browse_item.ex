@@ -4,10 +4,12 @@ defmodule DpulCollectionsWeb.BrowseItem do
   use Phoenix.Component
   use Gettext, backend: DpulCollectionsWeb.Gettext
   alias DpulCollections.Item
+  alias DpulCollections.Collection
   alias DpulCollectionsWeb.Live.Helpers
   alias DpulCollectionsWeb.ContentWarnings
 
   attr :title, :string, required: true
+  attr :hide_title?, :boolean, default: false
   attr :more_link, :string, default: nil
   attr :color, :string, default: "bg-primary-bright"
   # can be light or dark
@@ -27,13 +29,11 @@ defmodule DpulCollectionsWeb.BrowseItem do
     ~H"""
     <div class={["grid-row", @color]} {@rest}>
       <div class={@layout}>
-        <div class="page-t-padding" />
-        <h2>{@title}</h2>
+        <h2 class={[@hide_title? && "sr-only", "page-t-padding"]}>{@title}</h2>
         {render_slot(@intro)}
         <div class="flex gap-6 justify-stretch page-t-padding">
           <!-- cards -->
-          <!-- TODO maybe rename this recent-container class? -->
-          <ul class="w-full recent-container">
+          <ul class="w-full card-list">
             {render_slot(@inner_block)}
           </ul>
           <div :if={@more_link} class="w-12 flex-none content-center">
@@ -168,6 +168,54 @@ defmodule DpulCollectionsWeb.BrowseItem do
         </div>
         <div class="absolute p-4 right-0 flex gap-2">
           {render_slot(@card_buttons)}
+        </div>
+      </div>
+    </li>
+    """
+  end
+
+  attr :collection, Collection, required: true
+  attr :heading_level, :string, default: "h3"
+  # make sure to wrap these in a ul
+  def collection_card_li(assigns) do
+    ~H"""
+    <li
+      id={"related-collection-#{@collection.id}"}
+      aria-label={first_title(@collection)}
+      class="card browse-item overflow-hidden -outline-offset-2 relative card flex bg-white flex-col min-w-[250px] text-dark-text"
+    >
+      <div class="-outline-offset-1 flex-grow flex flex-col">
+        <!-- thumbnail -->
+        <div class="px-2 pt-2 bg-white overflow-clip">
+          <div class="flex flex-col gap-2 h-[10rem]">
+            <div class="min-h-0 grow">
+              <img
+                src={Collection.banner_source(@collection)}
+                class="thumbnail bg-slate-400 text-white w-full object-contain"
+                alt=""
+              />
+            </div>
+          </div>
+        </div>
+        <!-- card text area -->
+        <div class="grid grid-cols-1 grow">
+          <div class="mx-1 px-6 pb-5 bg-white flex flex-col">
+            <.dynamic_tag
+              tag_name={@heading_level}
+              class="font-normal tracking-tight py-1 pt-4"
+              dir="auto"
+            >
+              <.link
+                navigate={@collection.url}
+                class="card-link"
+              >
+                {truncate_title(first_title(@collection))}
+              </.link>
+            </.dynamic_tag>
+            <div class="brief-metadata pt-4 text-gray-700 text-base">
+              {@collection.tagline |> Helpers.truncate(250)}
+            </div>
+          </div>
         </div>
       </div>
     </li>
