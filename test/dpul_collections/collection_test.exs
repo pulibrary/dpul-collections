@@ -1,6 +1,6 @@
 defmodule DpulCollections.CollectionTest do
   alias DpulCollections.Solr
-  use DpulCollections.DataCase
+  use DpulCollections.DataCase, async: true
 
   alias DpulCollections.Collection
 

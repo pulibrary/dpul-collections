@@ -1,5 +1,5 @@
 defmodule DpulCollections.AccountsTest do
-  use DpulCollections.DataCase
+  use DpulCollections.DataCase, async: true
 
   alias DpulCollections.Accounts
 
