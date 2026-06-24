@@ -144,40 +144,31 @@ defmodule DpulCollectionsWeb.CollectionsLive do
     ~H"""
     <div>
       <.content_separator />
-      <div class={[
-        "tab-header"
-      ]}>
-        <ul>
-          <li
-            class="tab-option"
-            phx-click={
-              set_active_tab("#tab1")
-              |> show_active_content("#featured-items-container")
-            }
-          >
-            <button id="tab1" class="tab active-tab">Featured Highlights</button>
-          </li>
-          <li
-            class="tab-option"
-            phx-click={
-              set_active_tab("#tab2")
-              |> show_active_content("#related-collections-container")
-            }
-          >
-            <button id="tab2" class="tab">Related Collections</button>
-          </li>
-        </ul>
+      <div class="tab-list content-area flex flex-row" role="tablist">
+        <.tab_button
+          id="tab1"
+          label="Featured Highlights"
+          pane="featured-items-container"
+          active?={true}
+        />
+        <.tab_button
+          id="tab2"
+          label="Related Collections"
+          pane="related-collections-container"
+          active?={false}
+        />
       </div>
       <div
         :if={length(@collection.featured_items) > 0}
         id="featured-items-container"
         phx-update="ignore"
+        role="tabpanel"
         class="grid-flow auto-rows-max tab-content"
       >
         <.card_row
           id="featured-items"
-          layout="content-area"
           title={gettext("Featured Highlights")}
+          layout="content-area"
           color=""
           arrow_theme="light"
         >
@@ -193,6 +184,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
       <div
         :if={length(@collection.related_collections) > 0}
         id="related-collections-container"
+        role="tabpanel"
         phx-update="ignore"
         class="grid-flow auto-rows-max tab-content hidden"
       >
@@ -210,6 +202,26 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         </.card_row>
       </div>
     </div>
+    """
+  end
+
+  def tab_button(assigns) do
+    ~H"""
+    <button
+      phx-click={
+        set_active_tab("##{@id}")
+        |> show_active_content("##{@pane}")
+      }
+      role="tab"
+      id={@id}
+      class={[
+        "tab",
+        @active? && "active-tab",
+        "btn-base px-4 normal-case"
+      ]}
+    >
+      {@label}
+    </button>
     """
   end
 
