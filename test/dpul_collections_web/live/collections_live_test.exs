@@ -13,7 +13,6 @@ defmodule DpulCollectionsWeb.CollectionsLiveTest do
           id: "similar-to-1-is-a-project",
           title_txtm: "Test Project",
           tagline_txtm: "This is a tagline.",
-          summary_txtm: ["This is a test description"],
           authoritative_slug_s: "project",
           resource_type_s: "collection",
           banner_image_s: "https://example.com/iiif/2/image2/full/!453,600/0/default.jpg"
@@ -50,12 +49,12 @@ defmodule DpulCollectionsWeb.CollectionsLiveTest do
 
       assert document
              |> Floki.find(
-               ~s{meta[property="og:description"][content="This is a test description"]}
+               ~s{meta[property="og:description"][content="This is a tagline."]}
              )
              |> Enum.any?()
 
       assert document
-             |> Floki.find(~s{meta[property="description"][content="This is a test description"]})
+             |> Floki.find(~s{meta[property="description"][content="This is a tagline."]})
              |> Enum.any?()
 
       assert document
