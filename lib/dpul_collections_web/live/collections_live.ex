@@ -217,7 +217,8 @@ defmodule DpulCollectionsWeb.CollectionsLive do
       class={[
         "tab",
         @active? && "active-tab",
-        "btn-base px-4 normal-case"
+        "btn-base px-4 normal-case",
+        "text-wrap"
       ]}
     >
       {@label}
