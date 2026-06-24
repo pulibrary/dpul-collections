@@ -61,8 +61,12 @@ defmodule DpulCollections.DataCase do
       key = "test-#{System.unique_integer([:positive])}"
       Process.put(:solr_sandbox_key, key)
       DpulCollections.Solr.delete_all(SolrTestSupport.active_collection())
-      on_exit(fn -> 
-        DpulCollections.Solr.delete_all(SolrTestSupport.active_collection())
+
+      on_exit(fn ->
+        DpulCollections.Solr.delete_all(
+          SolrTestSupport.active_collection()
+          |> Map.put(:sandbox_key, key)
+        )
       end)
     end
   end

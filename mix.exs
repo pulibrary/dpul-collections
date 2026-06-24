@@ -78,9 +78,9 @@ defmodule DpulCollections.MixProject do
       {:excoveralls, "== 0.18.5", only: :test},
       {:broadway, "== 1.3.0"},
       {:ex_doc, "== 0.40.2", only: :dev, runtime: false},
-      {:req, "== 0.5.18"},
+      {:req, "== 0.6.1"},
       {:broadway_dashboard, "== 0.4.1"},
-      {:honeybadger, "== 0.27.0"},
+      {:honeybadger, "== 0.28.0"},
       {:phoenix_test_playwright, "~> 0.14.0", only: :test, runtime: false},
       {:live_debugger, "== 0.8.0", only: :dev},
       {:prom_ex, "== 1.11.0"},
@@ -103,7 +103,7 @@ defmodule DpulCollections.MixProject do
       {:lazy_html, "== 0.1.11", only: :test},
       {:ex_cldr_locale_display, "== 1.7.3"},
       {:junit_formatter, "== 3.4.0", only: [:test]},
-      {:process_tree, "== 0.2.1"}
+      {:process_tree, "== 0.3.0"}
     ]
   end
 

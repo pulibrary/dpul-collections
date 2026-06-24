@@ -49,10 +49,17 @@ defmodule DpulCollections.Solr.Client do
     )
   end
 
-  def delete_all(index = %Index{}) do
+  def delete_all(index = %Index{sandbox_key: sandbox_key}) do
+    query =
+      if is_binary(sandbox_key) do
+        "solr_sandbox_key_s:#{sandbox_key}"
+      else
+        "*:*"
+      end
+
     Req.post(
       update_url(index),
-      json: %{delete: %{query: "*:*"}}
+      json: %{delete: %{query: query}}
     )
     |> parse_req_result
   end
@@ -77,12 +84,20 @@ defmodule DpulCollections.Solr.Client do
     |> Req.get()
   end
 
-  defp select_url(index) do
+  defp select_url(index = %Index{}) do
     Index.connect(index)
     |> Req.merge(url: "/solr/#{index.collection}/select")
     |> Req.merge(headers: %{"accept" => ["application/json"]})
     |> Req.merge(headers: %{"content-type" => ["application/json"]})
+    |> sandbox(index)
   end
+
+  defp sandbox(req, index = %Index{sandbox_key: sandbox_key}) when is_binary(sandbox_key) do
+    req
+    |> Req.merge(params: [fq: "solr_sandbox_key_s:#{index.sandbox_key}"])
+  end
+
+  defp sandbox(req, _index), do: req
 
   defp update_url(index) do
     Index.connect(index)

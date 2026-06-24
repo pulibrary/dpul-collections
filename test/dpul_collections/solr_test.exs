@@ -320,9 +320,11 @@ defmodule DpulCollections.SolrTest do
 
     test "can sandbox" do
       start_key = ProcessTree.get(:solr_sandbox_key)
-      on_exit(fn -> 
+
+      on_exit(fn ->
         Process.put(:solr_sandbox_key, start_key)
       end)
+
       doc = %{
         "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
         "title_txtm" => ["test title 1"]
@@ -338,12 +340,32 @@ defmodule DpulCollections.SolrTest do
       assert Solr.document_count() == 1
 
       # Change the sandbox.
-      Process.put(:solr_sandbox_key, "test-change-#{System.unique_integer([:positive])}")
+      new_key = "test-change-#{System.unique_integer([:positive])}"
+      Process.put(:solr_sandbox_key, new_key)
       assert Solr.document_count() == 0
       doc = Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")
       assert nil == doc
 
-      # TODO: Figure out how to have the same ID across two sandboxes.
+      # Put the same ID in, different title.
+      Solr.add(
+        [%{"id" => "3cb7627b-defc-401b-9959-42ebc4488f74", "title_txtm" => "Bla"}],
+        active_collection()
+      )
+
+      Solr.soft_commit(active_collection())
+      doc = Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")
+      assert doc["title_txtm"] == ["Bla"]
+
+      # Change sandbox back, make sure it's the other one.
+      Process.put(:solr_sandbox_key, start_key)
+      doc = Solr.find_by_id("3cb7627b-defc-401b-9959-42ebc4488f74")
+      assert doc["title_txtm"] == ["test title 1"]
+
+      # Delete all, but just in one sandbox.
+      Solr.delete_all(active_collection())
+      assert Solr.document_count() == 0
+      Process.put(:solr_sandbox_key, new_key)
+      assert Solr.document_count() == 1
     end
   end
 

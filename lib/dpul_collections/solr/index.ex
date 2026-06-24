@@ -18,11 +18,21 @@ defmodule DpulCollections.Solr.Index do
     |> sandbox(index)
   end
 
-  defp sandbox(req, %{sandbox_key: nil}), do: req
+  defp sandbox(req, %{sandbox_key: nil}) do
+    req
+    |> Req.merge(params: [processor: "template", "template.field": "_sandbox_id:{id}"])
+  end
+
   defp sandbox(req, %{sandbox_key: sandbox_key}) do
     req
     |> Req.merge(params: [solr_sandbox_key: sandbox_key])
-    |> Req.merge(params: [processor: "template", "template.field": "solr_sandbox_key_s:#{sandbox_key}"])
+    |> Req.merge(
+      params: [
+        processor: "template",
+        "template.field": "solr_sandbox_key_s:#{sandbox_key}",
+        "template.field": "_sandbox_id:#{sandbox_key}{id}"
+      ]
+    )
   end
 
   defp auth(%{username: ""}), do: nil
@@ -33,7 +43,11 @@ defmodule DpulCollections.Solr.Index do
   end
 
   def read_index() do
-    struct(__MODULE__, Application.fetch_env!(:dpul_collections, :solr_config)[:read] |> Map.put(:sandbox_key, ProcessTree.get(:solr_sandbox_key)))
+    struct(
+      __MODULE__,
+      Application.fetch_env!(:dpul_collections, :solr_config)[:read]
+      |> Map.put(:sandbox_key, ProcessTree.get(:solr_sandbox_key))
+    )
   end
 
   def write_indexes() do
