@@ -41,8 +41,8 @@ if config_env() == :prod do
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "30"),
     # For machines with several cores, consider starting multiple pools of `pool_size`
     # pool_count: 4,
-  socket_options: maybe_ipv6,
-  timeout: 120_000
+    socket_options: maybe_ipv6,
+    timeout: 120_000
 
   figgy_database_url =
     System.get_env("FIGGY_DATABASE_URL") ||
