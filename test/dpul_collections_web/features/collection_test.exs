@@ -308,8 +308,8 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
 
   describe "a collection whose related collection has neither banner nor featured items" do
     setup do
-      with_mock DpulCollections.IndexingPipeline.Figgy.ResourceTypeRegistry, [:passthrough],
-        allowed_collection?: fn _ -> true end do
+      with_mock DpulCollections.IndexingPipeline.Figgy.HydrationConsumer, [:passthrough],
+        process?: fn _ -> true end do
         [
           # Manuscripts of the Islamic World collection
           "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a",

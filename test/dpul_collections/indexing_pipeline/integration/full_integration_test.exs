@@ -71,9 +71,9 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     # The hydrator pulled all ephemera folders, terms, deletion markers and
     # removed the hydration cache markers for the deletion marker deleted resource.
-    # It also has 3 ephemera projects and 1 collection.
+    # It also has 3 ephemera projects and 3 collections.
     entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
-    scanned_resource_fixture_count = 7
+    scanned_resource_fixture_count = 8
     # 8691231a-d06f-4fa2-af5b-d773310564a3 gets filtered out
     filtered_resource_count = 1
 
