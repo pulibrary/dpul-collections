@@ -130,14 +130,17 @@ defmodule DpulCollectionsWeb.SearchItem do
                   {@item.title}
                 </.link>
               </h2>
-              <div :if={
-                !Enum.empty?(@item.transliterated_title) || !Enum.empty?(@item.alternative_title)
-              }>
+              <div
+                :if={
+                  !Enum.empty?(@item.transliterated_title) || !Enum.empty?(@item.alternative_title)
+                }
+                id={"item-translit-title-#{@item.id}"}
+                class="mt-[-1rem] flex flex-col gap-1"
+              >
                 <h3
                   :for={ttitle <- @item.transliterated_title}
                   dir="auto"
-                  class="mt-[-1rem] font-medium text-gray-600"
-                  id={"item-translit-title-#{@item.id}"}
+                  class="font-medium text-gray-600"
                 >
                   {ttitle}
                 </h3>
