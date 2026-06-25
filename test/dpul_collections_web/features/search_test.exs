@@ -184,6 +184,7 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
           %{
             id: "d7c889ba-9992-494e-8fe4-2c4a9b3c3d7d",
             title_txtm: ["Latin American Ephemera"],
+            tagline_txtm: "This is a tagline.", 
             resource_type_s: "collection",
             authoritative_slug_s: "lae"
           }
