@@ -93,14 +93,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
   # EphemeraFolder (catch-all)
   defp build(%{"id" => id, "metadata" => metadata} = data, related_data) do
     box_metadata = extract_box_metadata(related_data)
-    collection_titles = extract_collection_titles(related_data, "EphemeraProject")
+    collection_titles = extract_collection_titles(related_data, "EphemeraProject") ++ extract_collection_titles(related_data, "Collection")
     base = base_solr_fields(id, data, metadata, related_data, "EphemeraFolder")
 
     Map.merge(base, %{
       barcode_txtm: get_in(metadata, ["barcode"]),
       box_number_txtm: get_in(box_metadata, ["box_number"]),
       collection_titles_ss: collection_titles,
-      collection_ids_ss: extract_collection_ids(related_data, "EphemeraProject"),
+      collection_ids_ss: extract_collection_ids(related_data, "EphemeraProject") ++ extract_collection_ids(related_data, "Collection"),
       folder_number_txtm: get_in(metadata, ["folder_number"]),
       format_txt_sort: extract_term("genre", metadata, related_data),
       geo_subject_txt_sort: extract_term("geo_subject", metadata, related_data),

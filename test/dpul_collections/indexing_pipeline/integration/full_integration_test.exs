@@ -274,6 +274,18 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       # Resource has "none" pdf_type so will not index a pdf url
       assert document["pdf_url_s"] == nil
     end
+
+    test "indexes both projects and collections" do
+      {hydrator, transformer, indexer, document} =
+        FiggyTestSupport.index_record_id("31aafb19-eaca-4d02-9780-2ee76b146663")
+
+      hydrator |> Broadway.stop(:normal)
+      transformer |> Broadway.stop(:normal)
+      indexer |> Broadway.stop(:normal)
+
+      assert document["collection_titles_ss"] == ["South Asian Ephemera", "Aurat March Ephemera"]
+      assert document["collection_ids_ss"] == ["f99af4de-fed4-4baa-82b1-6e857b230306", "f6e8fd9e-947b-4cd8-9e64-c268cfe6ce04"]
+    end
   end
 
   describe "an Ephemera Folder with a parent EphemeraProject" do
