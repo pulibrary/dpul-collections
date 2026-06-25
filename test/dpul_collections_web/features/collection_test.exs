@@ -272,7 +272,6 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
 
     test "it has content for the collection", %{conn: conn} do
       conn
-      # |> visit("/collections/princetoncollectors")
       |> visit("/collections/islamicmss")
       |> assert_has(".phx-connected")
       # Featured Highlights are initially visible
@@ -304,6 +303,41 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       # |> assert_has(
       #   "a[href='search?filter[related_collections][]=Russian+and+East+European+Posters']"
       # )
+    end
+  end
+
+  describe "a collection whose related collection has neither banner nor featured items" do
+    setup do
+      with_mock DpulCollections.IndexingPipeline.Figgy.ResourceTypeRegistry, [:passthrough],
+        allowed_collection?: fn _ -> true end do
+        [
+          # Manuscripts of the Islamic World collection
+          "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a",
+          # Middle East Manuscripts collection
+          "3bab572e-6603-4abf-8305-16ce6fe3ac5c",
+          # an item they have in common that's not featured
+          "2cc9b5cf-8d33-4f1b-b53f-fcc658770458"
+        ]
+        |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
+      end
+
+      Solr.soft_commit(active_collection())
+      on_exit(fn -> Solr.delete_all(active_collection()) end)
+      :ok
+    end
+
+    test "the related collection card renders", %{conn: conn} do
+      conn
+      |> visit("/collections/islamicmss")
+      |> assert_has(".phx-connected")
+      |> Playwright.click("#related-collections-tab")
+      # Now Related collections are visible
+      |> refute_has("#featured-items .browse-item")
+      # Related Collections card with banner in fixture has an image
+      |> within("#related-collection-3bab572e-6603-4abf-8305-16ce6fe3ac5c", fn session ->
+        session
+        |> assert_has("div", text: "Middle East Manuscripts")
+      end)
     end
   end
 end
