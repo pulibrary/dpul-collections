@@ -87,7 +87,13 @@ defmodule DpulCollections.Collection do
   def banner_source(collection = %__MODULE__{}) do
     banner_item = get_banner_item(collection)
 
-    "#{banner_item.primary_thumbnail_service_url}/full/!#{banner_item.primary_thumbnail_width},#{banner_item.primary_thumbnail_height}/0/default.jpg"
+    case banner_item do
+      nil ->
+        nil
+
+      _ ->
+        "#{banner_item.primary_thumbnail_service_url}/full/!#{banner_item.primary_thumbnail_width},#{banner_item.primary_thumbnail_height}/0/default.jpg"
+    end
   end
 
   defp get_banner_item(%{banner_image: banner_image, banner_image_id: banner_image_id})
