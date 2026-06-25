@@ -13,16 +13,24 @@ defmodule DpulCollections.Solr.Client do
     |> parse_req_result
   end
 
+  def parse_req_result({:ok, %{status: 200, body: %{"error" => %{"code" => code, "msg" => msg}}}}) do
+    raise ServerError, message: "Solr server returned with code: #{code}, message: #{msg}"
+  end
+
   def parse_req_result(response = {:ok, %{status: 200}}) do
     response
   end
 
-  def parse_req_result({:error, %Req.TransportError{reason: reason}}) do
-    raise ServerError, message: "Req TransportError, reason: #{reason}"
+  def parse_req_result({:ok, %{status: status}}) do
+    raise ServerError, message: "Solr server returned with status code: #{status}"
   end
 
-  def parse_req_result({:ok, %{status: status, body: body}}) do
-    raise ServerError, message: "Solr server returned with status code: #{status}, body #{body}"
+  def parse_req_result({:error, error}) when is_map_key(error, :reason) do
+    raise ServerError, message: "#{error.__struct__}, message: #{error.reason}"
+  end
+
+  def parse_req_result({:error, error}) do
+    raise ServerError, message: error.__struct__
   end
 
   def add(index = %Index{}, docs) when is_list(docs) do
