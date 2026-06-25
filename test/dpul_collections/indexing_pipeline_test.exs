@@ -176,7 +176,7 @@ defmodule DpulCollections.IndexingPipelineTest do
     test "get_figgy_project_folders/1 returns all public and complete folders deep" do
       ids = IndexingPipeline.get_figgy_project_folders("f99af4de-fed4-4baa-82b1-6e857b230306")
 
-      assert Enum.to_list(ids) |> length() == 15
+      assert Enum.to_list(ids) |> length() == 16
       assert hd(ids) == "e8abfa75-253f-428a-b3df-0e83ff2b20f9"
     end
 
