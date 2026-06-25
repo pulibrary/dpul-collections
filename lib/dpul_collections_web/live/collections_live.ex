@@ -22,6 +22,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           assign(socket,
             page_title: collection.title,
             collection: collection,
+            meta_properties: Collection.meta_properties(collection),
             banner_item: collection.banner_item
           )
 
