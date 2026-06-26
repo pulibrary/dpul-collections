@@ -52,6 +52,20 @@ defmodule DpulCollections.SolrTest do
         end
       end
     end
+
+    test "when solr returns a 200 status with an error message" do
+      body = %{"error" => %{"code" => 510, "msg" => "No active replicas found"}}
+
+      with_mock Req, [:passthrough], post: fn _url, _ -> {:ok, %{status: 200, body: body}} end do
+        exception =
+          assert_raise Solr.Client.ServerError, fn ->
+            Solr.find_by_id("docid")
+          end
+
+        assert exception.message =~ "Solr server returned with code: 510"
+        assert exception.message =~ "No active replicas found"
+      end
+    end
   end
 
   describe ".search" do
@@ -713,7 +727,7 @@ defmodule DpulCollections.SolrTest do
       assert Solr.find_by_id(valid_doc["id"])["id"] == valid_doc["id"]
     end
 
-    test "when the connection to solr times out" do
+    test "when the connection to solr times out with Req error" do
       doc = %{
         "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
         "title_txtm" => ["test title 1"]
@@ -723,7 +737,35 @@ defmodule DpulCollections.SolrTest do
         post: fn _url, _ -> {:error, %Req.TransportError{reason: :timeout}} end do
         log = capture_log(fn -> Solr.add([doc], active_collection()) end)
         assert log =~ "Error indexing solr document"
-        assert log =~ "Req TransportError, reason: timeout"
+        assert log =~ "Elixir.Req.TransportError, message: timeout"
+      end
+    end
+
+    test "when the connection to solr times out with Finch error" do
+      doc = %{
+        "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
+        "title_txtm" => ["test title 1"]
+      }
+
+      with_mock Req, [:passthrough],
+        post: fn _url, _ -> {:error, %Finch.TransportError{reason: :timeout}} end do
+        log = capture_log(fn -> Solr.add([doc], active_collection()) end)
+        assert log =~ "Error indexing solr document"
+        assert log =~ "Elixir.Finch.TransportError, message: timeout"
+      end
+    end
+
+    test "when the connection to solr times out with a generic error" do
+      doc = %{
+        "id" => "3cb7627b-defc-401b-9959-42ebc4488f74",
+        "title_txtm" => ["test title 1"]
+      }
+
+      with_mock Req, [:passthrough],
+        post: fn _url, _ -> {:error, %ArgumentError{message: "an error"}} end do
+        log = capture_log(fn -> Solr.add([doc], active_collection()) end)
+        assert log =~ "Error indexing solr document"
+        assert log =~ "Elixir.ArgumentError"
       end
     end
   end
