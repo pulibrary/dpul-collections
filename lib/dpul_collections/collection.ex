@@ -187,8 +187,6 @@ defmodule DpulCollections.Collection do
     |> Helpers.clean_params()
   end
 
-  def meta_description([]), do: nil
-
   def meta_description([tagline | _rest]) do
     tagline |> Helpers.truncate(200)
   end

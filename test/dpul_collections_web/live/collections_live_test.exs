@@ -39,6 +39,7 @@ defmodule DpulCollectionsWeb.CollectionsLiveTest do
 
       assert document
              |> Floki.find(~s{meta[property="og:title"][content="Test Project"]})
+             |> dbg()
              |> Enum.any?()
 
       assert document
