@@ -284,7 +284,11 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       indexer |> Broadway.stop(:normal)
 
       assert document["collection_titles_ss"] == ["South Asian Ephemera", "Aurat March Ephemera"]
-      assert document["collection_ids_ss"] == ["f99af4de-fed4-4baa-82b1-6e857b230306", "f6e8fd9e-947b-4cd8-9e64-c268cfe6ce04"]
+
+      assert document["collection_ids_ss"] == [
+               "f99af4de-fed4-4baa-82b1-6e857b230306",
+               "f6e8fd9e-947b-4cd8-9e64-c268cfe6ce04"
+             ]
     end
   end
 
