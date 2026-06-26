@@ -607,7 +607,8 @@ defmodule DpulCollections.SolrTest do
       collection = %{
         "id" => "coll1",
         "title_txtm" => "Collection-1",
-        "resource_type_s" => "collection"
+        "resource_type_s" => "collection",
+        "format_txt_sort" => ["Digital Collection"]
       }
 
       document = %{
@@ -620,7 +621,7 @@ defmodule DpulCollections.SolrTest do
       Solr.soft_commit(active_collection())
 
       records =
-        Solr.recent_collections(2, SearchState.from_params(%{}))
+        Solr.recent_collections(2)
         |> Map.get("docs")
 
       assert [%{"id" => "coll1"}] = records
