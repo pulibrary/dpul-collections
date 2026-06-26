@@ -43,7 +43,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
       >
         <.collection_hero collection={@collection} banner_item={@banner_item} />
         <.featured_and_related
-          :if={length(@collection.featured_items) > 0 || length(@collection.related_collections) > 0}
+          :if={has_featured?(@collection) || has_related?(@collection)}
           collection={@collection}
           current_scope={@current_scope}
           current_path={@current_path}
@@ -147,12 +147,14 @@ defmodule DpulCollectionsWeb.CollectionsLive do
       <.content_separator />
       <div class="tab-list content-area flex flex-row" role="tablist">
         <.tab_button
+          :if={has_featured?(@collection) && has_related?(@collection)}
           id="featured-items-tab"
           label="Featured Highlights"
           pane="featured-items-container"
           active?={true}
         />
         <.tab_button
+          :if={has_featured?(@collection) && has_related?(@collection)}
           id="related-collections-tab"
           label="Related Collections"
           pane="related-collections-container"
@@ -160,7 +162,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         />
       </div>
       <div
-        :if={length(@collection.featured_items) > 0}
+        :if={has_featured?(@collection)}
         id="featured-items-container"
         phx-update="ignore"
         role="tabpanel"
@@ -169,7 +171,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         <.card_row
           id="featured-items"
           title={gettext("Featured Highlights")}
-          hide_title?={true}
+          hide_title?={has_related?(@collection)}
           layout="content-area"
           color=""
           arrow_theme="light"
@@ -184,17 +186,20 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         </.card_row>
       </div>
       <div
-        :if={length(@collection.related_collections) > 0}
+        :if={has_related?(@collection)}
         id="related-collections-container"
         role="tabpanel"
         phx-update="ignore"
-        class="grid-flow auto-rows-max tab-content hidden"
+        class={[
+          "grid-flow auto-rows-max tab-content",
+          has_featured?(@collection) && "hidden"
+        ]}
       >
         <.card_row
           id="related-collections"
           layout="content-area"
           title={gettext("Related Collections")}
-          hide_title?={true}
+          hide_title?={has_featured?(@collection)}
           color=""
           arrow_theme="light"
         >
@@ -239,6 +244,14 @@ defmodule DpulCollectionsWeb.CollectionsLive do
     js
     |> JS.hide(to: "div.tab-content")
     |> JS.show(to: to)
+  end
+
+  defp has_featured?(collection) do
+    length(collection.featured_items) > 0
+  end
+
+  defp has_related?(collection) do
+    length(collection.related_collections) > 0
   end
 
   def learn_more(assigns) do

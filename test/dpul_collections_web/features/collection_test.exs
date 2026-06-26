@@ -306,7 +306,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
     end
   end
 
-  describe "a collection whose related collection has neither banner nor featured items" do
+  describe "a collection (with no featured items) whose related collection has neither banner nor featured items" do
     setup do
       with_mock DpulCollections.IndexingPipeline.Figgy.ResourceTypeRegistry, [:passthrough],
         allowed_collection?: fn _ -> true end do
@@ -330,14 +330,43 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       conn
       |> visit("/collections/islamicmss")
       |> assert_has(".phx-connected")
-      |> Playwright.click("#related-collections-tab")
-      # Now Related collections are visible
-      |> refute_has("#featured-items .browse-item")
+      # It has a title instead of a tab
+      |> assert_has("h2", text: "Related Collections")
+      |> refute_has("h2.sr-only", text: "Related Collections")
+      |> refute_has("#featured-items-tab")
+      |> refute_has("#related-collections-tab")
       # Related Collections card with banner in fixture has an image
       |> within("#related-collection-3bab572e-6603-4abf-8305-16ce6fe3ac5c", fn session ->
         session
         |> assert_has("div", text: "Middle East Manuscripts")
       end)
+    end
+  end
+
+  describe "a collection with no related collections" do
+    setup do
+      [
+        # SAE and one featured folder not in any other collections
+        "f99af4de-fed4-4baa-82b1-6e857b230306",
+        "036b86bf-28b0-4157-8912-6d3d9eeaa5a8"
+      ]
+      |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
+
+      Solr.soft_commit(active_collection())
+
+      on_exit(fn -> Solr.delete_all(active_collection()) end)
+      :ok
+    end
+
+    test "does not show the related_collections tab", %{conn: conn} do
+      conn
+      |> visit("/collections/sae")
+      |> assert_has(".phx-connected")
+      # It has a title instead of a tab
+      |> assert_has("h2", text: "Featured Highlights")
+      |> refute_has("h2.sr-only", text: "Featured Highlights")
+      |> refute_has("#featured-items-tab")
+      |> refute_has("#related-collections-tab")
     end
   end
 end
