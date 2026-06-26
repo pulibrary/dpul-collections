@@ -6,7 +6,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy
-  alias DpulCollections.IndexingPipeline.Figgy.ResourceTypeRegistry
   @derive {Jason.Encoder, except: [:__meta__]}
 
   @primary_key {:id, :binary_id, autogenerate: true}
@@ -224,7 +223,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     collections =
       member_of_collection_ids
       |> Enum.map(&extract_ids_from_value/1)
-      |> Enum.filter(&ResourceTypeRegistry.allowed_collection?/1)
       |> IndexingPipeline.get_figgy_resources()
 
     Enum.reduce(collections, resource_map, fn col, acc ->

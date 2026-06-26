@@ -18,6 +18,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ResourceTypeRegistryTest do
     test "related_record_types returns a list" do
       assert ResourceTypeRegistry.related_record_types() == [
                "EphemeraProject",
+               "Collection",
                "EphemeraBox",
                "EphemeraTerm",
                "FileSet"
@@ -44,6 +45,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ResourceTypeRegistryTest do
                "EphemeraProject",
                "Collection",
                "EphemeraProject",
+               "Collection",
                "EphemeraBox",
                "EphemeraTerm",
                "FileSet",

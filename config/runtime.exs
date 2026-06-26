@@ -41,7 +41,9 @@ if config_env() == :prod do
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "30"),
     # For machines with several cores, consider starting multiple pools of `pool_size`
     # pool_count: 4,
-    socket_options: maybe_ipv6
+    socket_options: maybe_ipv6,
+    # Milliseconds before timing out a connection. Added because we were seeing the pool kill connections while waiting on locks during bulk hydration.
+    timeout: 120_000
 
   figgy_database_url =
     System.get_env("FIGGY_DATABASE_URL") ||
@@ -54,7 +56,8 @@ if config_env() == :prod do
   config :dpul_collections, DpulCollections.FiggyRepo,
     url: figgy_database_url,
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "30"),
-    socket_options: maybe_ipv6
+    socket_options: maybe_ipv6,
+    timeout: 120_000
 
   # Solr configuration
   {:ok, solr_config_json} = File.read(Path.join(System.get_env("NOMAD_TASK_DIR"), "solr.json"))

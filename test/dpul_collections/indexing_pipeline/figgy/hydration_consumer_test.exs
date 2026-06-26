@@ -682,6 +682,86 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
     end
   end
 
+  describe "Collection processing" do
+    test "skips collections that are unpublished" do
+      # princetoncollectors collection
+      collection = IndexingPipeline.get_figgy_resource!("62339f65-ce6d-4c85-ab77-67c70abb8709")
+
+      HydrationConsumer.process_and_persist(collection, 1)
+      assert IndexingPipeline.list_hydration_cache_entries() == []
+    end
+
+    test "deletes collections that were once published" do
+      collection = IndexingPipeline.get_figgy_resource!("52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a")
+
+      HydrationConsumer.process_and_persist(collection, 1)
+
+      unpublished_collection = put_in(collection, [Access.key!(:metadata), "publish"], ["0"])
+
+      HydrationConsumer.process_and_persist(unpublished_collection, 1)
+
+      cache_entry = DpulCollections.IndexingPipeline.get_hydration_cache_entry!(collection.id, 1)
+      assert cache_entry.data["metadata"]["deleted"] == true
+    end
+
+    test "updates collections that are published" do
+      collection = IndexingPipeline.get_figgy_resource!("52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a")
+
+      HydrationConsumer.process_and_persist(collection, 1)
+
+      cache_entry = DpulCollections.IndexingPipeline.get_hydration_cache_entry!(collection.id, 1)
+
+      # No related data
+      assert cache_entry.related_data["resources"] == nil
+      assert cache_entry.related_ids == []
+    end
+
+    test "updates related items when it changes" do
+      collection = IndexingPipeline.get_figgy_resource!("52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a")
+      item = IndexingPipeline.get_figgy_resource!("159ba3f9-feab-49dd-bc71-ca08995006d9")
+
+      HydrationConsumer.process_and_persist(collection, 1)
+      HydrationConsumer.process_and_persist(item, 1)
+
+      new_title_collection =
+        collection
+        |> put_in([Access.key!(:metadata), "title"], ["Test Title"])
+        |> put_in([Access.key!(:updated_at)], DateTime.utc_now())
+
+      # Mock IndexingPipeline.get_figgy_resources function so:
+      #   1. query for Collection returns the updated collection
+      #   2. everything else passes through
+      with_mock IndexingPipeline, [:passthrough],
+        get_figgy_resources: fn
+          # These are all the collections this item is a member of.
+          [
+            "3b230de6-e7d3-4482-8f19-d76c8491cec3",
+            "3bab572e-6603-4abf-8305-16ce6fe3ac5c",
+            "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a",
+            "62339f65-ce6d-4c85-ab77-67c70abb8709"
+          ] ->
+            [new_title_collection]
+
+          ids ->
+            passthrough([ids])
+        end do
+        HydrationConsumer.process_and_persist(new_title_collection, 1)
+      end
+
+      collection_cache_entry =
+        DpulCollections.IndexingPipeline.get_hydration_cache_entry!(collection.id, 1)
+
+      cache_entry = DpulCollections.IndexingPipeline.get_hydration_cache_entry!(item.id, 1)
+
+      assert collection_cache_entry.data["metadata"]["title"] == ["Test Title"]
+      assert Enum.find_index(cache_entry.related_ids, fn x -> x == collection.id end) != nil
+
+      assert cache_entry.related_data["ancestors"][collection.id]["metadata"]["title"] == [
+               "Test Title"
+             ]
+    end
+  end
+
   describe "EphemeraProject processing" do
     test "skips projects that are unpublished" do
       project = IndexingPipeline.get_figgy_resource!("f09fc91d-7a9b-47b5-afff-ce7db76b4e92")

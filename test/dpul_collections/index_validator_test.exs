@@ -36,9 +36,9 @@ defmodule DpulCollections.IndexValidatorTest do
 
       # 1 is reading-room, so it gets filtered out.
       # 1 has no member_ids, so it should get filtered out.
-      assert sae_validator.public_complete_figgy_count == 15
+      assert sae_validator.public_complete_figgy_count == 16
 
-      assert length(sae_validator.missing_items) == 13
+      assert length(sae_validator.missing_items) == 14
       assert Enum.member?(sae_validator.missing_items, "d82efa97-c69b-424c-83c2-c461baae8307")
 
       assert length(sae_validator.extra_items) == 1

@@ -10,7 +10,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ResourceTypeRegistry do
   @collection_types ["EphemeraProject", "Collection"]
 
   # Types that trigger re-indexing of related records
-  @related_record_types ["EphemeraProject", "EphemeraBox", "EphemeraTerm", "FileSet"]
+  @related_record_types [
+    "EphemeraProject",
+    "Collection",
+    "EphemeraBox",
+    "EphemeraTerm",
+    "FileSet"
+  ]
 
   # Types used in the transformation pipeline
   @transformable_types @indexable_types ++ @collection_types
