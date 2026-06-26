@@ -64,6 +64,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
   attr :class, :string, required: false, default: nil
   attr :current_scope, :map, required: false, default: nil
   attr :show_small_thumbs?, :boolean, default: true
+  attr :show_file_count?, :boolean, default: true
   attr :url, :string, required: false, default: nil
 
   attr :show_images, :list,
@@ -77,6 +78,10 @@ defmodule DpulCollectionsWeb.BrowseItem do
   slot :extra_info, required: false
   slot :card_footer, required: false
   slot :card_buttons, required: false
+
+  slot :thumbnail,
+    required: false,
+    doc: "override for the card's thumbnail area"
 
   # make sure to wrap these in a ul
   # The basic item card, providing slots for buttons, footers, etc
@@ -107,30 +112,34 @@ defmodule DpulCollectionsWeb.BrowseItem do
         <!-- thumbs -->
         <div class="px-2 pt-2 bg-white overflow-clip">
           <div class="flex flex-col gap-2 h-[24rem]">
-            <!-- main thumbnail -->
-            <div class="min-h-0 grow">
-              <.thumb
-                thumb={thumbnail_service_url(@thumb_source)}
-                item={@thumb_source}
-                show_images={@show_images}
-              />
-            </div>
+            <%= if @thumbnail != [] do %>
+              {render_slot(@thumbnail)}
+            <% else %>
+              <!-- main thumbnail -->
+              <div class="min-h-0 grow">
+                <.thumb
+                  thumb={thumbnail_service_url(@thumb_source)}
+                  item={@thumb_source}
+                  show_images={@show_images}
+                />
+              </div>
 
-            <div
-              :if={@show_small_thumbs? && @thumb_source.file_count > 1}
-              class="grid grid-cols-4 gap-2 h-[6rem]"
-            >
-              <.thumb
-                :for={
-                  {thumb, thumb_num} <- thumbnail_service_urls(4, @thumb_source.image_service_urls)
-                }
-                :if={@thumb_source.file_count}
-                thumb={thumb}
-                thumb_num={thumb_num}
-                item={@thumb_source}
-                show_images={@show_images}
-              />
-            </div>
+              <div
+                :if={@show_small_thumbs? && @thumb_source.file_count > 1}
+                class="grid grid-cols-4 gap-2 h-[6rem]"
+              >
+                <.thumb
+                  :for={
+                    {thumb, thumb_num} <- thumbnail_service_urls(4, @thumb_source.image_service_urls)
+                  }
+                  :if={@thumb_source.file_count}
+                  thumb={thumb}
+                  thumb_num={thumb_num}
+                  item={@thumb_source}
+                  show_images={@show_images}
+                />
+              </div>
+            <% end %>
           </div>
         </div>
         <!-- card text area -->
@@ -156,7 +165,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
           </div>
           <div class="h-8 relative order-first">
             <div
-              :if={@thumb_source.file_count > 4}
+              :if={@show_file_count? && @thumb_source.file_count > 4}
               class="absolute bg-background right-2 top-0 z-10 pr-2 pb-1 diagonal-drop"
             >
               {format_number(@thumb_source.file_count)} {gettext("Files")}
@@ -291,6 +300,68 @@ defmodule DpulCollectionsWeb.BrowseItem do
           current_path={@current_path}
         />
       </:card_buttons>
+    </.item_card_li>
+    """
+  end
+
+  attr :collection, Collection, required: true
+  attr :id_prefix, :string, required: false, default: "browse-collection"
+  attr :class, :string, required: false, default: nil
+  attr :current_scope, :map, required: false, default: nil
+  attr :current_path, :string, required: true
+
+  attr :show_images, :list,
+    default: [],
+    doc: "the list of images stored in session that should not be obfuscated"
+
+  attr :heading_level, :string, default: "h3"
+
+  def collection_browse_card_li(assigns) do
+    assigns = assign(assigns, :thumb_source, List.first(assigns.collection.featured_items))
+
+    ~H"""
+    <.item_card_li
+      :if={@thumb_source}
+      target_item={@collection}
+      thumb_source={@thumb_source}
+      url={@collection.url}
+      id_prefix={@id_prefix}
+      heading_level={@heading_level}
+      class={@class}
+      current_scope={@current_scope}
+      show_images={@show_images}
+      show_file_count?={false}
+    >
+      <:thumbnail>
+        <div class="grid grid-cols-2 grid-rows-2 gap-2 h-full">
+          <.thumb
+            :for={item <- Enum.take(@collection.featured_items, 4)}
+            thumb={thumbnail_service_url(item)}
+            item={item}
+            show_images={@show_images}
+          />
+        </div>
+      </:thumbnail>
+      <:extra_info>
+        <div class="item-count">
+          <div>{gettext("Items")}</div>
+          <div>{format_number(@collection.item_count)}</div>
+        </div>
+        <div
+          :if={length(@collection.languages) > 0}
+          class="languages-count"
+        >
+          <div>{gettext("Languages")}</div>
+          <div>{format_number(length(@collection.languages))}</div>
+        </div>
+        <div
+          :if={length(@collection.geographic_origins) > 0}
+          class="locations-count"
+        >
+          <div>{gettext("Locations")}</div>
+          <div>{format_number(length(@collection.geographic_origins))}</div>
+        </div>
+      </:extra_info>
     </.item_card_li>
     """
   end

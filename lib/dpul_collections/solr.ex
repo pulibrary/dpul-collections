@@ -213,6 +213,25 @@ defmodule DpulCollections.Solr do
     query(search_state, index)
   end
 
+  def recent_collections(
+        count,
+        search_state \\ SearchState.from_params(%{}),
+        index \\ Index.read_index()
+      ) do
+    search_state =
+      SearchState.from_params(%{
+        "filter" =>
+          Map.merge(
+            search_state.filter,
+            %{"resource_type" => "collection"}
+          ),
+        "sort_by" => "recently_added",
+        "per_page" => "#{count}"
+      })
+
+    query(search_state, index)
+  end
+
   def random(count, seed, index \\ Index.read_index()) do
     search_state =
       SearchState.from_params(%{
