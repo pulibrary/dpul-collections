@@ -42,6 +42,7 @@ if config_env() == :prod do
     # For machines with several cores, consider starting multiple pools of `pool_size`
     # pool_count: 4,
     socket_options: maybe_ipv6,
+    # Milliseconds before timing out a connection. Added because we were seeing the pool kill connections while waiting on locks during bulk hydration.
     timeout: 120_000
 
   figgy_database_url =
