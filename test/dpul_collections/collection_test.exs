@@ -38,6 +38,26 @@ defmodule DpulCollections.CollectionTest do
 
       assert length(collection.banner_items) == 2
     end
+
+    test "if there are no items, banner_item is nil" do
+      sae_ids = [
+        # Project
+        "f99af4de-fed4-4baa-82b1-6e857b230306"
+      ]
+
+      # Add another ID so we know it doesn't include related items from other collections.
+      other_ids = ["3da68e1c-06af-4d17-8603-fc73152e1ef7"]
+
+      (sae_ids ++ other_ids)
+      |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
+
+      Solr.soft_commit()
+
+      collection = Collection.from_slug("sae")
+
+      assert length(collection.banner_items) == 0
+      assert collection.banner_item == nil
+    end
   end
 
   describe ".load_related_records" do
