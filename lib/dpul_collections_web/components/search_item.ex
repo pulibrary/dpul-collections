@@ -25,7 +25,7 @@ defmodule DpulCollectionsWeb.SearchItem do
         ]}>
           <div class="grid grid-cols-2 w-full gap-2 h-[350px] p-2">
             <img
-              :for={item <- @item.featured_items}
+              :for={item <- @item.banner_items}
               src={"#{item.primary_thumbnail_service_url}/full/!#{item.primary_thumbnail_width},#{item.primary_thumbnail_height}/0/default.jpg"}
               width={item.primary_thumbnail_width}
               height={item.primary_thumbnail_height}

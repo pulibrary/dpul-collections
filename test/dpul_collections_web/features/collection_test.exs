@@ -245,6 +245,43 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
     end
   end
 
+  describe "A collection with no banner image or featured items selected" do
+    setup do
+      with_mock DpulCollections.IndexingPipeline.Figgy.HydrationConsumer, [:passthrough],
+        process?: fn _ -> true end do
+        [
+          # Middle East Manuscripts collection
+          "3bab572e-6603-4abf-8305-16ce6fe3ac5c",
+          # non-featured item
+          "1a8c14ca-060c-434f-b999-6191db4c336c"
+        ]
+        |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
+      end
+
+      Solr.soft_commit(active_collection())
+      on_exit(fn -> Solr.delete_all(active_collection()) end)
+      :ok
+    end
+
+    test "it uses a recent item banner image fallback", %{conn: conn} do
+      conn
+      |> visit("/collections/middle-east-mss")
+      |> assert_has(".phx-connected")
+      # Title
+      |> assert_has("h1", text: "Middle East Manuscripts")
+      # Banner image area
+      |> assert_has("#collection-banner", count: 1)
+      # Banner item link
+      |> assert_has(
+        "#collection-banner a[href='/i/شاهنامه/item/1a8c14ca-060c-434f-b999-6191db4c336c']"
+      )
+      # Banner image
+      |> assert_has(
+        "#collection-banner img[src='https://iiif-cloud.princeton.edu/iiif/2/7c%2Fba%2F20%2F7cba206f6a894421ae7a32a7cab9e371%2Fintermediate_file/full/!453,800/0/default.jpg']"
+      )
+    end
+  end
+
   describe "a collection with related collections" do
     setup do
       with_mock DpulCollections.IndexingPipeline.Figgy.HydrationConsumer, [:passthrough],

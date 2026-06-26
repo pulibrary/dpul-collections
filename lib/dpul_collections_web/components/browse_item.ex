@@ -335,7 +335,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
       <:thumbnail>
         <div class="grid grid-cols-2 grid-rows-2 gap-2 h-full">
           <.thumb
-            :for={item <- Enum.take(@collection.featured_items, 4)}
+            :for={item <- Enum.take(@collection.banner_items, 4)}
             thumb={thumbnail_service_url(item)}
             item={item}
             show_images={@show_images}
