@@ -215,19 +215,14 @@ defmodule DpulCollections.Solr do
 
   def recent_collections(
         count,
-        search_state \\ SearchState.from_params(%{}),
         index \\ Index.read_index()
       ) do
     search_state =
       SearchState.from_params(%{
-        "filter" =>
-          Map.merge(
-            search_state.filter,
-            %{"resource_type" => "collection"}
-          ),
-        "sort_by" => "recently_added",
-        "per_page" => "#{count}"
+        "per_page" => "#{count}",
+        "sort_by" => "recently_added"
       })
+      |> SearchState.set_filter("format", "Digital Collection")
 
     query(search_state, index)
   end
