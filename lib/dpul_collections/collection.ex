@@ -17,6 +17,7 @@ defmodule DpulCollections.Collection do
     :banner_image,
     :banner_image_id,
     :banner_item,
+    :banner_items,
     format: ["Digital Collections"],
     categories: [],
     formats: [],
@@ -45,6 +46,7 @@ defmodule DpulCollections.Collection do
   def from_solr(doc = %{}) do
     title = Map.get(doc, "title_ss") || Map.get(doc, "title_txtm") || []
     summary = collection_summary(title |> hd)
+    featured_items = get_featured_items(title |> hd)
 
     %__MODULE__{
       id: doc["id"],
@@ -59,10 +61,22 @@ defmodule DpulCollections.Collection do
       formats: summary.formats,
       languages: summary.languages,
       geographic_origins: summary.geographic_origins,
-      featured_items: get_featured_items(title |> hd),
+      featured_items: featured_items,
       url: "/collections/#{doc["authoritative_slug_s"]}",
-      contributors: get_contributors(doc["authoritative_slug_s"])
+      contributors: get_contributors(doc["authoritative_slug_s"]),
+      banner_items: banner_items(title, featured_items)
     }
+  end
+
+  defp banner_items(_title, featured_items) when length(featured_items) >= 4 do
+    featured_items
+  end
+
+  defp banner_items(title, featured_items) do
+    featured_items
+    |> Enum.concat(get_recent_items(title |> hd))
+    |> Enum.uniq()
+    |> Enum.take(4)
   end
 
   def load_related_records(nil), do: nil
@@ -102,9 +116,17 @@ defmodule DpulCollections.Collection do
     Solr.find_by_id(banner_image_id) |> Item.from_solr()
   end
 
-  defp get_banner_item(collection) do
+  defp get_banner_item(collection = %{featured_items: featured_items})
+       when length(featured_items) > 0 do
     collection.featured_items |> then(&if &1 != [], do: Enum.random(&1))
   end
+
+  defp get_banner_item(collection = %{banner_items: banner_items})
+       when length(banner_items) > 0 do
+    collection.banner_items |> Enum.random()
+  end
+
+  defp get_banner_item(_), do: nil
 
   def get_related_collections(label) do
     Solr.related_collections(label)

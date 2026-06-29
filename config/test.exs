@@ -137,7 +137,8 @@ config :phoenix_test,
     ],
     js_logger: false,
     screenshot: System.get_env("PW_SCREENSHOT", "false") in ~w(t true),
-    trace: System.get_env("PW_TRACE", "false") in ~w(t true)
+    trace: System.get_env("PW_TRACE", "false") in ~w(t true),
+    timeout: :timer.seconds(4)
   ]
 
 config :honeybadger, api_key: ""
