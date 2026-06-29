@@ -69,6 +69,7 @@ defmodule DpulCollections.Solr do
         mm: "2<-1 5<-2 6<90%",
         sow: "true",
         fl: fl,
+        pf: "title_txtm^10 summary_txtm^10 provenance_txtm^10",
         sort: sort_param(search_state),
         rows: search_state[:per_page],
         start: pagination_offset(search_state),
