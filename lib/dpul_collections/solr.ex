@@ -69,6 +69,9 @@ defmodule DpulCollections.Solr do
         mm: "2<-1 5<-2 6<90%",
         sow: "true",
         fl: fl,
+        # Boost when an exact phrase match hits these fields - added to ensure
+        # when searching for exact titles of provenance without quotes that the
+        # exact matches sort first.
         pf: "title_txtm^10 summary_txtm^10 provenance_txtm^10",
         sort: sort_param(search_state),
         rows: search_state[:per_page],
