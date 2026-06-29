@@ -77,7 +77,7 @@ if Mix.env() == :test do
       ])
       |> Plug.Conn.delete_resp_header("Vary")
       |> Plug.Conn.delete_resp_header("Content-Encoding")
-      |> Plug.Conn.resp(200, Jason.encode!(simple_manifest(url)))
+      |> Plug.Conn.resp(200, JSON.encode!(simple_manifest(url)))
     end
 
     def simple_manifest(url) do

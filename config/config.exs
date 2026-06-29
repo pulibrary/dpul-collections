@@ -87,7 +87,9 @@ config :logger, :default_formatter,
   metadata: [:request_id]
 
 # Use Jason for JSON parsing in Phoenix
-config :phoenix, :json_library, Jason
+config :phoenix, :json_library, JSON
+config :ecto, :json_library, JSON
+config :postgrex, :json_library, JSON
 
 config :dpul_collections, :figgy_hydrator, poll_interval: 60000
 
