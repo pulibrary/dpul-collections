@@ -13,5 +13,6 @@ defmodule DpulCollectionsWeb.Features.IndexingTest do
     |> assert_has(".phx-connected")
     |> click_link("Издательство")
     |> assert_path("/search")
+    |> assert_has("li.item")
   end
 end
