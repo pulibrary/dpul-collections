@@ -260,6 +260,42 @@ defmodule DpulCollections.SolrTest do
       assert hd(result.results).id == "english-example"
     end
 
+    test "searching with quotes provides more precise matching" do
+      Solr.add(
+        [
+          %{
+            id: "texas",
+            title_txtm: ["texas item"],
+            provenance_txtm: ["Gift of University of Texas Libraries"]
+          },
+          %{
+            id: "duke",
+            title_txtm: ["duke item"],
+            provenance_txtm: ["Gift of Duke University Libraries"]
+          }
+        ],
+        active_collection()
+      )
+
+      Solr.soft_commit(active_collection())
+
+      search_state = SearchState.from_params(%{"q" => "Gift of University of Texas Libraries"})
+      result = Solr.search(search_state)
+
+      # This is 2 because no quotes hits mm and matches 'gift university
+      # libraries' tokens in both. Texas should be first because of phrase
+      # boosting.
+      assert length(result.results) == 2
+
+      search_state =
+        SearchState.from_params(%{"q" => "\"Gift of University of Texas Libraries\""})
+
+      result = Solr.search(search_state)
+
+      # This should be 1, because the quotes require the phrase.
+      assert length(result.results) == 1
+    end
+
     test "can filter by two facets" do
       Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
       Solr.soft_commit(active_collection())

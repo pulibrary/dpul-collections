@@ -69,6 +69,10 @@ defmodule DpulCollections.Solr do
         mm: "2<-1 5<-2 6<90%",
         sow: "true",
         fl: fl,
+        # Boost when an exact phrase match hits these fields - added to ensure
+        # when searching for exact titles of provenance without quotes that the
+        # exact matches sort first.
+        pf: "title_txtm^10 summary_txtm^10 provenance_txtm^10",
         sort: sort_param(search_state),
         rows: search_state[:per_page],
         start: pagination_offset(search_state),
@@ -246,17 +250,28 @@ defmodule DpulCollections.Solr do
   end
 
   defp query_param(search_state) do
-    [mlt_focus(search_state), search_state[:q] |> escape_query]
+    [mlt_focus(search_state), search_state[:q] |> escape_query(escape_quotes: false)]
     |> Enum.reject(&is_nil/1)
     |> Enum.join(" ")
   end
 
   # Escape solr characters: https://doc.lucidworks.com/docs/5/fusion/getting-data-out/query-basics/query-language-cheat-sheet
-  defp escape_query(q) when is_binary(q) do
-    Regex.replace(~r/[?*\\\/"]/, q, fn char -> "\\" <> char end)
+  defp escape_query(q, opts \\ [])
+
+  defp escape_query(q, opts) when is_binary(q) do
+    validated_opts =
+      Keyword.validate!(opts,
+        escape_quotes: true
+      )
+
+    if validated_opts[:escape_quotes] do
+      Regex.replace(~r/[?*\\\/"]/, q, fn char -> "\\" <> char end)
+    else
+      Regex.replace(~r/[?*\\\/]/, q, fn char -> "\\" <> char end)
+    end
   end
 
-  defp escape_query(q), do: q
+  defp escape_query(q, _opts), do: q
 
   def mlt_focus(%{filter: %{"similar" => id}}) do
     "{!mlt qf=format_txt_sort,subject_txt_sort,geo_subject_txt_sort,geographic_origin_txt_sort,language_txt_sort,keywords_txt_sort,summary_txtm mintf=1 mindf=1}#{id}"
