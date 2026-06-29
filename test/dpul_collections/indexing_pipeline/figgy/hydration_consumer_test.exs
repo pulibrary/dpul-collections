@@ -17,17 +17,19 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
 
     test "process_and_persist/2 when a message is not a complete and visible EphemeraFolder, it is not saved" do
       # First save an ephemera folder that creates a hydration cache entry.
-      ephemera_folder = %Figgy.Resource{
-        id: "561ea64a-9cd1-4994-b2a7-ac169f33ba84",
-        updated_at: ~U[2024-04-18 14:28:57.526110Z],
-        internal_resource: "EphemeraFolder",
-        metadata: %{
-          "title" => ["title"],
-          "state" => ["complete"],
-          "visibility" => ["open"],
-          "member_ids" => [%{"id" => "96f52803-f3d5-4cab-aba1-eceff648abdc"}]
+      ephemera_folder =
+        %Figgy.Resource{
+          id: "561ea64a-9cd1-4994-b2a7-ac169f33ba84",
+          updated_at: ~U[2024-04-18 14:28:57.526110Z],
+          internal_resource: "EphemeraFolder",
+          metadata: %{
+            "title" => ["title"],
+            "state" => ["complete"],
+            "visibility" => ["open"],
+            "member_ids" => [%{"id" => "96f52803-f3d5-4cab-aba1-eceff648abdc"}]
+          }
         }
-      }
+        |> Figgy.Resource.populate_virtual()
 
       Figgy.HydrationConsumer.process_and_persist(ephemera_folder, 1)
 
@@ -48,6 +50,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
             "member_ids" => [%{"id" => "96f52803-f3d5-4cab-aba1-eceff648abdc"}]
           }
         }
+        |> Figgy.Resource.populate_virtual()
 
       Figgy.HydrationConsumer.process_and_persist(pending_ephemera_folder, 1)
       assert [ephemera_folder_cache_entry] = IndexingPipeline.list_hydration_cache_entries()
@@ -136,6 +139,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
             "member_ids" => [%{"id" => "96f52803-f3d5-4cab-aba1-eceff648abdc"}]
           }
         }
+        |> Figgy.Resource.populate_virtual()
 
       # DeletionMarker that corresponds to a resource with a hydration cache entry
       ephemera_folder_deletion_marker =
@@ -144,7 +148,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           updated_at: ~U[2025-01-02 19:47:21.726083Z],
           internal_resource: "DeletionMarker",
           metadata_resource_id: [%{"id" => "561ea64a-9cd1-4994-b2a7-ac169f33ba84"}],
-          metadata_resource_type: ["EphemeraFolder"]
+          metadata_resource_type: ["EphemeraFolder"],
+          metadata: %{}
         }
 
       # DeletionMarker that does not correspond to a resource with a hydration cache entry
@@ -154,7 +159,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           updated_at: ~U[2025-01-02 19:47:21.726083Z],
           internal_resource: "DeletionMarker",
           metadata_resource_id: [%{"id" => "fc8d345b-6e87-461e-9182-41eaede1fab6"}],
-          metadata_resource_type: ["EphemeraFolder"]
+          metadata_resource_type: ["EphemeraFolder"],
+          metadata: %{}
         }
 
       # DeletionMarker that does not correspond to a resource with a hydration cache entry
@@ -164,7 +170,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
           updated_at: ~U[2025-01-02 19:47:21.726083Z],
           internal_resource: "DeletionMarker",
           metadata_resource_id: [%{"id" => "e0d4e6f6-29f2-4fd7-9c8a-7293ae0d7689"}],
-          metadata_resource_type: ["EphemeraFolder"]
+          metadata_resource_type: ["EphemeraFolder"],
+          metadata: %{}
         }
 
       # Create a cache entry for the ephemera folder.
@@ -214,53 +221,61 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
     end
 
     test "process_and_persist/2 deletes EphemeraFolders when their state or visibility change" do
-      ephemera_folder_1 = %Figgy.Resource{
-        id: "05092b7d-d33c-4d4d-885e-b6b8973deec4",
-        updated_at: ~U[2025-04-18 14:28:57.52611Z],
-        internal_resource: "EphemeraFolder",
-        metadata: %{
-          "cached_parent_id" => [%{"id" => "7b87fdfa-a760-49b9-85e9-093f2519f2fc"}],
-          "state" => ["complete"],
-          "visibility" => ["open"],
-          "member_ids" => [%{"id" => "c42bca4b-02c9-44ad-b6bd-132ab27a8986"}]
+      ephemera_folder_1 =
+        %Figgy.Resource{
+          id: "05092b7d-d33c-4d4d-885e-b6b8973deec4",
+          updated_at: ~U[2025-04-18 14:28:57.52611Z],
+          internal_resource: "EphemeraFolder",
+          metadata: %{
+            "cached_parent_id" => [%{"id" => "7b87fdfa-a760-49b9-85e9-093f2519f2fc"}],
+            "state" => ["complete"],
+            "visibility" => ["open"],
+            "member_ids" => [%{"id" => "c42bca4b-02c9-44ad-b6bd-132ab27a8986"}]
+          }
         }
-      }
+        |> Figgy.Resource.populate_virtual()
 
-      ephemera_folder_2 = %Figgy.Resource{
-        id: "31732974-611e-4c06-8af3-928e553b6c9f",
-        updated_at: ~U[2025-04-18 14:29:09.201335Z],
-        internal_resource: "EphemeraFolder",
-        metadata: %{
-          "cached_parent_id" => [%{"id" => "7b87fdfa-a760-49b9-85e9-093f2519f2fc"}],
-          "state" => ["complete"],
-          "visibility" => ["open"],
-          "member_ids" => [%{"id" => "ee769854-2d5f-4d79-81d9-3fdbb27fa168"}]
+      ephemera_folder_2 =
+        %Figgy.Resource{
+          id: "31732974-611e-4c06-8af3-928e553b6c9f",
+          updated_at: ~U[2025-04-18 14:29:09.201335Z],
+          internal_resource: "EphemeraFolder",
+          metadata: %{
+            "cached_parent_id" => [%{"id" => "7b87fdfa-a760-49b9-85e9-093f2519f2fc"}],
+            "state" => ["complete"],
+            "visibility" => ["open"],
+            "member_ids" => [%{"id" => "ee769854-2d5f-4d79-81d9-3fdbb27fa168"}]
+          }
         }
-      }
+        |> Figgy.Resource.populate_virtual()
 
-      updated_visibility_ephemera_folder = %Figgy.Resource{
-        id: "05092b7d-d33c-4d4d-885e-b6b8973deec4",
-        updated_at: ~U[2025-04-19 14:28:57.52611Z],
-        internal_resource: "EphemeraFolder",
-        metadata: %{
-          "cached_parent_id" => [%{"id" => "7b87fdfa-a760-49b9-85e9-093f2519f2fc"}],
-          "state" => ["complete"],
-          "visibility" => ["restricted"],
-          "member_ids" => [%{"id" => "c42bca4b-02c9-44ad-b6bd-132ab27a8986"}]
+      updated_visibility_ephemera_folder =
+        %Figgy.Resource{
+          id: "05092b7d-d33c-4d4d-885e-b6b8973deec4",
+          updated_at: ~U[2025-04-19 14:28:57.52611Z],
+          internal_resource: "EphemeraFolder",
+          metadata: %{
+            "cached_parent_id" => [%{"id" => "7b87fdfa-a760-49b9-85e9-093f2519f2fc"}],
+            "state" => ["complete"],
+            "visibility" => ["restricted"],
+            "member_ids" => [%{"id" => "c42bca4b-02c9-44ad-b6bd-132ab27a8986"}]
+          }
         }
-      }
+        |> Figgy.Resource.populate_virtual()
 
-      updated_state_ephemera_folder = %Figgy.Resource{
-        id: "31732974-611e-4c06-8af3-928e553b6c9f",
-        updated_at: ~U[2025-04-19 14:29:09.201335Z],
-        internal_resource: "EphemeraFolder",
-        metadata: %{
-          "cached_parent_id" => [%{"id" => "7b87fdfa-a760-49b9-85e9-093f2519f2fc"}],
-          "state" => ["pending"],
-          "visibility" => ["open"],
-          "member_ids" => [%{"id" => "ee769854-2d5f-4d79-81d9-3fdbb27fa168"}]
+      updated_state_ephemera_folder =
+        %Figgy.Resource{
+          id: "31732974-611e-4c06-8af3-928e553b6c9f",
+          updated_at: ~U[2025-04-19 14:29:09.201335Z],
+          internal_resource: "EphemeraFolder",
+          metadata: %{
+            "cached_parent_id" => [%{"id" => "7b87fdfa-a760-49b9-85e9-093f2519f2fc"}],
+            "state" => ["pending"],
+            "visibility" => ["open"],
+            "member_ids" => [%{"id" => "ee769854-2d5f-4d79-81d9-3fdbb27fa168"}]
+          }
         }
-      }
+        |> Figgy.Resource.populate_virtual()
 
       # Create hydration cache entries
       Figgy.HydrationConsumer.process_and_persist(ephemera_folder_1, 1)
@@ -294,18 +309,20 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
     end
 
     test "process_and_persist/2 updates an EphemeraFolder when a related EphemeraTerm changes" do
-      ephemera_folder = %Figgy.Resource{
-        id: "05092b7d-d33c-4d4d-885e-b6b8973deec4",
-        updated_at: ~U[2024-04-18 14:28:57.526110Z],
-        internal_resource: "EphemeraFolder",
-        metadata: %{
-          "cached_parent_id" => [%{"id" => "7b87fdfa-a760-49b9-85e9-093f2519f2fc"}],
-          "state" => ["complete"],
-          "visibility" => ["open"],
-          "member_ids" => [%{"id" => "c42bca4b-02c9-44ad-b6bd-132ab27a8986"}],
-          "genre" => [%{"id" => "01e15ce8-1a11-4342-b7b5-82cbff248b4d"}]
+      ephemera_folder =
+        %Figgy.Resource{
+          id: "05092b7d-d33c-4d4d-885e-b6b8973deec4",
+          updated_at: ~U[2024-04-18 14:28:57.526110Z],
+          internal_resource: "EphemeraFolder",
+          metadata: %{
+            "cached_parent_id" => [%{"id" => "7b87fdfa-a760-49b9-85e9-093f2519f2fc"}],
+            "state" => ["complete"],
+            "visibility" => ["open"],
+            "member_ids" => [%{"id" => "c42bca4b-02c9-44ad-b6bd-132ab27a8986"}],
+            "genre" => [%{"id" => "01e15ce8-1a11-4342-b7b5-82cbff248b4d"}]
+          }
         }
-      }
+        |> Figgy.Resource.populate_virtual()
 
       updated_ephemera_term_resource = %Figgy.Resource{
         id: "01e15ce8-1a11-4342-b7b5-82cbff248b4d",
@@ -372,18 +389,20 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
     end
 
     test "process_and_persist/2 does not update an EphemeraFolder when a related resources changes but has an older timestamp" do
-      ephemera_folder = %Figgy.Resource{
-        id: "05092b7d-d33c-4d4d-885e-b6b8973deec4",
-        updated_at: ~U[2024-04-18 14:28:57.526110Z],
-        internal_resource: "EphemeraFolder",
-        metadata: %{
-          "cached_parent_id" => [%{"id" => "7b87fdfa-a760-49b9-85e9-093f2519f2fc"}],
-          "state" => ["complete"],
-          "visibility" => ["open"],
-          "member_ids" => [%{"id" => "c42bca4b-02c9-44ad-b6bd-132ab27a8986"}],
-          "genre" => [%{"id" => "01e15ce8-1a11-4342-b7b5-82cbff248b4d"}]
+      ephemera_folder =
+        %Figgy.Resource{
+          id: "05092b7d-d33c-4d4d-885e-b6b8973deec4",
+          updated_at: ~U[2024-04-18 14:28:57.526110Z],
+          internal_resource: "EphemeraFolder",
+          metadata: %{
+            "cached_parent_id" => [%{"id" => "7b87fdfa-a760-49b9-85e9-093f2519f2fc"}],
+            "state" => ["complete"],
+            "visibility" => ["open"],
+            "member_ids" => [%{"id" => "c42bca4b-02c9-44ad-b6bd-132ab27a8986"}],
+            "genre" => [%{"id" => "01e15ce8-1a11-4342-b7b5-82cbff248b4d"}]
+          }
         }
-      }
+        |> Figgy.Resource.populate_virtual()
 
       updated_ephemera_term_resource = %Figgy.Resource{
         id: "01e15ce8-1a11-4342-b7b5-82cbff248b4d",
@@ -431,17 +450,19 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
     end
 
     test "process_and_persist/2 updates an EphemeraFolder when a related FileSet changes" do
-      ephemera_folder = %Figgy.Resource{
-        id: "05092b7d-d33c-4d4d-885e-b6b8973deec4",
-        updated_at: ~U[2024-04-18 14:28:57.526110Z],
-        internal_resource: "EphemeraFolder",
-        metadata: %{
-          "cached_parent_id" => [%{"id" => "7b87fdfa-a760-49b9-85e9-093f2519f2fc"}],
-          "state" => ["complete"],
-          "visibility" => ["open"],
-          "member_ids" => [%{"id" => "c42bca4b-02c9-44ad-b6bd-132ab27a8986"}]
+      ephemera_folder =
+        %Figgy.Resource{
+          id: "05092b7d-d33c-4d4d-885e-b6b8973deec4",
+          updated_at: ~U[2024-04-18 14:28:57.526110Z],
+          internal_resource: "EphemeraFolder",
+          metadata: %{
+            "cached_parent_id" => [%{"id" => "7b87fdfa-a760-49b9-85e9-093f2519f2fc"}],
+            "state" => ["complete"],
+            "visibility" => ["open"],
+            "member_ids" => [%{"id" => "c42bca4b-02c9-44ad-b6bd-132ab27a8986"}]
+          }
         }
-      }
+        |> Figgy.Resource.populate_virtual()
 
       updated_file_set_resource = %Figgy.Resource{
         id: "c42bca4b-02c9-44ad-b6bd-132ab27a8986",
@@ -506,32 +527,36 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
     end
 
     test "process_and_persist/2 updates an EphemeraFolder when a parent EphemeraBox changes" do
-      ephemera_folder = %Figgy.Resource{
-        id: "561ea64a-9cd1-4994-b2a7-ac169f33ba84",
-        updated_at: ~U[2024-04-18 14:28:57.526110Z],
-        internal_resource: "EphemeraFolder",
-        metadata: %{
-          "cached_parent_id" => [%{"id" => "82624edb-c360-4d8a-b202-f103ee639e8e"}],
-          "state" => ["complete"],
-          "visibility" => ["open"],
-          "member_ids" => [%{"id" => "96f52803-f3d5-4cab-aba1-eceff648abdc"}],
-          "title" => ["Folder"]
+      ephemera_folder =
+        %Figgy.Resource{
+          id: "561ea64a-9cd1-4994-b2a7-ac169f33ba84",
+          updated_at: ~U[2024-04-18 14:28:57.526110Z],
+          internal_resource: "EphemeraFolder",
+          metadata: %{
+            "cached_parent_id" => [%{"id" => "82624edb-c360-4d8a-b202-f103ee639e8e"}],
+            "state" => ["complete"],
+            "visibility" => ["open"],
+            "member_ids" => [%{"id" => "96f52803-f3d5-4cab-aba1-eceff648abdc"}],
+            "title" => ["Folder"]
+          }
         }
-      }
+        |> Figgy.Resource.populate_virtual()
 
-      updated_ephemera_box_resource = %Figgy.Resource{
-        id: "82624edb-c360-4d8a-b202-f103ee639e8e",
-        internal_resource: "EphemeraBox",
-        updated_at: ~U[2030-07-09 20:19:35.340016Z],
-        created_at: ~U[2030-07-09 20:19:35.340016Z],
-        metadata: %{
-          "box_number" => ["different_box"],
-          "cached_parent_id" => [%{"id" => "2961c153-54ab-4c6a-b5cd-aa992f4c349b"}],
-          "member_ids" => [
-            %{"id" => "561ea64a-9cd1-4994-b2a7-ac169f33ba84"}
-          ]
+      updated_ephemera_box_resource =
+        %Figgy.Resource{
+          id: "82624edb-c360-4d8a-b202-f103ee639e8e",
+          internal_resource: "EphemeraBox",
+          updated_at: ~U[2030-07-09 20:19:35.340016Z],
+          created_at: ~U[2030-07-09 20:19:35.340016Z],
+          metadata: %{
+            "box_number" => ["different_box"],
+            "cached_parent_id" => [%{"id" => "2961c153-54ab-4c6a-b5cd-aa992f4c349b"}],
+            "member_ids" => [
+              %{"id" => "561ea64a-9cd1-4994-b2a7-ac169f33ba84"}
+            ]
+          }
         }
-      }
+        |> Figgy.Resource.populate_virtual()
 
       # Create a hydration cache entry
       Figgy.HydrationConsumer.process_and_persist(ephemera_folder, 1)
@@ -582,31 +607,35 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
     end
 
     test "process_and_persist/2 updates an EphemeraFolder when a grandparent EphemeraProject changes" do
-      ephemera_folder = %Figgy.Resource{
-        id: "561ea64a-9cd1-4994-b2a7-ac169f33ba84",
-        updated_at: ~U[2024-04-18 14:28:57.526110Z],
-        internal_resource: "EphemeraFolder",
-        metadata: %{
-          "cached_parent_id" => [%{"id" => "82624edb-c360-4d8a-b202-f103ee639e8e"}],
-          "state" => ["complete"],
-          "visibility" => ["open"],
-          "member_ids" => [%{"id" => "96f52803-f3d5-4cab-aba1-eceff648abdc"}],
-          "title" => ["Folder"]
+      ephemera_folder =
+        %Figgy.Resource{
+          id: "561ea64a-9cd1-4994-b2a7-ac169f33ba84",
+          updated_at: ~U[2024-04-18 14:28:57.526110Z],
+          internal_resource: "EphemeraFolder",
+          metadata: %{
+            "cached_parent_id" => [%{"id" => "82624edb-c360-4d8a-b202-f103ee639e8e"}],
+            "state" => ["complete"],
+            "visibility" => ["open"],
+            "member_ids" => [%{"id" => "96f52803-f3d5-4cab-aba1-eceff648abdc"}],
+            "title" => ["Folder"]
+          }
         }
-      }
+        |> Figgy.Resource.populate_virtual()
 
-      updated_ephemera_project_resource = %Figgy.Resource{
-        id: "2961c153-54ab-4c6a-b5cd-aa992f4c349b",
-        internal_resource: "EphemeraProject",
-        updated_at: ~U[2030-07-09 20:19:35.340016Z],
-        created_at: ~U[2030-07-09 20:19:35.340016Z],
-        metadata: %{
-          "member_ids" => [
-            %{"id" => "82624edb-c360-4d8a-b202-f103ee639e8e"}
-          ],
-          "title" => ["Updated EphemeraProject Title"]
+      updated_ephemera_project_resource =
+        %Figgy.Resource{
+          id: "2961c153-54ab-4c6a-b5cd-aa992f4c349b",
+          internal_resource: "EphemeraProject",
+          updated_at: ~U[2030-07-09 20:19:35.340016Z],
+          created_at: ~U[2030-07-09 20:19:35.340016Z],
+          metadata: %{
+            "member_ids" => [
+              %{"id" => "82624edb-c360-4d8a-b202-f103ee639e8e"}
+            ],
+            "title" => ["Updated EphemeraProject Title"]
+          }
         }
-      }
+        |> Figgy.Resource.populate_virtual()
 
       # Create a hydration cache entry
       Figgy.HydrationConsumer.process_and_persist(ephemera_folder, 1)

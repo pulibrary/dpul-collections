@@ -96,6 +96,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     nil
   end
 
+  # Pull all the metadata if we're gonna process it.
+  def to_hydration_cache_entry(%{id: id, metadata: nil}, cache_version) do
+    to_hydration_cache_entry(IndexingPipeline.get_figgy_resource!(id), cache_version)
+  end
+
   # DeletionMarkers delete any records it's pointing to if they've been
   # processed before.
   def to_hydration_cache_entry(resource = %{internal_resource: "DeletionMarker"}, cache_version) do
