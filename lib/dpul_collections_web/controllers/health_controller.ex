@@ -12,7 +12,7 @@ defmodule DpulCollectionsWeb.HealthController do
     |> put_resp_content_type("application/json")
     |> send_resp(
       200,
-      %{results: health} |> Jason.encode!()
+      %{results: health} |> JSON.encode!()
     )
   end
 

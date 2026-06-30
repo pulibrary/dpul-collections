@@ -42,7 +42,7 @@ defmodule DpulCollectionsWeb.IiifContentStateController do
 
             conn
             |> put_resp_content_type("application/json")
-            |> send_resp(200, Jason.encode!(content_state))
+            |> send_resp(200, JSON.encode!(content_state))
         end
     end
   end

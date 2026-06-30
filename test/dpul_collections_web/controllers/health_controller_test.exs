@@ -9,8 +9,8 @@ defmodule DpulCollectionsWeb.HealthControllerTest do
             %{name: "Solr", status: "OK"}
           ]
         }
-        |> Jason.encode!()
-        |> Jason.decode!()
+        |> JSON.encode!()
+        |> JSON.decode!()
 
       Req.Test.stub(DpulCollections.Solr.Client, fn test_conn ->
         test_conn
@@ -31,8 +31,8 @@ defmodule DpulCollectionsWeb.HealthControllerTest do
             %{name: "Solr", status: "ERROR"}
           ]
         }
-        |> Jason.encode!()
-        |> Jason.decode!()
+        |> JSON.encode!()
+        |> JSON.decode!()
 
       Req.Test.stub(DpulCollections.Solr.Client, fn test_conn ->
         test_conn

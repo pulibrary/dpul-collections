@@ -27,8 +27,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
         resource: data
       }) do
     build(
-      data |> Jason.encode!() |> Jason.decode!(),
-      related_data |> Jason.encode!() |> Jason.decode!()
+      data |> JSON.encode!() |> JSON.decode!(),
+      related_data |> JSON.encode!() |> JSON.decode!()
     )
   end
 

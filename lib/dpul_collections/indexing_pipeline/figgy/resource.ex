@@ -6,7 +6,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy
-  @derive {Jason.Encoder, except: [:__meta__]}
+  @derive {JSON.Encoder, except: [:__meta__]}
 
   @primary_key {:id, :binary_id, autogenerate: true}
   schema "orm_resources" do
