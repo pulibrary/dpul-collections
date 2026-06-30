@@ -5,7 +5,7 @@ defmodule DpulCollections.MixProject do
     [
       app: :dpul_collections,
       version: "0.1.0",
-      elixir: "~> 1.18",
+      elixir: "~> 1.19.0",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
@@ -81,7 +81,7 @@ defmodule DpulCollections.MixProject do
       {:req, "== 0.5.18"},
       {:broadway_dashboard, "== 0.4.1"},
       {:honeybadger, "== 0.27.0"},
-      {:phoenix_test_playwright, "~> 0.14.0", only: :test, runtime: false},
+      {:phoenix_test_playwright, "== 0.14.0", only: :test, runtime: false},
       {:live_debugger, "== 0.8.0", only: :dev},
       {:prom_ex, "== 1.11.0"},
       {:ecto_psql_extras, "== 0.8.8"},
