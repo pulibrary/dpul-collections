@@ -35,6 +35,12 @@
       "extractVersion": "^OTP-(?<version>\\S+)"
     },
     {
+      "matchPackageNames": ["erlang/otp", "elixir", "debian"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "erlang/elixir/debian",
+      "groupSlug": "erlang-elixir-debian"
+    },
+    {
       "matchDatasources": ["docker"],
       "matchPackageNames": ["debian"],
       "versioning": "regex:^(?<compatibility>.*)-(?<minor>\\d+)-slim$"
