@@ -173,6 +173,8 @@ defmodule DpulCollectionsWeb.CoreComponents do
 
   slot :inner_block
   attr :class, :any, default: nil
+  attr :type, :string, default: nil
+  attr :target, :string, default: nil
   attr :href, :string, default: nil, doc: "link - if set it makes an anchor tag"
   attr :patch, :string, default: nil, doc: "link - if set makes an anchor tag"
   attr :navigate, :string, default: nil, doc: "link - if set makes an anchor tag"
