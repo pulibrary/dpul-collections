@@ -8,7 +8,7 @@ executors:
     parameters:
       elixir_version:
         type: string
-        default: 1.19.5 # datasource=hexpm-bob depName=elixir
+        default: 1.20.1 # datasource=hexpm-bob depName=elixir
       erlang_version:
         type: string
         default: 27.2.2
@@ -38,7 +38,7 @@ executors:
     parameters:
       elixir_version:
         type: string
-        default: 1.19.5 # datasource=hexpm-bob depName=elixir
+        default: 1.20.1 # datasource=hexpm-bob depName=elixir
       erlang_version:
         type: string
         default: 27.2.2
