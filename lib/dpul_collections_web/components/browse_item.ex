@@ -147,7 +147,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
           <div class="mx-1 px-6 pb-5 bg-white flex flex-col">
             <.dynamic_tag
               tag_name={@heading_level}
-              class="font-normal tracking-tight py-1 flex-grow"
+              class="font-normal tracking-tight py-1 flex-grow text-start"
               dir="auto"
             >
               <.link
@@ -211,7 +211,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
           <div class="mx-1 px-6 pb-5 bg-white flex flex-col">
             <.dynamic_tag
               tag_name={@heading_level}
-              class="font-normal tracking-tight py-1 pt-4"
+              class="font-normal tracking-tight py-1 pt-4 text-start"
               dir="auto"
             >
               <.link
