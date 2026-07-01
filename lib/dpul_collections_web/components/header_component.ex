@@ -14,8 +14,7 @@ defmodule DpulCollectionsWeb.HeaderComponent do
   def header(assigns) do
     ~H"""
     <header class="flex flex-row gap-10 items-center bg-brand header-y-padding header-x-padding">
-      
-    <!-- logo -->
+      <!-- logo -->
       <.link href="https://library.princeton.edu">
         <div class="logo flex-none w-9 sm:hidden">
           <img src={~p"/images/local-svgs.svg"} alt={gettext("Princeton University Library")} />
@@ -29,8 +28,8 @@ defmodule DpulCollectionsWeb.HeaderComponent do
           />
         </div>
       </.link>
-      
-    <!-- title -->
+
+      <!-- title -->
       <div class="app_name flex-1 w-auto text-center px-2">
         <.link
           :if={@display_title}
@@ -61,8 +60,8 @@ defmodule DpulCollectionsWeb.HeaderComponent do
             <.icon class="not-group-[.expanded]:hidden" name="hero-x-mark" />
           </span>
         </button>
-        
-    <!-- note: toggle() does not work the same as toggle_class("hidden") when
+
+        <!-- note: toggle() does not work the same as toggle_class("hidden") when
              moving between viewport sizes -->
         <ul
           id="main-menu-dropdown"
