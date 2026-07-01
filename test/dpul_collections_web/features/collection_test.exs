@@ -200,6 +200,8 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       )
       # Featured Items
       |> assert_has("#featured-items .browse-item", count: 1)
+      # Similar buttons should only appear on Browse page
+      |> refute_has("a[label=\"Similar\"]")
       # Recently Updated cards
       |> assert_has(
         "#recent-items .card",

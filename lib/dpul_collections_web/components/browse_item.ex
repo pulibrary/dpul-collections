@@ -233,7 +233,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
 
   attr :item, Item, required: true
   attr :added?, :boolean, default: false
-  attr :likeable?, :boolean, default: true
+  attr :likeable?, :boolean, default: false
   attr :savable?, :boolean, default: true
   attr :id_prefix, :string, required: false, default: "browse-item"
   attr :target, :string, required: false, default: nil
