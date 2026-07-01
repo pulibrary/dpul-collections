@@ -14,7 +14,8 @@
     "nodenv",
     "npm",
     "custom.regex",
-    "mix"
+    "mix",
+    "renovate-config"
   ],
   "minimumReleaseAge": "14 days",
   "rangeStrategy": "pin",
@@ -79,5 +80,8 @@
       "depNameTemplate": "node"
     }
   ],
-  "prHourlyLimit": 3
+  "prHourlyLimit": 3,
+  "constraints": {
+    "elixir": "1.19.5"
+  }
 }
