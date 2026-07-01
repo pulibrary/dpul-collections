@@ -107,7 +107,6 @@ defmodule DpulCollectionsWeb.BrowseLive do
         <.item_browse_card_li
           :if={@focused_item}
           item={@focused_item}
-          likeable?={false}
           target="_blank"
           class="border-6 border-primary"
           show_images={@show_images}
@@ -118,6 +117,7 @@ defmodule DpulCollectionsWeb.BrowseLive do
         <.item_browse_card_li
           :for={item <- @items}
           item={item}
+          likeable?={true}
           target="_blank"
           show_images={@show_images}
           current_scope={@current_scope}
