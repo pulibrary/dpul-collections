@@ -82,7 +82,7 @@ defmodule DpulCollections.MixProject do
       {:broadway_dashboard, "~> 0.4.1"},
       {:honeybadger, "~> 0.28.0"},
       {:phoenix_test_playwright, "~> 0.14.0", only: :test, runtime: false},
-      {:live_debugger, "~> 0.8.0", only: :dev},
+      {:live_debugger, "~> 1.0.0", only: :dev},
       {:prom_ex, "~> 1.11.0"},
       {:ecto_psql_extras, "~> 0.8.8"},
       # Sibyl adds a decorator that automatically wraps a method and makes it
