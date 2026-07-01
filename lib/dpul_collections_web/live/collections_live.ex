@@ -226,6 +226,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         "tab",
         @active? && "active-tab",
         "btn-base px-4 normal-case",
+        "no-underline hover:underline",
         "text-wrap"
       ]}
     >
