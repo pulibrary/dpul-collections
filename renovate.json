@@ -36,7 +36,7 @@
       "extractVersion": "^OTP-(?<version>\\S+)"
     },
     {
-      "matchPackageNames": ["erlang/otp", "elixir", "debian"],
+      "matchPackageNames": ["erlang/otp", "elixir", "elixir-lang/elixir", "debian"],
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "erlang/elixir/debian",
       "groupSlug": "erlang-elixir-debian"
