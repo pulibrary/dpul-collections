@@ -61,7 +61,7 @@ if config_env() == :prod do
 
   # Solr configuration
   {:ok, solr_config_json} = File.read(Path.join(System.get_env("NOMAD_TASK_DIR"), "solr.json"))
-  {:ok, solr_config} = JSON.decode(solr_config_json, keys: :atoms)
+  {:ok, solr_config} = Jason.decode(solr_config_json, keys: :atoms)
   config :dpul_collections, :solr_config, solr_config
 
   # The secret key base is used to sign/encrypt cookies and other secrets.
