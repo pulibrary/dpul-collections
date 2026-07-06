@@ -7,9 +7,10 @@
   "version": "1.0.0",
   "main": "tailwind_heroicons.js",
   "dependencies": {
-    "@samvera/clover-iiif": "3.9.3",
-    "react": "19.2.7",
-    "react-dom": "19.2.7"
+    "mirador": "^4.0.0",
+    "mirador-dl-plugin": "^1.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

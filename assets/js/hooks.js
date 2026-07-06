@@ -1,6 +1,6 @@
-import LiveReact from "phoenix_live_react"
 import {hooks as colocatedHooks} from "phoenix-colocated/dpul_collections"
-let Hooks = { LiveReact, ...colocatedHooks };
+import MiradorViewer from "./dpulc_viewer"
+let Hooks = { MiradorViewer, ...colocatedHooks };
 
 Hooks.ToolbarHook = {
   mounted() {
