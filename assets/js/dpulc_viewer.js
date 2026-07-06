@@ -55,6 +55,23 @@ const MiradorViewer = {
             layers: true,
           },
         },
+        theme: {
+          components: {
+            IIIFThumbnail: {
+              styleOverrides: {
+                root: ({ ownerState }) => ({
+                  ...((ownerState?.variant === 'inside' && {
+                    display: 'inline-block',
+                    height: 'inherit',
+                    position: 'relative',
+                  }) || (ownerState?.variant === "outside") && {
+                    width: 'max-content'
+                  }),
+                }),
+              }
+            }
+          }
+        },
         thumbnailNavigation: {
           // Very annoying, but gotta move this setting around.
           defaultPosition: "far-right",
