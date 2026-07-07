@@ -27,8 +27,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ResourceTypeRegistry do
 
   # Temporary restrictions to allow gradual ingest of different types
   @allowed_collections [
+    # Manuscripts of the Islamic World
     "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a",
+    # Mesoamerican Manuscripts
     "29f05b11-1932-4031-b20d-cad98f80e3bc",
+    # Medieval and Renaissance Manuscripts
     "bc89f42f-d1ee-4338-80bc-a95b036024e4"
   ]
 
