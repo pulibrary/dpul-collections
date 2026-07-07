@@ -996,6 +996,29 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocumentTest do
       assert doc[:contents_ss] |> hd() == "Miniatures: fol. 4a: [Firdawsi and the Court Poets]"
     end
 
+    test "converting a ScannedResource with an ISO693-2 language code converts it" do
+      doc =
+        IndexingPipeline.get_figgy_resource!("27fd4d29-1170-47a5-891b-f2743873bcef")
+        |> Figgy.Resource.to_combined()
+        |> put_in(
+          [
+            Access.key!(:resource),
+            Access.key!(:metadata),
+            Access.key("imported_metadata"),
+            Access.all(),
+            Access.key!("language")
+          ],
+          ["myn", "cai", "nah"]
+        )
+        |> Figgy.SolrDocument.from_combined_figgy_resource()
+
+      assert doc[:language_txt_sort] == [
+               "Mayan languages",
+               "Central American Indian languages",
+               "Nahuatl languages"
+             ]
+    end
+
     test "converting a ScannedResource with MMS-ID metadata but an odd language value takes the language as written" do
       doc =
         IndexingPipeline.get_figgy_resource!("27fd4d29-1170-47a5-891b-f2743873bcef")
