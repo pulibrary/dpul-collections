@@ -335,13 +335,9 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
         |> refute_has(".brief-metadata", text: "and digitization")
         |> assert_has(".brief-metadata", text: "...")
       end)
-
-      # TODO click on the arrow and assert that 
-      # link to related collections search result page
-      # see #1284
-      # |> assert_has(
-      #   "a[href='search?filter[related_collections][]=Russian+and+East+European+Posters']"
-      # )
+      |> assert_has(
+        "a[href='/search?filter[related_collections]=Manuscripts+of+the+Islamic+World']"
+      )
     end
   end
 
