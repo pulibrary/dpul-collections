@@ -50,36 +50,15 @@ config :dpul_collections, Oban,
 # at the `config/runtime.exs`.
 config :dpul_collections, DpulCollections.Mailer, adapter: Swoosh.Adapters.Local
 
-# Configure esbuild (the version is required)
-config :esbuild,
-  version: "0.17.11",
-  dpul_collections: [
-    args:
-      ~w(js/app.js --bundle --target=es2022 --outdir=../priv/static/assets/js --external:/fonts/* --external:/images/* --alias:@=.),
+config :phoenix_vite, PhoenixVite.Npm,
+  assets: [args: [], cd: Path.expand("..", __DIR__)],
+  vite: [
+    args: ~w(exec -- vite),
     cd: Path.expand("../assets", __DIR__),
-    env: %{
-      "NODE_PATH" =>
-        Enum.join(
-          [
-            Path.expand("../deps", __DIR__),
-            Path.expand("../assets/node_modules", __DIR__),
-            Mix.Project.build_path()
-          ],
-          ":"
-        )
-    }
+    env: %{"MIX_BUILD_PATH" => Mix.Project.build_path()}
   ]
 
-# Configure tailwind (the version is required)
-config :tailwind,
-  version: "4.1.7",
-  dpul_collections: [
-    args: ~w(
-      --input=assets/css/app.css
-      --output=priv/static/assets/css/app.css
-    ),
-    cd: Path.expand("..", __DIR__)
-  ]
+config :live_svelte, ssr: true
 
 # Configures Elixir's Logger
 config :logger, :default_formatter,

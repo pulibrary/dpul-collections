@@ -7,8 +7,14 @@ defmodule DpulCollections.Application do
 
   @impl true
   def start(_type, _args) do
+    node_js_children =
+      if Application.get_env(:live_svelte, :ssr_module, nil) == LiveSvelte.SSR.NodeJS do
+        [{NodeJS.Supervisor, [path: LiveSvelte.SSR.NodeJS.server_path(), pool_size: 4]}]
+        else
+        []
+      end
     children =
-      [
+      node_js_children ++ [
         DpulCollections.PromEx,
         DpulCollectionsWeb.Telemetry,
         DpulCollections.Repo,

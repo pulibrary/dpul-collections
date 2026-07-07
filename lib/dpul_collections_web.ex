@@ -86,6 +86,7 @@ defmodule DpulCollectionsWeb do
 
   defp html_helpers do
     quote do
+      import LiveSvelte
       # HTML escaping functionality
       import Phoenix.HTML
       # Core UI components and translation

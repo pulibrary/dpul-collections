@@ -1,14 +1,14 @@
 /* See the Tailwind configuration guide for advanced usage
    https://tailwindcss.com/docs/configuration */
 
-@import "tailwindcss" source(none);
+@import "tailwindcss";
+@source "../svelte/**/*.svelte";
 @import "../css/clover.css";
 @import "../css/fonts.css";
 @import "../css/icons.css";
 @source "../css";
 @source "../js";
 @source "../../lib/dpul_collections_web";
-@plugin "@tailwindcss/forms";
 @plugin "../tailwind_heroicons.js";
 @custom-variant phx-click-loading ([".phx-click-loading&", ".phx-click-loading &"]);
 @custom-variant phx-submit-loading ([".phx-submit-loading&", ".phx-submit-loading &"]);

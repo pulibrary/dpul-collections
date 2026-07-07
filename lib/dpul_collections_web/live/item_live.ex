@@ -25,12 +25,14 @@ defmodule DpulCollectionsWeb.ItemLive do
         # Initialize current_canvas_idx to be 0 if it's not set. 0 is a filler value
         # for "no canvas selected"
         current_canvas_idx = (params["current_canvas_idx"] || "0") |> String.to_integer()
+        current_canvas_id = item.image_canvas_ids |> Enum.at(current_canvas_idx)
         current_content_state_url = content_state_url(item, current_canvas_idx)
 
         socket =
           assign(socket,
             page_title: page_title(item, socket),
             current_canvas_idx: current_canvas_idx,
+            current_canvas_id: current_canvas_id,
             current_content_state_url: current_content_state_url,
             meta_properties: Item.meta_properties(item),
             display_size: false,
@@ -137,6 +139,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         :if={@live_action == :viewer}
         item={@item}
         current_canvas_idx={@current_canvas_idx}
+        current_canvas_id={@current_canvas_id}
         current_content_state_url={@current_content_state_url}
         {assigns}
       />
@@ -382,14 +385,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       <!-- Ignore phoenix updates, since Clover manages switching the canvas. Without this it's jumpy on page switches. -->
       <div id="clover-viewer" class="main-content grow relative">
         <div id="clover-viewer-container" class="w-full h-full" phx-update="ignore">
-          {live_react_component(
-            "Components.DpulcViewer",
-            [
-              iiifContent: unverified_url(DpulCollectionsWeb.Endpoint, @current_content_state_url),
-              contentCanvasIndex: @current_canvas_idx
-            ],
-            id: "viewer-component"
-          )}
+          <.svelte name="DpulcViewer" props={%{manifestId: @item.iiif_manifest_url, initialId: @current_canvas_id, config: %{theme: "dark", gallery: %{open: true}}}} ssr={false} socket={@socket} />
         </div>
         <div
           :if={Helpers.obfuscate_item?(assigns)}
@@ -652,6 +648,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         {:noreply,
          socket
          |> assign(current_canvas_idx: idx + 1)
+         |> assign(current_canvas_id: canvas_id)
          |> push_patch(to: "#{item.viewer_url}/#{current_canvas_idx}", replace: true)}
     end
   end
