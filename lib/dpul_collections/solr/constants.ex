@@ -153,6 +153,11 @@ defmodule DpulCollections.Solr.Constants do
           solr_field: "donor_txt_sort",
           label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Donor"),
           value_function: &Function.identity/1
+        },
+        "related_collections" => %{
+          solr_field: "none",
+          label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Related To"),
+          value_function: &Function.identity/1
         }
       }
 

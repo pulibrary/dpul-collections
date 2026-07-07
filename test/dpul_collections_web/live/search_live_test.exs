@@ -971,4 +971,61 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     refute view |> has_element?(".publisher div", "Publisher1Publisher2")
     assert view |> has_element?(".publisher div", "Publisher1")
   end
+
+  test "collections can be filtered by related collection", %{conn: conn} do
+    Solr.add(
+      [
+        %{
+          "id" => "coll1",
+          "title_txtm" => "Collection1",
+          "resource_type_s" => "collection",
+          "authoritative_slug_s" => "coll1"
+        },
+        %{
+          "id" => "coll2",
+          "title_txtm" => "Collection2",
+          "resource_type_s" => "collection",
+          "authoritative_slug_s" => "coll2"
+        },
+        %{
+          "id" => "coll3",
+          "title_txtm" => "Collection3",
+          "resource_type_s" => "collection",
+          "authoritative_slug_s" => "coll3"
+        },
+        %{
+          id: "r1",
+          title_txtm: ["documentwithcol1"],
+          collection_titles_ss: ["Collection1", "Collection2"]
+        },
+        %{
+          id: "r2",
+          title_txtm: ["documentwithcol2"],
+          collection_titles_ss: ["Collection1", "Collection3"]
+        }
+      ],
+      active_collection()
+    )
+
+    Solr.soft_commit(active_collection())
+    {:ok, _view, html} = live(conn, "/search?filter[related_collections]=Collection1")
+
+    {:ok, document} =
+      html
+      |> Floki.parse_document()
+
+    # There's a related_to filter.
+    assert document
+           |> Floki.find("#search-filters .filter.related_collections")
+           |> Floki.text()
+           |> TestUtils.clean_string() == "Related To Collection1"
+
+    assert document
+           |> Floki.find(~s{a[href="/collections/coll2"]})
+           |> Enum.any?()
+
+    assert document
+           |> Floki.find(~s{a[href="/collections/coll3"]})
+           |> Enum.any?()
+  end
 end

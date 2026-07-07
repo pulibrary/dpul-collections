@@ -166,6 +166,12 @@ defmodule DpulCollections.Solr do
   end
 
   def related_collections(label, index \\ Index.read_index()) do
+    related_collection_labels(label, index)
+    |> Enum.map(&find_by_collection_title/1)
+    |> Enum.reject(&is_nil/1)
+  end
+
+  def related_collection_labels(label, index \\ Index.read_index()) do
     # get all the items with the given collection, just the collection facet
     params =
       %{"per_page" => "0"}
@@ -185,11 +191,9 @@ defmodule DpulCollections.Solr do
       result.filter_data["collection_and"][:data]
       |> Enum.map(&elem(&1, 0))
 
-    # then get all the collections with those values as their titles, except the
-    #   one passed in
+    # then get all the related collection lables except the one passed in
     labels
     |> Enum.reject(fn x -> x == label end)
-    |> Enum.map(&find_by_collection_title/1)
     |> Enum.reject(&is_nil/1)
   end
 
@@ -250,7 +254,10 @@ defmodule DpulCollections.Solr do
   end
 
   defp query_param(search_state) do
-    [mlt_focus(search_state), search_state[:q] |> escape_query(escape_quotes: false)]
+    [
+      mlt_focus(search_state),
+      search_state[:q] |> escape_query(escape_quotes: false)
+    ]
     |> Enum.reject(&is_nil/1)
     |> Enum.join(" ")
   end
@@ -302,6 +309,16 @@ defmodule DpulCollections.Solr do
   # Similar filter - display, but handle in the q parameter instead.
   def generate_filter_query({"similar", _filter_value}) do
     nil
+  end
+
+  def generate_filter_query({"related_collections", title}) do
+    labels =
+      related_collection_labels(title)
+      # Surround the labels in double quotes and join
+      |> Enum.map(fn label -> "\"" <> label <> "\"" end)
+      |> Enum.join(" OR ")
+
+    "title_ss:(#{labels})"
   end
 
   # Inclusion filter

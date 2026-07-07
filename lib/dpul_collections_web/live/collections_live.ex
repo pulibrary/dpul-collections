@@ -200,6 +200,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           layout="content-area"
           title={gettext("Related Collections")}
           hide_title?={has_featured?(@collection)}
+          more_link={~p"/search?#{%{filter: %{related_collections: @collection.title |> hd}}}"}
           color=""
           arrow_theme="light"
         >
