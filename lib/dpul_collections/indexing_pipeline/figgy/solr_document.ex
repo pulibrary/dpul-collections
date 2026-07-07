@@ -658,8 +658,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
   # Convert from language code to label if necessary.
   defp language(lang) do
     case Cldr.LocaleDisplay.display_name(lang) do
-      {:ok, label} -> label
-      {:error, _} -> lang
+      {:ok, label} ->
+        label
+
+      {:error, _} ->
+        case DpulCollections.ISO639.label(lang) do
+          {:ok, label} -> label
+          {:error, _} -> lang
+        end
     end
   end
 end
