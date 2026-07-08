@@ -1,6 +1,7 @@
 defmodule DpulCollections.Workers.CacheThumbnails do
   use Oban.Worker, queue: :cache
   alias DpulCollections.Utilities
+  require Logger
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"solr_document" => solr_document}}) do
@@ -34,7 +35,8 @@ defmodule DpulCollections.Workers.CacheThumbnails do
   # Don't attempt to cache deleted records, or collections
   defp cache_images(%{"deleted" => true}), do: :ok
 
-  defp cache_images(solr_document = %{"resource_type_s" => "collection"}) do
+  defp cache_images(solr_document = %{"resource_type_s" => "collection", "banner_image_s" => url})
+       when is_binary(url) do
     collection =
       solr_document
       |> DpulCollections.Collection.from_solr()
@@ -44,6 +46,11 @@ defmodule DpulCollections.Workers.CacheThumbnails do
     # Run task with 10 minute timeout
     Task.await(task, 600_000)
 
+    :ok
+  end
+
+  defp cache_images(%{"id" => id, "resource_type_s" => "collection"}) do
+    Logger.info("Collection does not have a banner image: #{id}")
     :ok
   end
 
@@ -104,6 +111,4 @@ defmodule DpulCollections.Workers.CacheThumbnails do
 
     {:ok, %{status: 200}} = Req.request(options)
   end
-
-  def cache_iiif_image(_), do: true
 end
