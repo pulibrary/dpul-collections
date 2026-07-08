@@ -13,7 +13,7 @@
       names={["js/app.js", "css/app.css"]}
       manifest={{:dpul_collections, "priv/static/.vite/manifest.json"}}
       dev_server={PhoenixVite.Components.has_vite_watcher?(DpulCollectionsWeb.Endpoint)}
-      to_url={fn p -> static_url(@conn, p) end}
+      to_url={fn p -> static_url(@conn, URI.parse(p).path) end}
     />
   </head>
   <body class="bg-white antialiased text-dark-text">

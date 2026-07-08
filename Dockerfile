@@ -71,7 +71,7 @@ RUN npm install
 ARG DEPLOY_BRANCH
 ARG DEPLOY_SHA
 ARG VERSION_MESSAGE="Ref ${DEPLOY_BRANCH} (at ${DEPLOY_SHA})"
-RUN echo ${VERSION_MESSAGE} > priv/static/version.txt
+RUN echo ${VERSION_MESSAGE} > assets/public/version.txt
 
 # Compile the release
 RUN mix compile

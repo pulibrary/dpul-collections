@@ -98,6 +98,7 @@ if config_env() == :prod do
 
   config :dpul_collections, DpulCollectionsWeb.Endpoint,
     url: [host: host, port: port, scheme: System.get_env("PHX_SCHEME") || "https"],
+    cache_static_manifest_latest: PhoenixVite.cache_static_manifest_latest(:dpul_collections),
     http: [
       # Enable IPv6 and bind on all interfaces.
       # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.

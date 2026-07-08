@@ -155,8 +155,7 @@ defmodule DpulCollections.MixProject do
         "phoenix_vite.npm vite build --ssrManifest --emptyOutDir false --ssr js/server.js --outDir ../priv/svelte"
       ],
       "assets.deploy": [
-        "assets.build",
-        "phx.digest"
+        "assets.build"
       ]
     ]
   end
