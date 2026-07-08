@@ -1,5 +1,6 @@
 defmodule DpulCollections.Workers.CacheThumbnailsTest do
   use DpulCollections.DataCase
+  import ExUnit.CaptureLog
 
   describe ".perform/" do
     test "item thumbnails are cached when item does not have primary thumbnail url" do
@@ -106,15 +107,21 @@ defmodule DpulCollections.Workers.CacheThumbnailsTest do
       end)
     end
 
-    test "collection documents do not error when they don't have a banner_image value" do
-      Oban.Testing.with_testing_mode(:inline, fn ->
-        doc = %{id: 1, resource_type_s: "collection", title_ss: ["collection"]}
+    test "collection documents log a warning when they don't have a banner_image value" do
+      # Temporarily set log level to :info
+      Logger.configure(level: :info)
+      on_exit(fn -> Logger.configure(level: :warning) end)
 
-        {:ok, %Oban.Job{state: state}} =
-          Oban.insert(DpulCollections.Workers.CacheThumbnails.new(%{solr_document: doc}))
+      log =
+        capture_log(fn ->
+          doc = %{"id" => 1, "resource_type_s" => "collection", "title_ss" => ["collection"]}
 
-        assert state == "completed"
-      end)
+          DpulCollections.Workers.CacheThumbnails.perform(%Oban.Job{
+            args: %{"solr_document" => doc}
+          })
+        end)
+
+      assert log =~ "Collection does not have a banner image: 1"
     end
   end
 
