@@ -91,8 +91,6 @@ defmodule DpulCollections.MixProject do
       {:ex_cldr_dates_times, "~> 2.25.6"},
       # Icons
       {:iconify_ex, "~> 0.7.2"},
-      # React for Clover Viewer
-      {:phoenix_live_react, "~> 0.6.0"},
       {:sham, "~> 1.2.5", only: :test},
       {:oban, "~> 2.23.0"},
       {:oban_web, "~> 2.12.4"},
@@ -148,10 +146,8 @@ defmodule DpulCollections.MixProject do
         "cmd npm --prefix assets exec playwright install chromium --with-deps"
       ],
       "assets.setup.ci": [
-        "cmd npm --prefix deps/iconify_ex/assets ci --ignore-scripts",
-        "tailwind.install --if-missing",
-        "esbuild.install --if-missing",
-        "cmd npm --prefix assets ci --ignore-scripts",
+        "cmd npm --prefix deps/iconify_ex/assets install",
+        "phoenix_vite.npm assets install",
         "cmd npm --prefix assets exec playwright install chromium --with-deps"
       ],
       "assets.build": [
@@ -159,9 +155,7 @@ defmodule DpulCollections.MixProject do
         "phoenix_vite.npm vite build --ssrManifest --emptyOutDir false --ssr js/server.js --outDir ../priv/svelte"
       ],
       "assets.deploy": [
-        "tailwind dpul_collections --minify",
-        "cmd --cd assets npm ci",
-        "esbuild dpul_collections --minify",
+        "assets.build",
         "phx.digest"
       ]
     ]

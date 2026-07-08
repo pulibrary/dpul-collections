@@ -19,8 +19,8 @@ export default defineConfig({
     manifest: false,
     ssrManifest: false,
     rollupOptions: { input: ["js/app.js", "css/app.css"] },
-    outDir: "../priv/static/assets",
-    emptyOutDir: true,
+    outDir: "../priv/static/",
+    emptyOutDir: false
   },
   // Required for Phoenix 1.8+ colocated JS hooks
   resolve: {

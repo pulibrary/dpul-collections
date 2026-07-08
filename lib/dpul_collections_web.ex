@@ -53,7 +53,6 @@ defmodule DpulCollectionsWeb do
       use Phoenix.LiveView
 
       alias DpulCollectionsWeb.SetLocaleHook
-      import PhoenixLiveReact
       import Iconify
       alias Iconify.Icon
       use DpulCollectionsWeb.ContentWarnings

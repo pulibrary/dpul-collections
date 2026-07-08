@@ -58,7 +58,7 @@ config :phoenix_vite, PhoenixVite.Npm,
     env: %{"MIX_BUILD_PATH" => Mix.Project.build_path()}
   ]
 
-config :live_svelte, ssr: true
+config :live_svelte, ssr: false
 
 # Configures Elixir's Logger
 config :logger, :default_formatter,

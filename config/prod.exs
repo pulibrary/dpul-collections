@@ -22,9 +22,5 @@ config :logger, level: :info
 
 config :honeybadger, environment_name: {:system, "APP_ENV"}, ignored_domains: [:bandit]
 
-config :live_svelte,
-  ssr_module: LiveSvelte.SSR.NodeJS,
-  ssr: true
-
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.

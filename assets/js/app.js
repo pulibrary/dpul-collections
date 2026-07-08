@@ -121,14 +121,3 @@ window.addEventListener("dpulc:clipcopy", (event) => {
     navigator.clipboard.writeText(text);
   }
 });
-
-// Initialize react components.
-document.addEventListener("DOMContentLoaded", e => {
-  initLiveReact()
-})
-
-import DpulcViewer from "./dpulc_viewer";
-
-window.Components = {
-  DpulcViewer
-}
