@@ -385,7 +385,13 @@ defmodule DpulCollectionsWeb.ItemLive do
       <!-- Ignore phoenix updates, since Clover manages switching the canvas. Without this it's jumpy on page switches. -->
       <div id="clover-viewer" class="main-content grow relative">
         <div id="clover-viewer-container" class="w-full h-full" phx-update="ignore">
-          <.svelte name="DpulcViewer" props={%{manifestId: @item.iiif_manifest_url, initialId: @current_canvas_id}}, ssr={false} socket={@socket} />
+          <.svelte
+            name="DpulcViewer"
+            props={%{manifestId: @item.iiif_manifest_url, initialId: @current_canvas_id}}
+            ,
+            ssr={false}
+            socket={@socket}
+          />
         </div>
         <div
           :if={Helpers.obfuscate_item?(assigns)}

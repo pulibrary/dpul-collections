@@ -101,7 +101,7 @@ defmodule DpulCollections.MixProject do
       {:junit_formatter, "~> 3.4.0", only: [:test]},
       {:flow, "~> 1.2.4"},
       {:live_svelte, "~> 0.18.0"},
-      {:phoenix_vite, "~> 0.4"},
+      {:phoenix_vite, "~> 0.4"}
     ]
   end
 
