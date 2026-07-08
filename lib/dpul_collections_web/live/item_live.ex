@@ -383,9 +383,9 @@ defmodule DpulCollectionsWeb.ItemLive do
       </:heading>
       <!-- "relative" here lets Clover fill the full size of main-content. -->
       <!-- Ignore phoenix updates, since Clover manages switching the canvas. Without this it's jumpy on page switches. -->
-      <div class="main-content grow relative">
-        <div class="w-full h-full">
-          <.svelte name="DpulcViewer" props={%{manifestId: @item.iiif_manifest_url, initialId: @current_canvas_id, config: %{theme: "dark", gallery: %{open: true}}}} ssr={false} socket={@socket} />
+      <div id="clover-viewer" class="main-content grow relative">
+        <div id="clover-viewer-container" class="w-full h-full" phx-update="ignore">
+          <.svelte name="DpulcViewer" props={%{manifestId: @item.iiif_manifest_url, initialId: @current_canvas_id}}, ssr={false} socket={@socket} />
         </div>
         <div
           :if={Helpers.obfuscate_item?(assigns)}
