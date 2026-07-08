@@ -25,7 +25,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         # Initialize current_canvas_idx to be 0 if it's not set. 0 is a filler value
         # for "no canvas selected"
         current_canvas_idx = (params["current_canvas_idx"] || "0") |> String.to_integer()
-        current_canvas_id = item.image_canvas_ids |> Enum.at(current_canvas_idx)
+        current_canvas_id = item.image_canvas_ids |> Enum.at(current_canvas_idx - 1)
         current_content_state_url = content_state_url(item, current_canvas_idx)
 
         socket =

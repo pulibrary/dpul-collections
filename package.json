@@ -21,7 +21,7 @@
     "phoenix_html": "file:./deps/phoenix_html",
     "phoenix_live_view": "file:./deps/phoenix_live_view",
     "topbar": "^3.0.0",
-    "triiiceratops": "v1.0.0-rc.23"
+    "triiiceratops": "v1.0.0-rc.24"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
