@@ -64,10 +64,13 @@
   --color-search: var(--color-sage-200);
   --color-loud-button: hsl(113, 97%, 24%);
 
-  /* just add poppins on the front of the tailwind default */
-  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  /* and aleo in front of the serif defaults */
-  --font-serif: "Aleo", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  /* Add poppins on the front of the tailwind default.
+   * Add DejaVu after poppins, but before sytem fonts, as a fallback for glyphs
+   * that Poppins is missing. This was initially needed for displaying Russian
+   * text romanized using MARC combining marks. DejaVu is the font we use in Figgy.
+   * See: https://www.loc.gov/marc/marbi/2004/2004-dp03.html */
+  --font-sans: "Poppins", "DejaVu Sans Condensed", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-serif: "Aleo", "DejaVu Serif", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   /* text-tiny */
   --text-tiny: 0.625rem;
   --text-tiny--line-height: 1.5rem;
