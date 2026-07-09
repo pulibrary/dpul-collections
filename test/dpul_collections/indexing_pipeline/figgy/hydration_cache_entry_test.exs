@@ -23,10 +23,24 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
     end
 
     test "when there are no image members, the resource is marked for deletion" do
-      folder = IndexingPipeline.get_figgy_resource!("f134f41f-63c5-4fdf-b801-0774e3bc3b2d")
+      folder = IndexingPipeline.get_figgy_resource!("26713a31-d615-49fd-adfc-93770b4f66b3")
+
+      folder_with_no_image_members =
+        IndexingPipeline.get_figgy_resource!("f134f41f-63c5-4fdf-b801-0774e3bc3b2d")
+
+      # Only deletes if it's been seen before.
+      IndexingPipeline.write_hydration_cache_entry(
+        HydrationConsumer.to_hydration_cache_entry(folder, 1)
+      )
 
       metadata =
-        folder
+        %Resource{
+          (%Resource{} = folder)
+          | metadata: %{
+              folder.metadata
+              | "member_ids" => folder_with_no_image_members.metadata["member_ids"]
+            }
+        }
         |> HydrationConsumer.to_hydration_cache_entry(1)
         |> get_in([Access.key!(:data)])
         |> get_in([Access.key!(:metadata)])
@@ -35,7 +49,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationCacheEntryTest do
     end
 
     test "when there are no members at all, the resource is marked for deletion" do
-      folder = IndexingPipeline.get_figgy_resource!("f134f41f-63c5-4fdf-b801-0774e3bc3b2d")
+      folder = IndexingPipeline.get_figgy_resource!("26713a31-d615-49fd-adfc-93770b4f66b3")
+      # Only deletes if it's been seen before.
+      IndexingPipeline.write_hydration_cache_entry(
+        HydrationConsumer.to_hydration_cache_entry(folder, 1)
+      )
 
       metadata =
         %Resource{(%Resource{} = folder) | metadata: %{folder.metadata | "member_ids" => []}}
