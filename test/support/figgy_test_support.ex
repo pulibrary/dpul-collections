@@ -73,6 +73,9 @@ defmodule FiggyTestSupport do
         IndexingPipeline.Figgy.Resource.populate_virtual(record),
         1
       )
+      |> put_in([Access.key(:data), Access.key(:metadata), Access.key("member_ids")], [])
+      |> put_in([Access.key(:related_data), Access.key("resources")], %{})
+      |> put_in([Access.key(:related_ids)], [])
 
     {:ok, cache_entry} =
       IndexingPipeline.write_hydration_cache_entry(%{
