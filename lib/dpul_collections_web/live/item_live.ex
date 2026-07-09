@@ -32,6 +32,7 @@ defmodule DpulCollectionsWeb.ItemLive do
             page_title: page_title(item, socket),
             current_canvas_idx: current_canvas_idx,
             current_content_state_url: current_content_state_url,
+            canonical_url: DpulCollectionsWeb.Endpoint.url() <> item.url,
             meta_properties: Item.meta_properties(item),
             display_size: false,
             correction_form:
