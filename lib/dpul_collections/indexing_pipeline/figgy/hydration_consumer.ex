@@ -118,14 +118,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     if process?(resource) do
       combined_figgy_resource = Figgy.Resource.to_combined(resource)
 
-      # Delete if it has no member_ids.
-      # NOTE: This is actually a bug, we shouldn't be creating a deletion
-      # record if we've never seen it, probably, but we have a test in
-      # FullIntegrationTest checking that it exists.
-      if combined_figgy_resource.persisted_member_ids == [] do
-        HydrationCacheEntry.from(Figgy.DeletionRecord.from(resource), cache_version)
-      else
+      if process?(combined_figgy_resource) do
         HydrationCacheEntry.from(combined_figgy_resource, cache_version)
+      else
+        # Delete if it has no member_ids.
+        # NOTE: This is actually a bug, we shouldn't be creating a deletion
+        # record if we've never seen it, probably, but we have a test in
+        # FullIntegrationTest checking that it exists.
+        HydrationCacheEntry.from(Figgy.DeletionRecord.from(resource), cache_version)
       end
     else
       delete_if_seen(resource.id, resource, cache_version)
@@ -185,6 +185,15 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     member_of_allowed_collection?(resource)
   end
 
+  # ScannedResources must not have empty members.
+  def process?(
+        combined_figgy_resource = %Figgy.CombinedFiggyResource{
+          resource: %{internal_resource: "ScannedResource"}
+        }
+      ) do
+    combined_figgy_resource.persisted_member_ids != []
+  end
+
   # Ephemera Folders must be complete and open.
   def process?(%{
         internal_resource: "EphemeraFolder",
@@ -192,6 +201,15 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         visibility: ["open"]
       }) do
     true
+  end
+
+  # Ephemera Folders must not have empty members.
+  def process?(
+        combined_figgy_resource = %Figgy.CombinedFiggyResource{
+          resource: %{internal_resource: "EphemeraFolder"}
+        }
+      ) do
+    combined_figgy_resource.persisted_member_ids != []
   end
 
   def process?(_resource), do: false
