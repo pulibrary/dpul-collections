@@ -244,6 +244,49 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     end
   end
 
+  describe "canonical url" do
+    @canonical ~s{link[rel="canonical"][href="http://localhost:4002/i/învăţămîntul-trebuie-urmărească-dez/item/1"]}
+
+    test "the record page has a canonical link to the record url", %{conn: conn} do
+      html =
+        conn
+        |> get("/i/învăţămîntul-trebuie-urmărească-dez/item/1")
+        |> html_response(200)
+
+      {:ok, document} = Floki.parse_document(html)
+
+      assert document
+             |> Floki.find(@canonical)
+             |> Enum.any?()
+    end
+
+    test "the metadata pane has a canonical link to the record url", %{conn: conn} do
+      html =
+        conn
+        |> get("/i/învăţămîntul-trebuie-urmărească-dez/item/1/metadata")
+        |> html_response(200)
+
+      {:ok, document} = Floki.parse_document(html)
+
+      assert document
+             |> Floki.find(@canonical)
+             |> Enum.any?()
+    end
+
+    test "the viewer pane has a canonical link to the record url", %{conn: conn} do
+      html =
+        conn
+        |> get("/i/învăţămîntul-trebuie-urmărească-dez/item/1/viewer")
+        |> html_response(200)
+
+      {:ok, document} = Floki.parse_document(html)
+
+      assert document
+             |> Floki.find(@canonical)
+             |> Enum.any?()
+    end
+  end
+
   describe "page display" do
     test "displays metadata fields for MMS-ID ScannedResources", %{conn: conn} do
       FiggyTestSupport.index_record_id_directly("27fd4d29-1170-47a5-891b-f2743873bcef")
