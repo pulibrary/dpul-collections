@@ -118,14 +118,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     if process?(resource) do
       combined_figgy_resource = Figgy.Resource.to_combined(resource)
 
-      # Delete if it has no member_ids.
-      # NOTE: This is actually a bug, we shouldn't be creating a deletion
-      # record if we've never seen it, probably, but we have a test in
-      # FullIntegrationTest checking that it exists.
-      if combined_figgy_resource.persisted_member_ids == [] do
-        HydrationCacheEntry.from(Figgy.DeletionRecord.from(resource), cache_version)
-      else
+      if process?(combined_figgy_resource) do
         HydrationCacheEntry.from(combined_figgy_resource, cache_version)
+      else
+        # Delete if it has no member_ids.
+        delete_if_seen(resource.id, resource, cache_version)
       end
     else
       delete_if_seen(resource.id, resource, cache_version)
@@ -161,7 +158,23 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     process?(atom_map)
   end
 
-  # Collections / EphemeraProjects must be published
+  # Collections must be complete in production, otherwise let through anything
+  # published.
+  def process?(%{
+        internal_resource: "Collection",
+        metadata:
+          metadata = %{
+            "publish" => ["1"]
+          }
+      }) do
+    if DpulCollections.is_production() do
+      metadata["state"] == ["complete"]
+    else
+      true
+    end
+  end
+
+  # EphemeraProjects must be published
   def process?(%{
         internal_resource: internal_resource,
         metadata: %{
@@ -172,17 +185,35 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     true
   end
 
-  # Scanned resources must be complete, open, and a member of an allowed
+  # Scanned resources must be complete, open, and a member of a collection (to
+  # be evaluated later)
+  def process?(%{
+        internal_resource: "ScannedResource",
+        state: ["complete"],
+        visibility: ["open"],
+        member_of_collection_ids: [_ | _]
+      }) do
+    true
+  end
+
+  # ScannedResources must not have empty members, and must be in a processable
   # collection.
   def process?(
-        resource = %{
-          internal_resource: "ScannedResource",
-          state: ["complete"],
-          visibility: ["open"],
-          member_of_collection_ids: [_ | _]
+        combined_figgy_resource = %Figgy.CombinedFiggyResource{
+          resource: %{internal_resource: "ScannedResource"},
+          related_data: %{"ancestors" => ancestors}
         }
       ) do
-    member_of_allowed_collection?(resource)
+    collections =
+      ancestors
+      |> Map.values()
+      |> Enum.filter(fn related_item -> related_item.internal_resource == "Collection" end)
+
+    if combined_figgy_resource.persisted_member_ids != [] && Enum.any?(collections, &process?/1) do
+      true
+    else
+      false
+    end
   end
 
   # Ephemera Folders must be complete and open.
@@ -194,17 +225,21 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     true
   end
 
+  # Ephemera Folders must not have empty members.
+  def process?(
+        combined_figgy_resource = %Figgy.CombinedFiggyResource{
+          resource: %{internal_resource: "EphemeraFolder"}
+        }
+      ) do
+    combined_figgy_resource.persisted_member_ids != []
+  end
+
   def process?(_resource), do: false
 
   defp delete_if_seen(record_id, source, cache_version) do
     if IndexingPipeline.get_hydration_cache_entry!(record_id, cache_version) do
       HydrationCacheEntry.from(Figgy.DeletionRecord.from(source), cache_version)
     end
-  end
-
-  defp member_of_allowed_collection?(resource) do
-    collection_ids = Enum.map(resource.member_of_collection_ids, & &1["id"])
-    Enum.any?(collection_ids, &ResourceTypeRegistry.allowed_collection?/1)
   end
 
   def related_records(

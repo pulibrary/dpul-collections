@@ -77,7 +77,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # 8691231a-d06f-4fa2-af5b-d773310564a3 gets filtered out
     filtered_resource_count = 1
 
-    assert FiggyTestSupport.total_resource_count() + 3 + scanned_resource_fixture_count -
+    assert FiggyTestSupport.total_resource_count() + 1 + scanned_resource_fixture_count -
              filtered_resource_count ==
              entry_count
 
@@ -88,7 +88,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     deletion_marker_count = FiggyTestSupport.deletion_marker_count()
 
     total_transformed_count =
-      FiggyTestSupport.ephemera_folder_count() + deletion_marker_count + 3 +
+      FiggyTestSupport.ephemera_folder_count() + deletion_marker_count + 1 +
         scanned_resource_fixture_count - filtered_resource_count
 
     # Empty resources are resources with no image file sets
@@ -98,7 +98,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     # indexed all the documents and deleted the extra record solr doc
     assert Solr.document_count() ==
-             transformation_cache_entry_count - deletion_marker_count - empty_resource_count
+             transformation_cache_entry_count - empty_resource_count
 
     # Ensure that deleted records from deletion markers are removed from Solr
     Enum.each(records_to_be_deleted, fn record ->
@@ -134,7 +134,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     assert latest_document["_version_"] != latest_document_again["_version_"]
     # Make sure we didn't add another one
     assert Solr.document_count() ==
-             transformation_cache_entry_count - deletion_marker_count - empty_resource_count
+             transformation_cache_entry_count - empty_resource_count
 
     # transformation entries weren't updated
     transformation_entry_again =
