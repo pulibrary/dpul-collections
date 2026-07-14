@@ -1,5 +1,8 @@
 defmodule DpulCollectionsWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :dpul_collections
+  import PhoenixVite.Plug
+
+  plug :favicon, dev_server: {PhoenixVite.Components, :has_vite_watcher?, [__MODULE__]}
 
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.

@@ -58,8 +58,6 @@ defmodule DpulCollections.MixProject do
       {:phoenix_live_view, "~> 1.2.0"},
       {:floki, "~> 0.38.2", only: :test},
       {:phoenix_live_dashboard, "~> 0.8.7"},
-      {:esbuild, "~> 0.10.0", runtime: Mix.env() == :dev},
-      {:tailwind, "~> 0.5.0", runtime: Mix.env() == :dev},
       {:heroicons,
        github: "tailwindlabs/heroicons",
        tag: "v2.2.0",
@@ -93,8 +91,6 @@ defmodule DpulCollections.MixProject do
       {:ex_cldr_dates_times, "~> 2.25.6"},
       # Icons
       {:iconify_ex, "~> 0.7.2"},
-      # React for Clover Viewer
-      {:phoenix_live_react, "~> 0.6.0"},
       {:sham, "~> 1.2.5", only: :test},
       {:oban, "~> 2.23.0"},
       {:oban_web, "~> 2.12.4"},
@@ -103,7 +99,9 @@ defmodule DpulCollections.MixProject do
       {:lazy_html, "~> 0.1.11", only: :test},
       {:ex_cldr_locale_display, "~> 1.7.3"},
       {:junit_formatter, "~> 3.4.0", only: [:test]},
-      {:flow, "~> 1.2.4"}
+      {:flow, "~> 1.2.4"},
+      {:live_svelte, "~> 0.18.0"},
+      {:phoenix_vite, "~> 0.4"}
     ]
   end
 
@@ -144,24 +142,20 @@ defmodule DpulCollections.MixProject do
       ],
       "assets.setup": [
         "cmd npm --prefix deps/iconify_ex/assets install",
-        "tailwind.install --if-missing",
-        "esbuild.install --if-missing",
-        "cmd npm --prefix assets install",
+        "phoenix_vite.npm assets install",
         "cmd npm --prefix assets exec playwright install chromium --with-deps"
       ],
       "assets.setup.ci": [
-        "cmd npm --prefix deps/iconify_ex/assets ci --ignore-scripts",
-        "tailwind.install --if-missing",
-        "esbuild.install --if-missing",
-        "cmd npm --prefix assets ci --ignore-scripts",
+        "cmd npm --prefix deps/iconify_ex/assets install",
+        "phoenix_vite.npm assets install",
         "cmd npm --prefix assets exec playwright install chromium --with-deps"
       ],
-      "assets.build": ["tailwind dpul_collections", "esbuild dpul_collections"],
+      "assets.build": [
+        "phoenix_vite.npm vite build --manifest --emptyOutDir true",
+        "phoenix_vite.npm vite build --ssrManifest --emptyOutDir false --ssr js/server.js --outDir ../priv/svelte"
+      ],
       "assets.deploy": [
-        "tailwind dpul_collections --minify",
-        "cmd --cd assets npm ci",
-        "esbuild dpul_collections --minify",
-        "phx.digest"
+        "assets.build"
       ]
     ]
   end

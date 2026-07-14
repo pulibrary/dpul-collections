@@ -1,6 +1,7 @@
-import LiveReact from "phoenix_live_react"
 import {hooks as colocatedHooks} from "phoenix-colocated/dpul_collections"
-let Hooks = { LiveReact, ...colocatedHooks };
+import {getHooks} from "live_svelte"
+import Components from "virtual:live-svelte-components"
+let Hooks = { ...getHooks(Components), ...colocatedHooks };
 
 Hooks.ToolbarHook = {
   mounted() {

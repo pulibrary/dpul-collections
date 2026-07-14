@@ -53,7 +53,6 @@ defmodule DpulCollectionsWeb do
       use Phoenix.LiveView
 
       alias DpulCollectionsWeb.SetLocaleHook
-      import PhoenixLiveReact
       import Iconify
       alias Iconify.Icon
       use DpulCollectionsWeb.ContentWarnings
@@ -86,6 +85,7 @@ defmodule DpulCollectionsWeb do
 
   defp html_helpers do
     quote do
+      import LiveSvelte
       # HTML escaping functionality
       import Phoenix.HTML
       # Core UI components and translation

@@ -39,10 +39,14 @@ config :dpul_collections, DpulCollectionsWeb.Endpoint,
   code_reloader: true,
   debug_errors: true,
   secret_key_base: "0SRtMTVbFVxGojwWaaVDQUu8diAcl+d6I+DUQeSsSZSG+7ESn2ac9Wnzl/gVYyUT",
+  static_url: [host: "localhost", port: 5173],
   watchers: [
-    esbuild: {Esbuild, :install_and_run, [:dpul_collections, ~w(--sourcemap=inline --watch)]},
-    tailwind: {Tailwind, :install_and_run, [:dpul_collections, ~w(--watch)]}
+    vite: {PhoenixVite.Npm, :run, [:vite, ~w(dev)]}
   ]
+
+config :live_svelte,
+  ssr_module: LiveSvelte.SSR.ViteJS,
+  vite_host: "http://localhost:5173"
 
 # ## SSL Support
 #

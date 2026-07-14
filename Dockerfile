@@ -45,7 +45,7 @@ RUN mix local.hex --force && \
 
 # set build ENV
 ENV MIX_ENV="prod"
-ENV NODE_ENV="production"
+# ENV NODE_ENV="production"
 
 # install mix dependencies
 COPY mix.exs mix.lock ./
@@ -64,11 +64,14 @@ COPY lib lib
 
 COPY assets assets
 
+COPY package.json package-lock.json ./
+RUN npm install
+
 # Generate a version.txt file
 ARG DEPLOY_BRANCH
 ARG DEPLOY_SHA
 ARG VERSION_MESSAGE="Ref ${DEPLOY_BRANCH} (at ${DEPLOY_SHA})"
-RUN echo ${VERSION_MESSAGE} > priv/static/version.txt
+RUN echo ${VERSION_MESSAGE} > assets/public/version.txt
 
 # Compile the release
 RUN mix compile
@@ -101,7 +104,8 @@ WORKDIR "/app"
 RUN chown nobody /app
 
 # set runner ENV
-ENV MIX_ENV="prod"
+ENV MIX_ENV "prod"
+ENV NODE_ENV "production"
 
 # Only copy the final release from the build stage
 COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/dpul_collections ./

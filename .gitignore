@@ -47,3 +47,8 @@ screenshots/*
 
 # ignore coverage data files
 *.coverdata
+
+# Svelte
+priv/svelte
+priv/static/.vite
+priv/static/compiled/
