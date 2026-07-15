@@ -342,6 +342,7 @@ defmodule DpulCollectionsWeb.SearchLive do
         class={[
           "cursor-pointer w-full flex items-center justify-between px-4 py-3 text-left font-semibold",
           "hover:bg-primary-bright transition-colors",
+          "focus-visible:outline-2 focus-visible:outline-accent focus-visible:-outline-offset-2",
           @expanded && "bg-primary-bright"
         ]}
       >
