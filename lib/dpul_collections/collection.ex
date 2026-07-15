@@ -1,4 +1,5 @@
 defmodule DpulCollections.Collection do
+  alias DpulCollections.IIIF
   alias DpulCollections.Item
   alias DpulCollectionsWeb.Live.Helpers
   alias DpulCollections.Search.SearchState
@@ -107,7 +108,7 @@ defmodule DpulCollections.Collection do
         nil
 
       _ ->
-        "#{banner_item.primary_thumbnail_service_url}/full/!#{banner_item.primary_thumbnail_width},#{banner_item.primary_thumbnail_height}/0/default.jpg"
+        "#{banner_item.primary_thumbnail_service_url}/#{IIIF.primary_thumbnail_parameters(banner_item.primary_thumbnail_width, banner_item.primary_thumbnail_height)}"
     end
   end
 

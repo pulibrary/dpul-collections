@@ -1,5 +1,6 @@
 defmodule DpulCollectionsWeb.SearchItem do
   alias DpulCollections.Collection
+  alias DpulCollections.IIIF
   alias DpulCollections.Item
   alias DpulCollectionsWeb.Live.Helpers
   alias DpulCollectionsWeb.UserSets
@@ -26,7 +27,7 @@ defmodule DpulCollectionsWeb.SearchItem do
           <div class="grid grid-cols-2 w-full gap-2 h-[350px] p-2">
             <img
               :for={item <- @item.banner_items}
-              src={"#{item.primary_thumbnail_service_url}/full/!#{item.primary_thumbnail_width},#{item.primary_thumbnail_height}/0/default.jpg"}
+              src={"#{item.primary_thumbnail_service_url}/#{IIIF.primary_thumbnail_parameters(item.primary_thumbnail_width, item.primary_thumbnail_height)}"}
               width={item.primary_thumbnail_width}
               height={item.primary_thumbnail_height}
               class="min-h-0 min-w-0 object-cover object-top h-full w-full max-h-full"
@@ -208,7 +209,7 @@ defmodule DpulCollectionsWeb.SearchItem do
           "thumbnail-#{@item.id}",
           "place-self-center"
         ]}
-        src={"#{@thumb}/full/!350,350/0/default.jpg"}
+        src={"#{@thumb}/#{IIIF.primary_search_thumbnail_parameters()}"}
         alt=""
       />
       <div class={[
@@ -308,7 +309,7 @@ defmodule DpulCollectionsWeb.SearchItem do
           Helpers.obfuscate_item?(assigns) && "obfuscate",
           "thumbnail-#{@item.id}"
         ]}
-        src={"#{@thumb}/square/!350,350/0/default.jpg"}
+        src={"#{@thumb}/#{IIIF.result_thumbnail_parameters()}"}
         alt=""
         style="background-color: lightgray;"
         width="125"

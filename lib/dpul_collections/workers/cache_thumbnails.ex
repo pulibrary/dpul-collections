@@ -1,5 +1,6 @@
 defmodule DpulCollections.Workers.CacheThumbnails do
   use Oban.Worker, queue: :cache
+  alias DpulCollections.IIIF
   alias DpulCollections.Utilities
   require Logger
 
@@ -17,21 +18,16 @@ defmodule DpulCollections.Workers.CacheThumbnails do
 
   defp thumbnail_configurations do
     [
-      # Small browse thumbnails
-      {"square", "!100", "100"},
-      # Browse and search results thumbnails
-      {"square", "!350", "350"},
-      # Search results primary thumbnails
-      {"full", "!350", "350"},
-      # Item page thumbnails
-      {"square", "!350", "465"},
-      # Clover thumbnails
-      {"full", "!200", "150"}
+      IIIF.small_browse_thumbnail_parameters(),
+      IIIF.result_thumbnail_parameters(),
+      IIIF.primary_search_thumbnail_parameters(),
+      IIIF.item_thumbnail_parameters(),
+      IIIF.clover_thumbnail_parameters()
     ]
   end
 
   defp primary_thumbnail_configuration(item) do
-    {"full", "!#{item.primary_thumbnail_width}", "#{item.primary_thumbnail_height}"}
+    IIIF.primary_thumbnail_parameters(item.primary_thumbnail_width, item.primary_thumbnail_height)
   end
 
   # Don't attempt to cache deleted records, or collections
@@ -96,10 +92,8 @@ defmodule DpulCollections.Workers.CacheThumbnails do
     thumbnail_configurations() |> Enum.each(&cache_iiif_item_image(base_url, &1))
   end
 
-  def cache_iiif_item_image(base_url, configuration) do
-    {region, width, height} = configuration
-    path = "/#{region}/#{width},#{height}/0/default.jpg"
-    cache_iiif_image(base_url <> path)
+  def cache_iiif_item_image(base_url, parameters) do
+    cache_iiif_image("#{base_url}/#{parameters}")
   end
 
   def cache_iiif_image(url) when is_binary(url) do

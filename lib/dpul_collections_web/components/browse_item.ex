@@ -3,6 +3,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
   use DpulCollectionsWeb, :html
   use Phoenix.Component
   use Gettext, backend: DpulCollectionsWeb.Gettext
+  alias DpulCollections.IIIF
   alias DpulCollections.Item
   alias DpulCollections.Collection
   alias DpulCollectionsWeb.Live.Helpers
@@ -412,11 +413,11 @@ defmodule DpulCollectionsWeb.BrowseItem do
   end
 
   def thumbnail_url(%{thumb: thumb, thumb_num: thumb_num}) when is_number(thumb_num) do
-    "#{thumb}/square/!100,100/0/default.jpg"
+    "#{thumb}/#{IIIF.small_browse_thumbnail_parameters()}"
   end
 
   def thumbnail_url(%{thumb: thumb}) do
-    "#{thumb}/square/!350,350/0/default.jpg"
+    "#{thumb}/#{IIIF.result_thumbnail_parameters()}"
   end
 
   def thumbnail_service_url(%{primary_thumbnail_service_url: thumbnail_url})

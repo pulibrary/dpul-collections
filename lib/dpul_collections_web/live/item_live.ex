@@ -7,6 +7,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   use DpulCollectionsWeb, :live_view
   use Gettext, backend: DpulCollectionsWeb.Gettext
   alias DpulCollections.{Item, Solr, Correction}
+  alias DpulCollections.IIIF
   alias DpulCollectionsWeb.ContentWarnings
 
   def mount(_params, _session, socket) do
@@ -714,7 +715,7 @@ defmodule DpulCollectionsWeb.ItemLive do
           />
           <.link patch={"#{@item.viewer_url}/#{primary_thumbnail_idx(@item)}"} replace>
             <img
-              src={"#{@item.primary_thumbnail_service_url}/full/!#{@item.primary_thumbnail_width},#{@item.primary_thumbnail_height}/0/default.jpg"}
+              src={"#{@item.primary_thumbnail_service_url}/#{IIIF.primary_thumbnail_parameters(@item.primary_thumbnail_width, @item.primary_thumbnail_height)}"}
               alt={gettext("main image display")}
               style="
               background-color: lightgray;"
@@ -1075,7 +1076,7 @@ defmodule DpulCollectionsWeb.ItemLive do
             Helpers.obfuscate_item?(assigns) && "obfuscate",
             "thumbnail-#{@item.id}"
           ]}
-          src={"#{@thumb}/square/!350,465/0/default.jpg"}
+          src={"#{@thumb}/#{IIIF.item_thumbnail_parameters()}"}
           alt={"image #{@thumb_num}"}
           style="
             background-color: lightgray;"
