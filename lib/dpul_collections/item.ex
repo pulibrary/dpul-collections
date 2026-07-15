@@ -1,5 +1,6 @@
 defmodule DpulCollections.Item do
   alias DpulCollections.Collection
+  alias DpulCollections.IIIF
   alias DpulCollectionsWeb.Live.Helpers
   alias DpulCollections.IndexingPipeline.Figgy
   require Figgy.ImportedCatalogSchema
@@ -228,7 +229,7 @@ defmodule DpulCollections.Item do
       "description" => meta_description(summary),
       "og:description" => meta_description(summary),
       "og:image" =>
-        "#{item.primary_thumbnail_service_url}/full/!#{item.primary_thumbnail_width},#{item.primary_thumbnail_height}/0/default.jpg",
+        "#{item.primary_thumbnail_service_url}/#{IIIF.primary_thumbnail_parameters(item.primary_thumbnail_width, item.primary_thumbnail_height)}",
       "og:url" => url(~p"/item/#{item.id}")
     }
     |> Helpers.clean_params()
