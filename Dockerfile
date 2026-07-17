@@ -14,7 +14,7 @@
 # renovate: datasource=hexpm-bob depName=elixir
 ARG ELIXIR_VERSION=1.19.5
 # renovate: datasource=github-tags depName=erlang packageName=erlang/otp
-ARG OTP_VERSION=27.3.4.13
+ARG OTP_VERSION=29.0.3
 # renovate: datasource=docker depName=debian packageName=debian
 ARG DEBIAN_VERSION=trixie-20260610-slim
 
