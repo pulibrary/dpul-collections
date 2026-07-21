@@ -81,15 +81,15 @@ defmodule DpulCollections.MixProject do
       {:req, "~> 0.6.2"},
       {:broadway_dashboard, "~> 0.4.1"},
       {:honeybadger, "~> 0.28.0"},
-      {:phoenix_test_playwright, "~> 0.14.0", only: :test, runtime: false},
+      {:phoenix_test_playwright, "~> 0.15.0", only: :test, runtime: false},
       {:live_debugger, "~> 0.8.0", only: :dev},
-      {:prom_ex, "~> 1.11.0"},
+      {:prom_ex, "~> 1.12.0"},
       {:ecto_psql_extras, "~> 0.8.8"},
       # Sibyl adds a decorator that automatically wraps a method and makes it
       # send telemetry events.
       {:sibyl, "~> 0.1.11"},
       # Required to run metrics server
-      {:plug_cowboy, "~> 2.8.1"},
+      {:plug_cowboy, "~> 2.9.0"},
       {:ex_cldr_dates_times, "~> 2.25.6"},
       # Icons
       {:iconify_ex, "~> 0.7.2"},
