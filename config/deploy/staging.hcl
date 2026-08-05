@@ -116,10 +116,6 @@ job "dpulc-staging" {
         cpu    = 2000
         memory = 1000
       }
-      env {
-        RELEASE_IP = "${NOMAD_IP_http}"
-        ERL_DIST_PORT = 6789
-      }
       artifact {
         source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch_or_sha}/config/deploy/env/staging.tpl"
         destination = "local/env.tpl"
@@ -188,10 +184,6 @@ job "dpulc-staging" {
         image = "ghcr.io/pulibrary/dpul-collections:sha-${ var.branch_or_sha }"
         ports = ["http", "dist", "metrics"]
         force_pull = true
-      }
-      env {
-        RELEASE_IP = "${NOMAD_IP_http}"
-        ERL_DIST_PORT = 6789
       }
       # Save a bunch of CPU and RAM to run indexing.
       resources {
