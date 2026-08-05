@@ -13,7 +13,7 @@ executors:
         type: string
         default: 27.2.2
     docker:
-      - image: cimg/elixir:<< parameters.elixir_version >>-erlang-<< parameters.erlang_version >>-browsers
+      - image: ccitest/elixir:<< parameters.elixir_version >>-erlang-<< parameters.erlang_version >>-browsers
         environment:
           TEST_POSTGRES_PORT: 5432
           TEST_POSTGRES_FIGGY_HOST: figgy_database
@@ -43,7 +43,7 @@ executors:
         type: string
         default: 27.2.2
     docker:
-      - image: cimg/elixir:<< parameters.elixir_version >>-erlang-<< parameters.erlang_version >>-browsers
+      - image: ccitest/elixir:<< parameters.elixir_version >>-erlang-<< parameters.erlang_version >>-browsers
         environment:
           MIX_ENV: test
     working_directory: ~/project
