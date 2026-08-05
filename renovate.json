@@ -69,7 +69,7 @@
         "/^.circleci/config.yml$/"
       ],
       "matchStrings": [
-        "\\s+(?<currentValue>\\S+)\\s*#\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)(\\s+versioning=(?<versioning>\\S+))?(\\s+extractVersion=(?<extractVersion>\\S+))?(\\s+registryUrl=(?<registryUrl>\\S+))?\\s*\\n"
+        "\\s+(?<currentValue>\\S+)\\s*#\\s*renovate: datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)(\\s+packageName=(?<packageName>\\S+))?(\\s+versioning=(?<versioning>\\S+))?(\\s+registryUrl=(?<registryUrl>\\S+))?(\\s+extractVersion=(?<extractVersion>\\S+))?\\s*\\n"
       ],
       "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
     },
@@ -87,6 +87,6 @@
   ],
   "prHourlyLimit": 3,
   "constraints": {
-    "elixir": "1.20.2"
+    "elixir": "1.20.3"
   }
 }

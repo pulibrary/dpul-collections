@@ -8,10 +8,10 @@ executors:
     parameters:
       elixir_version:
         type: string
-        default: 1.20.2 # datasource=hexpm-bob depName=elixir
+        default: 1.20.3 # renovate: datasource=hexpm-bob depName=elixir
       erlang_version:
         type: string
-        default: 27.2.2
+        default: 27.3.4.15 # renovate: datasource=github-tags depName=erlang packageName=erlang/otp
     docker:
       - image: ccitest/elixir:<< parameters.elixir_version >>-erlang-<< parameters.erlang_version >>-browsers
         environment:
