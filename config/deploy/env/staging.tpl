@@ -15,9 +15,9 @@ LIBANSWERS_CLIENT_SECRET = {{ .LIBANSWERS_CLIENT_SECRET }}
 LIBANSWERS_QUEUE_ID = {{ .LIBANSWERS_QUEUE_ID }}
 {{- end -}}
 ERL_DIST_PORT = 4370
-ELIXIR_ERL_OPTIONS     = "-start_epmd false -epmd_module Elixir.DynamicSrv.Epmd"
-DNS_CLUSTER_QUERY      = "dpulc-staging-epmd.service.consul"
-RELEASE_DISTRIBUTION   = "name"
-RELEASE_NODE           = "node-{{ env "NOMAD_ALLOC_INDEX" }}@dpulc-staging-epmd.service.consul"
-SERVICE_NAME           = "dpulc-staging-epmd"
+ELIXIR_ERL_OPTIONS = "-start_epmd false -epmd_module Elixir.DynamicSrv.Epmd"
+DNS_CLUSTER_QUERY = "dpulc-staging-epmd.service.consul"
+RELEASE_DISTRIBUTION = "name"
+RELEASE_NODE = "node-{{ env "NOMAD_ALLOC_INDEX" }}@dpulc-staging-epmd.service.consul"
+SERVICE_NAME = "dpulc-staging-epmd"
 CONSUL_SERVICE_ADDRESS = "service.consul"
