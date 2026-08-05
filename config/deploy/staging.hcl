@@ -18,11 +18,21 @@ job "dpulc-staging" {
     network {
       port "http" { to = 4000 }
       port "metrics" { to = 4021 }
-      port "epmd" { static = 6789 }
+      port "dist" { to = 4370 }
       # Add the consul DNS loopback, so we can use consul queries.
       dns {
         servers = ["10.88.0.1", "128.112.129.209"]
       }
+    }
+    service {
+      name = "dpulc-staging-epmd"
+      port = "dist"
+      provider = "consul"
+      address = "node-${NOMAD_ALLOC_INDEX}.dpulc-staging-epmd.service.consul"
+      address_mode = "auto"
+      tags = [
+        "node-${NOMAD_ALLOC_INDEX}"
+      ]
     }
     service {
       port = "http"
@@ -99,7 +109,7 @@ job "dpulc-staging" {
       driver = "podman"
       config {
         image = "ghcr.io/pulibrary/dpul-collections:sha-${ var.branch_or_sha }"
-        ports = ["http", "epmd", "metrics"]
+        ports = ["http", "dist", "metrics"]
         force_pull = true
       }
       resources {
@@ -133,12 +143,27 @@ job "dpulc-staging" {
     network {
       port "http" { to = 4000 }
       port "metrics" { to = 4021 }
-      port "epmd" { static = 6789 }
+      port "dist" { to = 4370 }
+
+      # Add the consul DNS loopback, so we can use consul queries.
+      dns {
+        servers = ["10.88.0.1", "128.112.129.209"]
+      }
     }
     affinity {
       attribute = "${meta.node_type}"
       value = "worker"
       weight = 100
+    }
+    service {
+      name = "dpulc-staging-epmd"
+      port = "dist"
+      provider = "consul"
+      address = "node-${NOMAD_ALLOC_INDEX}.dpulc-staging-epmd.service.consul"
+      address_mode = "auto"
+      tags = [
+        "node-${NOMAD_ALLOC_INDEX}"
+      ]
     }
     service {
       name = "dpulc-staging-web"
@@ -161,7 +186,7 @@ job "dpulc-staging" {
       driver = "podman"
       config {
         image = "ghcr.io/pulibrary/dpul-collections:sha-${ var.branch_or_sha }"
-        ports = ["http", "epmd", "metrics"]
+        ports = ["http", "dist", "metrics"]
         force_pull = true
       }
       env {

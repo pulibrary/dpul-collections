@@ -13,15 +13,18 @@ defmodule DpulCollections.Application do
         DpulCollectionsWeb.Telemetry,
         DpulCollections.Repo,
         DpulCollections.FiggyRepo,
-        {DNSCluster,
-         query: Application.get_env(:dpul_collections, :dns_cluster_query) || :ignore},
         {Phoenix.PubSub, name: DpulCollections.PubSub},
         {Oban, Application.fetch_env!(:dpul_collections, Oban)},
         # Start a worker by calling: DpulCollections.Worker.start_link(arg)
         # {DpulCollections.Worker, arg},
         # Start to serve requests, typically the last entry
         DpulCollectionsWeb.Endpoint,
-        DpulCollections.IndexMetricsTracker
+        DpulCollections.IndexMetricsTracker,
+        {Cluster.Supervisor,
+         [
+           Application.get_env(:libcluster, :topologies),
+           [name: DpulCollections.ClusterSupervisor]
+         ]}
       ] ++ filter_pipeline_children()
 
     # See https://hexdocs.pm/elixir/Supervisor.html

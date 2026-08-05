@@ -73,7 +73,6 @@ defmodule DpulCollections.MixProject do
       {:telemetry_poller, "~> 1.3.0"},
       {:gettext, "~> 1.0.2"},
       {:jason, "~> 1.4.5"},
-      {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.12.0"},
       {:excoveralls, "~> 0.18.5", only: :test},
       {:broadway, "~> 1.3.0"},
@@ -103,7 +102,8 @@ defmodule DpulCollections.MixProject do
       {:lazy_html, "~> 0.1.11", only: :test},
       {:ex_cldr_locale_display, "~> 1.7.3"},
       {:junit_formatter, "~> 3.4.0", only: [:test]},
-      {:flow, "~> 1.2.4"}
+      {:flow, "~> 1.2.4"},
+      {:libcluster_dynamic_srv, "~> 0.1"}
     ]
   end
 
