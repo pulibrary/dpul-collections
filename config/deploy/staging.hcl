@@ -28,10 +28,10 @@ job "dpulc-staging" {
       name = "${NOMAD_JOB_NAME}-epmd"
       port = "dist"
       provider = "consul"
-      address = "node-${NOMAD_ALLOC_INDEX}-${NOMAD_TASK_NAME}.${NOMAD_JOB_NAME}-epmd.service.consul"
+      address = "node-${NOMAD_ALLOC_INDEX}-${NOMAD_GROUP_NAME}.${NOMAD_JOB_NAME}-epmd.service.consul"
       address_mode = "auto"
       tags = [
-        "node-${NOMAD_ALLOC_INDEX}-${NOMAD_TASK_NAME}"
+        "node-${NOMAD_ALLOC_INDEX}-${NOMAD_GROUP_NAME}"
       ]
     }
     service {
@@ -155,10 +155,10 @@ job "dpulc-staging" {
       name = "${NOMAD_JOB_NAME}-epmd"
       port = "dist"
       provider = "consul"
-      address = "node-${NOMAD_ALLOC_INDEX}-${NOMAD_TASK_NAME}.${NOMAD_JOB_NAME}-epmd.service.consul"
+      address = "node-${NOMAD_ALLOC_INDEX}-${NOMAD_GROUP_NAME}.${NOMAD_JOB_NAME}-epmd.service.consul"
       address_mode = "auto"
       tags = [
-        "node-${NOMAD_ALLOC_INDEX}-${NOMAD_TASK_NAME}"
+        "node-${NOMAD_ALLOC_INDEX}-${NOMAD_GROUP_NAME}"
       ]
     }
     service {
