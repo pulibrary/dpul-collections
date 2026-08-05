@@ -13,4 +13,12 @@ SMTP_HOST = "lib-ponyexpr-prod.princeton.edu"
 LIBANSWERS_CLIENT_ID = {{ .LIBANSWERS_CLIENT_ID }}
 LIBANSWERS_CLIENT_SECRET = {{ .LIBANSWERS_CLIENT_SECRET }}
 LIBANSWERS_QUEUE_ID = {{ .LIBANSWERS_QUEUE_ID }}
+ERL_DIST_PORT = 4370
+ELIXIR_ERL_OPTIONS = "-start_epmd false -epmd_module Elixir.DynamicSrv.Epmd"
+DNS_CLUSTER_QUERY = "{{ env "NOMAD_JOB_NAME" }}-epmd.service.consul"
+RELEASE_DISTRIBUTION = "name"
+RELEASE_NODE = "node-{{ env "NOMAD_ALLOC_INDEX" }}-{{ env "NOMAD_TASK_NAME"
+}}@{{ env "NOMAD_JOB_NAME" }}-epmd.service.consul"
+SERVICE_NAME = "{{ env "NOMAD_JOB_NAME" }}"
+CONSUL_SERVICE_ADDRESS = "service.consul"
 {{- end -}}
