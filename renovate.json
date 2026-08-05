@@ -17,7 +17,7 @@
     "mix",
     "renovate-config"
   ],
-  "minimumReleaseAge": "5 days",
+  "minimumReleaseAge": "14 days",
   "packageRules": [
     {
       "matchDatasources": [
