@@ -116,6 +116,15 @@ job "dpulc-staging" {
         cpu    = 2000
         memory = 1000
       }
+      env {
+        ERL_DIST_PORT = 4370
+        ELIXIR_ERL_OPTIONS = "-start_epmd false -epmd_module Elixir.DynamicSrv.Epmd"
+        DNS_CLUSTER_QUERY = "dpulc-staging-epmd.service.consul"
+        RELEASE_DISTRIBUTION = "name"
+        RELEASE_NODE = "node-${NOMAD_ALLOC_INDEX}@dpulc-staging-epmd.service.consul"
+        SERVICE_NAME = "dpulc-staging-epmd"
+        CONSUL_SERVICE_ADDRESS = "service.consul"
+      }
       artifact {
         source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch_or_sha}/config/deploy/env/staging.tpl"
         destination = "local/env.tpl"
@@ -155,7 +164,7 @@ job "dpulc-staging" {
       name = "dpulc-staging-epmd"
       port = "dist"
       provider = "consul"
-      address = "node-${NOMAD_ALLOC_INDEX}.dpulc-staging-epmd.service.consul"
+      address = "node-${NOMAD_ALLOC_INDEX}-indexer.dpulc-staging-epmd.service.consul"
       address_mode = "auto"
       tags = [
         "node-${NOMAD_ALLOC_INDEX}"
@@ -189,6 +198,15 @@ job "dpulc-staging" {
       resources {
         cores = 6
         memory = 8000
+      }
+      env {
+        ERL_DIST_PORT = 4370
+        ELIXIR_ERL_OPTIONS = "-start_epmd false -epmd_module Elixir.DynamicSrv.Epmd"
+        DNS_CLUSTER_QUERY = "dpulc-staging-epmd.service.consul"
+        RELEASE_DISTRIBUTION = "name"
+        RELEASE_NODE = "node-${NOMAD_ALLOC_INDEX}-indexer@dpulc-staging-epmd.service.consul"
+        SERVICE_NAME = "dpulc-staging-epmd"
+        CONSUL_SERVICE_ADDRESS = "service.consul"
       }
       artifact {
         source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch_or_sha}/config/deploy/env/staging.tpl"
