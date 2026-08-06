@@ -4,18 +4,23 @@ defmodule Mix.Tasks.GettextCheck do
 
   @shortdoc "Output all views that have missing gettext."
   def run(_) do
-    [
-      "lib/dpul_collections_web/live/home_live.ex",
-      "lib/dpul_collections_web/live/collections_live.ex"
-    ]
-    |> Enum.reduce(%{}, fn file_path, acc ->
-      missing = DpulCollections.GettextCheck.Parser.missing_gettext(file_path)
+    missing_gettext =
+      "lib/dpul_collections_web/live/**/*.ex"
+      |> Path.wildcard()
+      |> Enum.reduce(%{}, fn file_path, acc ->
+        missing = DpulCollections.GettextCheck.Parser.missing_gettext(file_path)
 
-      case missing do
-        [] -> acc
-        _ -> Map.put(acc, file_path, missing)
-      end
-    end)
-    |> dbg()
+        case missing do
+          [] -> acc
+          _ -> Map.put(acc, file_path, missing)
+        end
+      end)
+
+    if missing_gettext != [] do
+      IO.puts("Detected the following missing gettext strings:")
+      IO.inspect(missing_gettext, syntax_colors: IO.ANSI.syntax_colors(), limit: :infinity)
+    else
+      "No missing gettext calls detected!"
+    end
   end
 end

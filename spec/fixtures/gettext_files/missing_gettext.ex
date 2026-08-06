@@ -21,6 +21,15 @@ defmodule GettextFiles.MissingGettext do
       item={1}
       aria-label={gettext("Translated this one")}
     >$</p>
+    <p
+      item={1}
+      aria-label={some_variable.property}
+    >$</p>
+    [:&nbsp;]
+
+    <script :type={Phoenix.LiveView.ColocatedHook} name=".SearchFilter">
+      console.log("I'm javascript!")
+    </script>
     """
   end
 end

@@ -33,8 +33,7 @@ config :dpul_collections, DpulCollectionsWeb.Endpoint,
     layout: false
   ],
   pubsub_server: DpulCollections.PubSub,
-  live_view: [signing_salt: "Z37237LW"],
-  reloadable_compilers: [:elixir, :app]
+  live_view: [signing_salt: "Z37237LW"]
 
 # Configures Oban job processing
 config :dpul_collections, Oban,

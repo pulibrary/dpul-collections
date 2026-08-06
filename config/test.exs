@@ -39,8 +39,7 @@ config :dpul_collections, DpulCollections.FiggyRepo,
 config :dpul_collections, DpulCollectionsWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
   secret_key_base: "fS76i6oeLWDlMP7AEe+nExNz3J4tHyaIZrELNhSmY3LUocagaphwGc8Ff7rAh6qS",
-  server: true,
-  reloadable_compilers: [:elixir, :app]
+  server: true
 
 # In test, don't run jobs
 config :dpul_collections, Oban, testing: :manual

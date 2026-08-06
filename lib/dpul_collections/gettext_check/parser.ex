@@ -17,29 +17,68 @@ defmodule DpulCollections.GettextCheck.Parser do
         )
 
       parsed_html
-      |> Enum.flat_map(&expand_relevant_properties/1)
-      |> Enum.filter(&select_tag/1)
-      |> Enum.map(&convert_tag(&1, location_data))
+      |> choose_tags([], %{last_tags: [], location_data: location_data})
     end)
   end
 
-  defp expand_relevant_properties(
-         parent_tag = {_tag_type, tag_text, child_properties, _location_data}
-       )
+  # When there's nothing in the stack anymore, return the accumulator in
+  # reverse (since everything was prepended)
+  defp choose_tags([], acc, _context), do: acc |> Enum.reverse()
+  # When a tag closes, remove it from last_tags.
+  defp choose_tags(
+         [{:close, _tag_type, _tag, _tag_metadata} | rest_tags],
+         acc,
+         context = %{last_tags: [_last_tag | tags]}
+       ) do
+    choose_tags(rest_tags, acc, Map.put(context, :last_tags, tags))
+  end
+
+  # When a tag opens, add it to last_tags. Process properties if necessary.
+  defp choose_tags(
+         [full_tag = {_tag_type, _content, _properties, %{tag_name: tag}} | rest_tags],
+         acc,
+         context
+       ) do
+    relevant_properties = select_relevant_properties(full_tag)
+
+    choose_tags(
+      rest_tags,
+      choose_tags(relevant_properties, [], context) ++ acc,
+      Map.put(context, :last_tags, [tag | context.last_tags])
+    )
+  end
+
+  # If we're in a script, skip all content.
+  defp choose_tags([_tag | rest_tags], acc, context = %{last_tags: ["script" | _]}) do
+    choose_tags(rest_tags, acc, context)
+  end
+
+  defp choose_tags([tag | rest_tags], acc, context) do
+    acc =
+      if select_tag(tag) do
+        [convert_tag(tag, context.location_data) | acc]
+      else
+        acc
+      end
+
+    choose_tags(rest_tags, acc, context)
+  end
+
+  defp select_relevant_properties({_tag_type, _tag_text, child_properties, _location_data})
        when is_list(child_properties) do
     selected_properties =
       child_properties
-      |> Enum.filter(fn {property_name, content, location} ->
+      |> Enum.filter(fn {property_name, _content, _location} ->
         property_name in ["aria-label", "label"]
       end)
-      |> Enum.map(fn {property_name, {type, sub_content, _sub_location}, location} ->
+      |> Enum.map(fn {_property_name, {type, sub_content, _sub_location}, location} ->
         {type, sub_content, location}
       end)
 
-    [parent_tag | selected_properties]
+    selected_properties
   end
 
-  defp expand_relevant_properties(parent_tag), do: [parent_tag]
+  defp select_relevant_properties(_parent_tag), do: []
 
   defp convert_tag({:text, content, %{line_end: line_end}}, location_data) do
     parent_line = location_data[:line]
@@ -60,13 +99,15 @@ defmodule DpulCollections.GettextCheck.Parser do
     }
   end
 
-  defp select_tag({:text, content, _}) do
-    case String.trim(content) do
+  # No comments
+  defp select_tag({:text, _, %{context: [:comment_start | _]}}), do: false
+
+  defp select_tag({:text, content, _bla}) do
+    case String.trim(content) |> String.replace(~r/[^0-9a-z ]/i, "") do
       "" -> false
-      # Skip HTML comments
-      "<!--" <> _ -> false
+      "nbsp" -> false
       # Anything that has alphanumeric characters is probably bad.
-      _ -> String.replace(content, ~r/[^0-9A-z ]/, "") |> String.trim() != ""
+      _ -> true
     end
   end
 
@@ -74,16 +115,16 @@ defmodule DpulCollections.GettextCheck.Parser do
     select_tag({:text, content, nil})
   end
 
-  defp select_tag({:expr, content, _}) do
-    !is_gettext?(content)
+  # If it starts with a quotation, it's a string, not okay.
+  defp select_tag({:expr, "\"" <> _rest, _}) do
+    true
   end
 
-  defp select_tag(node) do
+  defp select_tag({:expr, _content, _}), do: false
+
+  defp select_tag(_node) do
     false
   end
-
-  defp is_gettext?("gettext(" <> _string), do: true
-  defp is_gettext?(_), do: false
 
   defp get_sigil_h(ast) do
     Macro.postwalk(ast, [], &traverse/2)
