@@ -124,3 +124,10 @@ config :iconify_ex,
   default_class: nil
 
 config :dpul_collections, environment_name: Mix.env() |> to_string()
+
+config :libcluster,
+  topologies: [
+    local_epmd_example: [
+      strategy: Elixir.Cluster.Strategy.Gossip
+    ]
+  ]

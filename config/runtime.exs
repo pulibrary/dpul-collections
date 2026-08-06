@@ -80,8 +80,6 @@ if config_env() == :prod do
   port = String.to_integer(System.get_env("PORT") || "4000")
   check_origin = true
 
-  config :dpul_collections, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
-
   # only run indexing children if the webserver is running
   # wrap this in a function b/c the dev implementation requires it
   config :dpul_collections, :start_indexing_pipeline?, fn ->
@@ -164,4 +162,14 @@ if config_env() == :prod do
     client_id: System.get_env("LIBANSWERS_CLIENT_ID"),
     client_secret: System.get_env("LIBANSWERS_CLIENT_SECRET"),
     queue_id: System.get_env("LIBANSWERS_QUEUE_ID")
+
+  config :libcluster,
+    topologies: [
+      dyn_srv: [
+        strategy: Cluster.Strategy.DynamicSrv,
+        config: [
+          service: System.get_env("DNS_CLUSTER_QUERY")
+        ]
+      ]
+    ]
 end

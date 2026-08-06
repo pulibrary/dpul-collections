@@ -19,11 +19,21 @@ job "dpulc-production" {
     network {
       port "http" { to = 4000 }
       port "metrics" { to = 4021 }
-      port "epmd" { static = 6789 }
+      port "dist" { to = 4370 }
       # Add the consul DNS loopback, so we can use consul queries.
       dns {
         servers = ["10.88.0.1", "128.112.129.209"]
       }
+    }
+    service {
+      name = "${NOMAD_JOB_NAME}-epmd"
+      port = "dist"
+      provider = "consul"
+      address = "node-${NOMAD_ALLOC_INDEX}-${NOMAD_GROUP_NAME}.${NOMAD_JOB_NAME}-epmd.service.consul"
+      address_mode = "auto"
+      tags = [
+        "node-${NOMAD_ALLOC_INDEX}-${NOMAD_GROUP_NAME}"
+      ]
     }
     service {
       port = "http"
@@ -101,16 +111,12 @@ job "dpulc-production" {
       driver = "podman"
       config {
         image = "ghcr.io/pulibrary/dpul-collections:sha-${ var.branch_or_sha }"
-        ports = ["http", "epmd", "metrics"]
+        ports = ["http", "dist", "metrics"]
         force_pull = true
       }
       resources {
         cpu    = 2000
         memory = 1000
-      }
-      env {
-        RELEASE_IP = "${NOMAD_IP_http}"
-        ERL_DIST_PORT = 6789
       }
       artifact {
         source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch_or_sha}/config/deploy/env/production.tpl"
@@ -135,12 +141,27 @@ job "dpulc-production" {
     network {
       port "http" { to = 4000 }
       port "metrics" { to = 4021 }
-      port "epmd" { static = 6789 }
+      port "dist" { to = 4370 }
+
+      # Add the consul DNS loopback, so we can use consul queries.
+      dns {
+        servers = ["10.88.0.1", "128.112.129.209"]
+      }
     }
     affinity {
       attribute = "${meta.node_type}"
       value = "worker"
       weight = 100
+    }
+    service {
+      name = "${NOMAD_JOB_NAME}-epmd"
+      port = "dist"
+      provider = "consul"
+      address = "node-${NOMAD_ALLOC_INDEX}-${NOMAD_GROUP_NAME}.${NOMAD_JOB_NAME}-epmd.service.consul"
+      address_mode = "auto"
+      tags = [
+        "node-${NOMAD_ALLOC_INDEX}-${NOMAD_GROUP_NAME}"
+      ]
     }
     service {
       name = "dpulc-production-web"
@@ -163,12 +184,8 @@ job "dpulc-production" {
       driver = "podman"
       config {
         image = "ghcr.io/pulibrary/dpul-collections:sha-${ var.branch_or_sha }"
-        ports = ["http", "epmd", "metrics"]
+        ports = ["http", "dist", "metrics"]
         force_pull = true
-      }
-      env {
-        RELEASE_IP = "${NOMAD_IP_http}"
-        ERL_DIST_PORT = 6789
       }
       # Save a bunch of CPU and RAM to run indexing.
       resources {
