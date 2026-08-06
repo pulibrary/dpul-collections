@@ -19,6 +19,7 @@ defmodule Mix.Tasks.GettextCheck do
     if missing_gettext != [] do
       IO.puts("Detected the following missing gettext strings:")
       IO.inspect(missing_gettext, syntax_colors: IO.ANSI.syntax_colors(), limit: :infinity)
+      exit({:shutdown, 1})
     else
       "No missing gettext calls detected!"
     end
