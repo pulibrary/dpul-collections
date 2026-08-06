@@ -8,7 +8,7 @@ defmodule DpulCollections.GettextCheck.ParserTest do
       assert length(results) == 4
       assert hd(results) == %{text: "Hi everyone, this is missing a gettext!", line: 4}
       assert Enum.at(results, 1) == %{text: "This is missing gettext, but in a tag!", line: 7}
-      assert Enum.at(results, 2) == %{text: "Not translated!", line: 13}
+      assert Enum.at(results, 2) == %{text: "\"Not translated!\"", line: 14}
     end
   end
 end

@@ -17,15 +17,46 @@ defmodule DpulCollections.GettextCheck.Parser do
         )
 
       parsed_html
+      |> Enum.flat_map(&expand_relevant_properties/1)
       |> Enum.filter(&select_tag/1)
       |> Enum.map(&convert_tag(&1, location_data))
     end)
   end
 
-  defp convert_tag({:text, content, %{line_end: line_end}}, [_, {:line, parent_line}, _]) do
+  defp expand_relevant_properties(
+         parent_tag = {_tag_type, tag_text, child_properties, _location_data}
+       )
+       when is_list(child_properties) do
+    selected_properties =
+      child_properties
+      |> Enum.filter(fn {property_name, content, location} ->
+        property_name in ["aria-label", "label"]
+      end)
+      |> Enum.map(fn {property_name, {type, sub_content, _sub_location}, location} ->
+        {type, sub_content, location}
+      end)
+
+    [parent_tag | selected_properties]
+  end
+
+  defp expand_relevant_properties(parent_tag), do: [parent_tag]
+
+  defp convert_tag({:text, content, %{line_end: line_end}}, location_data) do
+    parent_line = location_data[:line]
+
     %{
       text: String.trim(content),
       line: parent_line + line_end - 1
+    }
+  end
+
+  defp convert_tag({property_tag_type, content, %{line: line}}, location_data)
+       when property_tag_type in [:string, :expr] do
+    parent_line = location_data[:line]
+
+    %{
+      text: String.trim(content),
+      line: parent_line + line
     }
   end
 
@@ -39,13 +70,23 @@ defmodule DpulCollections.GettextCheck.Parser do
     end
   end
 
+  defp select_tag({:string, content, _}) do
+    select_tag({:text, content, nil})
+  end
+
+  defp select_tag({:expr, content, _}) do
+    !is_gettext?(content)
+  end
+
   defp select_tag(node) do
-    dbg(node)
     false
   end
 
+  defp is_gettext?("gettext(" <> _string), do: true
+  defp is_gettext?(_), do: false
+
   defp get_sigil_h(ast) do
-    {_ast, sigil_h_blocks} = Macro.postwalk(ast, [], &traverse/2)
+    Macro.postwalk(ast, [], &traverse/2)
   end
 
   defp traverse(node = {:sigil_H, _location, _content}, acc) do

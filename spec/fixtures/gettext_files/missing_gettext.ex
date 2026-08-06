@@ -15,7 +15,11 @@ defmodule GettextFiles.MissingGettext do
     >$</.link>
     <p
       item={1}
-      aria-label={"Not translated!"}
+      aria-label="Not translated!"
+    >$</p>
+    <p
+      item={1}
+      aria-label={gettext("Translated this one")}
     >$</p>
     """
   end
