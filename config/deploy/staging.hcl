@@ -121,6 +121,7 @@ job "dpulc-staging" {
         cpu    = 2000
         memory = 1000
       }
+      consul {}
       artifact {
         source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch_or_sha}/config/deploy/env/staging.tpl"
         destination = "local/env.tpl"
@@ -252,6 +253,7 @@ job "dpulc-staging" {
         cores = 6
         memory = 8000
       }
+      consul {}
       artifact {
         source = "https://raw.githubusercontent.com/pulibrary/dpul-collections/${var.branch_or_sha}/config/deploy/env/staging.tpl"
         destination = "local/env.tpl"
