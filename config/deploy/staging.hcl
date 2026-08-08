@@ -3,6 +3,11 @@ variable "branch_or_sha" {
   default = "main"
 }
 
+variable "solr_configset" {
+  type = string
+  default = "dpulc-staging"
+}
+
 job "dpulc-staging" {
   region = "global"
   datacenters = ["dc1"]
@@ -177,6 +182,63 @@ job "dpulc-staging" {
       name = "dpulc-staging-web"
       tags = ["metrics"]
       port = "metrics"
+    }
+
+    task "solr-configset" {
+      lifecycle {
+        hook    = "prestart"
+        sidecar = false
+      }
+      driver = "podman"
+      config {
+        image   = "docker.io/library/solr:9.9"
+        command = "bash"
+        args    = ["/local/upconfig.sh"]
+      }
+      consul {}
+      artifact {
+        source      = "https://github.com/pulibrary/dpul-collections/archive/${var.branch_or_sha}.tar.gz"
+        destination = "local/repo"
+      }
+      template {
+        destination = "local/upconfig.env"
+        env         = true
+        change_mode = "noop"
+        data        = <<-EOT
+        ZK_ENSEMBLE={{ $sep := "" }}{{ range $idx, $svcs := service "zookeeper-staging" | byMeta "alloc_index:int" }}{{ range $s := $svcs }}{{ $sep }}{{ $s.Address }}:{{ $s.Port }}{{ $sep = "," }}{{ end }}{{ end }}
+        CONFIGSET=${var.solr_configset}
+        EOT
+      }
+      template {
+        destination = "local/upconfig.sh"
+        perms       = "0755"
+        change_mode = "noop"
+        data        = <<-EOT
+        #!/usr/bin/env bash
+        set -euo pipefail
+
+        CONF=$(echo /local/repo/*/solr/conf)
+        echo "uploading $CONF as configset '$CONFIGSET' to $ZK_ENSEMBLE"
+
+        # Retry up to 5 times, sometimes Zookeeper wasn't ready.
+        for i in $(seq 1 30); do
+          if solr zk upconfig -n "$CONFIGSET" -d "$CONF" -z "$ZK_ENSEMBLE"; then
+            echo "configset '$CONFIGSET' uploaded"
+            exit 0
+          fi
+          echo "$i failed (retrying in 5s)"
+          sleep 5
+        done
+
+        echo "couldn't upload '$CONFIGSET'" >&2
+        exit 1
+        EOT
+      }
+
+      resources {
+        cpu    = 200
+        memory = 512
+      }
     }
     task "indexer" {
       driver = "podman"
