@@ -30,6 +30,9 @@ defmodule GettextFiles.MissingGettext do
     <script :type={Phoenix.LiveView.ColocatedHook} name=".SearchFilter">
       console.log("I'm javascript!")
     </script>
+    {#skip-gettext-start}
+      I'm not translated, but that's okay!
+    {#skip-gettext-end}
     """
   end
 end

@@ -16,7 +16,7 @@ defmodule DpulCollections.GettextCheck.Parser do
       parsed_html =
         text
         |> Phoenix.LiveView.TagEngine.Parser.tokenize(
-          strip_eex_comments: true,
+          strip_eex_comments: false,
           tag_handler: Phoenix.LiveView.HTMLEngine
         )
 
@@ -56,6 +56,32 @@ defmodule DpulCollections.GettextCheck.Parser do
          context = %{last_tags: [_last_tag | tags]}
        ) do
     process_tags(rest_tags, acc, Map.put(context, :last_tags, tags))
+  end
+
+  # Handle skip-gettext-start/end
+  defp process_tags(
+         [{:body_expr, "#skip-gettext-start", _properties} | rest_tags],
+         acc,
+         context
+       ) do
+    process_tags(
+      rest_tags,
+      acc,
+      Map.put(context, :last_tags, ["skip-gettext" | context.last_tags])
+    )
+  end
+
+  defp process_tags(
+         [{:body_expr, "#skip-gettext-end", _properties} | rest_tags],
+         acc,
+         context = %{last_tags: ["skip-gettext" | tags]}
+       ) do
+    process_tags(rest_tags, acc, Map.put(context, :last_tags, tags))
+  end
+
+  # If we're in a skip-gettext tag, skip all content.
+  defp process_tags([_tag | rest_tags], acc, context = %{last_tags: ["skip-gettext" | _]}) do
+    process_tags(rest_tags, acc, context)
   end
 
   # When a tag opens, add it to last_tags. Process properties if necessary.
