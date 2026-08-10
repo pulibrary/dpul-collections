@@ -730,7 +730,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocumentTest do
              } = Figgy.SolrDocument.from_cache_entry(entry)
     end
 
-    test "featurable EphemeraFolder sets featurable_b to true" do
+    test "featurable EphemeraFolder sets featurable_ss to the ids it's featured in" do
       {:ok, entry} =
         IndexingPipeline.write_hydration_cache_entry(%{
           cache_version: 0,
@@ -743,15 +743,23 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocumentTest do
             "internal_resource" => "EphemeraFolder",
             "metadata" => %{
               "title" => ["Featurable folder"],
-              "featurable" => ["1"]
+              "featurable" => [
+                %{"id" => "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a"},
+                %{"id" => "3bab572e-6603-4abf-8305-16ce6fe3ac5c"}
+              ]
             }
           }
         })
 
-      assert %{featurable_b: true} = Figgy.SolrDocument.from_cache_entry(entry)
+      assert %{
+               featurable_ss: [
+                 "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a",
+                 "3bab572e-6603-4abf-8305-16ce6fe3ac5c"
+               ]
+             } = Figgy.SolrDocument.from_cache_entry(entry)
     end
 
-    test "non-featurable EphemeraFolder sets featurable_b to false" do
+    test "non-featurable EphemeraFolder leaves featurable_ss empty" do
       {:ok, entry} =
         IndexingPipeline.write_hydration_cache_entry(%{
           cache_version: 0,
@@ -763,12 +771,33 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocumentTest do
             "id" => "ddd-eee-fff",
             "internal_resource" => "EphemeraFolder",
             "metadata" => %{
-              "title" => ["Non-featurable folder"]
+              "title" => ["Non-featurable folder"],
+              "featurable" => []
             }
           }
         })
 
-      assert %{featurable_b: false} = Figgy.SolrDocument.from_cache_entry(entry)
+      assert %{featurable_ss: []} = Figgy.SolrDocument.from_cache_entry(entry)
+    end
+
+    test "EphemeraFolder without featurable property has empty featurable_ss" do
+      {:ok, entry} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          cache_version: 0,
+          record_id: "ggg-hhh-iii",
+          related_ids: [],
+          source_cache_order: ~U[2023-05-11 18:45:18.994187Z],
+          source_cache_order_record_id: "ggg-hhh-iii",
+          data: %{
+            "id" => "ggg-hhh-iii",
+            "internal_resource" => "EphemeraFolder",
+            "metadata" => %{
+              "title" => ["Folder with no featurable field"]
+            }
+          }
+        })
+
+      assert %{featurable_ss: []} = Figgy.SolrDocument.from_cache_entry(entry)
     end
 
     test "file count filters out members without related resources" do

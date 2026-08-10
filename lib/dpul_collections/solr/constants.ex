@@ -120,7 +120,7 @@ defmodule DpulCollections.Solr.Constants do
           type: :range
         },
         "featured" => %{
-          solr_field: "featurable_b",
+          solr_field: "featurable_ss",
           label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Featured"),
           value_function: &Function.identity/1
         },

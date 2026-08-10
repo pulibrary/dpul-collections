@@ -47,7 +47,7 @@ defmodule DpulCollections.Collection do
   def from_solr(doc = %{}) do
     title = Map.get(doc, "title_ss") || Map.get(doc, "title_txtm") || []
     summary = collection_summary(title |> hd)
-    featured_items = get_featured_items(title |> hd)
+    featured_items = get_featured_items(doc["id"])
 
     %__MODULE__{
       id: doc["id"],
@@ -134,10 +134,10 @@ defmodule DpulCollections.Collection do
     |> Enum.map(&from_solr/1)
   end
 
-  defp get_featured_items(label) do
+  defp get_featured_items(id) do
     params =
       SearchState.from_params(%{
-        "filter" => %{"collection" => label, "featured" => true},
+        "filter" => %{"featured" => id},
         "per_page" => "4"
       })
 
