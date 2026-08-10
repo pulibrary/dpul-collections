@@ -1,5 +1,8 @@
 defmodule DpulCollections.GettextCheck.Parser do
+  @required_translation_properties ["aria-label", "label"]
+
   def missing_gettext(file_path) do
+    # Convert the file to AST, then pull out the ~H sections to be parsed.
     {_ast, sigil_h_blocks} =
       file_path
       |> Path.expand()
@@ -8,6 +11,7 @@ defmodule DpulCollections.GettextCheck.Parser do
       |> get_sigil_h()
 
     sigil_h_blocks
+    # text here is a bunch of HTML, everything in the sigil_H.
     |> Enum.flat_map(fn {:sigil_H, location_data, [{:<<>>, _meta, [text]} | _]} ->
       parsed_html =
         text
@@ -17,59 +21,85 @@ defmodule DpulCollections.GettextCheck.Parser do
         )
 
       parsed_html
-      |> choose_tags([], %{last_tags: [], location_data: location_data})
+      |> process_tags([], %{last_tags: [], location_data: location_data})
     end)
   end
 
+  # Recursively iterates through the parsed tags and returns only the tags that are missing gettext.
+  # Example input:
+  # [
+  #   {:text, "Hi everyone, this is missing a gettext!\n", %{line_end: 2, column_end: 1}},
+  #   {:body_expr, "gettext(\"Not missing here though!\")", %{line: 2, column: 1}},
+  #   {:text, "\n", %{line_end: 3, column_end: 1}},
+  #   {:tag, "p", [], %{line: 3, column: 1, tag_name: "p", inner_location: {3, 4}}},
+  #   {:text, "\n  This is missing gettext, but in a tag!\n", %{line_end: 5, column_end: 1}},
+  #   {:close, :tag, "p", %{line: 5, column: 1, tag_name: "p", inner_location: {5, 1}}}
+  #  ]
+  # This is a recursive function so it can keep track of what tag content is in.
+  #
+  # Returns content like:
+  #
+  # [
+  #   %{line: 4, text: "Hi everyone, this is missing a gettext!"},
+  #   %{line: 7, text: "This is missing gettext, but in a tag!"},
+  #   %{line: 14, text: "\"Not translated!\""},
+  #   %{line: 18, text: "Not translated!"}
+  # ]
+  #
   # When there's nothing in the stack anymore, return the accumulator in
   # reverse (since everything was prepended)
-  defp choose_tags([], acc, _context), do: acc |> Enum.reverse()
+  defp process_tags([], acc, _context), do: acc |> Enum.reverse()
   # When a tag closes, remove it from last_tags.
-  defp choose_tags(
+  defp process_tags(
          [{:close, _tag_type, _tag, _tag_metadata} | rest_tags],
          acc,
          context = %{last_tags: [_last_tag | tags]}
        ) do
-    choose_tags(rest_tags, acc, Map.put(context, :last_tags, tags))
+    process_tags(rest_tags, acc, Map.put(context, :last_tags, tags))
   end
 
   # When a tag opens, add it to last_tags. Process properties if necessary.
-  defp choose_tags(
+  # We might want to process properties like aria-label or label.
+  defp process_tags(
          [full_tag = {_tag_type, _content, _properties, %{tag_name: tag}} | rest_tags],
          acc,
          context
        ) do
-    relevant_properties = select_relevant_properties(full_tag)
+    # Convert properties to tags so we can call process_tags on them.
+    relevant_properties = convert_properties_to_tags(full_tag)
 
-    choose_tags(
+    process_tags(
       rest_tags,
-      choose_tags(relevant_properties, [], context) ++ acc,
+      process_tags(relevant_properties, [], context) ++ acc,
       Map.put(context, :last_tags, [tag | context.last_tags])
     )
   end
 
-  # If we're in a script, skip all content.
-  defp choose_tags([_tag | rest_tags], acc, context = %{last_tags: ["script" | _]}) do
-    choose_tags(rest_tags, acc, context)
+  # If we're in a script tag, skip all content.
+  defp process_tags([_tag | rest_tags], acc, context = %{last_tags: ["script" | _]}) do
+    process_tags(rest_tags, acc, context)
   end
 
-  defp choose_tags([tag | rest_tags], acc, context) do
+  defp process_tags([tag | rest_tags], acc, context) do
     acc =
-      if select_tag(tag) do
+      if tag_with_missing_gettext?(tag) do
         [convert_tag(tag, context.location_data) | acc]
       else
         acc
       end
 
-    choose_tags(rest_tags, acc, context)
+    # Debug tip: If you're not getting the matches you expected to get, a |> dbg
+    # here with an extra dbg(tag) might help figure out what's going on.
+
+    process_tags(rest_tags, acc, context)
   end
 
-  defp select_relevant_properties({_tag_type, _tag_text, child_properties, _location_data})
+  defp convert_properties_to_tags({_tag_type, _tag_text, child_properties, _location_data})
        when is_list(child_properties) do
     selected_properties =
       child_properties
       |> Enum.filter(fn {property_name, _content, _location} ->
-        property_name in ["aria-label", "label"]
+        property_name in @required_translation_properties
       end)
       |> Enum.map(fn {_property_name, {type, sub_content, _sub_location}, location} ->
         {type, sub_content, location}
@@ -83,12 +113,16 @@ defmodule DpulCollections.GettextCheck.Parser do
 
     %{
       text: String.trim(content),
+      # For some reason to get an accurate line for text we have to subtract 1
+      # from line_end.
       line: parent_line + line_end - 1
     }
   end
 
   defp convert_tag({property_tag_type, content, %{line: line}}, location_data)
        when property_tag_type in [:string, :expr] do
+    # parent_line is the line number of the sigil_h block that had the original
+    # HTML
     parent_line = location_data[:line]
 
     %{
@@ -97,33 +131,40 @@ defmodule DpulCollections.GettextCheck.Parser do
     }
   end
 
-  # No comments
-  defp select_tag({:text, _, %{context: [:comment_start | _]}}), do: false
+  # Comments don't need gettext.
+  defp tag_with_missing_gettext?({:text, _, %{context: [:comment_start | _]}}), do: false
 
-  defp select_tag({:text, content, _bla}) do
+  defp tag_with_missing_gettext?({:text, content, _bla}) do
     case String.trim(content) |> String.replace(~r/[^0-9a-z ]/i, "") do
       "" -> false
+      # We have some cases where we have &nbsp;, those are fine.
       "nbsp" -> false
       # Anything that has alphanumeric characters is probably bad.
       _ -> true
     end
   end
 
-  defp select_tag({:string, content, _}) do
-    select_tag({:text, content, nil})
+  # This comes back in label/aria-label, like
+  # <p label="test"></p>
+  defp tag_with_missing_gettext?({:string, content, _}) do
+    tag_with_missing_gettext?({:text, content, nil})
   end
 
   # If it starts with a quotation, it's a string, not okay.
-  defp select_tag({:expr, "\"" <> _rest, _}) do
+  # This only happens in properties like label/aria-label, for example
+  # <p label={"bla"}></p>
+  defp tag_with_missing_gettext?({:expr, "\"" <> _rest, _}) do
     true
   end
 
-  defp select_tag({:expr, _content, _}), do: false
+  # Assume if we're calling a function in a property, it's gettext.
+  defp tag_with_missing_gettext?({:expr, _content, _}), do: false
 
-  defp select_tag(_node) do
+  defp tag_with_missing_gettext?(_node) do
     false
   end
 
+  # Got this from https://dorgan.ar/posts/2021/04/the_elixir_ast/
   defp get_sigil_h(ast) do
     Macro.postwalk(ast, [], &traverse/2)
   end
