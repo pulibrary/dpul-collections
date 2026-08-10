@@ -10,6 +10,7 @@
     "test/support",
     "lib/dpul_collections_web/telemetry.ex",
     "lib/dpul_collections/prom_ex.ex",
-    "lib/mix/tasks/reindex_dev.ex"
+    "lib/mix/tasks/reindex_dev.ex",
+    "lib/mix/tasks/gettext_check.ex"
   ]
 }

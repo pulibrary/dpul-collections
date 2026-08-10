@@ -78,8 +78,6 @@ defmodule DpulCollections.GettextCheck.Parser do
     selected_properties
   end
 
-  defp select_relevant_properties(_parent_tag), do: []
-
   defp convert_tag({:text, content, %{line_end: line_end}}, location_data) do
     parent_line = location_data[:line]
 
