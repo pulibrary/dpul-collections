@@ -1210,18 +1210,18 @@ msgstr "Nesta coleção"
 #, elixir-autogen, elixir-format
 msgid "%{count} Item"
 msgid_plural "%{count} Items"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%{count} Ítem"
+msgstr[1] "%{count} Ítems"
 
 #: lib/dpul_collections_web/live/user_sets/add_to_set_component.ex:117
 #, elixir-autogen, elixir-format
 msgid "Cancel"
-msgstr ""
+msgstr "Cancelar"
 
 #: lib/dpul_collections_web/live/user_live/settings.ex:36
 #, elixir-autogen, elixir-format
 msgid "Changing..."
-msgstr ""
+msgstr "Cambiando..."
 
 #: lib/dpul_collections_web/live/collections_live.ex:348
 #, elixir-autogen, elixir-format
@@ -1231,72 +1231,72 @@ msgstr "Contribuinte"
 #: lib/dpul_collections_web/live/user_sets/add_to_set_component.ex:121
 #, elixir-autogen, elixir-format
 msgid "Create Set"
-msgstr ""
+msgstr "Crear conjunto"
 
 #: lib/dpul_collections_web/live/user_sets/add_to_set_component.ex:75
 #, elixir-autogen, elixir-format
 msgid "Create new set"
-msgstr ""
+msgstr "Crear nuevo conjunto"
 
 #: lib/dpul_collections_web/live/item_live.ex:587
 #: lib/dpul_collections_web/live/user_live/login.ex:43
 #: lib/dpul_collections_web/live/user_live/settings.ex:31
 #, elixir-autogen, elixir-format
 msgid "Email"
-msgstr ""
+msgstr "Correo electrónico"
 
 #: lib/dpul_collections_web/live/item_live.ex:595
 #, elixir-autogen, elixir-format
 msgid "Feedback"
-msgstr ""
+msgstr "Comentarios"
 
 #: lib/dpul_collections_web/live/search_live.ex:288
 #, elixir-autogen, elixir-format
 msgid "Filter your %{count} result"
 msgid_plural "Filter your %{count} results"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Filtrar su %{count} resultado"
+msgstr[1] "Filtrar sus %{count} resultados"
 
 #: lib/dpul_collections_web/live/user_live/confirmation.ex:38
 #: lib/dpul_collections_web/live/user_live/confirmation.ex:42
 #, elixir-autogen, elixir-format
 msgid "Logging in..."
-msgstr ""
+msgstr "Iniciando sesión..."
 
 #: lib/dpul_collections_web/live/item_live.ex:590
 #, elixir-autogen, elixir-format
 msgid "Message"
-msgstr ""
+msgstr "Mensaje"
 
 #: lib/dpul_collections_web/live/item_live.ex:586
 #, elixir-autogen, elixir-format
 msgid "Name"
-msgstr ""
+msgstr "Nombre"
 
 #: lib/dpul_collections_web/live/user_sets/add_to_set_component.ex:111
 #, elixir-autogen, elixir-format
 msgid "Set description"
-msgstr ""
+msgstr "Descripción del conjunto"
 
 #: lib/dpul_collections_web/live/user_sets/add_to_set_component.ex:110
 #, elixir-autogen, elixir-format
 msgid "Set name"
-msgstr ""
+msgstr "Nombre del conjunto"
 
 #: lib/dpul_collections_web/live/collections_live.ex:461
 #, elixir-autogen, elixir-format
 msgid "Show less"
-msgstr ""
+msgstr "Mostrar menos"
 
 #: lib/dpul_collections_web/live/item_live.ex:945
 #, elixir-autogen, elixir-format
 msgid "View in Library Catalog"
-msgstr ""
+msgstr "Ver en el catálogo de la biblioteca"
 
 #: lib/dpul_collections_web/live/collections_live.ex:466
 #, elixir-autogen, elixir-format
 msgid "more"
-msgstr ""
+msgstr "más"
 
 #: lib/dpul_collections_web/live/search_live.ex:652
 #, elixir-autogen, elixir-format, fuzzy
@@ -1311,7 +1311,7 @@ msgstr "Biblioteca da Universidade de Princeton"
 #: lib/dpul_collections_web/live/search_live.ex:410
 #, elixir-autogen, elixir-format
 msgid "Remove %{label}: %{value} filter"
-msgstr ""
+msgstr "Eliminar filtro %{label}: %{value}"
 
 #: lib/dpul_collections_web/live/home_live.ex:53
 #, elixir-autogen, elixir-format
@@ -1337,7 +1337,7 @@ msgstr "Explore coleções selecionadas por nossa equipe para descobrir itens re
 #: lib/dpul_collections_web/live/item_live.ex:739
 #, elixir-autogen, elixir-format
 msgid "Letter Paper 8.5\" x 11\" (21.59 x 27.94 cm)"
-msgstr ""
+msgstr "Papel Carta 8.5\" x 11\" (21.59 x 27.94 cm)"
 
 #: lib/dpul_collections/search/search_result.ex:2
 #: lib/dpul_collections/search/search_state.ex:2
@@ -1352,15 +1352,15 @@ msgstr "Nome Relacionado"
 #: lib/dpul_collections_web/live/collections_live.ex:509
 #, elixir-autogen, elixir-format
 msgid "View %{item_title}"
-msgstr ""
+msgstr "Ver %{item_title}"
 
 #: lib/dpul_collections_web/live/collections_live.ex:405
 #, elixir-autogen, elixir-format
 msgid "[Identification of item], [Sub-collection name (if applicable)], %{collection_name} Collection, Princeton University Library."
-msgstr ""
+msgstr "[Identificación del ítem], [Nombre de la subcolección (si corresponde)], Colección %{collection_name}, Biblioteca de la Universidad de Princeton."
 
 #: lib/dpul_collections_web/live/item_live.ex:697
 #: lib/dpul_collections_web/live/item_live.ex:705
 #, elixir-autogen, elixir-format
 msgid "cm."
-msgstr ""
+msgstr "cm."
