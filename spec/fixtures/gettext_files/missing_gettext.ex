@@ -31,7 +31,10 @@ defmodule GettextFiles.MissingGettext do
       console.log("I'm javascript!")
     </script>
     {#skip-gettext-start}
-      I'm not translated, but that's okay!
+    <p>You are running the local mail adapter.</p>
+    <p>
+      To see sent emails, visit <.link href="/dev/mailbox" class="underline">the mailbox page</.link>.
+    </p>
     {#skip-gettext-end}
     """
   end

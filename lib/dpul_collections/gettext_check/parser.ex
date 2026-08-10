@@ -49,14 +49,6 @@ defmodule DpulCollections.GettextCheck.Parser do
   # When there's nothing in the stack anymore, return the accumulator in
   # reverse (since everything was prepended)
   defp process_tags([], acc, _context), do: acc |> Enum.reverse()
-  # When a tag closes, remove it from last_tags.
-  defp process_tags(
-         [{:close, _tag_type, _tag, _tag_metadata} | rest_tags],
-         acc,
-         context = %{last_tags: [_last_tag | tags]}
-       ) do
-    process_tags(rest_tags, acc, Map.put(context, :last_tags, tags))
-  end
 
   # Handle skip-gettext-start/end
   defp process_tags(
@@ -82,6 +74,15 @@ defmodule DpulCollections.GettextCheck.Parser do
   # If we're in a skip-gettext tag, skip all content.
   defp process_tags([_tag | rest_tags], acc, context = %{last_tags: ["skip-gettext" | _]}) do
     process_tags(rest_tags, acc, context)
+  end
+
+  # When a tag closes, remove it from last_tags.
+  defp process_tags(
+         [{:close, _tag_type, _tag, _tag_metadata} | rest_tags],
+         acc,
+         context = %{last_tags: [_last_tag | tags]}
+       ) do
+    process_tags(rest_tags, acc, Map.put(context, :last_tags, tags))
   end
 
   # When a tag opens, add it to last_tags. Process properties if necessary.
