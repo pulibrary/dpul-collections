@@ -52,7 +52,7 @@ defmodule DpulCollections.GettextCheck.Parser do
 
   # Handle skip-gettext-start/end
   defp process_tags(
-         [{:body_expr, "#skip-gettext-start", _properties} | rest_tags],
+         [{:body_expr, "# skip-gettext-start", _properties} | rest_tags],
          acc,
          context
        ) do
@@ -64,7 +64,7 @@ defmodule DpulCollections.GettextCheck.Parser do
   end
 
   defp process_tags(
-         [{:body_expr, "#skip-gettext-end", _properties} | rest_tags],
+         [{:body_expr, "# skip-gettext-end", _properties} | rest_tags],
          acc,
          context = %{last_tags: ["skip-gettext" | tags]}
        ) do

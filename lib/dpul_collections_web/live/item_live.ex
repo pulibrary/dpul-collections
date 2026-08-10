@@ -694,7 +694,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         <div :if={@display_size} class="col-start-2 flex justify-center items-center">
           <span class="h-[11px] w-[1px] bg-accent"></span>
           <span class="h-[1px] mr-[5px] flex-grow bg-accent"></span>
-          <span class="text-accent">{@item.width} cm.</span>
+          <span class="text-accent">{@item.width} {gettext("cm.")}</span>
           <span class="h-[1px] ml-[5px] flex-grow bg-accent"></span>
           <span class="h-[11px] w-[1px] bg-accent"></span>
         </div>
@@ -702,7 +702,7 @@ defmodule DpulCollectionsWeb.ItemLive do
           <span class="w-[11px] h-[1px] bg-accent"></span>
           <span class="w-[1px] mb-[5px] flex-grow bg-accent"></span>
           <span class="text-accent pl-1 [writing-mode:vertical-rl] rotate-180">
-            {@item.height} cm.
+            {@item.height} {gettext("cm.")}
           </span>
           <span class="w-[1px] mt-[5px] flex-grow bg-accent"></span>
           <span class="w-[11px] h-[1px] bg-accent"></span>
@@ -736,7 +736,7 @@ defmodule DpulCollectionsWeb.ItemLive do
           >
             <div class="flex justify-center items-center z-2 w-full h-full backdrop-blur-xs bg-white/70 text-accent text-sm p-4">
               <div>
-                {gettext("Letter Paper")} 8.5" x 11" (21.59 x 27.94 cm)
+                {gettext("Letter Paper 8.5\" x 11\" (21.59 x 27.94 cm)")}
                 <.icon class="w-5 h-5" name="pepicons-pencil:ruler" />
               </div>
             </div>

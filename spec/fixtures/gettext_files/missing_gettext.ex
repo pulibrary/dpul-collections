@@ -30,12 +30,14 @@ defmodule GettextFiles.MissingGettext do
     <script :type={Phoenix.LiveView.ColocatedHook} name=".SearchFilter">
       console.log("I'm javascript!")
     </script>
-    {#skip-gettext-start}
-    <p>You are running the local mail adapter.</p>
-    <p>
+    <div>
+      {# skip-gettext-start}
+      <p>You are running the local mail adapter.</p>
+      <p>
       To see sent emails, visit <.link href="/dev/mailbox" class="underline">the mailbox page</.link>.
-    </p>
-    {#skip-gettext-end}
+      </p>
+      {# skip-gettext-end}
+    </div>
     """
   end
 end
