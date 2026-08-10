@@ -1,6 +1,6 @@
 {
   "read": {
-    "base_url": "http://lib-solr9-staging.princeton.edu:8983",
+    "base_url": "http://solr-staging.service.consul:8983",
     "collection": "dpulc-staging"
   },
   "write": [
