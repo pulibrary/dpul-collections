@@ -646,7 +646,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         hydration_cache_entry.related_data["ancestors"][updated_ephemera_project_resource.id]
 
       assert related_resource_entry["metadata"]["title"] == [
-               "Woman Life Freedom Movement: Iran 2022"
+               "Woman Life Freedom Movement: Iran 2022 Ephemera"
              ]
 
       # Mock IndexingPipeline.get_figgy_parents function so:

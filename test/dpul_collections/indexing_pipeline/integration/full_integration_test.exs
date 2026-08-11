@@ -247,7 +247,10 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
              ]
 
       # Parent EphemeraProject
-      assert document["collection_titles_ss"] == ["Woman Life Freedom Movement: Iran 2022"]
+      assert document["collection_titles_ss"] == [
+               "Woman Life Freedom Movement: Iran 2022 Ephemera"
+             ]
+
       assert document["collection_ids_ss"] == ["2961c153-54ab-4c6a-b5cd-aa992f4c349b"]
 
       # Image URLs

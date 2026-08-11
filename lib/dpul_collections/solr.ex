@@ -328,12 +328,6 @@ defmodule DpulCollections.Solr do
     "{!tag=#{filter_key}Filter}#{solr_field}:\"#{filter_value |> escape_query()}\""
   end
 
-  def generate_filter_query({filter_key, filter_value})
-      when is_boolean(filter_value) and filter_key in @filter_keys do
-    solr_field = @filters[filter_key].solr_field
-    "{!tag=#{filter_key}Filter}#{solr_field}:#{filter_value}"
-  end
-
   # Inclusion for a list of strings.
   def generate_filter_query({filter_key, values = [filter_value | _]})
       when is_binary(filter_value) and filter_key in @filter_keys do

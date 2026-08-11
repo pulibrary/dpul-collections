@@ -152,7 +152,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
       updated_at_dt: updated_date(data),
       width_txtm: get_in(metadata, ["width"]),
       years_is: extract_years(data),
-      featurable_b: get_in(metadata, ["featurable"]) == ["1"]
+      featurable_ss: extract_featurable_ids(metadata)
     }
   end
 
@@ -482,6 +482,15 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
 
   defp extract_id_from_map(%{"id" => id}), do: id
   defp extract_id_from_map(_), do: nil
+
+  # Extract related Collection and EphemeraProject ids
+  defp extract_featurable_ids(%{"featurable" => featurable})
+       when is_list(featurable) and length(featurable) > 0 do
+    featurable
+    |> Enum.map(&extract_id_from_map/1)
+  end
+
+  defp extract_featurable_ids(_), do: []
 
   defp extract_term_label(%{"metadata" => %{"label" => [label]}}), do: label
   defp extract_term_label(_), do: nil
