@@ -68,10 +68,12 @@ defmodule DpulCollectionsWeb.UserLive.Login do
         >
           <.icon name="hero-information-circle" class="size-6 shrink-0 grow-0" />
           <div>
+            {# skip-gettext-start}
             <p>You are running the local mail adapter.</p>
             <p>
               To see sent emails, visit <.link href="/dev/mailbox" class="underline">the mailbox page</.link>.
             </p>
+            {# skip-gettext-end}
           </div>
         </div>
         <% # coveralls-ignore-end %>

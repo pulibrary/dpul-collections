@@ -149,14 +149,14 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         <.tab_button
           :if={has_featured?(@collection) && has_related?(@collection)}
           id="featured-items-tab"
-          label="Featured Highlights"
+          label={gettext("Featured Highlights")}
           pane="featured-items-container"
           active?={true}
         />
         <.tab_button
           :if={has_featured?(@collection) && has_related?(@collection)}
           id="related-collections-tab"
-          label="Related Collections"
+          label={gettext("Related Collections")}
           pane="related-collections-container"
           active?={false}
         />
@@ -402,8 +402,10 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           {gettext("Preferred Citation")}
         </h3>
         <p>
-          [Identification of item], [Sub-collection name (if applicable)], {@collection.title
-          |> hd} Collection, Princeton University Library.
+          {gettext(
+            "[Identification of item], [Sub-collection name (if applicable)], %{collection_name} Collection, Princeton University Library.",
+            collection_name: @collection.title |> hd
+          )}
         </p>
         <h3 class="uppercase font-semibold text-xl pt-6">
           {gettext("Romanization")}
@@ -481,7 +483,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           :if={@banner_item}
           href={@banner_item.url}
           class="overflow-hidden"
-          aria-label={"View #{@banner_item.title |> hd}"}
+          aria-label={gettext("View %{item_title}", item_title: @banner_item.title |> hd)}
         >
           <img
             src={Collection.banner_source(@collection)}
@@ -504,7 +506,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           :if={@banner_item}
           href={@banner_item.url}
           class="overflow-hidden"
-          aria-label={"View #{@banner_item.title |> hd}"}
+          aria-label={gettext("View %{item_title}", item_title: @banner_item.title |> hd)}
         >
           <img
             src={Collection.banner_source(@collection)}

@@ -118,6 +118,13 @@ commands:
           name: Check elixir formatting
           command: mix format --check-formatted --dry-run
 
+  mix-gettext-check:
+    description: Validates no strings are left in LiveView without gettext calls.
+    steps:
+      - run:
+          name: Check gettext
+          command: mix gettext_check
+
 jobs:
   check-formatting:
     executor: formatter
@@ -126,6 +133,13 @@ jobs:
       - install-deps:
           include-assets: false
       - mix-format
+  check-gettext:
+    executor: formatter
+    steps:
+      - checkout
+      - install-deps:
+          include-assets: false
+      - mix-gettext-check
 
   run-unit-tests:
     executor: builder
@@ -161,4 +175,5 @@ workflows:
   build_accept_deploy:
     jobs:
       - check-formatting
+      - check-gettext
       - run-unit-tests

@@ -1,0 +1,43 @@
+defmodule GettextFiles.MissingGettext do
+  def test do
+    ~H"""
+    Hi everyone, this is missing a gettext!
+    {gettext("Not missing here though!")}
+    <p>
+      This is missing gettext, but in a tag!
+    </p>
+    <p>{gettext("Non-missing gettext in a tag")}</p>
+    <!-- No comments! -->
+    ({gettext("This is translated")})
+    <.link 
+      item={1}
+      aria-label={"Not translated!"}
+    >$</.link>
+    <p
+      item={1}
+      aria-label="Not translated!"
+    >$</p>
+    <p
+      item={1}
+      aria-label={gettext("Translated this one")}
+    >$</p>
+    <p
+      item={1}
+      aria-label={some_variable.property}
+    >$</p>
+    [:&nbsp;]
+
+    <script :type={Phoenix.LiveView.ColocatedHook} name=".SearchFilter">
+      console.log("I'm javascript!")
+    </script>
+    <div>
+      {# skip-gettext-start}
+      <p>You are running the local mail adapter.</p>
+      <p>
+      To see sent emails, visit <.link href="/dev/mailbox" class="underline">the mailbox page</.link>.
+      </p>
+      {# skip-gettext-end}
+    </div>
+    """
+  end
+end
