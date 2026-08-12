@@ -1,5 +1,21 @@
 defmodule DpulCollectionsWeb.Live.Helpers do
-  # Remove KV pairs with nil or empty string values 
+  use DpulCollectionsWeb, :verified_routes
+
+  # Build a search URL with escaped square brackets.
+  # Fixes errors copy and pasting search URLs as well as conforms to URI spec.
+  # See: https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.2
+  def search_path(params) do
+    ~p"/search?#{params}" |> encode_query_brackets()
+  end
+
+  defp encode_query_brackets(url) do
+    String.replace(url, ["[", "]"], &bracket_escape/1)
+  end
+
+  defp bracket_escape("["), do: "%5B"
+  defp bracket_escape("]"), do: "%5D"
+
+  # Remove KV pairs with nil or empty string values
   # or with Keys in a remove_keys list
   # Also cleans nested maps.
   def clean_params(params = %{}, remove_keys \\ []) do

@@ -95,21 +95,21 @@ defmodule DpulCollectionsWeb.SearchBarComponent do
       |> Map.take(["filter", "sort_by"])
 
     params = %{q: q} |> Helpers.clean_params() |> Map.merge(filters)
-    socket = push_navigate(socket, to: ~p"/search?#{params}")
+    socket = push_navigate(socket, to: Helpers.search_path(params))
     {:noreply, socket}
   end
 
   # Brand-new search
   def handle_event("search", %{"search" => "all", "q" => q}, socket) do
     params = %{q: q} |> Helpers.clean_params()
-    socket = push_navigate(socket, to: ~p"/search?#{params}")
+    socket = push_navigate(socket, to: Helpers.search_path(params))
     {:noreply, socket}
   end
 
   # Search within collection
   def handle_event("search", %{"search" => collection_title, "q" => q}, socket) do
     params = %{q: q, filter: %{collection: [collection_title]}} |> Helpers.clean_params()
-    socket = push_navigate(socket, to: ~p"/search?#{params}")
+    socket = push_navigate(socket, to: Helpers.search_path(params))
     {:noreply, socket}
   end
 
