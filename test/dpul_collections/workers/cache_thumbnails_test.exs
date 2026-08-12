@@ -125,6 +125,28 @@ defmodule DpulCollections.Workers.CacheThumbnailsTest do
 
       assert log =~ "Collection does not have a banner image: 1"
     end
+
+    test "collection documents log a warning when the banner_image value is an empty string" do
+      # Temporarily set log level to :info
+      Logger.configure(level: :info)
+      on_exit(fn -> Logger.configure(level: :warning) end)
+
+      log =
+        capture_log(fn ->
+          doc = %{
+            "id" => 1,
+            "resource_type_s" => "collection",
+            "title_ss" => ["collection"],
+            "banner_image_s" => ""
+          }
+
+          DpulCollections.Workers.CacheThumbnails.perform(%Oban.Job{
+            args: %{"solr_document" => doc}
+          })
+        end)
+
+      assert log =~ "Collection does not have a banner image: 1"
+    end
   end
 
   describe ".timeout" do

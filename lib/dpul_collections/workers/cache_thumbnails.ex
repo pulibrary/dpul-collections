@@ -34,7 +34,7 @@ defmodule DpulCollections.Workers.CacheThumbnails do
   defp cache_images(%{"deleted" => true}), do: :ok
 
   defp cache_images(solr_document = %{"resource_type_s" => "collection", "banner_image_s" => url})
-       when is_binary(url) do
+       when is_binary(url) and url != "" do
     collection =
       solr_document
       |> DpulCollections.Collection.from_solr()
