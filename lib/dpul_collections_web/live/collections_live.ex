@@ -3,6 +3,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
   use Gettext, backend: DpulCollectionsWeb.Gettext
   import DpulCollectionsWeb.BrowseItem
   alias DpulCollections.Collection
+  alias DpulCollectionsWeb.Live.Helpers
 
   def mount(_params, _session, socket) do
     {:ok, socket}
@@ -85,7 +86,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             <.banner_image collection={@collection} banner_item={@banner_item} />
             <div class="flex justify-items-end">
               <.primary_button
-                href={~p"/search?#{%{filter: %{collection: [@collection.title |> hd]}}}"}
+                href={Helpers.search_path(%{filter: %{collection: [@collection.title |> hd]}})}
                 class="btn-primary hidden md:flex ml-auto"
               >
                 {gettext("Browse Collection")}
@@ -129,7 +130,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           </div>
           <div class="grid-cols-1 col-span-2 static md:hidden">
             <.primary_button
-              href={~p"/search?#{%{filter: %{collection: [@collection.title |> hd]}}}"}
+              href={Helpers.search_path(%{filter: %{collection: [@collection.title |> hd]}})}
               class="btn-primary w-full"
             >
               {gettext("Browse Collection")}
@@ -200,7 +201,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           layout="content-area"
           title={gettext("Related Collections")}
           hide_title?={has_featured?(@collection)}
-          more_link={~p"/search?#{%{filter: %{related_collections: @collection.title |> hd}}}"}
+          more_link={Helpers.search_path(%{filter: %{related_collections: @collection.title |> hd}})}
           color=""
           arrow_theme="light"
         >
@@ -317,7 +318,10 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         layout="content-area"
         title={gettext("Recently Added Items")}
         more_link={
-          ~p"/search?#{%{filter: %{collection: [@collection.title |> hd]}, sort_by: "recently_added"}}"
+          Helpers.search_path(%{
+            filter: %{collection: [@collection.title |> hd]},
+            sort_by: "recently_added"
+          })
         }
         color=""
         arrow_theme="light"

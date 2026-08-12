@@ -43,14 +43,15 @@ defmodule DpulCollectionsWeb.SearchLive do
     socket
     |> assign(
       search_state: search_state,
-      filter_form: to_form(params["filter"] || %{}, as: "filter"),
-      year_form:
-        to_form(
-          get_in(params, [Access.key("filter", %{}), Access.key("year", %{})]),
-          as: "filter[year]"
-        )
+      filter_form: to_form(search_state.filter, as: "filter"),
+      year_form: to_form(year_params(search_state.filter), as: "filter[year]")
     )
   end
+
+  # Ensures that year param is formatted correctly.
+  # Prevents URLs like "/search?filter[year]=2020" from raising errors.
+  defp year_params(%{"year" => year}) when is_map(year), do: year
+  defp year_params(_), do: %{}
 
   defp with_year_filter(filter_data) do
     filter_data
@@ -663,14 +664,14 @@ defmodule DpulCollectionsWeb.SearchLive do
       |> SearchState.remove_filter_value(filter, value)
       |> SearchState.reset_pagination()
 
-    {:noreply, push_patch(socket, to: ~p"/search?#{new_state}")}
+    {:noreply, push_patch(socket, to: Helpers.search_path(new_state))}
   end
 
   def handle_event("apply_filters", params, socket) do
     params =
       params |> Map.merge(%{"page" => "1"}) |> SearchState.from_params() |> Helpers.clean_params()
 
-    socket = push_patch(socket, to: ~p"/search?#{params}")
+    socket = push_patch(socket, to: Helpers.search_path(params))
     {:noreply, socket}
   end
 
@@ -692,7 +693,7 @@ defmodule DpulCollectionsWeb.SearchLive do
       |> SearchState.set_filter(filter, get_in(params, ["filter", filter]))
       |> SearchState.reset_pagination()
 
-    socket = push_patch(socket, to: ~p"/search?#{new_state}")
+    socket = push_patch(socket, to: Helpers.search_path(new_state))
     {:noreply, socket}
   end
 
@@ -716,13 +717,13 @@ defmodule DpulCollectionsWeb.SearchLive do
       %{socket.assigns.search_state | sort_by: params["sort-by"]}
       |> Helpers.clean_params([:page, :per_page])
 
-    socket = push_patch(socket, to: ~p"/search?#{params}")
+    socket = push_patch(socket, to: Helpers.search_path(params))
     {:noreply, socket}
   end
 
   def handle_event("paginate", %{"page" => page}, socket) do
     params = %{socket.assigns.search_state | page: page} |> Helpers.clean_params()
-    socket = push_navigate(socket, to: ~p"/search?#{params}")
+    socket = push_navigate(socket, to: Helpers.search_path(params))
     {:noreply, socket}
   end
 

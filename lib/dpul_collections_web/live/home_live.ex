@@ -3,6 +3,7 @@ defmodule DpulCollectionsWeb.HomeLive do
   use Gettext, backend: DpulCollectionsWeb.Gettext
   import DpulCollectionsWeb.BrowseItem
   alias DpulCollections.{Collection, Item, Solr}
+  alias DpulCollectionsWeb.Live.Helpers
   alias DpulCollectionsWeb.MosaicImages
 
   def mount(_params, _session, socket) do
@@ -117,7 +118,7 @@ defmodule DpulCollectionsWeb.HomeLive do
           layout="home-content-area"
           color="bg-background"
           title={gettext("Collections")}
-          more_link={~p"/search?filter[format][]=Digital+Collection"}
+          more_link={Helpers.search_path(%{filter: %{format: ["Digital Collection"]}})}
         >
           <:intro>
             <p class="my-2 font-regular">
@@ -144,7 +145,7 @@ defmodule DpulCollectionsWeb.HomeLive do
     <div class="bg-light-accent rounded-full px-3 py-1">
       <.link
         class="no-underline"
-        navigate={~p"/search?filter[format][]=#{@filter}"}
+        navigate={Helpers.search_path(%{filter: %{format: [@filter]}})}
       >
         {@label}
       </.link>

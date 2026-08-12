@@ -57,7 +57,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> assert_has("div", text: "4 Languages")
       |> assert_has("div", text: "4 Locations")
       # Browse button
-      |> assert_has("a[href='/search?filter[collection][]=South+Asian+Ephemera']",
+      |> assert_has("a[href='/search?filter%5Bcollection%5D%5B%5D=South+Asian+Ephemera']",
         text: "Browse Collection"
       )
       # Banner image area
@@ -92,7 +92,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> assert_has("li", text: "Hindi")
       # Recently updated more link
       |> assert_has(
-        "a[href='/search?filter[collection][]=South+Asian+Ephemera&sort_by=recently_added']"
+        "a[href='/search?filter%5Bcollection%5D%5B%5D=South+Asian+Ephemera&sort_by=recently_added']"
       )
       # Recently Updated cards
       |> assert_has(
@@ -195,7 +195,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> refute_has("div", text: "Locations")
       # Browse button
       |> assert_has(
-        "a[href='/search?filter[collection][]=Manuscripts+of+the+Islamic+World']",
+        "a[href='/search?filter%5Bcollection%5D%5B%5D=Manuscripts+of+the+Islamic+World']",
         text: "Browse Collection"
       )
       # Featured Items
@@ -336,7 +336,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
         |> assert_has(".brief-metadata", text: "...")
       end)
       |> assert_has(
-        "a[href='/search?filter[related_collections]=Manuscripts+of+the+Islamic+World']"
+        "a[href='/search?filter%5Brelated_collections%5D=Manuscripts+of+the+Islamic+World']"
       )
     end
   end

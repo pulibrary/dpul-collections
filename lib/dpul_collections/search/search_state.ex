@@ -8,11 +8,16 @@ defmodule DpulCollections.Search.SearchState do
       sort_by: valid_sort_by(params),
       page: (params["page"] || "1") |> String.to_integer(),
       per_page: (params["per_page"] || "50") |> String.to_integer(),
-      filter: params["filter"] || %{},
+      filter: filter_params(params),
       filter_count_fields: [],
       extra_params: []
     }
   end
+
+  # Ensure that filter has correctly formatted params.
+  # Prevents URLs like "/search?filter=" from raising errors.
+  defp filter_params(%{"filter" => filter}) when is_map(filter), do: filter
+  defp filter_params(_), do: %{}
 
   def add_filter_count_fields(search_state = %{filter_count_fields: filter_count_fields}, fields)
       when is_list(fields) do

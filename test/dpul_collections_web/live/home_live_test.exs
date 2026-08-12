@@ -132,7 +132,7 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
              |> element("#main-content a", String.capitalize(format))
              |> render_click() ==
                {:error,
-                {:live_redirect, %{to: "/search?filter[format][]=#{format}", kind: :push}}}
+                {:live_redirect, %{to: "/search?filter%5Bformat%5D%5B%5D=#{format}", kind: :push}}}
     end)
   end
 end

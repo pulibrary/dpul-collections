@@ -112,7 +112,11 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <.link
       class={["filter-link", @class]}
-      href={~p"/search?#{%{filter: %{@filter_name => [@filter_value]}} |> Helpers.clean_params()}"}
+      href={
+        %{filter: %{@filter_name => [@filter_value]}}
+        |> Helpers.clean_params()
+        |> Helpers.search_path()
+      }
       {@rest}
     >
       {@filter_value}
@@ -1097,10 +1101,10 @@ defmodule DpulCollectionsWeb.ItemLive do
   end
 
   defp more_similar_link(item = %Item{collections: collections}) do
-    ~p"/search?#{%{filter: %{similar: item.id, collection: collections}}}"
+    Helpers.search_path(%{filter: %{similar: item.id, collection: collections}})
   end
 
   defp more_different_link(item = %Item{collections: [collection | _]}) do
-    ~p"/search?#{%{filter: %{similar: item.id, collection: "-" <> collection}}}"
+    Helpers.search_path(%{filter: %{similar: item.id, collection: "-" <> collection}})
   end
 end

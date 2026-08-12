@@ -34,4 +34,21 @@ defmodule DpulCollectionsWeb.HelpersTest do
              }
     end
   end
+
+  describe "search_path/1" do
+    test "encodes square brackets in query params" do
+      assert Helpers.search_path(%{filter: %{"format" => ["Pamphlets"]}}) ==
+               "/search?filter%5Bformat%5D%5B%5D=Pamphlets"
+    end
+
+    test "encodes brackets in range params" do
+      assert Helpers.search_path(%{filter: %{"year" => %{"from" => "1900", "to" => "2000"}}}) ==
+               "/search?filter%5Byear%5D%5Bfrom%5D=1900&filter%5Byear%5D%5Bto%5D=2000"
+    end
+
+    test "query params without brackets are unchanged" do
+      assert Helpers.search_path(%{q: "posters", sort_by: "date_asc"}) ==
+               "/search?q=posters&sort_by=date_asc"
+    end
+  end
 end

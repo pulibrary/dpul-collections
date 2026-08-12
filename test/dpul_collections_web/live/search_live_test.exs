@@ -359,6 +359,60 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> TestUtils.clean_string() == "Format posters"
   end
 
+  test "accepts encoded square brackets in filter params", %{conn: conn} do
+    {:ok, _view, html} = live(conn, "/search?filter%5Bformat%5D%5B%5D=posters")
+
+    {:ok, document} =
+      html
+      |> Floki.parse_document()
+
+    assert document
+           |> Floki.find("#search-filters .format.filter")
+           |> Floki.text()
+           |> TestUtils.clean_string() == "Format posters"
+  end
+
+  test "accepts unencoded square brackets in filter params", %{conn: conn} do
+    {:ok, _view, html} = live(conn, "/search?filter[format][]=posters")
+
+    {:ok, document} =
+      html
+      |> Floki.parse_document()
+
+    assert document
+           |> Floki.find("#search-filters .format.filter")
+           |> Floki.text()
+           |> TestUtils.clean_string() == "Format posters"
+  end
+
+  test "accepts encoded square brackets in range params", %{conn: conn} do
+    {:ok, _view, html} = live(conn, "/search?filter%5Byear%5D%5Bto%5D=2025")
+
+    {:ok, document} =
+      html
+      |> Floki.parse_document()
+
+    assert document
+           |> Floki.find("#search-filters .year.filter")
+           |> Floki.text()
+           |> TestUtils.clean_string() == "Year Up to 2025"
+  end
+
+  test "does not error when filter params are incorrectly formatted", %{conn: conn} do
+    {:ok, _view, html} = live(conn, "/search?q=posters&filter=")
+    assert html =~ "search-filters"
+
+    {:ok, _view, html} = live(conn, "/search?filter=abc")
+    assert html =~ "search-filters"
+  end
+
+  test "renders when a range filter is incorrectly formatted", %{conn: conn} do
+    {:ok, _view, html} = live(conn, "/search?filter[year]=2020")
+
+    {:ok, document} = Floki.parse_document(html)
+    assert document |> Floki.find(".year.filter") |> Enum.empty?()
+  end
+
   test "adding and removing filters sets page back to 1", %{conn: conn} do
     # Add more documents so that we can still paginate after filtering
     Solr.add(SolrTestSupport.mock_solr_documents(210), active_collection())
