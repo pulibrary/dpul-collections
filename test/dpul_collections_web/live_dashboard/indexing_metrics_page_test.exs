@@ -63,7 +63,8 @@ defmodule DpulCollectionsWeb.LiveDashboard.IndexingMetricsPageTest do
       conn
       |> put_req_header("authorization", "Basic " <> Base.encode64("admin:test"))
       |> get(~p"/dev/dashboard/index_metrics")
-      |> live
+      # Suppress warning coming from upstream LiveDashboard package
+      |> live(nil, on_error: [missing_form_id: :ignore])
 
     assert html =~ "Hydration Metric Times"
     assert html =~ "Transformation Metric Times"
