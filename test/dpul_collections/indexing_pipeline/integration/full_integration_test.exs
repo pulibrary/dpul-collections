@@ -193,6 +193,63 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     assert hydration_metric_1.duration > 0
   end
 
+  describe "indexing a newly-published collection" do
+    test "adds that collection's resources to the index" do
+      # unpublished, patron requests collection
+      collection_id = "b7e8c42b-6fd0-4cfb-bc6d-b5e5a5c79f5c"
+      resource_id = "5c374347-c005-46f5-9ec3-7dd2c938700e"
+
+      # Run the indexing pipeline; collection's resources will be skipped
+      cache_version = 1
+
+      {:ok, tracker_pid} = GenServer.start_link(AckTracker, self())
+
+      children = [
+        {Figgy.IndexingConsumer,
+        cache_version: cache_version, batch_size: 50, solr_index: active_collection()},
+        {Figgy.TransformationConsumer, cache_version: cache_version, batch_size: 50},
+        {Figgy.HydrationConsumer, cache_version: cache_version, batch_size: 50}
+      ]
+
+      Enum.each(children, fn child ->
+        start_supervised(child)
+      end)
+
+      AckTracker.wait_for_pipeline_finished(tracker_pid)
+
+      # collection and its resource are not indexed
+      assert Solr.find_by_id(collection_id) == nil
+      assert Solr.find_by_id(resource_id) == nil
+
+      # reset
+      AckTracker.reset_count!(tracker_pid)
+
+# require IEx; IEx.pry()
+
+      # Make a published version of the collection and run it through the pipeline
+      collection = IndexingPipeline.get_figgy_resource!(collection_id)
+      published_collection = put_in(collection, [Access.key!(:metadata), "publish"], ["1"])
+      Figgy.HydrationConsumer.handle_message(
+        nil,
+        %Broadway.Message{acknowledger: nil, data: published_collection},
+        %{cache_version: cache_version}
+      )
+
+      # TODO it doesn't seem like it will be sufficient to wait for the pipeline
+      # to act on the collection, because then the resource will go through as
+      # well. can we wait for the resource to get a marker and then do these?
+      tracker_pid
+      |> AckTracker.wait_for_transformer(1)
+      |> AckTracker.wait_for_indexer(1)
+
+      # collection and its resource are indexed now
+      assert Solr.find_by_id(collection_id) != nil
+
+      AckTracker.wait_for_indexed_count(2)
+      assert Solr.find_by_id(resource_id) != nil
+    end
+  end
+
   describe "an Ephemera Folder with a parent EphemeraBox" do
     test "indexes expected fields" do
       {hydrator, transformer, indexer, document} =

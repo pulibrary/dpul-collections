@@ -10,3 +10,4 @@
 | related_collections.csv            | several collections related through the Manuscripts of the Islamic world collection via the item in featured_islamic_manuscript.csv, one modified to add a banner image, a couple modified to add taglines |
 | sae-no-members.csv                 | A folder in the SAE project with no members |
 | sae-reading-room-folder.csv        | A folder in the SAE project with reading room visibility, and its box |
+| unpublished_collection.csv         | An unpublished collection and a member scanned resource / file set that belongs to it |
