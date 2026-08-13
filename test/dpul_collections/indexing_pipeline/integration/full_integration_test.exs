@@ -7,6 +7,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
   alias DpulCollections.IndexingPipeline.AckTracker
   alias DpulCollections.{IndexingPipeline, Solr, IndexMetricsTracker}
   import SolrTestSupport
+  import Mock
 
   setup do
     Solr.delete_all(active_collection())
@@ -73,12 +74,14 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # removed the hydration cache markers for the deletion marker deleted resource.
     # It also has 3 ephemera projects and 3 collections.
     entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
-    scanned_resource_fixture_count = 8
-    # 8691231a-d06f-4fa2-af5b-d773310564a3 gets filtered out
-    filtered_resource_count = 1
+    scanned_resource_fixture_count = 9
+    # 8691231a-d06f-4fa2-af5b-d773310564a3 gets filtered out during hydration
+    hydration_filtered_resource_count = 1
+    # 5c374347-c005-46f5-9ec3-7dd2c938700e gets filtered out during transformation
+    transformation_filtered_resource_count = 1
 
     assert FiggyTestSupport.total_resource_count() + 1 + scanned_resource_fixture_count -
-             filtered_resource_count ==
+             hydration_filtered_resource_count ==
              entry_count
 
     # The transformer processed ephemera folders, deletion markers,
@@ -89,7 +92,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
     total_transformed_count =
       FiggyTestSupport.ephemera_folder_count() + deletion_marker_count + 1 +
-        scanned_resource_fixture_count - filtered_resource_count
+        scanned_resource_fixture_count - hydration_filtered_resource_count -
+        transformation_filtered_resource_count
 
     # Empty resources are resources with no image file sets
     empty_resource_count = 2
@@ -206,7 +210,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
       children = [
         {Figgy.IndexingConsumer,
-        cache_version: cache_version, batch_size: 50, solr_index: active_collection()},
+         cache_version: cache_version, batch_size: 50, solr_index: active_collection()},
         {Figgy.TransformationConsumer, cache_version: cache_version, batch_size: 50},
         {Figgy.HydrationConsumer, cache_version: cache_version, batch_size: 50}
       ]
@@ -221,31 +225,55 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       assert Solr.find_by_id(collection_id) == nil
       assert Solr.find_by_id(resource_id) == nil
 
+      # but the resource is hydrated
+      assert IndexingPipeline.get_hydration_cache_entry!(resource_id, cache_version) != nil
+
       # reset
       AckTracker.reset_count!(tracker_pid)
 
-# require IEx; IEx.pry()
-
-      # Make a published version of the collection and run it through the pipeline
+      # Make a published version of the collection, with updated timestamp,
+      # and run it through the pipeline
       collection = IndexingPipeline.get_figgy_resource!(collection_id)
-      published_collection = put_in(collection, [Access.key!(:metadata), "publish"], ["1"])
-      Figgy.HydrationConsumer.handle_message(
-        nil,
-        %Broadway.Message{acknowledger: nil, data: published_collection},
-        %{cache_version: cache_version}
-      )
 
-      # TODO it doesn't seem like it will be sufficient to wait for the pipeline
-      # to act on the collection, because then the resource will go through as
-      # well. can we wait for the resource to get a marker and then do these?
-      tracker_pid
-      |> AckTracker.wait_for_transformer(1)
-      |> AckTracker.wait_for_indexer(1)
+      published_collection =
+        collection
+        |> put_in([Access.key!(:metadata), "publish"], ["1"])
+        |> put_in([Access.key!(:updated_at)], DateTime.utc_now())
 
-      # collection and its resource are indexed now
+      # Mock IndexingPipeline.get_figgy_resources function so:
+      #   1. query for Collection returns the updated collection
+      #   2. everything else passes through
+      with_mock IndexingPipeline, [:passthrough],
+        get_figgy_resources: fn
+          [
+            ^collection_id
+          ] ->
+            [published_collection]
+
+          ids ->
+            passthrough([ids])
+        end do
+        # trigger indexing the updated collection
+        Figgy.HydrationConsumer.handle_message(
+          nil,
+          %Broadway.Message{acknowledger: nil, data: published_collection},
+          %{cache_version: cache_version}
+        )
+
+        # retain the mock while the collection and resource both get indexed
+        # waiting for the transformer first keeps the index wait from timing out
+        tracker_pid
+        |> AckTracker.wait_for_transformer(cache_version)
+        |> AckTracker.wait_for_indexer(cache_version)
+
+        # there's another fixture that's a member of the patron requests
+        # collection, unfortunately, so 3 things get updated in the index
+        AckTracker.wait_for_indexed_count(3)
+      end
+
+      # collection is indexed
       assert Solr.find_by_id(collection_id) != nil
-
-      AckTracker.wait_for_indexed_count(2)
+      # its member resource is indexed
       assert Solr.find_by_id(resource_id) != nil
     end
   end

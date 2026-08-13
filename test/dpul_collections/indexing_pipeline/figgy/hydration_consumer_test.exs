@@ -691,6 +691,33 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
       assert IndexingPipeline.list_hydration_cache_entries() == []
     end
 
+    test "skips collections in prod that are published but not complete" do
+      initial_env = Application.get_env(:dpul_collections, :environment_name)
+      on_exit(fn -> Application.put_env(:dpul_collections, :environment_name, initial_env) end)
+      Application.put_env(:dpul_collections, :environment_name, "production")
+
+      collection = IndexingPipeline.get_figgy_resource!("52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a")
+
+      pending_collection =
+        collection
+        |> put_in(
+          [
+            Access.key!(:metadata),
+            "state"
+          ],
+          ["pending"]
+        )
+
+      HydrationConsumer.process_and_persist(pending_collection, 1)
+
+      assert length(IndexingPipeline.list_hydration_cache_entries()) == 0
+
+      # still indexes collections that are published / complete
+      HydrationConsumer.process_and_persist(collection, 1)
+
+      assert length(IndexingPipeline.list_hydration_cache_entries()) == 1
+    end
+
     test "deletes collections that were once published" do
       collection = IndexingPipeline.get_figgy_resource!("52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a")
 
@@ -759,75 +786,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
       assert cache_entry.related_data["ancestors"][collection.id]["metadata"]["title"] == [
                "Test Title"
              ]
-    end
-  end
-
-  describe "ScannedResource processing" do
-    test "allows through ScannedResources from complete/published collections" do
-      resource = IndexingPipeline.get_figgy_resource!("ee3528e9-88a4-4d2b-adee-f05efede87a7")
-
-      HydrationConsumer.process_and_persist(resource, 1)
-      assert IndexingPipeline.list_hydration_cache_entries() |> length() == 1
-    end
-
-    test "allows through ScannedResources from incomplete/published collections in staging" do
-      resource = IndexingPipeline.get_figgy_resource!("ee3528e9-88a4-4d2b-adee-f05efede87a7")
-
-      collection =
-        IndexingPipeline.get_figgy_resource!("52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a")
-        |> put_in(
-          [
-            Access.key!(:metadata),
-            "state"
-          ],
-          "pending"
-        )
-
-      # Return the updated collection if asked
-      with_mock IndexingPipeline, [:passthrough],
-        get_figgy_resources: fn
-          ["3bab572e-6603-4abf-8305-16ce6fe3ac5c", "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a"] ->
-            [collection]
-
-          args ->
-            passthrough([args])
-        end do
-        HydrationConsumer.process_and_persist(resource, 1)
-      end
-
-      assert IndexingPipeline.list_hydration_cache_entries() |> length() == 1
-    end
-
-    test "rejects ScannedResources from incomplete/published collections in production" do
-      initial_env = Application.get_env(:dpul_collections, :environment_name)
-      on_exit(fn -> Application.put_env(:dpul_collections, :environment_name, initial_env) end)
-      Application.put_env(:dpul_collections, :environment_name, "production")
-
-      resource = IndexingPipeline.get_figgy_resource!("ee3528e9-88a4-4d2b-adee-f05efede87a7")
-
-      collection =
-        IndexingPipeline.get_figgy_resource!("52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a")
-        |> put_in(
-          [
-            Access.key!(:metadata),
-            "state"
-          ],
-          ["pending"]
-        )
-
-      # Return the updated collection if asked
-      with_mock IndexingPipeline, [:passthrough],
-        get_figgy_resources: fn
-          ["3bab572e-6603-4abf-8305-16ce6fe3ac5c", "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a"] ->
-            [collection]
-
-          args ->
-            passthrough([args])
-        end do
-        HydrationConsumer.process_and_persist(resource, 1)
-      end
-
-      assert length(IndexingPipeline.list_hydration_cache_entries()) == 0
     end
   end
 

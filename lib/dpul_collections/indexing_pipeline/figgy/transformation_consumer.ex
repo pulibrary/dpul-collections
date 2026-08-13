@@ -85,6 +85,25 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
     )
   end
 
+  def initial_classification(
+        resource = %HydrationCacheEntry{data: %{"internal_resource" => internal_resource}},
+        _cache_version
+      )
+      when internal_resource == "ScannedResource" do
+    # only include scanned resources that are in an allowed collection
+    allowed_collections =
+      resource.related_data["ancestors"]
+      |> Enum.map(&allowed_collection?/1)
+
+    case Enum.any?(allowed_collections) do
+      true ->
+        {:update, resource}
+
+      _ ->
+        {:skip, resource}
+    end
+  end
+
   @transformable_resource_types ResourceTypeRegistry.transformable_types()
 
   def initial_classification(
@@ -97,6 +116,16 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
 
   def initial_classification(resource, _cache_version) do
     {:skip, resource}
+  end
+
+  # determines whether the given metadata matches that of a collection that
+  # would be hydrated
+  def allowed_collection?({_, %{"metadata" => metadata}}) do
+    if DpulCollections.is_production() do
+      metadata["publish"] == ["1"] && metadata["state"] == ["complete"]
+    else
+      metadata["publish"] == ["1"]
+    end
   end
 
   def enrich(
