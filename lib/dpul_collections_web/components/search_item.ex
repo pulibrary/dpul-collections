@@ -24,7 +24,19 @@ defmodule DpulCollectionsWeb.SearchItem do
           "bg-search flex justify-center relative",
           "h-full"
         ]}>
-          <div class="grid grid-cols-2 w-full gap-2 h-[350px] p-2">
+          <div :if={@item.banner_image} class="w-full">
+            <img
+              class={[
+                "primary-thumbnail",
+                "w-full aspect-3/2 min-h-full",
+                "bg-search object-cover",
+                "thumbnail-#{@item.id}"
+              ]}
+              src={@item.banner_image}
+              alt=""
+            />
+          </div>
+          <div :if={!@item.banner_image} class="grid grid-cols-2 w-full gap-2 h-[350px] p-2">
             <img
               :for={item <- @item.banner_items}
               src={"#{item.primary_thumbnail_service_url}/#{IIIF.primary_thumbnail_parameters(item.primary_thumbnail_width, item.primary_thumbnail_height)}"}

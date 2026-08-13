@@ -54,7 +54,8 @@ defmodule DpulCollections.Solr do
     "content_warning_s",
     "geographic_origin_txt_sort",
     "tagline_txtm",
-    "publisher_txt_sort"
+    "publisher_txt_sort",
+    "banner_image_s"
   ]
 
   def raw_query(search_state, index \\ Index.read_index()) do
