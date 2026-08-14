@@ -55,8 +55,8 @@ defmodule DpulCollections.Collection do
       title: title,
       tagline: doc |> Map.get("tagline_txtm", []) |> Enum.at(0),
       summary: doc |> Map.get("summary_txtm", []) |> Enum.at(0) |> process_summary(),
-      banner_image: doc |> Map.get("banner_image_s"),
-      banner_image_id: doc |> Map.get("banner_image_id_s"),
+      banner_image: doc |> Map.get("banner_image_s") |> remove_empty_string(),
+      banner_image_id: doc |> Map.get("banner_image_id_s") |> remove_empty_string(),
       item_count: summary.count,
       categories: summary.categories,
       formats: summary.formats,
@@ -68,6 +68,9 @@ defmodule DpulCollections.Collection do
       banner_items: banner_items(title, featured_items)
     }
   end
+
+  defp remove_empty_string(value) when is_binary(value) and value != "", do: value
+  defp remove_empty_string(_), do: nil
 
   defp banner_items(_title, featured_items) when length(featured_items) >= 4 do
     featured_items

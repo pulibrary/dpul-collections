@@ -955,6 +955,44 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       assert card_content =~ "Items"
     end
 
+    test "renders a collection banner image when one is set", %{conn: conn} do
+      ["f99af4de-fed4-4baa-82b1-6e857b230306", "e379b822-27cc-4d0e-bca7-6096ac38f1e6"]
+      |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
+
+      Solr.soft_commit()
+      sae_id = "f99af4de-fed4-4baa-82b1-6e857b230306"
+
+      {:ok, view, _html} = live(conn, ~p"/search?#{%{q: "South Asian Ephemera"}}")
+
+      # The banner image set in Figgy renders instead of the featured mosaic
+      assert view |> element("#item-#{sae_id} img.primary-thumbnail") |> has_element?
+
+      assert view
+             |> element("#item-#{sae_id} img.primary-thumbnail")
+             |> render() =~ "iiif-cloud.princeton.edu"
+    end
+
+    test "renders a featured mosaic when a collection has no banner image", %{conn: conn} do
+      [
+        "2961c153-54ab-4c6a-b5cd-aa992f4c349b",
+        "8b0631b7-e1e4-49c2-904f-cd3141167a80",
+        "bd4effd2-3660-4af0-9ac3-b72bb9c882f2"
+      ]
+      |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
+
+      Solr.soft_commit()
+      project_id = "2961c153-54ab-4c6a-b5cd-aa992f4c349b"
+
+      {:ok, view, _html} = live(conn, ~p"/search?#{%{q: "Woman Life Freedom"}}")
+
+      assert view |> element("#item-#{project_id}") |> has_element?
+      refute view |> element("#item-#{project_id} img.primary-thumbnail") |> has_element?
+
+      assert view
+             |> element("#item-#{project_id} .search-thumbnail img")
+             |> has_element?
+    end
+
     test "link to record page", %{conn: conn} do
       {:ok, view, _html} = live(conn, ~p"/search?q=")
 
