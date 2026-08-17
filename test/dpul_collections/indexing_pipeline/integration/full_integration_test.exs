@@ -260,11 +260,14 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
           %{cache_version: cache_version}
         )
 
-        # retain the mock while the collection and resource both get indexed
-        # waiting for the transformer first keeps the index wait from timing out
-        tracker_pid
-        |> AckTracker.wait_for_transformer(cache_version)
-        |> AckTracker.wait_for_indexer(cache_version)
+        # Force the transformation producer to check for updates, since we
+        # bypassed the message handling when we called the hydration consumer
+        # direction
+        Broadway.producer_names(
+          String.to_existing_atom("#{Figgy.TransformationConsumer}_#{cache_version}")
+        )
+        |> hd
+        |> send(:check_for_updates)
 
         # there's another fixture that's a member of the patron requests
         # collection, unfortunately, so 3 things get updated in the index
