@@ -71,6 +71,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     all_resources =
       Stream.concat(
         [to_hydration_cache_entry(resource, cache_version)],
+        # also send anything back through the pipeline that has this resource id
+        # as a related record
         related_records(resource, cache_version)
       )
 
@@ -196,24 +198,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     true
   end
 
-  # ScannedResources must not have empty members, and must be in a processable
-  # collection.
+  # ScannedResources must not have empty members.
   def process?(
         combined_figgy_resource = %Figgy.CombinedFiggyResource{
-          resource: %{internal_resource: "ScannedResource"},
-          related_data: %{"ancestors" => ancestors}
+          resource: %{internal_resource: "ScannedResource"}
         }
       ) do
-    collections =
-      ancestors
-      |> Map.values()
-      |> Enum.filter(fn related_item -> related_item.internal_resource == "Collection" end)
-
-    if combined_figgy_resource.persisted_member_ids != [] && Enum.any?(collections, &process?/1) do
-      true
-    else
-      false
-    end
+    combined_figgy_resource.persisted_member_ids != []
   end
 
   # Ephemera Folders must be complete and open.
@@ -242,6 +233,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     end
   end
 
+  # Get any hydration cache entry that has the given id as a related record, and
+  # is updated less recently than timestamp
   def related_records(
         %{updated_at: timestamp, id: id, internal_resource: internal_resource},
         cache_version

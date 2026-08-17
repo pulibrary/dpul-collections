@@ -609,8 +609,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
     years =
       String.split(iso_string, "/")
       |> Enum.map(fn ds ->
-        {:ok, dt} = NaiveDateTime.from_iso8601(ds)
-        dt.year
+        with {:ok, dt} <- NaiveDateTime.from_iso8601(ds) do
+          dt.year
+        else
+          {:error, :invalid_format} -> extract_year(iso_string)
+        end
       end)
 
     case years do
