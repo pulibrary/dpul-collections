@@ -234,7 +234,7 @@ defmodule DpulCollections.IndexingPipeline do
   @doc """
   Writes or updates processor markers
   """
-  def write_processor_marker(attrs \\ %{}) do
+  def write_processor_marker(attrs) do
     %ProcessorMarker{}
     |> ProcessorMarker.changeset(attrs)
     |> Repo.insert(
