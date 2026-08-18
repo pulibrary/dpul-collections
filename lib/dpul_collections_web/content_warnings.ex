@@ -1,6 +1,5 @@
 defmodule DpulCollectionsWeb.ContentWarnings do
   use DpulCollectionsWeb, :html
-  use Phoenix.Component
 
   alias Phoenix.LiveView.JS
   use Gettext, backend: DpulCollectionsWeb.Gettext
