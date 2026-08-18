@@ -932,4 +932,55 @@ defmodule DpulCollections.SolrTest do
       assert Solr.find_by_slug("empty") == nil
     end
   end
+
+  describe "searchable_metadata" do
+    test "finds values not in qf but indexed in searchable field" do
+      Solr.add(
+        [
+          %{
+            "id" => "searchable-metadata-doc",
+            "title_txtm" => ["A Title"],
+            "binding_note_ss" => ["a bindingnote"],
+            "notes_ss" => ["a generalnote"],
+            "references_ss" => ["cited in Smith"],
+            "searchable_metadata" => [
+              "A Title",
+              "a bindingnote",
+              "a generalnote",
+              "cited in Smith"
+            ]
+          }
+        ],
+        active_collection()
+      )
+
+      Solr.soft_commit(active_collection())
+
+      for term <- ["bindingnote", "generalnote", "Smith"] do
+        ids =
+          Solr.query(SearchState.from_params(%{"q" => term}))["docs"]
+          |> Enum.map(& &1["id"])
+
+        assert "searchable-metadata-doc" in ids
+      end
+    end
+
+    test "the field is searchable but not returned" do
+      Solr.add(
+        [
+          %{
+            "id" => "not-returned",
+            "title_txtm" => ["A Title"],
+            "binding_note_ss" => ["a bindingnote"],
+            "searchable_metadata" => ["A Title", "a bindingnote"]
+          }
+        ],
+        active_collection()
+      )
+
+      Solr.soft_commit(active_collection())
+
+      refute Map.has_key?(Solr.find_by_id("not-returned"), "searchable_metadata")
+    end
+  end
 end
