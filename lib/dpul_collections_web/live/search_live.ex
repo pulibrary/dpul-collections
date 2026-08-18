@@ -389,12 +389,10 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def filter_pill(assigns = %{filter_value: filter_value}) when is_binary(filter_value) do
     ~H"""
-    <div
-      class={[
-        @field,
-        "filter inline-flex max-w-full overflow-hidden bg-primary text-dark-text font-semibold *:font-semibold text-sm h-full"
-      ]}
-    >
+    <div class={[
+      @field,
+      "filter inline-flex max-w-full overflow-hidden bg-primary text-dark-text font-semibold *:font-semibold text-sm h-full"
+    ]}>
       <.filter_pill_body
         filter_value={@filter_value}
         field={@field}
