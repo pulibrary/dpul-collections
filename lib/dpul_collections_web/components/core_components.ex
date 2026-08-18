@@ -771,7 +771,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
   def input(%{type: "hidden", multiple: true, value: value} = assigns) when is_list(value) do
     ~H"""
     <input
-      :for={value <- @value || []}
+      :for={value <- @value}
       type={@type}
       name={@name}
       id={@id}
