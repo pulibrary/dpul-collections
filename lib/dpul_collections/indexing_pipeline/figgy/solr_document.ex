@@ -16,7 +16,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
         data: data,
         related_data: related_data
       }) do
-    build(data, related_data)
+    build(data, related_data) |> add_searchable_field()
   end
 
   @doc """
@@ -30,6 +30,45 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
       data |> JSON.encode!() |> JSON.decode!(),
       related_data |> JSON.encode!() |> JSON.decode!()
     )
+    |> add_searchable_field()
+  end
+
+  # Add descriptive fields to the searchable_metadata solr field.
+  # Searchable via `qf` but not stored or faceted on.
+  defp add_searchable_field(document) do
+    values =
+      document
+      |> Enum.filter(fn {field, _value} -> searchable_field(field) end)
+      |> Enum.flat_map(fn {_field, value} -> List.wrap(value) end)
+      |> Enum.filter(&is_binary/1)
+      |> Enum.uniq()
+
+    case values do
+      [] -> document
+      _ -> Map.put(document, :searchable_metadata, values)
+    end
+  end
+
+  # Fields with these suffixes are used to populate searchable_metadata
+  @searchable_field_suffixes ~w(_txtm _txt_sort _ss _txt)
+
+  # Fields not to add to searchable_metadata
+  @non_searchable_fields [
+    :authoritative_slug_s,
+    :collection_ids_ss,
+    :featurable_ss,
+    :iiif_manifest_url_s,
+    :image_canvas_ids_ss,
+    :image_service_urls_ss,
+    :pdf_url_s,
+    :primary_thumbnail_service_url_s
+  ]
+
+  defp searchable_field(field) when field in @non_searchable_fields, do: false
+
+  defp searchable_field(field) do
+    field = Atom.to_string(field)
+    Enum.any?(@searchable_field_suffixes, &String.ends_with?(field, &1))
   end
 
   defp build(%{"id" => id, "metadata" => %{"deleted" => true}}, _related_data) do

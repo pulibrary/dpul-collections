@@ -1066,5 +1066,52 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocumentTest do
 
       assert doc[:language_txt_sort] == "Klingon"
     end
+
+    test "copies descriptive field values into the searchable_metadata field" do
+      {:ok, entry} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          cache_version: 0,
+          record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
+          related_ids: [],
+          source_cache_order: ~U[2023-05-11 18:45:18.994187Z],
+          source_cache_order_record_id: "kw-bbb",
+          data: %{
+            "id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
+            "internal_resource" => "ScannedResource",
+            "metadata" => %{
+              "title" => ["A Manuscript"],
+              "imported_metadata" => [
+                %{
+                  "binding_note" => ["a binding note"],
+                  "description" => ["a description"],
+                  "references" => ["cited in Smith"]
+                }
+              ]
+            }
+          }
+        })
+
+      doc = Figgy.SolrDocument.from_cache_entry(entry)
+
+      assert "a binding note" in doc[:searchable_metadata]
+      assert "a description" in doc[:searchable_metadata]
+      assert "cited in Smith" in doc[:searchable_metadata]
+      assert "A Manuscript" in doc[:searchable_metadata]
+    end
+
+    test "some fields are not included in searchable metadata" do
+      doc =
+        IndexingPipeline.get_figgy_resource!("27fd4d29-1170-47a5-891b-f2743873bcef")
+        |> Figgy.Resource.to_combined()
+        |> Figgy.SolrDocument.from_combined_figgy_resource()
+
+      # Ensure that the document does contain service fields
+      assert doc[:image_service_urls_ss] != []
+      assert doc[:iiif_manifest_url_s] != nil
+
+      # Those field values are not searchable
+      refute doc[:iiif_manifest_url_s] in doc[:searchable_metadata]
+      refute Enum.any?(doc[:searchable_metadata], &String.contains?(&1, "iiif"))
+    end
   end
 end
