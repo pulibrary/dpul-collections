@@ -533,7 +533,7 @@ defmodule DpulCollections.IndexingPipeline do
   @doc """
   Writes or updates transformation cache entries.
   """
-  def write_transformation_cache_entry(attrs \\ %{}) do
+  def write_transformation_cache_entry(attrs) do
     conflict_query =
       Figgy.TransformationCacheEntry
       |> update(
