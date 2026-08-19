@@ -190,7 +190,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
   def collection_card_li(assigns) do
     ~H"""
     <li
-      id={"related-collection-#{@collection.id}"}
+      id={"collection-#{@collection.id}"}
       aria-label={first_title(@collection)}
       class="card browse-item overflow-hidden -outline-offset-2 relative card flex bg-white flex-col min-w-[250px] text-dark-text"
     >
