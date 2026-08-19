@@ -315,12 +315,12 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> assert_has(".phx-connected")
       # Featured Highlights are initially visible
       |> assert_has("#featured-items .browse-item")
-      |> refute_has("#related-collection-62339f65-ce6d-4c85-ab77-67c70abb8709")
+      |> refute_has("#collection-62339f65-ce6d-4c85-ab77-67c70abb8709")
       |> Playwright.click("#related-collections-tab")
       # Now Related collections are visible
       |> refute_has("#featured-items .browse-item")
       # Related Collections card with banner in fixture has an image
-      |> within("#related-collection-62339f65-ce6d-4c85-ab77-67c70abb8709", fn session ->
+      |> within("#collection-62339f65-ce6d-4c85-ab77-67c70abb8709", fn session ->
         session
         |> assert_has("img")
         |> assert_has("div", text: "Collections Donated to Princeton")
@@ -328,7 +328,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       end)
       # Related Collections card with a featured item but no banner in fixture has an image
       # long tagline is truncated
-      |> within("#related-collection-3bab572e-6603-4abf-8305-16ce6fe3ac5c", fn session ->
+      |> within("#collection-3bab572e-6603-4abf-8305-16ce6fe3ac5c", fn session ->
         session
         |> assert_has("img")
         |> assert_has("div", text: "Middle East Manuscripts")
@@ -371,7 +371,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> refute_has("#featured-items-tab")
       |> refute_has("#related-collections-tab")
       # Related Collections card with banner in fixture has an image
-      |> within("#related-collection-3bab572e-6603-4abf-8305-16ce6fe3ac5c", fn session ->
+      |> within("#collection-3bab572e-6603-4abf-8305-16ce6fe3ac5c", fn session ->
         session
         |> assert_has("div", text: "Middle East Manuscripts")
       end)
