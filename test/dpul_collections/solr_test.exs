@@ -933,6 +933,75 @@ defmodule DpulCollections.SolrTest do
     end
   end
 
+  describe "sorting by title" do
+    test "orders documents by their title" do
+      Solr.add(
+        [
+          %{
+            id: "position-117",
+            title_txtm: ["117 | Injured child at the hospital"],
+            title_sort: "117 | Injured child at the hospital"
+          },
+          %{
+            id: "position-2",
+            title_txtm: ["002 | Muhammad Ali Jinnah arriving"],
+            title_sort: "002 | Muhammad Ali Jinnah arriving"
+          },
+          %{
+            id: "position-9",
+            title_txtm: ["009 | Women protesting"],
+            title_sort: "009 | Women protesting"
+          },
+          %{
+            id: "position-1",
+            title_txtm: ["001 | A decorated train"],
+            title_sort: "001 | A decorated train"
+          }
+        ],
+        active_collection()
+      )
+
+      Solr.soft_commit(active_collection())
+
+      ascending =
+        SearchState.from_params(%{"sort_by" => "title_asc"})
+        |> Solr.query()
+        |> Map.get("docs")
+        |> Enum.map(& &1["id"])
+
+      assert ascending == ["position-1", "position-2", "position-9", "position-117"]
+
+      descending =
+        SearchState.from_params(%{"sort_by" => "title_desc"})
+        |> Solr.query()
+        |> Map.get("docs")
+        |> Enum.map(& &1["id"])
+
+      assert descending == ["position-117", "position-9", "position-2", "position-1"]
+    end
+
+    test "sorts insensitive to diacritic marks and case" do
+      Solr.add(
+        [
+          %{id: "position-3", title_txtm: ["Zebra"], title_sort: "Zebra"},
+          %{id: "position-2", title_txtm: ["apple"], title_sort: "apple"},
+          %{id: "position-1", title_txtm: ["Álvarez"], title_sort: "Álvarez"}
+        ],
+        active_collection()
+      )
+
+      Solr.soft_commit(active_collection())
+
+      ids =
+        SearchState.from_params(%{"sort_by" => "title_asc"})
+        |> Solr.query()
+        |> Map.get("docs")
+        |> Enum.map(& &1["id"])
+
+      assert ids == ["position-1", "position-2", "position-3"]
+    end
+  end
+
   describe "searchable_metadata" do
     test "finds values not in qf but indexed in searchable field" do
       Solr.add(
