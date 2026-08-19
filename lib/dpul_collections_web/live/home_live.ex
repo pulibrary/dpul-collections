@@ -13,7 +13,7 @@ defmodule DpulCollectionsWeb.HomeLive do
         q_: nil,
         recent_items: Solr.recently_added(4)["docs"] |> Enum.map(&Item.from_solr(&1)),
         recent_collections:
-          Solr.recent_collections(3)["docs"] |> Enum.map(&Collection.from_solr(&1))
+          Solr.recent_collections(5)["docs"] |> Enum.map(&Collection.from_solr(&1))
       )
 
     {:ok, socket}
@@ -127,12 +127,9 @@ defmodule DpulCollectionsWeb.HomeLive do
               )}
             </p>
           </:intro>
-          <.collection_browse_card_li
+          <.collection_card_li
             :for={collection <- @recent_collections}
-            show_images={@show_images}
             collection={collection}
-            current_scope={@current_scope}
-            current_path={@current_path}
           />
         </.card_row>
       </div>

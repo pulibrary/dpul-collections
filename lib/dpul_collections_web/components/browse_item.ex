@@ -84,7 +84,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
     required: false,
     doc: "override for the card's thumbnail area"
 
-  # make sure to wrap these in a ul
+  # make sure to wrap these in a ul (e.g., by putting them in a card_row)
   # The basic item card, providing slots for buttons, footers, etc
   def item_card_li(assigns = %{thumb_source: %Item{}}) do
     ~H"""
@@ -201,7 +201,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
             <div class="min-h-0 grow">
               <img
                 src={Collection.banner_source(@collection)}
-                class="thumbnail bg-slate-400 text-white w-full object-contain"
+                class="thumbnail bg-slate-400 text-white h-full w-full object-cover"
                 alt=""
               />
             </div>
@@ -301,68 +301,6 @@ defmodule DpulCollectionsWeb.BrowseItem do
           current_path={@current_path}
         />
       </:card_buttons>
-    </.item_card_li>
-    """
-  end
-
-  attr :collection, Collection, required: true
-  attr :id_prefix, :string, required: false, default: "browse-collection"
-  attr :class, :string, required: false, default: nil
-  attr :current_scope, :map, required: false, default: nil
-  attr :current_path, :string, required: true
-
-  attr :show_images, :list,
-    default: [],
-    doc: "the list of images stored in session that should not be obfuscated"
-
-  attr :heading_level, :string, default: "h3"
-
-  def collection_browse_card_li(assigns) do
-    assigns = assign(assigns, :thumb_source, List.first(assigns.collection.featured_items))
-
-    ~H"""
-    <.item_card_li
-      :if={@thumb_source}
-      target_item={@collection}
-      thumb_source={@thumb_source}
-      url={@collection.url}
-      id_prefix={@id_prefix}
-      heading_level={@heading_level}
-      class={@class}
-      current_scope={@current_scope}
-      show_images={@show_images}
-      show_file_count?={false}
-    >
-      <:thumbnail>
-        <div class="grid grid-cols-2 grid-rows-2 gap-2 h-full">
-          <.thumb
-            :for={item <- Enum.take(@collection.banner_items, 4)}
-            thumb={thumbnail_service_url(item)}
-            item={item}
-            show_images={@show_images}
-          />
-        </div>
-      </:thumbnail>
-      <:extra_info>
-        <div class="item-count">
-          <div>{gettext("Items")}</div>
-          <div>{format_number(@collection.item_count)}</div>
-        </div>
-        <div
-          :if={length(@collection.languages) > 0}
-          class="languages-count"
-        >
-          <div>{gettext("Languages")}</div>
-          <div>{format_number(length(@collection.languages))}</div>
-        </div>
-        <div
-          :if={length(@collection.geographic_origins) > 0}
-          class="locations-count"
-        >
-          <div>{gettext("Locations")}</div>
-          <div>{format_number(length(@collection.geographic_origins))}</div>
-        </div>
-      </:extra_info>
     </.item_card_li>
     """
   end
