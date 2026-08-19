@@ -80,10 +80,6 @@ defmodule DpulCollectionsWeb.BrowseItem do
   slot :card_footer, required: false
   slot :card_buttons, required: false
 
-  slot :thumbnail,
-    required: false,
-    doc: "override for the card's thumbnail area"
-
   # make sure to wrap these in a ul (e.g., by putting them in a card_row)
   # The basic item card, providing slots for buttons, footers, etc
   def item_card_li(assigns = %{thumb_source: %Item{}}) do
@@ -113,34 +109,30 @@ defmodule DpulCollectionsWeb.BrowseItem do
         <!-- thumbs -->
         <div class="px-2 pt-2 bg-white overflow-clip">
           <div class="flex flex-col gap-2 h-[24rem]">
-            <%= if @thumbnail != [] do %>
-              {render_slot(@thumbnail)}
-            <% else %>
-              <!-- main thumbnail -->
-              <div class="min-h-0 grow">
-                <.thumb
-                  thumb={thumbnail_service_url(@thumb_source)}
-                  item={@thumb_source}
-                  show_images={@show_images}
-                />
-              </div>
+            <!-- main thumbnail -->
+            <div class="min-h-0 grow">
+              <.thumb
+                thumb={thumbnail_service_url(@thumb_source)}
+                item={@thumb_source}
+                show_images={@show_images}
+              />
+            </div>
 
-              <div
-                :if={@show_small_thumbs? && @thumb_source.file_count > 1}
-                class="grid grid-cols-4 gap-2 h-[6rem]"
-              >
-                <.thumb
-                  :for={
-                    {thumb, thumb_num} <- thumbnail_service_urls(4, @thumb_source.image_service_urls)
-                  }
-                  :if={@thumb_source.file_count}
-                  thumb={thumb}
-                  thumb_num={thumb_num}
-                  item={@thumb_source}
-                  show_images={@show_images}
-                />
-              </div>
-            <% end %>
+            <div
+              :if={@show_small_thumbs? && @thumb_source.file_count > 1}
+              class="grid grid-cols-4 gap-2 h-[6rem]"
+            >
+              <.thumb
+                :for={
+                  {thumb, thumb_num} <- thumbnail_service_urls(4, @thumb_source.image_service_urls)
+                }
+                :if={@thumb_source.file_count}
+                thumb={thumb}
+                thumb_num={thumb_num}
+                item={@thumb_source}
+                show_images={@show_images}
+              />
+            </div>
           </div>
         </div>
         <!-- card text area -->
