@@ -107,7 +107,7 @@ defmodule DpulCollectionsWeb.BrowseItem do
       </div>
       <div class="-outline-offset-1 flex-grow flex flex-col">
         <!-- thumbs -->
-        <div class="px-2 pt-2 bg-white overflow-clip">
+        <div class="p-2 bg-white relative">
           <div class="flex flex-col gap-2 h-[24rem]">
             <!-- main thumbnail -->
             <div class="min-h-0 grow">
@@ -118,9 +118,10 @@ defmodule DpulCollectionsWeb.BrowseItem do
               />
             </div>
 
+            <!-- small thumbnails -->
             <div
               :if={@show_small_thumbs? && @thumb_source.file_count > 1}
-              class="grid grid-cols-4 gap-2 h-[6rem]"
+              class="grid grid-cols-4 gap-2 h-[6rem] overflow-clip"
             >
               <.thumb
                 :for={
@@ -133,11 +134,20 @@ defmodule DpulCollectionsWeb.BrowseItem do
                 show_images={@show_images}
               />
             </div>
+
+            <!-- file count rise -->
+            <div
+              :if={@show_file_count? && @thumb_source.file_count > 1}
+              class="absolute diagonal-rise right-0 bottom-0 bg-sage-50 pr-4 py-2"
+            >
+              {format_number(@thumb_source.file_count)} {gettext("Files")}
+            </div>
           </div>
         </div>
+
         <!-- card text area -->
-        <div class="grid grid-cols-1 grow">
-          <div class="mx-1 px-6 pb-5 bg-white flex flex-col">
+        <div class="grid grid-cols-1 grow bg-sage-50">
+          <div class="mx-1 px-6 pb-5 flex flex-col">
             <.dynamic_tag
               tag_name={@heading_level}
               class="font-normal tracking-tight py-1 flex-grow text-start"
@@ -154,14 +164,6 @@ defmodule DpulCollectionsWeb.BrowseItem do
             </.dynamic_tag>
             <div class="brief-metadata pt-4 text-gray-700 text-base">
               {render_slot(@extra_info)}
-            </div>
-          </div>
-          <div class="h-8 relative order-first">
-            <div
-              :if={@show_file_count? && @thumb_source.file_count > 4}
-              class="absolute bg-background right-2 top-0 z-10 pr-2 pb-1 diagonal-drop"
-            >
-              {format_number(@thumb_source.file_count)} {gettext("Files")}
             </div>
           </div>
           <div class="flex-grow flex w-full flex-col justify-end">
