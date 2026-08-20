@@ -24,6 +24,14 @@ defmodule DpulCollections.Solr.Constants do
         recently_added: %{
           solr_param: "updated_at_dt desc",
           label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Recently Added")
+        },
+        title_asc: %{
+          solr_param: "title_sort asc",
+          label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Title (A-Z)")
+        },
+        title_desc: %{
+          solr_param: "title_sort desc",
+          label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Title (Z-A)")
         }
       }
       @sort_by_keys Enum.map(Map.keys(@valid_sort_by), &to_string/1)

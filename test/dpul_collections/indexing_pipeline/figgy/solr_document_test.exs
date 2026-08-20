@@ -1113,5 +1113,48 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocumentTest do
       refute doc[:iiif_manifest_url_s] in doc[:searchable_metadata]
       refute Enum.any?(doc[:searchable_metadata], &String.contains?(&1, "iiif"))
     end
+
+    test "adds a title_sort string value" do
+      {:ok, entry} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          cache_version: 0,
+          record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
+          related_ids: [],
+          source_cache_order: ~U[2023-05-11 18:45:18.994187Z],
+          source_cache_order_record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
+          data: %{
+            "id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
+            "internal_resource" => "EphemeraFolder",
+            "metadata" => %{"title" => ["The Ephemera Folder"]}
+          }
+        })
+
+      doc = Figgy.SolrDocument.from_cache_entry(entry)
+
+      assert doc[:title_sort] == "The Ephemera Folder"
+    end
+
+    test "adds sort_title over title if provided" do
+      {:ok, entry} =
+        IndexingPipeline.write_hydration_cache_entry(%{
+          cache_version: 0,
+          record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
+          related_ids: [],
+          source_cache_order: ~U[2023-05-11 18:45:18.994187Z],
+          source_cache_order_record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
+          data: %{
+            "id" => "ts-ccc",
+            "internal_resource" => "EphemeraFolder",
+            "metadata" => %{
+              "title" => ["The Ephemera Folder"],
+              "sort_title" => ["Ephemera Folder, The"]
+            }
+          }
+        })
+
+      doc = Figgy.SolrDocument.from_cache_entry(entry)
+
+      assert doc[:title_sort] == "Ephemera Folder, The"
+    end
   end
 end

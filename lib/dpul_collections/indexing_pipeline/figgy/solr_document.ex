@@ -33,6 +33,17 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
     |> add_searchable_field()
   end
 
+  # Generate a title for use in sort options
+  defp title_sort(metadata, titles) do
+    first_title(metadata["sort_title"]) || first_title(titles)
+  end
+
+  defp first_title(value) do
+    value
+    |> List.wrap()
+    |> Enum.find(&is_binary/1)
+  end
+
   # Add descriptive fields to the searchable_metadata solr field.
   # Searchable via `qf` but not stored or faceted on.
   defp add_searchable_field(document) do
@@ -55,6 +66,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
   # Fields not to add to searchable_metadata
   @non_searchable_fields [
     :authoritative_slug_s,
+    :title_sort,
     :collection_ids_ss,
     :featurable_ss,
     :iiif_manifest_url_s,
@@ -83,6 +95,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
     %{
       id: id,
       title_txtm: metadata["title"],
+      title_sort: title_sort(metadata, metadata["title"]),
       summary_txtm: metadata["description"],
       resource_type_s: "collection",
       tagline_txtm: metadata["tagline"],
@@ -160,10 +173,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
 
   defp base_solr_fields(id, data, metadata, related_data, internal_resource) do
     thumbnail = primary_thumbnail(metadata, related_data)
+    title = extract_title(metadata)
 
     %{
       id: id,
-      title_txtm: extract_title(metadata),
+      title_txtm: title,
+      title_sort: title_sort(metadata, title),
       alternative_title_txtm: get_in(metadata, ["alternative_title"]),
       contributor_txt_sort: get_in(metadata, ["contributor"]),
       content_warning_s: content_warning(metadata),

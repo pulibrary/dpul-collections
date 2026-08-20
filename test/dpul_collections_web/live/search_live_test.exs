@@ -144,6 +144,20 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Enum.empty?()
   end
 
+  test "the sort dropdown allows title sort, ascending and descending", %{conn: conn} do
+    {:ok, _view, html} = live(conn, "/search")
+
+    options =
+      html
+      |> Floki.parse_document!()
+      |> Floki.find("#sort-by option")
+
+    labels = options |> Enum.map(&Floki.text/1)
+
+    assert "Title (A-Z)" in labels
+    assert "Title (Z-A)" in labels
+  end
+
   test "items can be sorted by recently updated", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/search")
 
