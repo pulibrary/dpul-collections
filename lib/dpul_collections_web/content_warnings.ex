@@ -23,6 +23,7 @@ defmodule DpulCollectionsWeb.ContentWarnings do
         {:noreply, socket |> assign(show_images: new_show_images)}
       end
     end
+
     # coveralls-ignore-end
   end
 
