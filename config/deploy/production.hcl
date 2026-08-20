@@ -22,9 +22,11 @@ job "dpulc-production" {
       port "dist" { to = 4370 }
       # Add the consul DNS loopback, so we can use consul queries.
       dns {
-        servers = ["10.88.0.1", "128.112.129.209"]
+        servers = ["172.17.0.1", "128.112.129.209"]
       }
     }
+    # Remove from consul, wait 10s, then shut down.
+    shutdown_delay = "10s"
     service {
       name = "${NOMAD_JOB_NAME}-epmd"
       port = "dist"
@@ -82,7 +84,7 @@ job "dpulc-production" {
         hook = "prestart"
         sidecar = false
       }
-      driver = "podman"
+      driver = "docker"
       config {
         image = "ghcr.io/pulibrary/dpul-collections:sha-${ var.branch_or_sha }"
         command = "bash"
@@ -108,7 +110,7 @@ job "dpulc-production" {
       }
     }
     task "webserver" {
-      driver = "podman"
+      driver = "docker"
       config {
         image = "ghcr.io/pulibrary/dpul-collections:sha-${ var.branch_or_sha }"
         ports = ["http", "dist", "metrics"]
@@ -145,7 +147,7 @@ job "dpulc-production" {
 
       # Add the consul DNS loopback, so we can use consul queries.
       dns {
-        servers = ["10.88.0.1", "128.112.129.209"]
+        servers = ["172.17.0.1", "128.112.129.209"]
       }
     }
     affinity {
@@ -153,6 +155,8 @@ job "dpulc-production" {
       value = "worker"
       weight = 100
     }
+    # Remove from consul, wait 10s, then shut down.
+    shutdown_delay = "10s"
     service {
       name = "${NOMAD_JOB_NAME}-epmd"
       port = "dist"
@@ -181,7 +185,7 @@ job "dpulc-production" {
       port = "metrics"
     }
     task "indexer" {
-      driver = "podman"
+      driver = "docker"
       config {
         image = "ghcr.io/pulibrary/dpul-collections:sha-${ var.branch_or_sha }"
         ports = ["http", "dist", "metrics"]
