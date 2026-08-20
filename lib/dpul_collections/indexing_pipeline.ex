@@ -5,10 +5,13 @@ defmodule DpulCollections.IndexingPipeline do
   use Sibyl
 
   # @decorate keeps sending compiler errors, use a macro instead and call Sibyl.
+  # coveralls-ignore-start
   defmacro traced(do: body) do
     {name, arity} = __CALLER__.function
     Sibyl.Decorator.trace(body, %{module: __CALLER__.module, name: name, arity: arity})
   end
+
+  # coveralls-ignore-end
 
   import Ecto.Query, warn: false
   alias DpulCollections.{Repo, FiggyRepo}

@@ -2,6 +2,7 @@ defmodule DpulCollections.Solr.Constants do
   use Gettext, backend: DpulCollectionsWeb.Gettext
 
   defmacro __using__(_) do
+    # coveralls-ignore-start
     quote do
       # List of valid sort_by, keys are URL params in DPUL-C, values are solr params.
       require Gettext.Macros
@@ -163,6 +164,8 @@ defmodule DpulCollections.Solr.Constants do
 
       @filter_keys Map.keys(@filters)
     end
+
+    # coveralls-ignore-end
   end
 
   def id_to_title(nil), do: nil
