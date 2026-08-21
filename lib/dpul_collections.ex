@@ -9,4 +9,8 @@ defmodule DpulCollections do
   def is_production() do
     Application.get_env(:dpul_collections, :environment_name) == "production"
   end
+
+  def is_staging() do
+    Application.get_env(:dpul_collections, :environment_name) == "staging"
+  end
 end
