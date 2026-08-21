@@ -1114,7 +1114,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocumentTest do
       refute Enum.any?(doc[:searchable_metadata], &String.contains?(&1, "iiif"))
     end
 
-    test "adds a title_sort string value" do
+    test "adds a title_sort string value while removing leading spaces" do
       {:ok, entry} =
         IndexingPipeline.write_hydration_cache_entry(%{
           cache_version: 0,
@@ -1125,7 +1125,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocumentTest do
           data: %{
             "id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
             "internal_resource" => "EphemeraFolder",
-            "metadata" => %{"title" => ["The Ephemera Folder"]}
+            "metadata" => %{"title" => [" The Ephemera Folder"]}
           }
         })
 

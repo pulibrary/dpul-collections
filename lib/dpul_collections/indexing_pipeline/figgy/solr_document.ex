@@ -39,9 +39,15 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
   end
 
   defp first_title(value) do
-    value
-    |> List.wrap()
-    |> Enum.find(&is_binary/1)
+    title =
+      value
+      |> List.wrap()
+      |> Enum.find(&is_binary/1)
+
+    case title do
+      nil -> nil
+      _ -> String.trim(title)
+    end
   end
 
   # Add descriptive fields to the searchable_metadata solr field.
