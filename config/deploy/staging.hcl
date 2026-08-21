@@ -21,19 +21,11 @@ job "dpulc-staging" {
       port "dist" { to = 4370 }
       # Add the consul DNS loopback, so we can use consul queries.
       dns {
-        servers = ["10.88.0.1", "128.112.129.209"]
+        servers = ["172.17.0.1", "128.112.129.209"]
       }
     }
-    service {
-      name = "${NOMAD_JOB_NAME}-epmd"
-      port = "dist"
-      provider = "consul"
-      address = "node-${NOMAD_ALLOC_INDEX}-${NOMAD_GROUP_NAME}.${NOMAD_JOB_NAME}-epmd.service.consul"
-      address_mode = "auto"
-      tags = [
-        "node-${NOMAD_ALLOC_INDEX}-${NOMAD_GROUP_NAME}"
-      ]
-    }
+    # Remove from consul, wait 10s, then shut down.
+    shutdown_delay = "10s"
     service {
       port = "http"
       name = "dpulc-staging-web"
@@ -66,6 +58,16 @@ job "dpulc-staging" {
       }
     }
     service {
+      name = "${NOMAD_JOB_NAME}-epmd"
+      port = "dist"
+      provider = "consul"
+      address = "node-${NOMAD_ALLOC_INDEX}-${NOMAD_GROUP_NAME}.${NOMAD_JOB_NAME}-epmd.service.consul"
+      address_mode = "auto"
+      tags = [
+        "node-${NOMAD_ALLOC_INDEX}-${NOMAD_GROUP_NAME}"
+      ]
+    }
+    service {
       name = "dpulc-staging-web"
       tags = ["metrics"]
       port = "metrics"
@@ -81,7 +83,7 @@ job "dpulc-staging" {
         hook = "prestart"
         sidecar = false
       }
-      driver = "podman"
+      driver = "docker"
       config {
         image = "ghcr.io/pulibrary/dpul-collections:sha-${ var.branch_or_sha }"
         command = "bash"
@@ -106,7 +108,7 @@ job "dpulc-staging" {
       }
     }
     task "webserver" {
-      driver = "podman"
+      driver = "docker"
       config {
         image = "ghcr.io/pulibrary/dpul-collections:sha-${ var.branch_or_sha }"
         ports = ["http", "dist", "metrics"]
@@ -143,7 +145,7 @@ job "dpulc-staging" {
 
       # Add the consul DNS loopback, so we can use consul queries.
       dns {
-        servers = ["10.88.0.1", "128.112.129.209"]
+        servers = ["172.17.0.1", "128.112.129.209"]
       }
     }
     affinity {
@@ -151,16 +153,8 @@ job "dpulc-staging" {
       value = "worker"
       weight = 100
     }
-    service {
-      name = "${NOMAD_JOB_NAME}-epmd"
-      port = "dist"
-      provider = "consul"
-      address = "node-${NOMAD_ALLOC_INDEX}-${NOMAD_GROUP_NAME}.${NOMAD_JOB_NAME}-epmd.service.consul"
-      address_mode = "auto"
-      tags = [
-        "node-${NOMAD_ALLOC_INDEX}-${NOMAD_GROUP_NAME}"
-      ]
-    }
+    # Remove from consul, wait 10s, then shut down.
+    shutdown_delay = "10s"
     service {
       name = "dpulc-staging-web"
       tags = ["indexer", "logging"]
@@ -174,12 +168,22 @@ job "dpulc-staging" {
       }
     }
     service {
+      name = "${NOMAD_JOB_NAME}-epmd"
+      port = "dist"
+      provider = "consul"
+      address = "node-${NOMAD_ALLOC_INDEX}-${NOMAD_GROUP_NAME}.${NOMAD_JOB_NAME}-epmd.service.consul"
+      address_mode = "auto"
+      tags = [
+        "node-${NOMAD_ALLOC_INDEX}-${NOMAD_GROUP_NAME}"
+      ]
+    }
+    service {
       name = "dpulc-staging-web"
       tags = ["metrics"]
       port = "metrics"
     }
     task "indexer" {
-      driver = "podman"
+      driver = "docker"
       config {
         image = "ghcr.io/pulibrary/dpul-collections:sha-${ var.branch_or_sha }"
         ports = ["http", "dist", "metrics"]
