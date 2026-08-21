@@ -47,11 +47,10 @@ defmodule DpulCollectionsWeb.SetLocaleHookTest do
     # Arrange
     socket = %Phoenix.LiveView.Socket{}
     # Simulate a nil session
-    session = nil
     params = %{}
 
     # Act
-    {:cont, updated_socket} = SetLocaleHook.on_mount(:default, params, session || %{}, socket)
+    {:cont, updated_socket} = SetLocaleHook.on_mount(:default, params, _session = %{}, socket)
 
     # Assert
     assert updated_socket.assigns.locale == @default_locale

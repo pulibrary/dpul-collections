@@ -4,6 +4,15 @@ defmodule DpulCollections.IndexingPipeline do
   """
   use Sibyl
 
+  # @decorate keeps sending compiler errors, use a macro instead and call Sibyl.
+  # coveralls-ignore-start
+  defmacro traced(do: body) do
+    {name, arity} = __CALLER__.function
+    Sibyl.Decorator.trace(body, %{module: __CALLER__.module, name: name, arity: arity})
+  end
+
+  # coveralls-ignore-end
+
   import Ecto.Query, warn: false
   alias DpulCollections.{Repo, FiggyRepo}
 
@@ -161,18 +170,19 @@ defmodule DpulCollections.IndexingPipeline do
           related_timestamp :: DateTime.t(),
           cache_version :: integer
         ) :: list(String.t())
-  @decorate trace()
   def get_related_hydration_cache_record_ids!(related_id, related_timestamp, cache_version) do
-    arr = [related_id]
+    traced do
+      arr = [related_id]
 
-    query =
-      from r in Figgy.HydrationCacheEntry,
-        select: r.record_id,
-        where: r.cache_version == ^cache_version,
-        where: r.source_cache_order < ^related_timestamp,
-        where: fragment("? @> ?", r.related_ids, ^arr)
+      query =
+        from r in Figgy.HydrationCacheEntry,
+          select: r.record_id,
+          where: r.cache_version == ^cache_version,
+          where: r.source_cache_order < ^related_timestamp,
+          where: fragment("? @> ?", r.related_ids, ^arr)
 
-    Repo.all(query, timeout: 600_000)
+      Repo.all(query, timeout: 600_000)
+    end
   end
 
   alias DpulCollections.IndexingPipeline.ProcessorMarker
@@ -234,7 +244,7 @@ defmodule DpulCollections.IndexingPipeline do
   @doc """
   Writes or updates processor markers
   """
-  def write_processor_marker(attrs \\ %{}) do
+  def write_processor_marker(attrs) do
     %ProcessorMarker{}
     |> ProcessorMarker.changeset(attrs)
     |> Repo.insert(
@@ -259,17 +269,20 @@ defmodule DpulCollections.IndexingPipeline do
       ** (Ecto.NoResultsError)
 
   """
-  @decorate trace()
-  def get_figgy_resource!(id),
-    do: FiggyRepo.get!(Figgy.Resource, id) |> Figgy.Resource.populate_virtual()
+  def get_figgy_resource!(id) do
+    traced do
+      FiggyRepo.get!(Figgy.Resource, id) |> Figgy.Resource.populate_virtual()
+    end
+  end
 
-  @decorate trace()
   def get_figgy_parents(id) do
-    json = %{"member_ids" => [%{"id" => id}]}
+    traced do
+      json = %{"member_ids" => [%{"id" => id}]}
 
-    Figgy.Resource
-    |> where([resource], fragment("? @> ?", resource.metadata, ^json))
-    |> FiggyRepo.all()
+      Figgy.Resource
+      |> where([resource], fragment("? @> ?", resource.metadata, ^json))
+      |> FiggyRepo.all()
+    end
   end
 
   @recursive_cte_fragment """
@@ -336,10 +349,11 @@ defmodule DpulCollections.IndexingPipeline do
 
   """
   @spec get_figgy_resources(ids :: [String.t()]) :: list(Figgy.Resource)
-  @decorate trace()
   def get_figgy_resources(ids) do
-    from(r in Figgy.Resource, where: r.id in ^ids)
-    |> FiggyRepo.all()
+    traced do
+      from(r in Figgy.Resource, where: r.id in ^ids)
+      |> FiggyRepo.all()
+    end
   end
 
   @doc """
@@ -396,52 +410,54 @@ defmodule DpulCollections.IndexingPipeline do
           marker :: CacheEntryMarker.t(),
           count :: integer
         ) :: list(Figgy.Resource)
-  @decorate trace()
   def get_figgy_resources_since!(%CacheEntryMarker{timestamp: updated_at, id: id}, count) do
-    poll_delay = DateTime.utc_now() |> DateTime.add(-30, :second)
+    traced do
+      poll_delay = DateTime.utc_now() |> DateTime.add(-30, :second)
 
-    query =
-      from r in Figgy.Resource,
-        where:
-          r.internal_resource != "Event" and r.internal_resource != "PreservationObject" and
-            (r.updated_at >= ^updated_at and
-               (r.updated_at > ^updated_at or r.id > ^id) and
-               r.updated_at < ^poll_delay),
-        select: %{
-          struct(r, [:id, :updated_at, :internal_resource])
-          | visibility: fragment("metadata->'visibility'"),
-            state: fragment("metadata->'state'"),
-            member_of_collection_ids: fragment("metadata->'member_of_collection_ids'"),
-            metadata_resource_id: fragment("metadata->'resource_id'"),
-            metadata_resource_type: fragment("metadata->'resource_type'")
-        },
-        limit: ^count,
-        order_by: [asc: r.updated_at, asc: r.id]
+      query =
+        from r in Figgy.Resource,
+          where:
+            r.internal_resource != "Event" and r.internal_resource != "PreservationObject" and
+              (r.updated_at >= ^updated_at and
+                 (r.updated_at > ^updated_at or r.id > ^id) and
+                 r.updated_at < ^poll_delay),
+          select: %{
+            struct(r, [:id, :updated_at, :internal_resource])
+            | visibility: fragment("metadata->'visibility'"),
+              state: fragment("metadata->'state'"),
+              member_of_collection_ids: fragment("metadata->'member_of_collection_ids'"),
+              metadata_resource_id: fragment("metadata->'resource_id'"),
+              metadata_resource_type: fragment("metadata->'resource_type'")
+          },
+          limit: ^count,
+          order_by: [asc: r.updated_at, asc: r.id]
 
-    FiggyRepo.all(query)
+      FiggyRepo.all(query)
+    end
   end
 
   @spec get_figgy_resources_since!(
           nil,
           count :: integer
         ) :: list(Figgy.Resource)
-  @decorate trace()
   def get_figgy_resources_since!(nil, count) do
-    query =
-      from r in Figgy.Resource,
-        where: r.internal_resource != "Event" and r.internal_resource != "PreservationObject",
-        select: %{
-          struct(r, [:id, :updated_at, :internal_resource])
-          | visibility: fragment("metadata->'visibility'"),
-            state: fragment("metadata->'state'"),
-            metadata_resource_id: fragment("metadata->'resource_id'"),
-            member_of_collection_ids: fragment("metadata->'member_of_collection_ids'"),
-            metadata_resource_type: fragment("metadata->'resource_type'")
-        },
-        limit: ^count,
-        order_by: [asc: r.updated_at, asc: r.id]
+    traced do
+      query =
+        from r in Figgy.Resource,
+          where: r.internal_resource != "Event" and r.internal_resource != "PreservationObject",
+          select: %{
+            struct(r, [:id, :updated_at, :internal_resource])
+            | visibility: fragment("metadata->'visibility'"),
+              state: fragment("metadata->'state'"),
+              metadata_resource_id: fragment("metadata->'resource_id'"),
+              member_of_collection_ids: fragment("metadata->'member_of_collection_ids'"),
+              metadata_resource_type: fragment("metadata->'resource_type'")
+          },
+          limit: ^count,
+          order_by: [asc: r.updated_at, asc: r.id]
 
-    FiggyRepo.all(query)
+      FiggyRepo.all(query)
+    end
   end
 
   alias DpulCollections.IndexingPipeline.Figgy
@@ -533,7 +549,7 @@ defmodule DpulCollections.IndexingPipeline do
   @doc """
   Writes or updates transformation cache entries.
   """
-  def write_transformation_cache_entry(attrs \\ %{}) do
+  def write_transformation_cache_entry(attrs) do
     conflict_query =
       Figgy.TransformationCacheEntry
       |> update(

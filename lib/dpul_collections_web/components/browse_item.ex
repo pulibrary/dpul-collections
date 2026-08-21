@@ -1,7 +1,6 @@
 defmodule DpulCollectionsWeb.BrowseItem do
   alias DpulCollectionsWeb.UserSets
   use DpulCollectionsWeb, :html
-  use Phoenix.Component
   use Gettext, backend: DpulCollectionsWeb.Gettext
   alias DpulCollections.IIIF
   alias DpulCollections.Item

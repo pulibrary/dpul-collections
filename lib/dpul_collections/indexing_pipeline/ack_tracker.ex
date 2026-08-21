@@ -92,7 +92,7 @@ defmodule DpulCollections.IndexingPipeline.AckTracker do
   end
 
   def reset_count!(pid) do
-    FiggyTestSupport.flush_messages()
+    flush_messages()
     GenServer.call(pid, {:reset_count})
   end
 
@@ -168,5 +168,13 @@ defmodule DpulCollections.IndexingPipeline.AckTracker do
       )
 
     state
+  end
+
+  defp flush_messages(timeout \\ 100) do
+    receive do
+      _ -> flush_messages()
+    after
+      timeout -> nil
+    end
   end
 end

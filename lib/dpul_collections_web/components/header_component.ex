@@ -1,7 +1,6 @@
 # lib/my_app_web/components/header_component.ex
 defmodule DpulCollectionsWeb.HeaderComponent do
   use DpulCollectionsWeb, :html
-  use Phoenix.Component
   use Gettext, backend: DpulCollectionsWeb.Gettext
 
   attr :display_title, :boolean, default: true

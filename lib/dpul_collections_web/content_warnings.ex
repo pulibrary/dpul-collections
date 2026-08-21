@@ -1,11 +1,11 @@
 defmodule DpulCollectionsWeb.ContentWarnings do
   use DpulCollectionsWeb, :html
-  use Phoenix.Component
 
   alias Phoenix.LiveView.JS
   use Gettext, backend: DpulCollectionsWeb.Gettext
 
   defmacro __using__(_) do
+    # coveralls-ignore-start
     quote do
       on_mount DpulCollectionsWeb.ContentWarnings
       # Add a way to handle the show_images event to all live views.
@@ -23,6 +23,8 @@ defmodule DpulCollectionsWeb.ContentWarnings do
         {:noreply, socket |> assign(show_images: new_show_images)}
       end
     end
+
+    # coveralls-ignore-end
   end
 
   # All our liveviews could display show_images, so set it.

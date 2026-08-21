@@ -6,7 +6,6 @@ defmodule DpulCollectionsWeb.SearchItem do
   alias DpulCollectionsWeb.UserSets
   alias DpulCollectionsWeb.ContentWarnings
   use DpulCollectionsWeb, :html
-  use Phoenix.Component
   use Gettext, backend: DpulCollectionsWeb.Gettext
 
   def search_item(assigns = %{item: %Collection{}}) do
