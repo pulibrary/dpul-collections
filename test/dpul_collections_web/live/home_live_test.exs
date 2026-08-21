@@ -16,6 +16,20 @@ defmodule DpulCollectionsWeb.HomeLiveTest do
     Application.put_env(:dpul_collections, :environment_name, "production")
     {:ok, _view, html} = live(conn, "/")
     assert html =~ "https://www.googletagmanager.com/gtm.js?id="
+    assert html =~ "GTM-MP9VHJWR"
+    # doesn't have the staging tracker
+    refute html =~ "GTM-NXBN2WDV"
+  end
+
+  test "GET / sets up GTM in staging", %{conn: conn} do
+    initial_env = Application.get_env(:dpul_collections, :environment_name)
+    on_exit(fn -> Application.put_env(:dpul_collections, :environment_name, initial_env) end)
+    Application.put_env(:dpul_collections, :environment_name, "staging")
+    {:ok, _view, html} = live(conn, "/")
+    assert html =~ "https://www.googletagmanager.com/gtm.js?id="
+    assert html =~ "GTM-NXBN2WDV"
+    # doesn't have the production tracker
+    refute html =~ "GTM-MP9VHJWR"
   end
 
   test "GET / doesn't set up plausible in other environemnts", %{conn: conn} do

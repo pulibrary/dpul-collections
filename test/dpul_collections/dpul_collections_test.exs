@@ -14,4 +14,18 @@ defmodule DpulCollections.DpulCollectionsTest do
       assert DpulCollections.is_production() == true
     end
   end
+
+  describe ".is_staging()" do
+    test "returns false in test" do
+      assert DpulCollections.is_staging() == false
+    end
+
+    test "returns true when configured" do
+      initial_env = Application.get_env(:dpul_collections, :environment_name)
+      on_exit(fn -> Application.put_env(:dpul_collections, :environment_name, initial_env) end)
+      Application.put_env(:dpul_collections, :environment_name, "staging")
+
+      assert DpulCollections.is_staging() == true
+    end
+  end
 end

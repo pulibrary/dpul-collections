@@ -10,6 +10,13 @@ defmodule DpulCollectionsWeb.Analytics do
       'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
       })(window,document,'script','dataLayer','GTM-MP9VHJWR');
     </script>
+    <script :if={DpulCollections.is_staging()}>
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-NXBN2WDV');
+    </script>
     """
   end
 
@@ -18,6 +25,14 @@ defmodule DpulCollectionsWeb.Analytics do
     <noscript :if={DpulCollections.is_production()}>
       <iframe
         src="https://www.googletagmanager.com/ns.html?id=GTM-MP9VHJWR"
+        height="0"
+        width="0"
+        style="display:none;visibility:hidden"
+      ></iframe>
+    </noscript>
+    <noscript :if={DpulCollections.is_staging()}>
+      <iframe
+        src="https://www.googletagmanager.com/ns.html?id=GTM-NXBN2WDV"
         height="0"
         width="0"
         style="display:none;visibility:hidden"
