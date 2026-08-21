@@ -27,16 +27,6 @@ job "dpulc-staging" {
     # Remove from consul, wait 10s, then shut down.
     shutdown_delay = "10s"
     service {
-      name = "${NOMAD_JOB_NAME}-epmd"
-      port = "dist"
-      provider = "consul"
-      address = "node-${NOMAD_ALLOC_INDEX}-${NOMAD_GROUP_NAME}.${NOMAD_JOB_NAME}-epmd.service.consul"
-      address_mode = "auto"
-      tags = [
-        "node-${NOMAD_ALLOC_INDEX}-${NOMAD_GROUP_NAME}"
-      ]
-    }
-    service {
       port = "http"
       name = "dpulc-staging-web"
       tags = [
@@ -66,6 +56,16 @@ job "dpulc-staging" {
         interval = "10s"
         timeout = "1s"
       }
+    }
+    service {
+      name = "${NOMAD_JOB_NAME}-epmd"
+      port = "dist"
+      provider = "consul"
+      address = "node-${NOMAD_ALLOC_INDEX}-${NOMAD_GROUP_NAME}.${NOMAD_JOB_NAME}-epmd.service.consul"
+      address_mode = "auto"
+      tags = [
+        "node-${NOMAD_ALLOC_INDEX}-${NOMAD_GROUP_NAME}"
+      ]
     }
     service {
       name = "dpulc-staging-web"
@@ -156,16 +156,6 @@ job "dpulc-staging" {
     # Remove from consul, wait 10s, then shut down.
     shutdown_delay = "10s"
     service {
-      name = "${NOMAD_JOB_NAME}-epmd"
-      port = "dist"
-      provider = "consul"
-      address = "node-${NOMAD_ALLOC_INDEX}-${NOMAD_GROUP_NAME}.${NOMAD_JOB_NAME}-epmd.service.consul"
-      address_mode = "auto"
-      tags = [
-        "node-${NOMAD_ALLOC_INDEX}-${NOMAD_GROUP_NAME}"
-      ]
-    }
-    service {
       name = "dpulc-staging-web"
       tags = ["indexer", "logging"]
       port = "http"
@@ -176,6 +166,16 @@ job "dpulc-staging" {
         interval = "10s"
         timeout = "1s"
       }
+    }
+    service {
+      name = "${NOMAD_JOB_NAME}-epmd"
+      port = "dist"
+      provider = "consul"
+      address = "node-${NOMAD_ALLOC_INDEX}-${NOMAD_GROUP_NAME}.${NOMAD_JOB_NAME}-epmd.service.consul"
+      address_mode = "auto"
+      tags = [
+        "node-${NOMAD_ALLOC_INDEX}-${NOMAD_GROUP_NAME}"
+      ]
     }
     service {
       name = "dpulc-staging-web"
