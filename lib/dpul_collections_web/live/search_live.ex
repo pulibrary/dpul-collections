@@ -524,7 +524,7 @@ defmodule DpulCollectionsWeb.SearchLive do
     @valid_sort_by
     # Don't include things without labels.
     |> Enum.filter(fn {_, v} -> v[:label] end)
-    |> Enum.map(fn {k, v} -> {v[:label], k} end)
+    |> Enum.map(fn {k, v} -> {Gettext.gettext(DpulCollectionsWeb.Gettext, v[:label]), k} end)
   end
 
   def results_for_keywords_heading(assigns) do

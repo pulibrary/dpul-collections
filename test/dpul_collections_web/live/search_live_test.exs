@@ -158,6 +158,21 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     assert "Title (Z-A)" in labels
   end
 
+  test "sort labels are translated when user changes language", %{conn: conn} do
+    original_locale = Gettext.get_locale(DpulCollectionsWeb.Gettext)
+    on_exit(fn -> Gettext.put_locale(DpulCollectionsWeb.Gettext, original_locale) end)
+
+    {:ok, _view, html} = live(conn, "/search?locale=es")
+
+    labels =
+      html
+      |> Floki.parse_document!()
+      |> Floki.find("#sort-by option")
+      |> Enum.map(&Floki.text/1)
+
+    assert "Relevancia" in labels
+  end
+
   test "items can be sorted by recently updated", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/search")
 
