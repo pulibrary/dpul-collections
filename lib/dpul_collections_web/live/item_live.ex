@@ -788,7 +788,7 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def download_button(assigns = %{item: %{pdf_url: pdf_url}}) when is_binary(pdf_url) do
     ~H"""
-    <.primary_button href={@item.pdf_url} target="_blank">
+    <.primary_button href={@item.pdf_url} target="_blank" class="download-pdf">
       <.icon name="hero-arrow-down-on-square" class="h-5" /><span>{gettext("Download PDF")}</span>
     </.primary_button>
     """
