@@ -21,6 +21,8 @@ const handleCanvasIdCallback = (activeCanvasId, loadedCanvasIdx, pushEvent) => {
   if(typeof pushEvent === 'function') {
     pushEvent("changedCanvas", { "canvas_id": activeCanvasId })
   }
+
+  document.body.dispatchEvent(new Event("dpulc-viewer-loaded"));
 };
 
 // Clover scrolls the thumbnail bar horizontally already in https://github.com/samvera-labs/clover-iiif/blob/03d6a9292a4d60ff2b6524a5579af34ad30dc3b2/src/components/Viewer/Media/Media.tsx#L76-L81, but we need to handle vertical scroll.
