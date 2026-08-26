@@ -85,6 +85,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
     )
   end
 
+  ## If it's a deletion, always process it.
+  def initial_classification(
+        resource = %HydrationCacheEntry{data: %{"metadata" => %{"deleted" => true}}},
+        _cache_version
+      ) do
+    {:update, resource}
+  end
+
   def initial_classification(
         resource = %HydrationCacheEntry{data: %{"internal_resource" => internal_resource}},
         _cache_version
