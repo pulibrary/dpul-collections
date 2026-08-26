@@ -181,4 +181,41 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationIntegrationTest d
     entries = IndexingPipeline.list_transformation_cache_entries()
     assert length(entries) == 0
   end
+
+  test "deletes scanned resource hydration cache entries" do
+    IndexingPipeline.write_transformation_cache_entry(%{
+      cache_version: 0,
+      record_id: "an-id",
+      source_cache_order: ~U[2008-03-09 20:19:33.414040Z],
+      data: %{
+        "not_deleted" => "hi",
+        "bla" => 1
+      }
+    })
+
+    IndexingPipeline.write_hydration_cache_entry(%{
+      cache_version: 0,
+      record_id: "an-id",
+      resource_ids: [],
+      related_ids: [],
+      source_cache_order: ~U[2100-03-09 20:19:33.414040Z],
+      source_cache_order_record_id: "an-id",
+      data: %{
+        "id" => "an-id",
+        "internal_resource" => "ScannedResource",
+        "metadata" => %{"deleted" => true}
+      }
+    })
+
+    # Process that past record.
+    transformer = start_transformation_producer()
+    MockFiggyTransformationProducer.process(1)
+    assert_receive {:ack_done}
+    transformer |> Broadway.stop(:normal)
+    # Make sure it was marked for deletion.
+    entries = IndexingPipeline.list_transformation_cache_entries()
+    assert length(entries) == 1
+    entry = hd(entries)
+    assert entry.data == %{"id" => "an-id", "deleted" => true}
+  end
 end
