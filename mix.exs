@@ -99,6 +99,8 @@ defmodule DpulCollections.MixProject do
       {:oban_web, "~> 2.12.4"},
       {:a11y_audit, "~> 0.4.0", only: :test},
       {:mock, "~> 0.3.9", only: :test},
+      # Force meck to 1.2 to allow Erlang 29, see https://github.com/jjh42/mock/issues/153
+      {:meck, "~> 1.2", only: :test, override: true},
       {:lazy_html, "~> 0.1.11", only: :test},
       {:ex_cldr_locale_display, "~> 1.7.3"},
       {:junit_formatter, "~> 3.4.0", only: [:test]},
