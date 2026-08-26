@@ -167,6 +167,15 @@ defmodule DpulCollections.Collection do
         description: ~s"""
         <p>The <a href="https://www.aisls.org/">American Institute for Sri Lankan Studies (AISLS)</a> was established in 1996. It is a member of the <a href="http://www.caorc.org/">Council of American Overseas Research Centers (CAORC)</a> and an affiliate of the <a href="http://www.asian-studies.org/">Association for Asian Studies</a>. PUL has collaborated with the AISLS Colombo office, the University of Edinburgh, and the South Asia Open Archives to digitally host "Dissidents and Activists in Sri Lanka, 1960s to 1990s."</p>
         """
+      },
+      %{
+        id: "duke",
+        logo: ~p"/images/sae/Duke.png",
+        url: "https://library.duke.edu/",
+        label: "Duke University Libraries",
+        description: ~s"""
+        <p>Duke University Libraries advances teaching, learning, and research at Duke by providing critical expertise, deep and broad scholarly collections, inclusive programs and services, accessible technology, and inspiring spaces in a welcoming environment that is open to all. PUL has received a gift of ephemera covering the second half of the twentieth century in a variety of South Asian languages.</p>
+        """
       }
     ]
   end
