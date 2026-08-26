@@ -17,6 +17,9 @@
     "mix",
     "renovate-config"
   ],
+  "lockFileMaintenance": {
+    "enabled": true
+  },
   "minimumReleaseAge": "14 days",
   "packageRules": [
     {
