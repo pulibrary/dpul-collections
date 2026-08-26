@@ -102,7 +102,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       # Contributors
       |> assert_has(
         "#contributors .contributor-card",
-        count: 1
+        count: 2
       )
     end
 
