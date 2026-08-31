@@ -8,7 +8,7 @@ executors:
     parameters:
       elixir_version:
         type: string
-        default: 1.20.3 # datasource=hexpm-bob depName=elixir
+        default: 1.20.4 # datasource=hexpm-bob depName=elixir
       erlang_version:
         type: string
         default: 29.0.5 # datasource=github-tags depName=erlang packageName=erlang/otp
@@ -38,7 +38,7 @@ executors:
     parameters:
       elixir_version:
         type: string
-        default: 1.20.3 # datasource=hexpm-bob depName=elixir
+        default: 1.20.4 # datasource=hexpm-bob depName=elixir
       erlang_version:
         type: string
         default: 29.0.5 # datasource=github-tags depName=erlang packageName=erlang/otp

@@ -12,11 +12,11 @@
 #   - Ex: hexpm/elixir:1.16.3-erlang-26.2.5-debian-bullseye-20240513-slim
 #
 # renovate: datasource=hexpm-bob depName=elixir
-ARG ELIXIR_VERSION=1.20.3
+ARG ELIXIR_VERSION=1.20.4
 # renovate: datasource=github-tags depName=erlang packageName=erlang/otp
 ARG OTP_VERSION=29.0.5
 # renovate: datasource=docker depName=debian packageName=debian
-ARG DEBIAN_VERSION=trixie-20260803-slim
+ARG DEBIAN_VERSION=trixie-20260824-slim
 
 ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
 ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
