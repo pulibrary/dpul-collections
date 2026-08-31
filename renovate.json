@@ -97,6 +97,6 @@
   "prHourlyLimit": 3,
   "constraints": {
     "elixir": "1.20.3",
-    "erlang": "29.0.5"
+    "erlang": "29.0.5.0"
   }
 }
