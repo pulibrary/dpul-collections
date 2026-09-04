@@ -77,7 +77,7 @@ defmodule DpulCollections.MixProject do
       {:excoveralls, "~> 0.18.5", only: :test},
       {:broadway, "~> 1.3.0"},
       {:ex_doc, "~> 0.40.2", only: :dev, runtime: false},
-      {:req, "~> 0.6.2"},
+      {:req, "~> 0.7.0"},
       {:broadway_dashboard, "~> 0.5.0"},
       {:honeybadger, "~> 0.29.0"},
       {:phoenix_test_playwright, "~> 0.15.0", only: :test, runtime: false},
@@ -97,7 +97,7 @@ defmodule DpulCollections.MixProject do
       {:sham, "~> 1.2.5", only: :test},
       {:oban, "~> 2.23.0"},
       {:oban_web, "~> 2.12.4"},
-      {:a11y_audit, "~> 0.4.0", only: :test},
+      {:a11y_audit, "~> 0.5.0", only: :test},
       {:mock, "~> 0.3.9", only: :test},
       # Force meck to 1.2 to allow Erlang 29, see https://github.com/jjh42/mock/issues/153
       {:meck, "~> 1.2", only: :test, override: true},
