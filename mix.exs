@@ -80,7 +80,7 @@ defmodule DpulCollections.MixProject do
       {:req, "~> 0.7.0"},
       {:broadway_dashboard, "~> 0.5.0"},
       {:honeybadger, "~> 0.30.0"},
-      {:phoenix_test_playwright, "~> 0.15.0", only: :test, runtime: false},
+      {:phoenix_test_playwright, "~> 0.16.0", only: :test, runtime: false},
       {:live_debugger, "~> 1.0.0", only: :dev},
       {:prom_ex, "~> 1.12.0"},
       {:ecto_psql_extras, "~> 0.8.8"},
