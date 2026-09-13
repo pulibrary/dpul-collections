@@ -5,7 +5,9 @@ use rustler::{Error, NifMap, NifResult, Resource, ResourceArc};
 
 use oar_ocr_vl::utils::image::load_image;
 use oar_ocr_vl::utils::parse_device;
-use oar_ocr_vl::{DocParser, OvisOcr2, PaddleOcrVl, PpDocLayout, StructureResult};
+use oar_ocr_vl::{
+    DocParser, DocParserConfig, OvisOcr2, PaddleOcrVl, PaddleOcrVlTask, PpDocLayout, StructureResult,
+};
 
 struct ModelResource {
     model: Mutex<OvisOcr2>,
@@ -43,6 +45,14 @@ struct LayoutElem {
 
 fn err(message: impl std::fmt::Display) -> Error {
     Error::Term(Box::new(message.to_string()))
+}
+
+// Don't skip auxiliary regions.
+fn doc_parser_config() -> DocParserConfig {
+    DocParserConfig {
+        skip_auxiliary_regions: false,
+        ..DocParserConfig::default()
+    }
 }
 
 // Flatten a parsed page's detected regions into maps for Elixir.
@@ -114,6 +124,23 @@ fn ocr_path(
         .map_err(err)
 }
 
+#[rustler::nif(schedule = "DirtyCpu")]
+fn paddle_ocr_path(
+    resource: ResourceArc<PaddleResource>,
+    image_path: String
+) -> NifResult<String> {
+    let image = load_image(Path::new(&image_path)).map_err(err)?;
+    let model = resource.model.lock().map_err(|_| err("model lock poisoned"))?;
+
+    model
+        .generate(&[image], &[PaddleOcrVlTask::Spotting], 2048)
+        .map_err(err)?
+        .into_iter()
+        .next()
+        .ok_or_else(|| err("empty results returned"))?
+        .map_err(err)
+}
+
 // See https://github.com/GreatV/oar-ocr/blob/main/oar-ocr-vl/examples/ovisocr2.rs and
 // https://github.com/GreatV/oar-ocr/blob/main/oar-ocr-vl/examples/paddleocr_vl.rs and https://github.com/GreatV/oar-ocr/blob/main/oar-ocr-vl/examples/doc_parser.rs for some
 // examples.
@@ -127,7 +154,9 @@ fn layout_ocr_path(
     let ocr = ocr.model.lock().map_err(|_| err("model lock poisoned"))?;
     let layout = layout.model.lock().map_err(|_| err("layout lock poisoned"))?;
 
-    let result = DocParser::new(&*ocr).parse(&*layout, image).map_err(err)?;
+    let result = DocParser::with_config(&*ocr, doc_parser_config())
+        .parse(&*layout, image)
+        .map_err(err)?;
     Ok(to_layout_elems(result))
 }
 
@@ -143,7 +172,9 @@ fn layout_paddle_ocr_path(
     let paddle = paddle.model.lock().map_err(|_| err("paddle lock poisoned"))?;
     let layout = layout.model.lock().map_err(|_| err("layout lock poisoned"))?;
 
-    let result = DocParser::new(&*paddle).parse(&*layout, image).map_err(err)?;
+    let result = DocParser::with_config(&*paddle, doc_parser_config())
+        .parse(&*layout, image)
+        .map_err(err)?;
     Ok(to_layout_elems(result))
 }
 

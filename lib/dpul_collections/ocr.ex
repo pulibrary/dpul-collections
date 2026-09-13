@@ -12,6 +12,11 @@ defmodule DpulCollections.Ocr do
     GenServer.call(__MODULE__, {:ocr, url}, :infinity)
   end
 
+  @doc "Download an image and return markdown."
+  def paddle_ocr(url) do
+    GenServer.call(__MODULE__, {:paddle_ocr, url}, :infinity)
+  end
+
   @doc "Download an image, classify parts of it into bounding boxes, then convert each part into markdown."
   def layout_ocr(url) do
     GenServer.call(__MODULE__, {:layout_ocr, url}, :infinity)
@@ -20,6 +25,24 @@ defmodule DpulCollections.Ocr do
   @doc "Like layout_ocr/1, but recognizes each region with PaddleOCR-VL instead of OvisOCR2."
   def paddle_layout_ocr(url) do
     GenServer.call(__MODULE__, {:paddle_layout_ocr, url}, :infinity)
+  end
+
+  @loc_run ~r/([\s\S]*?)((?:<\|LOC_\d+\|>)+)/
+  @loc_token ~r/<\|LOC_(\d+)\|>/
+
+  def parse_paddle_ocr(raw) when is_binary(raw) do
+    @loc_run
+    |> Regex.scan(raw, capture: :all_but_first)
+    |> Enum.map(fn [text, locs] ->
+      box =
+        @loc_token
+        |> Regex.scan(locs, capture: :all_but_first)
+        |> Enum.map(fn [n] -> String.to_integer(n) end)
+        |> Enum.chunk_every(2)
+        |> Enum.map(fn [x, y] -> {x, y} end)
+
+      %{text: String.trim(text), box: box}
+    end)
   end
 
   @impl true
@@ -36,6 +59,16 @@ defmodule DpulCollections.Ocr do
 
     with_temp(url, fn path ->
       {:reply, Native.ocr_path(state.ocr, path, config(:max_new_tokens)), state}
+    end)
+  end
+
+  @impl true
+  def handle_call({:paddle_ocr, url}, _from, state) do
+    state = ensure_paddle(state)
+
+    with_temp(url, fn path ->
+      result = state.paddle |> Native.paddle_ocr_path(path) |> parse_paddle_ocr()
+      {:reply, result, state}
     end)
   end
 
