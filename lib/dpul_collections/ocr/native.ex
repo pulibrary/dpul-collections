@@ -15,5 +15,6 @@ defmodule DpulCollections.Ocr.Native do
 
   def layout_ocr_path(_ocr, _layout, _image_path), do: :erlang.nif_error(:nif_not_loaded)
 
-  def layout_paddle_ocr_path(_paddle, _layout, _image_path), do: :erlang.nif_error(:nif_not_loaded)
+  def layout_paddle_ocr_path(_paddle, _layout, _image_path),
+    do: :erlang.nif_error(:nif_not_loaded)
 end
