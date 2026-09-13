@@ -17,12 +17,17 @@ defmodule DpulCollections.Ocr do
     GenServer.call(__MODULE__, {:layout_ocr, url}, :infinity)
   end
 
+  @doc "Like layout_ocr/1, but recognizes each region with PaddleOCR-VL instead of OvisOCR2."
+  def paddle_layout_ocr(url) do
+    GenServer.call(__MODULE__, {:paddle_layout_ocr, url}, :infinity)
+  end
+
   @impl true
   def init(_opts) do
     # https://github.com/GreatV/oar-ocr/tree/main/oar-ocr-vl#installation
     # This says set OAR_VL_DTYPE for metal, so here we go.
     System.put_env("OAR_VL_DTYPE", System.get_env("OAR_VL_DTYPE") || "f16")
-    {:ok, %{ocr: nil, layout: nil}}
+    {:ok, %{ocr: nil, layout: nil, paddle: nil}}
   end
 
   @impl true
@@ -42,6 +47,14 @@ defmodule DpulCollections.Ocr do
     end)
   end
 
+  def handle_call({:paddle_layout_ocr, url}, _from, state) do
+    state = state |> ensure_paddle() |> ensure_layout()
+
+    with_temp(url, fn path ->
+      {:reply, Native.layout_paddle_ocr_path(state.paddle, state.layout, path), state}
+    end)
+  end
+
   # Lazy-cache models, they're like over a gig.
   defp ensure_ocr(%{ocr: nil} = state), do: %{state | ocr: load(:model_id, &Native.load_model/2)}
   defp ensure_ocr(state), do: state
@@ -50,6 +63,11 @@ defmodule DpulCollections.Ocr do
     do: %{state | layout: load(:layout_model_id, &Native.load_layout/2)}
 
   defp ensure_layout(state), do: state
+
+  defp ensure_paddle(%{paddle: nil} = state),
+    do: %{state | paddle: load(:paddle_model_id, &Native.load_paddle/2)}
+
+  defp ensure_paddle(state), do: state
 
   defp load(id_key, loader) do
     {:ok, dir} = HfHub.Download.snapshot_download(repo_id: config(id_key))

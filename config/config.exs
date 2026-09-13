@@ -113,6 +113,7 @@ config :dpul_collections, :cache_thumbnails?, true
 config :dpul_collections, DpulCollections.Ocr,
   model_id: "ATH-MaaS/OvisOCR2",
   layout_model_id: "PaddlePaddle/PP-DocLayoutV3_safetensors",
+  paddle_model_id: "PaddlePaddle/PaddleOCR-VL-1.6",
   max_new_tokens: 2048,
   device: "cpu"
 

@@ -5,7 +5,7 @@ use rustler::{Error, NifMap, NifResult, Resource, ResourceArc};
 
 use oar_ocr_vl::utils::image::load_image;
 use oar_ocr_vl::utils::parse_device;
-use oar_ocr_vl::{DocParser, OvisOcr2, PpDocLayout};
+use oar_ocr_vl::{DocParser, OvisOcr2, PaddleOcrVl, PpDocLayout, StructureResult};
 
 struct ModelResource {
     model: Mutex<OvisOcr2>,
@@ -15,11 +15,20 @@ struct LayoutResource {
     model: Mutex<PpDocLayout>,
 }
 
+// PaddleOCR-VL, an alternate DocParser recognition backend (trained for
+// per-region recognition, unlike OvisOCR2's model-native full-page path).
+struct PaddleResource {
+    model: Mutex<PaddleOcrVl>,
+}
+
 #[rustler::resource_impl]
 impl Resource for ModelResource {}
 
 #[rustler::resource_impl]
 impl Resource for LayoutResource {}
+
+#[rustler::resource_impl]
+impl Resource for PaddleResource {}
 
 /// Struct to hold the text + region detected to convert to a map.
 #[derive(NifMap)]
@@ -34,6 +43,27 @@ struct LayoutElem {
 
 fn err(message: impl std::fmt::Display) -> Error {
     Error::Term(Box::new(message.to_string()))
+}
+
+// Flatten a parsed page's detected regions into maps for Elixir.
+fn to_layout_elems(result: StructureResult) -> Vec<LayoutElem> {
+    result
+        .layout_elements
+        .into_iter()
+        .map(|e| LayoutElem {
+            kind: e.element_type.as_str().to_string(),
+            label: e.label,
+            text: e.text,
+            confidence: e.confidence as f64,
+            order_index: e.order_index.map(|i| i as i64),
+            bbox: (
+                e.bbox.x_min() as f64,
+                e.bbox.y_min() as f64,
+                e.bbox.x_max() as f64,
+                e.bbox.y_max() as f64,
+            ),
+        })
+        .collect()
 }
 
 #[rustler::nif(schedule = "DirtyCpu")]
@@ -57,6 +87,16 @@ fn load_layout(model_dir: String, device: String) -> NifResult<ResourceArc<Layou
 }
 
 #[rustler::nif(schedule = "DirtyCpu")]
+fn load_paddle(model_dir: String, device: String) -> NifResult<ResourceArc<PaddleResource>> {
+    let device = parse_device(&device).map_err(err)?;
+    let model = PaddleOcrVl::from_dir(Path::new(&model_dir), device).map_err(err)?;
+
+    Ok(ResourceArc::new(PaddleResource {
+        model: Mutex::new(model),
+    }))
+}
+
+#[rustler::nif(schedule = "DirtyCpu")]
 fn ocr_path(
     resource: ResourceArc<ModelResource>,
     image_path: String,
@@ -66,7 +106,7 @@ fn ocr_path(
     let model = resource.model.lock().map_err(|_| err("model lock poisoned"))?;
 
     model
-        .parse(&[image], max_new_tokens)
+        .parse_with_image_tags(&[image], max_new_tokens, true)
         .map_err(err)?
         .into_iter()
         .next()
@@ -88,24 +128,23 @@ fn layout_ocr_path(
     let layout = layout.model.lock().map_err(|_| err("layout lock poisoned"))?;
 
     let result = DocParser::new(&*ocr).parse(&*layout, image).map_err(err)?;
+    Ok(to_layout_elems(result))
+}
 
-    Ok(result
-        .layout_elements
-        .into_iter()
-        .map(|e| LayoutElem {
-            kind: e.element_type.as_str().to_string(),
-            label: e.label,
-            text: e.text,
-            confidence: e.confidence as f64,
-            order_index: e.order_index.map(|i| i as i64),
-            bbox: (
-                e.bbox.x_min() as f64,
-                e.bbox.y_min() as f64,
-                e.bbox.x_max() as f64,
-                e.bbox.y_max() as f64,
-            ),
-        })
-        .collect())
+// Same as layout_ocr_path, but recognizes each region with PaddleOCR-VL instead
+// of OvisOCR2.
+#[rustler::nif(schedule = "DirtyCpu")]
+fn layout_paddle_ocr_path(
+    paddle: ResourceArc<PaddleResource>,
+    layout: ResourceArc<LayoutResource>,
+    image_path: String,
+) -> NifResult<Vec<LayoutElem>> {
+    let image = load_image(Path::new(&image_path)).map_err(err)?;
+    let paddle = paddle.model.lock().map_err(|_| err("paddle lock poisoned"))?;
+    let layout = layout.model.lock().map_err(|_| err("layout lock poisoned"))?;
+
+    let result = DocParser::new(&*paddle).parse(&*layout, image).map_err(err)?;
+    Ok(to_layout_elems(result))
 }
 
 rustler::init!("Elixir.DpulCollections.Ocr.Native");
