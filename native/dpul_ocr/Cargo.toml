@@ -1,0 +1,19 @@
+[package]
+name = "dpul_ocr"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "dpul_ocr"
+crate-type = ["cdylib"]
+
+[dependencies]
+rustler = "0.38.0"
+oar-ocr-vl = "0.9.2"
+
+[features]
+default = []
+# Enabled only for macOS builds (see DpulCollections.Ocr.Native). Metal has no
+# passthrough into a Linux container, so Docker/Linux builds stay CPU-only.
+metal = ["oar-ocr-vl/metal"]
+cuda = ["oar-ocr-vl/cuda"]

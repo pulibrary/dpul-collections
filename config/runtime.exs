@@ -20,8 +20,13 @@ if System.get_env("PHX_SERVER") do
   config :dpul_collections, DpulCollectionsWeb.Endpoint, server: true
 end
 
+config :hf_hub, cache_dir: Path.join(File.cwd!(), "hf_cache")
+
 if config_env() == :prod do
   config :dpul_collections, environment_name: System.get_env("APP_ENV")
+
+  # We don't have any GPUs and can't use metal in docker, sooo.
+  config :dpul_collections, DpulCollections.Ocr, device: System.get_env("OCR_DEVICE", "cpu")
 
   # Feature flips
   config :dpul_collections, :feature_account_toolbar, false

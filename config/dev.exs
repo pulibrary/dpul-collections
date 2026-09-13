@@ -137,6 +137,9 @@ config :dpul_collections, :cache_thumbnails?, false
 
 config :honeybadger, api_key: ""
 
+# Macs can use the "metal" device for GPU acceleration.
+config :dpul_collections, DpulCollections.Ocr, device: "metal"
+
 config :dpul_collections, :libanswers,
   client_id: System.get_env("LIBANSWERS_CLIENT_ID") || "disabled",
   client_secret: System.get_env("LIBANSWERS_CLIENT_SECRET") || "disabled",

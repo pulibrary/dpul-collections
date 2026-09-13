@@ -27,6 +27,13 @@ FROM ${BUILDER_IMAGE} as builder
 RUN apt-get update -y && apt-get install -y build-essential git curl \
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
+# install rust
+# renovate: datasource=github-tags depName=rust packageName=rust-lang/rust
+ARG RUST_VERSION=1.98.1
+ENV PATH=/root/.cargo/bin:$PATH
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+    | sh -s -- -y --default-toolchain "${RUST_VERSION}" --profile minimal
+
 # Install JavaScript dependencies
 # renovate: datasource=node-version depName=node
 ARG NODE_VERSION=24.20.0
@@ -102,6 +109,7 @@ RUN chown nobody /app
 
 # set runner ENV
 ENV MIX_ENV="prod"
+ENV OAR_VL_DTYPE="f16"
 
 # Only copy the final release from the build stage
 COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/dpul_collections ./

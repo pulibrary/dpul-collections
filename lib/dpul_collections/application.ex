@@ -19,6 +19,7 @@ defmodule DpulCollections.Application do
         # {DpulCollections.Worker, arg},
         # Start to serve requests, typically the last entry
         DpulCollectionsWeb.Endpoint,
+        DpulCollections.Ocr,
         DpulCollections.IndexMetricsTracker,
         {Cluster.Supervisor,
          [

@@ -105,7 +105,9 @@ defmodule DpulCollections.MixProject do
       {:ex_cldr_locale_display, "~> 1.7.3"},
       {:junit_formatter, "~> 3.4.0", only: [:test]},
       {:flow, "~> 1.2.4"},
-      {:libcluster_dynamic_srv, "~> 1.0"}
+      {:libcluster_dynamic_srv, "~> 1.0"},
+      {:rustler, "~> 0.38.0"},
+      {:hf_hub, "~> 0.3.1"}
     ]
   end
 

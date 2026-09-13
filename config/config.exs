@@ -109,6 +109,13 @@ config :dpul_collections, DpulCollections.PromEx,
 # Turn on thumbnail caching
 config :dpul_collections, :cache_thumbnails?, true
 
+# OCR models + device, CPU by default.
+config :dpul_collections, DpulCollections.Ocr,
+  model_id: "ATH-MaaS/OvisOCR2",
+  layout_model_id: "PaddlePaddle/PP-DocLayoutV3_safetensors",
+  max_new_tokens: 2048,
+  device: "cpu"
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

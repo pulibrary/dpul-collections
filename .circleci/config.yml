@@ -56,6 +56,17 @@ commands:
         type: boolean
         default: true
     steps:
+      - run:
+          name: Install Rust
+          # renovate: datasource=github-tags depName=rust packageName=rust-lang/rust
+          command: |
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+              | sh -s -- -y --default-toolchain 1.98.1 --profile minimal
+            echo 'source "$HOME/.cargo/env"' >> "$BASH_ENV"
+      - restore_cache:
+          keys:
+            - v1-cargo-cache-{{ checksum "native/dpul_ocr/Cargo.lock" }}
+            - v1-cargo-cache
       - restore_cache:
           keys:
             - v2-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
@@ -158,6 +169,12 @@ jobs:
       - run:
           name: Setup warnings as errors
           command: MIX_ENV=test mix compile --warnings-as-errors
+      - save_cache:
+          key: v1-cargo-cache-{{ checksum "native/dpul_ocr/Cargo.lock" }}
+          paths:
+            - "~/.cargo/registry"
+            - "~/.cargo/git"
+            - "native/dpul_ocr/target"
       - run:
           name: Run tests
           command: mix test --trace
