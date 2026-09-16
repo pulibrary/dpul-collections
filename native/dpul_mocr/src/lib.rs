@@ -1,6 +1,6 @@
 use std::ffi::CString;
 use std::num::NonZeroU32;
-use std::sync::Mutex;
+use std::sync::{Mutex, OnceLock};
 
 use encoding_rs::UTF_8;
 use rustler::{Binary, Resource, ResourceArc};
@@ -19,20 +19,34 @@ use llama_cpp_2::{send_logs_to_tracing, LogOptions};
 pub struct Model {
     mtmd_ctx: Mutex<MtmdContext>,
     model: LlamaModel,
-    backend: LlamaBackend,
 }
 
 #[rustler::resource_impl]
 impl Resource for Model {}
 
+// The llama.cpp backend is process-global singleton state. `LlamaBackend::init`
+// can only succeed once per OS process, so we initialize it lazily and share the
+// single instance. Without this, a GenServer restart (e.g. after any panic in a
+// NIF) would call `init` a second time, get `BackendAlreadyInitialized`, and
+// crash-loop forever so every subsequent `ocr/2` fails no matter the input.
+static BACKEND: OnceLock<LlamaBackend> = OnceLock::new();
+
+fn backend() -> &'static LlamaBackend {
+    BACKEND.get_or_init(|| LlamaBackend::init().expect("failed to init llama backend"))
+}
+
 // Similar to https://github.com/utilityai/llama-cpp-rs/blob/main/examples/mtmd/src/mtmd.rs#L101
 #[rustler::nif(schedule = "DirtyCpu")]
 fn load(model_path: String, mmproj_path: String) -> ResourceArc<Model> {
-    send_logs_to_tracing(LogOptions::default().with_logs_enabled(true));
-    let backend = LlamaBackend::init().unwrap();
+    let _ = tracing_subscriber::fmt()
+        .with_writer(std::io::stderr)
+        .with_max_level(tracing::Level::TRACE)
+        .try_init();
+    send_logs_to_tracing(LogOptions::default().with_logs_enabled(false));
+    let backend = backend();
     // Set 0 to 1_000_000 to use GPU
     let model_params = LlamaModelParams::default().with_n_gpu_layers(1_000_000);
-    let model = LlamaModel::load_from_file(&backend, &model_path, &model_params).unwrap();
+    let model = LlamaModel::load_from_file(backend, &model_path, &model_params).unwrap();
 
     let mtmd_params = MtmdContextParams {
         // Set to true to use Metal
@@ -48,7 +62,6 @@ fn load(model_path: String, mmproj_path: String) -> ResourceArc<Model> {
     ResourceArc::new(Model {
         mtmd_ctx: Mutex::new(mtmd_ctx),
         model,
-        backend,
     })
 }
 
@@ -61,11 +74,11 @@ fn ocr(resource: ResourceArc<Model>, image: Binary, prompt: String) -> String {
     let ctx_params = LlamaContextParams::default()
         .with_n_ctx(Some(NonZeroU32::new(8192).unwrap()))
         .with_n_batch(512);
-    let mut context = model.new_context(&resource.backend, ctx_params).unwrap();
+    let mut context = model.new_context(backend(), ctx_params).unwrap();
 
     let bitmap = MtmdBitmap::from_buffer(mtmd_ctx, image.as_slice(), false).unwrap();
 
-    let full_prompt = format!("{prompt}{}", mtmd_default_marker());
+    let full_prompt = format!("{}{prompt}", mtmd_default_marker());
     let chat_template = model.chat_template(None).unwrap();
     let messages = vec![LlamaChatMessage::new("user".to_string(), full_prompt).unwrap()];
     let formatted = model
