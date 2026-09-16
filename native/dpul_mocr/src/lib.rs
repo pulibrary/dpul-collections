@@ -31,12 +31,12 @@ fn load(model_path: String, mmproj_path: String) -> ResourceArc<Model> {
     send_logs_to_tracing(LogOptions::default().with_logs_enabled(true));
     let backend = LlamaBackend::init().unwrap();
     // Set 0 to 1_000_000 to use GPU
-    let model_params = LlamaModelParams::default().with_n_gpu_layers(0);
+    let model_params = LlamaModelParams::default().with_n_gpu_layers(1_000_000);
     let model = LlamaModel::load_from_file(&backend, &model_path, &model_params).unwrap();
 
     let mtmd_params = MtmdContextParams {
         // Set to true to use Metal
-        use_gpu: false,
+        use_gpu: true,
         print_timings: false,
         n_threads: 4,
         media_marker: CString::new(mtmd_default_marker().to_string()).unwrap(),
