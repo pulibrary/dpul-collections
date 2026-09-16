@@ -109,6 +109,15 @@ config :dpul_collections, DpulCollections.PromEx,
 # Turn on thumbnail caching
 config :dpul_collections, :cache_thumbnails?, true
 
+# dots.mocr OCR model (llama.cpp NIF)
+config :dpul_collections, :start_mocr?, false
+
+config :dpul_collections, DpulCollections.Mocr,
+  repo: "prithivMLmods/dots.mocr-GGUF",
+  model_file: "dots.mocr.Q4_K_M.gguf",
+  mmproj_file: "dots.mocr.mmproj-f16.gguf",
+  cache_dir: Path.expand("~/.cache/dpul_mocr")
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

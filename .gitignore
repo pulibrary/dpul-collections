@@ -47,3 +47,7 @@ screenshots/*
 
 # ignore coverage data files
 *.coverdata
+
+# Rust NIF build artifacts
+/native/*/target/
+/priv/native/*.so

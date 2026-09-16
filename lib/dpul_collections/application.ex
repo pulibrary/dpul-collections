@@ -25,7 +25,7 @@ defmodule DpulCollections.Application do
            Application.get_env(:libcluster, :topologies),
            [name: DpulCollections.ClusterSupervisor]
          ]}
-      ] ++ filter_pipeline_children()
+      ] ++ mocr_children() ++ filter_pipeline_children()
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
@@ -34,6 +34,14 @@ defmodule DpulCollections.Application do
   end
 
   # coveralls-ignore-start
+  def mocr_children() do
+    if Application.get_env(:dpul_collections, :start_mocr?, false) do
+      [DpulCollections.Mocr]
+    else
+      []
+    end
+  end
+
   def filter_pipeline_children() do
     fun = Application.fetch_env!(:dpul_collections, :start_indexing_pipeline?)
 

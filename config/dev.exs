@@ -3,6 +3,9 @@ import Config
 # Feature flips
 config :dpul_collections, :feature_account_toolbar, true
 
+# Load the dots.mocr OCR model on startup
+config :dpul_collections, :start_mocr?, true
+
 # Configure your database
 config :dpul_collections, DpulCollections.Repo,
   username: "postgres",
