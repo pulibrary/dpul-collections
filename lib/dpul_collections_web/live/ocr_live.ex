@@ -16,7 +16,7 @@ defmodule DpulCollectionsWeb.OcrLive do
   def handle_info({:processed, job, ocr}, socket) do
     socket =
       socket
-      |> assign(:processed, [{job, ocr} | socket.assigns.processed])
+      |> assign(:processed, socket.assigns.processed ++ [{job, ocr}])
 
     {:noreply, socket}
   end
@@ -44,7 +44,7 @@ defmodule DpulCollectionsWeb.OcrLive do
           </div>
           <div>
             <p>
-              {ocr}
+              {ocr |> String.replace("\n", "<br />") |> raw}
             </p>
           </div>
         </div>
