@@ -22,9 +22,11 @@ defmodule DpulCollections.Mocr do
 
     5. Final Output: The entire output must be a single JSON object.
     """,
-    layout_only: "Please output the layout information from this PDF image, including each layout's bbox and its category. The bbox should be in the format [x1, y1, x2, y2]. The layout categories for the PDF document include ['Caption', 'Footnote', 'Formula', 'List-item', 'Page-footer', 'Page-header', 'Picture', 'Section-header', 'Table', 'Text', 'Title']. Do not output the corresponding text. The layout result should be in JSON format.",
+    layout_only:
+      "Please output the layout information from this PDF image, including each layout's bbox and its category. The bbox should be in the format [x1, y1, x2, y2]. The layout categories for the PDF document include ['Caption', 'Footnote', 'Formula', 'List-item', 'Page-footer', 'Page-header', 'Picture', 'Section-header', 'Table', 'Text', 'Title']. Do not output the corresponding text. The layout result should be in JSON format.",
     ocr: "Extract the text content from this image.",
-    grounding_ocr: "Extract text from the given bounding box on the image (format: [x1, y1, x2, y2]).\nBounding Box:\n",
+    grounding_ocr:
+      "Extract text from the given bounding box on the image (format: [x1, y1, x2, y2]).\nBounding Box:\n",
     web_parsing: "Parsing the layout info of this webpage image with format json:\n",
     scene_spotting: "Detect and recognize the text in the image.",
     general: " "

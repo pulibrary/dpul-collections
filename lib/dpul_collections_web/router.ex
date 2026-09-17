@@ -52,6 +52,9 @@ defmodule DpulCollectionsWeb.Router do
       live "/i/:slug/item/:id/viewer/:current_canvas_idx", ItemLive, :viewer
       live "/item/:id/viewer", ItemLive, :viewer
       live "/sets/:id", UserSetsLive.Show, :live
+
+      # Let's try this..
+      live "/ocr", OcrLive, :live
     end
 
     post "/users/log-in", UserSessionController, :create

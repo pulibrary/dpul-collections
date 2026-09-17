@@ -20,6 +20,8 @@ defmodule DpulCollections.Application do
         # Start to serve requests, typically the last entry
         DpulCollectionsWeb.Endpoint,
         DpulCollections.IndexMetricsTracker,
+        DpulCollections.DistributedOcr.Host,
+        DpulCollections.DistributedOcr.Client,
         {Cluster.Supervisor,
          [
            Application.get_env(:libcluster, :topologies),
