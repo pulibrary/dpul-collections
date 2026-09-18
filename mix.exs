@@ -9,6 +9,7 @@ defmodule DpulCollections.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
+      releases: releases(),
       compilers: [:phoenix_live_view] ++ Mix.compilers(),
       listeners: [Phoenix.CodeReloader],
       test_coverage: [tool: ExCoveralls],
@@ -106,7 +107,27 @@ defmodule DpulCollections.MixProject do
       {:junit_formatter, "~> 3.4.0", only: [:test]},
       {:flow, "~> 1.2.4"},
       {:libcluster_dynamic_srv, "~> 1.0"},
-      {:rustler, "~> 0.38.0"}
+      {:rustler, "~> 0.38.0"},
+      {:burrito, "~> 1.5.0"}
+    ]
+  end
+
+  # Gotta set releases to make burrito work, so ALSO need to include the
+  # default.
+  defp releases do
+    [
+      dpul_collections: [
+        include_executables_for: [:unix],
+        steps: [:assemble]
+      ],
+      ocr_client: [
+        steps: [:assemble, &Burrito.wrap/1],
+        burrito: [
+          targets: [
+            macos: [os: :darwin, cpu: :aarch64]
+          ]
+        ]
+      ]
     ]
   end
 

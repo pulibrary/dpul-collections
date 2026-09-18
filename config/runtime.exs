@@ -20,7 +20,35 @@ if System.get_env("PHX_SERVER") do
   config :dpul_collections, DpulCollectionsWeb.Endpoint, server: true
 end
 
-if config_env() == :prod do
+# TODO: Refactor later. Two modes, so we can compile the client into an
+# executable.
+app_mode =
+  cond do
+    System.get_env("DPUL_APP_MODE") == "client" -> :client
+    System.get_env("DPUL_APP_MODE") == "server" -> :server
+    true -> :server
+  end
+
+config :dpul_collections, :app_mode, app_mode
+
+if app_mode == :client do
+  config :dpul_collections, :start_mocr?, true
+
+  # Disable honeybadger for clients.
+  config :honeybadger, environment_name: "ocr_client", api_key: ""
+
+  client_env =
+    [
+      server_url: System.get_env("DPUL_OCR_SERVER_URL"),
+      token: System.get_env("DPUL_OCR_TOKEN"),
+      client_id: System.get_env("DPUL_OCR_CLIENT_ID")
+    ]
+    |> Enum.reject(fn {_key, value} -> is_nil(value) end)
+
+  config :dpul_collections, DpulCollections.DistributedOcr.Client, client_env
+end
+
+if config_env() == :prod and app_mode == :server do
   config :dpul_collections, environment_name: System.get_env("APP_ENV")
 
   # Feature flips
@@ -93,6 +121,10 @@ if config_env() == :prod do
   # Configure basic auth
   config :dpul_collections, :basic_auth_username, System.get_env("BASIC_AUTH_USERNAME")
   config :dpul_collections, :basic_auth_password, System.get_env("BASIC_AUTH_PASSWORD")
+
+  config :dpul_collections,
+         :ocr_api_tokens,
+         (System.get_env("OCR_API_TOKENS") || "") |> String.split(",", trim: true)
 
   config :dpul_collections, DpulCollectionsWeb.Endpoint,
     url: [host: host, port: 443, scheme: "https"],

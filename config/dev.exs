@@ -3,8 +3,13 @@ import Config
 # Feature flips
 config :dpul_collections, :feature_account_toolbar, true
 
-# Load the dots.mocr OCR model on startup
-config :dpul_collections, :start_mocr?, true
+# No client in dev mode.
+config :dpul_collections, :start_mocr?, false
+config :dpul_collections, :ocr_api_tokens, ["dev-token"]
+
+config :dpul_collections, DpulCollections.DistributedOcr.Client,
+  server_url: "http://localhost:4000",
+  token: "dev-token"
 
 # Configure your database
 config :dpul_collections, DpulCollections.Repo,

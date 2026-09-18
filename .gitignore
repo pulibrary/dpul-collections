@@ -51,3 +51,4 @@ screenshots/*
 # Rust NIF build artifacts
 /native/*/target/
 /priv/native/*.so
+/burrito_out/*

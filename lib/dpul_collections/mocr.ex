@@ -40,6 +40,15 @@ defmodule DpulCollections.Mocr do
     GenServer.call(__MODULE__, {:ocr, url, mode}, :infinity)
   end
 
+  def model_info do
+    config = Application.fetch_env!(:dpul_collections, __MODULE__)
+
+    %{
+      model: "#{config[:repo]}/#{config[:model_file]}",
+      version: config[:model_version]
+    }
+  end
+
   @impl true
   def init(_opts) do
     {:ok, %{model: nil}, {:continue, :load}}
@@ -56,8 +65,9 @@ defmodule DpulCollections.Mocr do
 
   @impl true
   def handle_call({:ocr, url, mode}, _from, %{model: model} = state) do
+    config = Application.fetch_env!(:dpul_collections, __MODULE__)
     %{body: image} = Req.get!(url)
-    text = Native.ocr(model, image, @prompts[mode])
+    text = Native.ocr(model, image, @prompts[mode], config[:n_ctx])
     {:reply, text, state}
   end
 

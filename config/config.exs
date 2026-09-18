@@ -116,7 +116,21 @@ config :dpul_collections, DpulCollections.Mocr,
   repo: "prithivMLmods/dots.mocr-GGUF",
   model_file: "dots.mocr.Q4_K_M.gguf",
   mmproj_file: "dots.mocr.mmproj-f16.gguf",
+  model_version: "1",
+  # Big number, OCR throws a NoKvCacheSlot error if it's too low.
+  n_ctx: 32768,
   cache_dir: Path.expand("~/.cache/dpul_mocr")
+
+# app_mode server by default, token is just a filler.
+# Server distributes work and receives it, client does OCR work.
+config :dpul_collections, :app_mode, :server
+config :dpul_collections, :ocr_api_tokens, ["32"]
+
+config :dpul_collections, DpulCollections.DistributedOcr.Client,
+  server_url: "http://localhost:4000"
+
+# Size of the image. If it's too small the OCR starts to loop or hallucinate.
+config :dpul_collections, DpulCollections.DistributedOcr.Host, iiif_size: "1500,"
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

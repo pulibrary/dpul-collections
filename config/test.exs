@@ -148,3 +148,7 @@ config :dpul_collections, :libanswers,
   client_id: "my_id",
   client_secret: "my_secret",
   queue_id: "my_queue"
+
+# Long poll super fast in test.
+config :dpul_collections, DpulCollections.DistributedOcr.Host, poll_ms: 50
+config :dpul_collections, :ocr_api_tokens, ["test-token"]

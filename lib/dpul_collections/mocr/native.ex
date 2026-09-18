@@ -8,5 +8,5 @@ defmodule DpulCollections.Mocr.Native do
     ]
 
   def load(_model_path, _mmproj_path), do: :erlang.nif_error(:nif_not_loaded)
-  def ocr(_model, _image, _prompt), do: :erlang.nif_error(:nif_not_loaded)
+  def ocr(_model, _image, _prompt, _n_ctx), do: :erlang.nif_error(:nif_not_loaded)
 end

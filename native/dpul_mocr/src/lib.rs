@@ -24,11 +24,6 @@ pub struct Model {
 #[rustler::resource_impl]
 impl Resource for Model {}
 
-// The llama.cpp backend is process-global singleton state. `LlamaBackend::init`
-// can only succeed once per OS process, so we initialize it lazily and share the
-// single instance. Without this, a GenServer restart (e.g. after any panic in a
-// NIF) would call `init` a second time, get `BackendAlreadyInitialized`, and
-// crash-loop forever so every subsequent `ocr/2` fails no matter the input.
 static BACKEND: OnceLock<LlamaBackend> = OnceLock::new();
 
 fn backend() -> &'static LlamaBackend {
@@ -66,13 +61,13 @@ fn load(model_path: String, mmproj_path: String) -> ResourceArc<Model> {
 }
 
 #[rustler::nif(schedule = "DirtyCpu")]
-fn ocr(resource: ResourceArc<Model>, image: Binary, prompt: String) -> String {
+fn ocr(resource: ResourceArc<Model>, image: Binary, prompt: String, n_ctx: u32) -> String {
     let model = &resource.model;
     let guard = resource.mtmd_ctx.lock().unwrap();
     let mtmd_ctx = &*guard;
 
     let ctx_params = LlamaContextParams::default()
-        .with_n_ctx(Some(NonZeroU32::new(8192).unwrap()))
+        .with_n_ctx(Some(NonZeroU32::new(n_ctx).unwrap()))
         .with_n_batch(512);
     let mut context = model.new_context(backend(), ctx_params).unwrap();
 
@@ -106,6 +101,9 @@ fn ocr(resource: ResourceArc<Model>, image: Binary, prompt: String) -> String {
         if model.is_eog_token(token) {
             break;
         }
+        if n_past >= n_ctx as i32 {
+            break;
+        }
         let piece = model
             .token_to_piece(token, &mut decoder, false, None)
             .unwrap_or_default();
@@ -113,7 +111,9 @@ fn ocr(resource: ResourceArc<Model>, image: Binary, prompt: String) -> String {
         batch.clear();
         batch.add(token, n_past, &[0], true).unwrap();
         n_past += 1;
-        context.decode(&mut batch).unwrap();
+        if context.decode(&mut batch).is_err() {
+            break;
+        }
     }
 
     output

@@ -1,27 +1,186 @@
 defmodule DpulCollections.DistributedOcr.HostTest do
   use DpulCollections.DataCase
-  alias DpulCollections.DistributedOcr.Host
+  alias DpulCollections.DistributedOcr
+  alias DpulCollections.DistributedOcr.{Host, Job, Result, ClientStatus}
   alias DpulCollections.Solr
+
+  @expected_image_url "https://iiif-cloud-staging.princeton.edu/iiif/2/79%2F5e%2F1c%2F795e1cefd4ba48128ea4ffbc1b45cd99%2Fintermediate_file/full/1500,/0/default.jpg"
 
   setup do
     sham =
       Sham.start()
       |> Sham.stub("GET", "/manifest/1/manifest", &manifest_stub/1)
+      |> Sham.stub("GET", "/manifest/2/manifest", &list_label_manifest_stub/1)
 
     Solr.add(SolrTestSupport.mock_solr_documents(1, true, sham), active_collection())
     Solr.soft_commit(active_collection())
-    {:ok, sham: sham}
+    {:ok, sham: sham, manifest_url: "http://localhost:#{sham.port}/manifest/1/manifest"}
   end
 
   describe ".ocr_manifest/1" do
-    test "requests OCR of every page", %{sham: sham} do
-      Host.ocr_manifest("http://localhost:#{sham.port}/manifest/1/manifest")
+    test "enqueues a queued job for every page, with manifest + page labels", %{
+      manifest_url: manifest_url
+    } do
+      assert {:ok, 1} = Host.ocr_manifest(manifest_url)
 
-      {:ok, page} = Host.fetch_job()
-
-      assert page ==
-               "https://iiif-cloud-staging.princeton.edu/iiif/2/79%2F5e%2F1c%2F795e1cefd4ba48128ea4ffbc1b45cd99%2Fintermediate_file/full/1000,/0/default.jpg"
+      job = Repo.get_by(Job, image_url: @expected_image_url)
+      assert job.status == "queued"
+      assert job.manifest_url == manifest_url
+      assert job.manifest_label == "Test"
+      assert job.page_label == "default (11).jpg"
     end
+
+    test "is idempotent per image_url", %{manifest_url: manifest_url} do
+      assert {:ok, 1} = Host.ocr_manifest(manifest_url)
+      assert {:ok, 0} = Host.ocr_manifest(manifest_url)
+      assert Repo.aggregate(Job, :count) == 1
+    end
+  end
+
+  describe ".claim_job/1" do
+    test "hands out the queued job and marks it claimed", %{manifest_url: manifest_url} do
+      Host.ocr_manifest(manifest_url)
+
+      assert {:ok, job} = Host.claim_job("test-client")
+      assert job.image_url == @expected_image_url
+
+      claimed = Repo.get(Job, job.id)
+      assert claimed.status == "claimed"
+      assert claimed.claimed_by == "test-client"
+    end
+
+    test "returns :queue_empty when there's nothing to do" do
+      assert {:error, :queue_empty} = Host.claim_job("test-client")
+    end
+  end
+
+  describe "client presence" do
+    test "claiming marks the client working; completing marks it idle", %{
+      manifest_url: manifest_url
+    } do
+      Host.ocr_manifest(manifest_url)
+      {:ok, job} = Host.claim_job("worker-a")
+
+      assert %ClientStatus{status: "working", image_url: @expected_image_url} =
+               Repo.get_by(ClientStatus, client_id: "worker-a")
+
+      Host.complete_job(job.id, %{client_id: "worker-a", text: "x", model: "m"})
+      assert %ClientStatus{status: "idle", image_url: nil} =
+               Repo.get_by(ClientStatus, client_id: "worker-a")
+    end
+
+    test "a poll that finds nothing still registers the client as connected" do
+      assert {:error, :queue_empty} = Host.claim_job("idle-worker")
+      assert "idle-worker" in (DistributedOcr.connected_clients() |> Enum.map(& &1.client_id))
+    end
+  end
+
+  describe ".complete_job/2" do
+    test "records a result with metadata and marks the job done", %{manifest_url: manifest_url} do
+      Host.ocr_manifest(manifest_url)
+      {:ok, job} = Host.claim_job("test-client")
+
+      assert {:ok, _result} =
+               Host.complete_job(job.id, %{
+                 client_id: "test-client",
+                 text: "hello world",
+                 model: "prithivMLmods/dots.mocr-GGUF/dots.mocr.Q4_K_M.gguf",
+                 model_version: "1",
+                 duration_ms: 42
+               })
+
+      result = Repo.get_by(Result, image_url: @expected_image_url)
+      assert result.text == "hello world"
+      assert result.client_id == "test-client"
+      assert result.model_version == "1"
+      assert result.manifest_label == "Test"
+
+      assert Repo.get(Job, job.id).status == "done"
+    end
+  end
+
+  describe "manifest parsing" do
+    test "handles a list-form manifest label and a page with no label", %{sham: sham} do
+      assert {:ok, 1} =
+               Host.ocr_manifest("http://localhost:#{sham.port}/manifest/2/manifest")
+
+      job = Repo.one(Job)
+      assert job.manifest_label == "Listy"
+      assert job.page_label == nil
+    end
+  end
+
+  describe "long-poll waiters and the reaper" do
+    test "a parked waiter is handed a job as soon as one is enqueued", %{manifest_url: manifest_url} do
+      Application.put_env(:dpul_collections, Host, poll_ms: 2_000)
+      on_exit(fn -> Application.put_env(:dpul_collections, Host, poll_ms: 50) end)
+
+      task = Task.async(fn -> Host.claim_job("waiter") end)
+      Process.sleep(50)
+      Host.ocr_manifest(manifest_url)
+
+      assert {:ok, %Job{image_url: @expected_image_url}} = Task.await(task)
+    end
+
+    test "the reaper requeues an expired claim" do
+      job =
+        %Job{}
+        |> Job.changeset(%{
+          image_url: "https://example.com/expired.jpg",
+          status: "claimed",
+          claimed_by: "gone",
+          lease_expires_at: DateTime.add(DateTime.utc_now(), -60, :second)
+        })
+        |> Repo.insert!()
+
+      send(Host, :reap)
+      # Let the reaper run.
+      Process.sleep(50)
+
+      assert Repo.get(Job, job.id).status == "queued"
+    end
+
+    test "a flush while the queue is empty leaves the waiter parked", %{manifest_url: manifest_url} do
+      Application.put_env(:dpul_collections, Host, poll_ms: 2_000)
+      on_exit(fn -> Application.put_env(:dpul_collections, Host, poll_ms: 50) end)
+
+      task = Task.async(fn -> Host.claim_job("waiter") end)
+      Process.sleep(50)
+
+      send(Host, :reap)
+      Process.sleep(20)
+
+      Host.ocr_manifest(manifest_url)
+      assert {:ok, %Job{}} = Task.await(task)
+    end
+
+    test "a stray waiter_timeout for an unknown caller is ignored" do
+      send(Host, {:waiter_timeout, {self(), make_ref()}})
+      assert {:error, :queue_empty} = Host.claim_job("someone")
+    end
+  end
+
+  def list_label_manifest_stub(conn) do
+    conn
+    |> Plug.Conn.put_resp_content_type("application/json")
+    |> Plug.Conn.resp(200, JSON.encode!(list_label_manifest()))
+  end
+
+  def list_label_manifest do
+    %{
+      "label" => ["Listy"],
+      "sequences" => [
+        %{
+          "canvases" => [
+            %{
+              "images" => [
+                %{"resource" => %{"service" => %{"@id" => "https://iiif.test/abc"}}}
+              ]
+            }
+          ]
+        }
+      ]
+    }
   end
 
   def manifest_stub(conn) do

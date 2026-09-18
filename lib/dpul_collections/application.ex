@@ -7,27 +7,7 @@ defmodule DpulCollections.Application do
 
   @impl true
   def start(_type, _args) do
-    children =
-      [
-        DpulCollections.PromEx,
-        DpulCollectionsWeb.Telemetry,
-        DpulCollections.Repo,
-        DpulCollections.FiggyRepo,
-        {Phoenix.PubSub, name: DpulCollections.PubSub},
-        {Oban, Application.fetch_env!(:dpul_collections, Oban)},
-        # Start a worker by calling: DpulCollections.Worker.start_link(arg)
-        # {DpulCollections.Worker, arg},
-        # Start to serve requests, typically the last entry
-        DpulCollectionsWeb.Endpoint,
-        DpulCollections.IndexMetricsTracker,
-        DpulCollections.DistributedOcr.Host,
-        DpulCollections.DistributedOcr.Client,
-        {Cluster.Supervisor,
-         [
-           Application.get_env(:libcluster, :topologies),
-           [name: DpulCollections.ClusterSupervisor]
-         ]}
-      ] ++ mocr_children() ++ filter_pipeline_children()
+    children = children_for_mode(Application.get_env(:dpul_collections, :app_mode, :server))
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
@@ -35,10 +15,40 @@ defmodule DpulCollections.Application do
     Supervisor.start_link(children, opts)
   end
 
+  # :server is the full Phoenix app; :client is the packaged worker (Mocr +
+  # Client only, no Repo/Endpoint/Oban).
+  def children_for_mode(:client), do: ocr_worker_children()
+
+  def children_for_mode(:server),
+    do: server_children() ++ filter_pipeline_children() ++ ocr_worker_children()
+
+  defp server_children do
+    [
+      DpulCollections.PromEx,
+      DpulCollectionsWeb.Telemetry,
+      DpulCollections.Repo,
+      DpulCollections.FiggyRepo,
+      {Phoenix.PubSub, name: DpulCollections.PubSub},
+      {Oban, Application.fetch_env!(:dpul_collections, Oban)},
+      # Start a worker by calling: DpulCollections.Worker.start_link(arg)
+      # {DpulCollections.Worker, arg},
+      # Start to serve requests, typically the last entry
+      DpulCollectionsWeb.Endpoint,
+      DpulCollections.IndexMetricsTracker,
+      DpulCollections.DistributedOcr.Host,
+      {Cluster.Supervisor,
+       [
+         Application.get_env(:libcluster, :topologies),
+         [name: DpulCollections.ClusterSupervisor]
+       ]}
+    ]
+  end
+
+  # If start_mocr, then run the OCR processing servers.
   # coveralls-ignore-start
-  def mocr_children() do
+  def ocr_worker_children() do
     if Application.get_env(:dpul_collections, :start_mocr?, false) do
-      [DpulCollections.Mocr]
+      [DpulCollections.Mocr, DpulCollections.DistributedOcr.Client]
     else
       []
     end

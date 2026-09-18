@@ -22,6 +22,11 @@ defmodule DpulCollectionsWeb.Router do
     plug :basic_auth
   end
 
+  pipeline :ocr_api do
+    plug :accepts, ["json"]
+    plug DpulCollectionsWeb.Plugs.OcrApiAuth
+  end
+
   defp basic_auth(conn, _opts) do
     username = Application.fetch_env!(:dpul_collections, :basic_auth_username)
     password = Application.fetch_env!(:dpul_collections, :basic_auth_password)
@@ -55,6 +60,8 @@ defmodule DpulCollectionsWeb.Router do
 
       # Let's try this..
       live "/ocr", OcrLive, :live
+      live "/ocr/read", OcrReaderLive, :live
+      live "/ocr/results", OcrResultsLive, :live
     end
 
     post "/users/log-in", UserSessionController, :create
@@ -70,6 +77,13 @@ defmodule DpulCollectionsWeb.Router do
       live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
       live "/sets", UserSetsLive, :live
     end
+  end
+
+  scope "/api/ocr", DpulCollectionsWeb do
+    pipe_through [:ocr_api]
+
+    post "/jobs/claim", OcrController, :claim
+    post "/jobs/:id/result", OcrController, :result
   end
 
   scope "/", DpulCollectionsWeb do

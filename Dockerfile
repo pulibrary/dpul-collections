@@ -80,7 +80,8 @@ RUN mix assets.deploy
 COPY config/runtime.exs config/
 
 COPY rel rel
-RUN mix release
+# Named explicitly because mix.exs defines two releases.
+RUN mix release dpul_collections
 
 # start a new build stage so that the final image will only contain
 # the compiled release and other runtime necessities
