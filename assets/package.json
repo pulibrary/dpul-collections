@@ -1,13 +1,13 @@
 {
   "devDependencies": {
-    "playwright": "1.62.1",
-    "playwright-core": "1.62.1"
+    "playwright": "1.63.0",
+    "playwright-core": "1.63.0"
   },
   "name": "assets",
   "version": "1.0.0",
   "main": "tailwind_heroicons.js",
   "dependencies": {
-    "@samvera/clover-iiif": "3.14.0",
+    "@samvera/clover-iiif": "3.16.0",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },
