@@ -15,7 +15,7 @@ defmodule DpulCollectionsWeb.OcrReaderLiveTest do
     {:ok, _} = DistributedOcr.complete(job.id, %{client_id: "c", text: text, model: "m"})
   end
 
-  test "shows every page in one continuous scroll, text once read", %{conn: conn} do
+  test "shows all the OCR'd pages", %{conn: conn} do
     enqueue_book()
     ocr_first_page("hello from page one")
 
@@ -23,10 +23,8 @@ defmodule DpulCollectionsWeb.OcrReaderLiveTest do
 
     assert html =~ "A Book"
     assert html =~ "1 of 2 pages read"
-    # Every page image is on the page at once (continuous scroll).
     assert html =~ "https://example.com/1.jpg"
     assert html =~ "https://example.com/2.jpg"
-    # The read page shows its transcription; the unread one shows a placeholder.
     assert render(view) =~ "hello from page one"
     assert render(view) =~ "been read yet"
   end
@@ -55,14 +53,12 @@ defmodule DpulCollectionsWeb.OcrReaderLiveTest do
     |> element("button[phx-value-image='https://example.com/1.jpg']")
     |> render_click()
 
-    # The Host broadcasts :clients_changed, so the reader reloads: the page is
-    # back to unread and its text is gone.
     assert render(view) =~ "0 of 2 pages read"
     refute render(view) =~ "hello from page one"
     assert DistributedOcr.manifest_pages("m1") |> Enum.all?(&(not &1.done))
   end
 
-  test "re-reading the whole book requeues every page", %{conn: conn} do
+  test "redoing the whole book works", %{conn: conn} do
     enqueue_book()
     ocr_first_page("hello from page one")
 

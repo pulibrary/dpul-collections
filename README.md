@@ -215,3 +215,21 @@ Run Docker Image
 Commit Solr: `curl http://solr:SolrRocks@localhost:8985/solr/dpulc/update?commit=true`
 
 Available at http://localhost:4000
+
+## OCR Stuff
+
+### Run in Dev
+
+Host: `iex -S mix phx.server`
+Client: `DPUL_APP_MODE=client iex -S mix`
+
+Look + submit at `http://localhost:4000`
+
+It's gonna download all the model stuff, so it'll take a long time.
+
+### Build a client executable
+
+`rm -rf "$HOME/Library/Application Support/.burrito"`
+`MIX_ENV=prod mix release ocr_client`
+
+Then you can run it like: `DPUL_APP_MODE=client DPUL_OCR_SERVER_URL=http://localhost:4000 DPUL_OCR_TOKEN=dev-token ./burrito_out/ocr_client_macos`
