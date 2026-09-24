@@ -135,7 +135,7 @@ config :phoenix_test,
         browser_launch_timeout: 10_000
       ]
     ],
-    js_logger: false,
+    js_logger: nil,
     screenshot: System.get_env("PW_SCREENSHOT", "false") in ~w(t true),
     trace: System.get_env("PW_TRACE", "false") in ~w(t true),
     timeout: :timer.seconds(4)
