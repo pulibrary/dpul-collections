@@ -1,6 +1,26 @@
-import LiveReact from "phoenix_live_react"
 import {hooks as colocatedHooks} from "phoenix-colocated/dpul_collections"
-let Hooks = { LiveReact, ...colocatedHooks };
+let Hooks = { ...colocatedHooks };
+
+// import() makes it so Clover's JS is only sent to the browser when the viewer
+// loads.
+Hooks.LiveReact = {
+  mounted() {
+    import("./live_react_components").then(({ LiveReact }) => {
+      if (this.destroyedBeforeLoad) return
+      this.liveReact = LiveReact
+      LiveReact.mounted.call(this)
+    })
+  },
+  destroyed() {
+    if (this.liveReact) {
+      this.liveReact.destroyed.call(this)
+    } else {
+      // When you close/reopen the viewer before the JS loads you get an error
+      // unless you check first.
+      this.destroyedBeforeLoad = true
+    }
+  }
+};
 
 Hooks.ToolbarHook = {
   mounted() {

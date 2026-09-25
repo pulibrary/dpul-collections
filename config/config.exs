@@ -54,8 +54,11 @@ config :dpul_collections, DpulCollections.Mailer, adapter: Swoosh.Adapters.Local
 config :esbuild,
   version: "0.17.11",
   dpul_collections: [
+    # Use splitting and esm to let us load Clover only when the viewer
+    # renders.
+    # See https://dev.to/marcinwosinek/how-to-lazy-load-with-esbuild-4pc
     args:
-      ~w(js/app.js --bundle --target=es2022 --outdir=../priv/static/assets/js --external:/fonts/* --external:/images/* --alias:@=.),
+      ~w(js/app.js --bundle --splitting --format=esm --target=es2022 --outdir=../priv/static/assets/js --external:/fonts/* --external:/images/* --alias:@=.),
     cd: Path.expand("../assets", __DIR__),
     env: %{
       "NODE_PATH" =>

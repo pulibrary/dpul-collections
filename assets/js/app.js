@@ -22,7 +22,6 @@ import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 import Hooks from "./hooks";
-import { initLiveReact } from "phoenix_live_react"
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 const liveSocket = new LiveSocket("/live", Socket, {
@@ -123,13 +122,9 @@ window.addEventListener("dpulc:clipcopy", (event) => {
   }
 });
 
-// Initialize react components.
+// Load Clover on load, but only if it's in the DOM.
 document.addEventListener("DOMContentLoaded", e => {
-  initLiveReact()
+  if (document.querySelector("[data-live-react-class]")) {
+    import("./live_react_components").then(({ initLiveReact }) => initLiveReact())
+  }
 })
-
-import DpulcViewer from "./dpulc_viewer";
-
-window.Components = {
-  DpulcViewer
-}
