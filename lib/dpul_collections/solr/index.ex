@@ -14,6 +14,9 @@ defmodule DpulCollections.Solr.Index do
       base_url: base_url,
       auth: auth(index)
     )
+    # Add telemetry. Gotta use path_params when using this now, docs at
+    # https://opentelemetry-req.hexdocs.pm/OpentelemetryReq.html#module-req-path-params
+    |> OpentelemetryReq.attach(propagate_trace_headers: true, opt_in_attrs: [:"url.template"])
   end
 
   defp auth(%{username: ""}), do: nil

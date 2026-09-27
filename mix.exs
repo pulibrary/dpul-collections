@@ -7,6 +7,11 @@ defmodule DpulCollections.MixProject do
       version: "0.1.0",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
+      releases: [
+        dpul_collections: [
+          applications: [opentelemetry_exporter: :permanent, opentelemetry: :temporary]
+        ]
+      ],
       aliases: aliases(),
       deps: deps(),
       compilers: [:phoenix_live_view] ++ Mix.compilers(),
@@ -105,7 +110,22 @@ defmodule DpulCollections.MixProject do
       {:ex_cldr_locale_display, "~> 1.7.3"},
       {:junit_formatter, "~> 3.4.0", only: [:test]},
       {:flow, "~> 1.2.4"},
-      {:libcluster_dynamic_srv, "~> 1.0"}
+      {:libcluster_dynamic_srv, "~> 1.0"},
+      # OpenTelemetry traces for Signoz.
+      {:opentelemetry, "~> 1.7"},
+      {:opentelemetry_api, "~> 1.5"},
+      {:opentelemetry_exporter, "~> 1.10"},
+      # New version has http.route attribute which is cool.
+      # TODO: Upgrade when it's released.
+      {:opentelemetry_phoenix,
+       github: "open-telemetry/opentelemetry-erlang-contrib",
+       branch: "main",
+       sparse: "instrumentation/opentelemetry_phoenix"},
+      {:opentelemetry_bandit, "~> 0.3"},
+      {:opentelemetry_ecto, "~> 1.2"},
+      {:opentelemetry_req, "~> 1.0"},
+      # Lock this because Sibyl requires an old version but doesn't use it.
+      {:opentelemetry_process_propagator, "~> 0.3", override: true}
     ]
   end
 

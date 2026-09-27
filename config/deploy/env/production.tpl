@@ -21,4 +21,7 @@ RELEASE_NODE = "node-{{ env "NOMAD_ALLOC_INDEX" }}-{{ env "NOMAD_GROUP_NAME"
 }}@{{ env "NOMAD_JOB_NAME" }}-epmd.service.consul"
 SERVICE_NAME = "{{ env "NOMAD_JOB_NAME" }}"
 CONSUL_SERVICE_ADDRESS = "service.consul"
+OTEL_EXPORTER_OTLP_ENDPOINT = "http://{{ env "NOMAD_HOST_IP_http" }}:4318"
+OTEL_SERVICE_NAME = "{{ env "NOMAD_JOB_NAME" }}"
+OTEL_RESOURCE_ATTRIBUTES = "deployment.environment=production,host.name={{ env "node.unique.name" }}"
 {{- end -}}

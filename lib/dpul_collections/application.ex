@@ -7,6 +7,8 @@ defmodule DpulCollections.Application do
 
   @impl true
   def start(_type, _args) do
+    setup_opentelemetry()
+
     children =
       [
         DpulCollections.PromEx,
@@ -31,6 +33,13 @@ defmodule DpulCollections.Application do
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: DpulCollections.Supervisor]
     Supervisor.start_link(children, opts)
+  end
+
+  defp setup_opentelemetry() do
+    OpentelemetryBandit.setup()
+    OpentelemetryPhoenix.setup(adapter: :bandit)
+    OpentelemetryEcto.setup([:dpul_collections, :repo])
+    OpentelemetryEcto.setup([:dpul_collections, :figgy_repo])
   end
 
   # coveralls-ignore-start

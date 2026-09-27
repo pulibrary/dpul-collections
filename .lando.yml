@@ -22,6 +22,15 @@ services:
         SOLR_MODULES: 'analysis-extras,scripting'
         SOLR_CONFIG_LIB_ENABLED: true
         SOLR_SECURITY_MANAGER_ENABLED: false
+  development_otel:
+    type: lando
+    services:
+      image: ghcr.io/ctrlspice/otel-desktop-viewer:v0.5.0
+      command: /root/otel-desktop-viewer --host 0.0.0.0 --grpc 4317 --http 4318 --browser-port 8000
+      ports:
+        - "4317:4317"
+        - "4318:4318"
+        - "8000:8000"
   development_solr:
     type: lando
     build_as_root:

@@ -141,3 +141,7 @@ config :dpul_collections, :libanswers,
   client_id: System.get_env("LIBANSWERS_CLIENT_ID") || "disabled",
   client_secret: System.get_env("LIBANSWERS_CLIENT_SECRET") || "disabled",
   queue_id: System.get_env("LIBANSWERS_QUEUE_ID") || "disabled"
+
+# Send traces to the local otel-desktop-viewer started by lando. View them at
+# http://localhost:8000
+config :opentelemetry_exporter, otlp_endpoint: "http://localhost:4318"
