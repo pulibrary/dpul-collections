@@ -25,9 +25,10 @@ defmodule DpulCollections.OpenTelemetrySamplerTest do
     Tracer.with_span "GET", %{attributes: %{"url.path": "/awesome"}} do
       Tracer.with_span("child", do: :ok)
     end
+
     # This one's probably not real - just testing the fall-through case, only
     # way I could get it to happen was to not a leading slash.
-    Tracer.with_span "POST", %{attributes: %{"url.path": "sup"}}, do: :ok
+    Tracer.with_span("POST", %{attributes: %{"url.path": "sup"}}, do: :ok)
 
     assert_receive {:span, span(name: "GET")}, 1000
     assert_receive {:span, span(name: "POST")}, 1000
