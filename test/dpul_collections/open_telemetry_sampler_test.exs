@@ -9,7 +9,8 @@ defmodule DpulCollections.OpenTelemetrySamplerTest do
           "/robots.txt",
           "/phoenix/live_reload/socket/websocket",
           "/live/websocket",
-          "/live/longpoll"
+          "/live/longpoll",
+          "/health"
         ] do
       Tracer.with_span "GET", %{attributes: %{"url.path": path}} do
         Tracer.with_span("child", do: :ok)

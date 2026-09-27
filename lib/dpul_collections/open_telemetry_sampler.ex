@@ -47,6 +47,7 @@ defmodule DpulCollections.OpenTelemetrySampler do
   defp ignored_path?("/phoenix/live_reload/" <> _, _static_paths), do: true
   defp ignored_path?("/live/websocket", _static_paths), do: true
   defp ignored_path?("/live/longpoll", _static_paths), do: true
+  defp ignored_path?("/health", _static_paths), do: true
 
   defp ignored_path?("/" <> path, static_paths) do
     [top_level | _] = String.split(path, "/", parts: 2)
