@@ -160,6 +160,29 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     process?(atom_map)
   end
 
+  # If the resource is embargo'd, do not let it in unless the date is past.
+  def process?(
+        resource = %{
+          metadata: %{"embargo_date" => [embargo_date]}
+        }
+      )
+      when is_binary(embargo_date) do
+    with split_dates <- String.split(embargo_date, "/"),
+         [{month, _}, {day, _}, {year, _}] <- Enum.map(split_dates, &Integer.parse/1),
+         {:ok, date} <- Date.new(year, month, day) do
+      if Date.after?(date, Date.utc_today()) do
+        # It's embargo'd, do not process.
+        false
+      else
+        # Not embargo'd, rip it out and re-process.
+        process?(resource |> put_in([Access.key(:metadata), Access.key("embargo_date")], nil))
+      end
+    else
+      # Something unparseable is in embargo_date, rip it out and continue.
+      _ -> process?(resource |> put_in([Access.key(:metadata), Access.key("embargo_date")], nil))
+    end
+  end
+
   # Collections must be complete in production, otherwise let through anything
   # published.
   def process?(%{

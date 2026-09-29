@@ -220,6 +220,33 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
       assert IndexingPipeline.list_hydration_cache_entries() == []
     end
 
+    test "process_and_persist/2 skips ScannedResources whose embargo_date has not passed" do
+      scanned_resource =
+        IndexingPipeline.get_figgy_resource!("27fd4d29-1170-47a5-891b-f2743873bcef")
+        |> put_in([Access.key(:metadata), Access.key("embargo_date")], ["01/1/2999"])
+
+      Figgy.HydrationConsumer.process_and_persist(scanned_resource, 1)
+      assert IndexingPipeline.list_hydration_cache_entries() |> length == 0
+    end
+
+    test "process_and_persist/2 processes ScannedResources whose embargo_date is corrupt somehow" do
+      scanned_resource =
+        IndexingPipeline.get_figgy_resource!("27fd4d29-1170-47a5-891b-f2743873bcef")
+        |> put_in([Access.key(:metadata), Access.key("embargo_date")], ["36/1/2999"])
+
+      Figgy.HydrationConsumer.process_and_persist(scanned_resource, 1)
+      assert IndexingPipeline.list_hydration_cache_entries() |> length > 0
+    end
+
+    test "process_and_persist/2 processes ScannedResources whose embargo_date has passed" do
+      scanned_resource =
+        IndexingPipeline.get_figgy_resource!("27fd4d29-1170-47a5-891b-f2743873bcef")
+        |> put_in([Access.key(:metadata), Access.key("embargo_date")], ["01/1/2000"])
+
+      Figgy.HydrationConsumer.process_and_persist(scanned_resource, 1)
+      assert IndexingPipeline.list_hydration_cache_entries() |> length > 0
+    end
+
     test "process_and_persist/2 deletes EphemeraFolders when their state or visibility change" do
       ephemera_folder_1 = %Figgy.Resource{
         id: "05092b7d-d33c-4d4d-885e-b6b8973deec4",
