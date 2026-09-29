@@ -121,10 +121,3 @@ window.addEventListener("dpulc:clipcopy", (event) => {
     navigator.clipboard.writeText(text);
   }
 });
-
-// Load Clover on load, but only if it's in the DOM.
-document.addEventListener("DOMContentLoaded", e => {
-  if (document.querySelector("[data-live-react-class]")) {
-    import("./live_react_components").then(({ initLiveReact }) => initLiveReact())
-  }
-})
