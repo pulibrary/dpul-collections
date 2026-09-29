@@ -42,7 +42,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.IndexingConsumer do
         default: [concurrency: System.schedulers_online() * 2]
       ],
       batchers: [
-        default: [batch_size: options[:batch_size]],
+        default: [concurrency: 5, batch_size: options[:batch_size]],
         delete: [batch_size: options[:batch_size]]
       ],
       context: %{
