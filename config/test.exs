@@ -148,3 +148,6 @@ config :dpul_collections, :libanswers,
   client_id: "my_id",
   client_secret: "my_secret",
   queue_id: "my_queue"
+
+# No traces in test.
+config :opentelemetry, span_processor: :simple, traces_exporter: :none

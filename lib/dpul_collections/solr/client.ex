@@ -87,14 +87,23 @@ defmodule DpulCollections.Solr.Client do
 
   defp select_url(index) do
     Index.connect(index)
-    |> Req.merge(url: "/solr/#{index.collection}/select")
+    |> Req.merge(url: "/solr/:collection/select", path_params: [collection: index.collection])
     |> Req.merge(headers: %{"accept" => ["application/json"]})
     |> Req.merge(headers: %{"content-type" => ["application/json"]})
+    |> Req.Request.append_request_steps(trace_body: &trace_body/1)
   end
+
+  # Add POST body to the trace, since it has all the actual query params.
+  defp trace_body(request = %{body: body}) when body != nil do
+    OpenTelemetry.Tracer.set_attribute(:"http.request.body", IO.iodata_to_binary(body))
+    request
+  end
+
+  defp trace_body(request), do: request
 
   defp update_url(index) do
     Index.connect(index)
-    |> Req.merge(url: "/solr/#{index.collection}/update")
+    |> Req.merge(url: "/solr/:collection/update", path_params: [collection: index.collection])
     |> Req.merge(headers: %{"accept" => ["application/json"]})
   end
 end
