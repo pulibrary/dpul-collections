@@ -184,7 +184,8 @@ defmodule DpulCollections.MixProject do
         "cmd --cd assets npm ci",
         "esbuild dpul_collections --minify",
         "phx.digest"
-      ]
+      ],
+      "lando.reset": ["cmd lando destroy -y", "cmd lando start", "setup"]
     ]
   end
 end
