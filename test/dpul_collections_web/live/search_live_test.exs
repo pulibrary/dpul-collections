@@ -1002,8 +1002,13 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     end
 
     test "renders a featured mosaic when a collection has no banner image", %{conn: conn} do
+      # Remove the banner image before indexng, since it was added after the fixture was made
+      DpulCollections.IndexingPipeline.get_figgy_resource!("2961c153-54ab-4c6a-b5cd-aa992f4c349b")
+      |> put_in([Access.key(:metadata), "banner_image_id"], [])
+      |> put_in([Access.key(:metadata), "banner_image_url"], [])
+      |> FiggyTestSupport.index_record()
+
       [
-        "2961c153-54ab-4c6a-b5cd-aa992f4c349b",
         "8b0631b7-e1e4-49c2-904f-cd3141167a80",
         "bd4effd2-3660-4af0-9ac3-b72bb9c882f2"
       ]

@@ -70,8 +70,6 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> assert_has(
         "#collection-banner img[src='https://iiif-cloud.princeton.edu/iiif/2/a1%2F2d%2Fdc%2Fa12ddc0476d147c0a3571a109c9e4e32%2Fintermediate_file/354,1295,1551,1034/750,/0/default.jpg']"
       )
-      # Featured Items
-      |> assert_has("#featured-items .browse-item", count: 4)
       # Learn More collapse/expand
       |> assert_has("div", text: "The South Asian Ephemera Collection complements Princeton's")
       |> assert_has("li", text: "Politics and government")
@@ -135,6 +133,13 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
     end
 
     test "collection page is accessible", %{conn: conn} do
+      # It has to have a related collection or featured item or the color
+      # contrast is bad; see #1432
+      "f6e8fd9e-947b-4cd8-9e64-c268cfe6ce04"
+      |> FiggyTestSupport.index_record_id_directly()
+
+      Solr.soft_commit(active_collection())
+
       conn
       |> visit("/collections/sae")
       |> assert_has(".phx-connected")
@@ -284,7 +289,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
     end
   end
 
-  describe "a collection with related collections" do
+  describe "a collection with related collections and featured items" do
     setup do
       with_mock DpulCollections.IndexingPipeline.Figgy.HydrationConsumer, [:passthrough],
         process?: fn _ -> true end do
@@ -378,12 +383,13 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
     end
   end
 
-  describe "a collection with no related collections" do
+  describe "a collection with a featured item and no related collections" do
     setup do
       [
-        # SAE and one featured folder not in any other collections
-        "f99af4de-fed4-4baa-82b1-6e857b230306",
-        "036b86bf-28b0-4157-8912-6d3d9eeaa5a8"
+        # Manuscripts of the islamic world collection
+        "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a",
+        # featured item, not in any other collections
+        "159ba3f9-feab-49dd-bc71-ca08995006d9"
       ]
       |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
 
@@ -395,7 +401,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
 
     test "does not show the related_collections tab", %{conn: conn} do
       conn
-      |> visit("/collections/sae")
+      |> visit("/collections/islamicmss")
       |> assert_has(".phx-connected")
       # It has a title instead of a tab
       |> assert_has("h2", text: "Featured Highlights")
