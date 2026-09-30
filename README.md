@@ -53,7 +53,7 @@ Do this when you pull main and it makes your tests fail.
 
 ##### Lando reset
 
-- `lando destroy -y && lando start && mix setup`
+- `mix lando.reset`
 
 #### Scenario 2: Refresh fixtures from Figgy (aka sync local figgy database to Figgy state)
 
@@ -67,7 +67,7 @@ Because unexpected updates to the data could come through, you may have to spend
 
 To pull the latest version of all fixture records from figgy into the repo:
 - `cd figgy-fixture-container && ./create-fixture-exports.sh && cd -`
-- do "Lando reset" (see above)
+- `mix lando.reset`
 
 #### Scenario 3: Add a new fixture
 
