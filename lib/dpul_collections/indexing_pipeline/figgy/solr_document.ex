@@ -178,6 +178,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
   end
 
   defp base_solr_fields(id, data, metadata, related_data, internal_resource) do
+    # what if primary_thumbnail was already in the metadata, with the FileSet??
     thumbnail = primary_thumbnail(metadata, related_data)
     title = extract_title(metadata)
 

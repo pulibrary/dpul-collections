@@ -92,10 +92,20 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   end
 
   defp extract_related_data(resource) do
+    related = fetch_related(resource)
     %{
       "ancestors" => Map.merge(extract_ancestors(resource), extract_collections(resource)),
-      "resources" => fetch_related(resource)
+      "resources" => related,
+      "thumbnail" => get_thumbnail(resource, related)
     }
+  end
+
+  defp get_thumbnail(
+    resource = %Figgy.Resource{metadata: %{"thumbnail_id" => [%{"id" => thumbnail_id} | _]}},
+    related
+  )
+  do
+    require IEx; IEx.pry()
   end
 
   # Finds all metadata properties which contain references to related resources

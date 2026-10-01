@@ -32,5 +32,23 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ResourceTest do
       refute combined_resource.related_data["resources"]["277cdbea-c0a8-4b7f-8bf6-de5ac07f95c3"] ==
                nil
     end
+    test "pulls thumbnails in for ephemera folders" do
+      folder = IndexingPipeline.get_figgy_resource!("26713a31-d615-49fd-adfc-93770b4f66b3")
+
+      combined_resource = folder |> Figgy.Resource.to_combined()
+
+      thumbnail = combined_resource.related_data["thumbnail"]
+
+      assert %{id: "d798d940-0740-4854-8f70-60217ec8c2e4"} = thumbnail
+
+    end
+    test "it pulls in thumbnails for MVWs" do
+      combined_resource =
+        IndexingPipeline.get_figgy_resource!("a9f3fc2a-24e8-4787-b932-0245453f3810")
+        |> Figgy.Resource.to_combined()
+
+      thumbnail = combined_resource.related_data["thumbnail"]
+      assert %{id: "e55ce0e5-187c-4c7e-8079-03a571e4f16b"} = thumbnail
+    end
   end
 end
