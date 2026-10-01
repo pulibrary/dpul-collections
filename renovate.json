@@ -38,12 +38,6 @@
       "extractVersion": "^OTP-(?<version>\\S+)"
     },
     {
-      "matchFileNames": [".circleci/config.yml"],
-      "matchDatasources": ["github-tags"],
-      "matchPackageNames": ["erlang/otp"],
-      "extractVersion": "^OTP-(?<version>\\d+\\.\\d+\\.\\d+)$"
-    },
-    {
       "matchPackageNames": ["erlang/otp", "erlang", "elixir", "elixir-lang/elixir", "debian"],
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "erlang/elixir/debian",
