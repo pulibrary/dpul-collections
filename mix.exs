@@ -185,7 +185,8 @@ defmodule DpulCollections.MixProject do
         "esbuild dpul_collections --minify",
         "phx.digest"
       ],
-      "lando.reset": ["cmd lando destroy -y", "cmd lando start", "setup"]
+      "lando.reset": ["cmd lando destroy -y", "cmd lando start", "setup"],
+      "fixtures.refresh": "cmd --cd ./figgy-fixture-container ./create-fixture-exports.sh"
     ]
   end
 end

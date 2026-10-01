@@ -113,6 +113,14 @@ defmodule FiggyTestSupport do
     solr_doc
   end
 
+  def index_resource_directly(resource) do
+    resource
+    |> Figgy.Resource.populate_virtual()
+    |> Figgy.Resource.to_combined()
+    |> Figgy.SolrDocument.from_combined_figgy_resource()
+    |> Solr.add()
+  end
+
   def index_record_id_directly(id) do
     IndexingPipeline.get_figgy_resource!(id)
     |> Figgy.Resource.populate_virtual()

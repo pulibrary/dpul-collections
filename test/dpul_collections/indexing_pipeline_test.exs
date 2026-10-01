@@ -181,10 +181,12 @@ defmodule DpulCollections.IndexingPipelineTest do
     end
 
     test "get_figgy_collection_members/1 returns all members" do
-      ids =
-        IndexingPipeline.get_figgy_collection_members("52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a")
+      manuscripts_islamic_world_id = "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a"
 
-      assert Enum.to_list(ids) |> length() == 5
+      ids =
+        IndexingPipeline.get_figgy_collection_members(manuscripts_islamic_world_id)
+
+      assert Enum.to_list(ids) |> length() == 6
       assert hd(ids) == "1a8c14ca-060c-434f-b999-6191db4c336c"
     end
   end

@@ -1002,23 +1002,39 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
     end
 
     test "renders a featured mosaic when a collection has no banner image", %{conn: conn} do
+      # Remove the banner image before indexng, since it was added after the fixture was made
+      collection_id = "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a"
+
+      DpulCollections.IndexingPipeline.get_figgy_resource!(collection_id)
+      |> put_in([Access.key(:metadata), "banner_image_id"], [])
+      |> put_in([Access.key(:metadata), "banner_image_url"], [])
+      |> FiggyTestSupport.index_record()
+
+      # Set featurable for that collection on several items
       [
-        "2961c153-54ab-4c6a-b5cd-aa992f4c349b",
-        "8b0631b7-e1e4-49c2-904f-cd3141167a80",
-        "bd4effd2-3660-4af0-9ac3-b72bb9c882f2"
+        "27fd4d29-1170-47a5-891b-f2743873bcef",
+        "1a8c14ca-060c-434f-b999-6191db4c336c",
+        "ee3528e9-88a4-4d2b-adee-f05efede87a7",
+        "2cc9b5cf-8d33-4f1b-b53f-fcc658770458"
       ]
-      |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
+      |> Enum.each(fn id ->
+        DpulCollections.IndexingPipeline.get_figgy_resource!(id)
+        |> put_in(
+          [Access.key(:metadata), "featurable"],
+          [%{"id" => collection_id}]
+        )
+        |> FiggyTestSupport.index_record()
+      end)
 
       Solr.soft_commit()
-      project_id = "2961c153-54ab-4c6a-b5cd-aa992f4c349b"
 
-      {:ok, view, _html} = live(conn, ~p"/search?#{%{q: "Woman Life Freedom"}}")
+      {:ok, view, _html} = live(conn, ~p"/search?#{%{q: "Manuscripts of the Islamic World"}}")
 
-      assert view |> element("#item-#{project_id}") |> has_element?
-      refute view |> element("#item-#{project_id} img.primary-thumbnail") |> has_element?
+      assert view |> element("#item-#{collection_id}") |> has_element?
+      refute view |> element("#item-#{collection_id} img.primary-thumbnail") |> has_element?
 
       assert view
-             |> element("#item-#{project_id} .search-thumbnail img")
+             |> element("#item-#{collection_id} .search-thumbnail img")
              |> has_element?
     end
 

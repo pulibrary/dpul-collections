@@ -66,7 +66,7 @@ Because unexpected updates to the data could come through, you may have to spend
 ##### Fixture refresh
 
 To pull the latest version of all fixture records from figgy into the repo:
-- `cd figgy-fixture-container && ./create-fixture-exports.sh && cd -`
+- `mix fixtures.refresh`
 - `mix lando.reset`
 
 #### Scenario 3: Add a new fixture
@@ -76,7 +76,7 @@ There are two types of fixtures: Live and Synthetic. Live fixtures should be the
 ##### Add a Live fixture
 
 - Edit `figgy-fixture-container/create-fixture-exports.sh` and add an id to the EXTRA_RESOURCE_IDS var
-- do "Fixture refresh" (see above)
+- do `mix fixtures.refresh`
 
 ##### Add a Synthetic fixture
 
@@ -98,7 +98,7 @@ Steps:
   - `mv ./fixture-exports/synthetic/synthetic-fixtures.csv ./fixture-exports/synthetic/my-new-fixtures.csv`
 - Modify CSV manually if needed.
 - Add fixture description to fixtures.md file
-- Rebuild the local figgy fixtures container using the "Fixture refresh" process, above
+- do `mix fixtures.refresh`
 
 ### Solr credentials
 
@@ -138,7 +138,14 @@ These work in development also if you run the server through iex.
 
 ### Timeouts
 
-There are some timeouts that are too small for certain types of breakpoint debugging. If you're debugging in a feature test, you have to increase the playwright timeout; add something like `timeout: :timer.minutes(20)` into the config for `config :phoenix_test, playwright:` in config/test.exs. You have to turn this off again when you're done with breakpoints, or else a failing test will take forever to resolve.
+There are some timeouts that are too small for certain types of breakpoint debugging.
+
+If you're debugging in a feature test, you have to increase the playwright timeout. Make sure to remove this when you're done with breakpoints, or else a failing test will take forever to resolve.
+```
+# config/test.exs
+# inside config :phoenix_test, playwright:
+timeout: :timer.minutes(20)
+```
 
 If you're getting database timeouts during your test, try adding the following to the `config :dpul_collections, DpulCollections.Repo` and `config :dpul_collections, DpulCollections.FiggyRepo` lines in config/test.exs:
 ```
