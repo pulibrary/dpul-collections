@@ -61,7 +61,7 @@ commands:
           name: Install system packages
           command: |
             apt-get update -y
-            apt-get install -y --no-install-recommends git openssh-client ca-certificates curl zip build-essential
+            apt-get install -y --no-install-recommends git openssh-client ca-certificates curl zip build-essential postgresql-client
   install-deps:
     description: Installs mix and npm dependencies
     parameters:
