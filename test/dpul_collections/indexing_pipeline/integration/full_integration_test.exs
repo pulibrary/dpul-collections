@@ -600,4 +600,19 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
                "https://iiif-cloud.princeton.edu/iiif/2/ce%2Fe0%2Faa%2Fcee0aad70b544bf489f477edfc86d06e%2Fintermediate_file"
     end
   end
+
+  describe "a MVW resource" do
+    test "indexes expected scanned resource fields" do
+      {hydrator, transformer, indexer, document} =
+        FiggyTestSupport.index_record_id("a9f3fc2a-24e8-4787-b932-0245453f3810")
+
+      hydrator |> Broadway.stop(:normal)
+      transformer |> Broadway.stop(:normal)
+      indexer |> Broadway.stop(:normal)
+
+      assert document["title_txtm"] == [
+               "tbd"
+             ]
+    end
+  end
 end

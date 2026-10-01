@@ -98,6 +98,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
                IndexingPipeline.list_hydration_cache_entries()
 
       # Basic scanned resources get skipped, no new entries.
+      # scanned resources go in now; maybe this is now a SR not in a collection?
       scanned_resource =
         %Figgy.Resource{
           id: "2fa1b92b-9e62-4694-aeab-0c4fab72ac24",

@@ -75,6 +75,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
       resource: resource,
       related_data: related_data,
       related_ids: related_ids,
+      # all member ids that are getting added to dc
       persisted_member_ids:
         MapSet.intersection(flattened_member_ids, MapSet.new(related_ids)) |> MapSet.to_list(),
       latest_updated_marker: Enum.at(all_markers, -1)
@@ -171,7 +172,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     |> Enum.filter(fn id -> !is_nil(id) and id != "" end)
     # Query figgy using the resulting list of ids
     |> IndexingPipeline.get_figgy_resources()
-    |> remove_non_displayable_filesets()
+    |> remove_non_indexable_children()
     # Get child resources recursively if we want them.
     |> Enum.map(&fetch_deep/1)
     |> List.flatten()
@@ -239,13 +240,18 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
 
   defp extract_ids_from_value(_), do: nil
 
-  defp remove_non_displayable_filesets(resources) do
+  defp remove_non_indexable_children(resources) do
     resources
     |> Enum.reject(fn r -> removable_resource?(r) end)
   end
 
+  # Allow MVWs
+  defp removable_resource?(%Figgy.Resource{internal_resource: "ScannedResource"}) do
+    false
+  end
+
+  # Only keep image file sets
   defp removable_resource?(%Figgy.Resource{metadata: %{"file_metadata" => file_metadata}}) do
-    # Dig through file metadata and determine if FileSet is an image
     image? = Enum.find(file_metadata, false, fn fm -> is_image_file?(fm) end)
 
     if image? do
