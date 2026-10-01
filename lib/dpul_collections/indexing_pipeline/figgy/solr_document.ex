@@ -326,6 +326,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
 
   def imported_date(data), do: data
 
+  defp primary_thumbnail(_, %{"thumbnail" => thumbnail}) do
+    thumbnail
+  end
+
   defp primary_thumbnail(
          %{"thumbnail_id" => thumbnail_id} = metadata,
          %{"resources" => resources} = related_data
@@ -455,7 +459,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
     "https://iiif-cloud.princeton.edu/iiif/2/#{uuid_path}"
   end
 
-  defp extract_service_url(nil), do: nil
+  defp extract_service_url(_), do: nil
 
   defp extract_pdf_url(%{
          "id" => id,
