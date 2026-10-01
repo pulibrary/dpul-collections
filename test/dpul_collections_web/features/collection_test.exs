@@ -217,16 +217,22 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
 
   describe "A collection with no banner image selected" do
     setup do
-      with_mock DpulCollections.IndexingPipeline.Figgy.HydrationConsumer, [:passthrough],
-        process?: fn _ -> true end do
-        [
-          # Middle East Manuscripts collection
-          "3bab572e-6603-4abf-8305-16ce6fe3ac5c",
-          # featured item
-          "159ba3f9-feab-49dd-bc71-ca08995006d9"
-        ]
-        |> Enum.each(&FiggyTestSupport.index_record_id_directly/1)
-      end
+      # Remove the banner image before indexing, since it was added after the fixture was made
+      manuscripts_islamic_world_id = "52abe8f7-e2a1-46e9-9d13-3dc4fbc0bf0a"
+
+      DpulCollections.IndexingPipeline.get_figgy_resource!(manuscripts_islamic_world_id)
+      |> put_in([Access.key(:metadata), "banner_image_id"], [])
+      |> put_in([Access.key(:metadata), "banner_image_url"], [])
+      |> FiggyTestSupport.index_resource_directly()
+
+      # Make sure the resource is featured
+      "159ba3f9-feab-49dd-bc71-ca08995006d9"
+      |> DpulCollections.IndexingPipeline.get_figgy_resource!()
+      |> put_in(
+        [Access.key(:metadata), "featurable"],
+        [%{"id" => manuscripts_islamic_world_id}]
+      )
+      |> FiggyTestSupport.index_resource_directly()
 
       Solr.soft_commit(active_collection())
       on_exit(fn -> Solr.delete_all(active_collection()) end)
@@ -235,10 +241,10 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
 
     test "it uses a featured item banner image fallback", %{conn: conn} do
       conn
-      |> visit("/collections/middle-east-mss")
+      |> visit("/collections/islamicmss")
       |> assert_has(".phx-connected")
       # Title
-      |> assert_has("h1", text: "Middle East Manuscripts")
+      |> assert_has("h1", text: "Manuscripts of the Islamic World")
       # Banner image area
       |> assert_has("#collection-banner", count: 1)
       # Banner item link
