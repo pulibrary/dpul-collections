@@ -107,6 +107,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   # end
 
   # if thumbnail is set, use it
+  # TODO: Add test, I have a thumbnail that's gone.
+  # TODO: Make this one recurse too. Use case: A MVW with a thumbnail_id set to
+  #       a resource
   defp get_thumbnail(
     %Figgy.Resource{metadata: %{"thumbnail_id" => [%{"id" => thumbnail_id} | _]}},
     related
@@ -116,26 +119,24 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     related[thumbnail_id]
   end
 
-  # otherwise, take first member
-  # TODO there are probably edge cases in here around fake/stale member_ids
+  # otherwise, take first member recursively
   defp get_thumbnail(
     %Figgy.Resource{metadata: %{"member_ids" => member_ids}},
     related
     )
       when length(member_ids) > 0 do
-
-         IO.puts("GOT A MEMBER")
-    key = member_ids
-          |> List.first()
-          |> Map.fetch!("id")
-
-      thumbnail = related[key]
-
-        case thumbnail do
-          %{internal_resource: "FileSet"} ->
-            thumbnail
-          _ ->
-            get_thumbnail(thumbnail, fetch_related(thumbnail))
+        with member_ids <- Enum.map(member_ids, &Map.get(&1, "id")), # Convert all IDs to just the strings.
+             thumbnail_id <- Enum.find(member_ids, &Map.get(related, &1)), # Find the first ID that's in related.
+             thumbnail = related[thumbnail_id]
+        do
+          case thumbnail do
+            %{internal_resource: "FileSet"} ->
+              thumbnail
+            nil ->
+              nil
+            _ ->
+              get_thumbnail(thumbnail, fetch_related(thumbnail))
+          end
         end
   end
 
