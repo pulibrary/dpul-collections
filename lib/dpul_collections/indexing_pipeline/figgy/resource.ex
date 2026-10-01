@@ -100,13 +100,45 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     }
   end
 
+  # # tail recursion: If we got a file set, we're done
+  # defp get_thumbnail(file_set = %Figgy.Resource{internal_resource: "FileSet"}, _) do
+  #        IO.puts("GOT A FILESET")
+  #   file_set
+  # end
+
+  # if thumbnail is set, use it
   defp get_thumbnail(
-    resource = %Figgy.Resource{metadata: %{"thumbnail_id" => [%{"id" => thumbnail_id} | _]}},
+    %Figgy.Resource{metadata: %{"thumbnail_id" => [%{"id" => thumbnail_id} | _]}},
     related
-  )
-  do
-    require IEx; IEx.pry()
+  ) do
+
+         IO.puts("GOT A THUMBNAIL")
+    related[thumbnail_id]
   end
+
+  # otherwise, take first member
+  # TODO there are probably edge cases in here around fake/stale member_ids
+  defp get_thumbnail(
+    %Figgy.Resource{metadata: %{"member_ids" => member_ids}},
+    related
+    )
+      when length(member_ids) > 0 do
+
+         IO.puts("GOT A MEMBER")
+    key = member_ids
+          |> List.first()
+          |> Map.fetch!("id")
+
+      thumbnail = related[key]
+
+        case thumbnail do
+          %{internal_resource: "FileSet"} ->
+            thumbnail
+          _ ->
+            get_thumbnail(thumbnail, fetch_related(thumbnail))
+        end
+  end
+
 
   # Finds all metadata properties which contain references to related resources
   # (those with the form `[%{"id" => id}]` and then fetches those resources from Figgy

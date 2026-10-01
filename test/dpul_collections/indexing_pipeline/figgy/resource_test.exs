@@ -38,11 +38,20 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ResourceTest do
       combined_resource = folder |> Figgy.Resource.to_combined()
 
       thumbnail = combined_resource.related_data["thumbnail"]
-
       assert %{id: "d798d940-0740-4854-8f70-60217ec8c2e4"} = thumbnail
-
     end
-    test "it pulls in thumbnails for MVWs" do
+
+    test "pulls first member image when no thumbnail is set" do
+      folder = IndexingPipeline.get_figgy_resource!("26713a31-d615-49fd-adfc-93770b4f66b3")
+               |> put_in([Access.key!(:metadata), Access.key!("thumbnail_id")], nil)
+
+      combined_resource = folder |> Figgy.Resource.to_combined()
+
+      thumbnail = combined_resource.related_data["thumbnail"]
+      assert %{id: "f60ce0c9-57fc-4820-b70d-49d1f2b248f9"} = thumbnail
+    end
+
+    test "pulls first member resource thumbnail for MVW with no set thumbnail" do
       combined_resource =
         IndexingPipeline.get_figgy_resource!("a9f3fc2a-24e8-4787-b932-0245453f3810")
         |> Figgy.Resource.to_combined()
