@@ -93,6 +93,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
 
   defp extract_related_data(resource) do
     related = fetch_related(resource)
+
     %{
       "ancestors" => Map.merge(extract_ancestors(resource), extract_collections(resource)),
       "resources" => related,
@@ -111,35 +112,41 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   # TODO: Make this one recurse too. Use case: A MVW with a thumbnail_id set to
   #       a resource
   defp get_thumbnail(
-    %Figgy.Resource{metadata: %{"thumbnail_id" => [%{"id" => thumbnail_id} | _]}},
-    related
-  ) do
-
-         IO.puts("GOT A THUMBNAIL")
-    related[thumbnail_id]
+         %Figgy.Resource{
+           metadata: %{"member_ids" => member_ids, "thumbnail_id" => [thumbnail_id | _]}
+         },
+         related
+       ) do
+    first_valid_thumbnail(related, [thumbnail_id | member_ids])
   end
 
   # otherwise, take first member recursively
   defp get_thumbnail(
-    %Figgy.Resource{metadata: %{"member_ids" => member_ids}},
-    related
-    )
-      when length(member_ids) > 0 do
-        with member_ids <- Enum.map(member_ids, &Map.get(&1, "id")), # Convert all IDs to just the strings.
-             thumbnail_id <- Enum.find(member_ids, &Map.get(related, &1)), # Find the first ID that's in related.
-             thumbnail = related[thumbnail_id]
-        do
-          case thumbnail do
-            %{internal_resource: "FileSet"} ->
-              thumbnail
-            nil ->
-              nil
-            _ ->
-              get_thumbnail(thumbnail, fetch_related(thumbnail))
-          end
-        end
+         %Figgy.Resource{metadata: %{"member_ids" => member_ids}},
+         related
+       )
+       when length(member_ids) > 0 do
+    first_valid_thumbnail(related, member_ids)
   end
 
+  defp first_valid_thumbnail(related, id_priority_list) do
+    # Convert all IDs to just the strings.
+    with id_priority_list <- Enum.map(id_priority_list, &Map.get(&1, "id")),
+         # Find the first ID that's in related.
+         thumbnail_id <- Enum.find(id_priority_list, &Map.get(related, &1)),
+         thumbnail = related[thumbnail_id] do
+      case thumbnail do
+        %{internal_resource: "FileSet"} ->
+          thumbnail
+
+        nil ->
+          nil
+
+        _ ->
+          get_thumbnail(thumbnail, fetch_related(thumbnail))
+      end
+    end
+  end
 
   # Finds all metadata properties which contain references to related resources
   # (those with the form `[%{"id" => id}]` and then fetches those resources from Figgy

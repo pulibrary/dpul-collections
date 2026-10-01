@@ -126,6 +126,27 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocumentTest do
           source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
           source_cache_order_record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           related_data: %{
+            "thumbnail" => %{
+              "internal_resource" => "FileSet",
+              "id" => "9ad621a7b-01ea-4895-9c3d-a8c6eaab4013",
+              "metadata" => %{
+                "file_metadata" => [
+                  # Not this one - it's an old JP2
+                  %{
+                    "id" => %{"id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4014"},
+                    "internal_resource" => "FileMetadata",
+                    "mime_type" => ["image/jp2"],
+                    "use" => [%{"@id" => "http://pcdm.org/use#ServiceFile"}]
+                  },
+                  %{
+                    "id" => %{"id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4017"},
+                    "internal_resource" => "FileMetadata",
+                    "mime_type" => ["image/tiff"],
+                    "use" => [%{"@id" => "http://pcdm.org/use#ServiceFile"}]
+                  }
+                ]
+              }
+            },
             "resources" => %{
               "1" => %{
                 "internal_resource" => "FileSet",
@@ -260,6 +281,30 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocumentTest do
           source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
           source_cache_order_record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           related_data: %{
+            "thumbnail" => %{
+              "internal_resource" => "FileSet",
+              "id" => "9ad621a7b-01ea-4895-9c3d-a8c6eaab4013",
+              "metadata" => %{
+                "file_metadata" => [
+                  %{
+                    "id" => %{"id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4017"},
+                    "internal_resource" => "FileMetadata",
+                    "mime_type" => ["image/tiff"],
+                    "height" => ["10937"],
+                    "width" => ["7286"],
+                    "use" => [%{"@id" => "http://pcdm.org/use#ServiceFile"}]
+                  },
+                  %{
+                    "id" => %{"id" => "0cff895a-01ea-4895-9c3d-a8c6eaab1111"},
+                    "internal_resource" => "FileMetadata",
+                    "mime_type" => ["image/tiff"],
+                    "height" => ["10937"],
+                    "width" => ["7286"],
+                    "use" => [%{"@id" => "http://pcdm.org/use#OriginalFile"}]
+                  }
+                ]
+              }
+            },
             "resources" => %{
               "2" => %{
                 "internal_resource" => "FileSet",
@@ -314,6 +359,30 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocumentTest do
           source_cache_order: ~U[2024-01-11 16:41:04.389944Z],
           source_cache_order_record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           related_data: %{
+            "thumbnail" => %{
+              "internal_resource" => "FileSet",
+              "id" => "9ad621a7b-01ea-4895-9c3d-a8c6eaab4013",
+              "height" => ["10937"],
+              "width" => ["7286"],
+              "metadata" => %{
+                "file_metadata" => [
+                  %{
+                    "id" => %{"id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4017"},
+                    "internal_resource" => "FileMetadata",
+                    "mime_type" => ["image/tiff"],
+                    "use" => [%{"@id" => "http://pcdm.org/use#ServiceFile"}]
+                  },
+                  %{
+                    "id" => %{"id" => "0cff895a-01ea-4895-9c3d-a8c6eaab1111"},
+                    "internal_resource" => "FileMetadata",
+                    "mime_type" => ["image/tiff"],
+                    "height" => ["10937"],
+                    "width" => ["7286"],
+                    "use" => [%{"@id" => "http://pcdm.org/use#OriginalFile"}]
+                  }
+                ]
+              }
+            },
             "resources" => %{
               "1" => %{
                 "internal_resource" => "FileSet",
@@ -369,6 +438,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocumentTest do
           source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
           source_cache_order_record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           related_data: %{
+            "thumbnail" => nil,
             "resources" => %{}
           },
           data: %{

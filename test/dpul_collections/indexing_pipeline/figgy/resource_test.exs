@@ -32,6 +32,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ResourceTest do
       refute combined_resource.related_data["resources"]["277cdbea-c0a8-4b7f-8bf6-de5ac07f95c3"] ==
                nil
     end
+
     test "pulls thumbnails in for ephemera folders" do
       folder = IndexingPipeline.get_figgy_resource!("26713a31-d615-49fd-adfc-93770b4f66b3")
 
@@ -42,10 +43,16 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ResourceTest do
     end
 
     test "skips non-existing members when no thumbnail is set" do
-      folder = IndexingPipeline.get_figgy_resource!("26713a31-d615-49fd-adfc-93770b4f66b3")
-               |> put_in([Access.key!(:metadata), Access.key!("thumbnail_id")], nil)
+      folder =
+        IndexingPipeline.get_figgy_resource!("26713a31-d615-49fd-adfc-93770b4f66b3")
+        |> put_in([Access.key!(:metadata), Access.key!("thumbnail_id")], nil)
+
       # This is a UUID with no resource.
-      folder = folder |> put_in([Access.key!(:metadata), Access.key!("member_ids")], [%{"id" => "d67b0d76-2319-47b0-aca1-9441cb385138"} | folder.metadata["member_ids"]])
+      folder =
+        folder
+        |> put_in([Access.key!(:metadata), Access.key!("member_ids")], [
+          %{"id" => "d67b0d76-2319-47b0-aca1-9441cb385138"} | folder.metadata["member_ids"]
+        ])
 
       combined_resource = folder |> Figgy.Resource.to_combined()
 
@@ -54,10 +61,16 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ResourceTest do
     end
 
     test "doesn't set thumbnail if it has no valid options" do
-      folder = IndexingPipeline.get_figgy_resource!("26713a31-d615-49fd-adfc-93770b4f66b3")
-               |> put_in([Access.key!(:metadata), Access.key!("thumbnail_id")], nil)
+      folder =
+        IndexingPipeline.get_figgy_resource!("26713a31-d615-49fd-adfc-93770b4f66b3")
+        |> put_in([Access.key!(:metadata), Access.key!("thumbnail_id")], nil)
+
       # This is a UUID with no resource.
-      folder = folder |> put_in([Access.key!(:metadata), Access.key!("member_ids")], [%{"id" => "d67b0d76-2319-47b0-aca1-9441cb385138"}])
+      folder =
+        folder
+        |> put_in([Access.key!(:metadata), Access.key!("member_ids")], [
+          %{"id" => "d67b0d76-2319-47b0-aca1-9441cb385138"}
+        ])
 
       combined_resource = folder |> Figgy.Resource.to_combined()
 
@@ -66,8 +79,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ResourceTest do
     end
 
     test "pulls first member image when no thumbnail is set" do
-      folder = IndexingPipeline.get_figgy_resource!("26713a31-d615-49fd-adfc-93770b4f66b3")
-               |> put_in([Access.key!(:metadata), Access.key!("thumbnail_id")], nil)
+      folder =
+        IndexingPipeline.get_figgy_resource!("26713a31-d615-49fd-adfc-93770b4f66b3")
+        |> put_in([Access.key!(:metadata), Access.key!("thumbnail_id")], nil)
 
       combined_resource = folder |> Figgy.Resource.to_combined()
 

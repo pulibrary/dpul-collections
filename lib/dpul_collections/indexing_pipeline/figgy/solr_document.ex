@@ -330,42 +330,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
     thumbnail
   end
 
-  defp primary_thumbnail(
-         %{"thumbnail_id" => thumbnail_id} = metadata,
-         %{"resources" => resources} = related_data
-       )
-       when length(thumbnail_id) > 0 do
-    thumbnail_member =
-      thumbnail_id
-      |> Enum.at(0, %{})
-      |> Map.get("id")
-      |> then(fn id -> resources[id] end)
-
-    if is_nil(thumbnail_member) do
-      # When thumbnail id does not correspond to a related FileSet,
-      # remove thumbnail_id and call primary_thumbnail again to
-      # attempt to get the first member instead
-      Map.drop(metadata, ["thumbnail_id"])
-      |> primary_thumbnail(related_data)
-    else
-      thumbnail_member
-    end
-  end
-
-  defp primary_thumbnail(
-         %{"member_ids" => member_ids},
-         %{"resources" => resources}
-       )
-       when length(member_ids) > 0 do
-    # Map each member_id to a file set in the resources map.
-    # Filter out nil values - only image file sets included in resources.
-    # Choose the first file set.
-    member_ids
-    |> Enum.map(fn %{"id" => id} -> resources[id] end)
-    |> Enum.filter(& &1)
-    |> Enum.at(0)
-  end
-
   defp primary_thumbnail(_, _), do: nil
 
   defp original_file(%{"metadata" => %{"file_metadata" => metadata}}) do
