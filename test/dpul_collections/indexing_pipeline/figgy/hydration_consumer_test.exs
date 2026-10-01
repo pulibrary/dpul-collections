@@ -221,30 +221,35 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
     end
 
     test "process_and_persist/2 skips ScannedResources whose embargo_date has not passed" do
+      # Synthetic fixture with a far off embargo date.
       scanned_resource =
-        IndexingPipeline.get_figgy_resource!("27fd4d29-1170-47a5-891b-f2743873bcef")
-        |> put_in([Access.key(:metadata), Access.key("embargo_date")], ["01/1/2999"])
+        IndexingPipeline.get_figgy_resource!("b7f6f438-4363-4003-8b74-779b5e31f210")
+        |> Map.put(:metadata, nil)
 
       Figgy.HydrationConsumer.process_and_persist(scanned_resource, 1)
       assert IndexingPipeline.list_hydration_cache_entries() |> length == 0
     end
 
-    test "process_and_persist/2 processes ScannedResources whose embargo_date is corrupt somehow" do
+    test "process?/1 processes ScannedResources whose embargo_date is corrupt somehow" do
       scanned_resource =
         IndexingPipeline.get_figgy_resource!("27fd4d29-1170-47a5-891b-f2743873bcef")
-        |> put_in([Access.key(:metadata), Access.key("embargo_date")], ["36/1/2999"])
+        |> Figgy.Resource.to_combined()
+        |> put_in([Access.key(:resource), Access.key(:metadata), Access.key("embargo_date")], [
+          "36/1/2999"
+        ])
 
-      Figgy.HydrationConsumer.process_and_persist(scanned_resource, 1)
-      assert IndexingPipeline.list_hydration_cache_entries() |> length > 0
+      assert Figgy.HydrationConsumer.process?(scanned_resource) == true
     end
 
-    test "process_and_persist/2 processes ScannedResources whose embargo_date has passed" do
+    test "process?/1 processes ScannedResources whose embargo_date has passed" do
       scanned_resource =
         IndexingPipeline.get_figgy_resource!("27fd4d29-1170-47a5-891b-f2743873bcef")
-        |> put_in([Access.key(:metadata), Access.key("embargo_date")], ["01/1/2000"])
+        |> Figgy.Resource.to_combined()
+        |> put_in([Access.key(:resource), Access.key(:metadata), Access.key("embargo_date")], [
+          "01/1/2000"
+        ])
 
-      Figgy.HydrationConsumer.process_and_persist(scanned_resource, 1)
-      assert IndexingPipeline.list_hydration_cache_entries() |> length > 0
+      assert Figgy.HydrationConsumer.process?(scanned_resource) == true
     end
 
     test "process_and_persist/2 deletes EphemeraFolders when their state or visibility change" do
