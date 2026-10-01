@@ -162,8 +162,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
   # If the resource is embargo'd, do not let it in unless the date is past.
   def process?(
-        resource = %{
-          metadata: %{"embargo_date" => [embargo_date]}
+        resource = %Figgy.CombinedFiggyResource{
+          resource: %{
+            metadata: %{"embargo_date" => [embargo_date]}
+          }
         }
       )
       when is_binary(embargo_date) do
@@ -175,11 +177,24 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         false
       else
         # Not embargo'd, rip it out and re-process.
-        process?(resource |> put_in([Access.key(:metadata), Access.key("embargo_date")], nil))
+        process?(
+          resource
+          |> put_in(
+            [Access.key(:resource), Access.key(:metadata), Access.key("embargo_date")],
+            nil
+          )
+        )
       end
     else
       # Something unparseable is in embargo_date, rip it out and continue.
-      _ -> process?(resource |> put_in([Access.key(:metadata), Access.key("embargo_date")], nil))
+      _ ->
+        process?(
+          resource
+          |> put_in(
+            [Access.key(:resource), Access.key(:metadata), Access.key("embargo_date")],
+            nil
+          )
+        )
     end
   end
 
