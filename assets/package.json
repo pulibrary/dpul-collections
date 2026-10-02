@@ -7,7 +7,7 @@
   "version": "1.0.0",
   "main": "tailwind_heroicons.js",
   "dependencies": {
-    "@samvera/clover-iiif": "3.16.0",
+    "@samvera/clover-iiif": "3.16.1",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
