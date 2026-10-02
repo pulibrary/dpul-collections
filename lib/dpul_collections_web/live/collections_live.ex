@@ -146,70 +146,78 @@ defmodule DpulCollectionsWeb.CollectionsLive do
     ~H"""
     <div>
       <.content_separator />
-      <div class="tab-list content-area flex flex-row" role="tablist">
-        <.tab_button
+      <div class="content-area">
+        <div
           :if={has_featured?(@collection) && has_related?(@collection)}
-          id="featured-items-tab"
-          label={gettext("Featured Highlights")}
-          pane="featured-items-container"
-          active?={true}
-        />
-        <.tab_button
-          :if={has_featured?(@collection) && has_related?(@collection)}
-          id="related-collections-tab"
-          label={gettext("Related Collections")}
-          pane="related-collections-container"
-          active?={false}
-        />
-      </div>
-      <div
-        :if={has_featured?(@collection)}
-        id="featured-items-container"
-        phx-update="ignore"
-        role="tabpanel"
-        class="grid-flow auto-rows-max tab-content"
-      >
-        <.card_row
-          id="featured-items"
-          title={gettext("Featured Highlights")}
-          hide_title?={has_related?(@collection)}
-          layout="content-area"
-          color=""
-          arrow_theme="light"
+          class="tab-list flex flex-row"
+          role="tablist"
         >
-          <.item_browse_card_li
-            :for={item <- @collection.featured_items}
-            show_images={[]}
-            item={item}
-            current_scope={@current_scope}
-            current_path={@current_path}
+          <.tab_button
+            :if={has_featured?(@collection) && has_related?(@collection)}
+            id="featured-items-tab"
+            label={gettext("Featured Highlights")}
+            pane="featured-items-container"
+            active?={true}
           />
-        </.card_row>
-      </div>
-      <div
-        :if={has_related?(@collection)}
-        id="related-collections-container"
-        role="tabpanel"
-        phx-update="ignore"
-        class={[
-          "grid-flow auto-rows-max tab-content",
-          has_featured?(@collection) && "hidden"
-        ]}
-      >
-        <.card_row
-          id="related-collections"
-          layout="content-area"
-          title={gettext("Related Collections")}
-          hide_title?={has_featured?(@collection)}
-          more_link={Helpers.search_path(%{filter: %{related_collections: @collection.title |> hd}})}
-          color=""
-          arrow_theme="light"
+          <.tab_button
+            :if={has_featured?(@collection) && has_related?(@collection)}
+            id="related-collections-tab"
+            label={gettext("Related Collections")}
+            pane="related-collections-container"
+            active?={false}
+          />
+        </div>
+        <div
+          :if={has_featured?(@collection)}
+          id="featured-items-container"
+          phx-update="ignore"
+          role="tabpanel"
+          class="grid-flow auto-rows-max tab-content"
         >
-          <.collection_card_li
-            :for={item <- @collection.related_collections}
-            collection={item}
-          />
-        </.card_row>
+          <.card_row
+            id="featured-items"
+            title={gettext("Featured Highlights")}
+            hide_title?={has_related?(@collection)}
+            layout="content-area"
+            color=""
+            arrow_theme="light"
+          >
+            <.item_browse_card_li
+              :for={item <- @collection.featured_items}
+              show_images={[]}
+              item={item}
+              current_scope={@current_scope}
+              current_path={@current_path}
+            />
+          </.card_row>
+        </div>
+        <div
+          :if={has_related?(@collection)}
+          id="related-collections-container"
+          role="tabpanel"
+          phx-update="ignore"
+          class={[
+            "grid-flow auto-rows-max tab-content",
+            has_featured?(@collection) && "hidden"
+          ]}
+        >
+          <.card_row
+            id="related-collections"
+            layout="content-area"
+            title={gettext("Related Collections")}
+            hide_title?={has_featured?(@collection)}
+            more_link={
+              Helpers.search_path(%{filter: %{related_collections: @collection.title |> hd}})
+            }
+            color=""
+            arrow_theme="light"
+          >
+            <.collection_card_li
+              :for={item <- @collection.related_collections}
+              collection={item}
+            />
+          </.card_row>
+        </div>
       </div>
     </div>
     """
@@ -226,10 +234,10 @@ defmodule DpulCollectionsWeb.CollectionsLive do
       id={@id}
       class={[
         "tab",
-        @active? && "active-tab",
-        "btn-base px-4 normal-case",
-        "no-underline hover:underline",
-        "text-wrap"
+        "tab-base",
+        "no-underline",
+        "text-wrap",
+        @active? && "active-tab"
       ]}
     >
       {@label}
