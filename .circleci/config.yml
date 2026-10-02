@@ -12,8 +12,11 @@ executors:
       erlang_version:
         type: string
         default: 29.0.5 # datasource=github-tags depName=erlang packageName=erlang/otp
+      debian_version:
+        type: string
+        default: trixie-20260824-slim # datasource=docker depName=debian packageName=debian
     docker:
-      - image: cimg/elixir:<< parameters.elixir_version >>-erlang-<< parameters.erlang_version >>-browsers
+      - image: hexpm/elixir:<< parameters.elixir_version >>-erlang-<< parameters.erlang_version >>-debian-<< parameters.debian_version >>
         environment:
           TEST_POSTGRES_PORT: 5432
           TEST_POSTGRES_FIGGY_HOST: figgy_database
@@ -42,13 +45,23 @@ executors:
       erlang_version:
         type: string
         default: 29.0.5 # datasource=github-tags depName=erlang packageName=erlang/otp
+      debian_version:
+        type: string
+        default: trixie-20260824-slim # datasource=docker depName=debian packageName=debian
     docker:
-      - image: cimg/elixir:<< parameters.elixir_version >>-erlang-<< parameters.erlang_version >>-browsers
+      - image: hexpm/elixir:<< parameters.elixir_version >>-erlang-<< parameters.erlang_version >>-debian-<< parameters.debian_version >>
         environment:
           MIX_ENV: test
     working_directory: ~/project
 
 commands:
+  install-system-deps:
+    steps:
+      - run:
+          name: Install system packages
+          command: |
+            apt-get update -y
+            apt-get install -y --no-install-recommends git openssh-client ca-certificates curl zip build-essential postgresql-client
   install-deps:
     description: Installs mix and npm dependencies
     parameters:
@@ -129,6 +142,7 @@ jobs:
   check-formatting:
     executor: formatter
     steps:
+      - install-system-deps
       - checkout
       - install-deps:
           include-assets: false
@@ -136,6 +150,7 @@ jobs:
   check-gettext:
     executor: formatter
     steps:
+      - install-system-deps
       - checkout
       - install-deps:
           include-assets: false
@@ -144,10 +159,13 @@ jobs:
   run-unit-tests:
     executor: builder
     steps:
+      - install-system-deps
       - checkout
       - install-deps:
           include-assets: true
-      - run: dockerize -wait tcp://localhost:8983 -timeout 1m
+      - run:
+          name: Wait for solr
+          command: timeout 60 bash -c 'until curl -s -o /dev/null localhost:8983; do sleep 2; done'
       - run:
           name: Load config into solr
           command: |
