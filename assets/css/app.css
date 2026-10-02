@@ -218,15 +218,19 @@
   display: none;
 }
 
+@utility active-tab {
+  @apply text-white-500 outline-0 border-b-4 border-solid border-(--color-princeton-white);
+}
+
 @utility tab-base-behavior {
   &:hover {
-    @apply underline;
+    @apply text-white-500;
   }
   &:focus {
-    @apply enabled:border-0;
+    @apply text-white-500 border-b-4 border-solid border-(--color-princeton-white);
   }
   &:active {
-    @apply outline-0 border-b-4 border-solid border-(--color-princeton-white);     
+    @apply text-white-500 outline-0 border-b-4 border-solid border-(--color-princeton-white);     
   }
   &:disabled {
     @apply cursor-not-allowed opacity-50 shadow-none border-0;
@@ -238,7 +242,7 @@
 }
 
 @utility tab-base {
-  @apply tab-base-behavior border-0 flex justify-center items-center text-center font-bold *:font-bold h-14 text-nowrap uppercase cursor-pointer;
+  @apply tab-base-behavior border-0 flex justify-center items-center text-center text-taupe-300 h-14 text-nowrap uppercase cursor-pointer;
 }
 
 @utility btn-base-behavior {
@@ -392,10 +396,6 @@
 
 @utility subnav-diagonal-right-pair {
   @apply max-md:transform-[translateX(-40px)];
-}
-
-@utility active-tab {
-  @apply border-b-4 border-(--color-princeton-white);
 }
 
 .diagonal-drop {
