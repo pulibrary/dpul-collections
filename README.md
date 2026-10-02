@@ -77,6 +77,7 @@ There are two types of fixtures: Live and Synthetic. Live fixtures should be the
 
 - Edit `figgy-fixture-container/create-fixture-exports.sh` and add an id to the EXTRA_RESOURCE_IDS var
 - do `mix fixtures.refresh`
+- do `mix lando.reset`
 
 ##### Add a Synthetic fixture
 
@@ -99,6 +100,7 @@ Steps:
 - Modify CSV manually if needed.
 - Add fixture description to fixtures.md file
 - do `mix fixtures.refresh`
+- do `mix lando.reset`
 
 ### Solr credentials
 

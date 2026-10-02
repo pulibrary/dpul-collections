@@ -101,16 +101,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     }
   end
 
-  # # tail recursion: If we got a file set, we're done
-  # defp get_thumbnail(file_set = %Figgy.Resource{internal_resource: "FileSet"}, _) do
-  #        IO.puts("GOT A FILESET")
-  #   file_set
-  # end
-
   # if thumbnail is set, use it
-  # TODO: Add test, I have a thumbnail that's gone.
-  # TODO: Make this one recurse too. Use case: A MVW with a thumbnail_id set to
-  #       a resource
   defp get_thumbnail(
          %Figgy.Resource{
            metadata: %{"member_ids" => member_ids, "thumbnail_id" => [thumbnail_id | _]}
@@ -120,7 +111,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     first_valid_thumbnail(related, [thumbnail_id | member_ids])
   end
 
-  # otherwise, take first member recursively
+  # otherwise, take first member
   defp get_thumbnail(
          %Figgy.Resource{metadata: %{"member_ids" => member_ids}},
          related
@@ -129,6 +120,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     first_valid_thumbnail(related, member_ids)
   end
 
+  # recurse if needed
   defp first_valid_thumbnail(related, id_priority_list) do
     # Convert all IDs to just the strings.
     with id_priority_list <- Enum.map(id_priority_list, &Map.get(&1, "id")),
