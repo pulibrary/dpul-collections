@@ -147,9 +147,11 @@ defmodule DpulCollectionsWeb.CollectionsLive do
     <div>
       <.content_separator />
       <div class="content-area">
-        <div 
-          :if={has_featured?(@collection) && has_related?(@collection)} 
-          class="tab-list flex flex-row" role="tablist">
+        <div
+          :if={has_featured?(@collection) && has_related?(@collection)}
+          class="tab-list flex flex-row"
+          role="tablist"
+        >
           <.tab_button
             :if={has_featured?(@collection) && has_related?(@collection)}
             id="featured-items-tab"
@@ -204,7 +206,9 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             layout="content-area"
             title={gettext("Related Collections")}
             hide_title?={has_featured?(@collection)}
-            more_link={Helpers.search_path(%{filter: %{related_collections: @collection.title |> hd}})}
+            more_link={
+              Helpers.search_path(%{filter: %{related_collections: @collection.title |> hd}})
+            }
             color=""
             arrow_theme="light"
           >
