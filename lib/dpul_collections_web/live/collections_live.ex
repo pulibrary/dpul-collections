@@ -230,7 +230,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         "tab",
         @active? && "active-tab",
         "tab-base px-4 uppercase tracking-widest",
-        "no-underline hover:underline",
+        "no-underline hover:text-white-500",
         "text-wrap"
       ]}
     >
