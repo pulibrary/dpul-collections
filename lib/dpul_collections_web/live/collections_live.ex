@@ -147,7 +147,9 @@ defmodule DpulCollectionsWeb.CollectionsLive do
     <div>
       <.content_separator />
       <div class="content-area">
-        <div class="tab-list flex flex-row" role="tablist">
+        <div 
+          :if={has_featured?(@collection) && has_related?(@collection)} 
+          class="tab-list flex flex-row" role="tablist">
           <.tab_button
             :if={has_featured?(@collection) && has_related?(@collection)}
             id="featured-items-tab"
@@ -228,10 +230,10 @@ defmodule DpulCollectionsWeb.CollectionsLive do
       id={@id}
       class={[
         "tab",
-        @active? && "active-tab",
-        "tab-base px-4 uppercase tracking-widest",
-        "no-underline hover:text-white-500",
-        "text-wrap"
+        "tab-base",
+        "no-underline",
+        "text-wrap",
+        @active? && "active-tab"
       ]}
     >
       {@label}

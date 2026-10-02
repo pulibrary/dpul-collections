@@ -219,30 +219,24 @@
 }
 
 @utility active-tab {
-  @apply text-white-500 outline-0 border-b-4 border-solid border-(--color-princeton-white);
+  @apply font-bold *:font-bold text-white outline-0 border-b-4;
 }
 
 @utility tab-base-behavior {
   &:hover {
-    @apply text-white-500;
+    @apply text-white;
   }
   &:focus {
-    @apply text-white-500 border-b-4 border-solid border-(--color-princeton-white);
+    @apply font-bold *:font-bold border-b-4;
   }
-  &:active {
-    @apply text-white-500 outline-0 border-b-4 border-solid border-(--color-princeton-white);     
-  }
-  &:disabled {
-    @apply cursor-not-allowed opacity-50 shadow-none border-0;
-  }
+}
+
+@utility tab-base {
+  @apply tab-base-behavior px-4 uppercase border-0 border-solid border-(--color-princeton-white) flex justify-center items-center text-center text-taupe font-medium h-14 text-nowrap cursor-pointer tracking-widest; 
 }
 
 @utility tab-list {
   @apply border-b-1 border-solid border-(--color-princeton-white) p-0;
-}
-
-@utility tab-base {
-  @apply tab-base-behavior border-0 flex justify-center items-center text-center text-taupe-300 h-14 text-nowrap uppercase cursor-pointer;
 }
 
 @utility btn-base-behavior {
