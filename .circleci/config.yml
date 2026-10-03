@@ -14,7 +14,7 @@ executors:
         default: "29.1" # datasource=github-tags depName=erlang packageName=erlang/otp
       debian_version:
         type: string
-        default: "trixie-20260824-slim" # datasource=docker depName=debian packageName=debian
+        default: "trixie-20260918-slim" # datasource=docker depName=debian packageName=debian
     docker:
       - image: hexpm/elixir:<< parameters.elixir_version >>-erlang-<< parameters.erlang_version >>-debian-<< parameters.debian_version >>
         environment:
@@ -47,7 +47,7 @@ executors:
         default: "29.1" # datasource=github-tags depName=erlang packageName=erlang/otp
       debian_version:
         type: string
-        default: "trixie-20260824-slim" # datasource=docker depName=debian packageName=debian
+        default: "trixie-20260918-slim" # datasource=docker depName=debian packageName=debian
     docker:
       - image: hexpm/elixir:<< parameters.elixir_version >>-erlang-<< parameters.erlang_version >>-debian-<< parameters.debian_version >>
         environment:
