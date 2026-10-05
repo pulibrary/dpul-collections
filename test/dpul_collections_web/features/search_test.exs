@@ -85,6 +85,19 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
       |> refute_has("#filter-modal")
     end
 
+    test "is ignored when typing in a filter search input", %{conn: conn} do
+      Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+      Solr.soft_commit(active_collection())
+
+      conn
+      |> visit("/search?q=")
+      |> assert_has(".phx-connected")
+      |> click_button("Filters")
+      |> click_button("Format")
+      |> Playwright.press("#filter-format-search", "f")
+      |> assert_has("#filter-modal h2", text: "Filter Results")
+    end
+
     test "still toggles after a filter checkbox has been clicked", %{conn: conn} do
       Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
       Solr.soft_commit(active_collection())

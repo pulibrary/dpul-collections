@@ -191,7 +191,7 @@ defmodule DpulCollectionsWeb.SearchLive do
             if (e.metaKey || e.ctrlKey || e.altKey) return;
             const target = e.target;
             // Return if we are inputting text so we can use the `f` character
-            if (target.tagName === 'INPUT' && target.type === 'text') return;
+            if (target.tagName === 'INPUT' && ['text', 'search'].includes(target.type)) return;
 
             e.preventDefault();
             const modal = document.getElementById('filter-modal');
