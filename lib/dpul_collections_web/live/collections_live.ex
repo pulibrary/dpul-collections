@@ -167,56 +167,61 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             active?={false}
           />
         </div>
-        <div
-          :if={has_featured?(@collection)}
-          id="featured-items-container"
-          phx-update="ignore"
-          role="tabpanel"
-          class="grid-flow auto-rows-max tab-content"
-        >
-          <.card_row
-            id="featured-items"
-            title={gettext("Featured Highlights")}
-            hide_title?={has_related?(@collection)}
-            layout="content-area"
-            color=""
-            arrow_theme="light"
+        <div class="grid">
+          <div
+            :if={has_featured?(@collection)}
+            id="featured-items-container"
+            phx-update="ignore"
+            role="tabpanel"
+            class={[
+              "col-start-1 row-start-1 grid-flow auto-rows-max tab-content",
+              "opacity-100 transition-opacity duration-300 ease-in-out"
+            ]}
           >
-            <.item_browse_card_li
-              :for={item <- @collection.featured_items}
-              show_images={[]}
-              item={item}
-              current_scope={@current_scope}
-              current_path={@current_path}
-            />
-          </.card_row>
-        </div>
-        <div
-          :if={has_related?(@collection)}
-          id="related-collections-container"
-          role="tabpanel"
-          phx-update="ignore"
-          class={[
-            "grid-flow auto-rows-max tab-content",
-            has_featured?(@collection) && "hidden"
-          ]}
-        >
-          <.card_row
-            id="related-collections"
-            layout="content-area"
-            title={gettext("Related Collections")}
-            hide_title?={has_featured?(@collection)}
-            more_link={
-              Helpers.search_path(%{filter: %{related_collections: @collection.title |> hd}})
-            }
-            color=""
-            arrow_theme="light"
+            <.card_row
+              id="featured-items"
+              title={gettext("Featured Highlights")}
+              hide_title?={has_related?(@collection)}
+              layout="content-area"
+              color=""
+              arrow_theme="light"
+            >
+              <.item_browse_card_li
+                :for={item <- @collection.featured_items}
+                show_images={[]}
+                item={item}
+                current_scope={@current_scope}
+                current_path={@current_path}
+              />
+            </.card_row>
+          </div>
+          <div
+            :if={has_related?(@collection)}
+            id="related-collections-container"
+            role="tabpanel"
+            phx-update="ignore"
+            class={[
+              "col-start-1 row-start-1 grid-flow auto-rows-max tab-content",
+              has_featured?(@collection) && "opacity-0 transition-opacity duration-300 ease-in-out pointer-events-none"
+            ]}
           >
-            <.collection_card_li
-              :for={item <- @collection.related_collections}
-              collection={item}
-            />
-          </.card_row>
+            <.card_row
+              id="related-collections"
+              layout="content-area"
+              title={gettext("Related Collections")}
+              hide_title?={has_featured?(@collection)}
+              more_link={
+                Helpers.search_path(%{filter: %{related_collections: @collection.title |> hd}})
+              }
+              color=""
+              arrow_theme="light"
+            >
+              <.collection_card_li
+                :for={item <- @collection.related_collections}
+                collection={item}
+              />
+            </.card_row>
+          </div>
         </div>
       </div>
     </div>
@@ -253,8 +258,12 @@ defmodule DpulCollectionsWeb.CollectionsLive do
 
   defp show_active_content(js, to) do
     js
-    |> JS.hide(to: "div.tab-content")
-    |> JS.show(to: to)
+    |> JS.remove_class("opacity-100", to: "div.tab-content")
+    |> JS.add_class("opacity-0", to: "div.tab-content")
+    |> JS.add_class("pointer-events-none", to: "div.tab-content")
+    |> JS.remove_class("opacity-0", to: to)
+    |> JS.remove_class("pointer-events-none", to: to)
+    |> JS.add_class("opacity-100", to: to)
   end
 
   defp has_featured?(collection) do
