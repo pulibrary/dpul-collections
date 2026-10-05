@@ -106,5 +106,18 @@ defmodule DpulCollections.IndexingPipeline.Figgy.ResourceTest do
       thumbnail = combined_resource.related_data["thumbnail"]
       assert %{id: "e55ce0e5-187c-4c7e-8079-03a571e4f16b"} = thumbnail
     end
+
+    test "member_thumbnails: pulls first member resource thumbnail for MVW with no set thumbnail" do
+      combined_resource =
+        IndexingPipeline.get_figgy_resource!("a9f3fc2a-24e8-4787-b932-0245453f3810")
+        |> Figgy.Resource.to_combined()
+
+      thumbnails = combined_resource.related_data["member_thumbnails_subset"]
+
+      assert [
+               %{id: "e55ce0e5-187c-4c7e-8079-03a571e4f16b"},
+               %{id: "bc89d3df-32bd-4835-a031-8da9a71fcf87"}
+             ] = thumbnails
+    end
   end
 end

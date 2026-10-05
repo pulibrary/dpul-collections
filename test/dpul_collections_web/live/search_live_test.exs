@@ -954,6 +954,30 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
                ]
     end
 
+    @tag :skip
+    test "An MVW displays large and small thumbnails", %{conn: conn} do
+      FiggyTestSupport.index_record_id_directly("a9f3fc2a-24e8-4787-b932-0245453f3810")
+      Solr.soft_commit(active_collection())
+
+      {:ok, _view, html} = live(conn, "/search?q=جعبري على الشاطبية")
+
+      {:ok, document} =
+        html
+        |> Floki.parse_document()
+
+      assert document |> Floki.find("#item-a9f3fc2a-24e8-4787-b932-0245453f3810") |> Enum.count() ==
+               1
+
+      assert document
+             |> Floki.find("#item-a9f3fc2a-24e8-4787-b932-0245453f3810 img.primary-thumbnail")
+             |> Enum.count() == 1
+
+      # There should be a maximum of 6 small thumbnails on the search results page
+      assert document
+             |> Floki.find("#item-a9f3fc2a-24e8-4787-b932-0245453f3810 .metadata img")
+             |> Enum.count() == 1
+    end
+
     test "displays ephemera projects", %{conn: conn} do
       sae_ids = [
         "f99af4de-fed4-4baa-82b1-6e857b230306",

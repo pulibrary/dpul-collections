@@ -6,6 +6,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy
+  alias DpulCollections.IndexingPipeline.Figgy.ResourceTypeRegistry
   @derive {JSON.Encoder, except: [:__meta__]}
 
   @primary_key {:id, :binary_id, autogenerate: true}
@@ -97,9 +98,69 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     %{
       "ancestors" => Map.merge(extract_ancestors(resource), extract_collections(resource)),
       "resources" => related,
-      "thumbnail" => get_thumbnail(resource, related)
+      "thumbnail" => get_thumbnail(resource, related),
+      "member_thumbnails_subset" =>
+        get_member_thumbnails_subset(resource, related, resource.metadata["member_ids"])
     }
   end
+
+  @indexable_resource_types ResourceTypeRegistry.indexable_types()
+  #
+  # set default argument
+  defp get_member_thumbnails_subset(resource, related, member_ids, member_thumbnails \\ [])
+
+  # The first time we call this it will have the id map
+  # filter out anything that's not a resource
+  defp get_member_thumbnails_subset(
+         resource = %Figgy.Resource{internal_resource: internal_resource},
+         related,
+         member_ids = [member_id_head | _],
+         member_thumbnails
+       )
+       when is_map(member_id_head) and internal_resource in @indexable_resource_types do
+    member_ids = member_ids |> Enum.map(&extract_ids_from_value/1)
+    get_member_thumbnails(resource, related, member_ids, member_thumbnails)
+  end
+
+  defp get_member_thumbnails_subset(_, _, _, _), do: []
+
+  # done condition
+  defp get_member_thumbnails(_, _, [], member_thumbnails) do
+    Enum.reverse(member_thumbnails)
+  end
+
+  # recurse condition
+  defp get_member_thumbnails(
+         resource,
+         related,
+         member_ids,
+         member_thumbnails
+       ) do
+    # we only extract enough for the search results page
+    if length(member_thumbnails) < 6 do
+      # add one thumbnail to member_thumbnails, remove one from member_ids,
+      # recurse
+      [next_member_id | member_ids] = member_ids
+
+      member_thumbnails = [
+        get_member_thumbnail(related[next_member_id]) | member_thumbnails
+      ]
+
+      get_member_thumbnails(resource, related, member_ids, member_thumbnails)
+    else
+      Enum.reverse(member_thumbnails)
+    end
+  end
+
+  defp get_member_thumbnail(member = %Figgy.Resource{internal_resource: "ScannedResource"}) do
+    get_thumbnail(member, fetch_related(member))
+  end
+
+  defp get_member_thumbnail(member = %Figgy.Resource{internal_resource: "FileSet"}) do
+    member
+  end
+
+  defp get_member_thumbnail(_), do: nil
 
   # if thumbnail is set, use it
   defp get_thumbnail(
