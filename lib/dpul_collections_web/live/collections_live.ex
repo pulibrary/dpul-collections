@@ -202,7 +202,8 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             phx-update="ignore"
             class={[
               "col-start-1 row-start-1 grid-flow auto-rows-max tab-content",
-              has_featured?(@collection) && "opacity-0 transition-opacity duration-300 ease-in-out pointer-events-none"
+              has_featured?(@collection) &&
+                "opacity-0 transition-opacity duration-300 ease-in-out pointer-events-none"
             ]}
           >
             <.card_row
