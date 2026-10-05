@@ -954,7 +954,6 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
                ]
     end
 
-    @tag :skip
     test "An MVW displays large and small thumbnails", %{conn: conn} do
       FiggyTestSupport.index_record_id_directly("a9f3fc2a-24e8-4787-b932-0245453f3810")
       Solr.soft_commit(active_collection())

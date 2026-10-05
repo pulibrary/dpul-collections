@@ -137,7 +137,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
          member_thumbnails
        ) do
     # we only extract enough for the search results page
-    if length(member_thumbnails) < 6 do
+    if length(member_thumbnails) < 12 do
       # add one thumbnail to member_thumbnails, remove one from member_ids,
       # recurse
       [next_member_id | member_ids] = member_ids

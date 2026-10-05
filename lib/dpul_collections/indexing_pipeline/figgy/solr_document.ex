@@ -178,7 +178,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
   end
 
   defp base_solr_fields(id, data, metadata, related_data, internal_resource) do
-    thumbnail = primary_thumbnail(metadata, related_data)
+    thumbnail = primary_thumbnail(related_data)
     title = extract_title(metadata)
 
     %{
@@ -197,7 +197,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
       holding_location_txt_sort: get_in(metadata, ["holding_location"]),
       iiif_manifest_url_s: iiif_manifest_url(id, internal_resource),
       image_canvas_ids_ss: image_canvas_ids(id, data, related_data),
-      image_service_urls_ss: image_service_urls(metadata, related_data) |> Enum.take(12),
+      image_service_urls_ss: image_service_urls(related_data),
       keywords_txt_sort: get_in(metadata, ["keywords"]),
       page_count_txtm: get_in(metadata, ["page_count"]),
       pdf_url_s: extract_pdf_url(data),
@@ -325,11 +325,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
 
   def imported_date(data), do: data
 
-  defp primary_thumbnail(_, %{"thumbnail" => thumbnail}) do
+  defp primary_thumbnail(%{"thumbnail" => thumbnail}) do
     thumbnail
   end
 
-  defp primary_thumbnail(_, _), do: nil
+  defp primary_thumbnail(_), do: nil
 
   defp original_file(%{"metadata" => %{"file_metadata" => metadata}}) do
     metadata
@@ -370,26 +370,22 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
 
   defp extract_canvas_id(_, _, _, _), do: nil
 
-  defp image_service_urls(%{"member_ids" => member_ids}, related_data) do
-    member_ids
-    |> Enum.map(&extract_service_url(&1, related_data))
+  defp image_service_urls(%{"member_thumbnails_subset" => member_thumbnails}) do
+    member_thumbnails
+    |> Enum.map(&extract_service_url/1)
     |> Enum.filter(fn url -> url end)
   end
 
-  defp image_service_urls(_, _), do: []
+  # defp image_service_urls(_), do: []
+  defp image_service_urls(_) do
+    []
+  end
 
   defp iiif_manifest_url(id, internal_resource) do
     figgy_base_url = Application.fetch_env!(:dpul_collections, :web_connections)[:figgy_url]
     controller = Macro.underscore(internal_resource) <> "s"
     "#{figgy_base_url}/concern/#{controller}/#{id}/manifest"
   end
-
-  # Find the given member ID in the related data.
-  defp extract_service_url(%{"id" => id}, %{"resources" => resources}) do
-    extract_service_url(resources[id])
-  end
-
-  defp extract_service_url(_id, _), do: nil
 
   # Find the derivative FileMetadata
   defp extract_service_url(%{

@@ -147,6 +147,29 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocumentTest do
                 ]
               }
             },
+            "member_thumbnails_subset" => [
+              %{
+                "internal_resource" => "FileSet",
+                "id" => "9ad621a7b-01ea-4895-9c3d-a8c6eaab4013",
+                "metadata" => %{
+                  "file_metadata" => [
+                    # Not this one - it's an old JP2
+                    %{
+                      "id" => %{"id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4014"},
+                      "internal_resource" => "FileMetadata",
+                      "mime_type" => ["image/jp2"],
+                      "use" => [%{"@id" => "http://pcdm.org/use#ServiceFile"}]
+                    },
+                    %{
+                      "id" => %{"id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4017"},
+                      "internal_resource" => "FileMetadata",
+                      "mime_type" => ["image/tiff"],
+                      "use" => [%{"@id" => "http://pcdm.org/use#ServiceFile"}]
+                    }
+                  ]
+                }
+              }
+            ],
             "resources" => %{
               "1" => %{
                 "internal_resource" => "FileSet",
