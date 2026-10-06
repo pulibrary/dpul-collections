@@ -211,6 +211,18 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
              |> Enum.any?()
     end
 
+    test "uses the current canvas as the image in the viewer", %{conn: conn} do
+      {:ok, _view, html} = live(conn, "/i/învăţămîntul-trebuie-urmărească-dez/item/1/viewer/1")
+
+      {:ok, document} = Floki.parse_document(html)
+
+      assert document
+             |> Floki.find(
+               ~s{meta[property="og:image"][content="https://example.com/iiif/2/image1/full/!453,600/0/default.jpg"]}
+             )
+             |> Enum.any?()
+    end
+
     test "can handle no description", %{conn: conn} do
       {:ok, _view, html} = live(conn, "/i/زلزلہ/item/2")
 

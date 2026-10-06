@@ -34,7 +34,8 @@ defmodule DpulCollectionsWeb.ItemLive do
             current_canvas_idx: current_canvas_idx,
             current_content_state_url: current_content_state_url,
             canonical_url: DpulCollectionsWeb.Endpoint.url() <> item.url,
-            meta_properties: Item.meta_properties(item),
+            meta_properties:
+              Item.meta_properties(item) |> canvas_meta_image(item, current_canvas_idx),
             display_size: false,
             correction_form:
               to_form(%{
@@ -421,6 +422,17 @@ defmodule DpulCollectionsWeb.ItemLive do
     </.live_component>
     """
   end
+
+  defp canvas_meta_image(meta, item = %{image_service_urls: urls}, idx)
+       when idx > 0 do
+    Map.put(
+      meta,
+      "og:image",
+      "#{Enum.at(urls, idx - 1)}/#{IIIF.primary_thumbnail_parameters(item.primary_thumbnail_width, item.primary_thumbnail_height)}"
+    )
+  end
+
+  defp canvas_meta_image(meta, _item, _idx), do: meta
 
   defp content_state_url(item, current_canvas_idx) do
     "/iiif/#{item.id}/content_state/#{current_canvas_idx}"
