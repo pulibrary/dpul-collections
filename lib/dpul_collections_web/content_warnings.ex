@@ -90,6 +90,7 @@ defmodule DpulCollectionsWeb.ContentWarnings do
 
   attr :item_id, :string, required: true
   attr :content_warning, :string, required: true
+  attr :id_prefix, :string, default: "show-images"
 
   def content_warning_body(assigns) do
     ~H"""
@@ -112,7 +113,7 @@ defmodule DpulCollectionsWeb.ContentWarnings do
     <!-- Modal footer -->
     <div class="flex items-center p-6 pt-0 rounded-b dark:border-gray-600">
       <.primary_button
-        id={"show-images-#{@item_id}"}
+        id={"#{@id_prefix}-#{@item_id}"}
         data-id={@item_id}
         phx-click={
           JS.dispatch("dpulc:showImages")

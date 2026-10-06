@@ -406,6 +406,7 @@ defmodule DpulCollectionsWeb.ItemLive do
               {gettext("Content Warning")}
             </h2>
             <ContentWarnings.content_warning_body
+              id_prefix="viewer-show-images"
               item_id={@item.id}
               content_warning={@item.content_warning}
             />
