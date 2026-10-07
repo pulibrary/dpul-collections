@@ -954,7 +954,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
                ]
     end
 
-    test "An MVW displays large and small thumbnails", %{conn: conn} do
+    test "An MVW displays large and small thumbnails, and says it's Multi-part", %{conn: conn} do
       FiggyTestSupport.index_record_id_directly("a9f3fc2a-24e8-4787-b932-0245453f3810")
       Solr.soft_commit(active_collection())
 
@@ -975,6 +975,11 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       assert document
              |> Floki.find("#item-a9f3fc2a-24e8-4787-b932-0245453f3810 .metadata img")
              |> Enum.count() == 1
+
+      assert document
+             |> Floki.find("#item-a9f3fc2a-24e8-4787-b932-0245453f3810 .item-format")
+             |> Floki.text()
+             |> Floki.text() =~ "Multi-part Manuscript"
     end
 
     test "displays ephemera projects", %{conn: conn} do

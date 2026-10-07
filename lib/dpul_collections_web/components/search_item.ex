@@ -166,7 +166,7 @@ defmodule DpulCollectionsWeb.SearchItem do
               <span
                 aria-label={gettext("format")}
                 data-field="format"
-                class="w-full sm:w-auto text-gray-600 font-bold text-base uppercase sm:text-right"
+                class="item-format w-full sm:w-auto text-gray-600 font-bold text-base uppercase sm:text-right"
               >
                 {@item.format}
               </span>
