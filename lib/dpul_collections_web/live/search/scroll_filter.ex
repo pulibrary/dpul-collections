@@ -17,8 +17,6 @@ defmodule DpulCollectionsWeb.Search.ScrollFilter do
     {:noreply, socket |> assign(page: page + 1) |> assign_options()}
   end
 
-  def handle_event("next_page", _, socket), do: {:noreply, socket}
-
   defp assign_options(
          %{
            assigns: %{
