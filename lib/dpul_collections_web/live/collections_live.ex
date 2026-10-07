@@ -174,8 +174,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             phx-update="ignore"
             role="tabpanel"
             class={[
-              "col-start-1 row-start-1 grid-flow auto-rows-max tab-content",
-              "opacity-100 transition-opacity duration-300 ease-in-out"
+              "col-start-1 row-start-1 grid-flow auto-rows-max tab-content"
             ]}
           >
             <.card_row
@@ -202,8 +201,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
             phx-update="ignore"
             class={[
               "col-start-1 row-start-1 grid-flow auto-rows-max tab-content",
-              has_featured?(@collection) &&
-                "opacity-0 transition-opacity duration-300 ease-in-out pointer-events-none"
+              has_featured?(@collection) && "hidden"
             ]}
           >
             <.card_row
@@ -259,12 +257,8 @@ defmodule DpulCollectionsWeb.CollectionsLive do
 
   defp show_active_content(js, to) do
     js
-    |> JS.remove_class("opacity-100", to: "div.tab-content")
-    |> JS.add_class("opacity-0", to: "div.tab-content")
-    |> JS.add_class("pointer-events-none", to: "div.tab-content")
-    |> JS.remove_class("opacity-0", to: to)
-    |> JS.remove_class("pointer-events-none", to: to)
-    |> JS.add_class("opacity-100", to: to)
+    |> JS.hide(transition: {"ease-out duration-300", "opacity-100", "opacity-0"}, to: "div.tab-content")
+    |> JS.show(transition: {"ease-in duration-300", "opacity-0", "opacity-100"}, to: to)
   end
 
   defp has_featured?(collection) do
