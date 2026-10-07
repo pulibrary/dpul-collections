@@ -655,10 +655,6 @@ defmodule DpulCollectionsWeb.SearchLive do
   def handle_event("checked_filter", %{"_target" => ["filter", _filter, _from_or_to]}, socket),
     do: {:noreply, socket}
 
-  # Don't process the search boxes.
-  def handle_event("checked_filter", %{"_target" => ["undefined"]}, socket),
-    do: {:noreply, socket}
-
   def handle_event(
         "checked_filter",
         params = %{"_target" => ["filter", filter]},

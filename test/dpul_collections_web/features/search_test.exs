@@ -22,6 +22,30 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
     |> refute_has("label", text: "Pamphlets")
   end
 
+  test "filters are retained when searching and selecting", %{conn: conn} do
+    Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+    Solr.soft_commit(active_collection())
+
+    conn
+    |> visit("/search?q=")
+    |> assert_has(".phx-connected")
+    |> click_button("Filters")
+    |> click_button("Format")
+    |> assert_has("label", text: "Pamphlets")
+    |> type("#filter-format-search", "older")
+    |> assert_has("label", text: "Folder")
+    |> refute_has("label", text: "Pamphlets")
+    |> check("Folder", exact: false)
+    |> assert_has(".filter.format")
+    |> refute_has("label", text: "Pamphlets")
+    |> fill_in("#filter-format-search", "Search Format filters", with: "")
+    |> type("#filter-format-search", "Pamphlets")
+    |> refute_has("label", text: "Folder")
+    |> check("Pamphlets", exact: false)
+    |> assert_has(".filter-text", text: "Pamphlets")
+    |> assert_has(".filter-text", text: "Folder")
+  end
+
   test "filters are retained when submitting form and tab is closed", %{conn: conn} do
     Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
     Solr.soft_commit(active_collection())

@@ -45,18 +45,18 @@ defmodule DpulCollectionsWeb.Search.ScrollFilter do
           )}
         </label>
         <input
-            id={"filter-#{@field}-search"}
-            type="search"
-            name="filter_query"
-            value={@query}
-            phx-change="search"
-            phx-target={@myself}
-            phx-debounce="200"
-            placeholder={gettext("Search filters...")}
-            class="w-full px-3 py-2 text-sm border border-rust/20 rounded-md focus:ring-accent focus:border-accent"
-            autocomplete="off"
-            dir="auto"
-          />
+          id={"filter-#{@field}-search"}
+          type="search"
+          name="filter_query"
+          value={@query}
+          phx-change="search"
+          phx-target={@myself}
+          phx-debounce="200"
+          placeholder={gettext("Search filters...")}
+          class="w-full px-3 py-2 text-sm border border-rust/20 rounded-md focus:ring-accent focus:border-accent"
+          autocomplete="off"
+          dir="auto"
+        />
       </div>
       <input
         :for={value <- @hidden_selected}
