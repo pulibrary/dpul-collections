@@ -699,6 +699,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
         <span class="flex-1 text-sm">{label}</span>
         <span class="text-xs text-gray-500 bg-sage-100 px-2 py-0.5 rounded-full">{count}</span>
       </label>
+      {render_slot(@inner_block)}
       <.error :for={msg <- @errors}>{msg}</.error>
     </div>
     """

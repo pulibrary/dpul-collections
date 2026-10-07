@@ -96,10 +96,13 @@ defmodule DpulCollectionsWeb.Search.ScrollFilter do
         class="max-h-100 overflow-y-auto grid grid-cols-1 sm:grid-cols-1 space-y-1"
         container_attrs={[
           id: "filter-#{@field}-scroll",
-          "phx-viewport-bottom": @page < @max_page && JS.push("next_page", target: @myself)
+          "phx-viewport-bottom":
+            @page < @max_page && JS.push("next_page", target: @myself, page_loading: true)
         ]}
         options={Enum.map(@options, fn {value, count} -> {{value, format_number(count)}, value} end)}
-      />
+      >
+        <div :if={@page < @max_page} class="text-sm p-2 animate-pulse">Loading...</div>
+      </.input>
     </div>
     """
   end
