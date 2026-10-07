@@ -218,7 +218,7 @@
   display: none;
 }
 
-@utility active-tab {
+@utility tab-active {
   @apply font-bold *:font-bold text-white outline-0 border-b-4;
 }
 
@@ -235,7 +235,7 @@
   @apply tab-base-behavior px-4 uppercase border-0 border-solid border-(--color-princeton-white) flex justify-center items-center text-center text-taupe font-medium h-14 text-nowrap cursor-pointer tracking-widest; 
 }
 
-@utility tab-list {
+@utility tab-bar {
   @apply border-b-1 border-solid border-(--color-princeton-white) p-0;
 }
 
@@ -390,6 +390,10 @@
 
 @utility subnav-diagonal-right-pair {
   @apply max-md:transform-[translateX(-40px)];
+}
+
+@utility active-tab {
+  @apply bg-accent;
 }
 
 .diagonal-drop {
