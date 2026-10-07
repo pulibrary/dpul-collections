@@ -45,6 +45,7 @@ defmodule DpulCollectionsWeb.Search.ScrollFilter do
           )}
         </label>
         <input
+            id={"filter-#{@field}-search"}
             type="search"
             name="filter_query"
             value={@query}
