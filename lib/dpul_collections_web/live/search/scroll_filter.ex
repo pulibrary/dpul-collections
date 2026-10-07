@@ -101,7 +101,7 @@ defmodule DpulCollectionsWeb.Search.ScrollFilter do
         ]}
         options={Enum.map(@options, fn {value, count} -> {{value, format_number(count)}, value} end)}
       >
-        <div :if={@page < @max_page} class="text-sm p-2 animate-pulse">Loading...</div>
+        <div :if={@page < @max_page} class="text-sm p-2 animate-pulse">{gettext("Loading...")}</div>
       </.input>
     </div>
     """
