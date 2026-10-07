@@ -485,34 +485,13 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def filter_input(assigns) do
     ~H"""
-    <div id={"search-#{@field}"} phx-hook=".SearchFilter" class="pt-3">
-      <div class="relative mb-2" phx-update="ignore" id={"search-wrapper-#{@field}"}>
-        <label for={"filter-#{@field}-search"} class="sr-only">
-          {gettext("Search")} {Gettext.gettext(DpulCollectionsWeb.Gettext, @filter.label)} {gettext(
-            "filters"
-          )}
-        </label>
-        <input
-          type="search"
-          placeholder={gettext("Search filters...")}
-          class="w-full px-3 py-2 text-sm border border-rust/20 rounded-md focus:ring-accent focus:border-accent"
-          autocomplete="off"
-          id={"filter-#{@field}-search"}
-          dir="auto"
-        />
-      </div>
-      <.input
-        data-filter-options
-        type="checkgroup"
-        field={@filter_form[@field]}
-        multiple={true}
-        class="max-h-100 overflow-y-auto grid grid-cols-1 sm:grid-cols-1 space-y-1"
-        options={
-          @filter.data
-          |> Enum.map(fn {value, count} -> {{value, format_number(count)}, value} end)
-        }
-      />
-    </div>
+    <.live_component
+      module={DpulCollectionsWeb.Search.ScrollFilter}
+      id={"search-#{@field}"}
+      field={@field}
+      filter_form={@filter_form}
+      filter={@filter}
+    />
     """
   end
 
