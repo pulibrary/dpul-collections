@@ -144,7 +144,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
       subject_txt_sort: get_in(metadata, ["subject"]),
       summary_txtm: get_in(metadata, ["abstract"]),
       years_is: extract_years(get_in(metadata, ["created"])),
-      contents_ss: get_in(metadata, ["contents"])
+      contents_ss: get_in(metadata, ["contents"]),
+      multi_part_work_b: is_mvw?(metadata, related_data)
     })
   end
 
@@ -173,12 +174,13 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
       subject_txt_sort: extract_term("subject", metadata, related_data),
       transliterated_title_txtm: get_in(metadata, ["transliterated_title"]),
       categories_txt_sort: extract_categories(metadata, related_data),
-      category_subjects_txt: extract_category_subjects(metadata, related_data)
+      category_subjects_txt: extract_category_subjects(metadata, related_data),
+      multi_part_work_b: false
     })
   end
 
   defp base_solr_fields(id, data, metadata, related_data, internal_resource) do
-    thumbnail = primary_thumbnail(metadata, related_data)
+    thumbnail = primary_thumbnail(related_data)
     title = extract_title(metadata)
 
     %{
@@ -197,7 +199,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
       holding_location_txt_sort: get_in(metadata, ["holding_location"]),
       iiif_manifest_url_s: iiif_manifest_url(id, internal_resource),
       image_canvas_ids_ss: image_canvas_ids(id, data, related_data),
-      image_service_urls_ss: image_service_urls(metadata, related_data) |> Enum.take(12),
+      image_service_urls_ss: image_service_urls(related_data),
       keywords_txt_sort: get_in(metadata, ["keywords"]),
       page_count_txtm: get_in(metadata, ["page_count"]),
       pdf_url_s: extract_pdf_url(data),
@@ -325,43 +327,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
 
   def imported_date(data), do: data
 
-  defp primary_thumbnail(
-         %{"thumbnail_id" => thumbnail_id} = metadata,
-         %{"resources" => resources} = related_data
-       )
-       when length(thumbnail_id) > 0 do
-    thumbnail_member =
-      thumbnail_id
-      |> Enum.at(0, %{})
-      |> Map.get("id")
-      |> then(fn id -> resources[id] end)
-
-    if is_nil(thumbnail_member) do
-      # When thumbnail id does not correspond to a related FileSet,
-      # remove thumbnail_id and call primary_thumbnail again to
-      # attempt to get the first member instead
-      Map.drop(metadata, ["thumbnail_id"])
-      |> primary_thumbnail(related_data)
-    else
-      thumbnail_member
-    end
+  defp primary_thumbnail(%{"thumbnail" => thumbnail}) do
+    thumbnail
   end
 
-  defp primary_thumbnail(
-         %{"member_ids" => member_ids},
-         %{"resources" => resources}
-       )
-       when length(member_ids) > 0 do
-    # Map each member_id to a file set in the resources map.
-    # Filter out nil values - only image file sets included in resources.
-    # Choose the first file set.
-    member_ids
-    |> Enum.map(fn %{"id" => id} -> resources[id] end)
-    |> Enum.filter(& &1)
-    |> Enum.at(0)
-  end
-
-  defp primary_thumbnail(_, _), do: nil
+  defp primary_thumbnail(_), do: nil
 
   defp original_file(%{"metadata" => %{"file_metadata" => metadata}}) do
     metadata
@@ -402,26 +372,22 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
 
   defp extract_canvas_id(_, _, _, _), do: nil
 
-  defp image_service_urls(%{"member_ids" => member_ids}, related_data) do
-    member_ids
-    |> Enum.map(&extract_service_url(&1, related_data))
+  defp image_service_urls(%{"member_thumbnails_subset" => member_thumbnails}) do
+    member_thumbnails
+    |> Enum.map(&extract_service_url/1)
     |> Enum.filter(fn url -> url end)
   end
 
-  defp image_service_urls(_, _), do: []
+  # defp image_service_urls(_), do: []
+  defp image_service_urls(_) do
+    []
+  end
 
   defp iiif_manifest_url(id, internal_resource) do
     figgy_base_url = Application.fetch_env!(:dpul_collections, :web_connections)[:figgy_url]
     controller = Macro.underscore(internal_resource) <> "s"
     "#{figgy_base_url}/concern/#{controller}/#{id}/manifest"
   end
-
-  # Find the given member ID in the related data.
-  defp extract_service_url(%{"id" => id}, %{"resources" => resources}) do
-    extract_service_url(resources[id])
-  end
-
-  defp extract_service_url(_id, _), do: nil
 
   # Find the derivative FileMetadata
   defp extract_service_url(%{
@@ -454,7 +420,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
     "https://iiif-cloud.princeton.edu/iiif/2/#{uuid_path}"
   end
 
-  defp extract_service_url(nil), do: nil
+  defp extract_service_url(_), do: nil
 
   defp extract_pdf_url(%{
          "id" => id,
@@ -740,4 +706,18 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
         end
     end
   end
+
+  defp is_mvw?(%{"member_ids" => member_ids}, %{"resources" => related_resources}) do
+    member_ids =
+      member_ids
+      |> Enum.map(&DpulCollections.Utilities.extract_ids_from_value/1)
+
+    related_resources
+    |> Map.take(member_ids)
+    |> Map.values()
+    |> Enum.filter(fn r -> r["internal_resource"] == "ScannedResource" end)
+    |> Enum.any?()
+  end
+
+  defp is_mvw?(_, _), do: false
 end

@@ -186,7 +186,7 @@ defmodule DpulCollections.IndexingPipelineTest do
       ids =
         IndexingPipeline.get_figgy_collection_members(manuscripts_islamic_world_id)
 
-      assert Enum.to_list(ids) |> length() == 6
+      assert Enum.to_list(ids) |> length() == 7
       assert hd(ids) == "1a8c14ca-060c-434f-b999-6191db4c336c"
     end
   end

@@ -34,6 +34,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocumentTest do
                sort_title_txtm: ["sort_title"],
                transliterated_title_txtm: ["transliterated_title"],
                updated_at_dt: "2024-09-25T19:41:03.558595Z",
+               multi_part_work_b: false,
                width_txtm: ["200"]
              } = doc1
 
@@ -126,6 +127,50 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocumentTest do
           source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
           source_cache_order_record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           related_data: %{
+            "thumbnail" => %{
+              "internal_resource" => "FileSet",
+              "id" => "9ad621a7b-01ea-4895-9c3d-a8c6eaab4013",
+              "metadata" => %{
+                "file_metadata" => [
+                  # Not this one - it's an old JP2
+                  %{
+                    "id" => %{"id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4014"},
+                    "internal_resource" => "FileMetadata",
+                    "mime_type" => ["image/jp2"],
+                    "use" => [%{"@id" => "http://pcdm.org/use#ServiceFile"}]
+                  },
+                  %{
+                    "id" => %{"id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4017"},
+                    "internal_resource" => "FileMetadata",
+                    "mime_type" => ["image/tiff"],
+                    "use" => [%{"@id" => "http://pcdm.org/use#ServiceFile"}]
+                  }
+                ]
+              }
+            },
+            "member_thumbnails_subset" => [
+              %{
+                "internal_resource" => "FileSet",
+                "id" => "9ad621a7b-01ea-4895-9c3d-a8c6eaab4013",
+                "metadata" => %{
+                  "file_metadata" => [
+                    # Not this one - it's an old JP2
+                    %{
+                      "id" => %{"id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4014"},
+                      "internal_resource" => "FileMetadata",
+                      "mime_type" => ["image/jp2"],
+                      "use" => [%{"@id" => "http://pcdm.org/use#ServiceFile"}]
+                    },
+                    %{
+                      "id" => %{"id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4017"},
+                      "internal_resource" => "FileMetadata",
+                      "mime_type" => ["image/tiff"],
+                      "use" => [%{"@id" => "http://pcdm.org/use#ServiceFile"}]
+                    }
+                  ]
+                }
+              }
+            ],
             "resources" => %{
               "1" => %{
                 "internal_resource" => "FileSet",
@@ -260,6 +305,30 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocumentTest do
           source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
           source_cache_order_record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           related_data: %{
+            "thumbnail" => %{
+              "internal_resource" => "FileSet",
+              "id" => "9ad621a7b-01ea-4895-9c3d-a8c6eaab4013",
+              "metadata" => %{
+                "file_metadata" => [
+                  %{
+                    "id" => %{"id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4017"},
+                    "internal_resource" => "FileMetadata",
+                    "mime_type" => ["image/tiff"],
+                    "height" => ["10937"],
+                    "width" => ["7286"],
+                    "use" => [%{"@id" => "http://pcdm.org/use#ServiceFile"}]
+                  },
+                  %{
+                    "id" => %{"id" => "0cff895a-01ea-4895-9c3d-a8c6eaab1111"},
+                    "internal_resource" => "FileMetadata",
+                    "mime_type" => ["image/tiff"],
+                    "height" => ["10937"],
+                    "width" => ["7286"],
+                    "use" => [%{"@id" => "http://pcdm.org/use#OriginalFile"}]
+                  }
+                ]
+              }
+            },
             "resources" => %{
               "2" => %{
                 "internal_resource" => "FileSet",
@@ -314,6 +383,30 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocumentTest do
           source_cache_order: ~U[2024-01-11 16:41:04.389944Z],
           source_cache_order_record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           related_data: %{
+            "thumbnail" => %{
+              "internal_resource" => "FileSet",
+              "id" => "9ad621a7b-01ea-4895-9c3d-a8c6eaab4013",
+              "height" => ["10937"],
+              "width" => ["7286"],
+              "metadata" => %{
+                "file_metadata" => [
+                  %{
+                    "id" => %{"id" => "0cff895a-01ea-4895-9c3d-a8c6eaab4017"},
+                    "internal_resource" => "FileMetadata",
+                    "mime_type" => ["image/tiff"],
+                    "use" => [%{"@id" => "http://pcdm.org/use#ServiceFile"}]
+                  },
+                  %{
+                    "id" => %{"id" => "0cff895a-01ea-4895-9c3d-a8c6eaab1111"},
+                    "internal_resource" => "FileMetadata",
+                    "mime_type" => ["image/tiff"],
+                    "height" => ["10937"],
+                    "width" => ["7286"],
+                    "use" => [%{"@id" => "http://pcdm.org/use#OriginalFile"}]
+                  }
+                ]
+              }
+            },
             "resources" => %{
               "1" => %{
                 "internal_resource" => "FileSet",
@@ -369,6 +462,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocumentTest do
           source_cache_order: ~U[2018-03-09 20:19:36.465203Z],
           source_cache_order_record_id: "0cff895a-01ea-4895-9c3d-a8c6eaab4013",
           related_data: %{
+            "thumbnail" => nil,
             "resources" => %{}
           },
           data: %{
@@ -965,6 +1059,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocumentTest do
       assert doc[:mms_id_ss] == "9963573093506421"
       # We only need 12 - if we have too many it slows down solr requests.
       assert doc[:image_service_urls_ss] |> length() == 12
+      assert doc[:multi_part_work_b] == false
     end
 
     test "converting a ScannedResource with MMS-ID metadata but no date doesn't index a date" do
@@ -1155,6 +1250,15 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocumentTest do
       doc = Figgy.SolrDocument.from_cache_entry(entry)
 
       assert doc[:title_sort] == "Ephemera Folder, The"
+    end
+
+    test "adds a mvw / multi-part-work flag" do
+      doc =
+        IndexingPipeline.get_figgy_resource!("a9f3fc2a-24e8-4787-b932-0245453f3810")
+        |> Figgy.Resource.to_combined()
+        |> Figgy.SolrDocument.from_combined_figgy_resource()
+
+      assert doc[:multi_part_work_b] == true
     end
   end
 end

@@ -6,6 +6,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   alias DpulCollections.IndexingPipeline.DatabaseProducer.CacheEntryMarker
   alias DpulCollections.IndexingPipeline
   alias DpulCollections.IndexingPipeline.Figgy
+  alias DpulCollections.IndexingPipeline.Figgy.ResourceTypeRegistry
   @derive {JSON.Encoder, except: [:__meta__]}
 
   @primary_key {:id, :binary_id, autogenerate: true}
@@ -69,12 +70,15 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
       |> Enum.sort(CacheEntryMarker)
 
     related_ids = Enum.map(related_data_markers, &Map.get(&1, :id))
-    flattened_member_ids = member_ids |> Enum.map(&extract_ids_from_value/1) |> MapSet.new()
+
+    flattened_member_ids =
+      member_ids |> Enum.map(&DpulCollections.Utilities.extract_ids_from_value/1) |> MapSet.new()
 
     %Figgy.CombinedFiggyResource{
       resource: resource,
       related_data: related_data,
       related_ids: related_ids,
+      # all member ids that are getting added to dc
       persisted_member_ids:
         MapSet.intersection(flattened_member_ids, MapSet.new(related_ids)) |> MapSet.to_list(),
       latest_updated_marker: Enum.at(all_markers, -1)
@@ -91,10 +95,112 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   end
 
   defp extract_related_data(resource) do
+    related = fetch_related(resource)
+
     %{
       "ancestors" => Map.merge(extract_ancestors(resource), extract_collections(resource)),
-      "resources" => fetch_related(resource)
+      "resources" => related,
+      "thumbnail" => get_thumbnail(resource, related),
+      "member_thumbnails_subset" =>
+        get_member_thumbnails_subset(resource, related, resource.metadata["member_ids"])
     }
+  end
+
+  @indexable_resource_types ResourceTypeRegistry.indexable_types()
+  #
+  # set default argument
+  defp get_member_thumbnails_subset(resource, related, member_ids, member_thumbnails \\ [])
+
+  # The first time we call this it will have the id map
+  # filter out anything that's not a resource
+  defp get_member_thumbnails_subset(
+         resource = %Figgy.Resource{internal_resource: internal_resource},
+         related,
+         member_ids = [member_id_head | _],
+         member_thumbnails
+       )
+       when is_map(member_id_head) and internal_resource in @indexable_resource_types do
+    member_ids = member_ids |> Enum.map(&DpulCollections.Utilities.extract_ids_from_value/1)
+    get_member_thumbnails(resource, related, member_ids, member_thumbnails)
+  end
+
+  defp get_member_thumbnails_subset(_resource, _related, _member_ids, _member_thumbnails), do: []
+
+  # done condition
+  defp get_member_thumbnails(_, _, [], member_thumbnails) do
+    Enum.reverse(member_thumbnails)
+  end
+
+  # recurse condition
+  defp get_member_thumbnails(
+         resource,
+         related,
+         member_ids,
+         member_thumbnails
+       ) do
+    # we only extract enough for the search results page
+    if length(member_thumbnails) < 12 do
+      # add one thumbnail to member_thumbnails, remove one from member_ids,
+      # recurse
+      [next_member_id | member_ids] = member_ids
+
+      member_thumbnails = [
+        get_member_thumbnail(related[next_member_id]) | member_thumbnails
+      ]
+
+      get_member_thumbnails(resource, related, member_ids, member_thumbnails)
+    else
+      Enum.reverse(member_thumbnails)
+    end
+  end
+
+  defp get_member_thumbnail(member = %Figgy.Resource{internal_resource: "ScannedResource"}) do
+    get_thumbnail(member, fetch_related(member))
+  end
+
+  defp get_member_thumbnail(member = %Figgy.Resource{internal_resource: "FileSet"}) do
+    member
+  end
+
+  defp get_member_thumbnail(_), do: nil
+
+  # if thumbnail is set, use it
+  defp get_thumbnail(
+         %Figgy.Resource{
+           metadata: %{"member_ids" => member_ids, "thumbnail_id" => [thumbnail_id | _]}
+         },
+         related
+       ) do
+    first_valid_thumbnail(related, [thumbnail_id | member_ids])
+  end
+
+  # otherwise, take first member
+  defp get_thumbnail(
+         %Figgy.Resource{metadata: %{"member_ids" => member_ids}},
+         related
+       )
+       when length(member_ids) > 0 do
+    first_valid_thumbnail(related, member_ids)
+  end
+
+  # recurse if needed
+  defp first_valid_thumbnail(related, id_priority_list) do
+    # Convert all IDs to just the strings.
+    with id_priority_list <- Enum.map(id_priority_list, &Map.get(&1, "id")),
+         # Find the first ID that's in related.
+         thumbnail_id <- Enum.find(id_priority_list, &Map.get(related, &1)),
+         thumbnail = related[thumbnail_id] do
+      case thumbnail do
+        %{internal_resource: "FileSet"} ->
+          thumbnail
+
+        nil ->
+          nil
+
+        _ ->
+          get_thumbnail(thumbnail, fetch_related(thumbnail))
+      end
+    end
   end
 
   # Finds all metadata properties which contain references to related resources
@@ -166,12 +272,12 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     # Flatten nested lists into a single list
     |> List.flatten()
     # If the value has the form `%{"id" => id}`, then extract the id string from map
-    |> Enum.map(&extract_ids_from_value/1)
+    |> Enum.map(&DpulCollections.Utilities.extract_ids_from_value/1)
     # Remove nil and empty string values
     |> Enum.filter(fn id -> !is_nil(id) and id != "" end)
     # Query figgy using the resulting list of ids
     |> IndexingPipeline.get_figgy_resources()
-    |> remove_non_displayable_filesets()
+    |> remove_non_indexable_children()
     # Get child resources recursively if we want them.
     |> Enum.map(&fetch_deep/1)
     |> List.flatten()
@@ -222,7 +328,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
        ) do
     collections =
       member_of_collection_ids
-      |> Enum.map(&extract_ids_from_value/1)
+      |> Enum.map(&DpulCollections.Utilities.extract_ids_from_value/1)
       |> IndexingPipeline.get_figgy_resources()
 
     Enum.reduce(collections, resource_map, fn col, acc ->
@@ -232,20 +338,18 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
 
   defp extract_collections(resource_map, _resource), do: resource_map
 
-  # Extract an id string from a value map.
-  # Exclude values that have more than one key. These are field like
-  # pending_upload which should not be extracted a related resources.
-  defp extract_ids_from_value(value = %{"id" => id}) when map_size(value) == 1, do: id
-
-  defp extract_ids_from_value(_), do: nil
-
-  defp remove_non_displayable_filesets(resources) do
+  defp remove_non_indexable_children(resources) do
     resources
     |> Enum.reject(fn r -> removable_resource?(r) end)
   end
 
+  # Allow MVWs
+  defp removable_resource?(%Figgy.Resource{internal_resource: "ScannedResource"}) do
+    false
+  end
+
+  # Only keep image file sets
   defp removable_resource?(%Figgy.Resource{metadata: %{"file_metadata" => file_metadata}}) do
-    # Dig through file metadata and determine if FileSet is an image
     image? = Enum.find(file_metadata, false, fn fm -> is_image_file?(fm) end)
 
     if image? do

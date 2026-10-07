@@ -25,6 +25,7 @@ defmodule DpulCollections.Item do
               :iiif_manifest_url,
               :image_canvas_ids,
               :image_service_urls,
+              :is_mvw?,
               :keywords,
               :mms_id,
               :page_count,
@@ -146,7 +147,7 @@ defmodule DpulCollections.Item do
       digitized_at: doc["digitized_at_dt"],
       file_count: doc["file_count_i"],
       folder_number: doc["folder_number_txtm"] || [],
-      format: (doc["format_txt_sort"] || []) |> List.first(),
+      format: (doc["format_txt_sort"] || []) |> List.first() |> parse_format(doc),
       geo_subject: doc["geo_subject_txt_sort"] || [],
       geographic_origin: doc["geographic_origin_txt_sort"] || [],
       height: doc["height_txtm"] || [],
@@ -154,6 +155,7 @@ defmodule DpulCollections.Item do
       iiif_manifest_url: doc["iiif_manifest_url_s"] || [],
       image_canvas_ids: doc["image_canvas_ids_ss"] || [],
       image_service_urls: doc["image_service_urls_ss"] || [],
+      is_mvw?: doc["multi_part_work_b"],
       keywords: doc["keywords_txt_sort"] || [],
       language: doc["language_txt_sort"] || [],
       mms_id: doc["mms_id_ss"],
@@ -190,6 +192,12 @@ defmodule DpulCollections.Item do
       contents: doc["contents_ss"]
     }
   end
+
+  defp parse_format(value, %{"multi_part_work_b" => true}) do
+    "#{gettext("Multi-part %{value}", value: value)}"
+  end
+
+  defp parse_format(value, _), do: value
 
   defp category_subject([value]) do
     value
