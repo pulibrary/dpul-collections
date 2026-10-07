@@ -205,10 +205,7 @@ defmodule DpulCollectionsWeb.ItemLive do
 
           <.action_bar class="sm:hidden pt-4" item={@item} current_scope={@current_scope} />
 
-          <section
-            :if={!@item.is_mvw?}
-            class="image-thumbnails hidden sm:block md:col-span-2 py-4"
-          >
+          <section class="image-thumbnails hidden sm:block md:col-span-2 py-4">
             <h2 class="py-1">{gettext("Files")}</h2>
             <div class="grid grid-cols-2 py-1 pr-2">
               <div class="text-left text-l text-gray-600 font-semibold">
@@ -733,7 +730,21 @@ defmodule DpulCollectionsWeb.ItemLive do
             item_id={@item.id}
             content_warning={@item.content_warning}
           />
-          <.large_thumbnail {assigns} />
+          <.link patch={"#{@item.viewer_url}/#{primary_thumbnail_idx(@item)}"} replace>
+            <img
+              src={"#{@item.primary_thumbnail_service_url}/#{IIIF.primary_thumbnail_parameters(@item.primary_thumbnail_width, @item.primary_thumbnail_height)}"}
+              alt={gettext("main image display")}
+              style="
+              background-color: lightgray;"
+              width={@item.primary_thumbnail_width}
+              height={@item.primary_thumbnail_height}
+              class={[
+                "w-full h-auto",
+                Helpers.obfuscate_item?(assigns) && "obfuscate",
+                "thumbnail-#{@item.id}"
+              ]}
+            />
+          </.link>
           <div
             :if={@display_size && relative_paper_dimension_style(@item)}
             id="letter-preview"
@@ -751,7 +762,11 @@ defmodule DpulCollectionsWeb.ItemLive do
       </div>
       <div class="w-full col-span-2 gap-2">
         <div class="thumbnail-buttons grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <.viewer_button item={@item} />
+          <.arrow_button_left id="viewer-link" patch={"#{@item.viewer_url}/1"} replace>
+            <span class="w-max flex gap-2 text-sm sm:text-base">
+              <.icon name="hero-eye" />{gettext("Look closer")}
+            </span>
+          </.arrow_button_left>
 
           <.download_button item={@item} />
         </div>
@@ -784,14 +799,6 @@ defmodule DpulCollectionsWeb.ItemLive do
     end
   end
 
-  def download_button(assigns = %{item: %{is_mvw?: true}}) do
-    ~H"""
-    <.primary_button disabled class="download-pdf">
-      {gettext("No PDF Available")}
-    </.primary_button>
-    """
-  end
-
   def download_button(assigns = %{item: %{pdf_url: pdf_url}}) when is_binary(pdf_url) do
     ~H"""
     <.primary_button href={@item.pdf_url} target="_blank" class="download-pdf">
@@ -802,61 +809,9 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def download_button(assigns) do
     ~H"""
-    <.primary_button disabled class="download-pdf">
+    <.primary_button disabled>
       {gettext("No PDF Available")}
     </.primary_button>
-    """
-  end
-
-  def viewer_button(assigns = %{item: %{is_mvw?: true}}) do
-    ~H"""
-    <.arrow_button_left disabled id="viewer-link" patch={"#{@item.viewer_url}/1"} replace>
-      <span class="w-max flex gap-2 text-sm sm:text-base">
-        <.icon name="hero-eye" />{gettext("Look closer")}
-      </span>
-    </.arrow_button_left>
-    """
-  end
-
-  def viewer_button(assigns = %{item: %{viewer_url: viewer_url}}) when is_binary(viewer_url) do
-    ~H"""
-    <.arrow_button_left id="viewer-link" patch={"#{@item.viewer_url}/1"} replace>
-      <span class="w-max flex gap-2 text-sm sm:text-base">
-        <.icon name="hero-eye" />{gettext("Look closer")}
-      </span>
-    </.arrow_button_left>
-    """
-  end
-
-  def large_thumbnail(assigns = %{item: %{is_mvw?: true}}) do
-    ~H"""
-    <.large_thumbnail_image {assigns} />
-    """
-  end
-
-  def large_thumbnail(assigns) do
-    ~H"""
-    <.link patch={"#{@item.viewer_url}/#{primary_thumbnail_idx(@item)}"} replace>
-      <.large_thumbnail_image {assigns} />
-    </.link>
-    """
-  end
-
-  def large_thumbnail_image(assigns) do
-    ~H"""
-    <img
-      src={"#{@item.primary_thumbnail_service_url}/#{IIIF.primary_thumbnail_parameters(@item.primary_thumbnail_width, @item.primary_thumbnail_height)}"}
-      alt={gettext("main image display")}
-      style="
-      background-color: lightgray;"
-      width={@item.primary_thumbnail_width}
-      height={@item.primary_thumbnail_height}
-      class={[
-        "w-full h-auto",
-        Helpers.obfuscate_item?(assigns) && "obfuscate",
-        "thumbnail-#{@item.id}"
-      ]}
-    />
     """
   end
 
