@@ -224,7 +224,7 @@
 
 @utility tab-base-behavior {
   &:hover {
-    @apply text-white;
+    @apply text-white font-bold *:font-bold;
   }
   &:focus {
     @apply font-bold *:font-bold border-b-4;
