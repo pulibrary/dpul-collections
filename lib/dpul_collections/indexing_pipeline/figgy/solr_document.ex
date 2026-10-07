@@ -707,18 +707,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
     end
   end
 
-  # Extract an id string from a value map.
-  # Exclude values that have more than one key. These are field like
-  # pending_upload which should not be extracted a related resources.
-  def extract_ids_from_value(value = %{"id" => id}) when map_size(value) == 1, do: id
-
-  def extract_ids_from_value(_), do: nil
-
   defp is_mvw?(%{"member_ids" => member_ids}, %{"resources" => related_resources}) do
     # require IEx; IEx.pry
     member_ids =
       member_ids
-      |> Enum.map(&extract_ids_from_value/1)
+      |> Enum.map(&DpulCollections.Utilities.extract_ids_from_value/1)
 
     related_resources
     |> Map.take(member_ids)

@@ -70,7 +70,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
       |> Enum.sort(CacheEntryMarker)
 
     related_ids = Enum.map(related_data_markers, &Map.get(&1, :id))
-    flattened_member_ids = member_ids |> Enum.map(&extract_ids_from_value/1) |> MapSet.new()
+
+    flattened_member_ids =
+      member_ids |> Enum.map(&DpulCollections.Utilities.extract_ids_from_value/1) |> MapSet.new()
 
     %Figgy.CombinedFiggyResource{
       resource: resource,
@@ -118,7 +120,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
          member_thumbnails
        )
        when is_map(member_id_head) and internal_resource in @indexable_resource_types do
-    member_ids = member_ids |> Enum.map(&extract_ids_from_value/1)
+    member_ids = member_ids |> Enum.map(&DpulCollections.Utilities.extract_ids_from_value/1)
     get_member_thumbnails(resource, related, member_ids, member_thumbnails)
   end
 
@@ -270,7 +272,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     # Flatten nested lists into a single list
     |> List.flatten()
     # If the value has the form `%{"id" => id}`, then extract the id string from map
-    |> Enum.map(&extract_ids_from_value/1)
+    |> Enum.map(&DpulCollections.Utilities.extract_ids_from_value/1)
     # Remove nil and empty string values
     |> Enum.filter(fn id -> !is_nil(id) and id != "" end)
     # Query figgy using the resulting list of ids
@@ -326,7 +328,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
        ) do
     collections =
       member_of_collection_ids
-      |> Enum.map(&extract_ids_from_value/1)
+      |> Enum.map(&DpulCollections.Utilities.extract_ids_from_value/1)
       |> IndexingPipeline.get_figgy_resources()
 
     Enum.reduce(collections, resource_map, fn col, acc ->
@@ -335,13 +337,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
   end
 
   defp extract_collections(resource_map, _resource), do: resource_map
-
-  # Extract an id string from a value map.
-  # Exclude values that have more than one key. These are field like
-  # pending_upload which should not be extracted a related resources.
-  defp extract_ids_from_value(value = %{"id" => id}) when map_size(value) == 1, do: id
-
-  defp extract_ids_from_value(_), do: nil
 
   defp remove_non_indexable_children(resources) do
     resources
