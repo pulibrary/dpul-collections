@@ -304,6 +304,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           <.input
             :for={hidden_filter <- hidden_filters()}
             type="hidden"
+            class="hidden"
             field={@filter_form[hidden_filter]}
           />
           <input

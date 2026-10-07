@@ -22,6 +22,34 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
     |> refute_has("label", text: "Pamphlets")
   end
 
+  test "filters load more data dynamically", %{conn: conn} do
+    SolrTestSupport.mock_solr_documents(120)
+    |> Enum.with_index()
+    |> Enum.map(fn {doc, index} ->
+      Map.put(
+        doc,
+        :subject_txt_sort,
+        "Arts #{index |> Integer.to_string() |> String.pad_leading(3, "0")}"
+      )
+    end)
+    |> Solr.add(active_collection())
+
+    Solr.soft_commit(active_collection())
+
+    conn
+    |> visit("/search?q=")
+    |> assert_has(".phx-connected")
+    |> click_button("Filters")
+    |> click_button("Subject")
+    |> assert_has("label", text: "Arts 001")
+    |> refute_has("label", text: "Arts 110")
+    # Scroll into view.
+    |> evaluate(
+      "const el = document.getElementById('filter-subject-scroll'); el.scrollTop = el.scrollHeight;"
+    )
+    |> assert_has("label", text: "Arts 110")
+  end
+
   test "filters are retained when searching and selecting", %{conn: conn} do
     Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
     Solr.soft_commit(active_collection())

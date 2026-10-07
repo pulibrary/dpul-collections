@@ -651,6 +651,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
   attr :options, :list, doc: "the options to pass to Phoenix.HTML.Form.options_for_select/2"
   attr :multiple, :boolean, default: false, doc: "the multiple flag for select inputs"
   attr :class, :any, default: nil
+  attr :container_attrs, :list, default: [], doc: "attributes for container if there is one"
 
   attr :rest, :global,
     include: ~w(accept autocomplete capture cols disabled form list max maxlength min minlength
@@ -681,7 +682,7 @@ defmodule DpulCollectionsWeb.CoreComponents do
       )
 
     ~H"""
-    <div phx-feedback-for={@name} class={@class}>
+    <div phx-feedback-for={@name} class={@class} {@container_attrs}>
       <label
         :for={{{label, count}, option} <- @options}
         class="flex items-center gap-3 p-2 cursor-pointer hover:bg-sage-100 rounded-md"
