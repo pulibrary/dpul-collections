@@ -144,7 +144,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
       subject_txt_sort: get_in(metadata, ["subject"]),
       summary_txtm: get_in(metadata, ["abstract"]),
       years_is: extract_years(get_in(metadata, ["created"])),
-      contents_ss: get_in(metadata, ["contents"])
+      contents_ss: get_in(metadata, ["contents"]),
+      multi_part_work_b: is_mvw?(metadata, related_data)
     })
   end
 
@@ -173,7 +174,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
       subject_txt_sort: extract_term("subject", metadata, related_data),
       transliterated_title_txtm: get_in(metadata, ["transliterated_title"]),
       categories_txt_sort: extract_categories(metadata, related_data),
-      category_subjects_txt: extract_category_subjects(metadata, related_data)
+      category_subjects_txt: extract_category_subjects(metadata, related_data),
+      multi_part_work_b: false
     })
   end
 
@@ -704,4 +706,26 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
         end
     end
   end
+
+  # Extract an id string from a value map.
+  # Exclude values that have more than one key. These are field like
+  # pending_upload which should not be extracted a related resources.
+  def extract_ids_from_value(value = %{"id" => id}) when map_size(value) == 1, do: id
+
+  def extract_ids_from_value(_), do: nil
+
+  defp is_mvw?(%{"member_ids" => member_ids}, %{"resources" => related_resources}) do
+    # require IEx; IEx.pry
+    member_ids =
+      member_ids
+      |> Enum.map(&extract_ids_from_value/1)
+
+    related_resources
+    |> Map.take(member_ids)
+    |> Map.values()
+    |> Enum.filter(fn r -> r["internal_resource"] == "ScannedResource" end)
+    |> Enum.any?()
+  end
+
+  defp is_mvw?(_, _), do: false
 end
