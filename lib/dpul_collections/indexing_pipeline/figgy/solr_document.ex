@@ -708,7 +708,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
   end
 
   defp is_mvw?(%{"member_ids" => member_ids}, %{"resources" => related_resources}) do
-    # require IEx; IEx.pry
     member_ids =
       member_ids
       |> Enum.map(&DpulCollections.Utilities.extract_ids_from_value/1)

@@ -124,7 +124,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     get_member_thumbnails(resource, related, member_ids, member_thumbnails)
   end
 
-  defp get_member_thumbnails_subset(_, _, _, _), do: []
+  defp get_member_thumbnails_subset(_resource, _related, _member_ids, _member_thumbnails), do: []
 
   # done condition
   defp get_member_thumbnails(_, _, [], member_thumbnails) do

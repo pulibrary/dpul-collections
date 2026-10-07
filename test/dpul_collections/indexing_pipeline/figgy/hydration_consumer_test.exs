@@ -97,8 +97,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
       assert [^restricted_ephemera_folder_cache_entry] =
                IndexingPipeline.list_hydration_cache_entries()
 
-      # Basic scanned resources get skipped, no new entries.
-      # old comment above. Scanned resources go in now; why does this pass?
+      # Originally this tested that scanned resources were skipped.
+      # now it's skipped because it's not complete / open
       scanned_resource =
         %Figgy.Resource{
           id: "2fa1b92b-9e62-4694-aeab-0c4fab72ac24",
