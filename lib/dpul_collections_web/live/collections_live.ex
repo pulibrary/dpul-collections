@@ -257,7 +257,10 @@ defmodule DpulCollectionsWeb.CollectionsLive do
 
   defp show_active_content(js, to) do
     js
-    |> JS.hide(transition: {"ease-out duration-300", "opacity-100", "opacity-0"}, to: "div.tab-content")
+    |> JS.hide(
+      transition: {"ease-out duration-300", "opacity-100", "opacity-0"},
+      to: "div.tab-content"
+    )
     |> JS.show(transition: {"ease-in duration-300", "opacity-0", "opacity-100"}, to: to)
   end
 
