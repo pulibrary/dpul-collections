@@ -48,6 +48,10 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
       "const el = document.getElementById('filter-subject-scroll'); el.scrollTop = el.scrollHeight;"
     )
     |> assert_has("label", text: "Arts 110")
+    # Make sure search resets scroll and pagination
+    |> type("#filter-subject-search", "Arts")
+    |> refute_has("label", text: "Arts 110")
+    |> evaluate("document.getElementById('filter-subject-scroll').scrollTop", &assert(&1 == 0))
   end
 
   test "filters are retained when searching and selecting", %{conn: conn} do

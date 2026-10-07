@@ -147,40 +147,6 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def filters(assigns) do
     ~H"""
-    <script :type={Phoenix.LiveView.ColocatedHook} name=".SearchFilter">
-      export default {
-        mounted() {
-          this.input = this.el.querySelector('input[type="search"]');
-          this.options = this.el.querySelector('[phx-feedback-for]');
-          if (!this.input || !this.options) return;
-
-          this.input.addEventListener('input', e => {
-            this.search(e.target.value)
-          });
-        },
-
-        updated() {
-          this.search(this.input.value)
-        },
-
-        async search(query) {
-          const items = Array.from(this.options.querySelectorAll('label')).map(el => ({
-            el,
-            value: el.querySelector('input[type="checkbox"]')?.value || el.querySelector('span')?.textContent?.trim() || ''
-          }));
-
-          if (!query?.trim()) {
-            items.forEach(i => { i.el.classList.remove('hidden') });
-            return;
-          }
-
-          const q = query.toLowerCase();
-          items.forEach(i => {
-            i.el.classList.toggle('hidden', !i.value.toLowerCase().includes(q));
-          });
-        }
-      }
-    </script>
     <script :type={Phoenix.LiveView.ColocatedHook} name=".FilterHotkey">
       export default {
         mounted() {
