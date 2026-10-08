@@ -201,11 +201,13 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div
       id="mvw_page"
-      class="bg-background page-y-padding content-area"
+      class="bg-background page-y-padding content-area flex flex-col gap-4"
     >
-      <.format_link item={@item} />
-      <.titles item={@item} />
-      <.date item={@item} />
+      <div class="item-top-details flex flex-col gap-4">
+        <.format_link item={@item} />
+        <.titles item={@item} />
+        <.date item={@item} />
+      </div>
       <.action_bar class="sm:hidden pt-4" item={@item} current_scope={@current_scope} />
       <div class="metadata sm:row-start-2 sm:col-span-3 sm:col-start-3 flex flex-col gap-8">
         <.summaries item={@item} />
