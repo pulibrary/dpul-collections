@@ -4,6 +4,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
   import DpulCollectionsWeb.BrowseItem
   alias DpulCollections.Collection
   alias DpulCollectionsWeb.Live.Helpers
+  alias DpulCollectionsWeb.CollectionTabs
 
   def mount(_params, _session, socket) do
     {:ok, socket}
@@ -43,12 +44,21 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         class="grid grid-flow-row auto-rows-max -mb-6 [&>*:nth-child(odd)]:bg-background [&>*:nth-child(even)]:bg-neutral-600 [&>*:nth-child(even)]:text-light-text"
       >
         <.collection_hero collection={@collection} banner_item={@banner_item} />
-        <.featured_and_related
-          :if={has_featured?(@collection) || has_related?(@collection)}
-          collection={@collection}
-          current_scope={@current_scope}
-          current_path={@current_path}
-        />
+        <%= if Application.fetch_env!(:dpul_collections, :feature_tab_redesign) do %>
+          <CollectionTabs.featured_and_related
+            :if={has_featured?(@collection) || has_related?(@collection)}
+            collection={@collection}
+            current_scope={@current_scope}
+            current_path={@current_path}
+          />
+        <% else %>
+          <.featured_and_related
+            :if={has_featured?(@collection) || has_related?(@collection)}
+            collection={@collection}
+            current_scope={@current_scope}
+            current_path={@current_path}
+          />
+        <% end %>
         <.learn_more collection={@collection} />
         <.recently_updated
           :if={length(@collection.recently_added) > 0}
@@ -146,82 +156,70 @@ defmodule DpulCollectionsWeb.CollectionsLive do
     ~H"""
     <div>
       <.content_separator />
-      <div class="content-area">
-        <div
+      <div class="tab-list content-area flex flex-row" role="tablist">
+        <.tab_button
           :if={has_featured?(@collection) && has_related?(@collection)}
-          class="tab-list flex flex-row"
-          role="tablist"
+          id="featured-items-tab"
+          label={gettext("Featured Highlights")}
+          pane="featured-items-container"
+          active?={true}
+        />
+        <.tab_button
+          :if={has_featured?(@collection) && has_related?(@collection)}
+          id="related-collections-tab"
+          label={gettext("Related Collections")}
+          pane="related-collections-container"
+          active?={false}
+        />
+      </div>
+      <div
+        :if={has_featured?(@collection)}
+        id="featured-items-container"
+        phx-update="ignore"
+        role="tabpanel"
+        class="grid-flow auto-rows-max tab-content"
+      >
+        <.card_row
+          id="featured-items"
+          title={gettext("Featured Highlights")}
+          hide_title?={has_related?(@collection)}
+          layout="content-area"
+          color=""
+          arrow_theme="light"
         >
-          <.tab_button
-            :if={has_featured?(@collection) && has_related?(@collection)}
-            id="featured-items-tab"
-            label={gettext("Featured Highlights")}
-            pane="featured-items-container"
-            active?={true}
+          <.item_browse_card_li
+            :for={item <- @collection.featured_items}
+            show_images={[]}
+            item={item}
+            current_scope={@current_scope}
+            current_path={@current_path}
           />
-          <.tab_button
-            :if={has_featured?(@collection) && has_related?(@collection)}
-            id="related-collections-tab"
-            label={gettext("Related Collections")}
-            pane="related-collections-container"
-            active?={false}
+        </.card_row>
+      </div>
+      <div
+        :if={has_related?(@collection)}
+        id="related-collections-container"
+        role="tabpanel"
+        phx-update="ignore"
+        class={[
+          "grid-flow auto-rows-max tab-content",
+          has_featured?(@collection) && "hidden"
+        ]}
+      >
+        <.card_row
+          id="related-collections"
+          layout="content-area"
+          title={gettext("Related Collections")}
+          hide_title?={has_featured?(@collection)}
+          more_link={Helpers.search_path(%{filter: %{related_collections: @collection.title |> hd}})}
+          color=""
+          arrow_theme="light"
+        >
+          <.collection_card_li
+            :for={item <- @collection.related_collections}
+            collection={item}
           />
-        </div>
-        <div class="grid">
-          <div
-            :if={has_featured?(@collection)}
-            id="featured-items-container"
-            phx-update="ignore"
-            role="tabpanel"
-            class={[
-              "col-start-1 row-start-1 grid-flow auto-rows-max tab-content"
-            ]}
-          >
-            <.card_row
-              id="featured-items"
-              title={gettext("Featured Highlights")}
-              hide_title?={has_related?(@collection)}
-              layout="content-area"
-              color=""
-              arrow_theme="light"
-            >
-              <.item_browse_card_li
-                :for={item <- @collection.featured_items}
-                show_images={[]}
-                item={item}
-                current_scope={@current_scope}
-                current_path={@current_path}
-              />
-            </.card_row>
-          </div>
-          <div
-            :if={has_related?(@collection)}
-            id="related-collections-container"
-            role="tabpanel"
-            phx-update="ignore"
-            class={[
-              "col-start-1 row-start-1 grid-flow auto-rows-max tab-content",
-              has_featured?(@collection) && "hidden"
-            ]}
-          >
-            <.card_row
-              id="related-collections"
-              layout="content-area"
-              title={gettext("Related Collections")}
-              hide_title?={has_featured?(@collection)}
-              more_link={
-                Helpers.search_path(%{filter: %{related_collections: @collection.title |> hd}})
-              }
-              color=""
-              arrow_theme="light"
-            >
-              <.collection_card_li
-                :for={item <- @collection.related_collections}
-                collection={item}
-              />
-            </.card_row>
-          </div>
-        </div>
+        </.card_row>
       </div>
     </div>
     """
@@ -238,10 +236,10 @@ defmodule DpulCollectionsWeb.CollectionsLive do
       id={@id}
       class={[
         "tab",
-        "tab-base",
-        "no-underline",
-        "text-wrap",
-        @active? && "active-tab"
+        @active? && "active-tab",
+        "btn-base px-4 normal-case",
+        "no-underline hover:underline",
+        "text-wrap"
       ]}
     >
       {@label}
@@ -257,11 +255,8 @@ defmodule DpulCollectionsWeb.CollectionsLive do
 
   defp show_active_content(js, to) do
     js
-    |> JS.hide(
-      transition: {"ease-out duration-300", "opacity-100", "opacity-0"},
-      to: "div.tab-content"
-    )
-    |> JS.show(transition: {"ease-in duration-300", "opacity-0", "opacity-100"}, to: to)
+    |> JS.hide(to: "div.tab-content")
+    |> JS.show(to: to)
   end
 
   defp has_featured?(collection) do

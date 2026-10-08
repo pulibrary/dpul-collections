@@ -24,4 +24,5 @@ CONSUL_SERVICE_ADDRESS = "service.consul"
 OTEL_EXPORTER_OTLP_ENDPOINT = "http://{{ env "NOMAD_HOST_IP_http" }}:4318"
 OTEL_SERVICE_NAME = "{{ env "NOMAD_JOB_NAME" }}"
 OTEL_RESOURCE_ATTRIBUTES = "deployment.environment=staging,host.name={{ env "node.unique.name" }}"
+FEATURE_TAB_REDESIGN = "true"
 {{- end -}}

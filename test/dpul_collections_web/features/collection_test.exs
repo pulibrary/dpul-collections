@@ -327,6 +327,7 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       # Featured Highlights are initially visible
       |> assert_has("#featured-items .browse-item")
       |> refute_has("#collection-62339f65-ce6d-4c85-ab77-67c70abb8709")
+      |> assert_has("#featured-items-tab.tab-base.tab-active")
       |> Playwright.click("#related-collections-tab")
       # Now Related collections are visible
       |> refute_has("#featured-items .browse-item")
@@ -349,6 +350,27 @@ defmodule DpulCollectionsWeb.Features.CollectionViewTest do
       |> assert_has(
         "a[href='/search?filter%5Brelated_collections%5D=Manuscripts+of+the+Islamic+World']"
       )
+    end
+
+    test "it uses the legacy tabs when the tab redesign is disabled", %{conn: conn} do
+      original_config = Application.fetch_env!(:dpul_collections, :feature_tab_redesign)
+      Application.put_env(:dpul_collections, :feature_tab_redesign, false)
+
+      on_exit(fn ->
+        Application.put_env(:dpul_collections, :feature_tab_redesign, original_config)
+      end)
+
+      conn
+      |> visit("/collections/islamicmss")
+      |> assert_has(".phx-connected")
+      |> assert_has("#featured-items-tab.active-tab")
+      |> refute_has("#featured-items-tab.tab-base")
+      |> assert_has("#featured-items .browse-item")
+      |> Playwright.click("#related-collections-tab")
+      |> assert_has("#related-collections-tab.active-tab")
+      |> refute_has("#featured-items-tab.active-tab")
+      |> refute_has("#featured-items .browse-item")
+      |> assert_has("#collection-62339f65-ce6d-4c85-ab77-67c70abb8709")
     end
   end
 

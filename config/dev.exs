@@ -3,6 +3,10 @@ import Config
 # Feature flips
 config :dpul_collections, :feature_account_toolbar, true
 
+config :dpul_collections,
+       :feature_tab_redesign,
+       System.get_env("FEATURE_TAB_REDESIGN", "true") == "true"
+
 # Configure your database
 config :dpul_collections, DpulCollections.Repo,
   username: "postgres",
