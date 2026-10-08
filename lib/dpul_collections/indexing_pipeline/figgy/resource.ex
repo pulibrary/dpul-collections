@@ -96,14 +96,17 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
 
   defp extract_related_data(resource) do
     related = fetch_related(resource)
+    # Ancestors includes all membership-based ancestors
     ancestors = extract_ancestors(resource)
-    # Projects are treated like collections.
+    # Projects are treated like collections. This means the project data will be
+    # in both the collections and ancestors.
     projects = extract_projects(ancestors)
+    collections = extract_collections(resource)
 
     %{
-      "ancestors" => extract_ancestors(resource),
+      "ancestors" => ancestors,
       "resources" => related,
-      "collections" => Map.merge(extract_collections(resource), projects),
+      "collections" => Map.merge(collections, projects),
       "thumbnail" => get_thumbnail(resource, related),
       "member_thumbnails_subset" =>
         get_member_thumbnails_subset(resource, related, resource.metadata["member_ids"])
