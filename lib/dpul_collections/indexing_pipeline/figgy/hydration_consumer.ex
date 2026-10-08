@@ -234,15 +234,15 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     true
   end
 
-  # ScannedResources must not have empty members, and its parent must be
-  # processed.
+  # ScannedResources must not have empty members, and must be in a collection.
   def process?(
         combined_figgy_resource = %Figgy.CombinedFiggyResource{
-          resource: %{internal_resource: "ScannedResource"}
+          resource: %{internal_resource: "ScannedResource"},
+          related_data: %{"collections" => collection_map}
         }
-      ) do
-    combined_figgy_resource.persisted_member_ids != [] &&
-      parent_processed?(combined_figgy_resource)
+      )
+      when map_size(collection_map) > 0 do
+    combined_figgy_resource.persisted_member_ids != []
   end
 
   # Ephemera Folders must be complete and open.
@@ -266,16 +266,6 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   def process?(_resource) do
     false
   end
-
-  # Only process child scanned resources if their parents are processed.
-  def parent_processed?(%{related_data: %{"ancestors" => ancestors}})
-      when length(ancestors) > 0 do
-    ancestors
-    |> Enum.find(&process?/1)
-  end
-
-  # No parent, so process.
-  def parent_processed?(_resource), do: true
 
   defp delete_if_seen(record_id, source, cache_version) do
     if IndexingPipeline.get_hydration_cache_entry!(record_id, cache_version) do
