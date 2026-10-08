@@ -106,6 +106,7 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   attr :filter_name, :string, required: true
   attr :filter_value, :string, required: true
+  attr :filter_label, :string, default: nil
   attr :class, :string, default: nil
   attr :rest, :global, doc: "the arbitrary HTML attributes to add to the link"
 
@@ -120,7 +121,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       }
       {@rest}
     >
-      {@filter_value}
+      {@filter_label || @filter_value}
     </.link>
     """
   end
@@ -265,6 +266,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         class="format-filter-link"
         filter_value={@item.format}
         filter_name="format"
+        filter_label={@item.format_label}
       />
     </div>
     """

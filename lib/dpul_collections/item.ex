@@ -20,6 +20,7 @@ defmodule DpulCollections.Item do
               :digitized_at,
               :file_count,
               :format,
+              :format_label,
               :folder_number,
               :height,
               :iiif_manifest_url,
@@ -147,7 +148,8 @@ defmodule DpulCollections.Item do
       digitized_at: doc["digitized_at_dt"],
       file_count: doc["file_count_i"],
       folder_number: doc["folder_number_txtm"] || [],
-      format: (doc["format_txt_sort"] || []) |> List.first() |> parse_format(doc),
+      format: (doc["format_txt_sort"] || []) |> List.first(),
+      format_label: (doc["format_txt_sort"] || []) |> List.first() |> format_label(doc),
       geo_subject: doc["geo_subject_txt_sort"] || [],
       geographic_origin: doc["geographic_origin_txt_sort"] || [],
       height: doc["height_txtm"] || [],
@@ -193,11 +195,11 @@ defmodule DpulCollections.Item do
     }
   end
 
-  defp parse_format(value, %{"multi_part_work_b" => true}) do
+  defp format_label(value, %{"multi_part_work_b" => true}) do
     "#{gettext("Multi-part %{value}", value: value)}"
   end
 
-  defp parse_format(value, _), do: value
+  defp format_label(value, _), do: value
 
   defp category_subject([value]) do
     value
