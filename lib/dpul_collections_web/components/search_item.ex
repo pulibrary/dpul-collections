@@ -168,7 +168,7 @@ defmodule DpulCollectionsWeb.SearchItem do
                 data-field="format"
                 class="item-format w-full sm:w-auto text-gray-600 font-bold text-base uppercase sm:text-right"
               >
-                {@item.format}
+                {@item.format_label || @item.format}
               </span>
               <div class="hidden sm:flex">
                 <UserSets.AddToSetComponent.add_button

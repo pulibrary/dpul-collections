@@ -832,15 +832,22 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
   end
 
   describe "mvw / multi-part works" do
-    test "has a metadata pane", %{conn: conn} do
+    test "has required components and behavior", %{conn: conn} do
       FiggyTestSupport.index_record_id_directly("a9f3fc2a-24e8-4787-b932-0245453f3810")
       Solr.soft_commit(active_collection())
 
       {:ok, view, _html} =
         live(conn, "/i/جعبري-على-الشاطبية/item/a9f3fc2a-24e8-4787-b932-0245453f3810")
 
-      view |> element("a", "View all metadata for this item") |> render_click()
+      # format filter link says "Multi-part" but only links to the actual format
+      assert view
+             |> has_element?(
+               "a[href='/search?filter%5Bformat%5D%5B%5D=Manuscript']",
+               "Multi-part Manuscript"
+             )
 
+      # there's a metadata pane
+      view |> element("a", "View all metadata for this item") |> render_click()
       assert view |> has_element?("dt", "Source Acquisition")
     end
   end
