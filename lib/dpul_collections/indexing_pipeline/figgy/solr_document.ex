@@ -155,6 +155,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
       contents_ss: get_in(metadata, ["contents"]),
       multi_part_work_b: is_mvw?(metadata, related_data),
       parent_id_s: Map.get(first_parent, "id"),
+      parent_title_txtm: extract_title(first_parent_metadata),
       parent_idx_i:
         first_parent_member_ids |> Enum.find_index(fn %{"id" => member_id} -> id == member_id end)
     })
@@ -544,6 +545,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
     end)
     |> Enum.map(&extract_rdf_title/1)
   end
+
+  defp extract_title(_), do: nil
 
   defp extract_rdf_title(title) do
     case title do

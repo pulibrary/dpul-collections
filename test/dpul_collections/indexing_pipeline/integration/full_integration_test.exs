@@ -632,6 +632,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
 
       assert document["parent_id_s"] == "a9f3fc2a-24e8-4787-b932-0245453f3810"
       assert document["parent_idx_i"] == 0
+      assert document["parent_title_txtm"] == ["جعبري على الشاطبية"]
       assert document["format_txt_sort"] == ["Manuscript", "Book"]
     end
   end
