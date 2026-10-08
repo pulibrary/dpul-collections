@@ -225,24 +225,24 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     true
   end
 
-  # Scanned resources must be complete, open, and a member of a collection (to
-  # be evaluated later)
+  # Scanned resources must be complete and open
   def process?(%{
         internal_resource: "ScannedResource",
         state: ["complete"],
-        visibility: ["open"],
-        member_of_collection_ids: [_ | _]
+        visibility: ["open"]
       }) do
     true
   end
 
-  # ScannedResources must not have empty members.
+  # ScannedResources must not have empty members, and its parent must be
+  # processed.
   def process?(
         combined_figgy_resource = %Figgy.CombinedFiggyResource{
           resource: %{internal_resource: "ScannedResource"}
         }
       ) do
-    combined_figgy_resource.persisted_member_ids != []
+    require IEx; IEx.pry;
+    combined_figgy_resource.persisted_member_ids != [] && parent_processed?(combined_figgy_resource)
   end
 
   # Ephemera Folders must be complete and open.
@@ -263,7 +263,17 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     combined_figgy_resource.persisted_member_ids != []
   end
 
-  def process?(_resource), do: false
+  def process?(_resource) do
+    false
+  end
+
+  # Only process child scanned resources if their parents are processed.
+  def parent_processed?(resource = %{related_data: %{"ancestors" => [parent = %Figgy.Resource{} | _ ]}}) do
+    process?(parent)
+  end
+
+  # No parent, so process.
+  def parent_processed?(_resource), do: true
 
   defp delete_if_seen(record_id, source, cache_version) do
     if IndexingPipeline.get_hydration_cache_entry!(record_id, cache_version) do

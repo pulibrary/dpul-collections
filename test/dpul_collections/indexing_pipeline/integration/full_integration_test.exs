@@ -615,4 +615,19 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
              ]
     end
   end
+
+  describe "a volume in a MVW" do
+    test "indexes expected scanned resource fields" do
+      {hydrator, transformer, indexer, document} =
+        FiggyTestSupport.index_record_id("4c5e6602-561f-4951-9cd1-e942dd72e3ff")
+
+      hydrator |> Broadway.stop(:normal)
+      transformer |> Broadway.stop(:normal)
+      indexer |> Broadway.stop(:normal)
+
+      assert document["title_txtm"] == [
+               "Vol 1"
+             ]
+    end
+  end
 end
