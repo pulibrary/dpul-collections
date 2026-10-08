@@ -226,8 +226,8 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
     test "when item has display date and format", %{conn: conn} do
       conn
       |> visit("/i/document1/item/1")
-      |> assert_has(".item-title > [aria-label='date']")
-      |> assert_has(".item-title > [aria-label='format']")
+      |> assert_has(".item-top-details > [aria-label='date']")
+      |> assert_has(".item-top-details > [aria-label='format']")
     end
 
     test "when item does not have display date or format", %{conn: conn} do
@@ -243,8 +243,8 @@ defmodule DpulCollectionsWeb.Features.ItemViewTest do
 
       conn
       |> visit("/i/documentnodate/item/nodate")
-      |> refute_has(".item-title > div[aria-label='date']")
-      |> refute_has(".item-title > div[aria-label='format']")
+      |> refute_has(".item-top-details > div[aria-label='date']")
+      |> refute_has(".item-top-details > div[aria-label='format']")
     end
   end
 

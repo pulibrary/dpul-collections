@@ -166,7 +166,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div class="item-page bg-background page-y-padding content-area col-start-1 row-start-1">
       <div class="column-layout my-5 flex flex-col sm:grid sm:grid-flow-row sm:auto-rows-0 sm:grid-cols-5 sm:grid-rows-[auto_1fr] sm:content-start gap-x-14 gap-y-4">
-        <div class="item-title sm:row-start-1 sm:col-start-3 sm:col-span-3 h-min flex flex-col gap-4">
+        <div class="item-top-details sm:row-start-1 sm:col-start-3 sm:col-span-3 h-min flex flex-col gap-4">
           <.format_link item={@item} />
           <.titles item={@item} />
           <.date item={@item} />
@@ -174,7 +174,6 @@ defmodule DpulCollectionsWeb.ItemLive do
 
         <div class="thumbnails w-full sm:row-start-1 sm:col-start-1 sm:col-span-2 sm:row-span-full">
           <.primary_thumbnail item={@item} display_size={@display_size} show_images={@show_images} />
-
           <.action_bar class="sm:hidden pt-4" item={@item} current_scope={@current_scope} />
           <.files_sidebar {assigns} />
         </div>
@@ -207,9 +206,7 @@ defmodule DpulCollectionsWeb.ItemLive do
       <.format_link item={@item} />
       <.titles item={@item} />
       <.date item={@item} />
-
       <.action_bar class="sm:hidden pt-4" item={@item} current_scope={@current_scope} />
-
       <div class="metadata sm:row-start-2 sm:col-span-3 sm:col-start-3 flex flex-col gap-8">
         <.summaries item={@item} />
         <.part_of_collections {assigns} />
