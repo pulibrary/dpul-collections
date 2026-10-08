@@ -61,7 +61,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     related_data = extract_related_data(resource)
 
     related_data_markers =
-      (Map.values(related_data["ancestors"]) ++ Map.values(related_data["collections"]) ++ Map.values(related_data["resources"]))
+      (Map.values(related_data["ancestors"]) ++
+         Map.values(related_data["collections"]) ++ Map.values(related_data["resources"]))
       |> List.flatten()
       |> Enum.map(&CacheEntryMarker.from/1)
 
