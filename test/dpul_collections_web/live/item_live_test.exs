@@ -831,6 +831,20 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
     end
   end
 
+  describe "mvw / multi-part works" do
+    test "has a metadata pane", %{conn: conn} do
+      FiggyTestSupport.index_record_id_directly("a9f3fc2a-24e8-4787-b932-0245453f3810")
+      Solr.soft_commit(active_collection())
+
+      {:ok, view, _html} =
+        live(conn, "/i/جعبري-على-الشاطبية/item/a9f3fc2a-24e8-4787-b932-0245453f3810")
+
+      view |> element("a", "View all metadata for this item") |> render_click()
+
+      assert view |> has_element?("dt", "Source Acquisition")
+    end
+  end
+
   # Copied from
   # https://github.com/phoenixframework/phoenix_live_view/blob/v1.0.17/lib/phoenix_live_view/test/live_view_test.ex#L1478C1-L1492C6
   # because we don't have a refute_patched. Remove when

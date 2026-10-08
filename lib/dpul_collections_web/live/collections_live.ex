@@ -68,7 +68,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         <img src="/images/triangle-mosaic.png" alt="" class="mx-auto w-xl" />
       </div>
       <div class="space-y-2 relative z-30">
-        <p class="text-accent font-semibold text-xl uppercase tracking-wide">
+        <p class="format-filter-link">
           {gettext("Digital Collection")}
         </p>
         <h1 class="flex-grow-1 text-4xl lg:text-6xl font-[1000]">

@@ -180,6 +180,10 @@
   @apply text-accent font-semibold;
 }
 
+@utility format-filter-link {
+  @apply text-accent font-semibold text-xl uppercase tracking-wide;
+}
+
 @utility obfuscate {
   @apply blur-xl;
   clip-path: inset(0);
