@@ -1,4 +1,4 @@
-defmodule DpulCollectionsWeb.Search.ScrollFilter do
+defmodule DpulCollectionsWeb.SearchableMultiselect do
   use DpulCollectionsWeb, :live_component
   use Gettext, backend: DpulCollectionsWeb.Gettext
 
@@ -21,8 +21,7 @@ defmodule DpulCollectionsWeb.Search.ScrollFilter do
          %{
            assigns: %{
              query: query,
-             filter: filter,
-             filter_form: form,
+             options: options,
              field: field,
              page: page,
              limit: limit
@@ -31,49 +30,53 @@ defmodule DpulCollectionsWeb.Search.ScrollFilter do
        ) do
     q = query |> String.trim() |> String.downcase()
 
-    filtered =
+    filtered_options =
       if q == "",
-        do: filter.data,
-        else: Enum.filter(filter.data, fn {v, _} -> String.contains?(String.downcase(v), q) end)
+        do: options,
+        else: Enum.filter(options, fn {v, _} -> String.contains?(String.downcase(v), q) end)
 
-    visible =
-      filtered
+    visible_options =
+      filtered_options
       |> Enum.take(page * limit)
 
-    visible_values = MapSet.new(visible, fn {v, _} -> String.downcase(v) end)
+    visible_values = MapSet.new(visible_options, fn {v, _} -> String.downcase(v) end)
 
+    # Get all fields that are selected but not in the search results so we can
+    # stash them in hidden inputs.
     hidden_selected =
-      List.wrap(form[field].value)
+      List.wrap(field.value)
       |> Enum.reject(&(String.downcase(&1) in visible_values))
 
-    filter_length = length(filtered)
+    filter_length = length(filtered_options)
     # Get the highest possible page - div does integer math
     max_page = div(filter_length + limit - 1, limit)
 
-    assign(socket, options: visible, hidden_selected: hidden_selected, max_page: max_page)
+    assign(socket,
+      visible_options: visible_options,
+      hidden_selected: hidden_selected,
+      max_page: max_page
+    )
   end
 
-  attr :field, :string
-  attr :filter_form, :map
-  attr :filter, :map
+  attr :field, Phoenix.HTML.FormField
+  attr :label, :string
+  attr :options, :list
 
   def render(assigns) do
     ~H"""
-    <div id={"search-#{@field}"} class="pt-3">
+    <div id={"search-#{@field.field}"} class="pt-3">
       <div class="relative mb-2">
-        <label for={"filter-#{@field}-search"} class="sr-only">
-          {gettext("Search")} {Gettext.gettext(DpulCollectionsWeb.Gettext, @filter.label)} {gettext(
-            "filters"
-          )}
+        <label for={"filter-#{@field.field}-search"} class="sr-only">
+          {gettext("Search %{label} filters", label: @label)}
         </label>
         <input
-          id={"filter-#{@field}-search"}
+          id={"filter-#{@field.field}-search"}
           type="search"
           name="filter_query"
           value={@query}
           phx-change={
             JS.push("search", target: @myself)
-            |> JS.dispatch("dpulc:resetScroll", to: "#filter-#{@field}-scroll")
+            |> JS.dispatch("dpulc:resetScroll", to: "#filter-#{@field.field}-scroll")
           }
           phx-debounce="200"
           placeholder={gettext("Search filters...")}
@@ -85,21 +88,23 @@ defmodule DpulCollectionsWeb.Search.ScrollFilter do
       <input
         :for={value <- @hidden_selected}
         type="hidden"
-        name={@filter_form[@field].name <> "[]"}
+        name={@field.name <> "[]"}
         value={value}
       />
       <.input
         data-filter-options
         type="checkgroup"
-        field={@filter_form[@field]}
+        field={@field}
         multiple={true}
         class="max-h-100 overflow-y-auto grid grid-cols-1 sm:grid-cols-1 space-y-1"
         container_attrs={[
-          id: "filter-#{@field}-scroll",
+          id: "filter-#{@field.field}-scroll",
           "phx-viewport-bottom":
             @page < @max_page && JS.push("next_page", target: @myself, page_loading: true)
         ]}
-        options={Enum.map(@options, fn {value, count} -> {{value, format_number(count)}, value} end)}
+        options={
+          Enum.map(@visible_options, fn {value, count} -> {{value, format_number(count)}, value} end)
+        }
       >
         <div :if={@page < @max_page} class="text-sm p-2 animate-pulse">{gettext("Loading...")}</div>
       </.input>

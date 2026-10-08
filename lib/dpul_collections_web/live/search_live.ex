@@ -453,11 +453,11 @@ defmodule DpulCollectionsWeb.SearchLive do
   def filter_input(assigns) do
     ~H"""
     <.live_component
-      module={DpulCollectionsWeb.Search.ScrollFilter}
+      module={DpulCollectionsWeb.SearchableMultiselect}
       id={"search-#{@field}"}
-      field={@field}
-      filter_form={@filter_form}
-      filter={@filter}
+      field={@filter_form[@field]}
+      options={@filter.data}
+      label={Gettext.gettext(DpulCollectionsWeb.Gettext, @filter.label)}
     />
     """
   end
