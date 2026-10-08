@@ -370,7 +370,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div id="similar-items">
       <.card_row
-        :if={@item.collections != []}
+        :if={@item.collections != [] && @related_items != []}
         id="related-same-collection"
         title={gettext("Similar Items in this Collection")}
         more_link={more_similar_link(@item)}
@@ -383,7 +383,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         />
       </.card_row>
       <.card_row
-        :if={@item.collections != []}
+        :if={@item.collections != [] && @different_collections_related_items != []}
         id="related-different-collection"
         title={gettext("Similar Items outside this Collection")}
         color="bg-background"
