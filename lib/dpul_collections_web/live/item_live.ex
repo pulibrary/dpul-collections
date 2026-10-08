@@ -133,6 +133,17 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   attr :current_scope, :map, required: false, default: nil
 
+  def render(assigns = %{item: %{is_mvw?: true}}) do
+    ~H"""
+    <Layouts.app flash={@flash} content_class={} current_scope={@current_scope}>
+      <div id="item-wrap" class="grid grid-rows-[1fr/1fr] grid-cols-[1fr/1fr] cover-with-pane">
+        <.mvw_page {assigns} />
+      </div>
+      <.metadata_pane :if={@live_action == :metadata} item={@item} />
+    </Layouts.app>
+    """
+  end
+
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} content_class={} current_scope={@current_scope}>
@@ -153,130 +164,23 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def item_page(assigns) do
     ~H"""
-    <div class="bg-background page-y-padding content-area item-page col-start-1 row-start-1">
+    <div class="item-page bg-background page-y-padding content-area col-start-1 row-start-1">
       <div class="column-layout my-5 flex flex-col sm:grid sm:grid-flow-row sm:auto-rows-0 sm:grid-cols-5 sm:grid-rows-[auto_1fr] sm:content-start gap-x-14 gap-y-4">
-        <div class="item-title sm:row-start-1 sm:col-start-3 sm:col-span-3 h-min flex flex-col gap-4">
-          <div
-            :if={@item.format}
-            aria-label={gettext("format")}
-          >
-            <.filter_link
-              class="text-xl uppercase tracking-wide"
-              filter_value={@item.format}
-              filter_name="format"
-            />
-          </div>
-          <div aria-label={gettext("title")}>
-            <%= for title <- @item.title do %>
-              <h1 class="text-4xl font-bold normal-case" dir="auto">{title}</h1>
-            <% end %>
-            <div
-              :if={!Enum.empty?(@item.transliterated_title) || !Enum.empty?(@item.alternative_title)}
-              class="flex flex-col gap-2"
-            >
-              <p
-                :for={ttitle <- @item.transliterated_title}
-                dir="auto"
-                class="text-2xl font-medium text-gray-500"
-              >
-                {ttitle}
-              </p>
-              <p
-                :for={atitle <- @item.alternative_title}
-                dir="auto"
-                class="text-2xl font-medium text-gray-500"
-              >
-                [{atitle}]
-              </p>
-            </div>
-          </div>
-          <div
-            :if={@item.date}
-            aria-label={gettext("date")}
-          >
-            <p class="text-xl font-medium text-dark-text">
-              {@item.date}
-            </p>
-          </div>
+        <div class="item-top-details sm:row-start-1 sm:col-start-3 sm:col-span-3 h-min flex flex-col gap-4">
+          <.format_link item={@item} />
+          <.titles item={@item} />
+          <.date item={@item} />
         </div>
 
         <div class="thumbnails w-full sm:row-start-1 sm:col-start-1 sm:col-span-2 sm:row-span-full">
           <.primary_thumbnail item={@item} display_size={@display_size} show_images={@show_images} />
-
           <.action_bar class="sm:hidden pt-4" item={@item} current_scope={@current_scope} />
-
-          <section
-            :if={!@item.is_mvw?}
-            class="image-thumbnails hidden sm:block md:col-span-2 py-4"
-          >
-            <h2 class="py-1">{gettext("Files")}</h2>
-            <div class="grid grid-cols-2 py-1 pr-2">
-              <div class="text-left text-l text-gray-600 font-semibold">
-                {gettext("%{file_min} of %{file_max} images",
-                  file_min: format_number(min(@item.file_count, image_thumb_grid_count())),
-                  file_max: format_number(@item.file_count)
-                )}
-              </div>
-              <div class="text-right text-accent uppercase">
-                <.link
-                  :if={@item.file_count > image_thumb_grid_count()}
-                  patch={"#{@item.viewer_url}/1"}
-                  replace
-                >
-                  {gettext("View all images")}
-                </.link>
-              </div>
-            </div>
-            <div class="py-1 grid grid-cols-4">
-              <.thumbs
-                :for={
-                  {thumb, thumb_num} <-
-                    Enum.with_index(Enum.take(@item.image_service_urls, image_thumb_grid_count()))
-                }
-                :if={@item.file_count}
-                thumb={thumb}
-                thumb_num={thumb_num}
-                viewer_url={@item.viewer_url}
-                item={@item}
-                show_images={@show_images}
-              />
-            </div>
-          </section>
+          <.files_sidebar {assigns} />
         </div>
 
         <div class="metadata sm:row-start-2 sm:col-span-3 sm:col-start-3 flex flex-col gap-8">
-          <div
-            :for={summary <- @item.summary}
-            dir="auto"
-            class="text-xl font-medium text-dark-text font-serif"
-          >
-            {summary}
-          </div>
-          <div
-            :if={@item.collections != []}
-            class="text-lg font-medium text-dark-text border-l-4 border-s-sage-500 w-full px-4"
-          >
-            <div class="text-sage-800 uppercase text-sm font-bold tracking-wide">
-              {ngettext("Collection", "Collections", length(@item.collections))}
-            </div>
-            <div :for={collection <- @collections}>
-              {gettext("Part of")}
-              <.link class="filter-link" navigate={~p"/collections/#{collection.slug}"}>
-                {collection.title}
-              </.link>
-              <div class="tagline text-sm font-light py-1">
-                {collection.tagline}
-              </div>
-            </div>
-            <div :for={
-              title <-
-                @item.collections --
-                  Enum.flat_map(@collections, fn c -> c.title end)
-            }>
-              {gettext("Part of")}
-              <.filter_link filter_name="collection" filter_value={title} />
-            </div>
-          </div>
+          <.summaries item={@item} />
+          <.part_of_collections {assigns} />
           <.action_bar class="hidden sm:block" item={@item} current_scope={@current_scope} />
           <.content_separator />
           <.metadata_table item={@item} />
@@ -284,6 +188,184 @@ defmodule DpulCollectionsWeb.ItemLive do
       </div>
       <.share_modal path={@item.url} id="share-modal" heading={gettext("Share this item")} />
     </div>
+    <.similar_items {assigns} />
+    <.correction_form_modal
+      correction_form={@correction_form}
+      item_id={@item.id}
+      correction_form_success?={@correction_form_success?}
+    />
+    """
+  end
+
+  def mvw_page(assigns) do
+    ~H"""
+    <div
+      id="mvw_page"
+      class="bg-background page-y-padding content-area flex flex-col gap-4"
+    >
+      <div class="item-top-details flex flex-col gap-4">
+        <.format_link item={@item} />
+        <.titles item={@item} />
+        <.date item={@item} />
+      </div>
+      <.action_bar class="sm:hidden pt-4" item={@item} current_scope={@current_scope} />
+      <div class="metadata sm:row-start-2 sm:col-span-3 sm:col-start-3 flex flex-col gap-8">
+        <.summaries item={@item} />
+        <.part_of_collections {assigns} />
+        <.action_bar class="hidden sm:block" item={@item} current_scope={@current_scope} />
+        <.content_separator />
+        <.metadata_table item={@item} />
+      </div>
+      <.share_modal path={@item.url} id="share-modal" heading={gettext("Share this item")} />
+    </div>
+    <.correction_form_modal
+      correction_form={@correction_form}
+      item_id={@item.id}
+      correction_form_success?={@correction_form_success?}
+    />
+    """
+  end
+
+  def titles(assigns) do
+    ~H"""
+    <div aria-label={gettext("title")}>
+      <%= for title <- @item.title do %>
+        <h1 class="text-4xl font-bold normal-case" dir="auto">{title}</h1>
+      <% end %>
+      <div
+        :if={!Enum.empty?(@item.transliterated_title) || !Enum.empty?(@item.alternative_title)}
+        class="flex flex-col gap-2"
+      >
+        <p
+          :for={ttitle <- @item.transliterated_title}
+          dir="auto"
+          class="text-2xl font-medium text-gray-500"
+        >
+          {ttitle}
+        </p>
+        <p
+          :for={atitle <- @item.alternative_title}
+          dir="auto"
+          class="text-2xl font-medium text-gray-500"
+        >
+          [{atitle}]
+        </p>
+      </div>
+    </div>
+    """
+  end
+
+  def format_link(assigns) do
+    ~H"""
+    <div
+      :if={@item.format}
+      aria-label={gettext("format")}
+    >
+      <.filter_link
+        class="format-filter-link"
+        filter_value={@item.format}
+        filter_name="format"
+      />
+    </div>
+    """
+  end
+
+  def date(assigns) do
+    ~H"""
+    <div
+      :if={@item.date}
+      aria-label={gettext("date")}
+    >
+      <p class="text-xl font-medium text-dark-text">
+        {@item.date}
+      </p>
+    </div>
+    """
+  end
+
+  def part_of_collections(assigns) do
+    ~H"""
+    <div
+      :if={@item.collections != []}
+      class="text-lg font-medium text-dark-text border-l-4 border-s-sage-500 w-full px-4"
+    >
+      <div class="text-sage-800 uppercase text-sm font-bold tracking-wide">
+        {ngettext("Collection", "Collections", length(@item.collections))}
+      </div>
+      <div :for={collection <- @collections}>
+        {gettext("Part of")}
+        <.link class="filter-link" navigate={~p"/collections/#{collection.slug}"}>
+          {collection.title}
+        </.link>
+        <div class="tagline text-sm font-light py-1">
+          {collection.tagline}
+        </div>
+      </div>
+      <div :for={
+        title <-
+          @item.collections --
+            Enum.flat_map(@collections, fn c -> c.title end)
+      }>
+        {gettext("Part of")}
+        <.filter_link filter_name="collection" filter_value={title} />
+      </div>
+    </div>
+    """
+  end
+
+  def summaries(assigns) do
+    ~H"""
+    <div
+      :for={summary <- @item.summary}
+      dir="auto"
+      class="text-xl font-medium text-dark-text font-serif"
+    >
+      {summary}
+    </div>
+    """
+  end
+
+  def files_sidebar(assigns) do
+    ~H"""
+    <section class="image-thumbnails hidden sm:block md:col-span-2 py-4">
+      <h2 class="py-1">{gettext("Files")}</h2>
+      <div class="grid grid-cols-2 py-1 pr-2">
+        <div class="text-left text-l text-gray-600 font-semibold">
+          {gettext("%{file_min} of %{file_max} images",
+            file_min: format_number(min(@item.file_count, image_thumb_grid_count())),
+            file_max: format_number(@item.file_count)
+          )}
+        </div>
+        <div class="text-right text-accent uppercase">
+          <.link
+            :if={@item.file_count > image_thumb_grid_count()}
+            patch={"#{@item.viewer_url}/1"}
+            replace
+          >
+            {gettext("View all images")}
+          </.link>
+        </div>
+      </div>
+      <div class="py-1 grid grid-cols-4">
+        <.thumbs
+          :for={
+            {thumb, thumb_num} <-
+              Enum.with_index(Enum.take(@item.image_service_urls, image_thumb_grid_count()))
+          }
+          :if={@item.file_count}
+          thumb={thumb}
+          thumb_num={thumb_num}
+          viewer_url={@item.viewer_url}
+          item={@item}
+          show_images={@show_images}
+        />
+      </div>
+    </section>
+    """
+  end
+
+  def similar_items(assigns) do
+    ~H"""
     <div id="similar-items">
       <.card_row
         :if={@item.collections != []}
@@ -313,11 +395,6 @@ defmodule DpulCollectionsWeb.ItemLive do
         />
       </.card_row>
     </div>
-    <.correction_form_modal
-      correction_form={@correction_form}
-      item_id={@item.id}
-      correction_form_success?={@correction_form_success?}
-    />
     """
   end
 
@@ -733,7 +810,21 @@ defmodule DpulCollectionsWeb.ItemLive do
             item_id={@item.id}
             content_warning={@item.content_warning}
           />
-          <.large_thumbnail {assigns} />
+          <.link patch={"#{@item.viewer_url}/#{primary_thumbnail_idx(@item)}"} replace>
+            <img
+              src={"#{@item.primary_thumbnail_service_url}/#{IIIF.primary_thumbnail_parameters(@item.primary_thumbnail_width, @item.primary_thumbnail_height)}"}
+              alt={gettext("main image display")}
+              style="
+              background-color: lightgray;"
+              width={@item.primary_thumbnail_width}
+              height={@item.primary_thumbnail_height}
+              class={[
+                "w-full h-auto",
+                Helpers.obfuscate_item?(assigns) && "obfuscate",
+                "thumbnail-#{@item.id}"
+              ]}
+            />
+          </.link>
           <div
             :if={@display_size && relative_paper_dimension_style(@item)}
             id="letter-preview"
@@ -751,7 +842,11 @@ defmodule DpulCollectionsWeb.ItemLive do
       </div>
       <div class="w-full col-span-2 gap-2">
         <div class="thumbnail-buttons grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <.viewer_button item={@item} />
+          <.arrow_button_left id="viewer-link" patch={"#{@item.viewer_url}/1"} replace>
+            <span class="w-max flex gap-2 text-sm sm:text-base">
+              <.icon name="hero-eye" />{gettext("Look closer")}
+            </span>
+          </.arrow_button_left>
 
           <.download_button item={@item} />
         </div>
@@ -784,14 +879,6 @@ defmodule DpulCollectionsWeb.ItemLive do
     end
   end
 
-  def download_button(assigns = %{item: %{is_mvw?: true}}) do
-    ~H"""
-    <.primary_button disabled class="download-pdf">
-      {gettext("No PDF Available")}
-    </.primary_button>
-    """
-  end
-
   def download_button(assigns = %{item: %{pdf_url: pdf_url}}) when is_binary(pdf_url) do
     ~H"""
     <.primary_button href={@item.pdf_url} target="_blank" class="download-pdf">
@@ -802,61 +889,9 @@ defmodule DpulCollectionsWeb.ItemLive do
 
   def download_button(assigns) do
     ~H"""
-    <.primary_button disabled class="download-pdf">
+    <.primary_button disabled>
       {gettext("No PDF Available")}
     </.primary_button>
-    """
-  end
-
-  def viewer_button(assigns = %{item: %{is_mvw?: true}}) do
-    ~H"""
-    <.arrow_button_left disabled id="viewer-link" patch={"#{@item.viewer_url}/1"} replace>
-      <span class="w-max flex gap-2 text-sm sm:text-base">
-        <.icon name="hero-eye" />{gettext("Look closer")}
-      </span>
-    </.arrow_button_left>
-    """
-  end
-
-  def viewer_button(assigns = %{item: %{viewer_url: viewer_url}}) when is_binary(viewer_url) do
-    ~H"""
-    <.arrow_button_left id="viewer-link" patch={"#{@item.viewer_url}/1"} replace>
-      <span class="w-max flex gap-2 text-sm sm:text-base">
-        <.icon name="hero-eye" />{gettext("Look closer")}
-      </span>
-    </.arrow_button_left>
-    """
-  end
-
-  def large_thumbnail(assigns = %{item: %{is_mvw?: true}}) do
-    ~H"""
-    <.large_thumbnail_image {assigns} />
-    """
-  end
-
-  def large_thumbnail(assigns) do
-    ~H"""
-    <.link patch={"#{@item.viewer_url}/#{primary_thumbnail_idx(@item)}"} replace>
-      <.large_thumbnail_image {assigns} />
-    </.link>
-    """
-  end
-
-  def large_thumbnail_image(assigns) do
-    ~H"""
-    <img
-      src={"#{@item.primary_thumbnail_service_url}/#{IIIF.primary_thumbnail_parameters(@item.primary_thumbnail_width, @item.primary_thumbnail_height)}"}
-      alt={gettext("main image display")}
-      style="
-      background-color: lightgray;"
-      width={@item.primary_thumbnail_width}
-      height={@item.primary_thumbnail_height}
-      class={[
-        "w-full h-auto",
-        Helpers.obfuscate_item?(assigns) && "obfuscate",
-        "thumbnail-#{@item.id}"
-      ]}
-    />
     """
   end
 

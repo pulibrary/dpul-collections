@@ -307,8 +307,8 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       {:ok, view, _html} =
         live(conn, "/i/المحاسن-المجتمعة-في-فضل-فضايل/item/27fd4d29-1170-47a5-891b-f2743873bcef")
 
-      assert view |> has_element?(".item-title a", "Manuscript")
-      assert view |> has_element?(".item-title div[aria-label='date']", "1704")
+      assert view |> has_element?(".item-top-details a", "Manuscript")
+      assert view |> has_element?(".item-top-details div[aria-label='date']", "1704")
       assert view |> has_element?("dt", "Call Number")
       assert view |> has_element?("dd", "Islamic Manuscripts, Garrett no. 250H")
       assert view |> has_element?("div > a", "View in Library Catalog")
@@ -832,15 +832,16 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
   end
 
   describe "mvw / multi-part works" do
-    test "look closer and download buttons are disabled", %{conn: conn} do
+    test "has a metadata pane", %{conn: conn} do
       FiggyTestSupport.index_record_id_directly("a9f3fc2a-24e8-4787-b932-0245453f3810")
       Solr.soft_commit(active_collection())
 
       {:ok, view, _html} =
         live(conn, "/i/جعبري-على-الشاطبية/item/a9f3fc2a-24e8-4787-b932-0245453f3810")
 
-      assert view |> has_element?("span.disabled", "Look closer")
-      assert view |> has_element?("button[disabled]", "No PDF Available")
+      view |> element("a", "View all metadata for this item") |> render_click()
+
+      assert view |> has_element?("dt", "Source Acquisition")
     end
   end
 
