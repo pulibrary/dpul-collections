@@ -119,8 +119,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
     collection_titles = extract_collection_titles(related_data, "Collection")
     metadata = merge_imported(metadata)
     base = base_solr_fields(id, data, metadata, related_data, "ScannedResource")
-    first_parent = Map.get(related_data, "ancestors") |> Map.values() |> Enum.at(0) || %{}
+
+    first_parent =
+      (Map.get(related_data, "ancestors") || %{}) |> Map.values() |> Enum.at(0) || %{}
+
     first_parent_metadata = merge_imported(first_parent["metadata"] || %{})
+
+    first_parent_member_ids =
+      get_in(first_parent, [Access.key("metadata", %{}), Access.key("member_ids", [])])
 
     Map.merge(base, %{
       collection_titles_ss: collection_titles,
@@ -148,7 +154,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
       years_is: extract_years(get_in(metadata, ["created"])),
       contents_ss: get_in(metadata, ["contents"]),
       multi_part_work_b: is_mvw?(metadata, related_data),
-      parent_id_s: Map.get(first_parent, "id")
+      parent_id_s: Map.get(first_parent, "id"),
+      parent_idx_i:
+        first_parent_member_ids |> Enum.find_index(fn %{"id" => member_id} -> id == member_id end)
     })
   end
 

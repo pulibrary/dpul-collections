@@ -866,6 +866,22 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
                "a[href='/search?filter%5Bformat%5D%5B%5D=Manuscript']",
                "Manuscript"
              )
+
+      # Context box.
+      assert view
+             |> has_element?("*", "Part 1 of Multi-Part Work")
+
+      assert view
+             |> has_element?(
+               "a[href='/i/جعبري-على-الشاطبية/item/a9f3fc2a-24e8-4787-b932-0245453f3810']",
+               "جعبري على الشاطبية"
+             )
+
+      assert view
+             |> has_element?(
+               "*",
+               "Commentary on Ḥirz al-amānī wa-wajh al-tahānī fī qirāʼāt al-sabʻ al-mathānī of al-Shāṭibī (d. 590/1194), a versification of al-Taysīr fī al-qirāʼāt al-sabʻ by ʻUthmān ibn Saʻīd al-Qurṭubī (d. 444/1053)."
+             )
     end
   end
 

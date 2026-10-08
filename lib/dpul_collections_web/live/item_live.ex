@@ -80,6 +80,15 @@ defmodule DpulCollectionsWeb.ItemLive do
       |> Enum.map(fn id -> Solr.find_by_id(id) |> Item.from_solr() end)
       |> Enum.reject(&is_nil/1)
 
+    parent =
+      with %{parent_id: parent_id} when is_binary(parent_id) <- item,
+           parent_doc <- Solr.find_by_id(parent_id),
+           parent_item <- Item.from_solr(parent_doc) do
+        parent_item
+      else
+        _ -> nil
+      end
+
     related_items =
       Solr.related_items(item, %{filter: %{"collection" => item.collections}})["docs"]
       |> Enum.map(&Item.from_solr(&1))
@@ -99,6 +108,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     assign(socket,
       item: item,
       collections: collections,
+      parent: parent,
       related_items: related_items,
       different_collections_related_items: different_collections_related_items
     )
@@ -181,6 +191,7 @@ defmodule DpulCollectionsWeb.ItemLive do
 
         <div class="metadata sm:row-start-2 sm:col-span-3 sm:col-start-3 flex flex-col gap-8">
           <.summaries item={@item} />
+          <.parent_summary item={@item} parent={@parent} />
           <.part_of_collections {assigns} />
           <.action_bar class="hidden sm:block" item={@item} current_scope={@current_scope} />
           <.content_separator />
@@ -195,6 +206,33 @@ defmodule DpulCollectionsWeb.ItemLive do
       item_id={@item.id}
       correction_form_success?={@correction_form_success?}
     />
+    """
+  end
+
+  def parent_summary(assigns) do
+    ~H"""
+    <div :if={@parent} id="parent-summary" class="bg-wafer-pink/60 w-full p-4 flex flex-col gap-1">
+      <div class="uppercase text-sm font-bold tracking-wide">
+        {gettext("Part %{parent_index} of Multi-Part Work", parent_index: @item.parent_index + 1)}
+      </div>
+      <.link
+        :for={title <- @parent.title}
+        navigate={@parent.url}
+        class="text-accent text-lg font-semibold"
+        dir="auto"
+      >
+        {title}
+      </.link>
+      <p :for={ttitle <- @parent.transliterated_title} dir="auto" class="text-gray-600">
+        {ttitle}
+      </p>
+      <p :for={atitle <- @parent.alternative_title} dir="auto" class="text-gray-600">
+        [{atitle}]
+      </p>
+      <p :for={summary <- @parent.summary} dir="auto" class="text-sm pt-1">
+        {summary}
+      </p>
+    </div>
     """
   end
 
