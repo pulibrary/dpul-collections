@@ -816,7 +816,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
       assert collection_cache_entry.data["metadata"]["title"] == ["Test Title"]
       assert Enum.find_index(cache_entry.related_ids, fn x -> x == collection.id end) != nil
 
-      assert cache_entry.related_data["ancestors"][collection.id]["metadata"]["title"] == [
+      assert cache_entry.related_data["collections"][collection.id]["metadata"]["title"] == [
                "Test Title"
              ]
     end

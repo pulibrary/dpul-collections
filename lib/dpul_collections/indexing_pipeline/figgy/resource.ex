@@ -61,7 +61,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     related_data = extract_related_data(resource)
 
     related_data_markers =
-      (Map.values(related_data["ancestors"]) ++ Map.values(related_data["resources"]))
+      (Map.values(related_data["ancestors"]) ++ Map.values(related_data["collections"]) ++ Map.values(related_data["resources"]))
       |> List.flatten()
       |> Enum.map(&CacheEntryMarker.from/1)
 
@@ -96,14 +96,25 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
 
   defp extract_related_data(resource) do
     related = fetch_related(resource)
+    ancestors = extract_ancestors(resource)
+    # Projects are treated like collections.
+    projects = extract_projects(ancestors)
 
     %{
-      "ancestors" => Map.merge(extract_ancestors(resource), extract_collections(resource)),
+      "ancestors" => extract_ancestors(resource),
       "resources" => related,
+      "collections" => Map.merge(extract_collections(resource), projects),
       "thumbnail" => get_thumbnail(resource, related),
       "member_thumbnails_subset" =>
         get_member_thumbnails_subset(resource, related, resource.metadata["member_ids"])
     }
+  end
+
+  # Pull just the projects from the ancestors map.
+  defp extract_projects(ancestors) do
+    ancestors
+    |> Enum.filter(fn {_id, ancestor} -> ancestor.internal_resource == "EphemeraProject" end)
+    |> Map.new()
   end
 
   @indexable_resource_types ResourceTypeRegistry.indexable_types()

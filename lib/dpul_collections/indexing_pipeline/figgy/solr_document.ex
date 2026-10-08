@@ -453,9 +453,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
 
   defp extract_box_metadata(_), do: %{}
 
-  defp extract_collection_titles(%{"ancestors" => ancestors}, resource_type)
-       when map_size(ancestors) > 0 do
-    ancestors
+  defp extract_collection_titles(%{"collections" => collections}, resource_type)
+       when map_size(collections) > 0 do
+    collections
     |> Enum.filter(fn {_id, resource} -> resource["internal_resource"] == resource_type end)
     # Only index collection titles that are gonna get processed.
     |> Enum.filter(fn {_id, resource} -> Figgy.HydrationConsumer.process?(resource) end)
@@ -464,9 +464,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
 
   defp extract_collection_titles(_, _), do: []
 
-  defp extract_collection_ids(%{"ancestors" => ancestors}, resource_type)
-       when map_size(ancestors) > 0 do
-    ancestors
+  defp extract_collection_ids(%{"collections" => collections}, resource_type)
+       when map_size(collections) > 0 do
+    collections
     |> Enum.filter(fn {_id, resource} -> resource["internal_resource"] == resource_type end)
     |> Enum.filter(fn {_id, resource} -> Figgy.HydrationConsumer.process?(resource) end)
     |> Enum.map(fn {id, _resource} -> id end)
