@@ -160,6 +160,17 @@ defmodule DpulCollectionsWeb.SearchItem do
               <div :if={@sort_by == :recently_added && @item.updated_at} class="updated-at w-full">
                 {gettext("Added")} {DpulCollectionsWeb.BrowseItem.time_ago(@item.updated_at)}
               </div>
+              <div :if={@item.parent}>
+                <div class="text-base text-gray-600">{gettext("Part of")}</div>
+                <div :for={title <- @item.parent.title} dir="auto" class="text-lg">{title}</div>
+                <div
+                  :for={ttitle <- @item.parent.transliterated_title}
+                  dir="auto"
+                  class="text-sm text-gray-600"
+                >
+                  {ttitle}
+                </div>
+              </div>
               <.search_brief_metadata item={@item} />
             </div>
             <div class="flex flex-col gap-2 sm:gap-4 shrink-0 order-first sm:order-none sm:items-end">

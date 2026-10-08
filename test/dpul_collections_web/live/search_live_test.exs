@@ -1000,7 +1000,16 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
                1
 
       assert view
-             |> has_element?("#item-4c5e6602-561f-4951-9cd1-e942dd72e3ff *", "جعبري على الشاطبية")
+             |> has_element?("#item-4c5e6602-561f-4951-9cd1-e942dd72e3ff *", "Part of")
+
+      assert view
+             |> has_element?(
+               "#item-4c5e6602-561f-4951-9cd1-e942dd72e3ff *",
+               "جعبري على الشاطبية"
+             )
+
+      refute view
+             |> has_element?("#item-a9f3fc2a-24e8-4787-b932-0245453f3810 *", "Part of")
     end
 
     test "displays ephemera projects", %{conn: conn} do
