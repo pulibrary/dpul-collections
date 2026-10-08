@@ -222,6 +222,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
     Map.merge(metadata, imported_metadata, &compare_metadata/3)
   end
 
+  defp merge_imported(metadata), do: metadata
+
   # If imported metadata has no value for a field, use main metadata value
   defp compare_metadata(_k, metadata_values, nil), do: metadata_values
 

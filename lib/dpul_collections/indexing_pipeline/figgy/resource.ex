@@ -104,10 +104,24 @@ defmodule DpulCollections.IndexingPipeline.Figgy.Resource do
     projects = extract_projects(ancestors)
     collections = extract_collections(resource)
 
+    # Grab first ancestor (direct parent), inherit collections down.
+    first_ancestor_collections =
+      with {_first_ancestor_id, ancestor} <- Enum.at(ancestors, 0),
+           ancestor_collections <- extract_collections(ancestor) do
+        ancestor_collections
+      else
+        _ -> %{}
+      end
+
+    all_collections =
+      collections
+      |> Map.merge(projects)
+      |> Map.merge(first_ancestor_collections)
+
     %{
       "ancestors" => ancestors,
       "resources" => related,
-      "collections" => Map.merge(collections, projects),
+      "collections" => all_collections,
       "thumbnail" => get_thumbnail(resource, related),
       "member_thumbnails_subset" =>
         get_member_thumbnails_subset(resource, related, resource.metadata["member_ids"])

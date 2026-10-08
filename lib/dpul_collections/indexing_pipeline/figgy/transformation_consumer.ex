@@ -99,6 +99,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.TransformationConsumer do
       )
       when internal_resource == "ScannedResource" do
     # only include scanned resources that are in an allowed collection
+
     allowed_collections =
       resource.related_data["collections"]
       |> Enum.map(&allowed_collection?/1)

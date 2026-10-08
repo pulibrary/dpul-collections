@@ -241,8 +241,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
           resource: %{internal_resource: "ScannedResource"}
         }
       ) do
-    require IEx; IEx.pry;
-    combined_figgy_resource.persisted_member_ids != [] && parent_processed?(combined_figgy_resource)
+    combined_figgy_resource.persisted_member_ids != [] &&
+      parent_processed?(combined_figgy_resource)
   end
 
   # Ephemera Folders must be complete and open.
@@ -268,8 +268,10 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
   end
 
   # Only process child scanned resources if their parents are processed.
-  def parent_processed?(resource = %{related_data: %{"ancestors" => [parent = %Figgy.Resource{} | _ ]}}) do
-    process?(parent)
+  def parent_processed?(%{related_data: %{"ancestors" => ancestors}})
+      when length(ancestors) > 0 do
+    ancestors
+    |> Enum.find(&process?/1)
   end
 
   # No parent, so process.
