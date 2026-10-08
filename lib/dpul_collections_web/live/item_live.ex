@@ -226,9 +226,6 @@ defmodule DpulCollectionsWeb.ItemLive do
       <p :for={ttitle <- @parent.transliterated_title} dir="auto" class="text-gray-600">
         {ttitle}
       </p>
-      <p :for={atitle <- @parent.alternative_title} dir="auto" class="text-gray-600">
-        [{atitle}]
-      </p>
       <p :for={summary <- @parent.summary} dir="auto" class="text-sm pt-1">
         {summary}
       </p>
