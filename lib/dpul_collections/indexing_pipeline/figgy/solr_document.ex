@@ -119,6 +119,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
     collection_titles = extract_collection_titles(related_data, "Collection")
     metadata = merge_imported(metadata)
     base = base_solr_fields(id, data, metadata, related_data, "ScannedResource")
+    first_parent = Map.get(related_data, "ancestors") |> Map.values() |> Enum.at(0) || %{}
+    first_parent_metadata = merge_imported(first_parent["metadata"] || %{})
 
     Map.merge(base, %{
       collection_titles_ss: collection_titles,
@@ -133,7 +135,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
       call_number_ss: get_in(metadata, ["call_number"]),
       donor_txt_sort: get_in(metadata, ["donor"]),
       extent_ss: get_in(metadata, ["extent"]),
-      format_txt_sort: get_in(metadata, ["format"]),
+      format_txt_sort: get_in(metadata, ["format"]) || get_in(first_parent_metadata, ["format"]),
       identifier_txt_sort: get_in(metadata, ["identifier"]),
       language_txt_sort: get_in(metadata, ["language"]) |> language(),
       mms_id_ss: extract_mms_id(metadata),
@@ -145,7 +147,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
       summary_txtm: get_in(metadata, ["abstract"]),
       years_is: extract_years(get_in(metadata, ["created"])),
       contents_ss: get_in(metadata, ["contents"]),
-      multi_part_work_b: is_mvw?(metadata, related_data)
+      multi_part_work_b: is_mvw?(metadata, related_data),
+      parent_id_s: Map.get(first_parent, "id")
     })
   end
 
