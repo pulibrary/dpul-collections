@@ -987,7 +987,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       |> Enum.map(&FiggyTestSupport.index_record_id_directly/1)
 
       Solr.soft_commit(active_collection())
-      {:ok, _view, html} = live(conn, "/search?q=جعبري على الشاطبية")
+      {:ok, view, html} = live(conn, "/search?q=جعبري على الشاطبية")
 
       {:ok, document} =
         html
@@ -998,6 +998,9 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
 
       assert document |> Floki.find("#item-4c5e6602-561f-4951-9cd1-e942dd72e3ff") |> Enum.count() ==
                1
+
+      assert view
+             |> has_element?("#item-4c5e6602-561f-4951-9cd1-e942dd72e3ff *", "جعبري على الشاطبية")
     end
 
     test "displays ephemera projects", %{conn: conn} do
