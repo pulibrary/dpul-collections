@@ -4,6 +4,7 @@ defmodule DpulCollectionsWeb.CollectionsLive do
   import DpulCollectionsWeb.BrowseItem
   alias DpulCollections.Collection
   alias DpulCollectionsWeb.Live.Helpers
+  alias DpulCollectionsWeb.CollectionTabs
 
   def mount(_params, _session, socket) do
     {:ok, socket}
@@ -43,12 +44,21 @@ defmodule DpulCollectionsWeb.CollectionsLive do
         class="grid grid-flow-row auto-rows-max -mb-6 [&>*:nth-child(odd)]:bg-background [&>*:nth-child(even)]:bg-neutral-600 [&>*:nth-child(even)]:text-light-text"
       >
         <.collection_hero collection={@collection} banner_item={@banner_item} />
-        <.featured_and_related
-          :if={has_featured?(@collection) || has_related?(@collection)}
-          collection={@collection}
-          current_scope={@current_scope}
-          current_path={@current_path}
-        />
+        <%= if Application.fetch_env!(:dpul_collections, :feature_tab_redesign) do %>
+          <CollectionTabs.featured_and_related
+            :if={has_featured?(@collection) || has_related?(@collection)}
+            collection={@collection}
+            current_scope={@current_scope}
+            current_path={@current_path}
+          />
+        <% else %>
+          <.featured_and_related
+            :if={has_featured?(@collection) || has_related?(@collection)}
+            collection={@collection}
+            current_scope={@current_scope}
+            current_path={@current_path}
+          />
+        <% end %>
         <.learn_more collection={@collection} />
         <.recently_updated
           :if={length(@collection.recently_added) > 0}

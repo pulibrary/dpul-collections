@@ -26,6 +26,10 @@ if config_env() == :prod do
   # Feature flips
   config :dpul_collections, :feature_account_toolbar, false
 
+  config :dpul_collections,
+         :feature_tab_redesign,
+         System.get_env("FEATURE_TAB_REDESIGN", "false") == "true"
+
   database_url =
     System.get_env("DATABASE_URL") ||
       raise """
