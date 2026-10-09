@@ -21,7 +21,6 @@
         }
         
         .wrapper {
-            min-height: 82vh;
             flex: 1;
             display: flex;
             align-items: center;
@@ -125,6 +124,10 @@
             background-color: transparent;
         }
 
+        .bg-image-citation {
+            background-color: transparent;
+        }
+
         @media (max-width: 480px) {
             .container { padding: 40px 20px; }
             blockquote { font-size: 1.15rem; }
@@ -154,6 +157,11 @@
           </div>   
           <p class="pt-8 italic text-sm text-dark-gray">Report broken links to digital-library@princeton.libanswers.com.</p>
         </div>
+      </div>
+      <div class="text-right p-8">
+        <a class="p-4 bg-white opacity-65" href="/item/81e25521-d109-48f4-bcff-04549296117b">
+          <strong>Image Citation:</strong> Star cluster in Hercules. Selections from the Graphic Arts Collection, Princeton University Library.
+        </a>
       </div>
       {DpulCollectionsWeb.FooterComponent.footer(assigns)}
     </div>
