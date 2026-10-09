@@ -56,7 +56,9 @@ defmodule DpulCollections.Solr do
     "tagline_txtm",
     "publisher_txt_sort",
     "banner_image_s",
-    "multi_part_work_b"
+    "multi_part_work_b",
+    "parent_title_txtm",
+    "parent_id_s"
   ]
 
   def raw_query(search_state, index \\ Index.read_index()) do

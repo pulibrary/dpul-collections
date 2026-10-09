@@ -982,6 +982,36 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
              |> Floki.text() =~ "Multi-part Manuscript"
     end
 
+    test "a volume displays its parents title", %{conn: conn} do
+      ["a9f3fc2a-24e8-4787-b932-0245453f3810", "4c5e6602-561f-4951-9cd1-e942dd72e3ff"]
+      |> Enum.map(&FiggyTestSupport.index_record_id_directly/1)
+
+      Solr.soft_commit(active_collection())
+      {:ok, view, html} = live(conn, "/search?q=جعبري على الشاطبية")
+
+      {:ok, document} =
+        html
+        |> Floki.parse_document()
+
+      assert document |> Floki.find("#item-a9f3fc2a-24e8-4787-b932-0245453f3810") |> Enum.count() ==
+               1
+
+      assert document |> Floki.find("#item-4c5e6602-561f-4951-9cd1-e942dd72e3ff") |> Enum.count() ==
+               1
+
+      assert view
+             |> has_element?("#item-4c5e6602-561f-4951-9cd1-e942dd72e3ff *", "Part of")
+
+      assert view
+             |> has_element?(
+               "#item-4c5e6602-561f-4951-9cd1-e942dd72e3ff *",
+               "جعبري على الشاطبية"
+             )
+
+      refute view
+             |> has_element?("#item-a9f3fc2a-24e8-4787-b932-0245453f3810 *", "Part of")
+    end
+
     test "displays ephemera projects", %{conn: conn} do
       sae_ids = [
         "f99af4de-fed4-4baa-82b1-6e857b230306",

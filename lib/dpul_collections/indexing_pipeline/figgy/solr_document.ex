@@ -120,6 +120,14 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
     metadata = merge_imported(metadata)
     base = base_solr_fields(id, data, metadata, related_data, "ScannedResource")
 
+    first_parent =
+      (Map.get(related_data, "ancestors") || %{}) |> Map.values() |> Enum.at(0) || %{}
+
+    first_parent_metadata = merge_imported(first_parent["metadata"] || %{})
+
+    first_parent_member_ids =
+      get_in(first_parent, [Access.key("metadata", %{}), Access.key("member_ids", [])])
+
     Map.merge(base, %{
       collection_titles_ss: collection_titles,
       collection_ids_ss: extract_collection_ids(related_data, "Collection"),
@@ -133,7 +141,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
       call_number_ss: get_in(metadata, ["call_number"]),
       donor_txt_sort: get_in(metadata, ["donor"]),
       extent_ss: get_in(metadata, ["extent"]),
-      format_txt_sort: get_in(metadata, ["format"]),
+      format_txt_sort: get_in(metadata, ["format"]) || get_in(first_parent_metadata, ["format"]),
       identifier_txt_sort: get_in(metadata, ["identifier"]),
       language_txt_sort: get_in(metadata, ["language"]) |> language(),
       mms_id_ss: extract_mms_id(metadata),
@@ -145,7 +153,11 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
       summary_txtm: get_in(metadata, ["abstract"]),
       years_is: extract_years(get_in(metadata, ["created"])),
       contents_ss: get_in(metadata, ["contents"]),
-      multi_part_work_b: is_mvw?(metadata, related_data)
+      multi_part_work_b: is_mvw?(metadata, related_data),
+      parent_id_s: Map.get(first_parent, "id"),
+      parent_title_txtm: extract_title(first_parent_metadata),
+      parent_idx_i:
+        first_parent_member_ids |> Enum.find_index(fn %{"id" => member_id} -> id == member_id end)
     })
   end
 
@@ -221,6 +233,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
   defp merge_imported(metadata = %{"imported_metadata" => [imported_metadata | _]}) do
     Map.merge(metadata, imported_metadata, &compare_metadata/3)
   end
+
+  defp merge_imported(metadata), do: metadata
 
   # If imported metadata has no value for a field, use main metadata value
   defp compare_metadata(_k, metadata_values, nil), do: metadata_values
@@ -531,6 +545,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.SolrDocument do
     end)
     |> Enum.map(&extract_rdf_title/1)
   end
+
+  defp extract_title(_), do: nil
 
   defp extract_rdf_title(title) do
     case title do

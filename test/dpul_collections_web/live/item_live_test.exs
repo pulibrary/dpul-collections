@@ -850,6 +850,39 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       view |> element("a", "View all metadata for this item") |> render_click()
       assert view |> has_element?("dt", "Source Acquisition")
     end
+
+    test "displays for volumes", %{conn: conn} do
+      ["a9f3fc2a-24e8-4787-b932-0245453f3810", "4c5e6602-561f-4951-9cd1-e942dd72e3ff"]
+      |> Enum.map(&FiggyTestSupport.index_record_id_directly/1)
+
+      Solr.soft_commit(active_collection())
+
+      {:ok, view, _html} =
+        live(conn, "/i/vol-1/item/4c5e6602-561f-4951-9cd1-e942dd72e3ff")
+
+      # Format is inherited down.
+      assert view
+             |> has_element?(
+               "a[href='/search?filter%5Bformat%5D%5B%5D=Manuscript']",
+               "Manuscript"
+             )
+
+      # Context box.
+      assert view
+             |> has_element?("*", "Part 1 of Multi-Part Work")
+
+      assert view
+             |> has_element?(
+               "a[href='/i/جعبري-على-الشاطبية/item/a9f3fc2a-24e8-4787-b932-0245453f3810']",
+               "جعبري على الشاطبية"
+             )
+
+      assert view
+             |> has_element?(
+               "*",
+               "Commentary on Ḥirz al-amānī wa-wajh al-tahānī fī qirāʼāt al-sabʻ al-mathānī of al-Shāṭibī (d. 590/1194), a versification of al-Taysīr fī al-qirāʼāt al-sabʻ by ʻUthmān ibn Saʻīd al-Qurṭubī (d. 444/1053)."
+             )
+    end
   end
 
   # Copied from

@@ -9,7 +9,7 @@ defmodule DpulCollections.Search.SearchResult do
 
   def from_solr(%{"facet_counts" => facet_counts, "response" => response}) do
     %__MODULE__{
-      results: response["docs"] |> Enum.map(&Item.from_solr/1),
+      results: response["docs"] |> Enum.map(&Item.from_solr/1) |> Enum.map(&Item.with_parent/1),
       total_items: response["numFound"],
       filter_data: facets_to_filter_data(extract_facets(facet_counts))
     }

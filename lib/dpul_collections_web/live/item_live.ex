@@ -15,7 +15,7 @@ defmodule DpulCollectionsWeb.ItemLive do
   end
 
   def handle_params(params = %{"id" => id}, uri, socket) do
-    item = Solr.find_by_id(id) |> Item.from_solr()
+    item = Solr.find_by_id(id) |> Item.from_solr() |> Item.with_parent()
     path = URI.parse(uri).path |> URI.decode()
 
     # Ensure that the returned Item is a DpulCollections.Item. Otherwise
@@ -181,6 +181,7 @@ defmodule DpulCollectionsWeb.ItemLive do
 
         <div class="metadata sm:row-start-2 sm:col-span-3 sm:col-start-3 flex flex-col gap-8">
           <.summaries item={@item} />
+          <.parent_summary item={@item} />
           <.part_of_collections {assigns} />
           <.action_bar class="hidden sm:block" item={@item} current_scope={@current_scope} />
           <.content_separator />
@@ -195,6 +196,34 @@ defmodule DpulCollectionsWeb.ItemLive do
       item_id={@item.id}
       correction_form_success?={@correction_form_success?}
     />
+    """
+  end
+
+  def parent_summary(assigns) do
+    ~H"""
+    <div
+      :if={@item.parent}
+      id="parent-summary"
+      class="bg-wafer-pink/60 w-full p-4 flex flex-col gap-1"
+    >
+      <div class="uppercase text-sm font-bold tracking-wide">
+        {gettext("Part %{parent_index} of Multi-Part Work", parent_index: @item.parent_index + 1)}
+      </div>
+      <.link
+        :for={title <- @item.parent.title}
+        navigate={@item.parent.url}
+        class="text-accent text-lg font-semibold"
+        dir="auto"
+      >
+        {title}
+      </.link>
+      <p :for={ttitle <- @item.parent.transliterated_title} dir="auto" class="text-gray-600">
+        {ttitle}
+      </p>
+      <p :for={summary <- @item.parent.summary} dir="auto" class="text-sm pt-1">
+        {summary}
+      </p>
+    </div>
     """
   end
 
@@ -370,7 +399,7 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div id="similar-items">
       <.card_row
-        :if={@item.collections != []}
+        :if={@item.collections != [] && @related_items != []}
         id="related-same-collection"
         title={gettext("Similar Items in this Collection")}
         more_link={more_similar_link(@item)}
@@ -383,7 +412,7 @@ defmodule DpulCollectionsWeb.ItemLive do
         />
       </.card_row>
       <.card_row
-        :if={@item.collections != []}
+        :if={@item.collections != [] && @different_collections_related_items != []}
         id="related-different-collection"
         title={gettext("Similar Items outside this Collection")}
         color="bg-background"

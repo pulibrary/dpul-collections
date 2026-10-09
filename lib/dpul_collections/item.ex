@@ -3,6 +3,7 @@ defmodule DpulCollections.Item do
   alias DpulCollections.IIIF
   alias DpulCollectionsWeb.Live.Helpers
   alias DpulCollections.IndexingPipeline.Figgy
+  alias DpulCollections.{Solr, Item}
   require Figgy.ImportedCatalogSchema
   use DpulCollectionsWeb, :verified_routes
   use Gettext, backend: DpulCollectionsWeb.Gettext
@@ -15,6 +16,9 @@ defmodule DpulCollections.Item do
               :call_number,
               :collections,
               :collection_ids,
+              :parent_id,
+              :parent_index,
+              :parent,
               :content_warning,
               :summary,
               :digitized_at,
@@ -167,6 +171,8 @@ defmodule DpulCollections.Item do
       primary_thumbnail_height: primary_thumbnail_height,
       collections: doc["collection_titles_ss"] || [],
       collection_ids: doc["collection_ids_ss"] || [],
+      parent_id: doc["parent_id_s"],
+      parent_index: doc["parent_idx_i"],
       provenance: doc["provenance_txtm"] || [],
       publisher: doc["publisher_txt_sort"] || [],
       rights_statement: doc["rights_statement_txtm"] || [],
@@ -194,6 +200,19 @@ defmodule DpulCollections.Item do
       contents: doc["contents_ss"]
     }
   end
+
+  def with_parent(item = %{parent_id: parent_id}) when is_binary(parent_id) do
+    parent =
+      with parent_doc <- Solr.find_by_id(parent_id),
+           parent_item <- Item.from_solr(parent_doc) do
+        parent_item
+      end
+
+    item
+    |> Map.put(:parent, parent)
+  end
+
+  def with_parent(item), do: item
 
   defp format_label(value, %{"multi_part_work_b" => true}) do
     "#{gettext("Multi-part %{value}", value: value)}"

@@ -213,7 +213,8 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
         metadata: %{
           "title" => ["title"],
           "state" => ["complete"],
-          "visibility" => ["open"]
+          "visibility" => ["open"],
+          "member_ids" => [%{"id" => "c42bca4b-02c9-44ad-b6bd-132ab27a8986"}]
         }
       }
 

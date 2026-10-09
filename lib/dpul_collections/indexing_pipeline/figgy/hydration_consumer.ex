@@ -225,23 +225,23 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     true
   end
 
-  # Scanned resources must be complete, open, and a member of a collection (to
-  # be evaluated later)
+  # Scanned resources must be complete and open
   def process?(%{
         internal_resource: "ScannedResource",
         state: ["complete"],
-        visibility: ["open"],
-        member_of_collection_ids: [_ | _]
+        visibility: ["open"]
       }) do
     true
   end
 
-  # ScannedResources must not have empty members.
+  # ScannedResources must not have empty members, and must be in a collection.
   def process?(
         combined_figgy_resource = %Figgy.CombinedFiggyResource{
-          resource: %{internal_resource: "ScannedResource"}
+          resource: %{internal_resource: "ScannedResource"},
+          related_data: %{"collections" => collection_map}
         }
-      ) do
+      )
+      when map_size(collection_map) > 0 do
     combined_figgy_resource.persisted_member_ids != []
   end
 
@@ -263,7 +263,9 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     combined_figgy_resource.persisted_member_ids != []
   end
 
-  def process?(_resource), do: false
+  def process?(_resource) do
+    false
+  end
 
   defp delete_if_seen(record_id, source, cache_version) do
     if IndexingPipeline.get_hydration_cache_entry!(record_id, cache_version) do

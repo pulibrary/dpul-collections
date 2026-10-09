@@ -74,7 +74,8 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # removed the hydration cache markers for the deletion marker deleted resource.
     # It also has 3 ephemera projects and 3 collections.
     entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
-    scanned_resource_fixture_count = 11
+    volume_count = 6
+    scanned_resource_fixture_count = 11 + volume_count
     # 8691231a-d06f-4fa2-af5b-d773310564a3 gets filtered out during hydration
     hydration_filtered_resource_count = 1
     # 5c374347-c005-46f5-9ec3-7dd2c938700e gets filtered out during transformation
@@ -613,6 +614,26 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
       assert document["title_txtm"] == [
                "جعبري على الشاطبية"
              ]
+    end
+  end
+
+  describe "a volume in a MVW" do
+    test "indexes expected scanned resource fields" do
+      {hydrator, transformer, indexer, document} =
+        FiggyTestSupport.index_record_id("4c5e6602-561f-4951-9cd1-e942dd72e3ff")
+
+      hydrator |> Broadway.stop(:normal)
+      transformer |> Broadway.stop(:normal)
+      indexer |> Broadway.stop(:normal)
+
+      assert document["title_txtm"] == [
+               "Vol 1"
+             ]
+
+      assert document["parent_id_s"] == "a9f3fc2a-24e8-4787-b932-0245453f3810"
+      assert document["parent_idx_i"] == 0
+      assert document["parent_title_txtm"] == ["جعبري على الشاطبية"]
+      assert document["format_txt_sort"] == ["Manuscript", "Book"]
     end
   end
 end
