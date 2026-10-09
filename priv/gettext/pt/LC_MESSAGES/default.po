@@ -24,7 +24,6 @@ msgstr "Aguarde enquanto voltamos ao normal"
 #: lib/dpul_collections_web/components/search_bar_component.ex:37
 #: lib/dpul_collections_web/components/search_bar_component.ex:43
 #: lib/dpul_collections_web/components/search_bar_component.ex:118
-#: lib/dpul_collections_web/live/search/scroll_filter.ex:65
 #, elixir-autogen, elixir-format
 msgid "Search"
 msgstr "Pesquisar"
@@ -1176,7 +1175,7 @@ msgstr "Resultados"
 msgid "Scribe"
 msgstr "Escriba"
 
-#: lib/dpul_collections_web/live/search/scroll_filter.ex:79
+#: lib/dpul_collections_web/components/searchable_multiselect.ex:82
 #, elixir-autogen, elixir-format
 msgid "Search filters..."
 msgstr "Filtros de pesquisa..."
@@ -1190,11 +1189,6 @@ msgstr "Aquisição de Fonte"
 #, elixir-autogen, elixir-format
 msgid "View"
 msgstr "Visualizador"
-
-#: lib/dpul_collections_web/live/search/scroll_filter.ex:65
-#, elixir-autogen, elixir-format
-msgid "filters"
-msgstr "Filtros"
 
 #: lib/dpul_collections_web/components/search_bar_component.ex:122
 #, elixir-autogen, elixir-format
@@ -1396,7 +1390,12 @@ msgstr "Multiparte %{value}"
 msgid "Part %{parent_index} of Multi-Part Work"
 msgstr "Parte %{parent_index} de uma obra multiparte"
 
-#: lib/dpul_collections_web/live/search/scroll_filter.ex:104
+#: lib/dpul_collections_web/components/searchable_multiselect.ex:109
 #, elixir-autogen, elixir-format
 msgid "Loading..."
 msgstr "Carregando..."
+
+#: lib/dpul_collections_web/components/searchable_multiselect.ex:70
+#, elixir-autogen, elixir-format
+msgid "Search %{label} filters"
+msgstr "Pesquisar filtros de %{label}"
