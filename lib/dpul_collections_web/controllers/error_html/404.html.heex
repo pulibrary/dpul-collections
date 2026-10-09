@@ -7,21 +7,161 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Digital Collections</title>
     <link rel="stylesheet" href="/assets/css/app.css" />
+    <style>
+        body {
+            background-size: cover; 
+            background-position: center;
+            background-image: url("/images/404-hercules-cluster.jpg");
+            background-color: var(--color-background);
+
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Forces the body to take up the full screen height */
+            margin: 0;
+        }
+        
+        .wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 580px;
+            width: 100%;
+            background-color: var(--color-sage-50);
+            border: 1px solid var(--color-primary-bright);
+            padding: 50px 40px;
+            text-align: center;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.04);
+            position: relative;
+        }
+
+        /* corner accents */
+        .container::before, .container::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border: 1.5px solid var(--color-rust);
+        }
+        .container::before { top: 15px; left: 15px; border-right: none; border-bottom: none; }
+        .container::after { bottom: 15px; right: 15px; border-left: none; border-top: none; }
+
+        h1 {
+            font-family: 'Aleo', serif;
+            font-weight: 400;
+            font-size: 2rem;
+            letter-spacing: 3px;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            color: var(--color-brand);
+        }
+
+        .quote-block {
+            margin: 25px 0;
+        }
+
+        blockquote {
+            font-family: 'Aleo', serif;
+            font-size: 1.25rem;
+            line-height: 1.7;
+            color: var(--color-zinc-800);
+            margin-bottom: 12px;
+            font-style: italic;
+        }
+
+        cite {
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--color-rust);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-style: normal;
+            display: block;
+        }
+
+        .divider {
+            height: 1px;
+            width: 80px;
+            background-color: var(--color-cloud);
+            margin: 30px auto;
+        }
+
+        .explanation {
+            font-size: 0.9rem;
+            line-height: 1.8;
+            color: var(--color-zinc-600);
+            margin-bottom: 30px;
+            font-weight: 400;
+        }
+
+        .navigation-links {
+            display: flex;
+            justify-content: center;
+        }
+
+        .btn {
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            text-decoration: none;
+            padding: 12px 28px;
+            
+            background-color: var(--color-hover-accent);
+            border-color: var(--color-sage-600);
+            color: var(--color-dark-text);
+            border: 1px solid var(--color-sage-600);
+            transition: all 0.25s ease-in-out;
+        }
+
+        .btn:hover {
+            background-color: transparent;
+        }
+
+        .bg-image-citation {
+            background-color: transparent;
+        }
+
+        @media (max-width: 480px) {
+            .container { padding: 40px 20px; }
+            blockquote { font-size: 1.15rem; }
+            .btn { width: 100%; }
+        }
+    </style>
   </head>
 
   <body class="bg-white antialiased text-dark-text">
     <div class="flex flex-col min-h-screen" id="app">
       {DpulCollectionsWeb.HeaderComponent.header(assigns)}
-      <div class="flex-1">
-        <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-          <div class="grid grid-flow-row auto-rows-max gap-20">
-            <div id="error" class="grid place-self-center gap-10 max-w-prose">
-              <p class="text-xl text-center">
-                {gettext("Page not found")}
-              </p>
-            </div>
+      <div class="wrapper">
+        <div class="container">        
+          <h1>Page Not Found</h1>
+
+          <div class="quote-block">
+            <blockquote>
+                "If the path before you is clear, you're probably on someone else's path."
+            </blockquote>
+            <cite>— Joseph Campbell</cite>
           </div>
-        </main>
+
+          <div class="divider"></div>
+
+          <div class="navigation-links">
+            <a href="/" class="btn">Return Home</a>
+          </div>   
+          <p class="pt-8 italic text-sm text-dark-gray">Report broken links to digital-library@princeton.libanswers.com.</p>
+        </div>
+      </div>
+      <div class="text-right p-8">
+        <a class="p-4 bg-white opacity-65" href="/item/81e25521-d109-48f4-bcff-04549296117b">
+          <strong>Image Citation:</strong> Star cluster in Hercules. Selections from the Graphic Arts Collection, Princeton University Library.
+        </a>
       </div>
       {DpulCollectionsWeb.FooterComponent.footer(assigns)}
     </div>
