@@ -836,7 +836,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       FiggyTestSupport.index_record_id_directly("a9f3fc2a-24e8-4787-b932-0245453f3810")
       Solr.soft_commit(active_collection())
 
-      {:ok, view, _html} =
+      {:ok, view, html} =
         live(conn, "/i/جعبري-على-الشاطبية/item/a9f3fc2a-24e8-4787-b932-0245453f3810")
 
       # format filter link says "Multi-part" but only links to the actual format
@@ -845,6 +845,15 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
                "a[href='/search?filter%5Bformat%5D%5B%5D=Manuscript']",
                "Multi-part Manuscript"
              )
+
+      # notes and binding note are displayed
+      assert html =~ "Magic squares, seal of Solomon and inscriptions"
+      assert html =~ "Later type II (with flap) bindings"
+
+      assert view |> has_element?("dt", "Notes")
+      assert view |> has_element?("dd", "Magic squares, seal of Solomon and inscriptions")
+      assert view |> has_element?("dt", "Binding Note")
+      assert view |> has_element?("dd", "Later type II (with flap) bindings")
 
       # there's a metadata pane
       view |> element("a", "View all metadata for this item") |> render_click()

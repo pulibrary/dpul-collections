@@ -74,6 +74,13 @@ defmodule DpulCollections.Item do
     ]
   end
 
+  def notes_display_fields do
+    [
+      {:notes, gettext("Notes")},
+      {:binding_note, gettext("Binding Note")}
+    ]
+  end
+
   # summary is handled differently so it's not in this list
   def metadata_detail_categories do
     [

@@ -185,7 +185,9 @@ defmodule DpulCollectionsWeb.ItemLive do
           <.part_of_collections {assigns} />
           <.action_bar class="hidden sm:block" item={@item} current_scope={@current_scope} />
           <.content_separator />
-          <.metadata_table item={@item} />
+          <h2 class="sr-only">{gettext("Metadata")}</h2>
+          <.metadata_table item={@item} fields={DpulCollections.Item.metadata_display_fields()} />
+          <.all_metadata_link {assigns} />
         </div>
       </div>
       <.share_modal path={@item.url} id="share-modal" heading={gettext("Share this item")} />
@@ -244,7 +246,14 @@ defmodule DpulCollectionsWeb.ItemLive do
         <.part_of_collections {assigns} />
         <.action_bar class="hidden sm:block" item={@item} current_scope={@current_scope} />
         <.content_separator />
-        <.metadata_table item={@item} />
+        <h2 class="sr-only">{gettext("Metadata")}</h2>
+        <div class="flex flex-col gap-4 sm:grid sm:grid-rows-1 sm:grid-cols-2 sm:gap-8">
+          <.metadata_table item={@item} fields={DpulCollections.Item.metadata_display_fields()} />
+          <div class="flex flex-col gap-8">
+            <.metadata_table item={@item} fields={DpulCollections.Item.notes_display_fields()} />
+            <.all_metadata_link {assigns} />
+          </div>
+        </div>
       </div>
       <.share_modal path={@item.url} id="share-modal" heading={gettext("Share this item")} />
     </div>
@@ -957,13 +966,15 @@ defmodule DpulCollectionsWeb.ItemLive do
     """
   end
 
+  attr :item, :map, required: true
+  attr :fields, :list, required: true
+
   def metadata_table(assigns) do
     ~H"""
-    <h2 class="sr-only">{gettext("Metadata")}</h2>
     <div class="relative overflow-x-auto">
       <dl class="grid items-baseline gap-x-8 gap-y-4">
         <.metadata_row
-          :for={{field, field_label} <- DpulCollections.Item.metadata_display_fields()}
+          :for={{field, field_label} <- @fields}
           field_label={field_label}
           value={field_value(@item, {field, field_label})}
           field={field}
@@ -971,6 +982,11 @@ defmodule DpulCollectionsWeb.ItemLive do
         />
       </dl>
     </div>
+    """
+  end
+
+  def all_metadata_link(assigns) do
+    ~H"""
     <.arrow_button_right id="metadata-link" patch={@item.metadata_url} replace>
       <span class="w-max flex gap-2 text-sm sm:text-base">
         <.icon name="hero-table-cells h-5 w-5 sm:h-6 sm:w-6" /> {gettext(
