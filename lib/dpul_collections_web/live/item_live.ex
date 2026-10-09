@@ -15,7 +15,12 @@ defmodule DpulCollectionsWeb.ItemLive do
   end
 
   def handle_params(params = %{"id" => id}, uri, socket) do
-    item = Solr.find_by_id(id) |> Item.from_solr() |> Item.with_parent()
+    item =
+      Solr.find_by_id(id)
+      |> Item.from_solr()
+      |> Item.with_parent()
+      |> Item.with_member_resources()
+
     path = URI.parse(uri).path |> URI.decode()
 
     # Ensure that the returned Item is a DpulCollections.Item. Otherwise
@@ -233,22 +238,30 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div
       id="mvw_page"
-      class="bg-background page-y-padding content-area flex flex-col gap-4"
+      class="bg-background page-y-padding flex flex-col gap-8"
     >
-      <div class="item-top-details flex flex-col gap-4">
+      <div class="content-area w-full flex flex-col gap-4">
         <.format_link item={@item} />
         <.titles item={@item} />
         <.date item={@item} />
+        <div class="move-below hidden sm:flex w-full flex-col gap-4">
+          <.summaries item={@item} />
+          <.part_of_collections {assigns} />
+        </div>
       </div>
-      <.action_bar class="sm:hidden pt-4" item={@item} current_scope={@current_scope} />
-      <div class="metadata sm:row-start-2 sm:col-span-3 sm:col-start-3 flex flex-col gap-8">
-        <.summaries item={@item} />
-        <.part_of_collections {assigns} />
-        <.action_bar class="hidden sm:block" item={@item} current_scope={@current_scope} />
-        <.content_separator />
-        <h2 class="sr-only">{gettext("Metadata")}</h2>
-        <div class="flex flex-col gap-4 sm:grid sm:grid-rows-1 sm:grid-cols-2 sm:gap-8">
-          <.metadata_table item={@item} fields={DpulCollections.Item.metadata_display_fields()} />
+      <.parts {assigns} />
+      <div class="content-area">
+        <div class="flex flex-col gap-4 md:grid md:grid-rows-1 md:grid-cols-2 md:gap-12">
+          <div class="flex flex-col gap-8">
+            <.action_bar class="pt-4" item={@item} current_scope={@current_scope} />
+            <div class="move-above sm:hidden flex flex-col gap-4">
+              <.summaries item={@item} />
+              <.part_of_collections {assigns} />
+            </div>
+            <.content_separator />
+            <h2 class="sr-only">{gettext("Metadata")}</h2>
+            <.metadata_table item={@item} fields={DpulCollections.Item.metadata_display_fields()} />
+          </div>
           <div class="flex flex-col gap-8">
             <.metadata_table item={@item} fields={DpulCollections.Item.notes_display_fields()} />
             <.all_metadata_link {assigns} />
@@ -262,6 +275,28 @@ defmodule DpulCollectionsWeb.ItemLive do
       item_id={@item.id}
       correction_form_success?={@correction_form_success?}
     />
+    """
+  end
+
+  def parts(assigns) do
+    ~H"""
+    <div class="mvw-parts bg-neutral-600 text-light-text">
+      <.content_separator />
+      <.card_row
+        id="part-items"
+        title={gettext("Parts - %{number} total", number: @item.file_count)}
+        color=""
+        arrow_theme="light"
+      >
+        <.item_browse_card_li
+          :for={item <- @item.member_resources}
+          show_images={@show_images}
+          item={item}
+          current_path={@current_path}
+          class="card-darkdrop"
+        />
+      </.card_row>
+    </div>
     """
   end
 

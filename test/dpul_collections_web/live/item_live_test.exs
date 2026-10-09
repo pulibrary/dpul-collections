@@ -833,7 +833,13 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
 
   describe "mvw / multi-part works" do
     test "has required components and behavior", %{conn: conn} do
-      FiggyTestSupport.index_record_id_directly("a9f3fc2a-24e8-4787-b932-0245453f3810")
+      [
+        "a9f3fc2a-24e8-4787-b932-0245453f3810",
+        "4c5e6602-561f-4951-9cd1-e942dd72e3ff",
+        "351d2273-74ad-4df1-93af-c5df0e012b6d"
+      ]
+      |> Enum.map(&FiggyTestSupport.index_record_id_directly/1)
+
       Solr.soft_commit(active_collection())
 
       {:ok, view, html} =
@@ -858,6 +864,11 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       # there's a metadata pane
       view |> element("a", "View all metadata for this item") |> render_click()
       assert view |> has_element?("dt", "Source Acquisition")
+
+      assert view |> has_element?(".mvw-parts")
+      assert view |> has_element?("#part-items", "Parts - 2 total")
+      assert view |> has_element?("#browse-item-4c5e6602-561f-4951-9cd1-e942dd72e3ff")
+      assert view |> has_element?("#browse-item-351d2273-74ad-4df1-93af-c5df0e012b6d")
     end
 
     test "displays for volumes", %{conn: conn} do

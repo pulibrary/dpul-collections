@@ -32,6 +32,7 @@ defmodule DpulCollections.Item do
               :image_service_urls,
               :is_mvw?,
               :keywords,
+              :member_resources,
               :mms_id,
               :page_count,
               :primary_thumbnail_service_url,
@@ -220,6 +221,17 @@ defmodule DpulCollections.Item do
   end
 
   def with_parent(item), do: item
+
+  def with_member_resources(item = %{is_mvw?: true}) do
+    members =
+      Solr.member_resources(item.id)
+      |> Enum.map(&Item.from_solr/1)
+
+    item
+    |> Map.put(:member_resources, members)
+  end
+
+  def with_member_resources(item), do: item
 
   defp format_label(value, %{"multi_part_work_b" => true}) do
     "#{gettext("Multi-part %{value}", value: value)}"
