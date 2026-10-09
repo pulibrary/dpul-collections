@@ -13,10 +13,16 @@
             background-position: center;
             background-image: url("/images/404-hercules-cluster.jpg");
             background-color: var(--color-background);
+
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Forces the body to take up the full screen height */
+            margin: 0;
         }
         
         .wrapper {
             min-height: 82vh;
+            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -121,11 +127,7 @@
 
         @media (max-width: 480px) {
             .container { padding: 40px 20px; }
-            .sigil { font-size: 3rem; }
             blockquote { font-size: 1.15rem; }
-            .search-form { flex-direction: column; border: none; gap: 8px; background: transparent; }
-            .search-input { background-color: var(--color-white); border: 1px solid var(--color-sage-600); }
-            .search-submit { padding: 12px; }
             .btn { width: 100%; }
         }
     </style>
