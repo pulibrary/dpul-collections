@@ -24,7 +24,6 @@ msgstr ""
 #: lib/dpul_collections_web/components/search_bar_component.ex:37
 #: lib/dpul_collections_web/components/search_bar_component.ex:43
 #: lib/dpul_collections_web/components/search_bar_component.ex:118
-#: lib/dpul_collections_web/live/search_live.ex:491
 #, elixir-autogen, elixir-format
 msgid "Search"
 msgstr ""
@@ -56,12 +55,12 @@ msgstr ""
 msgid "Language"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:590
+#: lib/dpul_collections_web/live/search_live.ex:536
 #, elixir-autogen, elixir-format
 msgid "Next"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:560
+#: lib/dpul_collections_web/live/search_live.ex:506
 #, elixir-autogen, elixir-format
 msgid "Previous"
 msgstr ""
@@ -72,14 +71,14 @@ msgstr ""
 msgid "sort by"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:459
-#: lib/dpul_collections_web/live/search_live.ex:460
+#: lib/dpul_collections_web/live/search_live.ex:426
+#: lib/dpul_collections_web/live/search_live.ex:427
 #, elixir-autogen, elixir-format
 msgid "From"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:464
-#: lib/dpul_collections_web/live/search_live.ex:465
+#: lib/dpul_collections_web/live/search_live.ex:431
+#: lib/dpul_collections_web/live/search_live.ex:432
 #, elixir-autogen, elixir-format
 msgid "To"
 msgstr ""
@@ -537,7 +536,7 @@ msgstr ""
 msgid "main image display"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:550
+#: lib/dpul_collections_web/live/search_live.ex:496
 #, elixir-autogen, elixir-format
 msgid "Search Results Page Navigation"
 msgstr ""
@@ -636,7 +635,7 @@ msgstr ""
 msgid "Files"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:217
+#: lib/dpul_collections_web/live/search_live.ex:183
 #, elixir-autogen, elixir-format
 msgid "Filters"
 msgstr ""
@@ -717,8 +716,8 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:534
-#: lib/dpul_collections_web/live/search_live.ex:540
+#: lib/dpul_collections_web/live/search_live.ex:480
+#: lib/dpul_collections_web/live/search_live.ex:486
 #, elixir-autogen, elixir-format
 msgid "Search Results"
 msgstr ""
@@ -1064,12 +1063,12 @@ msgstr ""
 msgid "problematic language"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:241
+#: lib/dpul_collections_web/live/search_live.ex:207
 #, elixir-autogen, elixir-format
 msgid "Active Filters"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:470
+#: lib/dpul_collections_web/live/search_live.ex:437
 #, elixir-autogen, elixir-format
 msgid "Apply Year Range"
 msgstr ""
@@ -1095,7 +1094,7 @@ msgstr ""
 msgid "Call Number"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:246
+#: lib/dpul_collections_web/live/search_live.ex:212
 #, elixir-autogen, elixir-format
 msgid "Clear all"
 msgstr ""
@@ -1125,7 +1124,7 @@ msgstr ""
 msgid "Extent"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:235
+#: lib/dpul_collections_web/live/search_live.ex:201
 #, elixir-autogen, elixir-format
 msgid "Filter Results"
 msgstr ""
@@ -1161,7 +1160,7 @@ msgstr ""
 msgid "Related Name"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:323
+#: lib/dpul_collections_web/live/search_live.ex:290
 #, elixir-autogen, elixir-format
 msgid "Results"
 msgstr ""
@@ -1176,7 +1175,7 @@ msgstr ""
 msgid "Scribe"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:497
+#: lib/dpul_collections_web/components/searchable_multiselect.ex:82
 #, elixir-autogen, elixir-format
 msgid "Search filters..."
 msgstr ""
@@ -1186,14 +1185,9 @@ msgstr ""
 msgid "Source Acquisition"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:323
+#: lib/dpul_collections_web/live/search_live.ex:290
 #, elixir-autogen, elixir-format
 msgid "View"
-msgstr ""
-
-#: lib/dpul_collections_web/live/search_live.ex:491
-#, elixir-autogen, elixir-format
-msgid "filters"
 msgstr ""
 
 #: lib/dpul_collections_web/components/search_bar_component.ex:122
@@ -1251,7 +1245,7 @@ msgstr ""
 msgid "Feedback"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:289
+#: lib/dpul_collections_web/live/search_live.ex:255
 #, elixir-autogen, elixir-format
 msgid "Filter your %{count} result"
 msgid_plural "Filter your %{count} results"
@@ -1299,7 +1293,7 @@ msgstr ""
 msgid "more"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:650
+#: lib/dpul_collections_web/live/search_live.ex:596
 #, elixir-autogen, elixir-format
 msgid "Collection not found"
 msgstr ""
@@ -1309,7 +1303,7 @@ msgstr ""
 msgid "Princeton University"
 msgstr ""
 
-#: lib/dpul_collections_web/live/search_live.ex:408
+#: lib/dpul_collections_web/live/search_live.ex:375
 #, elixir-autogen, elixir-format
 msgid "Remove %{label}: %{value} filter"
 msgstr ""
@@ -1394,4 +1388,14 @@ msgstr ""
 #: lib/dpul_collections_web/live/item_live.ex:210
 #, elixir-autogen, elixir-format
 msgid "Part %{parent_index} of Multi-Part Work"
+msgstr ""
+
+#: lib/dpul_collections_web/components/searchable_multiselect.ex:109
+#, elixir-autogen, elixir-format
+msgid "Loading..."
+msgstr ""
+
+#: lib/dpul_collections_web/components/searchable_multiselect.ex:70
+#, elixir-autogen, elixir-format
+msgid "Search %{label} filters"
 msgstr ""

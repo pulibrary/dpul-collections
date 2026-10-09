@@ -147,40 +147,6 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def filters(assigns) do
     ~H"""
-    <script :type={Phoenix.LiveView.ColocatedHook} name=".SearchFilter">
-      export default {
-        mounted() {
-          this.input = this.el.querySelector('input[type="search"]');
-          this.options = this.el.querySelector('[phx-feedback-for]');
-          if (!this.input || !this.options) return;
-
-          this.input.addEventListener('input', e => {
-            this.search(e.target.value)
-          });
-        },
-
-        updated() {
-          this.search(this.input.value)
-        },
-
-        async search(query) {
-          const items = Array.from(this.options.querySelectorAll('label')).map(el => ({
-            el,
-            value: el.querySelector('input[type="checkbox"]')?.value || el.querySelector('span')?.textContent?.trim() || ''
-          }));
-
-          if (!query?.trim()) {
-            items.forEach(i => { i.el.classList.remove('hidden') });
-            return;
-          }
-
-          const q = query.toLowerCase();
-          items.forEach(i => {
-            i.el.classList.toggle('hidden', !i.value.toLowerCase().includes(q));
-          });
-        }
-      }
-    </script>
     <script :type={Phoenix.LiveView.ColocatedHook} name=".FilterHotkey">
       export default {
         mounted() {
@@ -304,6 +270,7 @@ defmodule DpulCollectionsWeb.SearchLive do
           <.input
             :for={hidden_filter <- hidden_filters()}
             type="hidden"
+            class="hidden"
             field={@filter_form[hidden_filter]}
           />
           <input
@@ -485,34 +452,13 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   def filter_input(assigns) do
     ~H"""
-    <div id={"search-#{@field}"} phx-hook=".SearchFilter" class="pt-3">
-      <div class="relative mb-2" phx-update="ignore" id={"search-wrapper-#{@field}"}>
-        <label for={"filter-#{@field}-search"} class="sr-only">
-          {gettext("Search")} {Gettext.gettext(DpulCollectionsWeb.Gettext, @filter.label)} {gettext(
-            "filters"
-          )}
-        </label>
-        <input
-          type="search"
-          placeholder={gettext("Search filters...")}
-          class="w-full px-3 py-2 text-sm border border-rust/20 rounded-md focus:ring-accent focus:border-accent"
-          autocomplete="off"
-          id={"filter-#{@field}-search"}
-          dir="auto"
-        />
-      </div>
-      <.input
-        data-filter-options
-        type="checkgroup"
-        field={@filter_form[@field]}
-        multiple={true}
-        class="max-h-100 overflow-y-auto grid grid-cols-1 sm:grid-cols-1 space-y-1"
-        options={
-          @filter.data
-          |> Enum.map(fn {value, count} -> {{value, format_number(count)}, value} end)
-        }
-      />
-    </div>
+    <.live_component
+      module={DpulCollectionsWeb.SearchableMultiselect}
+      id={"search-#{@field}"}
+      field={@filter_form[@field]}
+      options={@filter.data}
+      label={Gettext.gettext(DpulCollectionsWeb.Gettext, @filter.label)}
+    />
     """
   end
 
@@ -674,10 +620,6 @@ defmodule DpulCollectionsWeb.SearchLive do
 
   # Don't do ranges with changed events.
   def handle_event("checked_filter", %{"_target" => ["filter", _filter, _from_or_to]}, socket),
-    do: {:noreply, socket}
-
-  # Don't process the search boxes.
-  def handle_event("checked_filter", %{"_target" => ["undefined"]}, socket),
     do: {:noreply, socket}
 
   def handle_event(
