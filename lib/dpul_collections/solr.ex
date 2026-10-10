@@ -146,6 +146,26 @@ defmodule DpulCollections.Solr do
     SearchResult.from_solr(solr_response)
   end
 
+  def member_resources(mvw_id, rows \\ 6, index \\ Index.read_index()) do
+    fl = Enum.join(@query_field_list, ",")
+
+    solr_params =
+      [
+        q: "parent_id_s:#{mvw_id}",
+        fl: fl,
+        sort: "parent_idx_i asc",
+        rows: rows
+      ]
+
+    {:ok, response} =
+      Client.query(
+        index,
+        params: solr_params
+      )
+
+    response.body["response"]["docs"]
+  end
+
   # Uses the more like this query parser
   # see: https://solr.apache.org/guide/solr/latest/query-guide/morelikethis.html#morelikethis-query-parser
   def related_items(%{id: id}, search_state, rows \\ 5, index \\ Index.read_index()) do
