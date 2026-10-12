@@ -295,6 +295,31 @@ defmodule DpulCollections.SolrTest do
                ["mvw-parent", "volume-1", "volume-2"]
     end
 
+    test "volumes matching a multi-part title are returned in order" do
+      parent_title =
+        "The Debates, resolutions, and other proceedings, in convention, on the adoption of the federal Constitution"
+
+      volumes =
+        for idx <- Enum.shuffle(0..11) do
+          %{
+            id: "volume-#{idx}",
+            title_txtm: ["Debates - vol. #{idx + 1}"],
+            parent_id_s: "mvw-parent",
+            parent_title_txtm: [parent_title],
+            parent_idx_i: idx
+          }
+        end
+
+      Solr.add(volumes, active_collection())
+      Solr.soft_commit(active_collection())
+
+      search_state = SearchState.from_params(%{"q" => parent_title})
+      result = Solr.search(search_state)
+
+      assert result.results |> Enum.map(& &1.id) ==
+               Enum.map(0..11, &"volume-#{&1}")
+    end
+
     test "searching with quotes provides more precise matching" do
       Solr.add(
         [
