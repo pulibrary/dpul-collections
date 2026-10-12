@@ -55,8 +55,9 @@ defmodule DpulCollections.DataCase do
     end)
 
     if !tags[:async] do
-      DpulCollections.Solr.delete_all(SolrTestSupport.active_collection())
-      on_exit(fn -> DpulCollections.Solr.delete_all(SolrTestSupport.active_collection()) end)
+      if DpulCollections.Solr.document_count(SolrTestSupport.active_collection()) > 0 do
+        DpulCollections.Solr.delete_all(SolrTestSupport.active_collection())
+      end
     end
   end
 

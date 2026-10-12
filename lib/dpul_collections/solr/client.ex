@@ -60,7 +60,8 @@ defmodule DpulCollections.Solr.Client do
   def delete_all(index = %Index{}) do
     Req.post(
       update_url(index),
-      json: %{delete: %{query: "*:*"}}
+      json: %{delete: %{query: "*:*"}},
+      params: [softCommit: true]
     )
     |> parse_req_result
   end
