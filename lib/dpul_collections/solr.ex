@@ -495,7 +495,6 @@ defmodule DpulCollections.Solr do
           {:ok, Req.Response.t()} | {:error, Exception.t()} | Exception.t()
   def delete_all(index \\ Index.read_index()) do
     {:ok, _} = Client.delete_all(index)
-    soft_commit(index)
   end
 
   @spec delete_batch(list(), %Index{}) ::
