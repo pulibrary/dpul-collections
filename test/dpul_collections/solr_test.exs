@@ -260,6 +260,41 @@ defmodule DpulCollections.SolrTest do
       assert hd(result.results).id == "english-example"
     end
 
+    test "searching for a full multi-volume work title returns its volumes" do
+      parent_title =
+        "The Debates, resolutions, and other proceedings, in convention, on the adoption of the federal Constitution : as recommended by the general convention at Philadelphia"
+
+      volumes =
+        for idx <- 1..2 do
+          %{
+            id: "volume-#{idx}",
+            title_txtm: ["Debates - vol. #{idx}"],
+            parent_id_s: "mvw-parent",
+            parent_title_txtm: [parent_title]
+          }
+        end
+
+      Solr.add(
+        [
+          %{
+            id: "mvw-parent",
+            title_txtm: [parent_title],
+            multi_part_work_b: true
+          }
+          | volumes
+        ],
+        active_collection()
+      )
+
+      Solr.soft_commit(active_collection())
+
+      search_state = SearchState.from_params(%{"q" => parent_title})
+      result = Solr.search(search_state)
+
+      assert result.results |> Enum.map(& &1.id) |> Enum.sort() ==
+               ["mvw-parent", "volume-1", "volume-2"]
+    end
+
     test "searching with quotes provides more precise matching" do
       Solr.add(
         [
