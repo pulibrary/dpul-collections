@@ -5,15 +5,15 @@
   },
   "write": [
     {
-      "cache_version": 4,
-      "base_url": "http://lib-solr9-prod.princeton.edu:8983",
-      "collection": "dpulc-production4",
-      "config_set": "dpulc-production"
-    },
-    {
       "cache_version": 5,
       "base_url": "http://lib-solr9-prod.princeton.edu:8983",
       "collection": "dpulc-production5",
+      "config_set": "dpulc-production"
+    },
+    {
+      "cache_version": 6,
+      "base_url": "http://lib-solr9-prod.princeton.edu:8983",
+      "collection": "dpulc-production6",
       "config_set": "dpulc-production"
     }
   ]
