@@ -9,7 +9,7 @@ defmodule DpulCollections.Solr.Constants do
 
       @valid_sort_by %{
         relevance: %{
-          solr_param: "score desc",
+          solr_param: "score desc, parent_idx_i asc",
           label: Gettext.Macros.gettext_with_backend(DpulCollectionsWeb.Gettext, "Relevance")
         },
         date_desc: %{
