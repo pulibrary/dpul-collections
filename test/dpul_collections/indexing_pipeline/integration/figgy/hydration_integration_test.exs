@@ -179,6 +179,61 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationIntegrationTest do
     assert entry.source_cache_order_record_id == "e65ab9c2-aab3-4063-9984-409949abe6d0"
   end
 
+  # This race condition is tricky.
+  # Two processes A and B run.
+  # A is going to be updating a row, and gets a timestamp before waiting.
+  # B is going to be writing a new row, so Ecto gets its timestamp when it
+  #   writes, after waiting.
+  # A and B happen at basically the same time, but B gets the lock first.
+  # B writes a cache_order from after it gets the lock, then releases it.
+  # A then gets the lock, and does an upsert with the timestamp it got before it
+  #   waited for the lock, so writes a cache_order from BEFORE B.
+  # TransformationConsumer sees B's timestamp (it wrote first), so skips over A.
+  @tag sandbox: false
+  test "sets cache_order on updated entries after acquiring the hydration lock" do
+    FiggyTestSupport.make_broadway_parallel()
+
+    # Write a hydration cache entry first, to force the upsert conflict
+    IndexingPipeline.write_hydration_cache_entry(%{
+      cache_version: 0,
+      record_id: "3da68e1c-06af-4d17-8603-fc73152e1ef7",
+      related_ids: [],
+      source_cache_order: ~U[1900-03-09 20:19:33.414040Z],
+      source_cache_order_record_id: "3da68e1c-06af-4d17-8603-fc73152e1ef7",
+      data: %{}
+    })
+
+    hydrator = start_producer()
+
+    {:ok, other_entry} =
+      Repo.transact(fn ->
+        Repo.query!("SELECT pg_advisory_xact_lock($1, $2)", [0, 1])
+
+        # This process should block and wait for the lock.
+        MockFiggyHydrationProducer.process(1)
+        :timer.sleep(100)
+
+        # Now write a new record, this is what a different hydrator process
+        # would do.
+        IndexingPipeline.write_hydration_cache_entry(%{
+          cache_version: 0,
+          record_id: "other record",
+          related_ids: [],
+          source_cache_order: ~U[1900-03-09 20:19:33.414040Z],
+          source_cache_order_record_id: "other record",
+          data: %{}
+        })
+      end)
+
+    assert_receive({:ack_status, %{"figgy_hydrator" => %{0 => %{acked_count: 1}}}}, 1_000)
+    hydrator |> Broadway.stop(:normal)
+
+    marker = IndexingPipeline.DatabaseProducer.CacheEntryMarker.from(other_entry)
+
+    assert [%{record_id: "3da68e1c-06af-4d17-8603-fc73152e1ef7"}] =
+             IndexingPipeline.get_hydration_cache_entries_since!(marker, 10, 0)
+  end
+
   test "loads a marker from the database on startup" do
     {marker1, marker2, _marker3} = FiggyTestFixtures.markers()
     # Create a marker

@@ -76,27 +76,29 @@ defmodule DpulCollections.IndexingPipeline do
     do: write_hydration_cache_entry(Map.from_struct(attrs))
 
   def write_hydration_cache_entry(attrs = %{}) do
-    # Use EXCLUDED to avoid having to reference attrs in conflict query.
-    # See https://hexdocs.pm/ecto/Ecto.Repo.html#c:insert/2-advanced-upserts
-    conflict_query =
-      Figgy.HydrationCacheEntry
-      |> update(
-        set: [
-          data: fragment("EXCLUDED.data"),
-          related_data: fragment("EXCLUDED.related_data"),
-          related_ids: fragment("EXCLUDED.related_ids"),
-          source_cache_order: fragment("EXCLUDED.source_cache_order"),
-          source_cache_order_record_id: fragment("EXCLUDED.source_cache_order_record_id"),
-          cache_order: ^DateTime.utc_now()
-        ]
-      )
-      |> where([c], c.source_cache_order <= ^attrs.source_cache_order)
-
     Repo.transact(fn ->
       try do
         # Serialize writes for a cache version by acquiring an advisory lock.
         # It takes two integers - 1 here is special and for Hydration.
+        # NOTE: Make sure not to calculate any times until after this lock, to prevent
+        # race conditions.
         Repo.query!("SELECT pg_advisory_xact_lock($1, $2)", [attrs.cache_version, 1])
+
+        # Use EXCLUDED to avoid having to reference attrs in conflict query.
+        # See https://hexdocs.pm/ecto/Ecto.Repo.html#c:insert/2-advanced-upserts
+        conflict_query =
+          Figgy.HydrationCacheEntry
+          |> update(
+            set: [
+              data: fragment("EXCLUDED.data"),
+              related_data: fragment("EXCLUDED.related_data"),
+              related_ids: fragment("EXCLUDED.related_ids"),
+              source_cache_order: fragment("EXCLUDED.source_cache_order"),
+              source_cache_order_record_id: fragment("EXCLUDED.source_cache_order_record_id"),
+              cache_order: ^DateTime.utc_now()
+            ]
+          )
+          |> where([c], c.source_cache_order <= ^attrs.source_cache_order)
 
         %Figgy.HydrationCacheEntry{}
         |> Figgy.HydrationCacheEntry.changeset(attrs)
@@ -550,23 +552,23 @@ defmodule DpulCollections.IndexingPipeline do
   Writes or updates transformation cache entries.
   """
   def write_transformation_cache_entry(attrs) do
-    conflict_query =
-      Figgy.TransformationCacheEntry
-      |> update(
-        set: [
-          data: ^attrs.data,
-          source_cache_order: ^attrs.source_cache_order,
-          cache_order: ^DateTime.utc_now()
-        ]
-      )
-      |> where([c], c.source_cache_order <= ^attrs.source_cache_order)
-
     Repo.transact(fn ->
       try do
         # Serialize writes for a cache version by acquiring an advisory lock.
         # It takes two integers - 2 here is special and for Transformation.
         # The lock is released when the transaction closes.
         Repo.query!("SELECT pg_advisory_xact_lock($1, $2)", [attrs.cache_version, 2])
+
+        conflict_query =
+          Figgy.TransformationCacheEntry
+          |> update(
+            set: [
+              data: ^attrs.data,
+              source_cache_order: ^attrs.source_cache_order,
+              cache_order: ^DateTime.utc_now()
+            ]
+          )
+          |> where([c], c.source_cache_order <= ^attrs.source_cache_order)
 
         %Figgy.TransformationCacheEntry{}
         |> Figgy.TransformationCacheEntry.changeset(attrs)
