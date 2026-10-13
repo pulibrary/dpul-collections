@@ -1,7 +1,7 @@
 defmodule DpulCollectionsWeb.SearchComponents do
   use Phoenix.Component
   use Gettext, backend: DpulCollectionsWeb.Gettext
-  import DpulCollectionsWeb.CoreComponents 
+  import DpulCollectionsWeb.CoreComponents
 
   attr :collection_title, :string, default: ""
   attr :search_state, :map, default: %{}
