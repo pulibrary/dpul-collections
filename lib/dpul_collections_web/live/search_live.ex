@@ -508,18 +508,22 @@ defmodule DpulCollectionsWeb.SearchLive do
       {gettext("Did you mean")}:
       <span :for={{{query, hits}, idx} <- Enum.with_index(@suggestions)}>
         <span :if={idx > 0}>{gettext("or")}</span>
-        <.link
-          patch={Helpers.search_path(%{@search_state | q: query, page: 1})}
-          class="font-bold underline"
-          dir="auto"
+        <%!-- Can't put this on the link, Umami's link tracking breaks live view. --%>
+        <span
           data-umami-event="did-you-mean-click"
           data-umami-event-original-query={@search_state.q}
           data-umami-event-suggestion={query}
           data-umami-event-position={idx + 1}
           data-umami-event-hits={hits}
         >
-          {query}
-        </.link>
+          <.link
+            patch={Helpers.search_path(%{@search_state | q: query, page: 1})}
+            class="font-bold underline"
+            dir="auto"
+          >
+            {query}
+          </.link>
+        </span>
         <span class="text-sm">
           ({ngettext("%{count} result", "%{count} results", hits, count: format_number(hits))})
         </span>
