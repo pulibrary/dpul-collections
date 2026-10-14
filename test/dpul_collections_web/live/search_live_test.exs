@@ -115,7 +115,7 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       # Track did-you-mean with Umami, I wanna see if people use it.
       assert view
              |> has_element?(
-               ~s{#did-you-mean a[data-umami-event="did-you-mean-click"][data-umami-event-original-query="barx"][data-umami-event-suggestion="barn"][data-umami-event-position="1"][data-umami-event-hits="2"]}
+               ~s{#did-you-mean span[data-umami-event="did-you-mean-click"][data-umami-event-original-query="barx"][data-umami-event-suggestion="barn"][data-umami-event-position="1"][data-umami-event-hits="2"] > a}
              )
 
       view
