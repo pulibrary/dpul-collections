@@ -112,6 +112,12 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       assert view |> has_element?("#did-you-mean a", "bard")
       assert view |> has_element?("#did-you-mean", "1 result")
 
+      # Track did-you-mean with Umami, I wanna see if people use it.
+      assert view
+             |> has_element?(
+               ~s{#did-you-mean a[data-umami-event="did-you-mean-click"][data-umami-event-original-query="barx"][data-umami-event-suggestion="barn"][data-umami-event-position="1"][data-umami-event-hits="2"]}
+             )
+
       view
       |> element("#did-you-mean a", "barn")
       |> render_click()

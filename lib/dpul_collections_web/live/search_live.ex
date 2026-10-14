@@ -512,6 +512,11 @@ defmodule DpulCollectionsWeb.SearchLive do
           patch={Helpers.search_path(%{@search_state | q: query, page: 1})}
           class="font-bold underline"
           dir="auto"
+          data-umami-event="did-you-mean-click"
+          data-umami-event-original-query={@search_state.q}
+          data-umami-event-suggestion={query}
+          data-umami-event-position={idx + 1}
+          data-umami-event-hits={hits}
         >
           {query}
         </.link>
