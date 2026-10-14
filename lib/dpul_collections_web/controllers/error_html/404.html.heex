@@ -7,125 +7,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Digital Collections</title>
     <link rel="stylesheet" href="/assets/css/app.css" />
-    <style>
-      body {
-          background-size: cover; 
-          background-position: center;
-          background-image: url("/images/404-hercules-cluster.jpg");
-          background-color: var(--color-background);
-
-          display: flex;
-          flex-direction: column;
-          min-height: 100vh; /* Forces the body to take up the full screen height */
-          margin: 0;
-      }
-
-      .wrapper {
-          flex: 1;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 24px;
-      }
-
-      .container {
-          max-width: 580px;
-          width: 100%;
-          background-color: var(--color-sage-50);
-          border: 1px solid var(--color-primary-bright);
-          padding: 50px 40px;
-          text-align: center;
-          box-shadow: 0 16px 40px rgba(0, 0, 0, 0.04);
-          position: relative;
-      }
-
-      /* corner accents */
-      .container::before, .container::after {
-          content: '';
-          position: absolute;
-          width: 16px;
-          height: 16px;
-          border: 1.5px solid var(--color-rust);
-      }
-      .container::before { top: 15px; left: 15px; border-right: none; border-bottom: none; }
-      .container::after { bottom: 15px; right: 15px; border-left: none; border-top: none; }
-
-      h1 {
-          font-family: 'Aleo', serif;
-          font-weight: 400;
-          font-size: 2rem;
-          letter-spacing: 3px;
-          margin-bottom: 25px;
-          text-transform: uppercase;
-          color: var(--color-brand);
-      }
-
-      .quote-block {
-          margin: 25px 0;
-      }
-
-      blockquote {
-          font-family: 'Aleo', serif;
-          font-size: 1.25rem;
-          line-height: 1.7;
-          color: var(--color-zinc-800);
-          margin-bottom: 12px;
-          font-style: italic;
-      }
-
-      cite {
-          font-family: 'Poppins', sans-serif;
-          font-size: 0.75rem;
-          font-weight: 600;
-          color: var(--color-rust);
-          letter-spacing: 2px;
-          text-transform: uppercase;
-          font-style: normal;
-          display: block;
-      }
-
-      .divider {
-          height: 1px;
-          width: 80px;
-          background-color: var(--color-cloud);
-          margin: 30px auto;
-      }
-
-      .navigation-links {
-          display: flex;
-          justify-content: center;
-      }
-
-      .bg-image-citation {
-          background-color: transparent;
-      }
-
-      @media (max-width: 480px) {
-          .container { padding: 40px 20px; }
-          blockquote { font-size: 1.15rem; }
-          .btn { width: 100%; }
-      }
-    </style>
   </head>
 
-  <body class="bg-white antialiased text-dark-text">
+  <body class="bg-cover bg-center bg-white bg-[url(/images/404-hercules-cluster.jpg)] bg-(--color-background) flex flex-col m-0 min-h-screen antialiased text-dark-text">
     <div class="flex flex-col min-h-screen" id="app">
       {DpulCollectionsWeb.HeaderComponent.header(assigns)}
       {DpulCollectionsWeb.SearchComponents.search_bar(Map.put(assigns, :action, "/search"))}
-      <div class="wrapper">
-        <div class="container">
-          <h1>Page Not Found</h1>
+      <div class="flex-1 flex items-center justify-center p-24">
+        <div class="max-w-[580px] max-[480px]:px-5 max-[480px]:py-10 w-full bg-sage-50 border border-primary-bright py-[50px] px-[40px] text-center shadow-[0_16px_40px_rgba(0,0,0,0.04)] relative before:absolute before:w-1 before:h-1 before:border before:border-rust after:absolute after:w-1 after:h-1 after:border after:border-rust before:top-(15px) before:left-(15px) before:border-r-0 before:border-b-0 after:bottom-(15px) after:right-(15px) after:border-t-0 after:border-l-0">
+          <h1 class="font-[Aleo,serif] font-normal text-(2rem) tracking-(3px) mb-(25px) uppercase color-brand">
+            Page Not Found
+          </h1>
 
-          <div class="quote-block">
-            <blockquote>
+          <div class="my-[25px]">
+            <blockquote class="font-['Aleo',serif] text-xl leading-[1.7] text-zinc-800 mb-3 italic max-[480px]:text-[1.15rem]">
               "If the path before you is clear, you're probably on someone else's path."
             </blockquote>
-            <cite>— Joseph Campbell</cite>
+            <cite class="font-['Poppins',sans] text-xs font-semibold text-rust tracking-[2px] uppercase not-italic block">— Joseph Campbell</cite>
           </div>
 
-          <div class="divider"></div>
+          <div class="h-px w-20 bg-(--color-cloud) my-[30px] mx-auto"></div>
 
-          <div class="navigation-links">
+          <div class="flex justify-center">
             <a href="/" class="btn-primary">Return Home</a>
           </div>
           <p class="pt-8 italic text-sm text-dark-gray">
