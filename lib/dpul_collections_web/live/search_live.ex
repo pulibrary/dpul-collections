@@ -19,7 +19,8 @@ defmodule DpulCollectionsWeb.SearchLive do
     %{
       results: items,
       total_items: total_items,
-      filter_data: filter_data
+      filter_data: filter_data,
+      spelling_suggestions: spelling_suggestions
     } = Solr.search(search_state)
 
     {:noreply,
@@ -29,6 +30,7 @@ defmodule DpulCollectionsWeb.SearchLive do
        item_counter: item_counter(search_state, total_items),
        items: items,
        total_items: total_items,
+       spelling_suggestions: spelling_suggestions,
        filter_data: with_year_filter(filter_data)
      )
      |> assign_new(
@@ -99,8 +101,15 @@ defmodule DpulCollectionsWeb.SearchLive do
       />
       <section class="content-area">
         <div class="py-4 flex flex-row justify-between gap-4">
-          <div id="item-counter" class="place-content-center">
-            {@item_counter}
+          <div class="place-content-center">
+            <div id="item-counter">
+              {@item_counter}
+            </div>
+            <.did_you_mean
+              :if={@total_items == 0}
+              search_state={@search_state}
+              suggestions={@spelling_suggestions}
+            />
           </div>
           <div class="flex flex-wrap gap-4">
             <form
@@ -487,6 +496,30 @@ defmodule DpulCollectionsWeb.SearchLive do
         </div>
       <% end %>
     </h1>
+    """
+  end
+
+  attr :search_state, :map, required: true
+  attr :suggestions, :list, required: true
+
+  def did_you_mean(assigns) do
+    ~H"""
+    <p :if={@suggestions != []} id="did-you-mean" class="pt-2 text-lg">
+      {gettext("Did you mean")}:
+      <span :for={{{query, hits}, idx} <- Enum.with_index(@suggestions)}>
+        <span :if={idx > 0}>{gettext("or")}</span>
+        <.link
+          patch={Helpers.search_path(%{@search_state | q: query, page: 1})}
+          class="font-bold underline"
+          dir="auto"
+        >
+          {query}
+        </.link>
+        <span class="text-sm">
+          ({ngettext("%{count} result", "%{count} results", hits, count: format_number(hits))})
+        </span>
+      </span>
+    </p>
     """
   end
 

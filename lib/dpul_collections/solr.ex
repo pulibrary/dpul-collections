@@ -138,9 +138,27 @@ defmodule DpulCollections.Solr do
   def search(search_state, index \\ Index.read_index()) do
     search_state
     |> SearchState.add_filter_count_fields(@filter_fields)
+    |> Map.update!(:extra_params, &(&1 ++ spellcheck_params(search_state)))
     |> raw_query(index)
     |> to_search_result()
   end
+
+  # Get spellcheck suggestions
+  defp spellcheck_params(%{q: q}) when is_binary(q) and q != "" do
+    [
+      spellcheck: true,
+      "spellcheck.q": q,
+      "spellcheck.count": 5,
+      "spellcheck.collate": true,
+      "spellcheck.collateExtendedResults": true,
+      "spellcheck.maxCollations": 3,
+      "spellcheck.maxCollationTries": 10,
+      # Tell Solr to only run when there's 1 result or less. Can't set it to 0.
+      "spellcheck.maxResultsForSuggest": 1
+    ]
+  end
+
+  defp spellcheck_params(_), do: []
 
   defp to_search_result(solr_response) do
     SearchResult.from_solr(solr_response)

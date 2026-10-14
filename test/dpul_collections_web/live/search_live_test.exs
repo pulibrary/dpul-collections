@@ -87,6 +87,39 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
       # There's no sort dropdown
       refute view
              |> has_element?("#sort-form")
+
+      # There's nothing close enough to suggest
+      refute view |> has_element?("#did-you-mean")
+    end
+
+    test "with a misspelled query does 'did you mean'", %{conn: conn} do
+      Solr.add(
+        [
+          %{id: "barn1", title_txtm: ["Red barn"], searchable_metadata: ["Red barn"]},
+          %{id: "barn2", title_txtm: ["Old barn"], searchable_metadata: ["Old barn"]},
+          %{id: "bard", title_txtm: ["The bard"], searchable_metadata: ["The bard"]}
+        ],
+        active_collection()
+      )
+
+      Solr.soft_commit(active_collection())
+
+      {:ok, view, _html} = live(conn, "/search?q=barx")
+
+      assert view |> has_element?("#item-counter", "No items found")
+      assert view |> has_element?("#did-you-mean a", "barn")
+      assert view |> has_element?("#did-you-mean", "2 results")
+      assert view |> has_element?("#did-you-mean a", "bard")
+      assert view |> has_element?("#did-you-mean", "1 result")
+
+      view
+      |> element("#did-you-mean a", "barn")
+      |> render_click()
+
+      %{query: query} = view |> assert_patch() |> URI.parse()
+      assert %{"q" => "barn", "page" => "1"} = URI.decode_query(query)
+      assert view |> has_element?("#item-counter", "1 - 2 of 2")
+      refute view |> has_element?("#did-you-mean")
     end
   end
 
