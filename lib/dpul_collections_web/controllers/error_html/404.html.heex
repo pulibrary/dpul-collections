@@ -7,6 +7,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Digital Collections</title>
     <link rel="stylesheet" href="/assets/css/app.css" />
+    <style>
+        /* This makes the little corners on the message pane. */
+        .pane::before, .pane::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border: 1.5px solid var(--color-rust);
+        }
+        .pane::before { top: 15px; left: 15px; border-right: none; border-bottom: none; }
+        .pane::after { bottom: 15px; right: 15px; border-left: none; border-top: none; }
+    </style>
   </head>
 
   <body class="bg-cover bg-center bg-white bg-[url(/images/404-hercules-cluster.jpg)] bg-(--color-background) flex flex-col m-0 min-h-screen antialiased text-dark-text">
@@ -14,7 +26,7 @@
       {DpulCollectionsWeb.HeaderComponent.header(assigns)}
       {DpulCollectionsWeb.SearchComponents.search_bar(Map.put(assigns, :action, "/search"))}
       <div class="flex-1 flex items-center justify-center p-24">
-        <div class="max-w-[580px] max-[480px]:px-5 max-[480px]:py-10 w-full bg-sage-50 border border-primary-bright py-[50px] px-[40px] text-center shadow-[0_16px_40px_rgba(0,0,0,0.04)] relative before:absolute before:w-1 before:h-1 before:border before:border-rust after:absolute after:w-1 after:h-1 after:border after:border-rust before:top-(15px) before:left-(15px) before:border-r-0 before:border-b-0 after:bottom-(15px) after:right-(15px) after:border-t-0 after:border-l-0">
+        <div class="pane max-w-[580px] max-[480px]:px-5 max-[480px]:py-10 w-full bg-sage-50 border border-primary-bright py-[50px] px-[40px] text-center shadow-[0_16px_40px_rgba(0,0,0,0.04)] relative">
           <h1 class="font-[Aleo,serif] font-normal text-(2rem) tracking-(3px) mb-(25px) uppercase color-brand">
             Page Not Found
           </h1>
