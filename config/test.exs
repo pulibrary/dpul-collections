@@ -2,7 +2,6 @@ import Config
 
 # Feature flips
 config :dpul_collections, :feature_account_toolbar, true
-config :dpul_collections, :feature_tab_redesign, true
 
 # Configure your database
 #
