@@ -1,6 +1,7 @@
 defmodule DpulCollections.Search.SearchResult do
   use DpulCollections.Solr.Constants
   alias DpulCollections.Item
+  alias OpentelemetryProcessPropagator.Task
   defstruct [:results, :total_items, :filter_data, spelling_suggestions: []]
   @type filter_key :: String.t()
   @type filter_value :: String.t()
@@ -9,11 +10,18 @@ defmodule DpulCollections.Search.SearchResult do
 
   def from_solr(solr_response = %{"facet_counts" => facet_counts, "response" => response}) do
     %__MODULE__{
-      results: response["docs"] |> Enum.map(&Item.from_solr/1) |> Enum.map(&Item.with_parent/1),
+      results: response["docs"] |> docs_to_items(),
       total_items: response["numFound"],
       filter_data: facets_to_filter_data(extract_facets(facet_counts)),
       spelling_suggestions: extract_collations(solr_response["spellcheck"])
     }
+  end
+
+  # Converts solr search results to Items in parallel.
+  defp docs_to_items(docs) do
+    docs
+    |> Task.async_stream(fn doc -> doc |> Item.from_solr() |> Item.with_parent() end)
+    |> Enum.map(fn {:ok, item} -> item end)
   end
 
   # Solr returns every collation as two entries, "collation" and then the map
