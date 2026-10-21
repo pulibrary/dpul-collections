@@ -1423,6 +1423,7 @@ msgstr "o"
 msgid "Alexander Pope Esqr. Selections from the Graphic Arts Collection, Princeton University Library."
 msgstr "Alexander Pope Esq. Selección de la colección de artes gráficas de la biblioteca de la Universidad de Princeton."
 
+#: lib/dpul_collections_web/controllers/error_html/404.html.heex:56
 #: lib/dpul_collections_web/controllers/error_html/500.html.heex:53
 #, elixir-autogen, elixir-format
 msgid "Image Citation"
@@ -1433,6 +1434,7 @@ msgstr "Cita de la imagen"
 msgid "Internal Server Error"
 msgstr "Error Interno del Servidor"
 
+#: lib/dpul_collections_web/controllers/error_html/404.html.heex:44
 #: lib/dpul_collections_web/controllers/error_html/500.html.heex:44
 #, elixir-autogen, elixir-format
 msgid "Return Home"
@@ -1442,3 +1444,23 @@ msgstr "Regresar a casa"
 #, elixir-autogen, elixir-format
 msgid "To err is human; to forgive, divine."
 msgstr "Errar es humano; perdonar, divino."
+
+#: lib/dpul_collections_web/controllers/error_html/404.html.heex:36
+#, elixir-autogen, elixir-format
+msgid "If the path before you is clear, you're probably on someone else's path"
+msgstr "Si el camino que tienes delante está despejado, probablemente estés en el camino de otra persona."
+
+#: lib/dpul_collections_web/controllers/error_html/404.html.heex:31
+#, elixir-autogen, elixir-format
+msgid "Page Not Found"
+msgstr "Página no encontrada"
+
+#: lib/dpul_collections_web/controllers/error_html/404.html.heex:47
+#, elixir-autogen, elixir-format
+msgid "Report broken links to"
+msgstr "Informa de enlaces rotos a"
+
+#: lib/dpul_collections_web/controllers/error_html/404.html.heex:57
+#, elixir-autogen, elixir-format
+msgid "Star cluster in Hercules. Selections from the Graphic Arts Collection, Princeton University Library"
+msgstr "Cúmulo estelar en Hércules. Selección de la Colección de Artes Gráficas de la Biblioteca de la Universidad de Princeton"
