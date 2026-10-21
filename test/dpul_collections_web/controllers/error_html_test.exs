@@ -12,4 +12,10 @@ defmodule DpulCollectionsWeb.ErrorHTMLTest do
     assert render_to_string(DpulCollectionsWeb.ErrorHTML, "500", "html", []) =~
              "Internal Server Error"
   end
+
+  # this test ensures full coverage by testing the fallthrough of error pages that we haven't customized
+  test "renders 503.html" do
+    assert render_to_string(DpulCollectionsWeb.ErrorHTML, "503", "html", []) =~
+             "Service Unavailable"
+  end
 end
