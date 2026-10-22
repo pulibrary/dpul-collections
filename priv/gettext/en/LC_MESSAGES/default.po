@@ -1423,6 +1423,7 @@ msgstr ""
 msgid "Alexander Pope Esqr. Selections from the Graphic Arts Collection, Princeton University Library."
 msgstr ""
 
+#: lib/dpul_collections_web/controllers/error_html/404.html.heex:56
 #: lib/dpul_collections_web/controllers/error_html/500.html.heex:53
 #, elixir-autogen, elixir-format
 msgid "Image Citation"
@@ -1433,6 +1434,7 @@ msgstr ""
 msgid "Internal Server Error"
 msgstr ""
 
+#: lib/dpul_collections_web/controllers/error_html/404.html.heex:44
 #: lib/dpul_collections_web/controllers/error_html/500.html.heex:44
 #, elixir-autogen, elixir-format
 msgid "Return Home"
@@ -1441,4 +1443,24 @@ msgstr ""
 #: lib/dpul_collections_web/controllers/error_html/500.html.heex:36
 #, elixir-autogen, elixir-format
 msgid "To err is human; to forgive, divine."
+msgstr ""
+
+#: lib/dpul_collections_web/controllers/error_html/404.html.heex:36
+#, elixir-autogen, elixir-format
+msgid "If the path before you is clear, you're probably on someone else's path"
+msgstr ""
+
+#: lib/dpul_collections_web/controllers/error_html/404.html.heex:31
+#, elixir-autogen, elixir-format
+msgid "Page Not Found"
+msgstr ""
+
+#: lib/dpul_collections_web/controllers/error_html/404.html.heex:47
+#, elixir-autogen, elixir-format
+msgid "Report broken links to"
+msgstr ""
+
+#: lib/dpul_collections_web/controllers/error_html/404.html.heex:57
+#, elixir-autogen, elixir-format
+msgid "Star cluster in Hercules. Selections from the Graphic Arts Collection, Princeton University Library"
 msgstr ""
