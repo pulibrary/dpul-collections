@@ -313,14 +313,14 @@ defmodule DpulCollectionsWeb.ItemLive do
         <p
           :for={ttitle <- @item.transliterated_title}
           dir="auto"
-          class="text-2xl font-medium text-gray-500"
+          class="text-2xl font-medium text-gray-500 pt-5"
         >
           {ttitle}
         </p>
         <p
           :for={atitle <- @item.alternative_title}
           dir="auto"
-          class="text-2xl font-medium text-gray-500"
+          class="text-2xl font-medium text-gray-500 pt-5"
         >
           [{atitle}]
         </p>
@@ -362,12 +362,12 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div
       :if={@item.collections != []}
-      class="text-lg font-medium text-dark-text border-l-4 border-s-sage-500 w-full px-4"
+      class="text-lg font-medium text-dark-text w-full"
     >
       <div class="text-sage-800 uppercase text-sm font-bold tracking-wide">
         {ngettext("Collection", "Collections", length(@item.collections))}
       </div>
-      <div :for={collection <- @collections}>
+      <div :for={collection <- @collections} class="border-l-4 border-s-sage-500 px-4 mx-2 my-4">
         {gettext("Part of")}
         <.link class="filter-link" navigate={~p"/collections/#{collection.slug}"}>
           {collection.title}
