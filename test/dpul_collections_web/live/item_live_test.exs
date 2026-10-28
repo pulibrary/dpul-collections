@@ -833,13 +833,9 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
 
   describe "mvw / multi-part works" do
     test "has required components and behavior", %{conn: conn} do
-      # [
-      #   "a9f3fc2a-24e8-4787-b932-0245453f3810",
-      #   "4c5e6602-561f-4951-9cd1-e942dd72e3ff",
-      #   "351d2273-74ad-4df1-93af-c5df0e012b6d"
-      # ]
       [
-        "370a3622-93f0-4c3b-9b39-80786605eefb", #parent volume
+        # parent volume
+        "370a3622-93f0-4c3b-9b39-80786605eefb",
         "70a9248b-fd90-4d63-8f9f-049459cc183f",
         "aff06c86-51ef-4010-a746-f6e640d37e40",
         "278ff060-655a-4f2f-a9f4-7b346d923585",
@@ -851,7 +847,10 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       Solr.soft_commit(active_collection())
 
       {:ok, view, html} =
-        live(conn, "/item/370a3622-93f0-4c3b-9b39-80786605eefb")
+        live(
+          conn,
+          "/i/سيرة-صاحب-الفتوحات-المجاهد-الظاهر/item/370a3622-93f0-4c3b-9b39-80786605eefb"
+        )
 
       # format filter link says "Multi-part" but only links to the actual format
       assert view
@@ -861,23 +860,23 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
              )
 
       # notes and binding note are displayed
-      assert html =~ "Magic squares, seal of Solomon and inscriptions"
-      assert html =~ "Later type II (with flap) bindings"
+      assert html =~ "Title from title page of volume 1 (fol. 1a)."
+      assert html =~ "Later type II (with flap) binding"
 
       assert view |> has_element?("dt", "Notes")
-      assert view |> has_element?("dd", "Magic squares, seal of Solomon and inscriptions")
+      assert view |> has_element?("dd", "Title from title page of volume 1 (fol. 1a).")
       assert view |> has_element?("dt", "Binding Note")
-      assert view |> has_element?("dd", "Later type II (with flap) bindings")
+      assert view |> has_element?("dd", "Later type II (with flap) binding")
 
       # there's a metadata pane
       view |> element("a", "View all metadata for this item") |> render_click()
       assert view |> has_element?("dt", "Source Acquisition")
 
       assert view |> has_element?(".mvw-parts")
-      assert view |> has_element?("#part-items", "Parts - 2 total")
+      assert view |> has_element?("#part-items", "Parts - 5 total")
       assert view |> has_element?("#browse-item-70a9248b-fd90-4d63-8f9f-049459cc183f")
       assert view |> has_element?("#browse-item-aff06c86-51ef-4010-a746-f6e640d37e40")
-      assert view |> has_element?("#more-items")
+      assert view |> has_element?(".btn-arrow")
     end
 
     test "displays for volumes", %{conn: conn} do
@@ -887,7 +886,7 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
       Solr.soft_commit(active_collection())
 
       {:ok, view, _html} =
-        live(conn, "/item/70a9248b-fd90-4d63-8f9f-049459cc183f")
+        live(conn, "/i/vol01/item/70a9248b-fd90-4d63-8f9f-049459cc183f")
 
       # Format is inherited down.
       assert view
@@ -902,14 +901,14 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
 
       assert view
              |> has_element?(
-               "a[href='/i/جعبري-على-الشاطبية/item/a9f3fc2a-24e8-4787-b932-0245453f3810']",
-               "جعبري على الشاطبية"
+               "a[href='/i/سيرة-صاحب-الفتوحات-المجاهد-الظاهر/item/370a3622-93f0-4c3b-9b39-80786605eefb']",
+               "سيرة صاحب الفتوحات المجاهد الظاهر بيبرس."
              )
 
       assert view
              |> has_element?(
                "*",
-               "Commentary on Ḥirz al-amānī wa-wajh al-tahānī fī qirāʼāt al-sabʻ al-mathānī of al-Shāṭibī (d. 590/1194), a versification of al-Taysīr fī al-qirāʼāt al-sabʻ by ʻUthmān ibn Saʻīd al-Qurṭubī (d. 444/1053)."
+               "The life of al-Malik"
              )
     end
   end
