@@ -287,6 +287,12 @@ defmodule DpulCollectionsWeb.ItemLive do
         title={gettext("Parts - %{number} total", number: @item.file_count)}
         color=""
         arrow_theme="light"
+        more_link={
+          Helpers.search_path(%{
+            filter: %{part_of: [@item.id]},
+            sort_by: "title"
+          })
+        }
       >
         <.item_browse_card_li
           :for={item <- @item.member_resources}
