@@ -833,17 +833,25 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
 
   describe "mvw / multi-part works" do
     test "has required components and behavior", %{conn: conn} do
+      # [
+      #   "a9f3fc2a-24e8-4787-b932-0245453f3810",
+      #   "4c5e6602-561f-4951-9cd1-e942dd72e3ff",
+      #   "351d2273-74ad-4df1-93af-c5df0e012b6d"
+      # ]
       [
-        "a9f3fc2a-24e8-4787-b932-0245453f3810",
-        "4c5e6602-561f-4951-9cd1-e942dd72e3ff",
-        "351d2273-74ad-4df1-93af-c5df0e012b6d"
+        "370a3622-93f0-4c3b-9b39-80786605eefb", #parent volume
+        "70a9248b-fd90-4d63-8f9f-049459cc183f",
+        "aff06c86-51ef-4010-a746-f6e640d37e40",
+        "278ff060-655a-4f2f-a9f4-7b346d923585",
+        "4edf7b3f-39b9-451d-b558-34253fbda85f",
+        "bf54b063-5d97-47ce-8d5c-068b93992291"
       ]
       |> Enum.map(&FiggyTestSupport.index_record_id_directly/1)
 
       Solr.soft_commit(active_collection())
 
       {:ok, view, html} =
-        live(conn, "/i/جعبري-على-الشاطبية/item/a9f3fc2a-24e8-4787-b932-0245453f3810")
+        live(conn, "/item/370a3622-93f0-4c3b-9b39-80786605eefb")
 
       # format filter link says "Multi-part" but only links to the actual format
       assert view
@@ -867,18 +875,19 @@ defmodule DpulCollectionsWeb.ItemLiveTest do
 
       assert view |> has_element?(".mvw-parts")
       assert view |> has_element?("#part-items", "Parts - 2 total")
-      assert view |> has_element?("#browse-item-4c5e6602-561f-4951-9cd1-e942dd72e3ff")
-      assert view |> has_element?("#browse-item-351d2273-74ad-4df1-93af-c5df0e012b6d")
+      assert view |> has_element?("#browse-item-70a9248b-fd90-4d63-8f9f-049459cc183f")
+      assert view |> has_element?("#browse-item-aff06c86-51ef-4010-a746-f6e640d37e40")
+      assert view |> has_element?("#more-items")
     end
 
     test "displays for volumes", %{conn: conn} do
-      ["a9f3fc2a-24e8-4787-b932-0245453f3810", "4c5e6602-561f-4951-9cd1-e942dd72e3ff"]
+      ["370a3622-93f0-4c3b-9b39-80786605eefb", "70a9248b-fd90-4d63-8f9f-049459cc183f"]
       |> Enum.map(&FiggyTestSupport.index_record_id_directly/1)
 
       Solr.soft_commit(active_collection())
 
       {:ok, view, _html} =
-        live(conn, "/i/vol-1/item/4c5e6602-561f-4951-9cd1-e942dd72e3ff")
+        live(conn, "/item/70a9248b-fd90-4d63-8f9f-049459cc183f")
 
       # Format is inherited down.
       assert view
