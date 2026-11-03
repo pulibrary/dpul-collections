@@ -1262,4 +1262,39 @@ defmodule DpulCollectionsWeb.SearchLiveTest do
            |> Floki.find(~s{a[href="/collections/coll3"]})
            |> Enum.any?()
   end
+
+  test "children of multi-part works can be filtered by parent id", %{conn: conn} do
+    [
+      "370a3622-93f0-4c3b-9b39-80786605eefb",
+      "70a9248b-fd90-4d63-8f9f-049459cc183f",
+      "aff06c86-51ef-4010-a746-f6e640d37e40",
+      "278ff060-655a-4f2f-a9f4-7b346d923585",
+      "4edf7b3f-39b9-451d-b558-34253fbda85f",
+      "bf54b063-5d97-47ce-8d5c-068b93992291"
+    ]
+    |> Enum.map(&FiggyTestSupport.index_record_id_directly/1)
+
+    Solr.soft_commit(active_collection())
+
+    {:ok, _view, html} =
+      live(conn, "/search?filter[part_of]=370a3622-93f0-4c3b-9b39-80786605eefb")
+
+    {:ok, document} =
+      html
+      |> Floki.parse_document()
+
+    # There's a related_to filter.
+    assert document
+           |> Floki.find("#search-filters .filter.part_of")
+           |> Floki.text()
+           |> TestUtils.clean_string() == "Part Of 370a3622-93f0-4c3b-9b39-80786605eefb"
+
+    assert document
+           |> Floki.find(~s{a[href="/i/vol01/item/70a9248b-fd90-4d63-8f9f-049459cc183f"]})
+           |> Enum.any?()
+
+    assert document
+           |> Floki.find(~s{a[href="/i/vol5/item/bf54b063-5d97-47ce-8d5c-068b93992291"]})
+           |> Enum.any?()
+  end
 end
