@@ -297,15 +297,6 @@ defmodule DpulCollectionsWeb.CollectionsLive do
           )}
         </p>
         <h3 class="uppercase font-semibold text-xl pt-6">
-          {gettext("Preferred Citation")}
-        </h3>
-        <p>
-          {gettext(
-            "[Identification of item], [Sub-collection name (if applicable)], %{collection_name} Collection, Princeton University Library.",
-            collection_name: @collection.title |> hd
-          )}
-        </p>
-        <h3 class="uppercase font-semibold text-xl pt-6">
           {gettext("Romanization")}
         </h3>
         <p>
