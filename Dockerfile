@@ -19,9 +19,8 @@ ARG OTP_VERSION=29.1
 ARG DEBIAN_VERSION=trixie-20260918-slim
 
 ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
-ARG RUNNER_IMAGE="gcr.io/distroless/cc-debian13:nonroot"
 
-FROM ${RUNNER_IMAGE} AS runner
+FROM gcr.io/distroless/cc-debian13:nonroot@sha256:08476c244888bfb425bae1ae4dd7c17f093e972aab8426883d97f3c6f280f7c1 AS runner
 
 FROM ${BUILDER_IMAGE} as builder
 
@@ -90,13 +89,22 @@ RUN cd /app/_build/${MIX_ENV}/rel/dpul_collections && \
     rm releases/COOKIE
 
 COPY --from=runner /usr/lib /runner-usr-lib
-RUN libdir="usr/lib/$(uname -m)-linux-gnu" && \
-    mkdir -p "/runtime-libs/$libdir" && \
+RUN set -e; \
+    libdir="usr/lib/$(uname -m)-linux-gnu" && \
+    statusdir="/runtime-libs/var/lib/dpkg/status.d" && \
+    mkdir -p "$statusdir" && \
     cd /app/_build/${MIX_ENV}/rel/dpul_collections && \
     find . -type f \( -name "*.so*" -o -path "./erts-*/bin/*" \) -exec ldd {} \; 2>/dev/null > /tmp/ldd.txt ; \
     if grep "not found" /tmp/ldd.txt; then exit 1; fi && \
     awk '/=> \//{print $3}' /tmp/ldd.txt | sort -u | while read -r lib; do \
-      [ -e "/runner-usr-lib/${libdir#usr/lib/}/$(basename "$lib")" ] || cp -Lv "$lib" "/runtime-libs/$libdir/" ; \
+      [ -e "/runner-usr-lib/${libdir#usr/lib/}/$(basename "$lib")" ] && continue ; \
+      pkg="$(dpkg -S "$(readlink -f "$lib")" | cut -d: -f1)" ; \
+      [ -e "$statusdir/$pkg" ] && continue ; \
+      dpkg -L "$pkg" | while read -r f; do \
+        if [ -f "$f" ] || [ -L "$f" ]; then cp -av --parents "$f" /runtime-libs/ ; fi ; \
+      done ; \
+      dpkg-query -s "$pkg" > "$statusdir/$pkg" ; \
+      cp "$(dpkg-query --control-path "$pkg" md5sums)" "$statusdir/$pkg.md5sums" ; \
     done
 
 # start a new build stage so that the final image will only contain

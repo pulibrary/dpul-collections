@@ -53,6 +53,11 @@
       "matchPackageNames": ["debian"],
       "matchUpdateTypes": ["pinDigest"],
       "enabled": false
+    },
+    {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["gcr.io/distroless/cc-debian13"],
+      "minimumReleaseAgeBehaviour": "timestamp-optional"
     }
   ],
   "customManagers": [
