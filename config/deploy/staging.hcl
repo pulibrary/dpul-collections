@@ -86,8 +86,7 @@ job "dpulc-staging" {
       driver = "docker"
       config {
         image = "ghcr.io/pulibrary/dpul-collections:sha-${ var.branch_or_sha }"
-        command = "bash"
-        args    = ["-c", "([ \"$NOMAD_ALLOC_INDEX\" -eq 0 ] && /app/bin/migrate) || true"]
+        args    = ["-boot", "/app/releases/current/start_clean", "-extra", "--eval", "DpulCollections.Release.migrate()"]
         force_pull = true
       }
       artifact {
@@ -133,6 +132,13 @@ job "dpulc-staging" {
         destination = "${NOMAD_SECRETS_DIR}/env.vars"
         env = true
         change_mode = "restart"
+      }
+      template {
+        destination = "local/console.args"
+        change_mode = "noop"
+        data = <<EOF
+          -extra --no-halt +iex --remsh node-{{ env "NOMAD_ALLOC_INDEX" }}-{{ env "NOMAD_GROUP_NAME" }}@{{ env "NOMAD_JOB_NAME" }}-epmd.service.consul
+        EOF
       }
     }
   }
@@ -216,6 +222,13 @@ job "dpulc-staging" {
         change_mode = "restart"
         data = <<EOF
           INDEXER = true
+        EOF
+      }
+      template {
+        destination = "local/console.args"
+        change_mode = "noop"
+        data = <<EOF
+          -extra --no-halt +iex --remsh node-{{ env "NOMAD_ALLOC_INDEX" }}-{{ env "NOMAD_GROUP_NAME" }}@{{ env "NOMAD_JOB_NAME" }}-epmd.service.consul
         EOF
       }
     }

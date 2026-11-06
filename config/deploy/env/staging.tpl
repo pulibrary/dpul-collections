@@ -14,10 +14,8 @@ LIBANSWERS_CLIENT_ID = {{ .LIBANSWERS_CLIENT_ID }}
 LIBANSWERS_CLIENT_SECRET = {{ .LIBANSWERS_CLIENT_SECRET }}
 LIBANSWERS_QUEUE_ID = {{ .LIBANSWERS_QUEUE_ID }}
 ERL_DIST_PORT = 4370
-ELIXIR_ERL_OPTIONS = "-start_epmd false -epmd_module Elixir.DynamicSrv.Epmd"
 DNS_CLUSTER_QUERY = "{{ env "NOMAD_JOB_NAME" }}-epmd.service.consul"
-RELEASE_DISTRIBUTION = "name"
-RELEASE_NODE = "node-{{ env "NOMAD_ALLOC_INDEX" }}-{{ env "NOMAD_GROUP_NAME"
+ERL_FLAGS = "-start_epmd false -epmd_module Elixir.DynamicSrv.Epmd -setcookie {{ .ERLANG_COOKIE }} -name node-{{ env "NOMAD_ALLOC_INDEX" }}-{{ env "NOMAD_GROUP_NAME"
 }}@{{ env "NOMAD_JOB_NAME" }}-epmd.service.consul"
 SERVICE_NAME = "{{ env "NOMAD_JOB_NAME" }}"
 CONSUL_SERVICE_ADDRESS = "service.consul"

@@ -1,10 +1,9 @@
 #!/bin/bash
 ENV=$1
-TYPE="${2:-bash}"
 REPOSITORY="${REPO:-dpul-collections}"
-CONSOLE_COMMAND=${CONSOLE_C:-./bin/dpul_collections remote}
 JOB_NAME="${JOBNAME:-dpulc}"
 JOB_TASK="${JOBTASK:-webserver}"
+CONSOLE_COMMAND=${CONSOLE_C:-/app/erts/bin/erlexec -noshell +fnu -user elixir -hidden -name rem-${RANDOM}@${JOB_NAME}-${ENV}-epmd.service.consul -boot /app/releases/current/start_clean -boot_var RELEASE_LIB /app/lib -args_file /local/console.args}
 
 # Make sure we're on VPN
 if ! nslookup nomad-host-prod1.lib.princeton.edu 2>&1 > /dev/null
@@ -15,14 +14,9 @@ fi
 
 if [[ -z "${ENV}" ]];
 then
-  echo "Missing Environment. Command: './bin/console staging [bash/repl]'."
+  echo "Missing Environment. Command: './bin/console staging'."
   exit
 fi
 
-COMMAND="/bin/bash"
-# Connect to the environment given.
-if [ "$TYPE" = "repl" ]
-then
-  COMMAND=$CONSOLE_COMMAND
-fi
+COMMAND=$CONSOLE_COMMAND
 ssh -t deploy@nomad-host-prod1.lib.princeton.edu "nomad alloc exec -task ${JOB_TASK} \$(nomad job allocs -json ${JOB_NAME}-${ENV} | jq -r -c '[.[] | select(.TaskStates | keys | contains([\"${JOB_TASK}\"]))][0].ID') ${COMMAND}"
