@@ -26,7 +26,7 @@ defmodule DpulCollectionsWeb.FooterComponent do
         </ul>
       </div>
       <div class="app_name sm:flex-1 sm:text-center">
-        © 2025 {gettext("The Trustees of Princeton University")}
+        © {Date.utc_today().year} {gettext("The Trustees of Princeton University")}
       </div>
       <div class="university-logo flex-none w-24 sm:w-48">
         <img src={~p"/images/university-logo.svg"} alt={gettext("Princeton University")} />
