@@ -12,7 +12,11 @@ defmodule DpulCollectionsWeb.HealthControllerTest do
         |> JSON.encode!()
         |> JSON.decode!()
 
+      collection = DpulCollections.Solr.Index.read_index().collection
+
       Req.Test.stub(DpulCollections.Solr.Client, fn test_conn ->
+        assert test_conn.request_path == "/solr/#{collection}/admin/ping"
+
         test_conn
         |> Plug.Conn.put_resp_content_type("application/json")
         |> Plug.Conn.send_resp(200, "{}")

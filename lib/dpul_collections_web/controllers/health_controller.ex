@@ -26,7 +26,7 @@ defmodule DpulCollectionsWeb.HealthController do
   end
 
   def index_health do
-    with {:ok, response} <- Solr.Client.status(Solr.Index.read_index()),
+    with {:ok, response} <- Solr.Client.ping(Solr.Index.read_index()),
          %Req.Response{status: 200} <- response do
       "OK"
     else

@@ -77,10 +77,11 @@ defmodule DpulCollections.Solr.Client do
     end)
   end
 
-  def status(index = %Index{}) do
+  def ping(index = %Index{}) do
     Index.connect(index)
-    |> Req.merge(url: "/solr/admin/cores?action=STATUS")
+    |> Req.merge(url: "/solr/:collection/admin/ping", path_params: [collection: index.collection])
     |> Req.merge(headers: %{"accept" => ["application/json"]})
+    |> Req.merge(retry: false, receive_timeout: 500)
     # Add plug option to facilitate http stubbing in tests
     |> Req.merge(Application.get_env(:dpul_collections, :solr_req_options, []))
     |> Req.get()
