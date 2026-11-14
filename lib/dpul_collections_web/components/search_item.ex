@@ -60,11 +60,10 @@ defmodule DpulCollectionsWeb.SearchItem do
               </.link>
             </h2>
             <span
-              aria-label={gettext("format")}
               data-field="format"
               class="w-full sm:w-fit flex-grow sm:flex-none text-gray-600 font-bold text-base uppercase sm:text-right"
             >
-              {@item.format}
+              <span :if={@item.format} class="sr-only">{gettext("format")}: </span>{@item.format}
             </span>
           </div>
           <div :if={@item.tagline} class="text-base">{@item.tagline}</div>
@@ -175,10 +174,12 @@ defmodule DpulCollectionsWeb.SearchItem do
             </div>
             <div class="flex flex-col gap-2 sm:gap-4 shrink-0 order-first sm:order-none sm:items-end">
               <span
-                aria-label={gettext("format")}
                 data-field="format"
                 class="item-format w-full sm:w-auto text-gray-600 font-bold text-base uppercase sm:text-right"
               >
+                <span :if={@item.format_label || @item.format} class="sr-only">
+                  {gettext("format")}:
+                </span>
                 {@item.format_label || @item.format}
               </span>
               <div class="hidden sm:flex">
