@@ -58,7 +58,7 @@ defmodule DpulCollections.MixProject do
       {:phoenix_ecto, "~> 4.7.0"},
       {:ecto_sql, "~> 3.14.0"},
       {:postgrex, "~> 0.22.2"},
-      {:phoenix_html, "~> 4.3.0"},
+      {:phoenix_html, "~> 4.4.0"},
       {:phoenix_live_reload, "~> 1.7.0", only: :dev},
       {:phoenix_live_view, "~> 1.2.0"},
       {:floki, "~> 0.38.2", only: :test},
