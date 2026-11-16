@@ -92,7 +92,7 @@ commands:
           condition: << parameters.include-assets >>
           steps:
             - node/install:
-                node-version: '26.13.0'
+                node-version: '26.13.1'
             - run:
                 name: Install elixir deps
                 command: mix assets.setup
