@@ -18,9 +18,13 @@
     "renovate-config"
   ],
   "lockFileMaintenance": {
-    "enabled": true
+    "enabled": true,
+    "automerge": true,
+    "schedule": [
+      "* 20-23 * * 1"
+    ]
   },
-  "minimumReleaseAge": "14 days",
+  "minimumReleaseAge": "4 days",
   "packageRules": [
     {
       "matchDatasources": [
@@ -41,7 +45,15 @@
       "matchPackageNames": ["erlang/otp", "erlang", "elixir", "elixir-lang/elixir", "debian"],
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "erlang/elixir/debian",
-      "groupSlug": "erlang-elixir-debian"
+      "groupSlug": "erlang-elixir-debian",
+      "automerge": true
+    },
+    {
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "automerge": true
     },
     {
       "matchDatasources": ["docker"],
