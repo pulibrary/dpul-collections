@@ -172,6 +172,13 @@ defmodule DpulCollectionsWeb.Features.SearchTest do
 
   test "search page is accessible", %{conn: conn} do
     Solr.add(SolrTestSupport.mock_solr_documents(10), active_collection())
+    # Make sure when there's an empty format it's still accessible.
+    no_format_doc =
+      SolrTestSupport.mock_solr_documents(1)
+      |> hd
+      |> Map.put(:format_txt_sort, "")
+
+    Solr.add(no_format_doc, active_collection())
     Solr.soft_commit(active_collection())
 
     conn

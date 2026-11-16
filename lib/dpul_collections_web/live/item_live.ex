@@ -339,8 +339,9 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div
       :if={@item.format}
-      aria-label={gettext("format")}
+      data-field="format"
     >
+      <span class="sr-only">{gettext("format")}: </span>
       <.filter_link
         class="format-filter-link"
         filter_value={@item.format}
@@ -355,10 +356,10 @@ defmodule DpulCollectionsWeb.ItemLive do
     ~H"""
     <div
       :if={@item.date}
-      aria-label={gettext("date")}
+      data-field="date"
     >
       <p class="text-xl font-medium text-dark-text">
-        {@item.date}
+        <span class="sr-only">{gettext("date")}: </span>{@item.date}
       </p>
     </div>
     """
