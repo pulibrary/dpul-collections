@@ -17,7 +17,7 @@ defmodule DpulCollections.MixProject do
       compilers: [:phoenix_live_view] ++ Mix.compilers(),
       listeners: [Phoenix.CodeReloader],
       test_coverage: [tool: ExCoveralls],
-      hex: [cooldown: "14d"],
+      hex: [cooldown: "4d"],
       preferred_cli_env: [
         coveralls: :test,
         "coveralls.detail": :test,
