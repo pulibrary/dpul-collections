@@ -160,7 +160,7 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     process?(atom_map)
   end
 
-  # If the resource is embargo'd, do not let it in unless the date is past.
+  # If the resource is embargoed, do not let it in unless the date is past.
   def process?(
         resource = %Figgy.CombinedFiggyResource{
           resource: %{
@@ -169,32 +169,17 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
         }
       )
       when is_binary(embargo_date) do
-    with split_dates <- String.split(embargo_date, "/"),
-         [{month, _}, {day, _}, {year, _}] <- Enum.map(split_dates, &Integer.parse/1),
-         {:ok, date} <- Date.new(year, month, day) do
-      if Date.after?(date, Date.utc_today()) do
-        # It's embargo'd, do not process.
-        false
-      else
-        # Not embargo'd, rip it out and re-process.
-        process?(
-          resource
-          |> put_in(
-            [Access.key(:resource), Access.key(:metadata), Access.key("embargo_date")],
-            nil
-          )
-        )
-      end
+    if embargoed?(embargo_date) do
+      false
     else
-      # Something unparseable is in embargo_date, rip it out and continue.
-      _ ->
-        process?(
-          resource
-          |> put_in(
-            [Access.key(:resource), Access.key(:metadata), Access.key("embargo_date")],
-            nil
-          )
+      # Not embargoed or unparseable, remove the embargo_date value and re-process.
+      process?(
+        resource
+        |> put_in(
+          [Access.key(:resource), Access.key(:metadata), Access.key("embargo_date")],
+          nil
         )
+      )
     end
   end
 
@@ -234,15 +219,17 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
     true
   end
 
-  # ScannedResources must not have empty members, and must be in a collection.
+  # ScannedResources must not have empty members, must be in a collection, and
+  # must not have an embargoed parent.
   def process?(
         combined_figgy_resource = %Figgy.CombinedFiggyResource{
           resource: %{internal_resource: "ScannedResource"},
-          related_data: %{"collections" => collection_map}
+          related_data: related_data = %{"collections" => collection_map}
         }
       )
       when map_size(collection_map) > 0 do
-    combined_figgy_resource.persisted_member_ids != []
+    combined_figgy_resource.persisted_member_ids != [] and
+      not ancestor_embargoed?(Map.get(related_data, "ancestors", %{}))
   end
 
   # Ephemera Folders must be complete and open.
@@ -265,6 +252,28 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumer do
 
   def process?(_resource) do
     false
+  end
+
+  defp embargoed?(embargo_date) when is_binary(embargo_date) do
+    with split_dates <- String.split(embargo_date, "/"),
+         [{month, _}, {day, _}, {year, _}] <- Enum.map(split_dates, &Integer.parse/1),
+         {:ok, date} <- Date.new(year, month, day) do
+      Date.after?(date, Date.utc_today())
+    else
+      _ -> false
+    end
+  end
+
+  # Volumes in a multi-volume work inherit their parent's embargo date.
+  # Test if the parent resource has a valid embargo date.
+  defp ancestor_embargoed?(ancestors) do
+    ancestors
+    |> Map.values()
+    |> Enum.any?(fn ancestor ->
+      ancestor.metadata
+      |> Map.get("embargo_date", [])
+      |> Enum.any?(&embargoed?/1)
+    end)
   end
 
   defp delete_if_seen(record_id, source, cache_version) do
