@@ -232,6 +232,22 @@ defmodule DpulCollections.IndexingPipeline.Figgy.HydrationConsumerTest do
       assert IndexingPipeline.list_hydration_cache_entries() |> length == 0
     end
 
+    test "process_and_persist/2 skips MVW parent and child volume embargo_date has not passed" do
+      # Synthetic fixtures for a MVW with parent that has a far off
+      # embargo date and a child volume with no embargo date
+      parent =
+        IndexingPipeline.get_figgy_resource!("b448cb5c-5093-4d17-b6ce-0c35d2dea38f")
+        |> Map.put(:metadata, nil)
+
+      child =
+        IndexingPipeline.get_figgy_resource!("e1c20d77-ea89-48eb-b676-d1ec7f8e96cc")
+        |> Map.put(:metadata, nil)
+
+      Figgy.HydrationConsumer.process_and_persist(parent, 1)
+      Figgy.HydrationConsumer.process_and_persist(child, 1)
+      assert IndexingPipeline.list_hydration_cache_entries() |> length == 0
+    end
+
     test "process?/1 processes ScannedResources whose embargo_date is corrupt somehow" do
       scanned_resource =
         IndexingPipeline.get_figgy_resource!("27fd4d29-1170-47a5-891b-f2743873bcef")

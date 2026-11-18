@@ -75,7 +75,7 @@ defmodule DpulCollections.IndexingPipeline.FiggyFullIntegrationTest do
     # It also has 3 ephemera projects and 3 collections.
     entry_count = Repo.aggregate(Figgy.HydrationCacheEntry, :count)
     volume_count = 11
-    scanned_resource_fixture_count = 12 + volume_count
+    scanned_resource_fixture_count = 13 + volume_count
     # 8691231a-d06f-4fa2-af5b-d773310564a3 gets filtered out during hydration
     hydration_filtered_resource_count = 1
     # 5c374347-c005-46f5-9ec3-7dd2c938700e gets filtered out during transformation

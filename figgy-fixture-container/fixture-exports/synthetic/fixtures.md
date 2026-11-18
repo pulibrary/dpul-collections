@@ -12,3 +12,4 @@
 | sae-reading-room-folder.csv        | A folder in the SAE project with reading room visibility, and its box |
 | unpublished_collection.csv         | An unpublished collection and a member scanned resource / file set that belongs to it |
 | embargo-fixture.csv         | A scanned resource under embargo. |
+| embargoed_mvw.csv           | A multi-volume resource where the parent is under embargo and the child resource has no embargo value |
