@@ -170,18 +170,16 @@ There are two settings in config/test.exs for the playwright configuration that 
 
 For more details about an individual deployment, and to view logs, go to the `jobs` section of our [nomad UI](nomad.lib.princeton.edu).
 
-### Connecting to Staging Shell or IEX Console
+### Connecting to Staging IEX Console
 
 1. Connect to VPN
-1. `./bin/console staging [bash/repl]`
+1. `./bin/console staging`
 
 By default this will connect you to a web node (Issues #193). To connect to an indexer node use the `JOBTASK` env variable:
 
-`JOBTASK=indexer ./bin/console staging repl`
+`JOBTASK=indexer ./bin/console staging`
 
 You will know you're connected to an indexer node if `Broadway.all_running()` returns a populated list.
-
-Another way to connect to a shell or iex console is via the [nomad UI](nomad.lib.princeton.edu). Log in and go to jobs > dpulc-staging > exec. select "indexer" then enter the default command `/bin/bash`. To run the iex console do `./bin/dpul_collections remote`.
 
 ### Determine active cache version
 
@@ -218,8 +216,11 @@ Set up database
 The SECRET_KEY_BASE below is just a filler one for the purpose of testing locally.
 
 Run Docker Image
-`docker run -v $PWD/config/deploy/solr/local_docker.json:/solr.json -t -p 4000:4000 -e INDEXER=true -e APP_ENV=staging -e PHX_HOST=localhost -e RELEASE_IP=127.0.0.1 -e NOMAD_TASK_DIR='/' -e FIGGY_DATABASE_URL='ecto://postgres:postgres@host.docker.internal:5435/postgres' -e DATABASE_URL='ecto://postgres:@host.docker.internal:5434/dpul_collections_dev' -e SECRET_KEY_BASE='B8rwzeX3DFLveiJ4cP28lRGc0PWdEr8ZF/hDoPRucw95Nzf2IPnu7lhEB+Yldx6Z' dpul-collections`
+`docker run -v $PWD/config/deploy/solr/local_docker.json:/solr.json -t -p 4000:4000 -e INDEXER=true -e DNS_CLUSTER_QUERY=dpulc.invalid -e APP_ENV=staging -e PHX_HOST=localhost -e RELEASE_IP=127.0.0.1 -e NOMAD_TASK_DIR='/' -e FIGGY_DATABASE_URL='ecto://postgres:postgres@host.docker.internal:5435/postgres' -e DATABASE_URL='ecto://postgres:@host.docker.internal:5434/dpul_collections_dev' -e SECRET_KEY_BASE='B8rwzeX3DFLveiJ4cP28lRGc0PWdEr8ZF/hDoPRucw95Nzf2IPnu7lhEB+Yldx6Z' dpul-collections`
 
+
+Run migrations:
+`docker run <copy all the arguments from above> dpul-collections -boot /app/releases/current/start_clean -extra --eval "DpulCollections.Release.migrate()"`
 
 Commit Solr: `curl http://solr:SolrRocks@localhost:8985/solr/dpulc/update?commit=true`
 
