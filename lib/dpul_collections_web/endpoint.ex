@@ -54,6 +54,10 @@ defmodule DpulCollectionsWeb.Endpoint do
   plug Plug.RequestId
   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
 
+  # Read-only WebDAV view of the collections at /dav. Sits before Plug.Head and
+  # the body parsers so HEAD and PROPFIND reach it untouched.
+  plug DpulCollectionsWeb.Dav.Plug
+
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],

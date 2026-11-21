@@ -17,6 +17,7 @@ defmodule DpulCollections.Application do
         DpulCollections.FiggyRepo,
         {Phoenix.PubSub, name: DpulCollections.PubSub},
         {Oban, Application.fetch_env!(:dpul_collections, Oban)},
+        DpulCollections.Dav.Cache,
         # Start a worker by calling: DpulCollections.Worker.start_link(arg)
         # {DpulCollections.Worker, arg},
         # Start to serve requests, typically the last entry

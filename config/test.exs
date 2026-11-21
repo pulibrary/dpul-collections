@@ -151,3 +151,12 @@ config :dpul_collections, :libanswers,
 
 # No traces in test.
 config :opentelemetry, span_processor: :simple, traces_exporter: :none
+
+# Don't memoize WebDAV listings between tests.
+config :dpul_collections, :dav_cache_ttl_ms, 0
+
+# Stub IIIF image downloads served through WebDAV
+config :dpul_collections,
+  dav_image_req_options: [
+    plug: {Req.Test, DpulCollectionsWeb.Dav.Plug}
+  ]
