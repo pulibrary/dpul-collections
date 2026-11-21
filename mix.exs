@@ -78,7 +78,7 @@ defmodule DpulCollections.MixProject do
       {:telemetry_poller, "~> 1.3.0"},
       {:gettext, "~> 1.0.2"},
       {:jason, "~> 1.4.5"},
-      {:bandit, "~> 1.14.0"},
+      {:bandit, "~> 1.15.0"},
       {:excoveralls, "~> 0.18.5", only: :test},
       {:broadway, "~> 1.3.0"},
       {:ex_doc, "~> 0.40.2", only: :dev, runtime: false},
