@@ -9,7 +9,7 @@ defmodule DpulCollections.Dav.Tree do
           └── <Collection title>/
               ├── About this collection.txt
               └── <Format>/                    (e.g. "Posters", or "Other")
-                  ├── <Item title> [1a2b3c4d]/ (directly, when ≤ 500 items)
+                  ├── <Item title> [1a2b3c4d]/ (directly, when ≤ 100 items)
                   └── 001 Abc… – Def…/         (title-range pages otherwise)
                       └── <Item title> [1a2b3c4d]/
                           ├── 001.jpg …        (full-size IIIF images)
@@ -86,11 +86,9 @@ defmodule DpulCollections.Dav.Tree do
   # Clients probe for lots of dotfiles (.DS_Store, ._foo, .hidden, ...).
   defp hidden?(name), do: String.starts_with?(name, ".")
 
-  # Finder checks every subfolder it displays for a custom icon ("Icon\r"),
-  # and Windows looks for desktop.ini, Thumbs.db, etc. Answering "no" by
-  # listing the folder costs a Solr query per item folder, so a 500-item page
-  # took long enough for Finder to time out. Reject names that can't exist in
-  # a folder of this kind before listing it.
+  # Clients probe for files that never exist here (Icon\r, desktop.ini,
+  # Thumbs.db, ...). Reject names that can't exist in a folder of this kind
+  # before listing it, so a probe never costs a Solr query.
   @item_dir ~r/ \[[0-9a-f]{8}\]$/
   @page_dir ~r/^\d{3} /
   @item_file ~r/^(\d+\.jpg|metadata\.json|CONTENT WARNING\.txt)$/
@@ -389,7 +387,11 @@ defmodule DpulCollections.Dav.Tree do
     |> Kernel.<>("\n")
   end
 
-  defp page_size, do: Application.get_env(:dpul_collections, :dav_page_size, 500)
+  # Finder sends one "._<name>" probe per entry it displays, sequentially, so
+  # a folder costs one network round trip per entry to open (~0.1s each over
+  # VPN on staging). Small pages keep folders quick to open; 100 still keeps
+  # the largest format (11k pamphlets) to ~113 page folders.
+  defp page_size, do: Application.get_env(:dpul_collections, :dav_page_size, 100)
 
   defp site_url, do: DpulCollectionsWeb.Endpoint.url()
 
