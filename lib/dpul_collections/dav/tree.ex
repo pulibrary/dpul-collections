@@ -50,6 +50,7 @@ defmodule DpulCollections.Dav.Tree do
     Enum.reduce_while(segments, {:ok, root()}, fn name, {:ok, parent} ->
       with :dir <- parent.type,
            false <- hidden?(name),
+           true <- plausible?(parent.kind, name),
            %Entry{} = child <- find_child(parent, name) do
         {:cont, {:ok, child}}
       else
@@ -84,6 +85,26 @@ defmodule DpulCollections.Dav.Tree do
 
   # Clients probe for lots of dotfiles (.DS_Store, ._foo, .hidden, ...).
   defp hidden?(name), do: String.starts_with?(name, ".")
+
+  # Finder checks every subfolder it displays for a custom icon ("Icon\r"),
+  # and Windows looks for desktop.ini, Thumbs.db, etc. Answering "no" by
+  # listing the folder costs a Solr query per item folder, so a 500-item page
+  # took long enough for Finder to time out. Reject names that can't exist in
+  # a folder of this kind before listing it.
+  @item_dir ~r/ \[[0-9a-f]{8}\]$/
+  @page_dir ~r/^\d{3} /
+  @item_file ~r/^(\d+\.jpg|metadata\.json|CONTENT WARNING\.txt)$/
+
+  defp plausible?(kind, name) do
+    cond do
+      # sanitize/2 strips control characters from every generated name.
+      String.match?(name, ~r/[\x00-\x1F]/) -> false
+      match?({:format, _, _}, kind) -> name =~ @item_dir or name =~ @page_dir
+      match?({:page, _, _, _}, kind) -> name =~ @item_dir
+      match?({:item, _}, kind) -> name =~ @item_file or name =~ @item_dir
+      true -> true
+    end
+  end
 
   defp find_child(parent, name) do
     name = normalize(name)

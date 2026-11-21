@@ -113,6 +113,22 @@ defmodule DpulCollectionsWeb.Dav.PlugTest do
     assert get(build_conn(), @item_dir <> "999.jpg").status == 404
   end
 
+  test "Finder and Windows probe files are rejected without listing", %{conn: conn} do
+    posters = "/dav/Collections/Greek%20Ephemera/Posters/"
+
+    # Finder's custom-icon probe ("Icon\r") on every folder kind.
+    assert propfind(conn, "/dav/Collections/Icon%0D", "0").status == 404
+    assert propfind(build_conn(), posters <> "Icon%0D", "0").status == 404
+    assert propfind(build_conn(), @item_dir <> "Icon%0D", "0").status == 404
+
+    # Names that don't fit the folder's naming scheme.
+    assert propfind(build_conn(), posters <> "desktop.ini", "0").status == 404
+    assert propfind(build_conn(), @item_dir <> "Thumbs.db", "0").status == 404
+
+    # Real names still resolve.
+    assert propfind(build_conn(), @item_dir <> "metadata.json", "0").status == 207
+  end
+
   describe "images" do
     test "GET streams the full-size IIIF image and remembers its size", %{conn: conn} do
       Req.Test.stub(DpulCollectionsWeb.Dav.Plug, fn req ->
