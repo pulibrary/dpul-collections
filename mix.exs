@@ -72,7 +72,7 @@ defmodule DpulCollections.MixProject do
        app: false,
        compile: false,
        depth: 1},
-      {:swoosh, "~> 1.29.0"},
+      {:swoosh, "~> 1.30.0"},
       {:gen_smtp, "~> 1.3.0"},
       {:telemetry_metrics, "~> 1.2.0"},
       {:telemetry_poller, "~> 1.3.0"},
