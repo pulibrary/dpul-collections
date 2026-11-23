@@ -4,10 +4,12 @@ BRANCH_NAME="${BRANCH:-main}"
 REPOSITORY="${REPO:-dpul-collections}"
 JOB_NAME="${JOBNAME:-dpulc}"
 
+export NOMAD_ADDR="${NOMAD_ADDR:-https://nomad.lib.princeton.edu}"
+
 # Make sure we're on VPN
-if ! nslookup nomad-host-prod1.lib.princeton.edu 2>&1 > /dev/null
+if [ "$(curl -s -o /dev/null -w '%{http_code}' "${NOMAD_ADDR}")" == "403" ]
 then
-  echo "Unable to connect to nomad-host-prod1. Ensure you're on VPN."
+  echo "Unable to connect to ${NOMAD_ADDR}. Ensure you're on VPN."
   exit 1
 fi
 
@@ -29,10 +31,26 @@ then
   exit 1
 fi
 
+if ! command -v nomad &> /dev/null
+then
+  echo "nomad must be installed. Run 'brew install hashicorp/tap/nomad'."
+  exit 1
+fi
+
 if [[ -z "${ENV}" ]];
 then
   echo "Missing Environment. Command: 'BRANCH=main ./bin/deploy staging'."
   exit
+fi
+
+if ! nomad acl token self &> /dev/null
+then
+  export NOMAD_TOKEN=$(NOMAD_TOKEN= nomad login -method=entra -t '{{.SecretID}}')
+  if [ -z "$NOMAD_TOKEN" ]
+  then
+    echo "Nomad login failed."
+    exit 1
+  fi
 fi
 
 # Create Github Deployment
@@ -51,10 +69,7 @@ fi
 curl -s -X POST -H "Accept: application/vnd.github+json-H" -H "Content-Type: application/x-www-form-urlencoded" -H "Authorization: Bearer ${GH_TOKEN}" --data "{\"environment\":\"${ENV}\",\"state\":\"in_progress\",\"log_url\": \"https://nomad.lib.princeton.edu/ui/jobs/${JOB_NAME}-${ENV}\", \"description\":\"Deployment started.\"}" "https://api.github.com/repos/pulibrary/${REPOSITORY}/deployments/${DEPLOY_ID}/statuses" > /dev/null
 
 SHA=$(git ls-remote https://github.com/pulibrary/${REPOSITORY}.git ${BRANCH_NAME} | awk '{ print substr($1,1,40) }')
-# Deploy using nomad-host-prod1, which has the nomad management key.
-ssh deploy@nomad-host-prod1.lib.princeton.edu << EOF
-  curl -s "https://raw.githubusercontent.com/pulibrary/${REPOSITORY}/${SHA}/config/deploy/${ENV}.hcl" | nomad job run -var "branch_or_sha=$(git ls-remote https://github.com/pulibrary/${REPOSITORY}.git ${BRANCH_NAME} | awk '{ print substr($1,1,7) }')" -
-EOF
+curl -s "https://raw.githubusercontent.com/pulibrary/${REPOSITORY}/${SHA}/config/deploy/${ENV}.hcl" | nomad job run -var "branch_or_sha=${SHA:0:7}" -
 retcode=$?
 
 if [ $retcode -eq 0 ]
