@@ -86,6 +86,10 @@ defmodule DpulCollectionsWeb.Router do
     # as long as you are also using SSL (which you should anyway).
     import Phoenix.LiveDashboard.Router
 
+    scope "/georef", DpulCollectionsWeb do
+      get "/:file", GeorefController, :show
+    end
+
     scope "/dev" do
       pipe_through [:dashboard_auth, :browser]
 
