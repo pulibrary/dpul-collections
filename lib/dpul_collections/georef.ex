@@ -21,8 +21,14 @@ defmodule DpulCollections.Georef do
 
   @overview 1536
   @min_label_hits 3
-  @min_label_fraction 0.4
+  # Measured on a 12-atlas sample: 0.4 declined correct fits with 4-6 of
+  # 11-17 labels on their streets; at 0.25 the one wrong fit it let through
+  # was caught by the printed-scale check below.
+  @min_label_fraction 0.25
+  # Princeton's Sanborn scans: printed scale + fitted m/px imply 392-398 dpi.
+  @scan_dpi {350, 450}
   @label_tolerance 8.0
+  @rough_label_tolerance 15.0
   @scale_range {0.005, 2.0}
   @zoom 768
 
@@ -60,7 +66,9 @@ defmodule DpulCollections.Georef do
     # street, which gives an identity check independent of junction pointing.
     # OCR (rotated boxes, precise) is the primary label source; VLM labels
     # fill in what OCR missed.
-    ocr_pts = canvas |> Ocr.read(&fetch_image/1) |> ocr_labels(osm)
+    ocr_tokens = Ocr.read(canvas, &fetch_image/1)
+    ocr_pts = ocr_labels(ocr_tokens, osm)
+    scales = printed_scales(ocr_tokens)
     vlm_labels = read_labels(overview, full_region)
 
     vlm_matched =
@@ -91,15 +99,66 @@ defmodule DpulCollections.Georef do
 
       label = if length(parts) > 1, do: "#{canvas.label} (part #{i})", else: canvas.label
 
-      %{canvas: canvas, part: i, label: label, mask: polygon, labels: part_labels}
-      |> Map.merge(fit_part(canvas, osm, polygon, part_labels, part_seeds, opts))
+      # Printed "Scale N Ft. to an Inch" inside this part (an inset's scale
+      # often differs from the main map's, so no sheet-wide fallback).
+      printed = Enum.find_value(scales, &(inside.(&1.px) && &1.ft))
+
+      %{
+        canvas: canvas,
+        part: i,
+        label: label,
+        mask: polygon,
+        labels: part_labels,
+        printed_scale_ft: printed
+      }
+      |> Map.merge(fit_part(canvas, osm, polygon, part_labels, part_seeds, printed, opts))
     end)
   end
 
-  defp fit_part(canvas, osm, polygon, label_pts, seeds, opts) do
+  defp fit_part(canvas, osm, polygon, label_pts, seeds, printed_ft, opts) do
     seed_candidates = to_candidates(seeds, osm)
     rough = best_hypothesis(seed_candidates, label_pts, osm)
+    fraction = Keyword.get(opts, :min_label_fraction, @min_label_fraction)
+    needed = max(@min_label_hits, ceil(fraction * length(label_pts)))
 
+    # Labels first: printed names sit on street centrelines, so snapping them
+    # onto their modern streets is more precise than VLM junction pinpoints
+    # (which lean ~7 m toward a street edge). On the check-point maps:
+    # median 1.9 m vs 2.5 m, and no zoomed VLM calls needed.
+    labels_fit =
+      rough && Keyword.get(opts, :labels_first, true) &&
+        labels_only_fit(rough.t, label_pts, osm, polygon, needed, printed_ft)
+
+    if labels_fit do
+      Map.merge(%{located: seeds, rough: Map.delete(rough, :t)}, labels_fit)
+    else
+      junction_fit(
+        canvas,
+        osm,
+        polygon,
+        label_pts,
+        seeds,
+        seed_candidates,
+        rough,
+        needed,
+        printed_ft,
+        opts
+      )
+    end
+  end
+
+  defp junction_fit(
+         canvas,
+         osm,
+         polygon,
+         label_pts,
+         seeds,
+         seed_candidates,
+         rough,
+         needed,
+         printed_ft,
+         opts
+       ) do
     # Predict-and-verify: geometry says where each modern intersection should
     # be; the VLM only pinpoints it on a zoomed crop.
     verified = if rough, do: verify_predictions(rough.t, osm, canvas, polygon), else: []
@@ -116,10 +175,12 @@ defmodule DpulCollections.Georef do
         )
 
     label_check = with {:ok, t, _, _} <- final, do: label_score(t, label_pts, osm)
-    needed = max(@min_label_hits, ceil(@min_label_fraction * length(label_pts)))
+
+    scale_ok = with {:ok, t, _, _} <- final, do: scale_consistent?(Geometry.scale(t), printed_ft)
 
     case final do
-      {:ok, t0, inliers, residuals} when length(inliers) >= 3 and label_check >= needed ->
+      {:ok, t0, inliers, residuals}
+      when length(inliers) >= 3 and label_check >= needed and scale_ok ->
         # Labels sit on street centrelines (~1-3 m) — more precise than VLM
         # junction pinpoints (measured ~7 m, often on a street edge) — so let
         # them refine the fit, anchored by label-line junctions when there are
@@ -154,13 +215,88 @@ defmodule DpulCollections.Georef do
         })
 
       other ->
-        Logger.warning(
-          "georef: #{canvas.label} part not georeferenced (#{inspect(elem_or(other))}, " <>
-            "label hits #{inspect(label_check)}/#{needed} needed)"
-        )
+        case rough && labels_only_fit(rough.t, label_pts, osm, polygon, needed, printed_ft) do
+          %{} = fit ->
+            Logger.info(
+              "georef: #{canvas.label} part fitted from labels (#{fit.label_hits} on their streets) after the junction fit failed"
+            )
 
-        Map.merge(base, %{status: :failed, gcps: [], label_hits: label_check})
+            Map.merge(base, fit)
+
+          _ ->
+            Logger.warning(
+              "georef: #{canvas.label} part not georeferenced (#{inspect(decline_reason(other))}, " <>
+                "label hits #{inspect(label_check)}/#{needed} needed)"
+            )
+
+            Map.merge(base, %{status: :failed, gcps: [], label_hits: label_check})
+        end
     end
+  end
+
+  # Snap each printed label onto its own modern street, starting from the
+  # rough fit; accept only if enough labels land on their streets, those
+  # streets run in at least two directions (labels on parallel streets alone
+  # would let the fit slide along them), and the scale matches the printed
+  # one. GCPs are the part outline and the labels, mapped through the fit.
+  defp labels_only_fit(t0, label_pts, osm, polygon, needed, printed_ft) do
+    curves = for l <- label_pts, g = osm.groups[l.key], do: {l.px, g.segments}
+    t = Geometry.refine_with_curves(t0, [], curves, tolerance: @label_tolerance)
+
+    hits = label_score(t, label_pts, osm)
+
+    if hits >= needed and crossing_streets?(t, label_pts, osm) and
+         scale_consistent?(Geometry.scale(t), printed_ft) do
+      pts =
+        Enum.map(polygon, &%{px: &1, label: "outline"}) ++
+          Enum.map(label_pts, &%{px: &1.px, label: &1.name})
+
+      %{
+        status: :ok,
+        method: :labels,
+        transform: t,
+        projection: osm.projection,
+        gcps:
+          Enum.map(pts, fn p ->
+            %{
+              px: p.px,
+              lonlat: Geometry.to_lonlat(osm.projection, Geometry.transform(t, p.px)),
+              label: p.label
+            }
+          end),
+        residuals: [],
+        label_hits: hits,
+        scale: Geometry.scale(t)
+      }
+    end
+  end
+
+  # Directions (mod 180 degrees) of the modern streets under the labels that
+  # landed on them must differ by at least 30 degrees somewhere.
+  defp crossing_streets?(t, label_pts, osm) do
+    dirs =
+      for l <- label_pts,
+          g = osm.groups[l.key],
+          w = Geometry.transform(t, l.px),
+          {{x1, y1}, {x2, y2}} =
+            seg = Enum.min_by(g.segments, &Geometry.point_segment_dist(w, &1)),
+          Geometry.point_segment_dist(w, seg) <= @label_tolerance,
+          do: :math.atan2(y2 - y1, x2 - x1)
+
+    Enum.any?(for a <- dirs, b <- dirs, do: angle_between(a, b) > 30)
+  end
+
+  @doc """
+  Does a fit's m/px agree with the part's printed "N ft to an inch" at the
+  scan resolution? A wrong fit that still puts a few labels on same-named
+  streets is usually off in scale. True when no scale was printed.
+  """
+  def scale_consistent?(_m_per_px, nil), do: true
+
+  def scale_consistent?(m_per_px, ft) do
+    {lo, hi} = @scan_dpi
+    dpi = ft * 0.3048 / m_per_px
+    dpi >= lo and dpi <= hi
   end
 
   @doc """
@@ -176,7 +312,10 @@ defmodule DpulCollections.Georef do
 
       %{
         t: t,
-        label_hits: label_score(t, label_pts, osm),
+        # A 2-junction rough fit is only approximate, so count labels near
+        # their street loosely here; acceptance re-checks at @label_tolerance
+        # after refinement.
+        label_hits: label_score(t, label_pts, osm, @rough_label_tolerance),
         seed_inliers: length(seeds),
         seeds: seeds
       }
@@ -199,14 +338,35 @@ defmodule DpulCollections.Georef do
     end
   end
 
+  @doc """
+  Printed scale statements ("SCALE 100FT. TO AN INCH") as feet per inch. OCR
+  confuses I/l with 1 and O with 0 in these, so digits are normalised.
+  """
+  def printed_scales(tokens) do
+    for t <- tokens,
+        [_, digits] <- [Regex.run(~r/scale\s*([0-9IOlo]{2,4})\s*f/i, t.text)],
+        {ft, ""} <- [
+          digits
+          |> String.replace(~r/[Il]/, "1")
+          |> String.replace(~r/[Oo]/, "0")
+          |> Integer.parse()
+        ],
+        do: %{ft: ft, px: t.center}
+  end
+
   @doc "OCR tokens that name a modern street/railway/waterway, with direction."
   def ocr_labels(tokens, osm) do
     for t <- tokens,
         t.score >= 0.75,
         String.length(String.replace(t.text, ~r/[^\p{L}]/u, "")) >= 3,
+        not index_entry?(t.text),
         key = Osm.match_name(osm, t.text),
         do: %{name: t.text, key: key, px: t.center, angle: t.angle, source: :ocr}
   end
+
+  # Entries of a printed street index ("Academy, N....", "Almond,") are not
+  # on their street; map labels never contain a comma or dot leaders.
+  defp index_entry?(text), do: Regex.match?(~r/,|\.\./, text)
 
   @doc """
   Street names are printed along their street, so each label defines a line.
@@ -258,9 +418,9 @@ defmodule DpulCollections.Georef do
     end
   end
 
-  def label_score(t, label_pts, osm) do
+  def label_score(t, label_pts, osm, tolerance \\ @label_tolerance) do
     Enum.count(label_pts, fn l ->
-      Osm.distance_to(osm, l.key, Geometry.transform(t, l.px)) <= @label_tolerance
+      Osm.distance_to(osm, l.key, Geometry.transform(t, l.px)) <= tolerance
     end)
   end
 
@@ -356,8 +516,10 @@ defmodule DpulCollections.Georef do
     end)
   end
 
-  defp elem_or({:ok, _, inliers, _}), do: {:too_few_inliers, length(inliers)}
-  defp elem_or(other), do: other
+  defp decline_reason(nil), do: :no_rough_fit
+  defp decline_reason({:ok, _, inliers, _}) when length(inliers) < 3, do: :too_few_inliers
+  defp decline_reason({:ok, _, _, _}), do: :too_few_labels_on_streets_or_scale_mismatch
+  defp decline_reason(other), do: other
 
   # Step 1: names --------------------------------------------------------------
 
@@ -366,9 +528,11 @@ defmodule DpulCollections.Georef do
   street, avenue, road, alley, railroad or waterway (river, creek, canal). For each printed \
   occurrence give the name exactly as written and the bounding box of the text. Do not \
   include buildings, businesses, owners or the town name.
-  Answer only with JSON: [{"label": "...", "bbox_2d": [x1, y1, x2, y2]}, ...]
+  Answer only with JSON: [{"text": "...", "bbox_2d": [x1, y1, x2, y2]}, ...]
   """
 
+  # The transcription goes in "text", not "label": Qwen3.5/3.6 grounding
+  # treats "label" as the category asked for and fills it with the request.
   @doc "Street/rail/water name labels with their pixel positions."
   def read_labels(image, region) do
     # OCR is the primary label source; keep the VLM's (sometimes looping) list short.
@@ -378,7 +542,7 @@ defmodule DpulCollections.Georef do
       "items" => %{
         "type" => "object",
         "properties" => %{
-          "label" => %{"type" => "string"},
+          "text" => %{"type" => "string"},
           "bbox_2d" => %{
             "type" => "array",
             "items" => %{"type" => "number"},
@@ -386,7 +550,7 @@ defmodule DpulCollections.Georef do
             "maxItems" => 4
           }
         },
-        "required" => ["label", "bbox_2d"]
+        "required" => ["text", "bbox_2d"]
       }
     }
 
@@ -398,7 +562,7 @@ defmodule DpulCollections.Georef do
     |> Regex.scan(text)
     |> Enum.flat_map(fn [obj] ->
       case Jason.decode(obj) do
-        {:ok, %{"label" => name, "bbox_2d" => [x1, y1, x2, y2]}}
+        {:ok, %{"text" => name, "bbox_2d" => [x1, y1, x2, y2]}}
         when is_binary(name) and is_number(x1) and is_number(y1) and is_number(x2) and
                is_number(y2) ->
           {a, b} = to_px({x1, y1}, region)
@@ -419,7 +583,11 @@ defmodule DpulCollections.Georef do
           []
       end
     end)
-    |> Enum.reject(&(&1.name == ""))
+    |> Enum.reject(&(&1.name == "" or index_entry?(&1.name)))
+    # A looping VLM repeats one name at evenly stepped boxes (Vineland 16:
+    # "S. 8TH" five times); a real street is rarely labelled more than twice.
+    |> Enum.group_by(& &1.name)
+    |> Enum.flat_map(fn {_, ls} -> Enum.take(ls, 2) end)
     |> Enum.uniq_by(fn %{name: n, px: {x, y}} -> {n, round(x / 200), round(y / 200)} end)
   end
 
@@ -587,14 +755,25 @@ defmodule DpulCollections.Georef do
   """
   def search_bbox(manifest) do
     meta = manifest.bbox && pad(manifest.bbox, 0.2)
-    town = manifest.label |> to_string() |> String.split([",", "["]) |> hd() |> String.trim()
+
+    town =
+      manifest.label
+      |> to_string()
+      |> String.replace(~r/^\s*insurance maps? of\s+/i, "")
+      |> String.split([",", "[", ":"])
+      |> hd()
+      |> String.trim()
+
     places = Osm.find_place(town)
     inside = meta && Enum.find(places, fn %{lonlat: [x, y]} -> inside?(meta, x, y) end)
 
     cond do
-      inside -> meta
-      places != [] -> place_box(hd(places).lonlat)
-      meta -> meta
+      # Some catalog boxes are county-sized (Camden 45 x 61 km); a box that
+      # big multiplies same-named streets, so search around the town instead.
+      inside && area(meta) > 2 * area(place_box(inside)) -> place_box(inside)
+      inside -> at_least_town(meta)
+      places != [] -> place_box(hd(places))
+      meta -> at_least_town(meta)
       true -> raise "no location for #{inspect(manifest.label)}"
     end
     |> tap(fn b ->
@@ -603,6 +782,19 @@ defmodule DpulCollections.Georef do
   end
 
   defp inside?({a, b, c, d}, x, y), do: x >= a and x <= c and y >= b and y <= d
+  defp area({a, b, c, d}), do: (c - a) * (d - b)
+
+  # Catalog boxes can be tighter than the atlas (Bound Brook's 4 km box clips
+  # the Middlesex sheets next door): never search less than a town box.
+  defp at_least_town({a, b, c, d}) do
+    {x0, y0, x1, y1} = place_box([(a + c) / 2, (b + d) / 2])
+    {min(a, x0), min(b, y0), max(c, x1), max(d, y1)}
+  end
+
+  # ~7 km around a town; a city atlas (Camden's shipyard sheets lie 4 km from
+  # the city node) needs ~13 km.
+  defp place_box(%{place: "city", lonlat: [x, y]}), do: {x - 0.08, y - 0.06, x + 0.08, y + 0.06}
+  defp place_box(%{lonlat: lonlat}), do: place_box(lonlat)
   defp place_box([x, y]), do: {x - 0.04, y - 0.03, x + 0.04, y + 0.03}
 
   defp pad({a, b, c, d}, f) do

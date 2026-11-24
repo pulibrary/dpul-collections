@@ -75,11 +75,14 @@ defmodule DpulCollections.Georef.Osm do
     out = Path.join(dir, "#{key}.geojsonseq")
 
     unless File.exists?(out) do
-      filt = Path.join(dir, "#{key}-filt.osm.pbf")
+      # Temp files are per-process and the result is renamed into place, so
+      # concurrent runs needing the same extract don't clobber each other.
+      tmp = "#{key}-#{System.pid()}-#{System.unique_integer([:positive])}"
+      filt = Path.join(dir, "#{tmp}-filt.osm.pbf")
 
       clip =
         if File.exists?(pbf_path()) and File.stat!(pbf_path()).size > 0 do
-          clip = Path.join(dir, "#{key}-clip.osm.pbf")
+          clip = Path.join(dir, "#{tmp}-clip.osm.pbf")
           bb = Enum.join([a, b, c, d], ",")
 
           osmium!([
@@ -98,7 +101,7 @@ defmodule DpulCollections.Georef.Osm do
         else
           # No state extract on disk: fetch just this bbox once from Overpass
           # and cache it; everything downstream is still local.
-          clip = Path.join(dir, "#{key}-clip.osm")
+          clip = Path.join(dir, "#{tmp}-clip.osm")
           fetch_overpass!(bbox, clip)
           clip
         end
@@ -123,10 +126,11 @@ defmodule DpulCollections.Georef.Osm do
         "print_record_separator=false",
         "--geometry-types=linestring",
         "-o",
-        out,
+        Path.join(dir, "#{tmp}.geojsonseq"),
         "--overwrite"
       ])
 
+      File.rename!(Path.join(dir, "#{tmp}.geojsonseq"), out)
       File.rm(clip)
       File.rm(filt)
     end
@@ -357,6 +361,11 @@ defmodule DpulCollections.Georef.Osm do
       Map.has_key?(groups, key) ->
         key
 
+      # A bare "LANE" or "PL." (a name split from its street type) would
+      # otherwise fuzzy-match an unrelated street such as "plane".
+      key |> String.split() |> Enum.all?(&(&1 in @suffixes)) ->
+        nil
+
       true ->
         groups
         |> Map.keys()
@@ -376,28 +385,52 @@ defmodule DpulCollections.Georef.Osm do
 
   @cluster_m 25.0
 
-  defp intersections(groups, projection) do
-    gs = groups |> Map.values() |> Enum.map(&Map.put(&1, :box, seg_bbox(&1.segments)))
+  # Spatial hash of every street segment: only segments sharing a grid cell
+  # are tested, so this stays near-linear on a whole-city extract (the old
+  # all-pairs-of-streets loop took ~1 h on Camden's 55 MB extract).
+  @cell_m 200.0
 
-    for {g1, i} <- Enum.with_index(gs),
-        {g2, j} <- Enum.with_index(gs),
-        i < j,
-        boxes_overlap?(g1.box, g2.box),
-        pt <- cluster(pair_points(g1.segments, g2.segments)) do
-      {k1, k2} = Enum.min_max([g1.key, g2.key])
-      %{keys: {k1, k2}, xy: pt, lonlat: Geometry.to_lonlat(projection, pt)}
-    end
+  defp intersections(groups, projection) do
+    groups
+    |> Enum.flat_map(fn {key, g} -> Enum.map(g.segments, &{key, &1}) end)
+    |> Enum.reduce(%{}, fn {_, seg} = item, grid ->
+      Enum.reduce(
+        cells(seg_bbox([seg])),
+        grid,
+        &Map.update(&2, &1, [item], fn l -> [item | l] end)
+      )
+    end)
+    |> Enum.flat_map(fn {cell, items} -> cell_crossings(cell, List.to_tuple(items)) end)
+    |> Enum.group_by(&elem(&1, 0), &elem(&1, 1))
+    |> Enum.flat_map(fn {keys, pts} ->
+      for pt <- cluster(Enum.sort(pts)),
+          do: %{keys: keys, xy: pt, lonlat: Geometry.to_lonlat(projection, pt)}
+    end)
   end
 
-  defp pair_points(s1, s2) do
-    for a <- s1,
-        abox = seg_bbox([a]),
-        b <- s2,
-        boxes_overlap?(abox, seg_bbox([b])),
+  # A crossing is reported only by the cell that contains it, so segments
+  # spanning several cells don't produce duplicates.
+  defp cell_crossings(cell, items) do
+    n = tuple_size(items)
+
+    for i <- 0..(n - 2)//1,
+        j <- (i + 1)..(n - 1)//1,
+        {k1, a} = elem(items, i),
+        {k2, b} = elem(items, j),
+        k1 != k2,
         pt = Geometry.segment_intersection(a, b),
         pt != nil,
-        do: pt
+        cell_of(pt) == cell,
+        do: {Enum.min_max([k1, k2]), pt}
   end
+
+  defp cells({a, b, c, d}) do
+    {i0, j0} = cell_of({a, b})
+    {i1, j1} = cell_of({c, d})
+    for i <- i0..i1, j <- j0..j1, do: {i, j}
+  end
+
+  defp cell_of({x, y}), do: {floor(x / @cell_m), floor(y / @cell_m)}
 
   defp cluster(points) do
     Enum.reduce(points, [], fn p, acc ->
@@ -410,10 +443,5 @@ defmodule DpulCollections.Georef.Osm do
                                                                  {a, b, c, d} ->
       {Enum.min([a, x1, x2]), Enum.min([b, y1, y2]), Enum.max([c, x1, x2]), Enum.max([d, y1, y2])}
     end)
-  end
-
-  @pad 0.5
-  defp boxes_overlap?({a1, b1, c1, d1}, {a2, b2, c2, d2}) do
-    a1 - @pad <= c2 and a2 - @pad <= c1 and b1 - @pad <= d2 and b2 - @pad <= d1
   end
 end

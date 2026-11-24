@@ -40,6 +40,11 @@ cv2.fillPoly(page, [neat_px], 1)
 m = int(0.025 * max(w, h))
 inner = cv2.erode(page, cv2.getStructuringElement(cv2.MORPH_RECT, (2 * m + 1, 2 * m + 1)), borderType=cv2.BORDER_CONSTANT, borderValue=0)
 rules = cv2.dilate(rules, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k)))
+# A rule that steps (jogs) from one line to a parallel one leaves the short
+# connecting stroke undetected by Hough; add heavy ink touching a found rule.
+nh, hl = cv2.connectedComponents(heavy)
+touch = np.unique(hl[(rules > 0) & (heavy > 0)])
+rules |= cv2.dilate(np.isin(hl, touch[touch > 0]).astype(np.uint8), cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k)))
 free = (inner & (1 - rules)).astype(np.uint8)
 import os
 if os.environ.get("GEOREF_DEBUG"):

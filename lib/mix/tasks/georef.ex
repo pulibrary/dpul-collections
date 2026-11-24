@@ -17,7 +17,14 @@ defmodule Mix.Tasks.Georef do
   def run(argv) do
     {opts, [url], _} =
       OptionParser.parse(argv,
-        strict: [canvases: :string, out: :string, refine: :boolean, threshold: :float]
+        strict: [
+          canvases: :string,
+          out: :string,
+          refine: :boolean,
+          threshold: :float,
+          min_label_fraction: :float,
+          labels_first: :boolean
+        ]
       )
 
     Mix.Task.run("app.config")
@@ -26,6 +33,8 @@ defmodule Mix.Tasks.Georef do
     run_opts =
       [refine: Keyword.get(opts, :refine, true)]
       |> maybe_put(:threshold, opts[:threshold])
+      |> maybe_put(:min_label_fraction, opts[:min_label_fraction])
+      |> maybe_put(:labels_first, opts[:labels_first])
       |> maybe_put(
         :canvases,
         opts[:canvases] && Enum.map(String.split(opts[:canvases], ","), &String.to_integer/1)
@@ -49,7 +58,9 @@ defmodule Mix.Tasks.Georef do
         "#{r.label}: #{r.status} labels=#{length(r.labels)} located=#{length(r.located)} " <>
           "label_hits=#{inspect(r[:label_hits])} gcps=#{length(r.gcps)}" <>
           if(r.status == :ok,
-            do: " scale=#{Float.round(r.scale, 4)}m/px rms=#{Float.round(rms(r.residuals), 1)}m",
+            do:
+              " scale=#{Float.round(r.scale, 4)}m/px rms=#{Float.round(rms(r.residuals), 1)}m" <>
+                if(r[:method], do: " (#{r[:method]})", else: ""),
             else: ""
           )
       )
@@ -101,6 +112,7 @@ defmodule Mix.Tasks.Georef do
                 %{label: g.label, px: Tuple.to_list(g.px), lonlat: g.lonlat}
               end),
             residuals: r[:residuals],
+            method: r[:method] || (r.status == :ok && :junctions) || nil,
             labels:
               Enum.map(r.labels, fn l ->
                 %{
@@ -112,6 +124,8 @@ defmodule Mix.Tasks.Georef do
                 }
               end),
             label_hits: r[:label_hits],
+            scale_m_per_px: r[:scale],
+            printed_scale_ft: r[:printed_scale_ft],
             rough: r[:rough] && Map.take(r[:rough], [:label_hits, :seed_inliers]),
             transform: r[:transform],
             projection: r[:projection]

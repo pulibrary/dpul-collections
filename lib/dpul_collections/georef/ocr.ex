@@ -7,13 +7,15 @@ defmodule DpulCollections.Georef.Ocr do
   """
 
   @size 3000
+  @version "2-rotated-pass"
 
   @doc "OCR a canvas at ~#{@size}px; returns [%{text, score, quad, center, angle}] in canvas pixels."
   def read(canvas, fetch_image) do
     jpg = fetch_image.(DpulCollections.Georef.Manifest.image_url(canvas, "full", @size))
     dir = Path.expand("~/.cache/dpul_georef/ocr")
     File.mkdir_p!(dir)
-    key = :crypto.hash(:md5, jpg) |> Base.encode16() |> binary_part(0, 16)
+    # bump @version when ocr.py changes so cached results are recomputed
+    key = :crypto.hash(:md5, [jpg, @version]) |> Base.encode16() |> binary_part(0, 16)
     cache = Path.join(dir, key <> ".json")
 
     json =
@@ -40,7 +42,9 @@ defmodule DpulCollections.Georef.Ocr do
               "-I",
               script,
               img
-            ], stderr_to_stdout: false)
+            ],
+            stderr_to_stdout: false
+          )
 
         line = out |> String.split("\n", trim: true) |> List.last()
         File.write!(cache, line)

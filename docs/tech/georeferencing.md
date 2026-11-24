@@ -8,7 +8,9 @@ opens in [Allmaps](https://viewer.allmaps.org) — using only local compute.
 ```
 mix georef https://maps.princeton.edu/catalog/princeton-t148fm04w
 mix georef <manifest-url> --canvases 0,1 --out tmp/georef/paulsboro
-GEOREF_MODEL=qwen36_35b mix georef ...      # choose the local VLM
+GEOREF_MODEL=qwen36_35b mix georef ...              # choose the local VLM
+GEOREF_HOST=127.0.0.1 GEOREF_PORT=8092 mix georef ...  # use a llama-server elsewhere
+mix georef ... --no-labels-first                    # ablation: junction fit only
 ```
 
 Writes `<out>.json` (AnnotationPage) and `<out>.report.json` (debug data). In
@@ -20,83 +22,107 @@ dev, files under `tmp/georef/` are served with CORS at
 
 | What | How | Code |
 |---|---|---|
-| Vision-language model | `llama-server` (llama.cpp) with Qwen3-VL-8B or Qwen3.6-35B-A3B GGUF, started on demand | `Georef.Vlm` |
-| OCR (text + rotated boxes) | PP-OCR det/rec ONNX models via RapidOCR, `priv/georef/ocr.py` under `uv` | `Georef.Ocr` |
+| Vision-language model | `llama-server` (llama.cpp) with Qwen3-VL-8B (default) or Qwen3.6-35B-A3B GGUF; started on demand, or remote via `GEOREF_HOST` | `Georef.Vlm` |
+| OCR (text + rotated boxes) | PP-OCR det/rec ONNX models via RapidOCR, `priv/georef/ocr.py` under `uv`; upright + 90°-rotated pass | `Georef.Ocr` |
 | Heavy-rule detection | OpenCV morphology + Hough, `priv/georef/parts.py` under `uv` | `Georef.Parts` |
-| Modern streets/rail/water | Geofabrik state `.osm.pbf` clipped with `osmium` (Overpass fallback) | `Georef.Osm` |
-| Geometry | similarity fit, RANSAC, label ICP | `Georef.Geometry` |
+| Modern streets/rail/water | Geofabrik state `.osm.pbf` clipped with `osmium` (Overpass fallback); junctions via a spatial grid | `Georef.Osm` |
+| Geometry | similarity fit, RANSAC, label-to-centreline ICP | `Georef.Geometry` |
 
-Models and OSM extracts are cached under `~/.cache/dpul_georef`.
+Models, OCR results and OSM extracts are cached under `~/.cache/dpul_georef`.
 
 ## Pipeline (per canvas)
 
 1. **Where to look.** The catalog bbox is only a hint (Hightstown's points
-   at Hamilton, ~15 km away). The title's place name is looked up in OSM
-   places; if a same-named place is inside the padded bbox we use the bbox,
-   otherwise a box around the place.
+   at Hamilton, ~15 km away; Camden's covers the county; Bound Brook's clips
+   the Middlesex sheets). The title's place name ("Insurance maps of" removed)
+   is looked up in OSM places. If it lies inside the padded bbox, the bbox is
+   used, but never smaller than a town box (~7 km) and replaced by a town box
+   when it is more than twice that size; cities get ~13 km.
 2. **Neatline + parts.** The VLM finds the printed border. Heavy rules —
    Sanborn's convention for separating areas that are *not* geographically
-   continuous (a detached works "1¼ miles north east of Paulsboro", a second
-   street drawn below a divider) — split the sheet into parts. Each part is
-   georeferenced on its own and gets its own annotation with the part polygon
-   as its SvgSelector mask. Parts that cannot be fit are left out.
-3. **Labels.** OCR reads every text line with a rotated box. Tokens that
-   fuzzy-match a modern street / railway / waterway name become labels with a
-   position *and direction*. VLM-read labels fill gaps.
-4. **Seeds.** Street names are printed along their street, so two labels of
-   streets that meet in OSM imply the junction at the intersection of their
-   label lines (identity from the printed names). The VLM also points at named
-   crossings; those are precise-ish but often the *wrong* crossing.
+   continuous — split the sheet into parts (a rule that steps from one line to
+   another is followed through the step). Each part is georeferenced on its own
+   with its polygon as the SvgSelector mask. Parts that cannot be fit are left
+   out.
+3. **Labels.** OCR reads every text line with a rotated box, upright and on a
+   90°-rotated copy (north–south street names are printed vertically and were
+   otherwise missed). Tokens that fuzzy-match a modern street / railway /
+   waterway name become labels with a position and direction; bare street-type
+   words ("LANE") never fuzzy-match, and printed street-index entries
+   ("Almond,", "Academy, N....") are dropped. VLM-read labels fill gaps (at most
+   two per name: a looping VLM repeats one).
+4. **Seeds.** Two labels of streets that meet in OSM imply the junction at the
+   intersection of their label lines; the VLM also points at named crossings.
 5. **Rough fit.** Every 2-point similarity implied by seeds is scored by how
-   many printed labels land on their own modern street (± 8 m) plus seed
-   agreement. Label agreement is the independent check: a wrong fit cannot
-   put many labels on the right streets.
-6. **Predict and verify.** Through the rough fit, every modern intersection in
-   the part is projected onto the scan; the VLM pinpoints it on a zoomed crop.
-7. **Final fit.** RANSAC (label-line junctions weighted 3×, as they measured
-   ~2× more accurate than VLM pinpoints), then ICP against the labels'
-   modern street centrelines. GCPs are written at the observed junction
-   pixels with world coordinates from that fit; `transformation` is
-   polynomial order 1.
-8. **Gate.** A part is emitted only if ≥ 3 GCPs and ≥ max(3, 40 %) of its
-   labels sit on their streets. Otherwise it is reported as not
-   georeferenced — no annotation beats a wrong one.
+   many printed labels land near their own modern street (± 15 m at this stage)
+   plus seed agreement.
+6. **Labels-first fit.** From the rough fit, each printed label is snapped onto
+   its own modern street centreline (ICP, ± 8 m). Names sit on centrelines, so
+   this is more precise than VLM junction pinpoints (which lean toward street
+   edges). Accepted if the gates (below) pass — no zoomed VLM calls needed.
+7. **Fallback: junction fit.** Otherwise: project every modern intersection
+   through the rough fit, let the VLM pinpoint each on a zoomed crop, RANSAC
+   (label-line junctions weighted 3×), ICP against label centrelines; if that
+   fails the gates, one more labels-only attempt.
+8. **Gates.** A part is emitted only if
+   * ≥ max(3, 25 %) of its labels sit on their streets (± 8 m),
+   * those streets run in ≥ 2 directions (≥ 30° apart), so the fit can't slide,
+   * the fitted m/px agrees with a "Scale N ft to an inch" printed inside the
+     part: implied scan resolution 350–450 dpi (Princeton's scans are 392–398).
+   Otherwise the part is reported as not georeferenced — no annotation beats a
+   wrong one. GCPs are the part outline and labels mapped through the fit.
 
 ## Evaluation
 
-Hand-labelled check points (pixel → OSM intersection, never seen by the
-pipeline) on Paulsboro 1886 sheets 1–2, Cresskill 1914 sheet 2 (dev set) and
-Hightstown 1916 sheet 3 (held out). Metric: error in metres of the affine
-Allmaps would fit from the emitted GCPs, at the check points. A similarity fit
-to the check points themselves leaves ~1.7 m (label/OSM noise floor).
-Overlays of modern OSM streets drawn through the fit on each sheet are used
-for sheets without check points.
+**Check points** (`priv/georef/eval/truth/`, `evalgeo.py`): hand-labelled
+pixel → OSM intersections on Paulsboro 1886, Cresskill 1914, Hightstown 1916
+and Ho-Ho-Kus 1928 (34 points). Metric: error in metres of the affine Allmaps
+would fit, at the check points. Noise floor ≈ 1.7–4.5 m per sheet.
 
-Milestones (median / max error at check points, 8B model):
+**Label-free collection checks** for atlases without check points:
+* `seams.py` — where two sheets' masks overlap on the ground, render both onto
+  one ground grid and template-match 2-D-structured patches; the median offset
+  is the seam gap between the two fits (plain SIFT fails: line drawings slide
+  along streets, and repeated glyphs match everywhere).
+* `labelfree.py` — per part: status, labels on streets, implied dpi from the
+  printed scale (outliers flag wrong scales), seam gaps.
+* `overlay.py` — modern OSM drawn through the fit, for eyeballing.
 
-| Change | Paulsboro | Cresskill |
-|---|---|---|
-| VLM names + VLM points intersections | not georeferenced | not georeferenced |
-| predict-and-verify | 62 m (wrong fit accepted) | 7.0 / 8.4 m |
-| label-on-street scoring | rejected (no wrong output) | 3.1 / 3.3 m |
-| OCR labels + label-line junctions | 6.6 / 11.2 m | 5.2 / 5.9 m |
-| label ICP + source-weighted RANSAC | 2.0 / 3.8 m | 3.5 / 4.1 m |
+Results (8B model):
 
-Held out (Hightstown 1916): 2.3 m at check points; 7 of 9 sheets fit, all at
-a consistent 0.039–0.041 m/px. Heavy-rule parts fixed a multi-part sheet that
-a single fit got wrong.
+| | Check points: median / p90 / max | Tuning sample (12 atlases) | Held-out sample (11 atlases) |
+|---|---|---|---|
+| junction fit, 40 % gate (morning) | 2.8 / 4.9 / 11.1 m, 32/34 covered | 20 / 41 parts | — |
+| + fixes, labels-first, 25 % + scale gates | 2.0 / 3.3 / 12.2 m, 34/34 | 25 / 42 parts | 26–28 / 40 parts |
+
+No wrong fit has been seen in the accepted output since the scale gate (the
+12 m worst check point is a suspect hand label). Seam gaps between neighbouring
+sheets: 2–10 m. Whole Vineland atlas (28 parts): 18 georeferenced.
 
 Key measured facts that shaped the design:
-* VLM point grounding is precise (≈ 2–7 m) but its *identity* is unreliable
-  (8B: right crossing 6/11; Qwen3.6: 10/11). So identity comes from printed
-  labels and geometry, and the VLM only pinpoints locally.
-* "Verify" checks must be able to fail: asking a VLM to confirm a predicted
-  junction is self-confirming when the prediction is wrong.
+* VLM point grounding is precise (≈ 2–7 m) but its *identity* is unreliable,
+  so identity comes from printed labels and geometry.
+* "Verify" checks must be able to fail: a VLM confirming a predicted junction
+  is self-confirming. A VLM asked whether an OSM overlay is aligned answered
+  "aligned" for 100 m-shifted fits too (Qwen3.6, with or without thinking).
+* Qwen3.5/3.6 grounding treats a `"label"` field as the queried category and
+  echoes the prompt into it; the label prompt uses `"text"`. With that fixed,
+  Qwen3.6 ≈ 8B in accuracy at ~1.7× the time.
+* Aligning modern centrelines to the printed street corridors pixel-wise
+  separates good from shifted fits locally, but its optimum sits a few metres
+  off (modern centrelines ≠ historic corridors) — it made fits worse.
+* Per call, image prefill dominates (~5.5 s for a 1536 px image on an M2 Max or
+  M1 Ultra), so throughput comes from running servers in parallel.
 
 ## Known limits / next steps
 
-* Street renames (1886 "Main" = modern Broad) are handled implicitly through
-  geometry, but a sheet whose names are mostly gone from OSM will be declined.
-* Index sheets / small-scale overview maps aren't targeted yet.
+* Declined parts are mostly small insets and sheets with few readable street
+  names in two directions (industrial yards, rural edges, subdivisions whose
+  paper streets were never built). These need non-name evidence: placement from
+  fitted neighbouring sheets (key map or shared edge strips) plus street-pattern
+  matching.
+* VLM label reading varies between runs/builds and can flip a marginal sheet.
+* Index sheets / small-scale overview maps aren't targeted (their names are too
+  small and one-directional to fit from labels).
 * OCR and part-splitting run as Python helpers; a port to Ortex/Evision (or
   Transmuter) would keep everything in the BEAM.

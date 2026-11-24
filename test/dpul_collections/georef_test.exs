@@ -74,6 +74,15 @@ defmodule DpulCollections.GeorefTest do
     end
   end
 
+  describe "Osm.match_name/2" do
+    test "fuzzy-matches misreadings but never a bare street-type word" do
+      osm = %Osm{groups: %{"plane" => %{}, "delaware" => %{}, "court street" => %{}}}
+      assert Osm.match_name(osm, "DELAWAR ST") == "delaware"
+      assert Osm.match_name(osm, "LANE") == nil
+      assert Osm.match_name(osm, "Court Street") == "court street"
+    end
+  end
+
   describe "Mask.inside_polygon?/2" do
     test "handles concave polygons" do
       l_shape = [{0, 0}, {100, 0}, {100, 50}, {50, 50}, {50, 100}, {0, 100}]
@@ -119,6 +128,25 @@ defmodule DpulCollections.GeorefTest do
       refute Map.has_key?(unlabelled["properties"], "label")
       assert f["properties"]["resourceCoords"] == [10, 21]
       assert f["geometry"]["coordinates"] == [-75.1, 39.9]
+    end
+  end
+
+  describe "scale_consistent?/2" do
+    test "checks fitted m/px against the printed scale at scan resolution" do
+      # 50 ft/in at 395 dpi = 0.0386 m/px; 0.0465 (Gloucester City's wrong fit) is 328 dpi.
+      assert DpulCollections.Georef.scale_consistent?(0.0386, 50)
+      refute DpulCollections.Georef.scale_consistent?(0.0465, 50)
+      assert DpulCollections.Georef.scale_consistent?(0.0465, nil)
+    end
+  end
+
+  describe "printed_scales/1" do
+    test "reads feet-per-inch despite OCR digit confusions" do
+      tokens =
+        for text <- ["SCALE I0OFT. TO AN INCH", "Scale 150 Ft. to One Inch.", "HOLLYWOOD AV"],
+            do: %{text: text, center: {1, 2}}
+
+      assert Enum.map(DpulCollections.Georef.printed_scales(tokens), & &1.ft) == [100, 150]
     end
   end
 end

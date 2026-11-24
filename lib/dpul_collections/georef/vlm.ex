@@ -4,6 +4,10 @@ defmodule DpulCollections.Georef.Vlm do
   (llama.cpp, OpenAI-compatible API). `ensure_server/0` launches it if nothing
   is listening yet.
 
+  Set `GEOREF_HOST` to use a llama-server running elsewhere (e.g. a bigger
+  Mac): it is never launched or killed from here, only checked for the
+  expected model.
+
   Qwen3-VL reports points in a 0..1000 normalized frame of the image it was
   shown; `ask_json/3` returns the decoded JSON and callers map points back to
   canvas pixels.
@@ -19,6 +23,7 @@ defmodule DpulCollections.Georef.Vlm do
     defaults = [
       model: String.to_atom(System.get_env("GEOREF_MODEL", "qwen3vl_8b")),
       model_dir: Path.expand("~/.cache/dpul_georef"),
+      host: System.get_env("GEOREF_HOST"),
       port: String.to_integer(System.get_env("GEOREF_PORT", "8091")),
       ctx_size: 16_384
     ]
@@ -26,48 +31,58 @@ defmodule DpulCollections.Georef.Vlm do
     Keyword.merge(defaults, Application.get_env(:dpul_collections, DpulCollections.Georef, []))
   end
 
-  def base_url, do: "http://127.0.0.1:#{config()[:port]}"
+  def base_url, do: "http://#{config()[:host] || "127.0.0.1"}:#{config()[:port]}"
 
   def ensure_server do
     cfg = config()
     {model, mmproj} = Map.fetch!(@models, cfg[:model])
 
-    if healthy?() and loaded_model() == model do
-      :ok
-    else
-      # Wrong model (or none) loaded: replace the server.
-      System.cmd("pkill", ["-f", "llama-server.*--port #{cfg[:port]}"])
-      Process.sleep(1000)
-      dir = cfg[:model_dir]
+    cond do
+      healthy?() and loaded_model() == model ->
+        :ok
 
-      args = [
-        "-m",
-        Path.join(dir, model),
-        "--mmproj",
-        Path.join(dir, mmproj),
-        "--port",
-        to_string(cfg[:port]),
-        "-c",
-        to_string(cfg[:ctx_size]),
-        "-ngl",
-        "99",
-        "-np",
-        "1",
-        "--jinja",
-        "--image-max-tokens",
-        "4096"
-      ]
+      cfg[:host] ->
+        raise "llama-server at #{base_url()} is not serving #{model} " <>
+                "(loaded: #{inspect(loaded_model())}); start it there with that model"
 
-      Logger.info("starting llama-server #{model}")
-      log = Path.join(dir, "llama-server.log")
-      # Detached so the server outlives a single mix run and keeps its warm cache.
-      System.cmd("sh", [
-        "-c",
-        "nohup llama-server #{Enum.map_join(args, " ", &shell_escape/1)} > #{log} 2>&1 &"
-      ])
-
-      wait_healthy(600)
+      true ->
+        start_local(cfg, model, mmproj)
     end
+  end
+
+  defp start_local(cfg, model, mmproj) do
+    # Wrong model (or none) loaded: replace the server.
+    System.cmd("pkill", ["-f", "llama-server.*--port #{cfg[:port]}"])
+    Process.sleep(1000)
+    dir = cfg[:model_dir]
+
+    args = [
+      "-m",
+      Path.join(dir, model),
+      "--mmproj",
+      Path.join(dir, mmproj),
+      "--port",
+      to_string(cfg[:port]),
+      "-c",
+      to_string(cfg[:ctx_size]),
+      "-ngl",
+      "99",
+      "-np",
+      "1",
+      "--jinja",
+      "--image-max-tokens",
+      "4096"
+    ]
+
+    Logger.info("starting llama-server #{model}")
+    log = Path.join(dir, "llama-server.log")
+    # Detached so the server outlives a single mix run and keeps its warm cache.
+    System.cmd("sh", [
+      "-c",
+      "nohup llama-server #{Enum.map_join(args, " ", &shell_escape/1)} > #{log} 2>&1 &"
+    ])
+
+    wait_healthy(600)
   end
 
   defp shell_escape(s), do: "'" <> String.replace(s, "'", "'\\''") <> "'"
