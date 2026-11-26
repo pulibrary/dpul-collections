@@ -6,7 +6,12 @@ defmodule DpulCollections.Georef.Manifest do
 
   defmodule Canvas do
     @moduledoc false
-    defstruct [:id, :label, :width, :height, :service_id, :service_type]
+    # width/height are in pipeline pixels: a Sanborn sheet (~25.5 in tall)
+    # scanned far from Princeton's ~395 dpi (LoC: 300 dpi) is given a virtual
+    # 395 dpi pixel grid, so every scale and pixel-size constant holds;
+    # px_scale (image px per pipeline px) converts at the image service and
+    # in the output annotation.
+    defstruct [:id, :label, :width, :height, :service_id, :service_type, px_scale: 1.0]
   end
 
   defstruct [:id, :label, :summary, :bbox, canvases: []]
@@ -38,19 +43,37 @@ defmodule DpulCollections.Georef.Manifest do
     }
   end
 
+  @nominal_dpi 395
+  @sheet_in 25.5
+
   defp parse_canvas(c) do
     body = get_in(c, ["items", Access.at(0), "items", Access.at(0), "body"])
     service = body |> Map.get("service", []) |> List.first(%{})
+    {w, h} = {c["width"], c["height"]}
+    k = px_scale(w, h)
 
     %Canvas{
       id: c["id"],
       label: c |> Map.get("label", %{}) |> first_value(),
-      width: c["width"],
-      height: c["height"],
+      width: if(k == 1.0, do: w, else: round(w / k)),
+      height: if(k == 1.0, do: h, else: round(h / k)),
+      px_scale: k,
       service_id: service["@id"] || service["id"],
       service_type: service["type"] || service["@type"] || "ImageService2"
     }
   end
+
+  @doc """
+  Image px per pipeline px. Scan resolution is estimated from the long side
+  (Sanborn sheets are ~#{@sheet_in} in): Princeton's scans come out at
+  390-408 dpi and are left alone (1.0); LoC's 6450 x 7650 px (300 dpi) get 0.76.
+  """
+  def px_scale(w, h) when is_number(w) and is_number(h) do
+    dpi = max(w, h) / @sheet_in
+    if dpi > 360 and dpi < 430, do: 1.0, else: dpi / @nominal_dpi
+  end
+
+  def px_scale(_, _), do: 1.0
 
   # {min_lon, min_lat, max_lon, max_lat}
   defp nav_place_bbox(nil), do: nil
@@ -69,11 +92,11 @@ defmodule DpulCollections.Georef.Manifest do
   defp first_value(map), do: map |> Map.values() |> List.flatten() |> List.first()
 
   @doc "IIIF Image API URL for a region of a canvas, scaled to fit `max` px."
-  def image_url(%Canvas{service_id: sid}, region \\ "full", max \\ 1536) do
+  def image_url(%Canvas{service_id: sid, px_scale: k}, region \\ "full", max \\ 1536) do
     region =
       case region do
         "full" -> "full"
-        {x, y, w, h} -> Enum.map_join([x, y, w, h], ",", &round/1)
+        {x, y, w, h} -> Enum.map_join([x, y, w, h], ",", &round(&1 * k))
       end
 
     "#{sid}/#{region}/!#{max},#{max}/0/default.jpg"

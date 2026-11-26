@@ -17,6 +17,17 @@ defmodule DpulCollections.Georef.Mask do
     end)
   end
 
+  @doc "Distance from a point to the polygon's outline: positive inside, negative outside."
+  def signed_distance(pt, polygon) do
+    d =
+      polygon
+      |> Enum.zip(tl(polygon) ++ [hd(polygon)])
+      |> Enum.map(&DpulCollections.Georef.Geometry.point_segment_dist(pt, &1))
+      |> Enum.min()
+
+    if inside_polygon?(pt, polygon), do: d, else: -d
+  end
+
   def bbox(points) do
     {xs, ys} = Enum.unzip(points)
     {Enum.min(xs), Enum.min(ys), Enum.max(xs), Enum.max(ys)}

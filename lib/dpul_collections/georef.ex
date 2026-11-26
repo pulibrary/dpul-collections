@@ -17,7 +17,21 @@ defmodule DpulCollections.Georef do
   """
   require Logger
 
-  alias DpulCollections.Georef.{Annotation, Geometry, Manifest, Mask, Ocr, Osm, Parts, Vlm}
+  alias DpulCollections.Georef.{
+    Renames,
+    Annotation,
+    Consistency,
+    Geometry,
+    Manifest,
+    Mask,
+    Neighbour,
+    Ocr,
+    Osm,
+    Parts,
+    Py,
+    Slide,
+    Vlm
+  }
 
   @overview 1536
   @min_label_hits 3
@@ -26,17 +40,31 @@ defmodule DpulCollections.Georef do
   # was caught by the printed-scale check below.
   @min_label_fraction 0.25
   # Princeton's Sanborn scans: printed scale + fitted m/px imply 392-398 dpi.
-  @scan_dpi {350, 450}
+  # Fitted scale vs the canvas's 395-dpi grid (Manifest.px_scale normalises
+  # scans): 111 correct fits fall in 0.925-1.055; Princeton 1918 Sheet 13
+  # (campus, anchored on building names) fitted at 1.10.
+  @scan_dpi {355, 427}
+  @nominal_dpi 395
+  @rough_candidates 8
+  # Without a printed scale in the part, the fit must still imply one of
+  # Sanborn's scales (sheets 50/60/100 ft, key maps 200+): Spotswood 1910 fitted
+  # at half scale (0.019 m/px) with its "50 ft" printed only in the cartouche.
+  @standard_scales_ft [50, 60, 100, 200, 300, 400, 500, 600, 800, 1000]
   @label_tolerance 8.0
+  @min_tile_name_px 78
   @rough_label_tolerance 15.0
   @scale_range {0.005, 2.0}
   @zoom 768
 
   def run(url, opts \\ []) do
-    Vlm.ensure_server()
+    # no VLM server up front: by default only the slide fallback asks it,
+    # and Vlm.ask/3 starts it on first use
     manifest = Manifest.fetch(url)
     bbox = search_bbox(manifest)
     osm = Osm.load(bbox)
+    # The town's own name in the title cartouche ("SWEDESBORO") matches a
+    # modern road named after the town (Swedesboro Road) and is not on it.
+    opts = Keyword.put_new(opts, :exclude_keys, [Osm.normalize(town_name(manifest))])
 
     canvases =
       case Keyword.get(opts, :canvases) do
@@ -44,14 +72,32 @@ defmodule DpulCollections.Georef do
         idx -> Enum.map(idx, &Enum.at(manifest.canvases, &1))
       end
 
-    results =
-      Enum.flat_map(canvases, fn canvas ->
+    {results, osm, renames} =
+      canvases
+      |> Enum.flat_map(fn canvas ->
         Logger.info("georef: #{manifest.label} / #{canvas.label}")
         georeference_canvas(canvas, osm, opts)
       end)
+      |> retry_pass(canvases, osm, opts)
+      |> rename_pass(canvases, osm, opts)
+
+    results =
+      results
+      |> slide_pass(manifest, osm, opts)
+      |> neighbour_pass(manifest, osm, opts)
+      |> rescue_pass(osm, opts)
+      |> Consistency.check(&tokens_of/1)
+      |> align_pass(osm, opts)
 
     ok = Enum.filter(results, &(&1.status == :ok))
-    %{manifest: manifest, osm: osm, results: results, annotation: Annotation.page(manifest, ok)}
+
+    %{
+      manifest: manifest,
+      osm: osm,
+      results: results,
+      renames: renames,
+      annotation: Annotation.page(manifest, ok)
+    }
   end
 
   @doc "Returns one result per part of the sheet."
@@ -59,7 +105,7 @@ defmodule DpulCollections.Georef do
     overview = fetch_image(Manifest.image_url(canvas, "full", @overview))
     full_region = {0, 0, canvas.width, canvas.height}
 
-    neatline = neatline(canvas, overview)
+    neatline = neatline(canvas, overview, opts)
     parts = Parts.split(canvas, neatline, &fetch_image/1)
 
     # Street-name labels and where they are printed. Labels sit on their
@@ -67,9 +113,11 @@ defmodule DpulCollections.Georef do
     # OCR (rotated boxes, precise) is the primary label source; VLM labels
     # fill in what OCR missed.
     ocr_tokens = Ocr.read(canvas, &fetch_image/1)
-    ocr_pts = ocr_labels(ocr_tokens, osm)
+    ocr_pts = ocr_labels(ocr_tokens, osm) ++ tiled_labels(canvas, ocr_tokens, osm, opts)
     scales = printed_scales(ocr_tokens)
-    vlm_labels = read_labels(overview, full_region)
+    # `vlm_labels: false` (ablation): no VLM label reading or crossing pointing
+    vlm_on = Keyword.get(opts, :vlm_labels, false)
+    vlm_labels = if vlm_on, do: read_labels(overview, full_region), else: []
 
     vlm_matched =
       vlm_labels |> Enum.map(& &1.name) |> Enum.uniq() |> match_names(osm) |> Map.new()
@@ -80,14 +128,19 @@ defmodule DpulCollections.Georef do
           not Enum.any?(ocr_pts, &(&1.key == k and Geometry.dist(&1.px, l.px) < 400)),
           do: l |> Map.put(:key, k) |> Map.put(:source, :vlm)
 
-    label_pts = ocr_pts ++ vlm_pts
+    label_pts =
+      (ocr_pts ++ vlm_pts)
+      |> drop_stamp_text(ocr_tokens)
+      |> drop_title_town(ocr_tokens, Keyword.get(opts, :exclude_keys, []))
+
     matched = label_pts |> Enum.map(&{&1.name, &1.key}) |> Enum.uniq_by(&elem(&1, 1))
     pairs = candidate_pairs(matched, osm)
 
     # Seeds: label-line junctions (reliable identity) + VLM-located named
     # crossings (precise-ish, identity often wrong). They only propose fits.
     seeds =
-      (label_junctions(label_pts, osm, canvas) ++ locate_each(pairs, overview, full_region))
+      (label_junctions(label_pts, osm, canvas) ++
+         if(vlm_on, do: locate_each(pairs, overview, full_region), else: []))
       |> maybe_refine(canvas, opts)
 
     parts
@@ -100,8 +153,15 @@ defmodule DpulCollections.Georef do
       label = if length(parts) > 1, do: "#{canvas.label} (part #{i})", else: canvas.label
 
       # Printed "Scale N Ft. to an Inch" inside this part (an inset's scale
-      # often differs from the main map's, so no sheet-wide fallback).
-      printed = Enum.find_value(scales, &(inside.(&1.px) && &1.ft))
+      # often differs from the main map's, so no sheet-wide fallback). An
+      # unsplit inset can put its own statement inside the part (Princeton
+      # 1918 Sheet 16: 100 ft by the title and the scale bar, 50 ft on an
+      # inset): the majority wins, then the one nearest the top (the title).
+      printed = printed_scale(Enum.filter(scales, &inside.(&1.px)))
+      # ...but a part without its own statement still tries the sheet's stated
+      # scales in its search (Avon 1905 Sheet 64 inset: 60 ft, stated only in
+      # the main part)
+      part_opts = Keyword.put(opts, :sheet_scales, scales |> Enum.map(& &1.ft) |> Enum.uniq())
 
       %{
         canvas: canvas,
@@ -111,26 +171,76 @@ defmodule DpulCollections.Georef do
         labels: part_labels,
         printed_scale_ft: printed
       }
-      |> Map.merge(fit_part(canvas, osm, polygon, part_labels, part_seeds, printed, opts))
+      |> Map.merge(fit_part(canvas, osm, polygon, part_labels, part_seeds, printed, part_opts))
     end)
   end
 
   defp fit_part(canvas, osm, polygon, label_pts, seeds, printed_ft, opts) do
     seed_candidates = to_candidates(seeds, osm)
-    rough = best_hypothesis(seed_candidates, label_pts, osm)
-    fraction = Keyword.get(opts, :min_label_fraction, @min_label_fraction)
-    needed = max(@min_label_hits, ceil(fraction * length(label_pts)))
+    roughs =
+      best_hypotheses(seed_candidates, label_pts, osm, printed_ft, Keyword.get(opts, :sheet_scales, []))
+    rough = List.first(roughs)
+
+    Logger.debug(fn ->
+      "georef: rough candidates " <>
+        Enum.map_join(
+          roughs,
+          " ",
+          &"#{&1.label_hits}/#{&1.seed_inliers}@#{Float.round(Geometry.scale(&1.t), 4)}"
+        )
+    end)
+
+    needed = needed_hits(length(label_pts), opts)
 
     # Labels first: printed names sit on street centrelines, so snapping them
     # onto their modern streets is more precise than VLM junction pinpoints
     # (which lean ~7 m toward a street edge). On the check-point maps:
     # median 1.9 m vs 2.5 m, and no zoomed VLM calls needed.
+    # The top rough fits are each refined and the one putting the most labels
+    # on their streets wins: ICP from a slightly-off rough fit can settle in a
+    # worse optimum that still passes the gates (Hightstown 1916 Sheet 3 when
+    # one extra label changed which rough fit ranked first).
     labels_fit =
-      rough && Keyword.get(opts, :labels_first, true) &&
-        labels_only_fit(rough.t, label_pts, osm, polygon, needed, printed_ft)
+      if Keyword.get(opts, :labels_first, true) do
+        # Each start is refined with all labels and without the tile-only ones
+        # (a wrong extra label can hold ICP in a worse optimum); hits are
+        # always counted on all labels.
+        base = Enum.reject(label_pts, & &1[:tiled])
+        subsets = Enum.uniq([label_pts, base])
+
+        fits =
+          for r <- roughs,
+              t <- Enum.uniq([r.t, r.t0, snap_scale(r.t, label_pts, printed_ft)]),
+              ls <- subsets do
+            {r, labels_only_fit(t, label_pts, osm, polygon, needed, printed_ft, ls)}
+          end
+          |> Enum.filter(&elem(&1, 1))
+
+        # Junction seeds count too (half a label each): a start can drift in
+        # ICP to a rotated fit that puts one more label on a street but leaves
+        # the seeds behind (Bay Head 1905 Sheet 48: 6 labels at -35 deg vs 5
+        # labels and 6 seeds at -10 deg).
+        score = fn f ->
+          weighted_hits(f.transform, label_pts, osm) +
+            0.5 * length(Geometry.inliers_of(f.transform, seed_candidates, 30.0))
+        end
+
+        case Enum.max_by(fits, fn {_, f} -> score.(f) end, fn -> nil end) do
+          nil -> nil
+          {r, best} -> {r, Map.put(best, :rival_hits, rival_hits(best, fits, polygon))}
+        end
+      end
 
     if labels_fit do
-      Map.merge(%{located: seeds, rough: Map.delete(rough, :t)}, labels_fit)
+      {r, fit} = labels_fit
+
+      if r != rough,
+        do:
+          Logger.info(
+            "georef: rough fit ##{Enum.find_index(roughs, &(&1 == r)) + 1} refined best (#{fit.label_hits} labels)"
+          )
+
+      Map.merge(%{located: seeds, rough: Map.drop(r, [:t, :t0])}, fit)
     else
       junction_fit(
         canvas,
@@ -147,6 +257,333 @@ defmodule DpulCollections.Georef do
     end
   end
 
+  # Canvases with a declined part are run again with a bigger VLM (which reads
+  # more street names but is ~2.5x slower); the retry's parts replace the
+  # originals only when more of them fit. Runs before the slide pass so the
+  # slide sees the retry's fits as neighbours.
+  defp retry_pass(results, canvases, osm, opts) do
+    model = Keyword.get(opts, :retry_model)
+    by_canvas = Enum.group_by(results, & &1.canvas.id)
+
+    failing =
+      Enum.filter(canvases, fn c -> Enum.any?(by_canvas[c.id] || [], &(&1.status != :ok)) end)
+
+    if model && failing != [] do
+      retried =
+        Vlm.with_model(model, fn ->
+          Map.new(failing, fn c ->
+            Logger.info("georef: retrying #{c.label} with #{model}")
+            {c.id, georeference_canvas(c, osm, opts)}
+          end)
+        end)
+
+      Enum.flat_map(canvases, fn c ->
+        old = by_canvas[c.id] || []
+        new = retried[c.id]
+
+        if new && fitted_count(new) > fitted_count(old),
+          do: Enum.map(new, &Map.put(&1, :model, model)),
+          else: old
+      end)
+    else
+      results
+    end
+  end
+
+  # Street renames learned from the fitted sheets (Georef.Renames): canvases
+  # with a declined part are run again with the renamed streets as aliases;
+  # their parts replace the originals only when more of them fit.
+  # Corridor rescue (image evidence for near misses): a declined part whose
+  # junction seeds give a start putting >= 3 labels near their streets (one
+  # short of a single-seed fit) is aligned to the printed street corridors
+  # from each such start; it is accepted when exactly one distinct start ends
+  # with >= 3 labels on their streets, a scale consistent with the print and
+  # corridor contrast >= #{0.1} (modern centrelines run in the printed streets
+  # there and not at nearby placements). Berlin 1929 Sheet 6, Cranbury 1916
+  # Sheet 2, Manasquan 1921 Sheet 87, Princeton 1911 Sheet 18 part 3.
+  @rescue_contrast 0.1
+  @align_px 3000
+  @rescue_starts 5
+
+  defp rescue_pass(results, osm, opts) do
+    if Keyword.get(opts, :rescue, true) do
+      exclude = Keyword.get(opts, :exclude_keys, [])
+      Enum.map(results, &corridor_rescue(&1, osm, exclude))
+    else
+      results
+    end
+  end
+
+  defp corridor_rescue(%{status: :failed} = r, osm, exclude) do
+    labels = Enum.reject(r.labels, &(&1.key in exclude))
+    seeds = to_candidates(r[:located] || [], osm)
+    c = centroid(r.mask)
+
+    starts =
+      seeds
+      |> single_seed_hypotheses(r.printed_scale_ft, [])
+      |> Enum.map(fn {t, _} -> {label_score(t, labels, osm, rough_tolerance(t)), t} end)
+      |> Enum.filter(&(elem(&1, 0) >= @min_label_hits))
+      |> Enum.sort_by(&(-elem(&1, 0)))
+      |> Enum.reduce([], fn {_, t}, kept ->
+        if length(kept) >= @rescue_starts or
+             Enum.any?(kept, &(Geometry.dist(Geometry.transform(&1, c), Geometry.transform(t, c)) < 40)),
+           do: kept,
+           else: kept ++ [t]
+      end)
+
+    if starts == [] do
+      r
+    else
+      jpg = fetch_image(Manifest.image_url(r.canvas, "full", @align_px))
+
+      input = %{
+        width: r.canvas.width,
+        mask: Enum.map(r.mask, &Tuple.to_list/1),
+        candidates: Enum.map(starts, &Map.take(&1, [:a, :b, :tx, :ty])),
+        labels: for(l <- labels, do: %{key: l.key, px: Tuple.to_list(l.px)})
+      }
+
+      %{"candidates" => out} = Py.run("align.py", input, jpg, osm, exclude, ["scipy"])
+
+      passing =
+        for %{"t" => t, "contrast" => k} <- out,
+            t = Map.new(t, fn {key, v} -> {String.to_existing_atom(key), v} end),
+            hits = label_score(t, labels, osm),
+            k >= @rescue_contrast and hits >= @min_label_hits and
+              scale_consistent?(Geometry.scale(t), r.printed_scale_ft),
+            do: {t, hits, k}
+
+      distinct =
+        Enum.uniq_by(passing, fn {t, _, _} ->
+          {x, y} = Geometry.transform(t, c)
+          {round(x / 40), round(y / 40)}
+        end)
+
+      case distinct do
+        [{t, hits, k}] ->
+          Logger.info(
+            "georef: #{r.label} rescued by street corridors (#{hits} labels on their streets, contrast #{Float.round(k, 2)})"
+          )
+
+          r
+          |> Map.merge(fit_result(t, labels, osm, r.mask, hits))
+          |> Map.put(:method, :corridor_rescue)
+
+        _ ->
+          r
+      end
+    end
+  rescue
+    e ->
+      Logger.warning("georef: #{r.label} corridor rescue skipped: #{Exception.message(e)}")
+      r
+  end
+
+  defp corridor_rescue(r, _osm, _exclude), do: r
+
+  # Last: every accepted fit is aligned to the printed street corridors
+  # (priv/georef/align.py, image comparison). Kept only if no label leaves its
+  # street; the script itself refuses moves over 15 m or 3 degrees.
+  defp align_pass(results, osm, opts) do
+    if Keyword.get(opts, :align, true) do
+      exclude = Keyword.get(opts, :exclude_keys, [])
+      Enum.map(results, &align(&1, osm, exclude))
+    else
+      results
+    end
+  end
+
+
+  defp align(%{status: :ok} = r, osm, exclude) do
+    jpg = fetch_image(Manifest.image_url(r.canvas, "full", @align_px))
+
+    input = %{
+      width: r.canvas.width,
+      mask: Enum.map(r.mask, &Tuple.to_list/1),
+      t: Map.take(r.transform, [:a, :b, :tx, :ty]),
+      labels: for(l <- r.labels, l.key not in exclude, do: %{key: l.key, px: Tuple.to_list(l.px)})
+    }
+
+    case Py.run("align.py", input, jpg, osm, exclude, ["scipy"]) do
+      %{"t" => %{} = t} = out ->
+        t = Map.new(t, fn {k, v} -> {String.to_existing_atom(k), v} end)
+        hits = label_score(t, r.labels, osm)
+
+        if hits >= label_score(r.transform, r.labels, osm) do
+          Logger.info(
+            "georef: #{r.label} aligned to street corridors: moved #{Float.round(out["move_m"], 1)} m, " <>
+              "#{Float.round(out["drot_deg"], 2)} deg (#{out["n"]} corridor samples)"
+          )
+
+          gcps =
+            Enum.map(r.gcps, fn g ->
+              %{g | lonlat: Geometry.to_lonlat(osm.projection, Geometry.transform(t, g.px))}
+            end)
+
+          %{r | transform: t, gcps: gcps, scale: Geometry.scale(t)}
+          |> Map.put(:aligned, %{move_m: out["move_m"], drot_deg: out["drot_deg"], n: out["n"]})
+        else
+          r
+        end
+
+      _ ->
+        r
+    end
+  rescue
+    e ->
+      Logger.warning("georef: #{r.label} corridor alignment skipped: #{Exception.message(e)}")
+      r
+  end
+
+  defp align(r, _osm, _exclude), do: r
+
+  defp rename_pass(results, canvases, osm, opts) do
+    by_canvas = Enum.group_by(results, & &1.canvas.id)
+
+    failing =
+      Enum.filter(canvases, fn c -> Enum.any?(by_canvas[c.id] || [], &(&1.status != :ok)) end)
+
+    # Votes are gathered on every atlas (they are kept in the report as
+    # data: which printed names sit on which modern streets).
+    votes =
+      if Keyword.get(opts, :renames, true) do
+        exclude = Keyword.get(opts, :exclude_keys, [])
+
+        results
+        |> Enum.filter(&(&1.status == :ok))
+        |> Enum.flat_map(&Renames.observe(&1, tokens_of(&1.canvas), osm, exclude))
+      else
+        []
+      end
+
+    table = Renames.table(votes)
+    info = %{table: table, votes: Renames.vote_counts(votes)}
+
+    if table == %{} or failing == [] do
+      {results, osm, info}
+    else
+      Logger.info("georef: learned street renames #{inspect(table)}")
+      aliased = Osm.with_aliases(osm, table)
+
+      canvases
+      |> Enum.flat_map(fn c ->
+        old = by_canvas[c.id] || []
+
+        if c in failing do
+          new = georeference_canvas(c, aliased, opts)
+
+          if fitted_count(new) > fitted_count(old),
+            do: Enum.map(new, &Map.put(&1, :renames, table)),
+            else: old
+        else
+          old
+        end
+      end)
+      |> then(&{&1, aliased, info})
+    end
+  end
+
+  defp fitted_count(parts), do: Enum.count(parts, &(&1.status == :ok))
+
+  defp needed_hits(n_labels, opts) do
+    fraction = Keyword.get(opts, :min_label_fraction, @min_label_fraction)
+    max(@min_label_hits, ceil(fraction * n_labels))
+  end
+
+  # Second pass, after every canvas: declined parts whose labels name only
+  # parallel streets get the slide fallback (see Georef.Slide). Its confirmed
+  # cross-street reads become extra labels and the normal labels-only fit and
+  # gates decide. Without a printed scale the slide searches the scale class
+  # of the neighbouring fitted sheets (Slide.scales_ft/3), so it runs after
+  # the normal pass; rescues with a printed scale go first and count as fitted.
+  defp slide_pass(results, manifest, osm, opts) do
+    if Keyword.get(opts, :slide, true) do
+      index = manifest.canvases |> Enum.with_index() |> Map.new(fn {c, i} -> {c.id, i} end)
+      exclude = [Osm.normalize(town_name(manifest))]
+      fitted = for r <- results, r.status == :ok, do: {index[r.canvas.id], r.scale}
+
+      eligible =
+        results
+        |> Enum.with_index()
+        |> Enum.filter(fn {r, _} -> Slide.eligible?(r, exclude) end)
+        |> Enum.sort_by(fn {r, _} -> is_nil(r.printed_scale_ft) end)
+
+      {rescued, _} =
+        Enum.map_reduce(eligible, fitted, fn {r, i}, fitted ->
+          scales = Slide.scales_ft(r.printed_scale_ft, fitted, index[r.canvas.id])
+          r = slide_fit(r, osm, scales, exclude, opts)
+
+          fitted =
+            if r.status == :ok and r.printed_scale_ft,
+              do: [{index[r.canvas.id], r.scale} | fitted],
+              else: fitted
+
+          {{i, r}, fitted}
+        end)
+
+      Enum.reduce(rescued, results, fn {i, r}, acc -> List.replace_at(acc, i, r) end)
+    else
+      results
+    end
+  end
+
+  defp slide_fit(r, osm, scales_ft, exclude, opts) do
+    with %{t: t, labels: extra} <- Slide.confirm(r, osm, scales_ft, exclude, &fetch_image/1),
+         labels = r.labels ++ extra,
+         needed = needed_hits(length(labels), opts),
+         %{} = fit <- labels_only_fit(t, labels, osm, r.mask, needed, r.printed_scale_ft) do
+      Logger.info(
+        "georef: #{r.label} fitted by slide (read #{inspect(Enum.map(extra, & &1.key))}, #{fit.label_hits}/#{needed} labels on their streets)"
+      )
+
+      r |> Map.merge(fit) |> Map.merge(%{labels: labels, method: :slide})
+    else
+      _ ->
+        Logger.info("georef: #{r.label} slide fallback found no confirmed placement")
+        r
+    end
+  end
+
+  @doc """
+  Third pass (after the slide, before `Consistency.check/2` so a bad placement
+  can still be caught): declined parts that name at least two modern streets
+  are placed from the fitted sheets around them (see Georef.Neighbour). Public
+  so the post-passes can be replayed on a saved report.
+  """
+  def neighbour_pass(results, manifest, osm, opts \\ []) do
+    exclude = [Osm.normalize(town_name(manifest))]
+    eligible? = &Neighbour.eligible?(&1, osm, exclude)
+
+    if Keyword.get(opts, :neighbour, true) and Enum.any?(results, eligible?) do
+      ctx = Neighbour.context(results, manifest, osm, exclude, &tokens_of/1)
+      Enum.map(results, &if(eligible?.(&1), do: neighbour_fit(&1, ctx), else: &1))
+    else
+      results
+    end
+  end
+
+  defp neighbour_fit(r, ctx) do
+    case Neighbour.place(r, ctx, &fetch_image/1) do
+      %{t: t, labels: extra, hits: hits} ->
+        labels = r.labels ++ extra
+
+        Logger.info(
+          "georef: #{r.label} fitted by neighbour placement (read #{inspect(Enum.map(extra, & &1.key))}, #{hits}/#{length(labels)} labels on their streets)"
+        )
+
+        r
+        |> Map.merge(fit_result(t, labels, ctx.osm, r.mask, hits))
+        |> Map.merge(%{labels: labels, method: :neighbour})
+
+      nil ->
+        Logger.info("georef: #{r.label} neighbour placement found no confirmed placement")
+        r
+    end
+  end
+
+  defp tokens_of(canvas), do: Ocr.read(canvas, &fetch_image/1)
+
   defp junction_fit(
          canvas,
          osm,
@@ -161,9 +598,14 @@ defmodule DpulCollections.Georef do
        ) do
     # Predict-and-verify: geometry says where each modern intersection should
     # be; the VLM only pinpoints it on a zoomed crop.
-    verified = if rough, do: verify_predictions(rough.t, osm, canvas, polygon), else: []
+    # `vlm_points: false` (ablation): no zoomed VLM pinpointing
+    verified =
+      if rough && Keyword.get(opts, :vlm_points, false),
+        do: verify_predictions(rough.t, osm, canvas, polygon),
+        else: []
+
     candidates = seed_candidates ++ Enum.map(verified, &Map.put(&1, :key, &1.keys))
-    base = %{located: seeds ++ verified, rough: rough && Map.delete(rough, :t)}
+    base = %{located: seeds ++ verified, rough: rough && Map.drop(rough, [:t, :t0])}
 
     final =
       rough &&
@@ -186,7 +628,7 @@ defmodule DpulCollections.Georef do
         # them refine the fit, anchored by label-line junctions when there are
         # enough. GCPs go at the observed junction pixels with world coords
         # from that fit.
-        curves = for l <- label_pts, g = osm.groups[l.key], do: {l.px, g.segments}
+        curves = for l <- label_pts, g = osm.groups[l.key], do: {l.px, g.segments, g[:polygons]}
         from_labels = Enum.filter(inliers, &(&1[:source] == :labels))
         fixed = if length(from_labels) >= 2, do: from_labels, else: inliers
 
@@ -239,36 +681,117 @@ defmodule DpulCollections.Georef do
   # streets run in at least two directions (labels on parallel streets alone
   # would let the fit slide along them), and the scale matches the printed
   # one. GCPs are the part outline and the labels, mapped through the fit.
-  defp labels_only_fit(t0, label_pts, osm, polygon, needed, printed_ft) do
-    curves = for l <- label_pts, g = osm.groups[l.key], do: {l.px, g.segments}
-    t = Geometry.refine_with_curves(t0, [], curves, tolerance: @label_tolerance)
+  defp labels_only_fit(t0, label_pts, osm, polygon, needed, printed_ft, icp_labels \\ nil) do
+    curves =
+      for l <- icp_labels || label_pts,
+          g = osm.groups[l.key],
+          do: {l.px, g.segments, g[:polygons]}
 
-    hits = label_score(t, label_pts, osm)
+    direct = Geometry.refine_with_curves(t0, [], curves, tolerance: @label_tolerance)
 
-    if hits >= needed and crossing_streets?(t, label_pts, osm) and
-         scale_consistent?(Geometry.scale(t), printed_ft) do
-      pts =
-        Enum.map(polygon, &%{px: &1, label: "outline"}) ++
-          Enum.map(label_pts, &%{px: &1.px, label: &1.name})
+    # A rough fit is only good to ~15 m: at 8 m from the start too few labels
+    # may pair and ICP drifts (Westville 1909 Sheet 1 part 2: rough fit 5
+    # labels on their streets, refined 1, after losing one LAKE read). Also
+    # try tightening in steps; the start putting more labels on streets wins.
+    stepped =
+      Enum.reduce([20.0, 12.0, @label_tolerance], t0, fn tol, t ->
+        Geometry.refine_with_curves(t, [], curves, tolerance: tol)
+      end)
 
-      %{
-        status: :ok,
-        method: :labels,
-        transform: t,
-        projection: osm.projection,
-        gcps:
-          Enum.map(pts, fn p ->
-            %{
-              px: p.px,
-              lonlat: Geometry.to_lonlat(osm.projection, Geometry.transform(t, p.px)),
-              label: p.label
-            }
-          end),
-        residuals: [],
-        label_hits: hits,
-        scale: Geometry.scale(t)
-      }
+    # The stepped start only rescues a direct fit that fails the gates: as an
+    # equal alternative it found a 9-degree-off optimum on Washington 1884
+    # Sheet 1 (two real street labels; small CORNISH / Shea notes made the
+    # rotated fit score one more hit).
+    direct_hits = label_score(direct, label_pts, osm)
+
+    direct_ok =
+      direct_hits >= needed and crossing_streets?(direct, label_pts, osm) and
+        scale_consistent?(Geometry.scale(direct), printed_ft)
+
+    {t, hits} =
+      if direct_ok,
+        do: {direct, direct_hits},
+        else: {stepped, label_score(stepped, label_pts, osm)}
+
+    crossing = hits >= needed and crossing_streets?(t, label_pts, osm)
+    scale_ok = scale_consistent?(Geometry.scale(t), printed_ft)
+
+    if hits >= needed and not (crossing and scale_ok) do
+      Logger.debug(
+        "georef: labels-only fit rejected: #{hits} hits, crossing=#{crossing}, " <>
+          "scale #{Float.round(Geometry.scale(t), 4)} m/px (printed #{inspect(printed_ft)}) ok=#{scale_ok}"
+      )
     end
+
+    if hits >= needed and crossing and scale_ok,
+      do: fit_result(t, label_pts, osm, polygon, hits)
+  end
+
+  # An accepted fit without junctions: GCPs are the part outline and the
+  # labels, mapped through the fit.
+  # Choosing among candidate fits, small lettering counts less: of the labels
+  # under 80 px in accepted fits most were notes, key or business text
+  # (GREEN, GARAGE, CORNISH), against street names at 105-170 px; on
+  # Washington 1884 Sheet 1 two such notes outvoted a correct fit. Named
+  # buildings are lettered small by nature and count fully.
+  defp weighted_hits(t, label_pts, osm) do
+    label_pts
+    |> Enum.filter(
+      &(Osm.distance_to(osm, &1.key, Geometry.transform(t, &1.px)) <= @label_tolerance)
+    )
+    |> Enum.map(fn l ->
+      h = l[:height]
+
+      cond do
+        match?(%{kind: :building}, osm.groups[l.key]) -> 1.0
+        is_nil(h) or h >= 90 -> 1.0
+        h >= 80 -> 0.75
+        true -> 0.5
+      end
+    end)
+    |> Enum.sum()
+  end
+
+  # Most labels on streets among passing fits substantially different from
+  # the best (part centre > 15 m apart or > 2 degrees of rotation): a rival
+  # nearly as good means the labels do not decide the placement.
+  defp rival_hits(best, fits, polygon) do
+    c = centroid(polygon)
+    rot = fn t -> :math.atan2(t.b, t.a) * 180 / :math.pi() end
+
+    fits
+    |> Enum.map(&elem(&1, 1))
+    |> Enum.filter(fn f ->
+      Geometry.dist(Geometry.transform(f.transform, c), Geometry.transform(best.transform, c)) >
+        15 or
+        abs(rot.(f.transform) - rot.(best.transform)) > 2
+    end)
+    |> Enum.map(& &1.label_hits)
+    |> Enum.max(fn -> nil end)
+  end
+
+  defp fit_result(t, label_pts, osm, polygon, hits) do
+    pts =
+      Enum.map(polygon, &%{px: &1, label: "outline"}) ++
+        Enum.map(label_pts, &%{px: &1.px, label: &1.name})
+
+    %{
+      status: :ok,
+      method: :labels,
+      transform: t,
+      projection: osm.projection,
+      gcps:
+        Enum.map(pts, fn p ->
+          %{
+            px: p.px,
+            lonlat: Geometry.to_lonlat(osm.projection, Geometry.transform(t, p.px)),
+            label: p.label
+          }
+        end),
+      residuals: [],
+      label_hits: hits,
+      scale: Geometry.scale(t)
+    }
   end
 
   # Directions (mod 180 degrees) of the modern streets under the labels that
@@ -283,15 +806,28 @@ defmodule DpulCollections.Georef do
           Geometry.point_segment_dist(w, seg) <= @label_tolerance,
           do: :math.atan2(y2 - y1, x2 - x1)
 
-    Enum.any?(for a <- dirs, b <- dirs, do: angle_between(a, b) > 30)
+    # a named building on its footprint fixes position in both directions
+    buildings =
+      Enum.count(label_pts, fn l ->
+        match?(%{kind: :building}, osm.groups[l.key]) and
+          Osm.distance_to(osm, l.key, Geometry.transform(t, l.px)) <= @label_tolerance
+      end)
+
+    buildings >= 2 or (buildings >= 1 and dirs != []) or
+      Enum.any?(for a <- dirs, b <- dirs, do: angle_between(a, b) > 30)
   end
 
   @doc """
   Does a fit's m/px agree with the part's printed "N ft to an inch" at the
   scan resolution? A wrong fit that still puts a few labels on same-named
-  streets is usually off in scale. True when no scale was printed.
+  streets is usually off in scale. With no printed scale the fit must imply
+  one of Sanborn's standard scales.
   """
-  def scale_consistent?(_m_per_px, nil), do: true
+  # a degenerate fit (every point on one spot) has no scale
+  def scale_consistent?(m_per_px, _) when m_per_px <= 1.0e-6, do: false
+
+  def scale_consistent?(m_per_px, nil),
+    do: Enum.any?(@standard_scales_ft, &scale_consistent?(m_per_px, &1))
 
   def scale_consistent?(m_per_px, ft) do
     {lo, hi} = @scan_dpi
@@ -299,15 +835,28 @@ defmodule DpulCollections.Georef do
     dpi >= lo and dpi <= hi
   end
 
+  # Label and seed slop is a fixed distance on paper, so the rough tolerance
+  # grows with the map scale: 15 m at 50 ft to the inch (~1 inch), up to 45 m
+  # (Princeton 1911 Sheet 20, 200 ft: its one junction seed sits 18 m off).
+  # Acceptance still uses @label_tolerance after refinement.
+  defp rough_tolerance(t) do
+    ft = Geometry.scale(t) * @nominal_dpi / 0.3048
+    min(max(@rough_label_tolerance, @rough_label_tolerance * ft / 50), 3 * @rough_label_tolerance)
+  end
+
   @doc """
   Choose a rough fit among every 2-point similarity the seeds imply. Score =
   printed labels that land on their own modern street + seed inliers. A fit
   must put at least #{@min_label_hits} labels on their streets to be trusted.
   """
-  def best_hypothesis(seed_candidates, label_pts, osm) do
-    seed_candidates
-    |> Geometry.hypotheses(scale_range: @scale_range, min_px_separation: 300)
-    |> Enum.map(fn t ->
+  def best_hypotheses(seed_candidates, label_pts, osm, printed_ft \\ nil, sheet_ft \\ []) do
+    pairs =
+      seed_candidates
+      |> Geometry.hypotheses(scale_range: @scale_range, min_px_separation: 300)
+      |> Enum.map(&{&1, 2})
+
+    (pairs ++ single_seed_hypotheses(seed_candidates, printed_ft, sheet_ft))
+    |> Enum.map(fn {t, min_seeds} ->
       seeds = Geometry.inliers_of(t, seed_candidates, 30.0)
 
       %{
@@ -315,27 +864,128 @@ defmodule DpulCollections.Georef do
         # A 2-junction rough fit is only approximate, so count labels near
         # their street loosely here; acceptance re-checks at @label_tolerance
         # after refinement.
-        label_hits: label_score(t, label_pts, osm, @rough_label_tolerance),
+        label_hits: label_score(t, label_pts, osm, rough_tolerance(t)),
         seed_inliers: length(seeds),
-        seeds: seeds
+        seeds: seeds,
+        # one-seed hypotheses (below) need one more label on its street
+        min_hits: if(min_seeds == 1, do: @min_label_hits + 1, else: @min_label_hits),
+        min_seeds: min_seeds
       }
     end)
-    |> Enum.filter(&(&1.label_hits >= @min_label_hits and &1.seed_inliers >= 2))
-    |> Enum.max_by(&{&1.label_hits + &1.seed_inliers, &1.seed_inliers}, fn -> nil end)
-    |> case do
-      nil ->
-        nil
+    |> Enum.filter(&(&1.label_hits >= &1.min_hits and &1.seed_inliers >= &1.min_seeds))
+    |> Enum.map(&Map.drop(&1, [:min_hits, :min_seeds]))
+    |> Enum.sort_by(&{&1.label_hits + &1.seed_inliers, &1.seed_inliers}, :desc)
+    |> distinct_hypotheses(label_pts, @rough_candidates)
+    |> Enum.map(fn h ->
+      # refit on the hypothesis' seed inliers
+      # (a seed just inside 30 m can skew the refit, so the raw 2-point fit
+      # is kept as an alternative start for refinement)
+      t = Geometry.fit_similarity(Enum.map(h.seeds, &{&1.px, &1.xy})) || h.t
+      %{h | t: t} |> Map.delete(:seeds) |> Map.put(:t0, h.t)
+    end)
+  end
 
-      best ->
-        # refit on the hypothesis' seed inliers
-        t = Geometry.fit_similarity(Enum.map(best.seeds, &{&1.px, &1.xy})) || best.t
+  # The rough fit rescaled (about the labels' centroid) to the printed scale,
+  # or the nearest standard Sanborn scale, at the nominal scan resolution:
+  # junction seeds are only good to 6-25 m, and a rough fit 7 % off in scale
+  # refined into a worse optimum (Hightstown 1916 Sheet 3).
+  # a degenerate rough fit (scale 0) has nothing to snap (Rahway 1891 Sheet 8,
+  # Westville 1909 crashed on log(0))
+  defp snap_scale(t, label_pts, printed_ft) do
+    if Geometry.scale(t) > 1.0e-6, do: do_snap_scale(t, label_pts, printed_ft), else: t
+  end
 
+  defp do_snap_scale(t, label_pts, printed_ft) do
+    s = Geometry.scale(t)
+
+    target =
+      ((printed_ft && [printed_ft]) || @standard_scales_ft)
+      |> Enum.map(&(&1 * 0.3048 / @nominal_dpi))
+      |> Enum.min_by(&abs(:math.log(&1 / s)))
+
+    k = target / s
+    c = centroid(Enum.map(label_pts, & &1.px))
+    {x, y} = Geometry.transform(t, c)
+    t2 = %{t | a: t.a * k, b: t.b * k}
+    {x2, y2} = Geometry.transform(t2, c)
+    %{t2 | tx: t2.tx + x - x2, ty: t2.ty + y - y2}
+  end
+
+  @doc "The best rough fit (see `best_hypotheses/4`), or nil."
+  def best_hypothesis(seed_candidates, label_pts, osm, printed_ft \\ nil) do
+    case best_hypotheses(seed_candidates, label_pts, osm, printed_ft) do
+      [best | _] ->
         Logger.info(
-          "georef: rough fit labels=#{best.label_hits} seeds=#{best.seed_inliers} scale=#{Float.round(Geometry.scale(t), 4)}"
+          "georef: rough fit labels=#{best.label_hits} seeds=#{best.seed_inliers} scale=#{Float.round(Geometry.scale(best.t), 4)}"
         )
 
-        %{best | t: t} |> Map.delete(:seeds)
+        best
+
+      [] ->
+        nil
     end
+  end
+
+  # Keep the top `n` hypotheses that place the labels' centroid > 10 m apart
+  # (the one-seed sweep yields runs of near-identical neighbours).
+  defp distinct_hypotheses(hyps, label_pts, n) do
+    c = centroid(Enum.map(label_pts, & &1.px))
+
+    Enum.reduce_while(hyps, [], fn h, kept ->
+      cond do
+        length(kept) >= n ->
+          {:halt, kept}
+
+        Enum.any?(
+          kept,
+          &(Geometry.dist(Geometry.transform(&1.t, c), Geometry.transform(h.t, c)) < 30)
+        ) ->
+          {:cont, kept}
+
+        true ->
+          {:cont, kept ++ [h]}
+      end
+    end)
+  end
+
+  defp centroid([]), do: {0.0, 0.0}
+
+  defp centroid(pts) do
+    {sx, sy} = Enum.reduce(pts, {0, 0}, fn {x, y}, {ax, ay} -> {ax + x, ay + y} end)
+    {sx / length(pts), sy / length(pts)}
+  end
+
+  # With a printed scale the m/px is known (scan ~395 dpi), so one junction
+  # seed fixes the fit up to rotation: sweep it in 2 degree steps and let the
+  # labels decide. Renamed streets often leave a sheet with only one correct
+  # seed (Branchville 1920 Sheet 1: Broad & Wantage). Without a readable
+  # printed scale, sweep at the two common town-sheet scales: a sheet whose
+  # named streets all meet at one junction gives no second seed (Spotswood
+  # 1910: Vliet / De Voe x Main, scale printed only inside the cartouche).
+  # (and at any scale stated elsewhere on the sheet).
+  defp single_seed_hypotheses(seed_candidates, nil, sheet_ft),
+    do: Enum.flat_map(Enum.uniq(sheet_ft ++ [50, 100]), &single_seed_hypotheses(seed_candidates, &1, []))
+
+  defp single_seed_hypotheses(seed_candidates, ft, _sheet_ft) do
+    s = ft * 0.3048 / @nominal_dpi
+
+    for c <- seed_candidates, deg <- 0..358//2 do
+      th = deg * :math.pi() / 180
+      {a, b} = {s * :math.cos(th), s * :math.sin(th)}
+      {u, v} = c.px
+      {x, y} = c.xy
+      {%{a: a, b: b, tx: x - (a * u + b * v), ty: y - (b * u - a * v)}, 1}
+    end
+  end
+
+  @doc false
+  def printed_scale([]), do: nil
+
+  def printed_scale(scales) do
+    scales
+    |> Enum.group_by(& &1.ft)
+    |> Enum.max_by(fn {_ft, ss} -> {length(ss), -Enum.min(Enum.map(ss, &elem(&1.px, 1)))} end)
+    |> elem(0)
   end
 
   @doc """
@@ -344,25 +994,133 @@ defmodule DpulCollections.Georef do
   """
   def printed_scales(tokens) do
     for t <- tokens,
-        [_, digits] <- [Regex.run(~r/scale\s*([0-9IOlo]{2,4})\s*f/i, t.text)],
+        [_, digits] <- [Regex.run(~r/s?cale[\s,.:;]*([0-9IOloZz]{2,4})\s*f/i, t.text)],
         {ft, ""} <- [
           digits
           |> String.replace(~r/[Il]/, "1")
           |> String.replace(~r/[Oo]/, "0")
+          |> String.replace(~r/[Zz]/, "2")
           |> Integer.parse()
         ],
         do: %{ft: ft, px: t.center}
+  end
+
+  @doc """
+  Drop labels read off a library ownership stamp ("MAP DIVISION / PRINCETON
+  UNIVERSITY LIBRARY", "Library of Congress"): Branchville's "DIVISION"
+  matched a modern Division Street.
+  """
+  def drop_stamp_text(labels, tokens) do
+    stamps =
+      for t <- tokens,
+          Regex.match?(~r/princeton|universit|librar|congress/i, t.text),
+          do: t.center
+
+    Enum.reject(labels, fn l -> Enum.any?(stamps, &(Geometry.dist(&1, l.px) < 500)) end)
+  end
+
+  @min_street_name_px 100
+
+  @doc """
+  Drop the town's own name where it is title lettering (the cartouche or the
+  sheet's header oval: next to a year, "N.J.", "Sanborn", "Population",
+  "Water Facilities", "Scale"). "SWEDESBORO" there matched Swedesboro Road;
+  "ELMER" printed along Elmer's street of that name is kept.
+  """
+  def drop_title_town(labels, tokens, town_keys) do
+    titles =
+      for t <- tokens,
+          Regex.match?(
+            ~r/\b1[89]\d\d\b|n\.\s*j|jersey|sanborn|population|water\s*fac|prevailing|scale/i,
+            t.text
+          ),
+          do: t.center
+
+    # ... and where it is smaller than street-name lettering: business names
+    # and notes ("TRENTON PACKING CO.", Trenton 1927 Sheet 53).
+    Enum.reject(labels, fn l ->
+      l.key in town_keys and
+        (Enum.any?(titles, &(Geometry.dist(&1, l.px) < 700)) or
+           (l[:height] || @min_street_name_px) < @min_street_name_px)
+    end)
+  end
+
+  @doc """
+  Street names the whole-sheet OCR missed, read from 1800 px tiles at 2/3
+  resolution (`Ocr.read_tiled/2`): small or vertical names (Branchville's
+  Church, Broad, New). Only lettering at least #{@min_tile_name_px} px tall
+  counts (smaller text is building notes); a street already read within 400 px
+  is not added twice.
+  """
+  def tiled_labels(canvas, ocr_tokens, osm, opts) do
+    if Keyword.get(opts, :tiled_labels, true) do
+      have = ocr_labels(ocr_tokens, osm)
+
+      for l <-
+            canvas
+            |> Ocr.read_tiled(&fetch_image/1)
+            |> Enum.filter(&(&1.height >= @min_tile_name_px))
+            |> ocr_labels(osm),
+          not Enum.any?(have, &(&1.key == l.key and Geometry.dist(&1.px, l.px) < 400)),
+          do: Map.put(l, :tiled, true)
+    else
+      []
+    end
   end
 
   @doc "OCR tokens that name a modern street/railway/waterway, with direction."
   def ocr_labels(tokens, osm) do
     for t <- tokens,
         t.score >= 0.75,
-        String.length(String.replace(t.text, ~r/[^\p{L}]/u, "")) >= 3,
-        not index_entry?(t.text),
-        key = Osm.match_name(osm, t.text),
-        do: %{name: t.text, key: key, px: t.center, angle: t.angle, source: :ocr}
+        text = ordinal_fix(t.text),
+        ordinal?(text) or String.length(String.replace(text, ~r/[^\p{L}]/u, "")) >= 3,
+        not index_entry?(text),
+        key = match_label(osm, text),
+        not building_note?(key, t),
+        do: %{
+          name: text,
+          key: key,
+          px: t.center,
+          angle: t.angle,
+          height: Map.get(t, :height),
+          source: :ocr
+        }
   end
+
+  # "CHURCH", "SCHOOL", "MILL" ... are also printed on buildings, in smaller
+  # lettering (~86 px at 395 dpi) than street names (~115-170 px): Swedesboro
+  # 1898 Sheet 2's two "EPISCPL CHURCH" notes matched Church Street and helped
+  # hold a fit one block off. A street named after a building type must be
+  # printed at street-name size.
+  # ... and the colour key / materials legend ("BLDGS COLORED GREEN ARE
+  # SPECIALS": Washington 1884 Sheet 1 fitted 9 degrees off with GREEN on Green
+  # Street) and generic structure notes (GARAGE, STGE, BRIDGE, SCALE, W. PIPE),
+  # all lettered well below street-name size in accepted fits.
+  @building_words ~w(church school mill hall hotel depot station market chapel academy
+                     factory college cemetery bank mills
+                     red green blue yellow brown gray grey stone iron brick frame adobe metal
+                     slate garage stage storage shed bridge scale sale wood pipe piper carriage
+                     division lumber coal yard ridge)
+  defp building_note?(key, t),
+    do: key in @building_words and Map.get(t, :height, @min_street_name_px) < @min_street_name_px
+
+  # Numbered streets print as "3RD" / "6TH" (two letters, so the 3-letter
+  # minimum dropped them; Cresskill 1914 Sheet 2 then had no cross streets
+  # unless the VLM read them). OCR drops the T of "7TH" as "7H".
+  @ordinal ~r/^\s*\d{1,3}\s*(ST|ND|RD|TH)\.?\s*$/i
+  defp ordinal?(text), do: Regex.match?(@ordinal, text)
+
+  # ordinals match exactly ("3rd" must not fuzzy-match "33rd")
+  defp match_label(osm, text) do
+    if ordinal?(text) do
+      key = Osm.normalize(text)
+      if Map.has_key?(osm.groups, key), do: key
+    else
+      Osm.match_name(osm, text)
+    end
+  end
+
+  defp ordinal_fix(text), do: Regex.replace(~r/^\s*(\d{1,3})\s*H\.?\s*$/i, text, "\\1TH")
 
   # Entries of a printed street index ("Academy, N....", "Almond,") are not
   # on their street; map labels never contain a comma or dot leaders.
@@ -424,8 +1182,12 @@ defmodule DpulCollections.Georef do
     end)
   end
 
+  # VLM zoom-in on each junction seed: off by default. Seeds only start the
+  # labels-only fit; without it the check points held (Hohokus 2.0 -> 1.7 m
+  # median, Cresskill 1.4 -> 1.7 m), the held-out sample fitted the same 24
+  # parts within 8 m, at ~10x the speed and with no VLM server.
   defp maybe_refine(located, canvas, opts) do
-    if Keyword.get(opts, :refine, true), do: Enum.map(located, &refine(&1, canvas)), else: located
+    if Keyword.get(opts, :refine, false), do: Enum.map(located, &refine(&1, canvas)), else: located
   end
 
   defp to_candidates(located, osm) do
@@ -669,7 +1431,48 @@ defmodule DpulCollections.Georef do
   Answer only with JSON: {"corners": [[x, y], [x, y], [x, y], [x, y]]}
   """
 
-  def neatline(canvas, overview) do
+  @doc """
+  The printed border around the map drawing, as four canvas points (TL, TR,
+  BR, BL); the full canvas when nothing plausible is found. Found by image
+  processing (`priv/georef/neatline.py`: the outermost ruled line with blank
+  margin beyond it, else where the drawing starts). `vlm_neatline: true`
+  asks the VLM instead, which on 86 sheets cut real map content more often
+  (Princeton 1918 Sheets 6 and 9, Millville Sheet 18).
+  """
+  def neatline(canvas, overview, opts \\ []) do
+    if Keyword.get(opts, :vlm_neatline, false),
+      do: vlm_neatline(canvas, overview),
+      else: cv_neatline(canvas, overview)
+  end
+
+  defp cv_neatline(canvas, overview) do
+    full = [{0, 0}, {canvas.width, 0}, {canvas.width, canvas.height}, {0, canvas.height}]
+    dir = Path.expand("~/.cache/dpul_georef/py")
+    File.mkdir_p!(dir)
+    img = Path.join(dir, "neat#{System.unique_integer([:positive])}.jpg")
+    File.write!(img, overview)
+    script = Application.app_dir(:dpul_collections, "priv/georef/neatline.py")
+
+    args =
+      ~w(run -q --with numpy --with opencv-python-headless python -I) ++
+        [script, img, to_string(canvas.width), to_string(canvas.height)]
+
+    try do
+      with {out, 0} <- System.cmd("uv", args),
+           %{"corners" => [_, _, _, _] = corners} <-
+             out |> String.split("\n", trim: true) |> List.last() |> Jason.decode!(),
+           pts = Enum.map(corners, fn [x, y] -> {x, y} end),
+           true <- plausible_mask?(pts, canvas) do
+        pts
+      else
+        _ -> full
+      end
+    after
+      File.rm(img)
+    end
+  end
+
+  defp vlm_neatline(canvas, overview) do
     full = [{0, 0}, {canvas.width, 0}, {canvas.width, canvas.height}, {0, canvas.height}]
 
     corners_schema = %{
@@ -734,6 +1537,33 @@ defmodule DpulCollections.Georef do
   # Qwen3-VL points are 0..1000 relative to the image it saw.
   def to_px({x, y}, {rx, ry, rw, rh}), do: {rx + x / 1000 * rw, ry + y / 1000 * rh}
 
+  # Image servers throttle (LoC closes sockets / answers 429 or 503 under
+  # load): back off for up to ~6 minutes before giving up on an image.
+  defp download(url, waits \\ [5, 15, 45, 120, 180]) do
+    result =
+      try do
+        Req.get(url, decode_body: false, receive_timeout: 120_000, max_retries: 3)
+      rescue
+        e -> {:error, e}
+      end
+
+    case {result, waits} do
+      {{:ok, %{status: 200, body: body}}, _} ->
+        body
+
+      {other, [w | rest]} ->
+        Logger.warning(
+          "georef: image fetch failed (#{inspect(other, limit: 3)}), retrying in #{w}s"
+        )
+
+        Process.sleep(w * 1000)
+        download(url, rest)
+
+      {other, []} ->
+        raise "image fetch failed for #{url}: #{inspect(other, limit: 5)}"
+    end
+  end
+
   def fetch_image(url) do
     dir = Path.expand("~/.cache/dpul_georef/img")
     File.mkdir_p!(dir)
@@ -742,8 +1572,12 @@ defmodule DpulCollections.Georef do
     if File.exists?(path) do
       File.read!(path)
     else
-      %{status: 200, body: body} = Req.get!(url, decode_body: false, receive_timeout: 120_000)
-      File.write!(path, body)
+      body = download(url)
+
+      # write-then-rename: a concurrent run must never read a half-written jpg
+      tmp = "#{path}.#{System.unique_integer([:positive])}.tmp"
+      File.write!(tmp, body)
+      File.rename!(tmp, path)
       body
     end
   end
@@ -755,15 +1589,7 @@ defmodule DpulCollections.Georef do
   """
   def search_bbox(manifest) do
     meta = manifest.bbox && pad(manifest.bbox, 0.2)
-
-    town =
-      manifest.label
-      |> to_string()
-      |> String.replace(~r/^\s*insurance maps? of\s+/i, "")
-      |> String.split([",", "[", ":"])
-      |> hd()
-      |> String.trim()
-
+    town = town_name(manifest)
     places = Osm.find_place(town)
     inside = meta && Enum.find(places, fn %{lonlat: [x, y]} -> inside?(meta, x, y) end)
 
@@ -779,6 +1605,16 @@ defmodule DpulCollections.Georef do
     |> tap(fn b ->
       Logger.info("georef: search bbox #{inspect(b)} (#{town}: #{length(places)} places)")
     end)
+  end
+
+  @doc "The title's place name (\"Insurance maps of\" removed)."
+  def town_name(manifest) do
+    manifest.label
+    |> to_string()
+    |> String.replace(~r/^\s*insurance maps? of\s+/i, "")
+    |> String.split([",", "[", ":"])
+    |> hd()
+    |> String.trim()
   end
 
   defp inside?({a, b, c, d}, x, y), do: x >= a and x <= c and y >= b and y <= d

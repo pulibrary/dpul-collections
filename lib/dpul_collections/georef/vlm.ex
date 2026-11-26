@@ -16,7 +16,8 @@ defmodule DpulCollections.Georef.Vlm do
 
   @models %{
     qwen3vl_8b: {"Qwen3VL-8B-Instruct-Q8_0.gguf", "mmproj-Qwen3VL-8B-Instruct-F16.gguf"},
-    qwen36_35b: {"Qwen3.6-35B-A3B-UD-Q4_K_M.gguf", "mmproj-Qwen3.6-35B-A3B-F16.gguf"}
+    qwen36_35b: {"Qwen3.6-35B-A3B-UD-Q4_K_M.gguf", "mmproj-Qwen3.6-35B-A3B-F16.gguf"},
+    qwen38_27b: {"Qwen3.8-27B-Q8_0.gguf", "mmproj-Qwen3.8-27B-f16.gguf"}
   }
 
   def config do
@@ -47,6 +48,26 @@ defmodule DpulCollections.Georef.Vlm do
 
       true ->
         start_local(cfg, model, mmproj)
+    end
+  end
+
+  @doc """
+  Run `fun` against another model, then restore the configuration. Locally the
+  server on the same port is swapped (never two at once); with `GEOREF_HOST`,
+  `GEOREF_RETRY_PORT` names the remote server that serves `model`.
+  """
+  def with_model(model, fun) do
+    key = DpulCollections.Georef
+    old = Application.get_env(:dpul_collections, key, [])
+    port = System.get_env("GEOREF_RETRY_PORT")
+    over = [model: model] ++ if(port, do: [port: String.to_integer(port)], else: [])
+    Application.put_env(:dpul_collections, key, Keyword.merge(old, over))
+
+    try do
+      ensure_server()
+      fun.()
+    after
+      Application.put_env(:dpul_collections, key, old)
     end
   end
 
@@ -126,6 +147,10 @@ defmodule DpulCollections.Georef.Vlm do
   end
 
   def ask(image, prompt, opts \\ []) do
+    # started lazily: most runs never need the VLM (neatline is image
+    # processing now), so nothing is launched unless something asks
+    ensure_server()
+
     body = %{
       messages: [
         %{

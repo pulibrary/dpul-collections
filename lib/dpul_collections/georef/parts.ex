@@ -15,8 +15,10 @@ defmodule DpulCollections.Georef.Parts do
     dir = Path.expand("~/.cache/dpul_georef/parts")
     File.mkdir_p!(dir)
 
+    # unique per call: concurrent runs on the same sheet must not delete
+    # each other's input
     img =
-      Path.join(dir, (:crypto.hash(:md5, jpg) |> Base.encode16() |> binary_part(0, 16)) <> ".jpg")
+      Path.join(dir, "#{System.unique_integer([:positive])}.jpg")
 
     File.write!(img, jpg)
     script = Application.app_dir(:dpul_collections, "priv/georef/parts.py")

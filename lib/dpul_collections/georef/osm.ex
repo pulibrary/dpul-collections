@@ -9,7 +9,7 @@ defmodule DpulCollections.Georef.Osm do
 
   alias DpulCollections.Georef.Geometry
 
-  @name_tags ~w(name old_name alt_name official_name historic:name)
+  @name_tags ~w(name old_name alt_name official_name historic:name loc_name)
 
   @overpass_mirrors [
     "https://overpass-api.de/api/interpreter",
@@ -18,7 +18,8 @@ defmodule DpulCollections.Georef.Osm do
     "https://overpass.kumi.systems/api/interpreter"
   ]
 
-  defstruct [:bbox, :projection, features: [], groups: %{}, intersections: []]
+  # path: the clipped geojsonseq extract (helpers that need unnamed streets read it)
+  defstruct [:bbox, :projection, :path, features: [], groups: %{}, intersections: []]
 
   def pbf_path do
     Application.get_env(:dpul_collections, DpulCollections.Georef, [])
@@ -30,12 +31,25 @@ defmodule DpulCollections.Georef.Osm do
     path = extract(bbox)
     projection = Geometry.projection(bbox)
 
-    features =
+    streets =
       path
       |> File.stream!()
       |> Stream.map(&Jason.decode!/1)
       |> Stream.flat_map(&to_features(&1, projection))
       |> Enum.to_list()
+
+    # Named buildings (campuses, churches, mills): a printed building name
+    # sitting in its surviving footprint places the sheet like a street name.
+    # A street of the same name wins.
+    street_keys = streets |> Enum.flat_map(& &1.keys) |> MapSet.new()
+
+    buildings =
+      for f <- building_features(bbox, projection),
+          keys = Enum.reject(f.keys, &(&1 in street_keys)),
+          keys != [],
+          do: %{f | keys: keys}
+
+    features = streets ++ buildings
 
     groups =
       features
@@ -52,17 +66,125 @@ defmodule DpulCollections.Georef.Osm do
              |> Enum.max_by(&elem(&1, 1))
              |> elem(0),
            kind: hd(fs).kind,
-           segments: Enum.flat_map(fs, & &1.segments)
+           segments: Enum.flat_map(fs, & &1.segments),
+           polygons: for(f <- fs, f[:ring], do: f.ring) |> then(&if(&1 == [], do: nil, else: &1))
          }}
       end)
 
     %__MODULE__{
       bbox: bbox,
       projection: projection,
+      path: path,
       features: features,
       groups: groups,
-      intersections: intersections(groups, projection)
+      intersections:
+        groups |> Map.filter(fn {_, g} -> g.kind != :building end) |> intersections(projection)
     }
+  end
+
+  # Generic building names say nothing about which building it is.
+  @generic_buildings ~w(garage barn shed house church school library office hall chapel
+                        gymnasium dormitory store warehouse station building annex)
+
+  defp building_features(bbox, p) do
+    bbox
+    |> extract_buildings()
+    |> File.stream!()
+    |> Stream.map(&Jason.decode!/1)
+    |> Stream.flat_map(fn
+      %{
+        "geometry" => %{"type" => type, "coordinates" => coords},
+        "properties" => %{"name" => name}
+      }
+      when type in ["Polygon", "MultiPolygon"] and is_binary(name) ->
+        rings = if type == "Polygon", do: [hd(coords)], else: Enum.map(coords, &hd/1)
+        key = normalize(name)
+        words = String.split(key)
+
+        if key == "" or key in @generic_buildings or
+             (length(words) == 1 and String.length(key) < 6) do
+          []
+        else
+          for ring <- rings, length(ring) >= 4 do
+            xy = ring |> Enum.map(&Geometry.to_xy(p, &1)) |> Enum.drop(-1)
+
+            %{
+              name: name,
+              names: [name],
+              keys: [key],
+              kind: :building,
+              segments: Enum.zip(xy, tl(xy) ++ [hd(xy)]),
+              ring: xy
+            }
+          end
+        end
+
+      _ ->
+        []
+    end)
+    |> Enum.to_list()
+  end
+
+  defp extract_buildings({a, b, c, d} = bbox) do
+    dir = Path.expand("~/.cache/dpul_georef/osm")
+    File.mkdir_p!(dir)
+
+    key =
+      :crypto.hash(:md5, :erlang.term_to_binary({:buildings, bbox}))
+      |> Base.encode16()
+      |> binary_part(0, 12)
+
+    out = Path.join(dir, "B#{key}.geojsonseq")
+
+    unless File.exists?(out) do
+      tmp = Path.join(dir, "B#{key}-#{System.unique_integer([:positive])}")
+
+      if File.exists?(pbf_path()) and File.stat!(pbf_path()).size > 0 do
+        bb = Enum.join([a, b, c, d], ",")
+
+        osmium!([
+          "extract",
+          "-b",
+          bb,
+          pbf_path(),
+          "-o",
+          tmp <> "-clip.osm.pbf",
+          "--overwrite",
+          "-s",
+          "smart"
+        ])
+
+        osmium!([
+          "tags-filter",
+          tmp <> "-clip.osm.pbf",
+          "nwr/building",
+          "-o",
+          tmp <> "-filt.osm.pbf",
+          "--overwrite"
+        ])
+
+        osmium!([
+          "export",
+          tmp <> "-filt.osm.pbf",
+          "-f",
+          "geojsonseq",
+          "-x",
+          "print_record_separator=false",
+          "--geometry-types=polygon",
+          "-o",
+          tmp <> ".geojsonseq",
+          "--overwrite"
+        ])
+
+        File.rename!(tmp <> ".geojsonseq", out)
+        File.rm(tmp <> "-clip.osm.pbf")
+        File.rm(tmp <> "-filt.osm.pbf")
+      else
+        File.write!(out, "")
+      end
+    end
+
+    out
   end
 
   defp extract({a, b, c, d} = bbox) do
@@ -337,11 +459,51 @@ defmodule DpulCollections.Georef.Osm do
 
   defp drop_while_in(words, set), do: Enum.drop_while(words, &(&1 in set))
 
+  @doc """
+  Add alias keys (%{alias => existing key}): each alias gets the existing
+  street's segments and its intersections, so labels reading the alias match
+  that street. Used for street renames learned from an atlas.
+  """
+  def with_aliases(%__MODULE__{} = osm, aliases) do
+    aliases = Map.filter(aliases, fn {a, k} -> a != k and Map.has_key?(osm.groups, k) end)
+    # an alias replacing an existing name drops that name's crossings
+    replaced = MapSet.new(Map.keys(aliases))
+
+    base =
+      Enum.reject(osm.intersections, fn %{keys: {k1, k2}} ->
+        k1 in replaced or k2 in replaced
+      end)
+
+    groups =
+      Enum.reduce(aliases, osm.groups, fn {a, k}, gs ->
+        Map.put(gs, a, %{gs[k] | key: a})
+      end)
+
+    extra =
+      for {a, k} <- aliases,
+          i <- base,
+          {k1, k2} = i.keys,
+          k in [k1, k2],
+          other = if(k1 == k, do: k2, else: k1),
+          other != a,
+          do: %{i | keys: Enum.min_max([a, other])}
+
+    %{osm | groups: groups, intersections: base ++ extra}
+  end
+
+  @doc "True when a normalized name is only street-type words (\"ave\", \"st\")."
+  def suffix_only?(key), do: key |> String.split() |> Enum.all?(&(&1 in @suffixes))
+
   @doc "Distance (m) from a projected point to the nearest feature named `key`."
   def distance_to(%__MODULE__{groups: groups}, key, xy) do
     case groups[key] do
       nil ->
         :infinity
+
+      %{polygons: [_ | _] = polys} = g ->
+        if Enum.any?(polys, &Geometry.point_in_polygon?(xy, &1)),
+          do: 0.0,
+          else: g.segments |> Enum.map(&Geometry.point_segment_dist(xy, &1)) |> Enum.min()
 
       g ->
         g.segments

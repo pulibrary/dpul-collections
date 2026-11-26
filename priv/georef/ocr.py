@@ -13,7 +13,13 @@ import sys, json
 from PIL import Image
 from rapidocr import RapidOCR
 
-engine = RapidOCR(params={"Global.text_score": 0.5, "Det.limit_side_len": 4000, "Det.limit_type": "max"})
+from rapidocr import ModelType, OCRVersion
+
+# Detection: PP-OCRv5 mobile. Recognition: PP-OCRv6 small, which read 25 of 33
+# street names the v5 recogniser missed vs 22 (benchmark of VLM-only labels,
+# held-out sample), at ~1 s per 2400 px tile.
+engine = RapidOCR(params={"Global.text_score": 0.5, "Det.limit_side_len": 4000, "Det.limit_type": "max",
+                          "Rec.ocr_version": OCRVersion.PPOCRV6, "Rec.model_type": ModelType.SMALL})
 
 
 def run(img):

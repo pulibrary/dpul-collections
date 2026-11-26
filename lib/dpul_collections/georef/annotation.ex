@@ -43,8 +43,8 @@ defmodule DpulCollections.Georef.Annotation do
         "source" => %{
           "id" => canvas.service_id,
           "type" => canvas.service_type || "ImageService2",
-          "width" => canvas.width,
-          "height" => canvas.height,
+          "width" => round(canvas.width * canvas.px_scale),
+          "height" => round(canvas.height * canvas.px_scale),
           "partOf" => [
             %{
               "id" => canvas.id,
@@ -65,13 +65,13 @@ defmodule DpulCollections.Georef.Annotation do
         "type" => "FeatureCollection",
         "transformation" =>
           Map.get(r, :transformation, %{"type" => "polynomial", "options" => %{"order" => 1}}),
-        "features" => Enum.map(gcps, &feature/1)
+        "features" => Enum.map(gcps, &feature(&1, canvas.px_scale))
       }
     }
   end
 
-  defp feature(%{px: {x, y}, lonlat: [lon, lat]} = g) do
-    props = %{"resourceCoords" => [round(x), round(y)]}
+  defp feature(%{px: {x, y}, lonlat: [lon, lat]} = g, k) do
+    props = %{"resourceCoords" => [round(x * k), round(y * k)]}
     props = if g[:label], do: Map.put(props, "label", g.label), else: props
 
     %{
@@ -85,12 +85,13 @@ defmodule DpulCollections.Georef.Annotation do
   end
 
   def svg(mask, canvas) do
-    points =
-      Enum.map_join(mask, " ", fn {x, y} ->
-        "#{clamp(x, canvas.width)},#{clamp(y, canvas.height)}"
-      end)
+    k = canvas.px_scale
+    {w, h} = {round(canvas.width * k), round(canvas.height * k)}
 
-    ~s(<svg width="#{canvas.width}" height="#{canvas.height}"><polygon points="#{points}" /></svg>)
+    points =
+      Enum.map_join(mask, " ", fn {x, y} -> "#{clamp(x * k, w)},#{clamp(y * k, h)}" end)
+
+    ~s(<svg width="#{w}" height="#{h}"><polygon points="#{points}" /></svg>)
   end
 
   defp clamp(v, limit), do: v |> round() |> max(0) |> min(limit)

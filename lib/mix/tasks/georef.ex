@@ -3,7 +3,8 @@ defmodule Mix.Tasks.Georef do
   @moduledoc """
   Usage:
 
-      mix georef URL [--canvases 0,2] [--out tmp/georef/name] [--no-refine]
+      mix georef URL [--canvases 0,2] [--out tmp/georef/name] [--refine] [--no-slide] [--no-align] [--no-rescue]
+          [--no-neighbour] [--no-tiled-labels] [--vlm-labels] [--vlm-points] [--vlm-neatline] [--no-renames] [--retry-model qwen38_27b]
 
   URL is a IIIF manifest or a maps.princeton.edu catalog URL. Writes
   `<out>.json` (IIIF Georeference AnnotationPage) and `<out>.report.json`
@@ -23,7 +24,17 @@ defmodule Mix.Tasks.Georef do
           refine: :boolean,
           threshold: :float,
           min_label_fraction: :float,
-          labels_first: :boolean
+          labels_first: :boolean,
+          tiled_labels: :boolean,
+          slide: :boolean,
+          align: :boolean,
+          rescue: :boolean,
+          neighbour: :boolean,
+          vlm_labels: :boolean,
+          vlm_points: :boolean,
+          vlm_neatline: :boolean,
+          renames: :boolean,
+          retry_model: :string
         ]
       )
 
@@ -31,10 +42,20 @@ defmodule Mix.Tasks.Georef do
     Application.ensure_all_started(:req)
 
     run_opts =
-      [refine: Keyword.get(opts, :refine, true)]
+      [refine: Keyword.get(opts, :refine, false)]
       |> maybe_put(:threshold, opts[:threshold])
       |> maybe_put(:min_label_fraction, opts[:min_label_fraction])
       |> maybe_put(:labels_first, opts[:labels_first])
+      |> maybe_put(:tiled_labels, opts[:tiled_labels])
+      |> maybe_put(:slide, opts[:slide])
+      |> maybe_put(:align, opts[:align])
+      |> maybe_put(:rescue, opts[:rescue])
+      |> maybe_put(:neighbour, opts[:neighbour])
+      |> maybe_put(:vlm_labels, opts[:vlm_labels])
+      |> maybe_put(:vlm_points, opts[:vlm_points])
+      |> maybe_put(:vlm_neatline, opts[:vlm_neatline])
+      |> maybe_put(:renames, opts[:renames])
+      |> maybe_put(:retry_model, opts[:retry_model] && String.to_atom(opts[:retry_model]))
       |> maybe_put(
         :canvases,
         opts[:canvases] && Enum.map(String.split(opts[:canvases], ","), &String.to_integer/1)
@@ -60,7 +81,7 @@ defmodule Mix.Tasks.Georef do
           if(r.status == :ok,
             do:
               " scale=#{Float.round(r.scale, 4)}m/px rms=#{Float.round(rms(r.residuals), 1)}m" <>
-                if(r[:method], do: " (#{r[:method]})", else: ""),
+                if(r[:method], do: " (#{r[:method]}#{r[:model] && ", #{r[:model]}"})", else: ""),
             else: ""
           )
       )
@@ -87,6 +108,7 @@ defmodule Mix.Tasks.Georef do
       manifest: result.manifest.id,
       label: result.manifest.label,
       bbox: Tuple.to_list(result.osm.bbox),
+      renames: Map.get(result, :renames),
       canvases:
         Enum.map(result.results, fn r ->
           %{
@@ -113,6 +135,7 @@ defmodule Mix.Tasks.Georef do
               end),
             residuals: r[:residuals],
             method: r[:method] || (r.status == :ok && :junctions) || nil,
+            model: r[:model],
             labels:
               Enum.map(r.labels, fn l ->
                 %{
@@ -120,10 +143,13 @@ defmodule Mix.Tasks.Georef do
                   key: l.key,
                   angle: l.angle,
                   source: l.source,
+                  height: l[:height] && round(l[:height]),
                   px: Tuple.to_list(l.px)
                 }
               end),
             label_hits: r[:label_hits],
+            rival_hits: r[:rival_hits],
+            aligned: r[:aligned],
             scale_m_per_px: r[:scale],
             printed_scale_ft: r[:printed_scale_ft],
             rough: r[:rough] && Map.take(r[:rough], [:label_hits, :seed_inliers]),

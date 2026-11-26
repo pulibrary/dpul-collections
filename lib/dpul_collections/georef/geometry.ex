@@ -59,13 +59,59 @@ defmodule DpulCollections.Georef.Geometry do
 
     Enum.reduce(1..Keyword.get(opts, :iterations, 50), t, fn _, t ->
       curve_pairs =
-        for {px, segments} <- curves,
+        for curve <- curves,
+            {px, segments, polygons} = curve_parts(curve),
             w = transform(t, px),
-            q = Enum.min_by(Enum.map(segments, &closest_on_segment(w, &1)), &dist(&1, w)),
-            dist(q, w) <= tolerance,
+            {q, inside} = target_with_flag(w, segments, polygons),
+            inside or dist(q, w) <= tolerance,
             do: {px, q}
 
       fit_similarity(points ++ curve_pairs) || t
+    end)
+  end
+
+  defp curve_parts({px, segments}), do: {px, segments, nil}
+  defp curve_parts({px, segments, polygons}), do: {px, segments, polygons}
+
+  # A label inside its named building pulls toward the footprint's centre
+  # (Sanborn prints names mid-building; "anywhere inside" let Princeton 1918
+  # Sheet 13 sit ~12 m off with every campus label still inside) -- for a
+  # compact footprint; a long or L-shaped one only holds it inside. Outside,
+  # it is pulled to the outline.
+  @compact_m 50.0
+
+  defp target_with_flag(w, segments, polygons) do
+    inside = polygons != nil and Enum.any?(polygons, &point_in_polygon?(w, &1))
+    {nearest_target(w, segments, polygons), inside}
+  end
+
+  defp nearest_target(w, segments, polygons) do
+    case polygons && Enum.find(polygons, &point_in_polygon?(w, &1)) do
+      nil -> Enum.min_by(Enum.map(segments, &closest_on_segment(w, &1)), &dist(&1, w))
+      ring -> if extent(ring) <= @compact_m, do: ring_centroid(ring), else: w
+    end
+  end
+
+  defp extent(ring) do
+    {xs, ys} = Enum.unzip(ring)
+    max(Enum.max(xs) - Enum.min(xs), Enum.max(ys) - Enum.min(ys))
+  end
+
+  @doc "Vertex centroid of a ring."
+  def ring_centroid(ring) do
+    n = length(ring)
+    {sx, sy} = Enum.reduce(ring, {0.0, 0.0}, fn {x, y}, {a, b} -> {a + x, b + y} end)
+    {sx / n, sy / n}
+  end
+
+  @doc "Ray-casting point-in-polygon test ({x, y} and a ring of {x, y})."
+  def point_in_polygon?({x, y}, ring) do
+    ring
+    |> Enum.zip(tl(ring) ++ [hd(ring)])
+    |> Enum.reduce(false, fn {{x1, y1}, {x2, y2}}, inside ->
+      if y1 > y != y2 > y and x < (x2 - x1) * (y - y1) / (y2 - y1) + x1,
+        do: not inside,
+        else: inside
     end)
   end
 
@@ -74,6 +120,8 @@ defmodule DpulCollections.Georef.Geometry do
   # Image y grows downward, map y grows north, so we flip v before fitting a
   # proper (non-reflecting) similarity: x = a*u - b*v' + tx, y = b*u + a*v' + ty
   # with v' = -v.
+
+  def fit_similarity([]), do: nil
 
   def fit_similarity(pairs) do
     n = length(pairs)
