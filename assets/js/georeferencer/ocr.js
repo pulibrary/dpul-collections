@@ -1,4 +1,4 @@
-// In-browser OCR: a port of the server's priv/georef/ocr.py (RapidOCR with PP-OCRv6 small
+// In-browser OCR: RapidOCR (PP-OCRv6 small
 // detection + recognition and the v2 angle classifier), run by onnxruntime-web on WebGPU.
 // Each step follows RapidOCR (rapidocr/main.py, ch_ppocr_det|cls|rec): the same image sizes,
 // BGR channel order, normalisation, DB box post-processing, crops, batching and CTC decoding.
@@ -54,7 +54,7 @@ function resize(src, W, H) {
 }
 
 // PIL rotate(-90, expand=True): clockwise; rotated (u, v) <- original (v, h - 1 - u)
-export function rotateCW(src) {
+function rotateCW(src) {
   const W = src.h, H = src.w, out = new Uint8ClampedArray(W * H * 4);
   for (let v = 0; v < H; v++)
     for (let u = 0; u < W; u++) {
@@ -282,8 +282,8 @@ async function recognise(m, crops) {
   return res;
 }
 
-/** RapidOCR's engine(img) with the server's settings: [{text, score, quad}] in img's pixels */
-export async function runOcr(img) {
+/** RapidOCR's engine(img) with our settings: [{text, score, quad}] in img's pixels */
+async function runOcr(img) {
   const m = await loadOcr();
   // Global.max_side_len 2000: larger pages are read at 2000 px (sides rounded to 32)
   let im = img, rw = 1, rh = 1;
@@ -313,7 +313,7 @@ function overlaps(a, b) {
   return (ix * iy) / small > 0.3;
 }
 
-/** ocr.py: the page upright, then turned 90 degrees for vertical names (kept where upright missed
+/** the page upright, then turned 90 degrees for vertical names (kept where upright missed
  *  them or read them worse). -> [{text, score, quad}] in the page's pixels */
 export async function readPage(img) {
   let items = await runOcr(img);

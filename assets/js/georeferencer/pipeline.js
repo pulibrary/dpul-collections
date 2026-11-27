@@ -1,14 +1,13 @@
 // The whole per-canvas georeferencing, headless, on the contributor's machine: border, parts,
 // OCR (whole sheet + tiles), street names, printed scale, then per part the GPU search, snap,
-// corridor refinement and the acceptance check. Worker-safe (no DOM). Mirrors the server's
-// Georef.georeference_canvas up to the per-part fit; the server's later atlas-wide passes
-// (slide, neighbour, rescue, consistency) are not here yet.
+// corridor refinement and the acceptance check. Worker-safe (no DOM). Atlas-wide steps (renames,
+// the consistency check) run on the server over all the browsers' results (Georef.Collab.Queue).
 import { fromImage, readPage, loadOcr } from "./ocr";
 import { neatline, splitParts, loadCv } from "./sheetgeom";
 import { toToken, sheetLabels, tileStarts, cutByTileEdge, dedupeTiles, gazetteer, TILE, matchName, normalize, suffixOnly } from "./labels";
-import { prepareInk, partSheet, samplePoints, targetedLabels, pointInPoly, fwd, toAB, fromAB, labelStatus, nearestSeg, LABEL_TOL } from "./engine";
+import { prepareInk, partSheet, samplePoints, targetedLabels, pointInPoly, fwd, toAB, labelStatus, nearestSeg, LABEL_TOL } from "./engine";
 import { gpuDevice, makeGpu } from "./gpu";
-import { findPlacement, distinctLabels, contrast } from "./search";
+import { findPlacement, distinctLabels } from "./search";
 
 const NOMINAL_DPI = 395;
 const STANDARD_FT = [50, 60, 100, 200, 300, 400, 500, 600, 800, 1000];
@@ -18,7 +17,7 @@ const SCAN_DPI = [355, 427];
 // (any standard Sanborn scale when none was read), or it is a key map (>= 4x the printed scale,
 // a standard scale, >= 8 names on their streets)
 const consistent = (s, ft) => (ft ? ((d) => d >= SCAN_DPI[0] && d <= SCAN_DPI[1])((ft * 0.3048) / s) : STANDARD_FT.some((f) => consistent(s, f)));
-export const scaleOk = (s, ft, hits) =>
+const scaleOk = (s, ft, hits) =>
   consistent(s, ft) || (!!ft && hits >= 8 && (s * NOMINAL_DPI) / 0.3048 >= 4 * ft && consistent(s, null));
 
 // Georef.crossing_streets?: the modern streets under the names that landed must cross (> 30 deg)
@@ -54,7 +53,7 @@ export function loadTown(url) {
 
 // Georef.printed_scales / printed_scale: statements as feet per inch, one vote per statement
 const SCALE_RE = /s?cale[\s,.:;]*([0-9IOloZz]{2,4})\s*f/i;
-export function printedScales(tokens) {
+function printedScales(tokens) {
   const out = [];
   for (const t of tokens) {
     const m = SCALE_RE.exec(t.text);
@@ -64,7 +63,7 @@ export function printedScales(tokens) {
   }
   return out;
 }
-export function printedScale(scales) {
+function printedScale(scales) {
   if (!scales.length) return null;
   let sts = [];
   for (const s of scales) {
@@ -84,7 +83,7 @@ export function printedScale(scales) {
   return best.ft;
 }
 
-/** the scales a part may have: its printed scale at 355..427 dpi (the server's gate), else any
+/** the scales a part may have: its printed scale at 355..427 dpi, else any
  *  of the usual Sanborn scales (50..200 ft to the inch) */
 function scaleRange(ft) {
   if (ft) return { smin: (ft * 0.3048) / 427, smax: (ft * 0.3048) / 355, usual: [(ft * 0.3048) / NOMINAL_DPI] };
@@ -231,33 +230,28 @@ export async function processCanvas(job, onStep = () => {}) {
       try {
         const needed = Math.max(3, Math.ceil(0.25 * partLabels.length));
         const gate = (r) => !r.error && r.hits >= needed && crossingStreets(r.T, labs) && scaleOk(r.T[0], ft, r.hits);
-        const cmpT = (job.compare || [])[p] && fromAB(job.compare[p]);
         const seedTs = junctionPlacements(partLabels.filter((l) => town.targets[l.key]), town.crossings, c.width, c.height, range);
-        let r = await findPlacement(gpu, sheet, labs, range, undefined, { near: cmpT && fwd(cmpT, sheet.centre[0], sheet.centre[1]), seedTs });
-        // the server's key-map exception: an overview under the sheet's scale statement
+        let r = await findPlacement(gpu, sheet, labs, range, undefined, { seedTs });
+        // the key-map exception: an overview under the sheet's scale statement
         if (!gate(r) && ft && labs.length >= 8) {
           const k = await findPlacement(gpu, sheet, labs, keyMapScale(ft), undefined, { seedTs: junctionPlacements(partLabels.filter((l) => town.targets[l.key]), town.crossings, c.width, c.height, keyMapScale(ft)) });
           if (gate(k)) r = { ...k, keyMap: true };
         }
         if (!r.error) {
-          // ok: the server's gates; a weak corridor peak is still kept but flagged for a look
-          // (not for key maps: their streets are drawn too small for corridors)
-          // or where the corridors say little (faint or wide-spaced streets) but the names clearly
-          // win: the best placement elsewhere puts at least 2 fewer names on their streets
-          const ok = gate(r) && (r.keyMap || r.contrast >= 0.05 || r.hits - r.rivalHits >= 2);
+          // ok: the gates, and the printed streets line up with the modern ones (corridor contrast
+          // >= 0.1, as the server checks: Queue.checked). Not for key maps: their streets are drawn
+          // too small for corridors. Names alone can be fooled (a row of names across parallel
+          // streets fits at a wrong angle too), so a name lead never stands in for the corridors.
+          // A fit failing only this is kept as "unsure" for a person to look at.
+          const ok = gate(r) && (r.keyMap || r.contrast >= 0.1);
           Object.assign(res, {
             status: ok ? "ok" : "unsure", transform: toAB(r.T), label_hits: r.hits, needed, rival_hits: r.rivalHits,
-            contrast: r.contrast, corridor: r.corridor, scale_m_per_px: r.T[0], candidates: r.nCand, key_map: !!r.keyMap, debug: job.compare ? r.debug : undefined,
+            contrast: r.contrast, corridor: r.corridor, scale_m_per_px: r.T[0], candidates: r.nCand, key_map: !!r.keyMap,
           });
           if (r.keyMap) res.mask = keyMapMask(r.T, labs, mask);
+          onStep(`placed part ${p + 1} of ${parts.length}`, { fit: { part: p + 1, mask: res.mask, transform: res.transform, status: res.status, key_map: res.key_map } });
           if (ok) votes.push(...observeRenames(r.T, res.mask, wholeTokens, town, job.exclude_keys || []));
         } else res.reason = r.error;
-        const cmp = (job.compare || [])[p];
-        if (cmp) {
-          const T = fromAB(cmp);
-          res.compare = { hits: labelStatus(T, labs).filter((l) => l.d <= LABEL_TOL).length, contrast: await contrast(gpu, sheet, T),
-                          centre: fwd(T, sheet.centre[0], sheet.centre[1]).map(Math.round), on: labelStatus(T, labs).filter((l) => l.d <= LABEL_TOL).map((l) => l.key) };
-        }
       } finally {
         gpu.destroy();
       }

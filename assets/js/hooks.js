@@ -1,4 +1,5 @@
 import {hooks as colocatedHooks} from "phoenix-colocated/dpul_collections"
+import * as GeoreferencerHooks from "./georeferencer/hooks"
 let Hooks = { ...colocatedHooks };
 
 // import() makes it so Clover's JS is only sent to the browser when the viewer
@@ -22,42 +23,8 @@ Hooks.LiveReact = {
   }
 };
 
-// The collaborative georeferencer (WebGPU) loads only on its own pages.
-Hooks.Georeferencer = {
-  mounted() {
-    import("./georeferencer/index").then(({ Georeferencer }) => {
-      if (this.gone) return
-      // LiveView copies this object's callbacks onto the hook instance, so don't copy the
-      // instance: hand the implementation just the element and pushEvent
-      this.impl = Object.create(Georeferencer)
-      this.impl.el = this.el
-      this.impl.pushEvent = this.pushEvent.bind(this)
-      this.impl.mounted()
-    }).catch((e) => console.error("georeferencer failed to load", e))
-  },
-  destroyed() {
-    this.gone = true
-    if (this.impl) this.impl.destroyed()
-  }
-};
-
-// The volunteer page: background georeferencing + live map, loaded only there.
-Hooks.GeorefVolunteer = {
-  mounted() {
-    import("./georeferencer/volunteer").then(({ GeorefVolunteer }) => {
-      if (this.gone) return
-      this.impl = Object.create(GeorefVolunteer)
-      this.impl.el = this.el
-      this.impl.pushEvent = this.pushEvent.bind(this)
-      this.impl.handleEvent = this.handleEvent.bind(this)
-      this.impl.mounted()
-    }).catch((e) => console.error("volunteer page failed to load", e))
-  },
-  destroyed() {
-    this.gone = true
-    if (this.impl) this.impl.destroyed()
-  }
-};
+// The collaborative georeferencer prototype (assets/js/georeferencer)
+Object.assign(Hooks, GeoreferencerHooks);
 
 Hooks.ToolbarHook = {
   mounted() {

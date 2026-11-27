@@ -57,8 +57,11 @@ config :esbuild,
     # Use splitting and esm to let us load Clover only when the viewer
     # renders.
     # See https://dev.to/marcinwosinek/how-to-lazy-load-with-esbuild-4pc
+    # The georeferencer prototype adds js/georeferencer/worker.js (its Web
+    # Worker) and the fs/path/crypto externals (OpenCV.js and the ONNX runtime
+    # mention Node built-ins they never use in a browser).
     args:
-      ~w(js/app.js js/georef_worker.js --bundle --splitting --format=esm --target=es2022 --outdir=../priv/static/assets/js --external:/fonts/* --external:/images/* --external:fs --external:path --external:crypto --alias:@=.),
+      ~w(js/app.js js/georeferencer/worker.js --bundle --splitting --format=esm --target=es2022 --outdir=../priv/static/assets/js --external:/fonts/* --external:/images/* --external:fs --external:path --external:crypto --alias:@=.),
     cd: Path.expand("../assets", __DIR__),
     env: %{
       "NODE_PATH" =>

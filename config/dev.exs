@@ -145,3 +145,6 @@ config :dpul_collections, :libanswers,
 # Send traces to the local otel-desktop-viewer started by lando. View them at
 # http://localhost:8000
 config :opentelemetry_exporter, otlp_endpoint: "http://localhost:4318"
+
+# Collaborative georeferencer prototype (lib/dpul_collections_web/georeferencer)
+config :dpul_collections, :georeferencer, enabled: true

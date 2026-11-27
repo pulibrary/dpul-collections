@@ -123,6 +123,21 @@ config :dpul_collections,
     retry: false
   ]
 
+# Georeferencer: outside requests stubbed; a fresh cache dir per run (sheet
+# images, OSM extracts, OCR models), and a stand-in for osmium that writes
+# fixtures cut from the New Jersey extract (CI has no osmium)
+config :dpul_collections, :georeferencer, enabled: true
+
+config :dpul_collections,
+  georef_req_options: [
+    plug: {Req.Test, DpulCollections.Georef},
+    retry: false
+  ]
+
+config :dpul_collections, DpulCollections.Georef,
+  cache_dir: Path.join(System.tmp_dir!(), "dpul_georef_test_#{System.os_time()}"),
+  osmium: Path.expand("../test/support/georef/fake_osmium", __DIR__)
+
 config :phoenix_test,
   otp_app: :dpul_collections,
   endpoint: DpulCollectionsWeb.Endpoint,

@@ -1,6 +1,5 @@
-// CPU side of the in-browser georeferencer: the sheet's ink / distance / mask maps (a port of
-// priv/georef/corridor.py Sheet), OSM sampling for the corridor score, label geometry and the
-// label least-squares snap. Transform convention as the server: T = [s, th, tx, ty],
+// CPU side of the in-browser georeferencer: the sheet's ink / distance / mask maps, OSM sampling for the corridor score, label geometry and the
+// label least-squares snap. Transform convention (shared with the server's Geometry): T = [s, th, tx, ty],
 // world (m) = s * R(th) * [u, -v] + t  for canvas pixel (u, v); {a, b} = s * {cos th, sin th}.
 
 export const fwd = ([s, th, tx, ty], u, v) => {
@@ -15,7 +14,7 @@ export const toAB = ([s, th, tx, ty]) => ({ a: s * Math.cos(th), b: s * Math.sin
 export const fromAB = ({ a, b, tx, ty }) => [Math.hypot(a, b), Math.atan2(b, a), tx, ty];
 
 export const nextFrame = () => new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
-export const nextTick = () => new Promise((r) => setTimeout(r, 0)); // also in workers
+const nextTick = () => new Promise((r) => setTimeout(r, 0)); // also in workers
 
 // ---- sheet maps -------------------------------------------------------------------------
 
@@ -136,7 +135,7 @@ export async function prepareSheet(img, width, maskPoly, onStep = () => {}) {
 
 // ---- OSM ----------------------------------------------------------------------------------
 
-/** drawn streets every 3 m with unit normals; railways every 3 m with nx = 9 (corridor.py Osm) */
+/** drawn streets every 3 m with unit normals; railways every 3 m with nx = 9 */
 export function samplePoints(lines) {
   const out = [];
   for (const L of lines) {
@@ -174,7 +173,7 @@ function nearestOn(segs, x, y) {
   return { d: Math.sqrt(best), fx, fy, ex, ey };
 }
 
-export const LABEL_TOL = 8; // m: a label "on its street" (the server's label check)
+export const LABEL_TOL = 8; // m: a label "on its street"
 
 export function labelStatus(T, labs) {
   return labs.map((l) => {
@@ -183,7 +182,7 @@ export function labelStatus(T, labs) {
   });
 }
 
-/** labels-only least squares (priv/georef/corridor.py snap): each label within `radius` m of its
+/** labels-only least squares: each label within `radius` m of its
  *  street is pulled onto its nearest segment; weak prior keeps the scale near s0. */
 export function snap(T, labs, { radius = 25, iters = 8, s0 = T[0], priorWeight = 40 } = {}) {
   let [s, th, tx, ty] = T;

@@ -1,6 +1,5 @@
-// The sheet's neatline (printed border) and its parts (areas split by heavy rules), ports of
-// priv/georef/neatline.py and priv/georef/parts.py on OpenCV.js, so each OpenCV call is the
-// one the server uses. Images: {w, h, d: RGBA}. Results in canvas pixels.
+// The sheet's neatline (printed border) and its parts (areas split by heavy rules), on
+// OpenCV.js. Images: {w, h, d: RGBA}. Results in canvas pixels.
 
 // OpenCV.js's module object is a thenable that resolves to itself; resolving a promise with it
 // loops forever, so it travels wrapped in {cv}
@@ -69,8 +68,8 @@ function intersect([x1, y1, dx1, dy1], [x2, y2, dx2, dy2]) {
   return [x1 + t * dx1, y1 + t * dy1];
 }
 
-/** neatline.py detect() on the overview (!1536 px) -> 4 corners (TL, TR, BR, BL) in canvas px,
- *  or the whole canvas when the border found covers less than half of it (Georef.cv_neatline) */
+/** the neatline, found on the overview (!1536 px) -> 4 corners (TL, TR, BR, BL) in canvas px,
+ *  or the whole canvas when the border found covers less than half of it */
 export async function neatline(img, canvasW, canvasH) {
   const { cv } = await loadCv();
   const corners = scoped(cv, (M) => {
@@ -152,7 +151,7 @@ export async function neatline(img, canvasW, canvasH) {
   return polyArea(pts) > 0.5 * canvasW * canvasH ? pts : full;
 }
 
-export function polyArea(p) {
+function polyArea(p) {
   let a = 0;
   for (let i = 0; i < p.length; i++) { const [x1, y1] = p[i], [x2, y2] = p[(i + 1) % p.length]; a += x1 * y2 - x2 * y1; }
   return Math.abs(a) / 2;
@@ -162,8 +161,8 @@ export function polyArea(p) {
 
 const MIN_PART = 0.03;
 
-/** parts.py on the !2000 px image: part polygons in canvas px, largest first (else [neat]) */
-export async function splitParts(img, canvasW, canvasH, neat, debug = null) {
+/** parts, split along heavy rules on the !2000 px image: part polygons in canvas px, largest first (else [neat]) */
+export async function splitParts(img, canvasW, canvasH, neat) {
   const { cv } = await loadCv();
   const parts = scoped(cv, (M) => {
     const rgba = M(rgbaMat(cv, img)), gray = M(new cv.Mat());
@@ -229,7 +228,6 @@ export async function splitParts(img, canvasW, canvasH, neat, debug = null) {
     const sd = stats.data32S.slice(), area = (i) => sd[i * stats.cols + cv.CC_STAT_AREA];
     const big = [];
     for (let i = 1; i < nl; i++) if (area(i) >= MIN_PART * pageSum) big.push(i);
-    if (debug) Object.assign(debug, { segs: segs.length, pageSum, areas: Array.from({ length: nl - 1 }, (_, j) => area(j + 1)).filter((a) => a > 0.005 * pageSum).sort((a, b) => b - a) });
     const ld = lab.data32S.slice(), isBig = new Uint8Array(nl);
     big.forEach((i) => (isBig[i] = 1));
     let nearest;
@@ -268,7 +266,6 @@ export async function splitParts(img, canvasW, canvasH, neat, debug = null) {
       cv.findContours(closed, cs, hier, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE);
       let best = null, ba = -1;
       for (let c = 0; c < cs.size(); c++) { const ct = M(cs.get(c)), a = cv.contourArea(ct); if (a > ba) { ba = a; best = ct; } }
-      if (debug) (debug.regions ||= []).push({ i, area: area(i), grown: dA.reduce((a, v) => a + v, 0), contours: cs.size(), best: ba });
       if (!best) continue;
       const approx = M(new cv.Mat());
       cv.approxPolyDP(best, approx, 0.004 * L, true);

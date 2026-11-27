@@ -1,517 +1,178 @@
-# Automatic georeferencing prototype
+# Collaborative georeferencing of Sanborn atlases (prototype)
 
-Goal: given a IIIF manifest of a scanned map (initially Sanborn fire insurance
-sheets from maps.princeton.edu), produce a
-[IIIF Georeference](https://iiif.io/api/extension/georef/) AnnotationPage that
-opens in [Allmaps](https://viewer.allmaps.org) — using only local compute.
+Volunteers' browsers georeference Sanborn fire insurance maps: while a
+volunteer has the page open, their computer takes sheets from a queue, reads
+them, and fits each part of a sheet to the town's modern OpenStreetMap streets
+on their GPU. The server only prepares atlases, hands out work and keeps the
+results. Parts the browsers aren't sure of are placed by people on a separate
+page. Results are IIIF Georeference Annotations (viewable in Allmaps).
 
-```
-mix georef https://maps.princeton.edu/catalog/princeton-t148fm04w
-mix georef <manifest-url> --canvases 0,1 --out tmp/georef/paulsboro
-GEOREF_MODEL=qwen36_35b mix georef ...              # choose the local VLM
-GEOREF_HOST=127.0.0.1 GEOREF_PORT=8092 mix georef ...  # use a llama-server elsewhere
-mix georef ... --vlm-labels --vlm-points            # also VLM name reading / junction pointing (off by default)
-mix georef ... --no-labels-first                    # ablation: junction fit only
-mix georef ... --no-slide                           # ablation: no slide fallback
-mix georef ... --no-neighbour                       # ablation: no neighbour placement
-```
+## Where it lives, switching it off, removing it
 
-Writes `<out>.json` (AnnotationPage) and `<out>.report.json` (debug data). In
-dev, files under `tmp/georef/` are served with CORS at
-`http://localhost:4000/georef/<name>.json` so Allmaps can load them with
-`https://viewer.allmaps.org/?url=...`.
+Everything is in its own folders; outside them only a few lines refer to it.
 
-## Local components
+| | |
+|---|---|
+| server | `lib/dpul_collections/georef.ex`, `lib/dpul_collections/georef/` |
+| web (pages, controller, routes) | `lib/dpul_collections_web/georeferencer/` (`DpulCollectionsWeb.Georeferencer.*`) |
+| browser | `assets/js/georeferencer/` (page hooks, Web Worker, OCR, fitting) |
+| tests | `test/dpul_collections/georef/`, `test/dpul_collections_web/georeferencer/`, `test/support/georef/` (fixtures, a stand-in for `osmium`) |
+| outside those | `use DpulCollectionsWeb.Georeferencer.Routes` in the router; two lines in `assets/js/hooks.js`; the `js/georeferencer/worker.js` entry and the fs/path/crypto externals in the esbuild args (`config/config.exs`); the `:georeferencer` and `DpulCollections.Georef` settings in `config/dev.exs` and `config/test.exs`; npm packages `onnxruntime-web`, `@techstark/opencv-js`, `leaflet`; migrations `2026112616*`–`2026112618*` (tables `georef_atlases`, `georef_jobs`, `georef_contributions`) |
 
-| What | How | Code |
-|---|---|---|
-| Vision-language model | `llama-server` (llama.cpp) with Qwen3-VL-8B (default) or Qwen3.6-35B-A3B GGUF; started on demand, or remote via `GEOREF_HOST` | `Georef.Vlm` |
-| OCR (text + rotated boxes) | RapidOCR: PP-OCRv5 mobile detection + PP-OCRv6 small recognition (ONNX), `priv/georef/ocr.py` under `uv`; upright + 90°-rotated pass; whole sheet at 3000 px + 2400 px tiles read at 1536 px | `Georef.Ocr` |
-| Heavy-rule detection | OpenCV morphology + Hough, `priv/georef/parts.py` under `uv` | `Georef.Parts` |
-| Modern streets/rail/water | Geofabrik state `.osm.pbf` clipped with `osmium` (Overpass fallback); junctions via a spatial grid | `Georef.Osm` |
-| Geometry | similarity fit, RANSAC, label-to-centreline ICP | `Georef.Geometry` |
+**On and off**: `config :dpul_collections, :georeferencer, enabled: true` (on in
+dev and test, off by default, so off in production). Off, every
+`/georeferencer` request is a 404 (`Georeferencer.Routes`, a plug plus a
+LiveView `on_mount` check); it is read at runtime, so no rebuild is needed.
 
-Models, OCR results and OSM extracts are cached under `~/.cache/dpul_georef`.
+**Removing it**: delete the folders above, then the lines listed under
+"outside those", then `npm uninstall onnxruntime-web @techstark/opencv-js
+leaflet` in `assets/`, and add a migration dropping `georef_contributions`,
+`georef_jobs` and `georef_atlases` (in that order). Cached images, OSM extracts
+and OCR models are in `~/.cache/dpul_georef` (`Georef.cache_dir/0`).
 
-## Pipeline (per canvas)
+## Pages
 
-1. **Where to look.** The catalog bbox is only a hint (Hightstown's points
-   at Hamilton, ~15 km away; Camden's covers the county; Bound Brook's clips
-   the Middlesex sheets). The title's place name ("Insurance maps of" removed)
-   is looked up in OSM places. If it lies inside the padded bbox, the bbox is
-   used, but never smaller than a town box (~7 km) and replaced by a town box
-   when it is more than twice that size; cities get ~13 km.
-2. **Neatline + parts.** The VLM finds the printed border. Heavy rules —
-   Sanborn's convention for separating areas that are *not* geographically
-   continuous — split the sheet into parts (a rule that steps from one line to
-   another is followed through the step). Each part is georeferenced on its own
-   with its polygon as the SvgSelector mask. Parts that cannot be fit are left
-   out.
-3. **Labels.** OCR reads every text line with a rotated box, upright and on a
-   90°-rotated copy (north–south street names are printed vertically and were
-   otherwise missed). Tokens that fuzzy-match a modern street / railway /
-   waterway name become labels with a position and direction; bare street-type
-   words ("LANE") never fuzzy-match, and printed street-index entries
-   ("Almond,", "Academy, N....") are dropped. VLM-read labels fill gaps (at most
-   two per name: a looping VLM repeats one).
-4. **Seeds.** Two labels of streets that meet in OSM imply the junction at the
-   intersection of their label lines; the VLM also points at named crossings.
-5. **Rough fit.** Every 2-point similarity implied by seeds is scored by how
-   many printed labels land near their own modern street (± 15 m at this stage)
-   plus seed agreement.
-6. **Labels-first fit.** From the rough fit, each printed label is snapped onto
-   its own modern street centreline (ICP, ± 8 m). Names sit on centrelines, so
-   this is more precise than VLM junction pinpoints (which lean toward street
-   edges). Accepted if the gates (below) pass — no zoomed VLM calls needed.
-7. **Fallback: junction fit.** Otherwise: project every modern intersection
-   through the rough fit, let the VLM pinpoint each on a zoomed crop, RANSAC
-   (label-line junctions weighted 3×), ICP against label centrelines; if that
-   fails the gates, one more labels-only attempt.
-8. **Gates.** A part is emitted only if
-   * ≥ max(3, 25 %) of its labels sit on their streets (± 8 m),
-   * those streets run in ≥ 2 directions (≥ 30° apart), so the fit can't slide,
-   * the fitted m/px agrees with a "Scale N ft to an inch" printed inside the
-     part (majority of the statements inside it, then the one nearest the
-     top — an unsplit inset can carry its own), else one of Sanborn's
-     standard scales: implied resolution 355–427 dpi on the canvas's 395-dpi
-     grid (111 correct fits fell in 0.925–1.055 of nominal; a campus sheet
-     anchored on building names fitted at 1.10).
-   Otherwise the part is reported as not georeferenced — no annotation beats a
-   wrong one. GCPs are the part outline and labels mapped through the fit.
-9. **Fallback: slide (after all canvases).** A declined part whose labels give
-   no crossing pair (no label-line junction) but name ≥ 2 parallel streets can
-   slide along them. `priv/georef/slide.py` places the family at Sanborn's
-   standard scales (50 / 100 ft to the inch at 395 dpi), ranks placements by
-   how well modern centrelines fall into printed street corridors, and for the
-   top 8 predicts up to 3 named cross streets with mid-block read points. Each
-   point is read on a 1200 px crop (OCR, then the VLM only if OCR found no
-   street name): naming a street within 20 m confirms, naming a real street
-   more than 60 m away contradicts. The best placement with a confirmation and
-   no contradiction adds its reads as labels and goes through the normal
-   labels-only fit and gates (method `slide`). Scale: the printed one, else the
-   class of the previous and next fitted sheets when they agree, else both
-   classes with ≥ 2 confirmations required (atlases mix 50 and 100 ft sheets).
-   `--no-slide` turns it off.
-10. **Retry with a bigger VLM** (`--retry-model qwen38_27b`, before the slide
-    pass). Canvases with a declined part are run again with Qwen3.8-27B, which
-    reads more street names (~2.5× slower); its parts replace the originals
-    only if more of them fit. Locally the model is swapped on the same port.
-11. **Atlas consistency (last).** Same-scale sheets tile the town, so two
-    same-scale parts whose ground footprints overlap by more than half can't
-    both be right. On a regular grid a sheet can fit one block off with every
-    label on a parallel street (Vineland Sheet 11 sat 73 % on Sheet 12 and
-    passed every per-sheet gate; overlays and seam matching looked fine). If a
-    fitted key map (overview) prints one sheet's number inside its footprint,
-    that one is kept; otherwise both are declined (`Georef.Consistency`).
-12. **Fallback: neighbour placement** (after the slide, before the
-    consistency check so a bad placement is still caught). A declined part
-    with labels on ≥ 2 modern streets is placed from the fitted sheets around
-    it (`Georef.Neighbour`, `priv/georef/neighbour.py`). Scale and rotation are
-    priors — the printed scale, else the neighbours' class (as in the slide),
-    else the class of the fitted sheets whose numbers are printed at the
-    part's edges; rotation = circular median of the fitted sheets mod 90° +
-    k × 90° — so each label is a line constraint on the translation. Anchor
-    labels are stepped along their street (4 m); positions where labels of ≥ 2
-    streets land on theirs (15 m, ±15° direction; a second pass ignores
-    direction) are snapped, ranked by labels on streets + corridor score, and
-    those covering a fitted footprint by > 50 % dropped. The top 8 are checked
-    against every street name on the sheet, OCR'd in 1800 px tiles at 2/3
-    resolution (`Ocr.read_tiled/2`; names < 78 px tall are building notes):
-    a name printed within 20 m of its street matches, > 60 m contradicts;
-    adjacent-sheet numbers must land within 40 m of that sheet's footprint
-    (> 150 m contradicts). Accepted only with no contradiction, ≥ 2 name
-    reads of which ≥ 1 is informative (on a crossing street when all labels
-    are parallel), and no rival ≥ 20 m away with as much support; the final
-    fit holds scale and rotation and fits the translation to labels + reads
-    (method `neighbour`). Name reads are keyed more strictly than labels: a
-    bare "WEST" names nothing (West Avenue or West Boulevard?) and
-    direction-only names compare in long form ("S. E. BOULEVARD" = South East
-    Boulevard). Fitted parts that the consistency check will decline (Vineland
-    Sheet 11) are not used as neighbours. Weaker rules (a junction of two
-    labels + an agreeing sheet reference) placed more parts in the prototype
-    but are not shipped. Leave-one-out on Vineland (labels cut to 2–3): ~50 %
-    of trials placed, 1 of 120 wrong (17 m off). `--no-neighbour` turns it
-    off.
+* `/georeferencer` — the main page. Shows the queue (atlases in order, with
+  progress), a form to add an atlas by IIIF manifest URL, the worker's status
+  and a live map. There is no choosing what to run: every open page takes the
+  oldest waiting sheet. The map follows the sheet being worked on (its town on
+  claim, each part as it is fitted, using the atlas projection sent with the
+  job) and shows everyone's finished sheets, warped into place.
+* `/georeferencer/review` — placing by hand, opened in a new tab from the main
+  page (see below).
+* `/georeferencer/results` — your contributions (JSON, Allmaps links) and each
+  atlas's AnnotationPage (`/georeferencer/atlas/:id/georef.json`); an atlas
+  opens in the editor (`/georeferencer/:atlas/:index`) to check or adjust fits.
 
-## Additions (Nov 2026)
+## Server (`DpulCollections.Georef.Collab*`, cheap work only)
 
-* **No VLM server needed by default.** The neatline is found by image
-  processing (`priv/georef/neatline.py`: outermost ruled line with blank
-  margin beyond it, within 8.5 % of the edge, else where the drawing starts);
-  on 86 sheets the VLM's neatline cut real map content more often (Princeton
-  1918 Sheets 6 and 9, Millville Sheet 18). The VLM zoom-in on junction seeds
-  is off (`--refine` turns it on): check points held or improved, the
-  held-out sample fitted the same parts, at ~10x the speed. It had masked
-  a selection weakness: among refined candidate fits the one with most
-  labels on streets won, and a weak start could drift in ICP to a rotated fit
-  with one more label (Bay Head 1905 Sheet 48: -35 deg, 6 labels vs the
-  right fit's 5 labels and 6 junction seeds). Candidates now also score half
-  a point per junction seed within 30 m of its modern intersection; on the
-  15-atlas batch this fixed W. Ocean Grove 1905 Sheet 61 part 1, declined a
-  wrong Bay Head Sheet 47 fit, and added Flemington 7 and Matawan 1. The
-  VLM's slide-fallback reads changed no result on the 3 atlases that use
-  them (~75 calls). The server is
-  started lazily, only for the slide fallback's crop reads (when OCR cannot
-  read a crop) or the opt-in flags (`--vlm-neatline`, `--vlm-labels`,
-  `--vlm-points`, `--refine`, `--retry-model`); an unreachable server leaves
-  those crops unread.
-* **Corridor alignment** (`priv/georef/align.py`, last pass, `--no-align`):
-  every accepted fit is refined by point-to-line ICP pairing modern
-  centreline samples that lie in printed street corridors with the corridor
-  centre, plus each label with its own street (label weight 30, so a grid
-  cannot slip a street over); kept if no label leaves its street, at most
-  15 m / 3 deg. A blind search maximising corridor metres was worse (modern
-  streets through old blocks steer it) and corridors without label anchors
-  were mixed. Check points: Paulsboro 1.6 -> 1.2 m, Cresskill 1.7 -> 1.2,
-  Hohokus 1.7 -> 1.6, Hightstown 3.2 -> 3.4; held-out and 15-atlas batch:
-  same parts fitted, 92 of 97 aligned, nothing moved over 7 m. OIM human
-  GCPs (same code, align off -> on): Clayton 5.3 -> 3.6, Carneys Point
-  17.1 -> 14.0, Mantua 2.0 -> 1.6, Westville 5.4 -> 5.1; Mullica Hill
-  6.4 -> 8.0 and Glassboro 13.5 -> 14.8 worse; rest flat.
-* **Corridor rescue** (`--no-rescue`): a declined part whose junction seeds
-  give a start putting >= 3 labels near their streets (one short of a
-  single-seed fit) is aligned to the corridors from each such start and
-  accepted when exactly one distinct start keeps >= 3 labels within 8 m, a
-  printed-scale-consistent scale and corridor contrast >= 0.1 (corridor share
-  at the fit minus the median at 8 fixed nearby wrong placements; on accepted
-  fits median 0.24 / p10 0.09, on wrong placements p90 of the per-part worst
-  0.12). Added Berlin 1929 Sheet 6, Manasquan 1921 Sheet 87, Princeton 1911
-  and 1918 Sheet 18 part 3, Swedesboro 1898 Sheet 1, Williamstown 1900
-  (11.1 m vs human GCPs) — all checked on overlays; Cranbury 1916 Sheet 2 is
-  held back by the scale gate (aligned to 45 ft on a 50 ft atlas).
-  Contrast 0.1 is a hard edge: Manasquan 87 sits on it (0.10) and flips
-  between runs.
-* **Seed placement** (`priv/georef/seedplace.py`, inside the rescue pass): a
-  part still declined that has a junction seed is placed from that seed and
-  the labels of its two streets only. Scale is printed, else the atlas's usual
-  class; rotation swept 0–358° by 2°, the 6 best rotations by corridor share
-  aligned, scored by contrast. Accepted only if the best has contrast ≥ 0.15
-  and leads every other candidate by ≥ 0.05, puts ≥ 2 labels on their
-  streets with the lettering running along the street (≤ 20°) and none
-  across, and no other candidate with agreeing labels reaches 0.1. That last
-  rule handles a straight crossing, which is symmetric: turned 180°, both
-  labels still lie on their streets (it caught Princeton 1911 Sheet 4 and
-  Berlin Sheet 7, whose 180° twins scored higher).
-  - Leave-one-out on 127 fitted parts, each reduced to one seed and its two
-    streets: 65 placed, 0 wrong, all ≤ 15 m (without the lettering and
-    symmetry rules 4–11 wrong at any threshold). Footprint overlap with the
-    atlas's fitted sheets does not help: true placements overlap their
-    neighbours a median 13 %, p90 50 %.
-  - On the real declined parts it adds little, because fitted parts have
-    rich corridors and declined ones don't. Regression v38: Princeton 1911
-    Sheet 17 part 1 added (overlay-checked); 0 of 23 in the 15-atlas batch
-    (8 no margin, 7 low contrast, 8 labels not on or along their streets);
-    0 of 5 held-out; check points and OIM unchanged.
-* **Letter-spaced street names.** Lettered streets are printed spread across
-  the street ("B      ST.", Belmar 1905 Sheet 80, ~880 px between the words),
-  so OCR returns a lone letter and a lone type word, and the sheet showed only
-  its parallel numbered avenues. A letter on the type word's line (the
-  letter's own box angle is meaningless), followed within 12 letter heights
-  at a similar size, becomes "B ST", matched exactly. Belmar Sheets 80, 81
-  and 82 now fit (overlay-checked); regression v39 otherwise unchanged.
-* **Wider rotation starts for the corridor alignment.** The alignment's basin
-  in rotation is narrow on some sheets: a fit a few degrees off stays there
-  (Bay Head 1905 Sheet 51 and Belmar 1905 Sheet 83 at ~5°, overlay-checked).
-  Alignment is also started 4° either side, and such a start is kept when
-  its contrast beats the plain one by ≥ 0.05, reaches ≥ 0.1, turns ≤ 6° and
-  moves ≤ 15 m (it may lose one label, which the wrong rotation had held on
-  its street). On a sound fit every start from −8° to +8° returns to the same
-  place (Belmar Sheet 82). Regression v40: Bay Head 51 turned 4.95° (contrast
-  0.01 → 0.27), Spotswood 1910 Sheet 1 part 1 visibly better, Avon 64/66,
-  Flemington 7, Stewartsville 2 and Princeton 1918 Sheet 12 small changes,
-  none worse on overlays; check points, held-out and OIM within noise.
-  A gate on the atlas's usual rotation was measured and rejected: correct
-  sheets sit up to 15° off it (Berlin, Princeton Sheet 20).
-* **Present-day town from the catalog subject.** The 1912 "Insurance maps of
-  Roosevelt, Middlesex County" is today's Carteret; title and catalog bbox
-  both point at modern Roosevelt (Monmouth). When the Figgy subject
-  ("Real property—New Jersey—Carteret—Maps") names one town other than the
-  title's, that town is searched (`Georef.place_name/1`): 0 → 3/27 parts; its
-  key map fits there with 12 labels on their streets.
-* **Key maps under a sheet-scale statement.** An index/overview canvas often
-  prints only the sheets' scale ("SCALE 50 FT. TO AN INCH") beside a key map
-  drawn at 500–800 ft, so key-map fits with 8–25 labels on their streets
-  were scale-rejected (Englewood 1908 Index, Riverton, Salem, Somerville,
-  Belmar overviews). `Georef.scale_ok?/3` passes a fit at a standard scale
-  ≥ 4× the printed one with ≥ 8 labels on their streets. Such a part is
-  often a sheet with the key map in one corner (Bay Head 1905 Sheet 47: key
-  map above a 60 ft sheet, one part), so its mask is cut to the box around
-  its labels on their streets, padded 10 % (`Georef.key_map_mask/2`).
-  v41: Princeton 1918 and 1911 Sheet 1 key maps, Bay Head 47 (overlays
-  right); check points, held-out set, OIM unchanged.
-* **Scale statements from tiles too.** Bridgeton 1915 Sheet 19 part 1: whole
-  sheet read "SCALE I0OO FT." (title) and "Scale 100 Ft." (bar), tied, and
-  the topmost won; the tiled OCR reads "SCALE IOOFT.", so tiles now vote —
-  one vote per statement: readings within 300 px are one statement backing
-  every value read there. Counting each reading instead let overlapping
-  tiles' "50" and "5O" on Summit 1921 Sheet 33's inset outvote its title's
-  200 ft (portal4: the sheet was lost). Known limit: a tie still goes to the
-  topmost statement, which on Roebling 1928 Sheet 1 part 1 is the unsplit key
-  map's "Scale 500 feet (Approx.)" over the sheet's 100 ft bar (that part fits
-  only when 100 wins).
-* **Runs are repeatable.** Two runs of the same code moved alignments by up
-  to 9 m (Freehold 1909 Sheet 6 part 1) and flipped borderline rescues:
-  `align.py`/`corridor.py` looped over Python sets of street keys, whose
-  order follows the per-process hash seed. Sorted; two Freehold runs now give
-  identical transforms.
-* **A late placement yields to a labels fit.** When a part placed by the
-  corridor rescue, seed placement or neighbour placement overlaps a part
-  fitted from its own labels, only the late one is declined (Freehold 1909
-  Sheet 2: part 2 rescued at contrast 0.11 on top of part 1, which has 10
-  labels on their streets; both used to go).
-* **Overlaps between two labels fits stay declined both ways.** Four same-scale overlaps in
-  the portal and OIM runs; on each, one side is a small inset. Label hits do
-  not pick the right side (Westville 1909 Sheet 1: the 8-hit part is 28 m
-  off by OIM's human GCPs, the 3-hit inset 7 m), nor does corridor contrast
-  (0.145 for the wrong one, −0.151 for the right one).
-* **Slide VLM reads are opt-in** (`--slide-vlm`). They changed no result
-  (v39 15-atlas batch and Princeton identical without them) and took ~5 min
-  per sheet (Belmar 1905: 50 min for 18 canvases).
-* **One-label placement (tried, not adopted).** For parts with a single
-  readable street name: the label is placed on every 4 m of its street, at
-  the atlas rotation (±4°, ×90°), ranked by corridor share, then aligned and
-  scored by contrast. Leave-one-out on 124 fitted parts: 28 within 30 m, and
-  at every contrast/margin threshold more wrong than right (best 49
-  accepted, 29 wrong). Printed blocks repeat along a street too regularly for
-  corridors alone to say where.
-* **Rough tolerance scales with the map**: label/seed slop is a distance on
-  paper, so the rough label tolerance is 15 m at 50 ft to the inch, growing
-  with scale to 45 m (Princeton 1911 Sheet 20, 200 ft).
-* **No VLM for names or junctions by default.** On the check points and the
-  oldinsurancemaps.net set the VLM's label reading and junction pointing
-  added nothing (equal accuracy, one fewer wrong fit without) at ~3× the
-  time; the names it alone read were mostly PP-OCR pipeline misses (33-name
-  benchmark, below). The neatline is image processing and the slide reads crops by OCR; the VLM is opt-in only.
-* **OCR.** On the 33 street names only the VLM had read (held-out sample),
-  PP-OCRv5 detection at 2400 px tiles finds 24; PP-OCRv6 small recognition
-  reads 25 at ~1 s/tile (v5: 22). Tried and dropped: GLM-OCR (25, no boxes),
-  PaddleOCR-VL-1.6 spotting (21–24, 6 s/tile), OvisOCR3, Chandra OCR 2 (slow),
-  PP-DocLayoutV3 (calls a map an "image"), grayscale, ±45° passes (+1 name
-  for 2× time).
-* **Junk labels.** The town's own name is dropped near title lettering or
-  below street-name size; words that also name buildings, colours of the key,
-  materials or structures (CHURCH, GREEN, GARAGE, BRIDGE, SCALE, …) count as
-  streets only at street-name size (≥ 100 px at 395 dpi); numbered streets
-  ("3RD", OCR "7H") are read and matched exactly. Among candidate fits, small
-  lettering counts less.
-* **Named buildings.** Named OSM building footprints are label targets: a
-  label inside its building is on target, pulled to the centre of a compact
-  footprint (< 50 m). Fits campuses (Princeton 1918 Sheet 13, the Prospect
-  Avenue clubs) and helps sheets with named churches, mills and schools.
-* **Street renames** learned per atlas (`Georef.Renames`): street-size words
-  lying along a modern centreline on fitted sheets vote for that street;
-  agreeing votes (≥ 2, ≥ 75 %) alias the name for the declined sheets. Votes
-  and renames are kept in the report.
-* **Scans at other resolutions** (LoC: 300 dpi) get a virtual 395-dpi pixel
-  grid (`Manifest.px_scale`), so all thresholds hold.
-* **Parts**: collinear rule pieces interrupted by a compass rose are joined
-  (gaps up to 25 % of the sheet between two long rules on one line:
-  Allendale 1924 Sheet 4); each part's outline grows out to the page border
-  but never past a rule into another part (every pixel goes to the nearest
-  part core; outlines used to overlap their neighbours by 3–8 %, drawing a
-  sliver of an inset with the main part's fit); parts down to 3 % of the
-  page are kept (small boxed insets: Roebling 1928 Sheet 3, Cranford Sheet 1,
-  Stewartsville 1924 Sheet 2).
-* **Scales**: "Scale, 120 Feet…" (comma) and OCR "IZO" (Z for 2) are read
-  (120 ft is accepted only when printed: as a default standard scale it let
-  a 114 ft wrong fit of Spotswood 1910 Sheet 1, a 50 ft sheet, pass); a part with no statement of its own also tries
-  the sheet's stated scales, and the neighbour pass uses a fitted sibling
-  part's scale (60 ft used to be rounded to the 50 ft class). Fixed wrong
-  fits on W. Ocean Grove 1905 Sheet 62 and Manasquan 1921 Sheet 85 (both
-  120 ft, fitted near 100 ft before).
-* **Parcels (tried, not adopted).** The NJ statewide parcel composite
-  (NJOGIS ArcGIS feature service, public) still follows Sanborn lot lines in
-  old town centres to ~2 m. Matching a sheet's drawn lines (dark lines that
-  survive a 0.4-inch line opening) to rasterised parcel boundaries by FFT
-  normalised cross-correlation over scale × rotation × translation
-  (`tmp/georef_scratch/tools/parcelmatch.py`, ~15 s per scale at 2 m/px):
-  - labels-free it places Princeton 1918 Sheets 9 and 15 within 1–8 m, and
-    with the sheet's few labels as constraints (each within 30 m of its named
-    street) Sheet 18 part 1 within 1–4 m;
-  - but on the parts that actually fail (Princeton 17, 18 insets, 20) the
-    lots were redeveloped or estates subdivided: the best wrong pose scores
-    as high (0.44) as true poses elsewhere (0.35–0.48), so no safe threshold;
-  - as a local refinement of accepted fits (±3°, ±4 %, 80 m; applied if
-    NCC ≥ 0.2 and move ≤ 30 m) against human GCPs: Carneys Point p2
-    23.5 → 2.5 m, Pitman 12.5 → 9.7, Clayton 5.3 → 3.4, but Westville layers
-    1–4 m worse and the rest ±1 m — no net gain on the held-out set.
-* **Placement from fitted neighbours (tried, not adopted).** Leave-one-out on
-  Princeton 1918 with one street name per part (as on the declined parts):
-  - adjacent-sheet numbers printed at the edges, required to land on or
-    within 40–80 m of that sheet's fitted footprint, pin a part only to
-    ~100 m (footprints are 300–400 m across): top candidate ≤ 30 m on 3/19;
-  - matching the part's lot/block lines against a mosaic of the other fitted
-    sheets' lines (`tmp/georef_scratch/tools/mosaicmatch.py`; FFT NCC over
-    the overlap only): neighbouring sheets do share linework (35–60 % of a
-    sheet's lines lie within 4 m of a neighbour's), but the overlap is a thin
-    edge strip, and the top candidate is ≤ 30 m on 5/20; with the sheet's own
-    layer left in, the true pose scores 0.67 at 1 m, so the geometry is right
-    and the evidence is just too thin. Sheet 17 is three separate stretches of
-    Alexander Street with one name each; Sheet 18's parts are separate insets.
-* **External cross-check.** A colleague's agent-made georeferences of 343 NJ
-  Figgy atlases (eliotjordan.github.io `sanborn/data/atlases/*.json`: IIIF
-  georef annotations with named-junction GCPs plus per-sheet descriptions)
-  agree with ours to ≤ 5 m on 18/27 shared parts, ≤ 10 m on 20, ≤ 25 m on
-  23 (`tmp/georef_scratch/tools/cmp_colleague.py`). It is unverified AI
-  output, not ground truth: it is used only to flag sheets worth inspecting,
-  and every fix is decided from our own evidence (OSM overlays, the printed
-  sheet). Nothing from it (GCPs, notes, renames) feeds the pipeline.
+* `Queue.enqueue(manifest_url)`: fetches the manifest (`Georef.Manifest`),
+  finds the town (`Georef.search_bbox`: the title's place in OSM, the catalog
+  bbox only as a hint) and prepares its OSM extract (`Georef.Osm`, from a
+  state `.osm.pbf` clipped with `osmium`; nothing is fetched at query time).
+  Each canvas becomes a `georef_jobs` row.
+* Claims are `FOR UPDATE SKIP LOCKED`, oldest first. A closed tab's claim goes
+  straight back (the LiveView's `terminate` calls `Queue.release`); any other
+  claim quiet for 10 minutes is handed out again; after three failures a job
+  is `failed`. Quiet claims count as waiting in the queue's numbers.
+* A finished job stores the browser's result; each placed part becomes a
+  `georef_contributions` row credited to the signed-in user, with its IIIF
+  Georeference Annotation (`creator: urn:dpul:user:ID`).
+* Atlas-wide steps run over all the browsers' results: renames (below) and
+  `Georef.Consistency` (same-scale parts overlapping by more than half on the
+  ground are both declined, unless a key map vouches for one; sheet numbers on
+  key maps come from the whole-sheet words the browser sends back).
+* The server also serves what the browser can't fetch itself: same-origin
+  sheet images at fixed IIIF sizes (cached in `~/.cache/dpul_georef/img`), the
+  OCR models (`~/.cache/dpul_georef/ocr_web`) and the town's streets
+  (`/georeferencer/atlas/:id/osm.json`).
 
-* **WebGPU corridor score (experiment, not in the pipeline).** Toward a
-  site where volunteers' browsers do the work, `Sheet.corridor` was ported to
-  a WGSL compute shader (`tmp/georef_scratch/serve/gpu/corridor.js`; one
-  invocation per street sample and transform, workgroup sums, atomics; a
-  second kernel counts labels within 8 m of their street). Parity with
-  Python: 187-189 of 189 test transforms identical per sheet, contrast
-  identical. Speed on an M-series GPU in headless Chromium: ~1 µs per
-  transform (300k placements in 0.2-0.35 s) against ~1.5 ms in Python. Two
-  gotchas: WebGPU needs a secure (localhost) page, and headless Chromium
-  silently falls back to SwiftShader (CPU) without `--use-angle=metal`.
-  Dense refinement around accepted fits (±6°, ±40 m, ±2 % scale, ~412k
-  placements, best good - bad corridor metres), scored against OIM human
-  GCPs (`tools/gpu_oim_eval.py`): unconstrained it is worse (median 7.8 ->
-  13.4 m and 13.5 -> 20.5 m; small parts slide a block); keeping at least
-  the fit's labels on their streets, mixed (7.8 -> 8.7 m, 0 better / 6
-  worse; 13.5 -> 11.9 m, 7 better / 4 worse); smoothing the objective over
-  neighbouring placements doesn't change that. So the speed is there for a
-  browser client; the corridor objective, not compute, limits precision.
-  Bay Head 1905 Sheet 51 is one sheet where the dense search clearly beats
-  the shipped fit (overlay: Main/East/Lake Av back in their corridors).
+**Renames.** For each part it placed, the browser reports which modern street
+each street-name sized word sits on (`pipeline.js` `observeRenames`). When an
+atlas's first round is done, `Renames.table` turns agreeing votes (>= 2,
+>= 75 %) into aliases ("MAIN" in Swedesboro is now Kings Highway), and the
+canvases with an unplaced part are queued again (round 2) with them. A round-2
+result replaces round 1 only when it places more parts.
 
-## Volunteer georeferencing in the browser (prototype, Nov 2026)
+## Browser (`assets/js/georeferencer/`, in a Web Worker: `worker.js`)
 
-The whole per-canvas pipeline also runs in a volunteer's browser, so the
-compute is theirs. While `/georeferencer/volunteer` is open (dev routes), the
-page claims jobs from a queue and a Web Worker (`assets/js/georef_worker.js`)
-georeferences each canvas on the visitor's GPU; finished sheets appear, warped
-into place, on a live map for everyone watching.
+Per canvas (`pipeline.js` `processCanvas`), about 30 s on an M2 Max, 21 s of
+it OCR; OCR results are cached in IndexedDB:
 
-**Server (cheap work only)**: `Georef.Collab.Queue.enqueue(manifest_url)`
-fetches the manifest, finds the town (`search_bbox`) and prepares its OSM
-extract; each canvas becomes a `georef_jobs` row. Claims are `FOR UPDATE SKIP
-LOCKED`; a claim quiet for 10 minutes is handed out again; three failures and
-a job is `failed`. Results are stored on the job, and each placed part becomes
-a `georef_contributions` row credited to the signed-in user, with its IIIF
-Georeference Annotation (`creator: urn:dpul:user:ID`). Per-atlas
-AnnotationPage: `/georeferencer/atlas/:id/georef.json`; a contributor's own
-results are listed (with JSON and Allmaps links) on `/georeferencer`. The
-server also serves the inputs the browser can't get itself: same-origin sheet
-images at the pipeline's sizes, the OCR models and the town's streets.
+1. **Border and parts** (`sheetgeom.js`, OpenCV.js 4.10): the neatline on a
+   1536 px overview, then parts split along Sanborn's heavy rules (areas that
+   are not continuous) on a 2000 px image.
+2. **OCR** (`ocr.js`): RapidOCR's PP-OCRv6 small detection + recognition and
+   the v2 angle classifier, run by onnxruntime-web on WebGPU; the whole sheet
+   at 3000 px plus 30 overlapping tiles, each read upright and turned 90° for
+   vertical names.
+3. **Street names** (`labels.js`): words matched to the town's modern street
+   names (normalised: suffixes, directions, ordinals; Jaro >= 0.93),
+   letter-spaced names joined ("B … ST."), library stamps and the title's town
+   name dropped, the printed scale read.
+4. **Fit, per part** (`search.js`, `gpu.js`, `engine.js`):
+   * a GPU search puts every pair of far-apart names on every pair of points
+     of their two streets (5 m apart; 1–20 M placements in 10–20 ms), scored
+     by how many names then land on their own streets; plus placements implied
+     by named crossings;
+   * near-best placements (one per 20 m / 3° / 2 % cell) are snapped (names
+     least squares, matching radius 20 → 12 → 8 m, never losing a name), ranked
+     by names on streets + 3 × corridor contrast, and the best three refined in
+     the printed street corridors;
+   * **corridor contrast**: how much more of the modern street centreline falls
+     in the sheet's printed street corridors (white bands between building ink)
+     here than at nearby placements. A true fit is a peak; a ladder of parallel
+     names landing on the wrong parallel streets is not.
+5. **Acceptance**: enough names (max(3, 25 % of those read)), on streets
+   crossing each other, at a scale consistent with the printed one (355–427
+   dpi; key maps under a sheet's scale statement are searched at their own
+   scale), and printed streets that line up (corridor contrast >= 0.1; key
+   maps excepted, their streets are drawn too small). A lead in names never
+   stands in for the corridors: Como 1907 Sheet 17 had 8 of 10 names on their
+   streets at a 45° wrong angle, because five of them sat in one row across
+   parallel avenues (contrast 0.055). A fit failing only this test is kept as
+   "unsure" for a person. The server applies the same check to every result
+   it receives (`Queue.checked`), so a browser's "ok" is not taken on trust,
+   and an automatic contribution stops counting if its part fails it.
 
-**Browser (`assets/js/georeferencer/`)**, each step checked against the server:
+## Placing by hand (`/georeferencer/review`, `Collab.Review`)
 
-| Step | Port of | Parity |
-|---|---|---|
-| neatline, parts (`sheetgeom.js`, OpenCV.js 4.10) | `neatline.py`, `parts.py` | parts identical on 7/7 Palmyra sheets; neatline within 1 overview px |
-| OCR (`ocr.js`, onnxruntime-web on WebGPU, PP-OCRv6 small det/rec + v2 cls) | RapidOCR via `ocr.py` (upright + rotated pass) | 68/92 tokens identical, 17 more read slightly differently; 3.4 s per page |
-| street names (`labels.js`) | `ocr_labels`, `spaced_names`, tiles, stamp/title filters, `Osm.normalize`/`match_name` | label counts per part equal the server's on 6 of 7 parts checked |
-| corridor maps, score (`engine.js`, `gpu.js`) | `corridor.py` | 984/1335 vs 981/1341 m |
-| fit (`search.js`) | — | see below |
+Parts the browsers didn't place confidently (unsure, colliding with another
+sheet, or unplaced), minus those a person already decided (`Collab.human?`),
+easiest first:
 
-The fit is not a port of the server's: a GPU search puts every pair of
-far-apart names on every pair of points of their two streets (5 m apart; 1-20 M
-placements in ~10-20 ms). Every placement within a name of the best (one per
-20 m / 3 deg / 2 % cell), plus the placements two junction seeds imply (the
-server's `label_junctions` + `Geometry.hypotheses`, from OSM crossings in the
-town payload), is snapped (labels least squares, matching radius 20 -> 12 -> 8 m,
-no scale pull, never losing a name). Candidates are ranked by names on their
-streets + 3 x corridor contrast (`align.contrast`, one batched GPU dispatch for
-all of them), and the best three refined in the printed street corridors
-without losing a name. Gates are the server's (`needed_hits`,
-`crossing_streets?`, `scale_ok?` with the key-map exception and
-`key_map_mask`), plus either contrast >= 0.05 or a margin of 2 names over the
-best placement elsewhere; parts failing only that are kept as "unsure" for a
-person to look at. About 30 s a canvas on an M2 Max (21 s of it the 30 OCR
-tiles); OCR results are cached in IndexedDB.
+1. a guess whose printed streets line up with the modern ones (corridor
+   contrast >= 0.1, `Review.lines_up?`), ordered by contrast, then names and
+   their lead over the next-best spot. Every confident fit so far scored
+   >= 0.13 and the wrong guesses seen < 0.05, while name counts alone could not
+   tell them apart (a wrong guess put 6 of 7 names on streets);
+2. guesses colliding with another sheet;
+3. parts with names but no believable guess (a guess that doesn't line up is
+   flagged in the editor as probably wrong);
+4. parts with little to go on (one name or none; often not a map).
 
-Atlas-wide steps: the browser reports, for each part it placed, which modern
-street each street-name sized word sits on (`Renames.observe`); when an
-atlas's round-1 jobs are done the server builds the rename table
-(`Renames.table`) and queues the canvases with an unplaced part again (round
-2) with the renames; a round-2 result replaces round 1 only when it places
-more parts. The server runs `Consistency` over the browsers' fits (sheet
-numbers on key maps from the whole-sheet words the browser sends back). Not in
-the browser: the slide, neighbour, rescue and alignment passes (on the 12 new
-atlases of Nov 2026 they added 1 corridor rescue and 3 seed placements of 287
-fits).
+The editor draws OpenStreetMap tiles under the sheet, names along the modern
+street lines, and opens on the computer's guess. Picking a street name
+highlights its modern street; clicking on it pins the name there. One pin
+moves the sheet, two solve scale and rotation too (then a snap pulls the other
+names on if it keeps as many). Arrow keys nudge, `<` `>` turn, `-` `+` resize,
+holding Space shows the map through the sheet. Saving moves on to the next
+part and puts the placement on everyone's map.
 
-Against the server on 61 parts of Palmyra, Moorestown and Red Bank (server run
-v43): server 48 placed, browser 44; 42 placed by both, 37 of those within 20 m
-of each other. The browser misses 6 the server placed (2-5 names; the server's
-rough fits from junction seeds or its later passes), and places 2 the server
-declined.
+## Design notes (measured on the earlier server prototype)
 
-Gotchas: OpenCV.js's module object is a thenable that resolves to itself
-(never return it from an async function or resolve a promise with it), and
-its heap grows as Mats are made, detaching earlier `.data` views (copy them).
-LiveView copies a hook object's callbacks onto the hook instance (don't
-`Object.assign` the instance into another object). Phoenix's CSRF plug
-refuses JavaScript responses on `:browser` routes (the ONNX runtime's module
-is served outside that pipeline). Headless Chromium needs
-`--use-angle=metal` for a real GPU adapter.
+* Identity comes from printed street names and geometry, not from a vision
+  language model: VLM point grounding was precise (2–7 m) but its identity
+  unreliable, and a VLM asked whether a fit was aligned said yes to fits
+  shifted 100 m. Image processing beat VLM steps throughout.
+* Checks must be able to fail. Names on streets alone can be fooled by
+  parallel streets; the corridor contrast separates them.
+* Corridors are a ranking signal, not an optimiser: modern centrelines are not
+  the historic corridors, and pixel-wise corridor alignment moved good fits a
+  few metres off.
+* On 61 parts of Palmyra, Moorestown and Red Bank, the browser placed 44 to the
+  server prototype's 48 (42 by both, 37 of those within 20 m of each other);
+  the misses had 2–5 readable names, which is what hand placement is for.
 
-## Evaluation
+## Gotchas
 
-**Check points** (`priv/georef/eval/truth/`, `evalgeo.py`): hand-labelled
-pixel → OSM intersections on Paulsboro 1886, Cresskill 1914, Hightstown 1916
-and Ho-Ho-Kus 1928 (34 points). Metric: error in metres of the affine Allmaps
-would fit, at the check points. Noise floor ≈ 1.7–4.5 m per sheet.
-
-**Label-free collection checks** for atlases without check points:
-* `seams.py` — where two sheets' masks overlap on the ground, render both onto
-  one ground grid and template-match 2-D-structured patches; the median offset
-  is the seam gap between the two fits (plain SIFT fails: line drawings slide
-  along streets, and repeated glyphs match everywhere).
-* `labelfree.py` — per part: status, labels on streets, implied dpi from the
-  printed scale (outliers flag wrong scales), seam gaps.
-* `overlay.py` — modern OSM drawn through the fit, for eyeballing.
-
-Results (8B model):
-
-| | Check points: median / p90 / max | Tuning sample (12 atlases) | Held-out sample (11 atlases) |
-|---|---|---|---|
-| junction fit, 40 % gate (morning) | 2.8 / 4.9 / 11.1 m, 32/34 covered | 20 / 41 parts | — |
-| + fixes, labels-first, 25 % + scale gates | 2.0 / 3.3 / 12.2 m, 34/34 | 25 / 42 parts | 26–28 / 40 parts |
-| no VLM labels, v6 OCR, buildings (Nov 25) | 1.8 / 3.2 / 12.4 m, 34/34 | — | 24 / 41 parts, 1 wrong |
-
-**Human ground truth** (`tmp/georef_scratch/tools/oim.py`): oldinsurancemaps.net
-publishes its hand-made control points as IIIF Georeference annotations (CC0)
-at `https://oldinsurancemaps.net/iiif/mosaic/<loc id>/main-content/`. The
-harness builds a manifest from the LoC image services, runs the pipeline and
-scores every human control point inside one of our parts (metres to the
-human affine; a layer is WRONG at > 25 m median). Their own residuals are
-reported too — some human fits are off by 15–35 m. Six Gloucester County
-towns: 2–8 m where the human fit is clean, one wrong fit (Swedesboro 1898
-Sheet 2: renamed main street, four labels).
-
-No wrong fit has been seen in the accepted output since the scale gate (the
-12 m worst check point is a suspect hand label). Seam gaps between neighbouring
-sheets: 2–10 m. Whole Vineland atlas (28 parts): 18 georeferenced.
-
-Key measured facts that shaped the design:
-* VLM point grounding is precise (≈ 2–7 m) but its *identity* is unreliable,
-  so identity comes from printed labels and geometry.
-* "Verify" checks must be able to fail: a VLM confirming a predicted junction
-  is self-confirming. A VLM asked whether an OSM overlay is aligned answered
-  "aligned" for 100 m-shifted fits too (Qwen3.6, with or without thinking).
-* Qwen3.5/3.6 grounding treats a `"label"` field as the queried category and
-  echoes the prompt into it; the label prompt uses `"text"`. With that fixed,
-  Qwen3.6 ≈ 8B in accuracy at ~1.7× the time.
-* Aligning modern centrelines to the printed street corridors pixel-wise
-  separates good from shifted fits locally, but its optimum sits a few metres
-  off (modern centrelines ≠ historic corridors) — it made fits worse.
-* Per call, image prefill dominates (~5.5 s for a 1536 px image on an M2 Max or
-  M1 Ultra), so throughput comes from running servers in parallel.
+* OpenCV.js's module object is a thenable that resolves to itself: never
+  return it from an async function or resolve a promise with it. Its heap
+  grows as Mats are made, detaching earlier `.data` views (copy them).
+* LiveView copies a hook object's callbacks onto the hook instance (don't
+  `Object.assign` the instance into another object).
+* Phoenix's CSRF plug refuses JavaScript responses on `:browser` routes; the
+  ONNX runtime's module is served outside that pipeline.
+* Headless Chromium needs `--use-angle=metal` for a real GPU adapter.
+* Live reload during development restarts the volunteer page; its claim is
+  released, but each restart is a new worker.
 
 ## Known limits / next steps
 
-* Declined parts are mostly small insets and sheets with few readable street
-  names in two directions (industrial yards, rural edges, subdivisions whose
-  paper streets were never built). These need non-name evidence: placement from
-  fitted neighbouring sheets (key map or shared edge strips) plus street-pattern
-  matching.
-* VLM label reading varies between runs/builds and can flip a marginal sheet.
-* Index sheets / small-scale overview maps fit only where their names are
-  large enough to read (see "Key maps under a sheet-scale statement").
-* OCR and part-splitting run as Python helpers; a port to Ortex/Evision (or
-  Transmuter) would keep everything in the BEAM.
+* Results are trusted as sent; the server should re-score submitted fits
+  (cheap: the corridor score of one transform).
+* Several routes serve files only a dev checkout has (the OCR models from the
+  local cache, the ONNX runtime from `node_modules`); production needs them
+  as static assets. OSM tiles come from tile.openstreetmap.org, fine for a
+  prototype only.
+* Two people can place the same part at once; the later save wins.

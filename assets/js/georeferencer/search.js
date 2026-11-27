@@ -10,7 +10,7 @@ const BUDGET = 120e6; // candidate placements per search
 
 export function scaleRange(input) {
   const ft = input.canvas.printed_scale_ft;
-  // the server's scale gate: 355..427 dpi at the printed scale
+  // the scale gate: 355..427 dpi at the printed scale
   if (ft) return { smin: (ft * 0.3048) / 427, smax: (ft * 0.3048) / 355, usual: [(ft * 0.3048) / 395] };
   const s = input.scales.slice().sort((a, b) => a - b);
   if (!s.length) return { smin: 0.03, smax: 0.1 };
@@ -99,7 +99,7 @@ export async function findPlacement(gpu, sheet, labs, range, onStep = () => {}, 
     if (cells.has(cell)) continue;
     cells.add(cell); distinct.push(T0);
   }
-  // placements from junction seeds (the server's rough fits) join the search's
+  // placements from junction seeds (rough fits from named crossings) join the search's
   let nSeed = 0;
   for (const T0 of opts.seedTs || []) {
     if (nSeed >= 6000) break;
@@ -109,7 +109,7 @@ export async function findPlacement(gpu, sheet, labs, range, onStep = () => {}, 
     cells.add(cell); distinct.push(T0); nSeed++;
   }
   for (const T0 of distinct) {
-    // labels-only fit as the server's: matching radius tightened in steps, (almost) no scale prior
+    // labels-only fit: matching radius tightened in steps, (almost) no scale prior
     let T = T0;
     for (const radius of [20, 12, 8]) T = snap(T, all, { radius, s0: T0[0], priorWeight: 5 }) || T;
     // with few names on few directions the fit can slide along the streets: never lose a name
@@ -125,8 +125,7 @@ export async function findPlacement(gpu, sheet, labs, range, onStep = () => {}, 
     if (c.hits < maxHits - 2 || pool.length >= 4000) break;
     if (!pool.some((k) => Math.hypot(k.w[0] - c.w[0], k.w[1] - c.w[1]) < 15)) pool.push(c);
   }
-  // rank by names on their streets, ties by the corridor contrast (the server's align.contrast:
-  // a true fit is a peak of street-in-corridor fraction against nearby wrong placements)
+  // rank by names on their streets, ties by the corridor contrast (a true fit is a peak of street-in-corridor fraction against nearby wrong placements)
   // contrast: a placement where the printed streets line up beats a ladder of parallel street
   // names that happen to land on parallel streets
   const whits = (T) => labelStatus(T, all).filter((l) => l.d <= LABEL_TOL).reduce((a, l) => a + (l.building || !l.h || l.h >= 90 ? 1 : l.h >= 80 ? 0.75 : 0.5), 0);
@@ -160,26 +159,13 @@ export async function findPlacement(gpu, sheet, labs, range, onStep = () => {}, 
     pairs: pairs.length,
     msGpu: Math.round(msGpu),
     ms: Math.round(performance.now() - t0),
-    debug: {
-      gpuTop: top.slice(0, 12).map((c) => c.hits),
-      snappedTop: snapped.slice(0, 12).map((c) => c.hits),
-      pool: pool.slice(0, 8).map((c) => [c.hits, +c.contrast.toFixed(2), Math.round(c.w[0]), Math.round(c.w[1])]),
-      refined: refined.map((c) => [c.hits, +c.contrast.toFixed(2), Math.round(c.w[0]), Math.round(c.w[1])]),
-      labs: labs.map((l) => l.key),
-      distinct: distinct.length, gpuMax, seeds: nSeed,
-      near: opts.near && (() => {
-        // the snapped candidates closest to a given world point (the server's fit, for comparison)
-        const d = (c) => Math.hypot(c.w[0] - opts.near[0], c.w[1] - opts.near[1]);
-        const pre = distinct.map((T) => fwd(T, cu, cv)).map((w) => Math.hypot(w[0] - opts.near[0], w[1] - opts.near[1])).sort((a, b) => a - b)[0];
-        return { pre_snap_m: Math.round(pre), snapped: snapped.slice().sort((a, b) => d(a) - d(b)).slice(0, 3).map((c) => [Math.round(d(c)), c.hits, c.contrast != null ? +c.contrast.toFixed(2) : null]) };
-      })(),
-    },
+
   };
 }
 
 // Dense search around a placement (+-40 m, +-3 deg, +-1 % scale), keeping every street name that
 // was on its street; best = most modern street length inside printed street corridors (good - bad).
-export async function corridorRefine(gpu, sheet, c, labs, { move = 40, mstep = 2, deg = 3, dstep = 0.5, pct = 1 } = {}) {
+async function corridorRefine(gpu, sheet, c, labs, { move = 40, mstep = 2, deg = 3, dstep = 0.5, pct = 1 } = {}) {
   const [s0, th0] = c.T, [cu, cv] = sheet.centre, w = fwd(c.T, cu, cv);
   const Ts = [];
   for (let p = -pct; p <= pct + 1e-9; p += pct || 1)
@@ -199,7 +185,7 @@ export async function corridorRefine(gpu, sheet, c, labs, { move = 40, mstep = 2
   return { ...c, T, good: sc[k0][0], bad: sc[k0][1], w: fwd(T, cu, cv), refined: true };
 }
 
-// the server's PERTURB: 8 directions, 20..120 m, every other one also turned 10 deg
+// PERTURB: 8 directions, 20..120 m, every other one also turned 10 deg
 const PERTURB = Array.from({ length: 8 }, (_, k) => [20 + (100 * k) / 7, (k * Math.PI) / 4, (-1) ** k * ((10 * Math.PI) / 180) * (k % 2)]);
 
 export async function contrast(gpu, sheet, T) {
@@ -215,7 +201,7 @@ export async function contrast(gpu, sheet, T) {
 }
 
 /** contrast for many placements in one GPU dispatch (one region covering them all) */
-export async function contrastBatch(gpu, sheet, Ts) {
+async function contrastBatch(gpu, sheet, Ts) {
   if (!Ts.length) return [];
   const [cu, cv] = sheet.centre, all = [], ws = [];
   for (const T of Ts) {

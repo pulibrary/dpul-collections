@@ -1,6 +1,7 @@
-// Volunteer page hook: keeps a Web Worker (js/georef_worker.js) busy with jobs from the queue
+// Volunteer page hook: keeps a Web Worker (js/georeferencer/worker.js) busy with jobs from the queue
 // while the page is open, and draws finished sheets on a map as they arrive from anyone.
 import L from "leaflet";
+import { fwd, fromAB } from "./engine";
 
 const WAIT_EMPTY_MS = 30000;
 
@@ -69,6 +70,7 @@ export const GeorefVolunteer = {
     this.map = L.map(this.el.querySelector("[data-role=map]"), { zoomSnap: 0.25 }).setView([40.2, -74.6], 8);
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "© OpenStreetMap contributors" }).addTo(this.map);
     this.layers = L.layerGroup().addTo(this.map);
+    this.current = L.layerGroup().addTo(this.map); // the sheet this browser is working on
     this.pushEvent("recent", {}, ({ items }) => { items.slice().reverse().forEach((it) => this.show(it, false)); this.fitAll(); });
     this.handleEvent("result", (it) => this.show(it, true));
     this.handleEvent("wake", () => { if (!this.busy && !this.paused) this.next(); });
@@ -77,7 +79,7 @@ export const GeorefVolunteer = {
       this.setState("This browser can't help yet: it has no WebGPU (try a recent Chrome or Edge).", "bg-red-600");
       return;
     }
-    this.worker = new Worker(this.el.dataset.worker || "/assets/js/georef_worker.js", { type: "module" });
+    this.worker = new Worker(this.el.dataset.worker, { type: "module" });
     this.worker.onmessage = (e) => this.onWorker(e.data);
     this.worker.onerror = (e) => this.finish({ error: `worker: ${e.message}` });
     this.next();
@@ -119,6 +121,7 @@ export const GeorefVolunteer = {
       this.ui.thumb.src = `${job.canvas.service}/full/!600,600/0/default.jpg`;
       this.marks(null);
       this.ui.thumb.classList.remove("hidden");
+      this.follow(job);
       this.worker.postMessage({ id: job.id, job });
     });
   },
@@ -127,7 +130,8 @@ export const GeorefVolunteer = {
     if (!this.job || m.id !== this.job.id) return;
     if (m.type === "step") {
       this.ui.step.textContent = `${m.step} (${Math.round((performance.now() - this.started) / 1000)} s)`;
-      if (m.data) this.marks(m.data);
+      if (m.data && (m.data.parts || m.data.labels)) this.marks(m.data);
+      if (m.data && m.data.fit) this.showFit(m.data.fit);
     } else if (m.type === "done") {
       this.finish({ result: m.result });
     } else if (m.type === "error") {
@@ -163,6 +167,7 @@ export const GeorefVolunteer = {
     if (result) {
       if (result.gpu) this.ui.gpu.textContent = `GPU: ${[result.gpu.vendor, result.gpu.architecture].filter(Boolean).join(" ")}`;
       this.ask("complete", { job_id: job.id, worker: this.workerId, result }, 60000, (reply) => {
+        if (reply && reply.ok) this.current.clearLayers(); // the saved result arrives on the feed
         if (!reply || !reply.ok) this.ui.step.textContent = `Couldn't save that sheet${reply ? `: ${reply.error}` : ""}`;
         this.done++;
         const ok = result.parts.filter((p) => p.status === "ok").length;
@@ -184,8 +189,30 @@ export const GeorefVolunteer = {
         color: ok ? "#15803d" : "#d97706", weight: ok ? 1.5 : 1, fill: !ok, fillOpacity: 0.08, dashArray: ok ? null : "4 3",
       }).bindTooltip(`${it.canvas} · ${it.atlas}${ok ? "" : " (unsure)"}`);
       this.layers.addLayer(poly);
-      if (live && ok) this.map.flyToBounds(poly.getBounds().pad(1.5), { duration: 1.2, maxZoom: 17 });
     }
+  },
+
+  // a sheet just claimed: show its town while the sheet is read
+  follow(job) {
+    this.current.clearLayers();
+    const b = job.bbox;
+    if (!b) return;
+    const town = L.rectangle([[b[1], b[0]], [b[3], b[2]]], { color: "#a0562c", weight: 1, dashArray: "6 4", fill: false, interactive: false });
+    this.current.addLayer(town);
+    this.map.flyToBounds(town.getBounds(), { duration: 1.2, maxZoom: 15 });
+  },
+
+  // a part of the sheet this browser is working on was just fitted: go there
+  showFit(fit) {
+    const pr = this.job && this.job.projection;
+    if (!pr || !fit.transform) return;
+    const T = fromAB(fit.transform);
+    const ll = fit.mask.map(([u, v]) => { const [x, y] = fwd(T, u, v); return [pr.lat0 + y / pr.ky, pr.lon0 + x / pr.kx]; });
+    const ok = fit.status === "ok";
+    const poly = L.polygon(ll, { color: ok ? "#a0562c" : "#d97706", weight: 3, dashArray: ok ? null : "6 4", fillOpacity: 0.1 })
+      .bindTooltip(`${this.job.canvas.label}, part ${fit.part}${ok ? "" : " (unsure)"}: being checked by your computer`);
+    this.current.addLayer(poly);
+    this.map.flyToBounds(poly.getBounds().pad(fit.key_map ? 0.1 : 1), { duration: 1.2, maxZoom: 17 });
   },
 
   fitAll() {

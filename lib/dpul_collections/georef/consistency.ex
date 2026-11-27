@@ -10,11 +10,8 @@ defmodule DpulCollections.Georef.Consistency do
 
   A fitted key map (a small-scale part: the atlas overview) settles such a
   conflict when it prints one sheet's number inside that sheet's footprint;
-  Otherwise a part placed late (rescue or neighbour placement) yields to one
-  fitted from its own labels; otherwise both parts are declined — no
-  annotation beats a wrong one.
+  otherwise both parts are declined — no annotation beats a wrong one.
   """
-  require Logger
   alias DpulCollections.Georef.{Geometry, Mask}
 
   @max_overlap 0.5
@@ -22,21 +19,6 @@ defmodule DpulCollections.Georef.Consistency do
   @same_scale 1.3
   # a key map is drawn at >= 4x the m/px of the sheets it indexes
   @key_map_ratio 4.0
-
-  @doc "Decline conflicting parts. `tokens_of` returns OCR tokens of a canvas."
-  def check(results, tokens_of) do
-    declined =
-      for {r, other} <- losers(results, tokens_of), uniq: true do
-        Logger.warning("georef: #{r.label} declined: overlaps #{other.label} on the ground")
-        {r.canvas.id, r.part}
-      end
-
-    Enum.map(results, fn r ->
-      if {r.canvas.id, r.part} in declined,
-        do: Map.merge(r, %{status: :failed, gcps: [], conflict: true}),
-        else: r
-    end)
-  end
 
   @doc "Pairs of same-scale fitted parts overlapping by more than half of the smaller one."
   def conflicts(fitted) do
@@ -49,8 +31,9 @@ defmodule DpulCollections.Georef.Consistency do
   end
 
   @doc """
-  The fitted parts `check/2` would decline, each with the part it conflicts
-  with, as `[{loser, other}]` (a part may appear once per conflict).
+  The fitted parts to decline, each with the part it conflicts with, as
+  `[{loser, other}]` (a part may appear once per conflict). `tokens_of`
+  returns a canvas's OCR tokens (key maps' sheet numbers are read from them).
   """
   def losers(results, tokens_of) do
     fitted = Enum.filter(results, &(&1.status == :ok))
@@ -59,34 +42,13 @@ defmodule DpulCollections.Georef.Consistency do
     for {a, b} <- conflicts(fitted), r <- losers(a, b, keys), do: {r, if(r == a, do: b, else: a)}
   end
 
-  @doc "Fitted parts that are atlas sheets, not key maps (small-scale overviews)."
-  def sheets(fitted) do
-    median = median_scale(fitted)
-    Enum.reject(fitted, &(&1.scale >= @key_map_ratio * median))
-  end
-
   defp median_scale(fitted),
     do: fitted |> Enum.map(& &1.scale) |> Enum.sort() |> Enum.at(div(length(fitted), 2))
-
-  # Parts placed after the first pass from thin evidence (a seed, corridors,
-  # fitted neighbours): one landing on a part fitted from its own labels is
-  # the wrong one, and that part's evidence is unchanged by the placement
-  # (Freehold 1909 Sheet 2: part 2 rescued at contrast 0.11 on top of part 1,
-  # 10 labels on their streets; both were declined).
-  @late ~w(corridor_rescue seed_placement neighbour)a
 
   defp losers(a, b, keys) do
     case {vouched?(a, keys), vouched?(b, keys)} do
       {true, false} -> [b]
       {false, true} -> [a]
-      _ -> by_method(a, b)
-    end
-  end
-
-  defp by_method(a, b) do
-    case {a[:method] in @late, b[:method] in @late} do
-      {true, false} -> [a]
-      {false, true} -> [b]
       _ -> [a, b]
     end
   end

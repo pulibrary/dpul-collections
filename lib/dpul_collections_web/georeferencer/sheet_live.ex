@@ -1,4 +1,4 @@
-defmodule DpulCollectionsWeb.GeoreferencerLive.Sheet do
+defmodule DpulCollectionsWeb.Georeferencer.SheetLive do
   @moduledoc """
   One map part in the collaborative georeferencer. The `Georeferencer` JS hook
   does the fitting on the contributor's machine (WebGPU) and pushes the result
@@ -7,21 +7,30 @@ defmodule DpulCollectionsWeb.GeoreferencerLive.Sheet do
   use DpulCollectionsWeb, :live_view
   alias DpulCollections.Georef.Collab
 
-  def mount(%{"atlas" => id, "index" => i}, _session, socket) do
+  def mount(%{"atlas" => id}, _session, socket) do
     atlas = Collab.atlas(id) || raise DpulCollectionsWeb.ItemLive.NotFoundError
-    {i, ""} = Integer.parse(i)
 
     {:ok,
      socket
      |> assign(atlas: atlas, page_title: "Georeferencer · #{atlas["label"]}")
-     |> assign(index: i)
      |> load_status()}
   end
 
   def handle_params(%{"index" => i}, _uri, socket) do
-    {i, ""} = Integer.parse(i)
-    {:noreply, assign(socket, index: i, canvas: Enum.at(socket.assigns.atlas["canvases"], i))}
+    i = index!(i)
+    canvas = Enum.at(socket.assigns.atlas["canvases"], i) || raise_not_found()
+    {:noreply, assign(socket, index: i, canvas: canvas)}
   end
+
+  @doc "A part number from a URL; anything else is a 404."
+  def index!(i) do
+    case Integer.parse(i) do
+      {n, ""} when n >= 0 -> n
+      _ -> raise_not_found()
+    end
+  end
+
+  defp raise_not_found, do: raise(DpulCollectionsWeb.ItemLive.NotFoundError)
 
   defp load_status(socket) do
     assign(socket, latest: Collab.latest_by_part(socket.assigns.atlas["id"]))
@@ -49,7 +58,7 @@ defmodule DpulCollectionsWeb.GeoreferencerLive.Sheet do
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="px-4 py-3 flex flex-col lg:flex-row gap-4">
         <nav class="lg:w-64 shrink-0 text-sm" aria-label="Parts of this atlas">
-          <.link class="filter-link" navigate={~p"/georeferencer"}>All atlases</.link>
+          <.link class="filter-link" navigate={~p"/georeferencer/results"}>All atlases</.link>
           <h1 class="heading text-lg py-2">{@atlas["label"]}</h1>
           <ol class="max-h-[70vh] overflow-y-auto">
             <li :for={{c, j} <- Enum.with_index(@atlas["canvases"])}>
@@ -69,20 +78,15 @@ defmodule DpulCollectionsWeb.GeoreferencerLive.Sheet do
             </li>
           </ol>
           <ul class="pt-3 text-xs space-y-1">
-            <li>
-              <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
-              placed by a volunteer
-            </li>
-            <li>
-              <span class="inline-block w-2.5 h-2.5 rounded-full bg-sky-500"></span>
-              server prototype fit only
-            </li>
-            <li>
-              <span class="inline-block w-2.5 h-2.5 rounded-full bg-amber-500"></span> not placed yet
-            </li>
-            <li>
-              <span class="inline-block w-2.5 h-2.5 rounded-full bg-stone-400"></span>
-              marked "can't place"
+            <li :for={
+              {dot, what} <- [
+                {"bg-emerald-600", "placed by a person"},
+                {"bg-sky-500", "placed automatically"},
+                {"bg-amber-500", "not placed yet"},
+                {"bg-stone-400", "marked can't be placed"}
+              ]
+            }>
+              <span class={["inline-block w-2.5 h-2.5 rounded-full", dot]}></span> {what}
             </li>
           </ul>
         </nav>
@@ -109,21 +113,21 @@ defmodule DpulCollectionsWeb.GeoreferencerLive.Sheet do
     """
   end
 
-  defp key(c), do: {c["id"], c["part"]}
-
   defp status(c, latest) do
-    case latest[key(c)] do
-      %{verdict: "placed", method: m} -> "placed by a volunteer (#{m})"
-      %{verdict: "cannot"} -> "marked can't place"
-      nil -> if c["status"] == "ok", do: "server prototype fit only", else: "not placed yet"
+    case Collab.part_state(c, latest) do
+      :by_person -> "placed by a person"
+      :auto -> "placed automatically"
+      :cannot -> "marked can't be placed"
+      :unplaced -> "not placed yet"
     end
   end
 
   defp dot(c, latest) do
-    case latest[key(c)] do
-      %{verdict: "placed"} -> "bg-emerald-600"
-      %{verdict: "cannot"} -> "bg-stone-400"
-      nil -> if c["status"] == "ok", do: "bg-sky-500", else: "bg-amber-500"
+    case Collab.part_state(c, latest) do
+      :by_person -> "bg-emerald-600"
+      :auto -> "bg-sky-500"
+      :cannot -> "bg-stone-400"
+      :unplaced -> "bg-amber-500"
     end
   end
 end

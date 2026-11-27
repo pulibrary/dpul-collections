@@ -1,6 +1,6 @@
-// OCR tokens -> street-name labels, a port of the server pipeline (lib/dpul_collections/georef.ex
-// ocr_labels / spaced_names / tiled_labels / drop_stamp_text / drop_title_town, and
-// georef/osm.ex normalize / match_name). Tokens: {text, score, quad, center: [x, y], angle, height}
+// OCR tokens -> street-name labels: matching words to the town's modern street names (normalize
+// is shared with the server, lib/dpul_collections/georef/osm.ex), letter-spaced names, tiles,
+// library stamps and the title's town name. Tokens: {text, score, quad, center: [x, y], angle, height}
 // in canvas pixels.
 
 const SUFFIXES = new Set(("street st avenue ave av road rd lane ln drive dr boulevard blvd place pl court ct way " +
@@ -9,12 +9,12 @@ const DIRECTIONS = new Set("north south east west n s e w".split(" "));
 const ORDINALS = { first: "1st", second: "2nd", third: "3rd", fourth: "4th", fifth: "5th", sixth: "6th",
   seventh: "7th", eighth: "8th", ninth: "9th", tenth: "10th", eleventh: "11th", twelfth: "12th" };
 
-export const MIN_STREET_NAME_PX = 100;
-export const MIN_TILE_NAME_PX = 78;
+const MIN_STREET_NAME_PX = 100;
+const MIN_TILE_NAME_PX = 78;
 
 /** Osm.normalize: "N. Delaware St." -> "delaware", "Second Avenue" -> "2nd" */
 export function normalize(name) {
-  const words = name.toLowerCase()
+  let words = name.toLowerCase()
     .replace(/['’]s\b/gu, "s")
     .replace(/[^\p{L}\p{N}\s]/gu, " ")
     .replace(/\brail\s+road\b/g, "railroad")
@@ -24,13 +24,15 @@ export function normalize(name) {
     .map((w) => (["rr", "ry", "railway"].includes(w) ? "railroad" : ["cr", "crk"].includes(w) ? "creek" : w));
   const dropWhile = (ws, set) => { let i = 0; while (i < ws.length && set.has(ws[i])) i++; return ws.slice(i); };
   const stripSuffix = (ws) => dropWhile(ws.slice().reverse(), SUFFIXES).reverse();
+  // a leading "the" is filler: "The Terrace" is Terrace, and a bare "THE" names nothing
+  words = dropWhile(words, new Set(["the"]));
   let t = dropWhile(stripSuffix(dropWhile(words, DIRECTIONS)).reverse(), DIRECTIONS).reverse();
   if (!t.length) t = stripSuffix(words); // "West Street" is a street named West
   return (t.length ? t : words).join(" ");
 }
 
 /** Jaro similarity (Elixir String.jaro_distance) */
-export function jaro(a, b) {
+function jaro(a, b) {
   if (a === b) return 1;
   const la = a.length, lb = b.length;
   if (!la || !lb) return 0;
@@ -90,7 +92,7 @@ export function toToken({ text, score, quad }, k = 1, dx = 0, dy = 0) {
 
 const SPACED_LETTER = /^\s*([A-Z])\.?\s*$/, SPACED_TYPE = /^\s*(ST|AV|AVE|RD|PL)\.?\s*$/i;
 /** letter-spaced lettered streets: a lone letter + a type word on its line ("B      ST.") */
-export function spacedNames(tokens) {
+function spacedNames(tokens) {
   const types = tokens.filter((t) => SPACED_TYPE.test(t.text) && t.angle != null), out = [];
   for (const l of tokens) {
     const m = SPACED_LETTER.exec(l.text);
@@ -109,7 +111,7 @@ export function spacedNames(tokens) {
 }
 
 /** OCR tokens that name a modern street / railway / waterway / building */
-export function ocrLabels(tokens, osm) {
+function ocrLabels(tokens, osm) {
   const out = [];
   for (const t of tokens.concat(spacedNames(tokens))) {
     if (t.score < 0.75) continue;

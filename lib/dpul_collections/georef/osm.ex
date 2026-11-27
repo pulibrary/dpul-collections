@@ -3,27 +3,26 @@ defmodule DpulCollections.Georef.Osm do
   Local OpenStreetMap gazetteer for a bounding box: named streets, railways and
   waterways, plus every point where two differently-named features meet.
 
-  Data comes from a state `.osm.pbf` extract on disk, clipped with `osmium`
-  (`devbox global add osmium-tool`). Nothing is fetched at query time.
+  Data comes from a state `.osm.pbf` extract on disk (`Georef.cache_dir/0`),
+  clipped with `osmium` (`devbox global add osmium-tool`). Nothing is fetched
+  at query time.
   """
 
+  alias DpulCollections.Georef
   alias DpulCollections.Georef.Geometry
 
   @name_tags ~w(name old_name alt_name official_name historic:name loc_name)
 
-  @overpass_mirrors [
-    "https://overpass-api.de/api/interpreter",
-    "https://overpass.private.coffee/api/interpreter",
-    "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
-    "https://overpass.kumi.systems/api/interpreter"
-  ]
-
   # path: the clipped geojsonseq extract (helpers that need unnamed streets read it)
   defstruct [:bbox, :projection, :path, features: [], groups: %{}, intersections: []]
 
-  def pbf_path do
-    Application.get_env(:dpul_collections, DpulCollections.Georef, [])
-    |> Keyword.get(:osm_pbf, Path.expand("~/.cache/dpul_georef/new-jersey-latest.osm.pbf"))
+  def pbf_path,
+    do: Georef.config(:osm_pbf, Path.join(Georef.cache_dir(), "new-jersey-latest.osm.pbf"))
+
+  defp dir do
+    dir = Path.join(Georef.cache_dir(), "osm")
+    File.mkdir_p!(dir)
+    dir
   end
 
   @doc "Load (and cache) the gazetteer for a {min_lon, min_lat, max_lon, max_lat} bbox."
@@ -126,8 +125,7 @@ defmodule DpulCollections.Georef.Osm do
   end
 
   defp extract_buildings({a, b, c, d} = bbox) do
-    dir = Path.expand("~/.cache/dpul_georef/osm")
-    File.mkdir_p!(dir)
+    dir = dir()
 
     key =
       :crypto.hash(:md5, :erlang.term_to_binary({:buildings, bbox}))
@@ -139,57 +137,52 @@ defmodule DpulCollections.Georef.Osm do
     unless File.exists?(out) do
       tmp = Path.join(dir, "B#{key}-#{System.unique_integer([:positive])}")
 
-      if File.exists?(pbf_path()) and File.stat!(pbf_path()).size > 0 do
-        bb = Enum.join([a, b, c, d], ",")
+      bb = Enum.join([a, b, c, d], ",")
 
-        osmium!([
-          "extract",
-          "-b",
-          bb,
-          pbf_path(),
-          "-o",
-          tmp <> "-clip.osm.pbf",
-          "--overwrite",
-          "-s",
-          "smart"
-        ])
+      osmium!([
+        "extract",
+        "-b",
+        bb,
+        pbf_path(),
+        "-o",
+        tmp <> "-clip.osm.pbf",
+        "--overwrite",
+        "-s",
+        "smart"
+      ])
 
-        osmium!([
-          "tags-filter",
-          tmp <> "-clip.osm.pbf",
-          "nwr/building",
-          "-o",
-          tmp <> "-filt.osm.pbf",
-          "--overwrite"
-        ])
+      osmium!([
+        "tags-filter",
+        tmp <> "-clip.osm.pbf",
+        "nwr/building",
+        "-o",
+        tmp <> "-filt.osm.pbf",
+        "--overwrite"
+      ])
 
-        osmium!([
-          "export",
-          tmp <> "-filt.osm.pbf",
-          "-f",
-          "geojsonseq",
-          "-x",
-          "print_record_separator=false",
-          "--geometry-types=polygon",
-          "-o",
-          tmp <> ".geojsonseq",
-          "--overwrite"
-        ])
+      osmium!([
+        "export",
+        tmp <> "-filt.osm.pbf",
+        "-f",
+        "geojsonseq",
+        "-x",
+        "print_record_separator=false",
+        "--geometry-types=polygon",
+        "-o",
+        tmp <> ".geojsonseq",
+        "--overwrite"
+      ])
 
-        File.rename!(tmp <> ".geojsonseq", out)
-        File.rm(tmp <> "-clip.osm.pbf")
-        File.rm(tmp <> "-filt.osm.pbf")
-      else
-        File.write!(out, "")
-      end
+      File.rename!(tmp <> ".geojsonseq", out)
+      File.rm(tmp <> "-clip.osm.pbf")
+      File.rm(tmp <> "-filt.osm.pbf")
     end
 
     out
   end
 
   defp extract({a, b, c, d} = bbox) do
-    dir = Path.expand("~/.cache/dpul_georef/osm")
-    File.mkdir_p!(dir)
+    dir = dir()
 
     key =
       :crypto.hash(:md5, :erlang.term_to_binary(bbox)) |> Base.encode16() |> binary_part(0, 12)
@@ -202,31 +195,20 @@ defmodule DpulCollections.Georef.Osm do
       tmp = "#{key}-#{System.pid()}-#{System.unique_integer([:positive])}"
       filt = Path.join(dir, "#{tmp}-filt.osm.pbf")
 
-      clip =
-        if File.exists?(pbf_path()) and File.stat!(pbf_path()).size > 0 do
-          clip = Path.join(dir, "#{tmp}-clip.osm.pbf")
-          bb = Enum.join([a, b, c, d], ",")
+      clip = Path.join(dir, "#{tmp}-clip.osm.pbf")
+      bb = Enum.join([a, b, c, d], ",")
 
-          osmium!([
-            "extract",
-            "-b",
-            bb,
-            pbf_path(),
-            "-o",
-            clip,
-            "--overwrite",
-            "-s",
-            "complete_ways"
-          ])
-
-          clip
-        else
-          # No state extract on disk: fetch just this bbox once from Overpass
-          # and cache it; everything downstream is still local.
-          clip = Path.join(dir, "#{tmp}-clip.osm")
-          fetch_overpass!(bbox, clip)
-          clip
-        end
+      osmium!([
+        "extract",
+        "-b",
+        bb,
+        pbf_path(),
+        "-o",
+        clip,
+        "--overwrite",
+        "-s",
+        "complete_ways"
+      ])
 
       osmium!([
         "tags-filter",
@@ -260,41 +242,12 @@ defmodule DpulCollections.Georef.Osm do
     out
   end
 
-  defp fetch_overpass!({a, b, c, d}, path) do
-    bb = Enum.join([b, a, d, c], ",")
-
-    query =
-      "[out:xml][timeout:180];(way[highway](#{bb});way[railway](#{bb});way[waterway](#{bb}););(._;>;);out body;"
-
-    body =
-      Enum.find_value(1..4, fn attempt ->
-        Enum.find_value(@overpass_mirrors, fn url ->
-          case Req.post(url,
-                 form: [data: query],
-                 receive_timeout: 240_000,
-                 decode_body: false,
-                 retry: false,
-                 headers: [{"user-agent", "dpul-collections-georef-prototype"}]
-               ) do
-            {:ok, %{status: 200, body: "<?xml" <> _ = body}} ->
-              body
-
-            _ ->
-              nil
-          end
-        end) || (Process.sleep(attempt * 5_000) && nil)
-      end) || raise("all Overpass mirrors failed")
-
-    File.write!(path, body)
-  end
-
   @doc """
   Look up populated places by name in the local extract. Returns
   `[%{name, place, lonlat}]`, best (largest place type) first.
   """
   def find_place(name) do
-    dir = Path.expand("~/.cache/dpul_georef/osm")
-    File.mkdir_p!(dir)
+    dir = dir()
     out = Path.join(dir, "places.geojsonseq")
 
     unless File.exists?(out) do
@@ -352,7 +305,7 @@ defmodule DpulCollections.Georef.Osm do
   end
 
   defp osmium!(args) do
-    case System.cmd("osmium", args, stderr_to_stdout: true) do
+    case System.cmd(Georef.config(:osmium, "osmium"), args, stderr_to_stdout: true) do
       {_, 0} -> :ok
       {out, code} -> raise "osmium #{hd(args)} failed (#{code}): #{out}"
     end
@@ -444,6 +397,10 @@ defmodule DpulCollections.Georef.Osm do
 
     strip_suffix = fn ws -> ws |> Enum.reverse() |> drop_while_in(@suffixes) |> Enum.reverse() end
 
+    # a leading "the" is filler: "The Terrace" is Terrace, and a bare "THE" read
+    # off a sheet names nothing
+    words = drop_while_in(words, ~w(the))
+
     trimmed =
       words
       |> drop_while_in(@directions)
@@ -489,58 +446,6 @@ defmodule DpulCollections.Georef.Osm do
           do: %{i | keys: Enum.min_max([a, other])}
 
     %{osm | groups: groups, intersections: base ++ extra}
-  end
-
-  @doc "True when a normalized name is only street-type words (\"ave\", \"st\")."
-  def suffix_only?(key), do: key |> String.split() |> Enum.all?(&(&1 in @suffixes))
-
-  @doc "Distance (m) from a projected point to the nearest feature named `key`."
-  def distance_to(%__MODULE__{groups: groups}, key, xy) do
-    case groups[key] do
-      nil ->
-        :infinity
-
-      %{polygons: [_ | _] = polys} = g ->
-        if Enum.any?(polys, &Geometry.point_in_polygon?(xy, &1)),
-          do: 0.0,
-          else: g.segments |> Enum.map(&Geometry.point_segment_dist(xy, &1)) |> Enum.min()
-
-      g ->
-        g.segments
-        |> Enum.map(&Geometry.point_segment_dist(xy, &1))
-        |> Enum.min(fn -> :infinity end)
-    end
-  end
-
-  @doc "Find the gazetteer key best matching a name read off the map, or nil."
-  def match_name(%__MODULE__{groups: groups}, name) do
-    key = normalize(name)
-
-    cond do
-      key == "" ->
-        nil
-
-      Map.has_key?(groups, key) ->
-        key
-
-      # A bare "LANE" or "PL." (a name split from its street type) would
-      # otherwise fuzzy-match an unrelated street such as "plane".
-      key |> String.split() |> Enum.all?(&(&1 in @suffixes)) ->
-        nil
-
-      true ->
-        groups
-        |> Map.keys()
-        |> Enum.map(&{&1, String.jaro_distance(&1, key)})
-        |> Enum.filter(fn {k, d} ->
-          d >= 0.93 and abs(String.length(k) - String.length(key)) <= 2
-        end)
-        |> Enum.max_by(&elem(&1, 1), fn -> nil end)
-        |> case do
-          nil -> nil
-          {k, _} -> k
-        end
-    end
   end
 
   # Intersections ----------------------------------------------------------------

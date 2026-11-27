@@ -12,7 +12,7 @@ defmodule DpulCollections.Georef.Collab.Queue do
   alias DpulCollections.Georef
   alias DpulCollections.Georef.{Geometry, Manifest, Osm}
   alias DpulCollections.Georef.Collab
-  alias DpulCollections.Georef.Collab.{Atlas, Job}
+  alias DpulCollections.Georef.Collab.{Atlas, Job, Review}
 
   @stale_seconds 600
   @max_attempts 3
@@ -43,8 +43,8 @@ defmodule DpulCollections.Georef.Collab.Queue do
               "id" => c.id,
               "label" => c.label,
               "service" => c.service_id,
-              "width" => round(c.width * c.px_scale),
-              "height" => round(c.height * c.px_scale)
+              "width" => c.width,
+              "height" => c.height
             }
           end
       })
@@ -96,6 +96,7 @@ defmodule DpulCollections.Georef.Collab.Queue do
   """
   def claim(worker, user) do
     stale = DateTime.add(DateTime.utc_now(), -@stale_seconds, :second)
+    give_up_abandoned(stale)
 
     Repo.transaction(fn ->
       job =
@@ -139,7 +140,11 @@ defmodule DpulCollections.Georef.Collab.Queue do
       atlas: %{id: atlas.id, label: atlas.label},
       canvas: Enum.at(atlas.canvases, job.canvas_index),
       canvas_index: job.canvas_index,
-      town: "/georeferencer/atlas/#{atlas.id}/osm.json?v=2",
+      # where the town is, and its map projection: the page follows the sheet on the map
+      bbox: atlas.bbox,
+      projection:
+        atlas.bbox && DpulCollections.Georef.Geometry.projection(List.to_tuple(atlas.bbox)),
+      town: Collab.osm_url(Atlas.base(atlas)),
       exclude_keys: atlas.exclude_keys,
       round: job.round,
       renames: if(job.round > 1, do: atlas.renames || %{}, else: %{})
@@ -151,12 +156,12 @@ defmodule DpulCollections.Georef.Collab.Queue do
   Contribution (with its IIIF annotation) for each part it placed.
   """
   def complete(job_id, worker, user, result) do
-    job = Repo.get!(Job, job_id)
+    job = get_job(job_id)
 
-    if job.status == "claimed" and job.worker == worker do
+    if job && job.status == "claimed" && job.worker == worker do
       atlas = Atlas |> Repo.get!(job.atlas_id) |> Atlas.base()
       canvas = Enum.at(atlas["sheets"], job.canvas_index)
-      parts = result["parts"] || []
+      parts = checked(result["parts"])
 
       Repo.transaction(fn ->
         job
@@ -196,7 +201,22 @@ defmodule DpulCollections.Georef.Collab.Queue do
     end
   end
 
-  defp fitted(parts), do: Enum.count(parts || [], &(&1["status"] == "ok"))
+  defp fitted(parts), do: Enum.count(checked(parts), &(&1["status"] == "ok"))
+
+  @doc """
+  The server's own check of a browser's result: a part counts as placed only
+  if its printed streets line up with the modern ones (`Review.lines_up?`), or
+  it is a key map (streets drawn too small for corridors). Names alone can be
+  fooled: a row of names across parallel streets fits at a wrong angle too.
+  Parts failing it become "unsure", for a person to check.
+  """
+  def checked(parts) do
+    for p <- parts || [] do
+      if p["status"] == "ok" and not (p["key_map"] == true or Review.lines_up?(p)),
+        do: Map.merge(p, %{"status" => "unsure", "rechecked" => true}),
+        else: p
+    end
+  end
 
   defp earlier_parts(job) do
     Repo.one(
@@ -236,7 +256,7 @@ defmodule DpulCollections.Georef.Collab.Queue do
       again =
         for j <- round1,
             j.status == "done",
-            Enum.any?((j.result || %{})["parts"] || [], &(&1["status"] != "ok")),
+            Enum.any?(checked((j.result || %{})["parts"]), &(&1["status"] != "ok")),
             do: j.canvas_index
 
       if table != %{} and again != [] do
@@ -269,10 +289,46 @@ defmodule DpulCollections.Georef.Collab.Queue do
     :ok
   end
 
-  def fail(job_id, worker, error) do
-    job = Repo.get!(Job, job_id)
+  @doc """
+  Hands a closed tab's unfinished job straight back to the queue (otherwise it
+  waits out the stale timeout); the try it was on doesn't count.
+  """
+  def release(worker) do
+    {n, _} =
+      from(j in Job, where: j.worker == ^worker and j.status == "claimed")
+      |> Repo.update_all(set: [status: "queued", claimed_at: nil], inc: [attempts: -1])
 
-    if job.status == "claimed" and job.worker == worker do
+    if n > 0, do: broadcast(:queue_changed)
+    n
+  end
+
+  # a job id sent by a browser: nil unless it names a job
+  defp get_job(id) do
+    case Ecto.UUID.cast(id) do
+      {:ok, id} -> Repo.get(Job, id)
+      :error -> nil
+    end
+  end
+
+  # a job whose last try went quiet without its tab saying goodbye (a crash)
+  # has had its tries: fail it, so the atlas can finish and nothing waits on it
+  defp give_up_abandoned(stale) do
+    {_, atlas_ids} =
+      from(j in Job,
+        where: j.status == "claimed" and j.claimed_at < ^stale and j.attempts >= @max_attempts,
+        select: j.atlas_id
+      )
+      |> Repo.update_all(
+        set: [status: "failed", worker: nil, error: "no result after #{@max_attempts} tries"]
+      )
+
+    atlas_ids |> Enum.uniq() |> Enum.each(&maybe_rename_round/1)
+  end
+
+  def fail(job_id, worker, error) do
+    job = get_job(job_id)
+
+    if job && job.status == "claimed" && job.worker == worker do
       status = if job.attempts >= @max_attempts, do: "failed", else: "queued"
 
       job
@@ -344,7 +400,7 @@ defmodule DpulCollections.Georef.Collab.Queue do
       feed_item(
         atlas,
         Enum.at(atlas["sheets"], j.canvas_index),
-        (j.result || %{})["parts"] || [],
+        checked((j.result || %{})["parts"]),
         nil
       )
     end)
@@ -427,7 +483,7 @@ defmodule DpulCollections.Georef.Collab.Queue do
 
     case job do
       %Job{status: "done", result: %{"parts" => [_ | _] = ps}} ->
-        for p <- ps do
+        for p <- checked(ps) do
           Map.merge(base, %{
             "label" =>
               if(length(ps) > 1, do: "#{c["label"]} (part #{p["part"]})", else: c["label"]),
@@ -436,6 +492,14 @@ defmodule DpulCollections.Georef.Collab.Queue do
             "mask" => p["mask"],
             "labels" => p["labels"] || [],
             "transform" => p["transform"],
+            # what the browser concluded, for the review list
+            "auto_status" => p["status"],
+            "label_hits" => p["label_hits"],
+            "rival_hits" => p["rival_hits"],
+            "contrast" => p["contrast"],
+            "corridor" => p["corridor"],
+            "reason" => p["reason"],
+            "key_map" => p["key_map"],
             "printed_scale_ft" => p["printed_scale_ft"],
             "scale_m_per_px" => p["scale_m_per_px"]
           })
@@ -447,18 +511,54 @@ defmodule DpulCollections.Georef.Collab.Queue do
   end
 
   def counts do
-    Repo.all(from j in Job, group_by: j.status, select: {j.status, count(j.id)}) |> Map.new()
+    status_counts() |> Enum.reduce(%{}, fn {_, s, n}, acc -> Map.update(acc, s, n, &(&1 + n)) end)
   end
 
-  def atlas_counts do
-    Repo.all(
+  # job counts by {atlas, status}; a claim gone quiet (its tab closed) counts as queued
+  defp status_counts do
+    stale = DateTime.add(DateTime.utc_now(), -@stale_seconds, :second)
+
+    q =
       from j in Job,
-        join: a in assoc(j, :atlas),
-        group_by: [a.id, a.label, j.status],
-        select: {a.id, a.label, j.status, count(j.id)}
-    )
-    |> Enum.group_by(fn {id, label, _, _} -> {id, label} end, fn {_, _, s, n} -> {s, n} end)
-    |> Enum.map(fn {{id, label}, sn} -> %{id: id, label: label, counts: Map.new(sn)} end)
-    |> Enum.sort_by(& &1.label)
+        select: %{
+          atlas: j.atlas_id,
+          status:
+            fragment(
+              "CASE WHEN ? = 'claimed' AND ? < ? THEN 'queued' ELSE ? END",
+              j.status,
+              j.claimed_at,
+              ^stale,
+              j.status
+            )
+        }
+
+    from(r in subquery(q), group_by: [r.atlas, r.status], select: {r.atlas, r.status, count()})
+    |> Repo.all()
+  end
+
+  @doc "Queued atlases in queue order, with job counts by status."
+  def atlas_counts do
+    counts = status_counts() |> Enum.group_by(&elem(&1, 0), fn {_, s, n} -> {s, n} end)
+
+    # sheets with a finished job (rename rounds add jobs for the same sheets)
+    sheets_done =
+      Repo.all(
+        from j in Job,
+          where: j.status == "done",
+          group_by: j.atlas_id,
+          select: {j.atlas_id, count(j.canvas_index, :distinct)}
+      )
+      |> Map.new()
+
+    Repo.all(from a in Atlas, order_by: [asc: a.inserted_at], select: {a.id, a.label, a.canvases})
+    |> Enum.map(fn {id, label, canvases} ->
+      %{
+        id: id,
+        label: label,
+        sheets: length(canvases),
+        sheets_done: Map.get(sheets_done, id, 0),
+        counts: Map.new(counts[id] || [])
+      }
+    end)
   end
 end

@@ -1,6 +1,6 @@
 // GPU side of the in-browser georeferencer (WebGPU compute):
 //  * corridor score: metres of modern street centreline that fall in a printed street corridor
-//    (port of priv/georef/corridor.py Sheet.corridor; parity-tested against it);
+//    (a printed street is a band of white between building ink);
 //  * label hits: labels within 8 m of their own street, per transform;
 //  * pair search: every placement implied by putting two labels on points of their two streets,
 //    scored by how many of all the labels then land on their own streets.

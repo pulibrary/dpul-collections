@@ -1,4 +1,4 @@
-defmodule DpulCollectionsWeb.GeoreferencerController do
+defmodule DpulCollectionsWeb.Georeferencer.Controller do
   @moduledoc """
   Inputs for the in-browser georeferencer and downloads of its results.
   The fitting itself runs in the contributor's browser (assets/js/georeferencer/).

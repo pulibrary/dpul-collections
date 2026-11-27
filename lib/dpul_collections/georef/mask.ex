@@ -1,9 +1,8 @@
 defmodule DpulCollections.Georef.Mask do
   @moduledoc """
-  Mask polygons for Georeference Annotation SvgSelectors.
-
-  Parts of a sheet (see `DpulCollections.Georef.Parts`) are polygons in canvas
-  pixels; each georeferenced part's polygon is its SvgSelector mask.
+  Polygon helpers for map parts: a sheet's parts (found in the browser,
+  assets/js/georeferencer/sheetgeom.js) are polygons in canvas pixels, and
+  each placed part's polygon is its annotation's SvgSelector mask.
   """
 
   @doc "Even-odd point-in-polygon test."
@@ -15,17 +14,6 @@ defmodule DpulCollections.Georef.Mask do
         do: not inside,
         else: inside
     end)
-  end
-
-  @doc "Distance from a point to the polygon's outline: positive inside, negative outside."
-  def signed_distance(pt, polygon) do
-    d =
-      polygon
-      |> Enum.zip(tl(polygon) ++ [hd(polygon)])
-      |> Enum.map(&DpulCollections.Georef.Geometry.point_segment_dist(pt, &1))
-      |> Enum.min()
-
-    if inside_polygon?(pt, polygon), do: d, else: -d
   end
 
   def bbox(points) do

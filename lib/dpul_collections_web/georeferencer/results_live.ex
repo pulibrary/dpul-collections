@@ -1,7 +1,7 @@
-defmodule DpulCollectionsWeb.GeoreferencerLive do
+defmodule DpulCollectionsWeb.Georeferencer.ResultsLive do
   @moduledoc """
-  Collaborative georeferencer: pick an atlas, see your contributions.
-  The work itself happens in GeoreferencerLive.Sheet, in the browser.
+  Results of the collaborative georeferencer: your contributions and each
+  atlas's fits. The work itself happens on Georeferencer.QueueLive.
   """
   use DpulCollectionsWeb, :live_view
   alias DpulCollections.Georef.Collab
@@ -20,24 +20,26 @@ defmodule DpulCollectionsWeb.GeoreferencerLive do
         _ -> nil
       end
 
-    {:ok, assign(socket, atlases: atlases, mine: mine, page_title: "Georeferencer")}
+    {:ok, assign(socket, atlases: atlases, mine: mine, page_title: "Georeferencer results")}
   end
 
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div id="georeferencer" class="content-area">
-        <h1 class="heading text-3xl pb-2">Collaborative georeferencer</h1>
+        <h1 class="heading text-3xl pb-2">Georeferencer results</h1>
         <p class="max-w-3xl pb-6 font-serif">
-          Help place Sanborn fire insurance maps on the modern map. Your computer does the work:
-          it reads each sheet, searches the town's streets on your graphics card for where the
-          sheet's street names fit, and shows you the result to confirm or adjust. What you save
-          is credited to you and downloadable below.
+          Sheets placed by volunteers' browsers, ready to download.
+          <.link class="filter-link" navigate={~p"/georeferencer"}>Back to the queue</.link>
+          to help or add an atlas. Opening an atlas below lets you check its fits sheet by sheet
+          and adjust one by hand if it is off.
         </p>
 
         <section :if={@mine} class="pb-8" id="my-contributions">
           <h2 class="heading text-xl pb-2">Your contributions ({length(@mine)})</h2>
-          <p :if={@mine == []} class="text-sm">None yet: open an atlas below.</p>
+          <p :if={@mine == []} class="text-sm">
+            None yet: keep the queue page open and your browser will contribute.
+          </p>
           <table :if={@mine != []} class="text-sm w-full max-w-4xl">
             <thead>
               <tr class="text-left">
@@ -64,14 +66,14 @@ defmodule DpulCollectionsWeb.GeoreferencerLive do
         </section>
         <p :if={!@mine} class="pb-6 text-sm">
           <.link class="filter-link" navigate={~p"/users/log-in"}>Log in</.link>
-          to save results and get credit for them. You can try the tool without an account.
+          to see the results credited to you.
         </p>
 
         <h2 class="heading text-xl pb-2">Atlases</h2>
         <table class="text-sm w-full max-w-4xl">
           <thead>
             <tr class="text-left">
-              <th>Atlas</th><th>Parts</th><th>Automatic fits</th><th>Volunteer results</th><th></th>
+              <th>Atlas</th><th>Parts</th><th>Placed</th><th>Volunteer results</th><th></th>
             </tr>
           </thead>
           <tbody>
@@ -81,10 +83,7 @@ defmodule DpulCollectionsWeb.GeoreferencerLive do
               </td>
               <td>{a.parts}</td>
               <td>
-                {a.server_ok}
-                <span class="text-xs">({if a.source == :queue,
-                  do: "volunteers' browsers",
-                  else: "server prototype"})</span>
+                {a.placed}
               </td>
               <td>{a.volunteer}</td>
               <td>

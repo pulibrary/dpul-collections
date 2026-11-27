@@ -1,0 +1,21 @@
+#!/bin/sh
+# Stand-in for osmium in tests (CI has no osmium): writes what the real command
+# would, from the fixtures cut out of the New Jersey extract (a piece of
+# Palmyra): `export` copies the streets, buildings or places fixture to the
+# -o file, by the geometry types asked for; other commands create an empty -o.
+fixtures="$(dirname "$0")/fixtures"
+out=""
+prev=""
+kind="places"
+for a in "$@"; do
+  [ "$prev" = "-o" ] && out="$a"
+  case "$a" in
+    --geometry-types=linestring) kind="streets" ;;
+    --geometry-types=polygon) kind="buildings" ;;
+  esac
+  prev="$a"
+done
+case "$1" in
+  export) cp "$fixtures/$kind.geojsonseq" "$out" ;;
+  *) : > "$out" ;;
+esac
