@@ -8,6 +8,9 @@
   "main": "tailwind_heroicons.js",
   "dependencies": {
     "@samvera/clover-iiif": "3.17.0",
+    "@techstark/opencv-js": "^4.10.0-release.1",
+    "leaflet": "^1.9.4",
+    "onnxruntime-web": "^1.22.0",
     "react": "19.3.1",
     "react-dom": "19.3.1"
   },

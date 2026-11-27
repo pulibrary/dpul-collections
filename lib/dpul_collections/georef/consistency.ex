@@ -10,7 +10,9 @@ defmodule DpulCollections.Georef.Consistency do
 
   A fitted key map (a small-scale part: the atlas overview) settles such a
   conflict when it prints one sheet's number inside that sheet's footprint;
-  otherwise both parts are declined — no annotation beats a wrong one.
+  Otherwise a part placed late (rescue or neighbour placement) yields to one
+  fitted from its own labels; otherwise both parts are declined — no
+  annotation beats a wrong one.
   """
   require Logger
   alias DpulCollections.Georef.{Geometry, Mask}
@@ -66,10 +68,25 @@ defmodule DpulCollections.Georef.Consistency do
   defp median_scale(fitted),
     do: fitted |> Enum.map(& &1.scale) |> Enum.sort() |> Enum.at(div(length(fitted), 2))
 
+  # Parts placed after the first pass from thin evidence (a seed, corridors,
+  # fitted neighbours): one landing on a part fitted from its own labels is
+  # the wrong one, and that part's evidence is unchanged by the placement
+  # (Freehold 1909 Sheet 2: part 2 rescued at contrast 0.11 on top of part 1,
+  # 10 labels on their streets; both were declined).
+  @late ~w(corridor_rescue seed_placement neighbour)a
+
   defp losers(a, b, keys) do
     case {vouched?(a, keys), vouched?(b, keys)} do
       {true, false} -> [b]
       {false, true} -> [a]
+      _ -> by_method(a, b)
+    end
+  end
+
+  defp by_method(a, b) do
+    case {a[:method] in @late, b[:method] in @late} do
+      {true, false} -> [a]
+      {false, true} -> [b]
       _ -> [a, b]
     end
   end

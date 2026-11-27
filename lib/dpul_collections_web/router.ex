@@ -90,6 +90,33 @@ defmodule DpulCollectionsWeb.Router do
       get "/:file", GeorefController, :show
     end
 
+    # Collaborative georeferencer (prototype): fitting runs in the browser.
+    # Data, images, models and downloads need no session (and the CSRF plug
+    # would refuse to serve the OCR runtime's JavaScript module).
+    scope "/georeferencer", DpulCollectionsWeb do
+      get "/input/:atlas/:index", GeoreferencerController, :input
+      get "/image", GeoreferencerController, :image
+      get "/ocr/:file", GeoreferencerController, :ocr_file
+      get "/atlas/:atlas/osm.json", GeoreferencerController, :osm
+      get "/contributions/:id", GeoreferencerController, :contribution
+      get "/atlas/:atlas/georef.json", GeoreferencerController, :atlas_page
+    end
+
+    scope "/georeferencer", DpulCollectionsWeb do
+      pipe_through [:browser]
+
+      live_session :georeferencer,
+        on_mount:
+          with_sandbox_support([
+            {DpulCollectionsWeb.CurrentPathHook, :global},
+            {DpulCollectionsWeb.UserAuth, :mount_current_scope}
+          ]) do
+        live "/", GeoreferencerLive, :index
+        live "/volunteer", GeoreferencerLive.Volunteer, :show
+        live "/:atlas/:index", GeoreferencerLive.Sheet, :show
+      end
+    end
+
     scope "/dev" do
       pipe_through [:dashboard_auth, :browser]
 

@@ -231,7 +231,9 @@ defmodule DpulCollections.Georef.Slide do
   end
 
   # Every OCR line in the crop is classified at the predicted point; a match
-  # wins, then a contradiction. Without any street name from OCR, ask the VLM.
+  # wins, then a contradiction. Without any street name from OCR the crop is
+  # unread; the VLM is asked only with --slide-vlm (its reads changed no result
+  # on three atlases and cost ~5 min per sheet: Belmar 1905).
   defp read_crop(job, tokens, wpt, osm, neutral_keys) do
     {x0, y0, _, _} = job.region
 
@@ -252,7 +254,11 @@ defmodule DpulCollections.Georef.Slide do
         Enum.find(reads, &(&1.class == :contra)) ||
         Enum.find(reads, &(&1.class == :neutral))
 
-    best || vlm_read(job, wpt, osm, neutral_keys)
+    cond do
+      best -> best
+      Process.get(:slide_vlm, false) -> vlm_read(job, wpt, osm, neutral_keys)
+      true -> %{text: nil, class: nil, px: nil, angle: nil}
+    end
   end
 
   @read_prompt """

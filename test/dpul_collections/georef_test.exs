@@ -334,6 +334,24 @@ defmodule DpulCollections.GeorefTest do
                %{ft: 100, px: {0, 100}}
              ]) == 100
     end
+
+    test "one vote per statement, however often whole-sheet and tiled OCR read it" do
+      # Summit 1921 Sheet 33: title 200 ft, inset 50 ft read three times
+      assert DpulCollections.Georef.printed_scale([
+               %{ft: 200, px: {7780, 1191}},
+               %{ft: 50, px: {6650, 5876}},
+               %{ft: 50, px: {6656, 5875}},
+               %{ft: 50, px: {6656, 5875}},
+               %{ft: 200, px: {7783, 1200}}
+             ]) == 200
+
+      # Bridgeton 1915 Sheet 19: the title read 1000 whole and 100 tiled; the bar 100
+      assert DpulCollections.Georef.printed_scale([
+               %{ft: 1000, px: {4210, 387}},
+               %{ft: 100, px: {5704, 9577}},
+               %{ft: 100, px: {4207, 383}}
+             ]) == 100
+    end
   end
 
   describe "printed_scales/1" do
@@ -351,6 +369,23 @@ defmodule DpulCollections.GeorefTest do
             do: %{text: text, center: {1, 2}}
 
       assert Enum.map(DpulCollections.Georef.printed_scales(tokens), & &1.ft) == [120, 120]
+    end
+
+    test "joins a letter-spaced street name (Belmar 1905 Sheet 80: B ... ST.)" do
+      tok = fn text, x, y, h, a ->
+        %{text: text, center: {x, y}, height: h, angle: a, score: 0.9}
+      end
+
+      tokens = [
+        tok.("B", 4123, 9692, 109, :math.pi() / 2),
+        tok.("ST.", 5000, 9690, 152, 0.0),
+        # a dwelling "D" off the line and a "ST." before the letter are not joined
+        tok.("D", 4500, 9300, 60, 0.0),
+        tok.("ST.", 3000, 9300, 80, 0.0)
+      ]
+
+      assert [%{text: "B ST.", center: {x, _}}] = DpulCollections.Georef.spaced_names(tokens)
+      assert_in_delta x, 4561.5, 0.1
     end
   end
 
@@ -454,6 +489,13 @@ defmodule DpulCollections.GeorefTest do
         )
 
       assert Enum.map(out, & &1.status) == [:failed, :failed, :ok]
+    end
+
+    test "check/2 declines only the late-placed part when it lands on a labels fit" do
+      rescued = Map.put(part("Sheet 2 (part 2)", 20.0), :method, :corridor_rescue)
+      fitted = Map.put(part("Sheet 2 (part 1)", 0.0), :method, :labels)
+      out = Consistency.check([fitted, rescued], fn _ -> [] end)
+      assert Enum.map(out, & &1.status) == [:ok, :failed]
     end
 
     test "check/2 ignores overlaps between different scales" do
@@ -565,6 +607,53 @@ defmodule DpulCollections.GeorefTest do
       sq = [{0, 0}, {100, 0}, {100, 100}, {0, 100}]
       assert_in_delta Mask.signed_distance({50, 20}, sq), 20.0, 1.0e-9
       assert_in_delta Mask.signed_distance({-30, 50}, sq), -30.0, 1.0e-9
+    end
+  end
+
+  describe "place_name/1" do
+    defp titled(label, subjects) do
+      Manifest.parse(%{
+        "id" => "m",
+        "label" => %{"eng" => [label]},
+        "metadata" => [
+          %{"label" => %{"eng" => ["Subject"]}, "value" => %{"eng" => subjects}}
+        ]
+      })
+    end
+
+    test "uses the catalog subject's present-day town when it differs (Roosevelt 1912 = Carteret)" do
+      m =
+        titled("Insurance maps of Roosevelt, Middlesex County, New Jersey", [
+          "Real property—New Jersey—Carteret—Maps"
+        ])
+
+      assert m.subject_places == ["Carteret"]
+      assert DpulCollections.Georef.place_name(m) == "Carteret"
+    end
+
+    test "keeps the title's town when the subject agrees or names several" do
+      assert DpulCollections.Georef.place_name(
+               titled("Insurance maps of Belmar, Monmouth County", [
+                 "Real property—New Jersey—Belmar—Maps"
+               ])
+             ) == "Belmar"
+
+      two = ["Real property—New Jersey—Avon—Maps", "Real property—New Jersey—Bradley Beach—Maps"]
+
+      assert DpulCollections.Georef.place_name(
+               titled("Insurance maps of Avon, Monmouth County", two)
+             ) == "Avon"
+    end
+  end
+
+  describe "scale_ok?/3" do
+    test "a key map at 800 ft passes on a canvas printing the sheets' 50 ft, given enough labels" do
+      key_map = 800 * 0.3048 / 395
+      refute DpulCollections.Georef.scale_consistent?(key_map, 50)
+      assert DpulCollections.Georef.scale_ok?(key_map, 50, 25)
+      refute DpulCollections.Georef.scale_ok?(key_map, 50, 5)
+      # 2x off is a wrong fit, not a key map
+      refute DpulCollections.Georef.scale_ok?(100 * 0.3048 / 395, 50, 25)
     end
   end
 end

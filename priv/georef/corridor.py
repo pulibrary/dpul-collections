@@ -152,7 +152,7 @@ def snap(T, px, keys, osm, priors, iters=6):
     for _ in range(iters):
         w = fwd(unpack(x), px)
         foots = []
-        for k in set(keys):
+        for k in sorted(set(keys)):  # sorted: set order varies per process (hash seed)
             ii = [i for i, kk in enumerate(keys) if kk == k]
             d, F, dd = osm.nearest(k, w[ii])
             foots += [(i, F[j], np.array([-dd[j][1], dd[j][0]])) for j, i in enumerate(ii) if d[j] < 25]

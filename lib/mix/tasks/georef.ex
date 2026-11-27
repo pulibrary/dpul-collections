@@ -3,7 +3,7 @@ defmodule Mix.Tasks.Georef do
   @moduledoc """
   Usage:
 
-      mix georef URL [--canvases 0,2] [--out tmp/georef/name] [--refine] [--no-slide] [--no-align] [--no-rescue]
+      mix georef URL [--canvases 0,2] [--out tmp/georef/name] [--refine] [--no-slide] [--no-align] [--no-rescue] [--slide-vlm]
           [--no-neighbour] [--no-tiled-labels] [--vlm-labels] [--vlm-points] [--vlm-neatline] [--no-renames] [--retry-model qwen38_27b]
 
   URL is a IIIF manifest or a maps.princeton.edu catalog URL. Writes
@@ -33,6 +33,7 @@ defmodule Mix.Tasks.Georef do
           vlm_labels: :boolean,
           vlm_points: :boolean,
           vlm_neatline: :boolean,
+          slide_vlm: :boolean,
           renames: :boolean,
           retry_model: :string
         ]
@@ -54,6 +55,7 @@ defmodule Mix.Tasks.Georef do
       |> maybe_put(:vlm_labels, opts[:vlm_labels])
       |> maybe_put(:vlm_points, opts[:vlm_points])
       |> maybe_put(:vlm_neatline, opts[:vlm_neatline])
+      |> maybe_put(:slide_vlm, opts[:slide_vlm])
       |> maybe_put(:renames, opts[:renames])
       |> maybe_put(:retry_model, opts[:retry_model] && String.to_atom(opts[:retry_model]))
       |> maybe_put(

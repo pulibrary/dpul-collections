@@ -51,6 +51,10 @@ defmodule DpulCollections.Georef do
   # at half scale (0.019 m/px) with its "50 ft" printed only in the cartouche.
   @standard_scales_ft [50, 60, 100, 200, 300, 400, 500, 600, 800, 1000]
   @label_tolerance 8.0
+  @key_map_ratio 4
+  @key_map_hits 8
+  @key_map_pad 0.1
+  @scale_same_px 300
   @min_tile_name_px 78
   @rough_label_tolerance 15.0
   @scale_range {0.005, 2.0}
@@ -114,7 +118,19 @@ defmodule DpulCollections.Georef do
     # fill in what OCR missed.
     ocr_tokens = Ocr.read(canvas, &fetch_image/1)
     ocr_pts = ocr_labels(ocr_tokens, osm) ++ tiled_labels(canvas, ocr_tokens, osm, opts)
-    scales = printed_scales(ocr_tokens)
+    # Scale statements from the tiles too (cached; tiled_labels reads them
+    # anyway): Bridgeton 1915 Sheet 19's title read "SCALE I0OO FT." whole
+    # and "SCALE IOOFT." tiled, against a "Scale 100 Ft." bar; a tie went
+    # to the misread title (the topmost).
+    scales =
+      printed_scales(
+        ocr_tokens ++
+          if(Keyword.get(opts, :tiled_labels, true),
+            do: Ocr.read_tiled(canvas, &fetch_image/1),
+            else: []
+          )
+      )
+
     # `vlm_labels: false` (ablation): no VLM label reading or crossing pointing
     vlm_on = Keyword.get(opts, :vlm_labels, false)
     vlm_labels = if vlm_on, do: read_labels(overview, full_region), else: []
@@ -172,13 +188,22 @@ defmodule DpulCollections.Georef do
         printed_scale_ft: printed
       }
       |> Map.merge(fit_part(canvas, osm, polygon, part_labels, part_seeds, printed, part_opts))
+      |> key_map_mask(osm)
     end)
   end
 
   defp fit_part(canvas, osm, polygon, label_pts, seeds, printed_ft, opts) do
     seed_candidates = to_candidates(seeds, osm)
+
     roughs =
-      best_hypotheses(seed_candidates, label_pts, osm, printed_ft, Keyword.get(opts, :sheet_scales, []))
+      best_hypotheses(
+        seed_candidates,
+        label_pts,
+        osm,
+        printed_ft,
+        Keyword.get(opts, :sheet_scales, [])
+      )
+
     rough = List.first(roughs)
 
     Logger.debug(fn ->
@@ -308,10 +333,88 @@ defmodule DpulCollections.Georef do
   defp rescue_pass(results, osm, opts) do
     if Keyword.get(opts, :rescue, true) do
       exclude = Keyword.get(opts, :exclude_keys, [])
-      Enum.map(results, &corridor_rescue(&1, osm, exclude))
+      atlas_ft = atlas_scale_ft(results)
+
+      Enum.map(results, fn r ->
+        r |> corridor_rescue(osm, exclude) |> seed_rescue(osm, exclude, atlas_ft)
+      end)
     else
       results
     end
+  end
+
+  # Seed placement (priv/georef/seedplace.py): a part still declined that has
+  # a junction seed is placed from the seed and the labels of its two streets
+  # alone: rotation swept, aligned to the printed street corridors, accepted
+  # only with a clear contrast peak whose labels run along their streets and
+  # no symmetric rival. Leave-one-out on 127 fitted parts: 65 placed, 0 wrong.
+  @seed_max 4
+
+  defp seed_rescue(%{status: :failed} = r, osm, exclude, atlas_ft) do
+    labels = Enum.reject(r.labels, &(&1.key in exclude))
+    seeds = r[:located] |> List.wrap() |> to_candidates(osm) |> Enum.take(@seed_max)
+    ft = r.printed_scale_ft || atlas_ft
+
+    if seeds == [] or ft == nil do
+      r
+    else
+      jpg = fetch_image(Manifest.image_url(r.canvas, "full", @align_px))
+
+      input = %{
+        width: r.canvas.width,
+        mask: Enum.map(r.mask, &Tuple.to_list/1),
+        seeds:
+          for(
+            s <- seeds,
+            do: %{px: Tuple.to_list(s.px), xy: Tuple.to_list(s.xy), keys: Tuple.to_list(s.key)}
+          ),
+        scales: [ft * 0.3048 / @nominal_dpi],
+        labels:
+          for(
+            l <- labels,
+            do: %{
+              key: l.key,
+              px: Tuple.to_list(l.px),
+              angle: if(l[:source] == :ocr, do: l[:angle])
+            }
+          )
+      }
+
+      case Py.run("seedplace.py", input, jpg, osm, exclude, ["scipy"]) do
+        %{"t" => t, "contrast" => k} when is_map(t) ->
+          t = Map.new(t, fn {key, v} -> {String.to_existing_atom(key), v} end)
+          hits = label_score(t, labels, osm)
+
+          Logger.info(
+            "georef: #{r.label} placed from a junction seed (contrast #{Float.round(k, 2)}, #{hits} labels on their streets)"
+          )
+
+          r
+          |> Map.merge(fit_result(t, labels, osm, r.mask, hits))
+          |> Map.put(:method, :seed_placement)
+
+        %{"why" => why} ->
+          Logger.info("georef: #{r.label} not placed from seeds: #{why}")
+          r
+      end
+    end
+  rescue
+    e ->
+      Logger.warning("georef: #{r.label} seed placement skipped: #{Exception.message(e)}")
+      r
+  end
+
+  defp seed_rescue(r, _osm, _exclude, _atlas_ft), do: r
+
+  # the atlas's usual scale class (ft to the inch) among its fitted parts
+  defp atlas_scale_ft(results) do
+    fts =
+      for %{status: :ok, transform: t} <- results do
+        ft = Geometry.scale(t) * @nominal_dpi / 0.3048
+        Enum.min_by([50, 60, 100, 200, 400], &abs(:math.log(ft / &1)))
+      end
+
+    if fts == [], do: nil, else: fts |> Enum.frequencies() |> Enum.max_by(&elem(&1, 1)) |> elem(0)
   end
 
   defp corridor_rescue(%{status: :failed} = r, osm, exclude) do
@@ -327,7 +430,10 @@ defmodule DpulCollections.Georef do
       |> Enum.sort_by(&(-elem(&1, 0)))
       |> Enum.reduce([], fn {_, t}, kept ->
         if length(kept) >= @rescue_starts or
-             Enum.any?(kept, &(Geometry.dist(Geometry.transform(&1, c), Geometry.transform(t, c)) < 40)),
+             Enum.any?(
+               kept,
+               &(Geometry.dist(Geometry.transform(&1, c), Geometry.transform(t, c)) < 40)
+             ),
            do: kept,
            else: kept ++ [t]
       end)
@@ -371,6 +477,16 @@ defmodule DpulCollections.Georef do
           |> Map.put(:method, :corridor_rescue)
 
         _ ->
+          Logger.info(
+            "georef: #{r.label} not rescued: " <>
+              Enum.map_join(out, "; ", fn %{"t" => t, "contrast" => k} ->
+                t = Map.new(t, fn {key, v} -> {String.to_existing_atom(key), v} end)
+
+                "#{label_score(t, labels, osm)} labels, contrast #{Float.round(k, 2)}, " <>
+                  "#{round(Geometry.scale(t) * @nominal_dpi / 0.3048)} ft"
+              end)
+          )
+
           r
       end
     end
@@ -394,7 +510,6 @@ defmodule DpulCollections.Georef do
     end
   end
 
-
   defp align(%{status: :ok} = r, osm, exclude) do
     jpg = fetch_image(Manifest.image_url(r.canvas, "full", @align_px))
 
@@ -410,10 +525,19 @@ defmodule DpulCollections.Georef do
         t = Map.new(t, fn {k, v} -> {String.to_existing_atom(k), v} end)
         hits = label_score(t, r.labels, osm)
 
-        if hits >= label_score(r.transform, r.labels, osm) do
+        # a wide-start alignment (a fit stuck a few degrees off) may lose one
+        # label: it was held on its street by the wrong rotation (Bay Head 51)
+        slack = if out["wide"], do: 1, else: 0
+
+        if hits >= label_score(r.transform, r.labels, osm) - slack do
           Logger.info(
             "georef: #{r.label} aligned to street corridors: moved #{Float.round(out["move_m"], 1)} m, " <>
-              "#{Float.round(out["drot_deg"], 2)} deg (#{out["n"]} corridor samples)"
+              "#{Float.round(out["drot_deg"], 2)} deg (#{out["n"]} corridor samples)" <>
+              if(out["wide"],
+                do:
+                  ", from a wider rotation start (contrast #{Float.round(out["contrast0"], 2)} -> #{Float.round(out["contrast"], 2)})",
+                else: ""
+              )
           )
 
           gcps =
@@ -422,7 +546,12 @@ defmodule DpulCollections.Georef do
             end)
 
           %{r | transform: t, gcps: gcps, scale: Geometry.scale(t)}
-          |> Map.put(:aligned, %{move_m: out["move_m"], drot_deg: out["drot_deg"], n: out["n"]})
+          |> Map.put(:aligned, %{
+            move_m: out["move_m"],
+            drot_deg: out["drot_deg"],
+            n: out["n"],
+            wide: out["wide"]
+          })
         else
           r
         end
@@ -499,6 +628,7 @@ defmodule DpulCollections.Georef do
   # the normal pass; rescues with a printed scale go first and count as fitted.
   defp slide_pass(results, manifest, osm, opts) do
     if Keyword.get(opts, :slide, true) do
+      Process.put(:slide_vlm, Keyword.get(opts, :slide_vlm, false))
       index = manifest.canvases |> Enum.with_index() |> Map.new(fn {c, i} -> {c.id, i} end)
       exclude = [Osm.normalize(town_name(manifest))]
       fitted = for r <- results, r.status == :ok, do: {index[r.canvas.id], r.scale}
@@ -618,7 +748,9 @@ defmodule DpulCollections.Georef do
 
     label_check = with {:ok, t, _, _} <- final, do: label_score(t, label_pts, osm)
 
-    scale_ok = with {:ok, t, _, _} <- final, do: scale_consistent?(Geometry.scale(t), printed_ft)
+    scale_ok =
+      with {:ok, t, _, _} <- final,
+           do: scale_ok?(Geometry.scale(t), printed_ft, label_check)
 
     case final do
       {:ok, t0, inliers, residuals}
@@ -706,7 +838,7 @@ defmodule DpulCollections.Georef do
 
     direct_ok =
       direct_hits >= needed and crossing_streets?(direct, label_pts, osm) and
-        scale_consistent?(Geometry.scale(direct), printed_ft)
+        scale_ok?(Geometry.scale(direct), printed_ft, direct_hits)
 
     {t, hits} =
       if direct_ok,
@@ -714,7 +846,7 @@ defmodule DpulCollections.Georef do
         else: {stepped, label_score(stepped, label_pts, osm)}
 
     crossing = hits >= needed and crossing_streets?(t, label_pts, osm)
-    scale_ok = scale_consistent?(Geometry.scale(t), printed_ft)
+    scale_ok = scale_ok?(Geometry.scale(t), printed_ft, hits)
 
     if hits >= needed and not (crossing and scale_ok) do
       Logger.debug(
@@ -815,6 +947,51 @@ defmodule DpulCollections.Georef do
 
     buildings >= 2 or (buildings >= 1 and dirs != []) or
       Enum.any?(for a <- dirs, b <- dirs, do: angle_between(a, b) > 30)
+  end
+
+  @doc """
+  A part fitted as a key map under a sheet-scale statement (`scale_ok?/3`'s
+  exception) is often a sheet with the key map as an inset in one corner
+  (Bay Head 1905 Sheet 47: key map at the top, a 60 ft sheet below, one part).
+  Its mask shrinks to the box around the labels on their streets, padded by
+  #{@key_map_pad} of the part's size and kept within the part's box.
+  """
+  def key_map_mask(%{status: :ok, transform: t, printed_scale_ft: ft} = r, osm)
+      when is_number(ft) do
+    if scale_consistent?(Geometry.scale(t), ft) do
+      r
+    else
+      hit =
+        for l <- r.labels,
+            Osm.distance_to(osm, l.key, Geometry.transform(t, l.px)) <= @label_tolerance,
+            do: l.px
+
+      {xs, ys} = Enum.unzip(r.mask)
+      {x0, x1, y0, y1} = {Enum.min(xs), Enum.max(xs), Enum.min(ys), Enum.max(ys)}
+      {hx, hy} = Enum.unzip(hit)
+      {px, py} = {@key_map_pad * (x1 - x0), @key_map_pad * (y1 - y0)}
+      {a, b} = {max(x0, Enum.min(hx) - px), min(x1, Enum.max(hx) + px)}
+      {c, d} = {max(y0, Enum.min(hy) - py), min(y1, Enum.max(hy) + py)}
+      Logger.info("georef: #{r.label} fitted as a key map; mask cut to its labels' box")
+      %{r | mask: [{a, c}, {b, c}, {b, d}, {a, d}]}
+    end
+  end
+
+  def key_map_mask(r, _osm), do: r
+
+  @doc """
+  The scale gate. A key map (the atlas overview, 500-1000 ft to the inch) is
+  often on a canvas whose only printed statement is the sheets' scale
+  (Englewood 1908 Index: "SCALE 50 FT. TO AN INCH" by the key map at 800 ft;
+  Riverton, Salem, Somerville, Belmar overviews alike): a fit at a standard
+  scale >= #{@key_map_ratio}x the printed one passes with >= #{@key_map_hits}
+  labels on their streets.
+  """
+  def scale_ok?(m_per_px, printed_ft, hits) do
+    scale_consistent?(m_per_px, printed_ft) or
+      (is_number(printed_ft) and is_number(hits) and hits >= @key_map_hits and
+         m_per_px * @nominal_dpi / 0.3048 >= @key_map_ratio * printed_ft and
+         scale_consistent?(m_per_px, nil))
   end
 
   @doc """
@@ -964,7 +1141,11 @@ defmodule DpulCollections.Georef do
   # 1910: Vliet / De Voe x Main, scale printed only inside the cartouche).
   # (and at any scale stated elsewhere on the sheet).
   defp single_seed_hypotheses(seed_candidates, nil, sheet_ft),
-    do: Enum.flat_map(Enum.uniq(sheet_ft ++ [50, 100]), &single_seed_hypotheses(seed_candidates, &1, []))
+    do:
+      Enum.flat_map(
+        Enum.uniq(sheet_ft ++ [50, 100]),
+        &single_seed_hypotheses(seed_candidates, &1, [])
+      )
 
   defp single_seed_hypotheses(seed_candidates, ft, _sheet_ft) do
     s = ft * 0.3048 / @nominal_dpi
@@ -981,10 +1162,29 @@ defmodule DpulCollections.Georef do
   @doc false
   def printed_scale([]), do: nil
 
+  # One vote per statement: whole-sheet and tiled OCR (and overlapping tiles)
+  # read the same statement more than once, not always alike (Summit 1921
+  # Sheet 33: "50" and "5O" from two tiles outvoted the title's 200).
+  # Readings within @scale_same_px are one statement, which backs every
+  # value read there (Bridgeton 1915 Sheet 19's title: "I0OO" and "IOO").
   def printed_scale(scales) do
-    scales
-    |> Enum.group_by(& &1.ft)
-    |> Enum.max_by(fn {_ft, ss} -> {length(ss), -Enum.min(Enum.map(ss, &elem(&1.px, 1)))} end)
+    statements =
+      Enum.reduce(scales, [], fn s, acc ->
+        case Enum.split_with(acc, fn st ->
+               Enum.any?(st, &(Geometry.dist(&1.px, s.px) < @scale_same_px))
+             end) do
+          {[], rest} -> [[s] | rest]
+          {near, rest} -> [[s | List.flatten(near)] | rest]
+        end
+      end)
+
+    statements
+    |> Enum.flat_map(fn st ->
+      top = st |> Enum.map(&elem(&1.px, 1)) |> Enum.min()
+      st |> Enum.map(& &1.ft) |> Enum.uniq() |> Enum.map(&{&1, top})
+    end)
+    |> Enum.group_by(&elem(&1, 0), &elem(&1, 1))
+    |> Enum.max_by(fn {_ft, tops} -> {length(tops), -Enum.min(tops)} end)
     |> elem(0)
   end
 
@@ -1070,7 +1270,7 @@ defmodule DpulCollections.Georef do
 
   @doc "OCR tokens that name a modern street/railway/waterway, with direction."
   def ocr_labels(tokens, osm) do
-    for t <- tokens,
+    for t <- tokens ++ spaced_names(tokens),
         t.score >= 0.75,
         text = ordinal_fix(t.text),
         ordinal?(text) or String.length(String.replace(text, ~r/[^\p{L}]/u, "")) >= 3,
@@ -1110,9 +1310,43 @@ defmodule DpulCollections.Georef do
   @ordinal ~r/^\s*\d{1,3}\s*(ST|ND|RD|TH)\.?\s*$/i
   defp ordinal?(text), do: Regex.match?(@ordinal, text)
 
-  # ordinals match exactly ("3rd" must not fuzzy-match "33rd")
+  # Lettered streets are printed letter-spaced across the street ("B      ST."
+  # on Belmar 1905 Sheet 80: the two words ~880 px apart), so OCR returns a
+  # lone letter and a lone type word. Join them when the letter sits on the
+  # type word's line (<= half a letter off it), the type word follows within
+  # 12 letter heights, and they are lettered at a similar size. A lone
+  # letter's own box angle is meaningless (taller than wide), so the line is
+  # the type word's.
+  @spaced_letter ~r/^\s*([A-Z])\.?\s*$/
+  @spaced_type ~r/^\s*(ST|AV|AVE|RD|PL)\.?\s*$/i
+  def spaced_names(tokens) do
+    types = Enum.filter(tokens, &(Regex.match?(@spaced_type, &1.text) and &1.angle != nil))
+
+    for l <- tokens,
+        [_, letter] <- [Regex.run(@spaced_letter, l.text)],
+        hl = Map.get(l, :height) || 0.0,
+        hl > 0,
+        t <- types,
+        ht = Map.get(t, :height) || 0.0,
+        ht / hl >= 0.6 and ht / hl <= 1.6,
+        {dx, dy} = {elem(t.center, 0) - elem(l.center, 0), elem(t.center, 1) - elem(l.center, 1)},
+        along = dx * :math.cos(t.angle) + dy * :math.sin(t.angle),
+        across = abs(-dx * :math.sin(t.angle) + dy * :math.cos(t.angle)),
+        along > 0 and along <= 12 * hl and across <= 0.5 * max(hl, ht) do
+      %{
+        text: "#{letter} #{String.upcase(String.trim(t.text))}",
+        score: min(l.score, t.score),
+        center: {elem(l.center, 0) + dx / 2, elem(l.center, 1) + dy / 2},
+        angle: t.angle,
+        height: max(hl, ht)
+      }
+    end
+  end
+
+  # ordinals and spaced single letters match exactly ("3rd" must not
+  # fuzzy-match "33rd", "B ST" not "Bay St")
   defp match_label(osm, text) do
-    if ordinal?(text) do
+    if ordinal?(text) or Regex.match?(~r/^[A-Z] (ST|AV|AVE|RD|PL)\.?$/, text) do
       key = Osm.normalize(text)
       if Map.has_key?(osm.groups, key), do: key
     else
@@ -1187,7 +1421,9 @@ defmodule DpulCollections.Georef do
   # median, Cresskill 1.4 -> 1.7 m), the held-out sample fitted the same 24
   # parts within 8 m, at ~10x the speed and with no VLM server.
   defp maybe_refine(located, canvas, opts) do
-    if Keyword.get(opts, :refine, false), do: Enum.map(located, &refine(&1, canvas)), else: located
+    if Keyword.get(opts, :refine, false),
+      do: Enum.map(located, &refine(&1, canvas)),
+      else: located
   end
 
   defp to_candidates(located, osm) do
@@ -1589,7 +1825,7 @@ defmodule DpulCollections.Georef do
   """
   def search_bbox(manifest) do
     meta = manifest.bbox && pad(manifest.bbox, 0.2)
-    town = town_name(manifest)
+    town = place_name(manifest)
     places = Osm.find_place(town)
     inside = meta && Enum.find(places, fn %{lonlat: [x, y]} -> inside?(meta, x, y) end)
 
@@ -1605,6 +1841,19 @@ defmodule DpulCollections.Georef do
     |> tap(fn b ->
       Logger.info("georef: search bbox #{inspect(b)} (#{town}: #{length(places)} places)")
     end)
+  end
+
+  @doc """
+  The place to search: the title's town, unless the catalog subject names one
+  other town (the present name: Roosevelt's 1912 atlas is Carteret today).
+  """
+  def place_name(manifest) do
+    town = town_name(manifest)
+
+    case Map.get(manifest, :subject_places, []) do
+      [other] -> if Osm.normalize(other) == Osm.normalize(town), do: town, else: other
+      _ -> town
+    end
   end
 
   @doc "The title's place name (\"Insurance maps of\" removed)."

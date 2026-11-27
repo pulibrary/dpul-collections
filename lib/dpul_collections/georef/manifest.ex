@@ -14,7 +14,7 @@ defmodule DpulCollections.Georef.Manifest do
     defstruct [:id, :label, :width, :height, :service_id, :service_type, px_scale: 1.0]
   end
 
-  defstruct [:id, :label, :summary, :bbox, canvases: []]
+  defstruct [:id, :label, :summary, :bbox, subject_places: [], canvases: []]
 
   @doc "Fetch a manifest by URL, or resolve a maps.princeton.edu catalog URL to one."
   def fetch(url) do
@@ -39,6 +39,7 @@ defmodule DpulCollections.Georef.Manifest do
       label: m |> Map.get("label", %{}) |> first_value(),
       summary: m |> Map.get("summary", %{}) |> Map.values() |> List.flatten(),
       bbox: nav_place_bbox(m["navPlace"]),
+      subject_places: subject_places(m["metadata"] || []),
       canvases: Enum.map(m["items"] || [], &parse_canvas/1)
     }
   end
@@ -86,6 +87,21 @@ defmodule DpulCollections.Georef.Manifest do
 
     {lons, lats} = coords |> Enum.map(fn [x, y] -> {x, y} end) |> Enum.unzip()
     {Enum.min(lons), Enum.min(lats), Enum.max(lons), Enum.max(lats)}
+  end
+
+  # "Real property—New Jersey—Carteret—Maps" -> "Carteret": the catalog's
+  # present-day place, which a title can predate (Roosevelt, 1912 = Carteret).
+  defp subject_places(metadata) do
+    metadata
+    |> Enum.filter(fn x -> x |> Map.get("label", %{}) |> first_value() == "Subject" end)
+    |> Enum.flat_map(fn x -> x |> Map.get("value", %{}) |> Map.values() |> List.flatten() end)
+    |> Enum.flat_map(fn v ->
+      case String.split(v, "—") do
+        [_, _state, place | _] -> if place =~ ~r/county$/i, do: [], else: [String.trim(place)]
+        _ -> []
+      end
+    end)
+    |> Enum.uniq()
   end
 
   defp first_value(map) when map == %{}, do: nil

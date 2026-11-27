@@ -25,6 +25,15 @@ from corridor import Osm, Sheet, fwd, inv, rot  # noqa: E402
 LABEL_W = 30.0
 MAX_MOVE_M = 15.0
 MAX_ROT_DEG = 3.0
+# The ICP's basin in rotation is narrow on some sheets: a fit a few degrees off stays there (Belmar 1905
+# Sheet 83 at 5 deg, Bay Head 1905 Sheet 51 at 5 deg, May's Landing 1924 Sheet 9, Princeton 1911 Sheet 4;
+# all overlay-checked). Alignment is also started WIDE_DEG either side; such a start is kept only if its
+# contrast beats the plain one by WIDE_GAIN, reaches WIDE_MIN, and turns <= WIDE_ROT_DEG. On a sound fit
+# (Belmar Sheet 82) every start from -8..8 deg returns to the same place. 7/158 fits changed in the scan.
+WIDE_DEG = 4.0
+WIDE_GAIN = 0.05
+WIDE_MIN = 0.1
+WIDE_ROT_DEG = 6.0
 
 
 def centres(sheet, osm, T):
@@ -62,7 +71,7 @@ def centres(sheet, osm, T):
 
 def label_rows(osm, T, labels):
     rows = []
-    for k in {l["key"] for l in labels}:
+    for k in sorted({l["key"] for l in labels}):  # sorted: set order varies per process (hash seed)
         if k not in osm.by_key:
             continue
         ls = [l for l in labels if l["key"] == k]
@@ -149,18 +158,37 @@ def main():
             out.append({"t": from_T(T), "contrast": contrast(sheet, osm, T), "n": n})
         print(json.dumps({"candidates": out}))
         return
-    t = inp["t"]
-    T0 = (math.hypot(t["a"], t["b"]), math.atan2(t["b"], t["a"]), np.array([t["tx"], t["ty"]]))
-    T, n = align(sheet, osm, T0, inp["labels"])
-    out = {"t": None, "move_m": None, "drot_deg": None, "n": n}
-    if T is not None:
-        c = sheet.centre[None]
-        move = float(np.linalg.norm(fwd(T, c)[0] - fwd(T0, c)[0]))
+    T0 = to_T(inp["t"])
+    c = sheet.centre[None]
+    w0 = fwd(T0, c)[0]
+
+    def result(T, wide):
+        move = float(np.linalg.norm(fwd(T, c)[0] - w0))
         drot = math.degrees(T[1] - T0[1])
+        ok = move <= MAX_MOVE_M and abs(drot) <= (WIDE_ROT_DEG if wide else MAX_ROT_DEG)
+        return move, drot, ok
+
+    T, n = align(sheet, osm, T0, inp["labels"])
+    out = {"t": None, "move_m": None, "drot_deg": None, "n": n, "wide": False}
+    best = None
+    if T is not None:
+        move, drot, ok = result(T, False)
         out.update(move_m=move, drot_deg=drot)
-        if move <= MAX_MOVE_M and abs(drot) <= MAX_ROT_DEG:
-            s, th, tr = T
-            out["t"] = {"a": s * math.cos(th), "b": s * math.sin(th), "tx": float(tr[0]), "ty": float(tr[1])}
+        if ok:
+            out["t"] = from_T(T)
+            best = contrast(sheet, osm, T)
+    base = best if best is not None else contrast(sheet, osm, T0)
+    for d in (-WIDE_DEG, WIDE_DEG):
+        th = T0[1] + math.radians(d)
+        Ts = (T0[0], th, w0 - fwd((T0[0], th, np.zeros(2)), c)[0])
+        Tw, nw = align(sheet, osm, Ts, inp["labels"])
+        if Tw is None:
+            continue
+        move, drot, ok = result(Tw, True)
+        k = contrast(sheet, osm, Tw)
+        if ok and k >= WIDE_MIN and k >= base + WIDE_GAIN and (best is None or k > best):
+            best = k
+            out.update(t=from_T(Tw), move_m=move, drot_deg=drot, n=nw, wide=True, contrast=k, contrast0=base)
     print(json.dumps(out))
 
 
