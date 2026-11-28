@@ -12,9 +12,9 @@ defmodule DpulCollectionsWeb.Georeferencer.QueueLive do
 
     socket =
       socket
-      |> assign(page_title: "Georeference with us", manifest: "", queueing: false)
+      |> assign(page_title: "Georeference with us", manifest: "", queueing: false, to_review: 0)
       |> assign_counts()
-      |> assign_review()
+      |> then(&if(connected?(&1), do: assign_review(&1), else: &1))
 
     {:ok, socket}
   end
@@ -23,9 +23,10 @@ defmodule DpulCollectionsWeb.Georeferencer.QueueLive do
     assign(socket, counts: Queue.counts(), atlases: Queue.atlas_counts())
   end
 
-  # parts waiting for a person (costlier: only when results come in)
+  # parts waiting for a person: costly (it reads every atlas), so off the page's
+  # critical path and shared between tabs (Review.count/0)
   defp assign_review(socket) do
-    assign(socket, to_review: length(DpulCollections.Georef.Collab.Review.items()))
+    start_async(socket, :to_review, fn -> DpulCollections.Georef.Collab.Review.count() end)
   end
 
   defp user(socket) do
@@ -54,6 +55,13 @@ defmodule DpulCollectionsWeb.Georeferencer.QueueLive do
     {:reply, %{ok: true}, socket}
   end
 
+  # the browser lost its GPU (the machine slept, a driver reset): not the sheet's fault, so the
+  # job goes back without using up a try
+  def handle_event("release", %{"worker" => worker}, socket) do
+    Queue.release(worker)
+    {:reply, %{ok: true}, socket}
+  end
+
   def handle_event("queue", %{"manifest" => url}, socket) do
     url = String.trim(url)
 
@@ -66,6 +74,9 @@ defmodule DpulCollectionsWeb.Georeferencer.QueueLive do
       {:noreply, put_flash(socket, :error, "Paste an IIIF manifest URL.")}
     end
   end
+
+  def handle_async(:to_review, {:ok, n}, socket), do: {:noreply, assign(socket, to_review: n)}
+  def handle_async(:to_review, {:exit, _}, socket), do: {:noreply, socket}
 
   def handle_async(:queue, {:ok, atlas}, socket) do
     {:noreply,

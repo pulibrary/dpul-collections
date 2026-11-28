@@ -108,8 +108,39 @@ export async function prepareInk(img, width, onStep = () => {}) {
   }
   const bl = boxBlur(V, W, H, 31), ink = new Uint8Array(W * H);
   for (let i = 0; i < W * H; i++) ink[i] = V[i] < Math.round(bl[i]) - 25 || V[i] < 110 || S[i] > 70 ? 1 : 0;
+  dropSpecks(ink, W, H, W / 3000);
   onStep("corridors"); await nextTick();
   return { W, H, f, ink: morph(ink, W, H, 5, true), dt: edt(ink, W, H) };
+}
+
+// Clears small ink marks: the dashed water-pipe lines Sanborn maps draw down the middle of
+// streets, hydrant dots and the strokes of lettering. A dashed pipe line splits a street into
+// two narrow halves, so the corridor test failed true fits on it (and refinement pushed them
+// off centre). Block outlines and buildings are large marks and stay. k: image width / 3000.
+function dropSpecks(ink, W, H, k) {
+  const maxSide = 60 * k, minArea = 300 * k * k, seen = new Uint8Array(W * H);
+  const stack = new Int32Array(W * H), comp = new Int32Array(W * H);
+  for (let s0 = 0; s0 < W * H; s0++) {
+    if (!ink[s0] || seen[s0]) continue;
+    let sp = 0, n = 0, x0 = W, x1 = 0, y0 = H, y1 = 0;
+    seen[s0] = 1; stack[sp++] = s0;
+    while (sp) {
+      const i = stack[--sp], x = i % W, y = (i - x) / W;
+      comp[n++] = i;
+      if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+      for (let dy = -1; dy <= 1; dy++) {
+        const yy = y + dy;
+        if (yy < 0 || yy >= H) continue;
+        for (let dx = -1; dx <= 1; dx++) {
+          const xx = x + dx, j = yy * W + xx;
+          if (xx >= 0 && xx < W && ink[j] && !seen[j]) { seen[j] = 1; stack[sp++] = j; }
+        }
+      }
+    }
+    const bw = x1 - x0 + 1, bh = y1 - y0 + 1;
+    // small, and either tiny or thin strokes (a solid small building stays)
+    if (Math.max(bw, bh) < maxSide && (n < minArea || n < 0.45 * bw * bh)) for (let m = 0; m < n; m++) ink[comp[m]] = 0;
+  }
 }
 
 /** a part of the sheet: the ink maps plus the part's eroded mask, centre and radius */

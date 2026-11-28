@@ -5,6 +5,9 @@
 // label hits, then by the street-corridor score.
 import { fwd, snap, labelStatus, sampleKey, LABEL_TOL } from "./engine";
 
+/** corridor contrast at which the printed streets count as lined up (the pipeline's ok check) */
+export const CONTRAST_OK = 0.15;
+
 const STEP = 5; // m between street samples
 const BUDGET = 120e6; // candidate placements per search
 
@@ -135,17 +138,23 @@ export async function findPlacement(gpu, sheet, labs, range, onStep = () => {}, 
   // ladder of parallel names has none; a near miss of the right placement is refined below)
   const rank = (c) => c.hits + 3 * c.contrast;
   const byRank = (a, b) => rank(b) - rank(a);
+  // the pick: a placement whose streets line up beats any that don't, however many names those
+  // have (one more name landing on a parallel street outranked a true fit 580 m away)
+  const lines = (c) => c.contrast >= CONTRAST_OK;
+  const byPick = (a, b) => lines(b) - lines(a) || byRank(a, b);
   pool.sort(byRank);
+  // refine the top three, plus the best two that line up already
+  const tops = [...pool.slice(0, 3), ...pool.slice(3).filter(lines).slice(0, 2)];
   onStep("fitting the printed street corridors");
   const refined = [];
-  for (const c of pool.slice(0, 3)) {
+  for (const c of tops) {
     const r = await corridorRefine(gpu, sheet, c, all);
     r.hits = hitsOf(r.T);
     r.whits = whits(r.T);
     r.contrast = await contrast(gpu, sheet, r.T);
     refined.push(r);
   }
-  refined.sort(byRank);
+  refined.sort(byPick);
   const win = refined[0];
   const rival = snapped.find((c) => Math.hypot(win.w[0] - c.w[0], win.w[1] - c.w[1]) > 60);
   return {
@@ -188,13 +197,14 @@ async function corridorRefine(gpu, sheet, c, labs, { move = 40, mstep = 2, deg =
 // PERTURB: 8 directions, 20..120 m, every other one also turned 10 deg
 const PERTURB = Array.from({ length: 8 }, (_, k) => [20 + (100 * k) / 7, (k * Math.PI) / 4, (-1) ** k * ((10 * Math.PI) / 180) * (k % 2)]);
 
+// contrast counts streets only: "any ink within 3 m" passes rails on most busy sheets, which lifted wrong fits
 export async function contrast(gpu, sheet, T) {
   const [cu, cv] = sheet.centre, w = fwd(T, cu, cv), Ts = [T];
   for (const [d, ang, dth] of PERTURB) {
     const th = T[1] + dth, [x0, y0] = fwd([T[0], th, 0, 0], cu, cv);
     Ts.push([T[0], th, w[0] - x0 + d * Math.cos(ang), w[1] - y0 + d * Math.sin(ang)]);
   }
-  const sc = await gpu.corridor(Ts, { x: w[0], y: w[1], r: sheet.radius * T[0] + 20 + 130 });
+  const sc = await gpu.corridor(Ts, { x: w[0], y: w[1], r: sheet.radius * T[0] + 20 + 130 }, 0);
   const frac = sc.map(([g, b]) => g / Math.max(g + b, 1));
   const rest = frac.slice(1).sort((a, b) => a - b);
   return frac[0] - (rest[3] + rest[4]) / 2;
@@ -216,7 +226,7 @@ async function contrastBatch(gpu, sheet, Ts) {
   const mx = ws.reduce((a, w) => a + w[0], 0) / ws.length, my = ws.reduce((a, w) => a + w[1], 0) / ws.length;
   const smax = Math.max(...Ts.map((T) => T[0]));
   const r = Math.max(...ws.map((w) => Math.hypot(w[0] - mx, w[1] - my))) + sheet.radius * smax + 20 + 130;
-  const sc = await gpu.corridor(all, { x: mx, y: my, r });
+  const sc = await gpu.corridor(all, { x: mx, y: my, r }, 0);
   const out = [];
   for (let i = 0; i < Ts.length; i++) {
     const frac = sc.slice(9 * i, 9 * i + 9).map(([g, b]) => g / Math.max(g + b, 1));

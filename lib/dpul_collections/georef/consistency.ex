@@ -22,13 +22,26 @@ defmodule DpulCollections.Georef.Consistency do
 
   @doc "Pairs of same-scale fitted parts overlapping by more than half of the smaller one."
   def conflicts(fitted) do
-    for {a, i} <- Enum.with_index(fitted),
-        {b, j} <- Enum.with_index(fitted),
+    # footprints once per part; parts whose bounding boxes don't meet overlap by exactly 0
+    fps =
+      Enum.map(fitted, fn r ->
+        fp = footprint(r)
+        {fp, Mask.bbox(fp)}
+      end)
+
+    indexed = Enum.zip([fitted, fps, 0..(length(fitted) - 1)//1])
+
+    for {a, {fa, ba}, i} <- indexed,
+        {b, {fb, bb}, j} <- indexed,
         i < j,
         same_scale?(a.scale, b.scale),
-        overlap(footprint(a), footprint(b)) > @max_overlap,
+        boxes_meet?(ba, bb),
+        overlap(fa, fb) > @max_overlap,
         do: {a, b}
   end
+
+  defp boxes_meet?({ax0, ay0, ax1, ay1}, {bx0, by0, bx1, by1}),
+    do: ax0 <= bx1 and bx0 <= ax1 and ay0 <= by1 and by0 <= ay1
 
   @doc """
   The fitted parts to decline, each with the part it conflicts with, as

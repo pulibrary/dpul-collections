@@ -6,14 +6,18 @@ defmodule DpulCollections.Georef.Mask do
   """
 
   @doc "Even-odd point-in-polygon test."
-  def inside_polygon?({x, y}, polygon) do
-    polygon
-    |> Enum.zip(tl(polygon) ++ [hd(polygon)])
-    |> Enum.reduce(false, fn {{x1, y1}, {x2, y2}}, inside ->
-      if y1 > y != y2 > y and x < (x2 - x1) * (y - y1) / (y2 - y1) + x1,
-        do: not inside,
-        else: inside
-    end)
+  # walks the edges without building them (hot: the atlas overlap check calls it millions of times)
+  def inside_polygon?({x, y}, [first | _] = polygon), do: crossings(polygon, first, x, y, false)
+
+  defp crossings([p1], first, x, y, inside), do: cross(p1, first, x, y, inside)
+
+  defp crossings([p1 | [p2 | _] = rest], first, x, y, inside),
+    do: crossings(rest, first, x, y, cross(p1, p2, x, y, inside))
+
+  defp cross({x1, y1}, {x2, y2}, x, y, inside) do
+    if y1 > y != y2 > y and x < (x2 - x1) * (y - y1) / (y2 - y1) + x1,
+      do: not inside,
+      else: inside
   end
 
   def bbox(points) do

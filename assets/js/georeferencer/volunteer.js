@@ -79,10 +79,22 @@ export const GeorefVolunteer = {
       this.setState("This browser can't help yet: it has no WebGPU (try a recent Chrome or Edge).", "bg-red-600");
       return;
     }
+    this.lost = 0; // GPU losses in a row
+    // WebGPU without an adapter (blocklisted driver, headless browser): take no sheets, or every
+    // one claimed fails at once and uses up its tries
+    navigator.gpu.requestAdapter().then((a) => {
+      if (!a) return this.setState("This browser can't help yet: WebGPU found no usable GPU.", "bg-red-600");
+      this.startWorker();
+      this.next();
+    });
+  },
+
+  // a fresh worker means a fresh GPU device and fresh OCR sessions
+  startWorker() {
+    if (this.worker) this.worker.terminate();
     this.worker = new Worker(this.el.dataset.worker, { type: "module" });
     this.worker.onmessage = (e) => this.onWorker(e.data);
     this.worker.onerror = (e) => this.finish({ error: `worker: ${e.message}` });
-    this.next();
   },
 
   destroyed() {
@@ -165,6 +177,7 @@ export const GeorefVolunteer = {
     const after = () => { this.busy = false; this.next(); };
     if (!job) return after();
     if (result) {
+      this.lost = 0;
       if (result.gpu) this.ui.gpu.textContent = `GPU: ${[result.gpu.vendor, result.gpu.architecture].filter(Boolean).join(" ")}`;
       this.ask("complete", { job_id: job.id, worker: this.workerId, result }, 60000, (reply) => {
         if (reply && reply.ok) this.current.clearLayers(); // the saved result arrives on the feed
@@ -173,6 +186,20 @@ export const GeorefVolunteer = {
         const ok = result.parts.filter((p) => p.status === "ok").length;
         this.ui.mine.textContent = `This session: ${this.done} sheet${this.done === 1 ? "" : "s"} (last: ${ok} of ${result.parts.length} parts placed, ${Math.round((performance.now() - this.started) / 1000)} s)`;
         after();
+      });
+    } else if (/device (is )?lost|\[Device\][^\n]*lost/i.test(String(error))) {
+      // the GPU went away (the machine slept, a driver reset): hand the sheet back untouched and
+      // start over with a new device; give up for now after three losses in a row
+      this.lost++;
+      this.ui.step.textContent = "Lost the GPU (did the computer sleep?); starting again";
+      this.ask("release", { worker: this.workerId }, 20000, () => {
+        this.startWorker();
+        if (this.lost >= 3) {
+          this.paused = true; this.busy = false;
+          this.ui.toggle.textContent = "Resume";
+          this.setState("Paused: the GPU keeps getting lost. Resume to try again.", "bg-red-600");
+          this.lost = 0;
+        } else setTimeout(after, 5000);
       });
     } else {
       this.ui.step.textContent = `Failed: ${String(error).split("\n")[0]}`;

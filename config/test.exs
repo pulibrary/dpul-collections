@@ -166,3 +166,8 @@ config :dpul_collections, :libanswers,
 
 # No traces in test.
 config :opentelemetry, span_processor: :simple, traces_exporter: :none
+
+# the review count is shared and cached for a minute in dev/prod; tests need it fresh
+config :dpul_collections, :review_count_ttl_ms, 0
+# per-atlas review items are cached in dev/prod; tests change rows within the same microsecond
+config :dpul_collections, :review_cache, false

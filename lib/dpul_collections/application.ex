@@ -16,6 +16,11 @@ defmodule DpulCollections.Application do
         DpulCollections.Repo,
         DpulCollections.FiggyRepo,
         {Phoenix.PubSub, name: DpulCollections.PubSub},
+        # owns the georeferencer review list's per-atlas cache table
+        %{
+          id: :georef_review_cache,
+          start: {Agent, :start_link, [&DpulCollections.Georef.Collab.Review.init_cache/0]}
+        },
         {Oban, Application.fetch_env!(:dpul_collections, Oban)},
         # Start a worker by calling: DpulCollections.Worker.start_link(arg)
         # {DpulCollections.Worker, arg},

@@ -8,13 +8,97 @@ defmodule DpulCollections.Georef.Collab.Review do
   import Ecto.Query
   alias DpulCollections.Repo
   alias DpulCollections.Georef.Collab
-  alias DpulCollections.Georef.Collab.Atlas
+  alias DpulCollections.Georef.Collab.{Atlas, Contribution, Job}
 
-  @doc "Parts waiting for a person, easiest first."
+  @table __MODULE__
+
+  @doc """
+  Parts waiting for a person, easiest first. Building an atlas's items reads
+  all its results (over a thousand atlases: seconds), so each atlas's items are
+  kept (in the ETS table `init_cache/0` makes) until its jobs, contributions or
+  record change; see `stamps/0`.
+  """
   def items do
-    Repo.all(from a in Atlas, select: a.id)
-    |> Enum.flat_map(&atlas_items/1)
+    stamps = stamps()
+
+    stamps
+    |> Enum.flat_map(fn {id, stamp} -> cached_items(id, stamp) end)
     |> Enum.sort_by(&{-&1.ease, &1.atlas_label, &1.index})
+  end
+
+  @doc "Makes the cache table; the application starts its owner (see `DpulCollections.Application`)."
+  def init_cache do
+    :ets.new(@table, [:named_table, :public, :set, read_concurrency: true])
+  end
+
+  defp cached_items(id, stamp) do
+    cache? =
+      Application.get_env(:dpul_collections, :review_cache, true) and
+        :ets.whereis(@table) != :undefined
+
+    case cache? && :ets.lookup(@table, id) do
+      [{^id, ^stamp, items}] ->
+        items
+
+      _ ->
+        items = atlas_items(id)
+        if cache?, do: :ets.insert(@table, {id, stamp, items})
+        items
+    end
+  end
+
+  # what an atlas's items depend on, per atlas: anything that changes them changes this (queue
+  # updates through update_all leave updated_at alone, hence the counts and finish times)
+  defp stamps do
+    jobs =
+      Repo.all(
+        from j in Job,
+          group_by: j.atlas_id,
+          select:
+            {j.atlas_id,
+             {count(), filter(count(), j.status == "done"), max(j.finished_at), max(j.updated_at)}}
+      )
+      |> Map.new()
+
+    contributions =
+      Repo.all(
+        from c in Contribution,
+          group_by: c.atlas_id,
+          select: {c.atlas_id, {count(), max(c.inserted_at)}}
+      )
+      |> Map.new()
+
+    for {id, at} <- Repo.all(from a in Atlas, select: {a.id, a.updated_at}),
+        do: {id, {at, jobs[id], contributions[id]}}
+  end
+
+  @count_key {__MODULE__, :count}
+
+  @doc """
+  How many parts wait for a person, for the volunteer page's button. `items/0`
+  reads every atlas (seconds), so the count is shared and refreshed at most once
+  a minute; while one caller refreshes it, the others get the last count.
+  """
+  def count do
+    ttl = Application.get_env(:dpul_collections, :review_count_ttl_ms, 60_000)
+    now = System.monotonic_time(:millisecond)
+
+    case :persistent_term.get(@count_key, nil) do
+      # fresh
+      {n, at, nil} when now - at < ttl ->
+        n
+
+      # another caller is refreshing it (a refresh older than the TTL was killed: take over)
+      {n, _, started} when is_integer(started) and now - started < ttl ->
+        n
+
+      prev ->
+        last = if prev, do: elem(prev, 0), else: 0
+        :persistent_term.put(@count_key, {last, 0, now})
+        n = length(items())
+        :persistent_term.put(@count_key, {n, System.monotonic_time(:millisecond), nil})
+        n
+    end
   end
 
   def atlas_items(atlas_id) do

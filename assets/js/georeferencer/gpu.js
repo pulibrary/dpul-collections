@@ -226,8 +226,9 @@ export async function makeGpu({ device, info }, sheet, pts, labs) {
     return new Float32Array(keep);
   }
 
-  /** corridor (good, bad) metres for each T, all near world point region {x, y, r} */
-  async function corridor(Ts, region) {
+  /** corridor (good, bad) metres for each T, all near world point region {x, y, r}; railW weighs
+   *  railway metres against street metres (the rail test, any ink within 3 m, is loose) */
+  async function corridor(Ts, region, railW = 2) {
     const sub = near(region.x, region.y, region.r), nPts = sub.length / 4;
     if (!nPts) return Ts.map(() => [0, 0]);
     const bPts = bufferOf(device, sub, ST), out = [];
@@ -248,7 +249,7 @@ export async function makeGpu({ device, info }, sheet, pts, labs) {
       pass.dispatchWorkgroups(Math.ceil(nPts / WG), nT);
       pass.end(); device.queue.submit([enc.finish()]);
       const a = await readBack(device, bAcc, nT * 16);
-      for (let k = 0; k < nT; k++) out.push([3 * (a[4 * k] + 2 * a[4 * k + 2]), 3 * (a[4 * k + 1] + 2 * a[4 * k + 3])]);
+      for (let k = 0; k < nT; k++) out.push([3 * (a[4 * k] + railW * a[4 * k + 2]), 3 * (a[4 * k + 1] + railW * a[4 * k + 3])]);
       [bMeta, bT, bAcc].forEach((b) => b.destroy());
     }
     bPts.destroy();

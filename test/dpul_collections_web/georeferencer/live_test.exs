@@ -283,7 +283,7 @@ defmodule DpulCollectionsWeb.Georeferencer.LiveTest do
       finish_both()
       send(view.pid, {:georef_result, %{canvas: "Sheet 2"}})
       assert_push_event(view, "result", %{canvas: "Sheet 2"})
-      assert render(view) =~ "2 sheets need a person"
+      assert render_async(view) =~ "2 sheets need a person"
       assert render(view) =~ "2/2 sheets"
 
       send(view.pid, :queue_changed)
@@ -298,8 +298,8 @@ defmodule DpulCollectionsWeb.Georeferencer.LiveTest do
           "parts" => [%{"part" => 1, "status" => "failed", "mask" => @mask, "labels" => []}]
         })
 
-      {:ok, _view, html} = live(conn, ~p"/georeferencer")
-      assert html =~ "1 sheet needs a person"
+      {:ok, view, _html} = live(conn, ~p"/georeferencer")
+      assert render_async(view) =~ "1 sheet needs a person"
     end
 
     test "each atlas's progress", %{conn: conn} do
@@ -413,6 +413,21 @@ defmodule DpulCollectionsWeb.Georeferencer.LiveTest do
       assert html =~ "Place by its street names (1)"
       render_hook(view, "save", %{"verdict" => "cannot"})
       assert_reply(view, %{ok: false, error: "Log in to save your result."})
+      assert length(Review.items()) == 2
+    end
+
+    test "the cached review list follows finished jobs" do
+      Application.put_env(:dpul_collections, :review_cache, true)
+
+      on_exit(fn ->
+        Application.put_env(:dpul_collections, :review_cache, false)
+        :ets.delete(Review, @atlas_id)
+      end)
+
+      :ets.delete(Review, @atlas_id)
+      assert Review.items() == []
+      assert [{@atlas_id, _, []}] = :ets.lookup(Review, @atlas_id)
+      finish_both()
       assert length(Review.items()) == 2
     end
 

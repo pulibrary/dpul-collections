@@ -33,8 +33,12 @@ config :dpul_collections, DpulCollections.FiggyRepo,
 # to bundle .js and .css sources.
 config :dpul_collections, DpulCollectionsWeb.Endpoint,
   # Binding to loopback ipv4 address prevents access from other machines.
-  # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
-  http: [ip: {127, 0, 0, 1}, port: String.to_integer(System.get_env("PORT") || "4000")],
+  # Set LISTEN_ALL=1 to allow access from other machines (e.g. georeferencer
+  # volunteers on the local network).
+  http: [
+    ip: if(System.get_env("LISTEN_ALL"), do: {0, 0, 0, 0}, else: {127, 0, 0, 1}),
+    port: String.to_integer(System.get_env("PORT") || "4000")
+  ],
   check_origin: false,
   code_reloader: true,
   debug_errors: true,

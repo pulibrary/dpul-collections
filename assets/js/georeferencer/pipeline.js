@@ -7,7 +7,7 @@ import { neatline, splitParts, loadCv } from "./sheetgeom";
 import { toToken, sheetLabels, tileStarts, cutByTileEdge, dedupeTiles, gazetteer, TILE, matchName, normalize, suffixOnly } from "./labels";
 import { prepareInk, partSheet, samplePoints, targetedLabels, pointInPoly, fwd, toAB, labelStatus, nearestSeg, LABEL_TOL } from "./engine";
 import { gpuDevice, makeGpu } from "./gpu";
-import { findPlacement, distinctLabels } from "./search";
+import { findPlacement, distinctLabels, CONTRAST_OK } from "./search";
 
 const NOMINAL_DPI = 395;
 const STANDARD_FT = [50, 60, 100, 200, 300, 400, 500, 600, 800, 1000];
@@ -176,28 +176,45 @@ export async function processCanvas(job, onStep = () => {}) {
   gpuDev ||= await gpuDevice();
   lap("loaded");
 
+  const cacheKey = `${c.id}|${OCR_VERSION}`;
+  const cached = await cacheGet(cacheKey);
+  // Each image comes through the server from the image service (about a second
+  // each), so ask for them ahead of when they're needed.
+  const whole = cached ? null : fetchImage(c.service, "!3000,3000");
+  whole?.catch(() => {});
   onStep("finding the border and parts");
+  const parted = fetchImage(c.service, "!2000,2000");
+  parted.catch(() => {});
   const neat = await neatline(await fetchImage(c.service, "!1536,1536"), c.width, c.height);
-  const parts = await splitParts(await fetchImage(c.service, "!2000,2000"), c.width, c.height, neat.map(([x, y]) => [Math.round(x), Math.round(y)]));
+  const parts = await splitParts(await parted, c.width, c.height, neat.map(([x, y]) => [Math.round(x), Math.round(y)]));
   lap("parts");
   onStep("found the sheet's parts", { parts });
 
-  const cacheKey = `${c.id}|${OCR_VERSION}`;
-  let { wholeTokens, tileTokens, nTiles } = (await cacheGet(cacheKey)) || {};
+  let { wholeTokens, tileTokens, nTiles } = cached || {};
   if (!wholeTokens) {
-    onStep("reading the sheet");
-    const whole = await fetchImage(c.service, "!3000,3000");
-    const k = c.width / whole.w;
-    wholeTokens = (await readPage(whole)).map((it) => toToken(it, k));
-    lap("ocr_whole");
     const regions = [];
     for (const x of tileStarts(c.width)) for (const y of tileStarts(c.height))
       regions.push([x, y, Math.min(TILE, c.width - x), Math.min(TILE, c.height - y)]);
+    const tile = (i) => {
+      const p = fetchImage(c.service, "!1536,1536", regions[i].join(","));
+      p.catch(() => {});
+      return p;
+    };
+    // The image server renders regions in parallel; keep a few in flight (each
+    // decoded tile is ~9 MB, so not all of them).
+    const AHEAD = 4, pending = [];
+    for (let i = 0; i < Math.min(AHEAD, regions.length); i++) pending.push(tile(i));
+    onStep("reading the sheet");
+    const wholeImg = await whole;
+    const k = c.width / wholeImg.w;
+    wholeTokens = (await readPage(wholeImg)).map((it) => toToken(it, k));
+    lap("ocr_whole");
     tileTokens = [];
     for (let i = 0; i < regions.length; i++) {
       onStep(`reading tile ${i + 1} of ${regions.length}`);
-      const [x0, y0, w, h] = regions[i];
-      const img = await fetchImage(c.service, "!1536,1536", `${x0},${y0},${w},${h}`);
+      const [x0, y0, w] = regions[i];
+      const img = await pending.shift();
+      if (i + AHEAD < regions.length) pending.push(tile(i + AHEAD));
       tileTokens = tileTokens.concat((await readPage(img)).map((it) => toToken(it, w / img.w, x0, y0))
         .filter((tk) => !cutByTileEdge(tk, regions[i], c.width, c.height)));
     }
@@ -239,11 +256,11 @@ export async function processCanvas(job, onStep = () => {}) {
         }
         if (!r.error) {
           // ok: the gates, and the printed streets line up with the modern ones (corridor contrast
-          // >= 0.1, as the server checks: Queue.checked). Not for key maps: their streets are drawn
+          // >= CONTRAST_OK; the server, Review.lines_up?, keeps 0.1 for fits scored before the speck clean-up). Not for key maps: their streets are drawn
           // too small for corridors. Names alone can be fooled (a row of names across parallel
           // streets fits at a wrong angle too), so a name lead never stands in for the corridors.
           // A fit failing only this is kept as "unsure" for a person to look at.
-          const ok = gate(r) && (r.keyMap || r.contrast >= 0.1);
+          const ok = gate(r) && (r.keyMap || r.contrast >= CONTRAST_OK);
           Object.assign(res, {
             status: ok ? "ok" : "unsure", transform: toAB(r.T), label_hits: r.hits, needed, rival_hits: r.rivalHits,
             contrast: r.contrast, corridor: r.corridor, scale_m_per_px: r.T[0], candidates: r.nCand, key_map: !!r.keyMap,
