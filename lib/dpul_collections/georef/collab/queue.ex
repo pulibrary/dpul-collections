@@ -23,8 +23,13 @@ defmodule DpulCollections.Georef.Collab.Queue do
   defp broadcast(msg), do: Phoenix.PubSub.broadcast(DpulCollections.PubSub, @topic, msg)
 
   @doc "Queue every canvas of an atlas (idempotent per atlas and canvas)."
-  def enqueue(manifest_url) do
-    manifest = Manifest.fetch(manifest_url)
+  def enqueue(manifest_url) when is_binary(manifest_url),
+    do: manifest_url |> Manifest.fetch() |> enqueue()
+
+  # an already parsed manifest (e.g. one saved by hand from a site that refuses scripts)
+  def enqueue(%Manifest{} = manifest) do
+    # a Presentation 2 canvas can be a reduced copy's size; pixels here are the full image's
+    manifest = if manifest.version == 2, do: Manifest.with_image_sizes(manifest), else: manifest
     bbox = Georef.search_bbox(manifest)
     # prepare the town's street extract now, so the first volunteer doesn't wait on it
     Osm.load(bbox)
@@ -147,6 +152,7 @@ defmodule DpulCollections.Georef.Collab.Queue do
       town: Collab.osm_url(Atlas.base(atlas)),
       exclude_keys: atlas.exclude_keys,
       round: job.round,
+      scan_dpi: Atlas.scan_dpi(atlas),
       renames: if(job.round > 1, do: atlas.renames || %{}, else: %{})
     }
   end

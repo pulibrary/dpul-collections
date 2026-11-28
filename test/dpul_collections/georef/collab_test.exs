@@ -85,6 +85,8 @@ defmodule DpulCollections.Georef.CollabTest do
     assert Collab.allowed_service?("https://iiif-cloud.princeton.edu/iiif/2/abc")
     refute Collab.allowed_service?("http://169.254.169.254/latest")
     refute Collab.allowed_service?("https://evil.example/iiif")
+    assert Collab.allowed_service?("https://tile.loc.gov/image-services/iiif/service:gmd:x:1")
+    refute Collab.allowed_service?("https://tile.loc.gov/storage-services/x")
   end
 
   test "atlases are looked up by a safe id only" do

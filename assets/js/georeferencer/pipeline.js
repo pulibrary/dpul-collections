@@ -9,9 +9,16 @@ import { prepareInk, partSheet, samplePoints, targetedLabels, pointInPoly, fwd, 
 import { gpuDevice, makeGpu } from "./gpu";
 import { findPlacement, distinctLabels, CONTRAST_OK } from "./search";
 
-const NOMINAL_DPI = 395;
 const STANDARD_FT = [50, 60, 100, 200, 300, 400, 500, 600, 800, 1000];
-const SCAN_DPI = [355, 427];
+// Princeton's scans: 395 dpi, 355..427 allowing for shrinkage and trimming. Another library's
+// scans come with the atlas's own estimate (job.scan_dpi); the range scales with it. Set per job
+// in processCanvas (a worker runs one job at a time).
+let NOMINAL_DPI = 395, SCAN_DPI = [355, 427];
+function setScanDpi(dpi) {
+  const k = (dpi || 395) / 395;
+  NOMINAL_DPI = 395 * k;
+  SCAN_DPI = [355 * k, 427 * k];
+}
 
 // Georef.scale_consistent? / scale_ok?: the fit's scale matches the printed one at 355..427 dpi
 // (any standard Sanborn scale when none was read), or it is a key map (>= 4x the printed scale,
@@ -86,14 +93,14 @@ function printedScale(scales) {
 /** the scales a part may have: its printed scale at 355..427 dpi, else any
  *  of the usual Sanborn scales (50..200 ft to the inch) */
 function scaleRange(ft) {
-  if (ft) return { smin: (ft * 0.3048) / 427, smax: (ft * 0.3048) / 355, usual: [(ft * 0.3048) / NOMINAL_DPI] };
+  if (ft) return { smin: (ft * 0.3048) / SCAN_DPI[1], smax: (ft * 0.3048) / SCAN_DPI[0], usual: [(ft * 0.3048) / NOMINAL_DPI] };
   return anyScale();
 }
 const anyScale = () => {
-  return { smin: (40 * 0.3048) / 427, smax: (220 * 0.3048) / 355, usual: [50, 100, 200].map((f) => (f * 0.3048) / NOMINAL_DPI) };
+  return { smin: (40 * 0.3048) / SCAN_DPI[1], smax: (220 * 0.3048) / SCAN_DPI[0], usual: [50, 100, 200].map((f) => (f * 0.3048) / NOMINAL_DPI) };
 };
 // a key map under a sheet-scale statement: 4x the printed scale and up
-const keyMapScale = (ft) => ({ smin: (4 * ft * 0.3048) / 427, smax: (1000 * 0.3048) / 355, usual: STANDARD_FT.filter((f) => f >= 4 * ft).map((f) => (f * 0.3048) / NOMINAL_DPI) });
+const keyMapScale = (ft) => ({ smin: (4 * ft * 0.3048) / SCAN_DPI[1], smax: (1000 * 0.3048) / SCAN_DPI[0], usual: STANDARD_FT.filter((f) => f >= 4 * ft).map((f) => (f * 0.3048) / NOMINAL_DPI) });
 
 let gpuDev = null;
 
@@ -170,13 +177,16 @@ async function cachePut(key, value) {
 export async function processCanvas(job, onStep = () => {}) {
   const t = { start: performance.now() }, lap = (k) => (t[k] = Math.round(performance.now() - t.start));
   const c = job.canvas;
+  setScanDpi(job.scan_dpi);
   onStep("loading models and the town");
   const [town0] = await Promise.all([loadTown(job.town), loadOcr(), loadCv()]);
   const town = withAliases(town0, job.renames);
   gpuDev ||= await gpuDevice();
   lap("loaded");
 
-  const cacheKey = `${c.id}|${OCR_VERSION}`;
+  // the size is in the key: tokens are in canvas pixels, and a canvas's size can be corrected
+  // (a Presentation 2 manifest's reduced copy, see Manifest.with_image_sizes)
+  const cacheKey = `${c.id}|${c.width}x${c.height}|${OCR_VERSION}`;
   const cached = await cacheGet(cacheKey);
   // Each image comes through the server from the image service (about a second
   // each), so ask for them ahead of when they're needed.
@@ -248,7 +258,7 @@ export async function processCanvas(job, onStep = () => {}) {
         const needed = Math.max(3, Math.ceil(0.25 * partLabels.length));
         const gate = (r) => !r.error && r.hits >= needed && crossingStreets(r.T, labs) && scaleOk(r.T[0], ft, r.hits);
         const seedTs = junctionPlacements(partLabels.filter((l) => town.targets[l.key]), town.crossings, c.width, c.height, range);
-        let r = await findPlacement(gpu, sheet, labs, range, undefined, { seedTs });
+        let r = await findPlacement(gpu, sheet, labs, range, undefined, { seedTs, pts: town.pts, gate });
         // the key-map exception: an overview under the sheet's scale statement
         if (!gate(r) && ft && labs.length >= 8) {
           const k = await findPlacement(gpu, sheet, labs, keyMapScale(ft), undefined, { seedTs: junctionPlacements(partLabels.filter((l) => town.targets[l.key]), town.crossings, c.width, c.height, keyMapScale(ft)) });
@@ -260,10 +270,11 @@ export async function processCanvas(job, onStep = () => {}) {
           // too small for corridors. Names alone can be fooled (a row of names across parallel
           // streets fits at a wrong angle too), so a name lead never stands in for the corridors.
           // A fit failing only this is kept as "unsure" for a person to look at.
-          const ok = gate(r) && (r.keyMap || r.contrast >= CONTRAST_OK);
+          // and (engine.gridCheck) the fit turns the printed grid onto the modern one
+          const ok = gate(r) && (r.keyMap || (r.contrast >= CONTRAST_OK && !r.grid?.bad));
           Object.assign(res, {
             status: ok ? "ok" : "unsure", transform: toAB(r.T), label_hits: r.hits, needed, rival_hits: r.rivalHits,
-            contrast: r.contrast, corridor: r.corridor, scale_m_per_px: r.T[0], candidates: r.nCand, key_map: !!r.keyMap,
+            contrast: r.contrast, grid: r.grid, turned: r.turned, slid: r.slid, preferred: r.preferred, corridor: r.corridor, scale_m_per_px: r.T[0], candidates: r.nCand, key_map: !!r.keyMap,
           });
           if (r.keyMap) res.mask = keyMapMask(r.T, labs, mask);
           onStep(`placed part ${p + 1} of ${parts.length}`, { fit: { part: p + 1, mask: res.mask, transform: res.transform, status: res.status, key_map: res.key_map } });

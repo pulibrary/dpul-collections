@@ -159,6 +159,56 @@ defmodule DpulCollections.Georef.OsmFixturesTest do
     assert Osm.pbf_path() == "/data/nj.osm.pbf"
   end
 
+  describe "other states' extracts" do
+    setup do
+      root = Path.join(System.tmp_dir!(), "georef-states-#{System.unique_integer([:positive])}")
+      File.mkdir_p!(root)
+
+      for f <- ~w(new-jersey oregon new-york),
+          do: File.write!(Path.join(root, "#{f}-latest.osm.pbf"), "")
+
+      # fileinfo -g header.boxes: Oregon's box for oregon, New York's for new-york
+      osmium = Path.join(root, "osmium")
+
+      File.write!(osmium, """
+      #!/bin/sh
+      case "$4" in
+        *oregon*) echo "(-124.7,41.9,-116.4,46.3)" ;;
+        *broken*) echo "no boxes" ;;
+        *) echo "(-79.8,40.4,-71.8,45.1)" ;;
+      esac
+      """)
+
+      File.chmod!(osmium, 0o755)
+      put_georef_config(cache_dir: root, osmium: osmium)
+      on_exit(fn -> File.rm_rf!(root) end)
+      %{root: root}
+    end
+
+    test "the title's state picks the extract", %{root: root} do
+      assert Osm.pbf_for_title("Sanborn Fire Insurance Map from Salem, Marion County, Oregon.") ==
+               Path.join(root, "oregon-latest.osm.pbf")
+
+      assert Osm.pbf_for_title("Insurance maps of Albany, New York") ==
+               Path.join(root, "new-york-latest.osm.pbf")
+
+      assert Osm.pbf_for_title("Insurance maps of Salem, New Jersey") == Osm.pbf_path()
+      assert Osm.pbf_for_title(nil) == Osm.pbf_path()
+    end
+
+    test "the extract whose header box holds the bbox's centre", %{root: root} do
+      assert Osm.pbf_for({-123.1, 44.9, -122.9, 45.0}) == Path.join(root, "oregon-latest.osm.pbf")
+      assert Osm.pbf_for({-73.8, 42.6, -73.7, 42.7}) == Path.join(root, "new-york-latest.osm.pbf")
+      assert Osm.pbf_for({-74.7, 40.3, -74.6, 40.4}) == Osm.pbf_path()
+    end
+
+    test "an extract whose header has no box covers nothing", %{root: root} do
+      File.write!(Path.join(root, "broken-latest.osm.pbf"), "")
+      File.rm!(Path.join(root, "new-york-latest.osm.pbf"))
+      assert Osm.pbf_for({-73.8, 42.6, -73.7, 42.7}) == Osm.pbf_path()
+    end
+  end
+
   describe "Georef.search_bbox/1 for a city" do
     test "searches ~13 km around a city with no catalog bbox" do
       with_osm_fixtures(%{

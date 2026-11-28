@@ -19,6 +19,63 @@ defmodule DpulCollections.Georef.Osm do
   def pbf_path,
     do: Georef.config(:osm_pbf, Path.join(Georef.cache_dir(), "new-jersey-latest.osm.pbf"))
 
+  @doc """
+  Other states' Geofabrik extracts next to the default one, as `[{state, path}]`:
+  `oregon-latest.osm.pbf` is "oregon", `new-york-latest.osm.pbf` "new york".
+  """
+  def other_extracts do
+    default = Path.expand(pbf_path())
+
+    Path.join(Georef.cache_dir(), "*-latest.osm.pbf")
+    |> Path.wildcard()
+    |> Enum.reject(&(Path.expand(&1) == default))
+    |> Enum.map(&{&1 |> Path.basename("-latest.osm.pbf") |> String.replace("-", " "), &1})
+  end
+
+  @doc "The extract for an atlas whose title names a state (\"…, Marion County, Oregon\"); else the default."
+  def pbf_for_title(title) do
+    t = " " <> normalize(to_string(title)) <> " "
+
+    Enum.find_value(other_extracts(), pbf_path(), fn {state, path} ->
+      if String.contains?(t, " " <> normalize(state) <> " "), do: path
+    end)
+  end
+
+  @doc "The extract covering a bbox's centre: another state's if one does, else the default."
+  def pbf_for({a, b, c, d}) do
+    {x, y} = {(a + c) / 2, (b + d) / 2}
+
+    Enum.find_value(other_extracts(), pbf_path(), fn {_, path} ->
+      case header_box(path) do
+        {x0, y0, x1, y1} when x >= x0 and x <= x1 and y >= y0 and y <= y1 -> path
+        _ -> nil
+      end
+    end)
+  end
+
+  # the extract's bounding box from its header, read once per file
+  defp header_box(path) do
+    key = {__MODULE__, :header_box, path, File.stat!(path).mtime}
+
+    case :persistent_term.get(key, :none) do
+      :none ->
+        box =
+          case Regex.run(
+                 ~r/\(([-\d.]+),([-\d.]+),([-\d.]+),([-\d.]+)\)/,
+                 osmium_out!(["fileinfo", "-g", "header.boxes", path])
+               ) do
+            [_ | nums] -> nums |> Enum.map(&String.to_float/1) |> List.to_tuple()
+            _ -> nil
+          end
+
+        :persistent_term.put(key, box)
+        box
+
+      box ->
+        box
+    end
+  end
+
   defp dir do
     dir = Path.join(Georef.cache_dir(), "osm")
     File.mkdir_p!(dir)
@@ -143,7 +200,7 @@ defmodule DpulCollections.Georef.Osm do
         "extract",
         "-b",
         bb,
-        pbf_path(),
+        pbf_for(bbox),
         "-o",
         tmp <> "-clip.osm.pbf",
         "--overwrite",
@@ -202,7 +259,7 @@ defmodule DpulCollections.Georef.Osm do
         "extract",
         "-b",
         bb,
-        pbf_path(),
+        pbf_for(bbox),
         "-o",
         clip,
         "--overwrite",
@@ -246,16 +303,18 @@ defmodule DpulCollections.Georef.Osm do
   Look up populated places by name in the local extract. Returns
   `[%{name, place, lonlat}]`, best (largest place type) first.
   """
-  def find_place(name) do
+  def find_place(name, pbf \\ pbf_path()) do
     dir = dir()
-    out = Path.join(dir, "places.geojsonseq")
+    # the default extract keeps its old file name
+    suffix = if pbf == pbf_path(), do: "", else: "-" <> Path.basename(pbf, "-latest.osm.pbf")
+    out = Path.join(dir, "places#{suffix}.geojsonseq")
 
     unless File.exists?(out) do
-      filt = Path.join(dir, "places.osm.pbf")
+      filt = Path.join(dir, "places#{suffix}.osm.pbf")
 
       osmium!([
         "tags-filter",
-        pbf_path(),
+        pbf,
         "n/place=city,town,village,hamlet,suburb,borough",
         "-o",
         filt,
@@ -305,8 +364,13 @@ defmodule DpulCollections.Georef.Osm do
   end
 
   defp osmium!(args) do
+    osmium_out!(args)
+    :ok
+  end
+
+  defp osmium_out!(args) do
     case System.cmd(Georef.config(:osmium, "osmium"), args, stderr_to_stdout: true) do
-      {_, 0} -> :ok
+      {out, 0} -> out
       {out, code} -> raise "osmium #{hd(args)} failed (#{code}): #{out}"
     end
   end
@@ -358,7 +422,8 @@ defmodule DpulCollections.Georef.Osm do
   @suffixes ~w(street st avenue ave av road rd lane ln drive dr boulevard blvd place pl
                court ct way alley aly terrace ter pike turnpike highway hwy parkway pkwy
                circle cir square sq row)
-  @directions ~w(north south east west n s e w)
+  # with the quadrants some cities add to every street ("Court Street Northeast", Salem, Oregon)
+  @directions ~w(north south east west n s e w northeast northwest southeast southwest ne nw se sw)
   @ordinals %{
     "first" => "1st",
     "second" => "2nd",
@@ -401,16 +466,21 @@ defmodule DpulCollections.Georef.Osm do
     # off a sheet names nothing
     words = drop_while_in(words, ~w(the))
 
+    drop_trailing = fn ws ->
+      ws |> Enum.reverse() |> drop_while_in(@directions) |> Enum.reverse()
+    end
+
+    # trailing directions go before the suffix too: "Court Street Northeast"
     trimmed =
       words
       |> drop_while_in(@directions)
+      |> then(drop_trailing)
       |> then(strip_suffix)
-      |> Enum.reverse()
-      |> drop_while_in(@directions)
-      |> Enum.reverse()
+      |> then(drop_trailing)
 
-    # "West Street" is a street named West, not a direction.
-    trimmed = if trimmed == [], do: strip_suffix.(words), else: trimmed
+    # "West Street" is a street named West, not a direction; "Court Street" is named Court
+    trimmed = if trimmed == [], do: strip_suffix.(drop_trailing.(words)), else: trimmed
+    trimmed = if trimmed == [], do: Enum.take(drop_trailing.(words), 1), else: trimmed
     Enum.join(if(trimmed == [], do: words, else: trimmed), " ")
   end
 

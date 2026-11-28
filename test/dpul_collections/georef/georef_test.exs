@@ -32,6 +32,16 @@ defmodule DpulCollections.GeorefTest do
       assert Osm.normalize("Penna. R. R.") == "penna railroad"
       # a bare directional street keeps its name
       assert Osm.normalize("West Street") == "west"
+      # a street named for a suffix word keeps that word: "COURT" on the sheet is Court Street
+      assert Osm.normalize("Court Street") == "court"
+      assert Osm.normalize("Main Street North") == "main"
+    end
+
+    test "drops the quadrants some cities add to every street (Salem, Oregon)" do
+      assert Osm.normalize("Court Street Northeast") == "court"
+      assert Osm.normalize("Commercial Street SE") == "commercial"
+      assert Osm.normalize("West Street NE") == "west"
+      assert Osm.normalize("SE 12th Ave") == "12th"
     end
   end
 

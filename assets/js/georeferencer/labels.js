@@ -5,7 +5,8 @@
 
 const SUFFIXES = new Set(("street st avenue ave av road rd lane ln drive dr boulevard blvd place pl court ct way " +
   "alley aly terrace ter pike turnpike highway hwy parkway pkwy circle cir square sq row").split(" "));
-const DIRECTIONS = new Set("north south east west n s e w".split(" "));
+// with the quadrants some cities add to every street ("Court Street Northeast", Salem, Oregon)
+const DIRECTIONS = new Set("north south east west n s e w northeast northwest southeast southwest ne nw se sw".split(" "));
 const ORDINALS = { first: "1st", second: "2nd", third: "3rd", fourth: "4th", fifth: "5th", sixth: "6th",
   seventh: "7th", eighth: "8th", ninth: "9th", tenth: "10th", eleventh: "11th", twelfth: "12th" };
 
@@ -26,8 +27,11 @@ export function normalize(name) {
   const stripSuffix = (ws) => dropWhile(ws.slice().reverse(), SUFFIXES).reverse();
   // a leading "the" is filler: "The Terrace" is Terrace, and a bare "THE" names nothing
   words = dropWhile(words, new Set(["the"]));
-  let t = dropWhile(stripSuffix(dropWhile(words, DIRECTIONS)).reverse(), DIRECTIONS).reverse();
-  if (!t.length) t = stripSuffix(words); // "West Street" is a street named West
+  const dropTrailing = (ws) => dropWhile(ws.slice().reverse(), DIRECTIONS).reverse();
+  // trailing directions go before the suffix too: "Court Street Northeast"
+  let t = dropTrailing(stripSuffix(dropTrailing(dropWhile(words, DIRECTIONS))));
+  if (!t.length) t = stripSuffix(dropTrailing(words)); // "West Street" is a street named West
+  if (!t.length) t = dropTrailing(words).slice(0, 1); // "Court Street" is named Court
   return (t.length ? t : words).join(" ");
 }
 

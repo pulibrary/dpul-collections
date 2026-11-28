@@ -133,4 +133,46 @@ defmodule DpulCollections.Georef.ManifestTest do
       assert length(m.canvases) == 3
     end
   end
+
+  describe "parse/1 of a IIIF Presentation 2 manifest (the Library of Congress)" do
+    test "reads the canvases from the first sequence" do
+      svc = "https://tile.loc.gov/image-services/iiif/service:gmd:g4294sm:07453_1884-0001"
+
+      m =
+        Manifest.parse(%{
+          "@context" => "http://iiif.io/api/presentation/2/context.json",
+          "@id" => "https://www.loc.gov/resource/g4294sm/manifest.json",
+          "label" => "Sanborn Fire Insurance Map from Salem, Marion County, Oregon.",
+          "sequences" => [
+            %{
+              "canvases" => [
+                %{
+                  "@id" => "#{svc}/canvas",
+                  "label" => "Page 1",
+                  "width" => 1612,
+                  "height" => 1912,
+                  "images" => [%{"resource" => %{"service" => %{"@id" => svc}}}]
+                },
+                %{"@id" => "c2", "label" => [%{"@value" => "Page 2"}], "images" => []},
+                %{
+                  "@id" => "c3",
+                  "label" => 3,
+                  "images" => [%{"resource" => %{"service" => [%{"id" => "s3"}]}}]
+                }
+              ]
+            }
+          ]
+        })
+
+      assert m.id == "https://www.loc.gov/resource/g4294sm/manifest.json"
+      assert m.label == "Sanborn Fire Insurance Map from Salem, Marion County, Oregon."
+      assert m.bbox == nil
+
+      assert [
+               %Canvas{label: "Page 1", width: 1612, height: 1912, service_id: ^svc},
+               %Canvas{id: "c2", label: "Page 2", service_id: nil},
+               %Canvas{id: "c3", label: nil, service_id: "s3"}
+             ] = m.canvases
+    end
+  end
 end

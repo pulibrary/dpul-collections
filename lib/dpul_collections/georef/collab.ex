@@ -207,7 +207,7 @@ defmodule DpulCollections.Georef.Collab do
 
   # what the town's data depends on: its box, the renames learned so far, and
   # the payload's format (bump @town_format when name matching changes)
-  @town_format 4
+  @town_format 5
   defp town_version(atlas), do: :erlang.phash2({@town_format, atlas["bbox"], atlas["renames"]})
 
   @doc "The town's streets for the browser; the URL changes with the data, so browsers refetch."
@@ -229,6 +229,8 @@ defmodule DpulCollections.Georef.Collab do
   def allowed_service?(service) do
     case URI.parse(service) do
       %URI{scheme: "https", host: "iiif-cloud.princeton.edu"} -> true
+      # the Library of Congress's Sanborn maps
+      %URI{scheme: "https", host: "tile.loc.gov", path: "/image-services/iiif/" <> _} -> true
       _ -> false
     end
   end

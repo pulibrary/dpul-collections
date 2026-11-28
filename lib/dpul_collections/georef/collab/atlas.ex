@@ -23,6 +23,19 @@ defmodule DpulCollections.Georef.Collab.Atlas do
   end
 
   @doc """
+  The scans' resolution, for atlases not from Figgy (nil: the browser's
+  default, Princeton's 395 dpi). A Sanborn sheet's long side is 25.6 in
+  (Princeton's scans: 10,100 px at 395 dpi), so another library's scans give
+  their median long side over 25.6 in.
+  """
+  def scan_dpi(%__MODULE__{id: "m-" <> _, canvases: [_ | _] = canvases}) do
+    longs = canvases |> Enum.map(&max(&1["width"] || 0, &1["height"] || 0)) |> Enum.sort()
+    round(Enum.at(longs, div(length(longs), 2)) / 25.6)
+  end
+
+  def scan_dpi(%__MODULE__{}), do: nil
+
+  @doc """
   The shape `Collab` uses for atlases (a `mix georef` report's top level),
   with the raw canvases under "sheets"; `Collab.atlas/1` adds the part list
   ("canvases") from the finished jobs.

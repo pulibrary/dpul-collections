@@ -60,7 +60,7 @@ defmodule DpulCollections.Georef do
   def search_bbox(manifest) do
     meta = manifest.bbox && pad(manifest.bbox, 0.2)
     town = place_name(manifest)
-    places = Osm.find_place(town)
+    places = Osm.find_place(town, Osm.pbf_for_title(manifest.label))
     inside = meta && Enum.find(places, fn %{lonlat: [x, y]} -> inside?(meta, x, y) end)
 
     cond do
@@ -95,6 +95,8 @@ defmodule DpulCollections.Georef do
     manifest.label
     |> to_string()
     |> String.replace(~r/^\s*insurance maps? of\s+/i, "")
+    # Library of Congress titles: "Sanborn Fire Insurance Map from Salem, Marion County, Oregon"
+    |> String.replace(~r/^\s*sanborn fire insurance maps? from\s+/i, "")
     |> String.split([",", "[", ":"])
     |> hd()
     |> String.trim()

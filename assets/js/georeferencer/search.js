@@ -3,7 +3,7 @@
 // those streets (5 m apart), gives a placement; the GPU counts how many of all the labels then
 // land on their own streets. The best few are snapped (labels least squares) and ranked by
 // label hits, then by the street-corridor score.
-import { fwd, snap, labelStatus, sampleKey, LABEL_TOL } from "./engine";
+import { fwd, snap, labelStatus, sampleKey, gridCheck, nearestSeg, LABEL_TOL } from "./engine";
 
 /** corridor contrast at which the printed streets count as lined up (the pipeline's ok check) */
 export const CONTRAST_OK = 0.15;
@@ -140,20 +140,76 @@ export async function findPlacement(gpu, sheet, labs, range, onStep = () => {}, 
   const byRank = (a, b) => rank(b) - rank(a);
   // the pick: a placement whose streets line up beats any that don't, however many names those
   // have (one more name landing on a parallel street outranked a true fit 580 m away)
-  const lines = (c) => c.contrast >= CONTRAST_OK;
+  // the grid check (engine.gridCheck) when the town's street points are given (opts.pts)
+  const gridOf = (T) => (opts.pts ? gridCheck(sheet, opts.pts, T) : null);
+  // the pick: a placement that can be accepted beats any that can't, however many names those have.
+  // Accepted: the pipeline's gates (opts.gate: enough names, names on crossing streets, scale), the
+  // printed streets lining up, and the grid. (One more name on a parallel street outranked a true fit
+  // 580 m away; four names all on parallel streets outranked four that cross, Salem sheet 3.)
+  const passes = (c) => !opts.gate || opts.gate(c);
+  const lines = (c) => c.contrast >= CONTRAST_OK && !c.grid?.bad && passes(c);
   const byPick = (a, b) => lines(b) - lines(a) || byRank(a, b);
   pool.sort(byRank);
-  // refine the top three, plus the best two that line up already
-  const tops = [...pool.slice(0, 3), ...pool.slice(3).filter(lines).slice(0, 2)];
+  // refine the top three, plus the best two that could be accepted already
+  const tops = [...pool.slice(0, 3), ...pool.slice(3).filter((c) => c.contrast >= CONTRAST_OK && passes(c)).slice(0, 2)];
+  // a top placement turned off the grid (names in a cross turn freely about their centre) is also
+  // tried turned onto it, about the names it has on their streets
+  for (const c of pool.slice(0, 3)) {
+    const g = gridOf(c.T);
+    if (!g?.bad) continue;
+    const on = labelStatus(c.T, all).filter((l) => l.d <= LABEL_TOL);
+    const pu = on.length ? on.reduce((a, l) => a + l.u, 0) / on.length : cu, pv = on.length ? on.reduce((a, l) => a + l.v, 0) / on.length : cv;
+    const th = c.T[1] - (g.delta * Math.PI) / 180, p = fwd(c.T, pu, pv), [x0, y0] = fwd([c.T[0], th, 0, 0], pu, pv);
+    const T = [c.T[0], th, p[0] - x0, p[1] - y0];
+    tops.push({ ...c, T, w: fwd(T, cu, cv), good: -Infinity, bad: 0, turned: true });
+  }
   onStep("fitting the printed street corridors");
   const refined = [];
-  for (const c of tops) {
+  const refine = async (c) => {
     const r = await corridorRefine(gpu, sheet, c, all);
     r.hits = hitsOf(r.T);
     r.whits = whits(r.T);
     r.contrast = await contrast(gpu, sheet, r.T);
+    r.grid = gridOf(r.T);
     refined.push(r);
+  };
+  for (const c of tops) await refine(c);
+  // the slide search: names that all lie on parallel streets pin a placement across those streets
+  // but not along them, and a regular grid lines up a block off as well as anywhere. When nothing
+  // can be accepted, slide the best placements along their streets (+-300 m) to where names on
+  // crossing streets land too (Salem sheet 3: four names on parallel streets; 145 m along, four that cross).
+  if (!refined.some(lines)) {
+    const slid = [];
+    for (const c of refined.slice().sort(byRank).slice(0, 3)) {
+      const on = labelStatus(c.T, all).filter((l) => l.d <= LABEL_TOL);
+      if (on.length < 2) continue;
+      // the streets' direction, averaged as doubled angles (a street has no way round)
+      let sx = 0, sy = 0;
+      for (const l of on) {
+        const n = nearestSeg(l.segs, l.x, l.y), a = 2 * Math.atan2(n.ey, n.ex);
+        sx += Math.cos(a); sy += Math.sin(a);
+      }
+      if (Math.hypot(sx, sy) < 0.9 * on.length) continue; // they cross already
+      const dir = Math.atan2(sy, sx) / 2, ex = Math.cos(dir), ey = Math.sin(dir), found = [];
+      for (let d = -300; d <= 300; d += 5) {
+        if (Math.abs(d) < 30) continue;
+        const T = [c.T[0], c.T[1], c.T[2] + d * ex, c.T[3] + d * ey], cand = { T, hits: hitsOf(T) };
+        if (passes(cand)) found.push({ ...cand, d });
+      }
+      found.sort((a, b) => b.hits - a.hits);
+      const mine = [];
+      for (const f of found) {
+        if (mine.length >= 4) break;
+        if (mine.some((m) => Math.abs(m.d - f.d) < 30)) continue;
+        mine.push(f);
+        slid.push({ ...c, T: f.T, w: fwd(f.T, cu, cv), hits: f.hits, good: -Infinity, bad: 0, slid: true });
+      }
+    }
+    if (slid.length) onStep("sliding along the streets");
+    for (const c of slid) await refine(c);
   }
+  // (for attribution: the plain ranking's choice, before the pick's preference)
+  const byRankWin = refined.slice().sort(byRank)[0];
   refined.sort(byPick);
   const win = refined[0];
   const rival = snapped.find((c) => Math.hypot(win.w[0] - c.w[0], win.w[1] - c.w[1]) > 60);
@@ -162,6 +218,11 @@ export async function findPlacement(gpu, sheet, labs, range, onStep = () => {}, 
     hits: win.hits,
     rivalHits: rival ? rival.hits : 0,
     contrast: win.contrast,
+    grid: win.grid,
+    // how the winner was found: turned onto the grid; preferred over the plain ranking's choice
+    turned: !!win.turned,
+    slid: !!win.slid,
+    preferred: win !== byRankWin,
     corridor: [win.good, win.bad],
     labels: all.length,
     nCand,

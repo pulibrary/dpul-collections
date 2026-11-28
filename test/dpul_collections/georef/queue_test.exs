@@ -53,6 +53,18 @@ defmodule DpulCollections.Georef.QueueTest do
     assert Queue.claim("tab-3", nil) == nil
   end
 
+  test "another library's atlas gets its scans' resolution from the sheet size" do
+    assert Queue.claim("tab-1", nil).scan_dpi == nil
+
+    loc = %Atlas{
+      id: "m-0123456789abcdef",
+      canvases: for(_ <- 1..3, do: %{"width" => 6450, "height" => 7650})
+    }
+
+    assert Atlas.scan_dpi(loc) == 299
+    assert Atlas.scan_dpi(%Atlas{id: "m-0123456789abcdef", canvases: []}) == nil
+  end
+
   test "a finished job credits the user with one contribution per placed part" do
     user = user_fixture()
     Queue.subscribe()

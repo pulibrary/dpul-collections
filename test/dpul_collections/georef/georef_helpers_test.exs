@@ -56,6 +56,12 @@ defmodule DpulCollections.Georef.HelpersTest do
                "Ocean Grove"
 
       assert Georef.town_name(%{label: "Bound Brook : Somerset County"}) == "Bound Brook"
+
+      assert Georef.town_name(%{
+               label: "Sanborn Fire Insurance Map from Salem, Marion County, Oregon."
+             }) ==
+               "Salem"
+
       assert Georef.town_name(%{label: nil}) == ""
     end
   end

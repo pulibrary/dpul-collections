@@ -9,7 +9,8 @@ defmodule DpulCollections.Georef.Manifest do
     defstruct [:id, :label, :width, :height, :service_id]
   end
 
-  defstruct [:id, :label, :bbox, subject_places: [], canvases: []]
+  # version: the IIIF Presentation API version (2's canvas sizes can be a reduced copy's)
+  defstruct [:id, :label, :bbox, version: 3, subject_places: [], canvases: []]
 
   @doc "Fetch and parse a manifest."
   def fetch(url) do
@@ -19,6 +20,64 @@ defmodule DpulCollections.Georef.Manifest do
       %{status: 200, body: body} -> parse(body)
       %{status: status} -> raise "manifest fetch failed for #{url}: HTTP #{status}"
     end
+  end
+
+  @doc """
+  Each canvas's size from its image service's info.json. A Presentation 2
+  canvas can be sized to a reduced copy (the Library of Congress's are a
+  quarter of the image), but every pixel coordinate here is the full image's.
+  """
+  def with_image_sizes(%__MODULE__{} = m) do
+    opts = Keyword.merge([receive_timeout: 60_000], DpulCollections.Georef.req_options())
+
+    canvases =
+      m.canvases
+      |> Task.async_stream(
+        fn
+          %Canvas{service_id: nil} = c ->
+            c
+
+          c ->
+            case Req.get!(c.service_id <> "/info.json", opts) do
+              %{status: 200, body: body} ->
+                info = if is_binary(body), do: Jason.decode!(body), else: body
+                %{c | width: info["width"], height: info["height"]}
+
+              %{status: status} ->
+                raise "image info failed for #{c.service_id}: HTTP #{status}"
+            end
+        end,
+        max_concurrency: 4,
+        timeout: 120_000
+      )
+      |> Enum.map(fn {:ok, c} -> c end)
+
+    %{m | canvases: canvases}
+  end
+
+  # IIIF Presentation 2 (the Library of Congress's manifests): canvases under sequences,
+  # labels as plain strings, no navPlace
+  def parse(%{"@id" => id, "sequences" => [seq | _]} = m) do
+    %__MODULE__{
+      id: id,
+      version: 2,
+      label: v2_string(m["label"]),
+      bbox: nil,
+      subject_places: [],
+      canvases:
+        for c <- seq["canvases"] || [] do
+          service = get_in(c, ["images", Access.at(0), "resource", "service"]) || %{}
+          service = if is_list(service), do: List.first(service, %{}), else: service
+
+          %Canvas{
+            id: c["@id"],
+            label: v2_string(c["label"]),
+            width: c["width"],
+            height: c["height"],
+            service_id: service["@id"] || service["id"]
+          }
+        end
+    }
   end
 
   def parse(%{"id" => id} = m) do
@@ -74,4 +133,9 @@ defmodule DpulCollections.Georef.Manifest do
 
   defp first_value(map) when map == %{}, do: nil
   defp first_value(map), do: map |> Map.values() |> List.flatten() |> List.first()
+
+  defp v2_string(s) when is_binary(s), do: s
+  defp v2_string([s | _]), do: v2_string(s)
+  defp v2_string(%{"@value" => s}), do: s
+  defp v2_string(_), do: nil
 end

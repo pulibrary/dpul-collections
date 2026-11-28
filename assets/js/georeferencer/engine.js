@@ -156,7 +156,7 @@ export function partSheet(inkMaps, maskPoly) {
   const cx = maskPoly.reduce((s, p) => s + p[0], 0) / maskPoly.length;
   const cy = maskPoly.reduce((s, p) => s + p[1], 0) / maskPoly.length;
   const radius = Math.max(...maskPoly.map(([x, y]) => Math.hypot(x - cx, y - cy)));
-  return { ...inkMaps, mask, centre: [cx, cy], radius };
+  return { ...inkMaps, mask, maskPoly, centre: [cx, cy], radius };
 }
 
 /** both at once (the interactive editor) */
@@ -273,4 +273,70 @@ export function pointInPoly(x, y, poly) {
     if (y1 > y !== y2 > y && x < ((x2 - x1) * (y - y1)) / (y2 - y1) + x1) ins = !ins;
   }
   return ins;
+}
+
+// ---- the street grid ----------------------------------------------------------------------------
+// Which way the printed lines run against which way the modern streets run, both mod 90 deg (a
+// grid looks the same turned a right angle). A right fit turns the one onto the other; names alone
+// can't tell (a cross of labels turns about its centre with every label staying on its street).
+// Checked on hand-labelled fits (both grids clear, peak >= 3): the wrong ones are a median 26 deg off,
+// the right ones 1.3; the gate (> 8 deg off and under 0.3 of the best agreement) failed 27 of 35
+// wrong fits and 3 of 92 good ones (irregular towns), and most right fits turned 10-20 deg.
+const GRID_PEAK = 3, GRID_DELTA = 8, GRID_FIT = 0.3;
+
+function smooth90(h) {
+  const o = new Float64Array(90), k = [1, 4, 6, 4, 1];
+  for (let b = 0; b < 90; b++) for (let j = -2; j <= 2; j++) o[b] += k[j + 2] * h[(b + j + 90) % 90];
+  return o;
+}
+
+/** printed line directions in the part, from the distance map near the ink (its gradient runs across
+ *  the nearest line), 1-degree bins mod 90 */
+function printedDirections(sheet) {
+  if (sheet.printedDirs) return sheet.printedDirs;
+  const { W, H, dt, mask } = sheet, h = new Float64Array(90);
+  for (let y = 1; y < H - 1; y++)
+    for (let x = 1; x < W - 1; x++) {
+      const i = y * W + x;
+      if (!mask[i] || dt[i] < 1 || dt[i] > 6) continue;
+      const gx = dt[i + 1] - dt[i - 1], gy = dt[i + W] - dt[i - W];
+      if (gx * gx + gy * gy < 1) continue;
+      h[Math.floor((((Math.atan2(gy, gx) * 180) / Math.PI) % 90 + 90) % 90) % 90] += 1;
+    }
+  return (sheet.printedDirs = smooth90(h));
+}
+
+/** modern street directions (samplePoints' normals) inside a ground polygon */
+function modernDirections(pts, foot) {
+  const h = new Float64Array(90);
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const [x, y] of foot) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+  for (let i = 0; i < pts.length; i += 4) {
+    if (pts[i + 2] === 9) continue; // railway
+    const px = pts[i], py = pts[i + 1];
+    if (px < x0 || px > x1 || py < y0 || py > y1 || !pointInPoly(px, py, foot)) continue;
+    h[Math.floor((((Math.atan2(pts[i + 3], pts[i + 2]) * 180) / Math.PI) % 90 + 90) % 90) % 90] += 1;
+  }
+  return smooth90(h);
+}
+
+/** the grid check for placement T: {delta (deg from the best-agreeing rotation, -45..45), peak (how
+ *  grid-like: best agreement over the mean), fit (agreement at T over the best), bad} */
+export function gridCheck(sheet, pts, T) {
+  const P = printedDirections(sheet), M = modernDirections(pts, sheet.maskPoly.map(([u, v]) => fwd(T, u, v)));
+  const nP = Math.hypot(...P), nM = Math.hypot(...M);
+  if (!nP || !nM) return { delta: 0, peak: 0, fit: 1, bad: false };
+  // a fit's world direction is its rotation less the image direction (fwd flips v)
+  const s = new Float64Array(90);
+  for (let t = 0; t < 90; t++) {
+    let a = 0;
+    for (let b = 0; b < 90; b++) a += P[b] * M[(((t - b) % 90) + 90) % 90];
+    s[t] = a / (nP * nM);
+  }
+  let best = 0;
+  for (let t = 1; t < 90; t++) if (s[t] > s[best]) best = t;
+  const mean = s.reduce((a, b) => a + b, 0) / 90, th = ((((T[1] * 180) / Math.PI) % 90) + 90) % 90;
+  const delta = ((((th - best + 45) % 90) + 90) % 90) - 45;
+  const peak = s[best] / (mean || 1), fit = s[Math.round(th) % 90] / (s[best] || 1);
+  return { delta: +delta.toFixed(1), peak: +peak.toFixed(2), fit: +fit.toFixed(3), bad: peak >= GRID_PEAK && Math.abs(delta) > GRID_DELTA && fit < GRID_FIT };
 }
