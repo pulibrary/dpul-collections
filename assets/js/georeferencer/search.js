@@ -180,9 +180,12 @@ export async function findPlacement(gpu, sheet, labs, range, onStep = () => {}, 
   // crossing streets land too (Salem sheet 3: four names on parallel streets; 145 m along, four that cross).
   if (!refined.some(lines)) {
     const slid = [];
-    for (const c of refined.slice().sort(byRank).slice(0, 3)) {
+    // from the best placements on the grid (sliding can't fix a turn)
+    for (const c of refined.filter((r) => !r.grid?.bad).sort(byRank).slice(0, 3)) {
       const on = labelStatus(c.T, all).filter((l) => l.d <= LABEL_TOL);
-      if (on.length < 2) continue;
+      // a ladder pinned by three names or more (two names on parallel streets slid until a third
+      // landed made a wrong fit that just passed)
+      if (on.length < 3) continue;
       // the streets' direction, averaged as doubled angles (a street has no way round)
       let sx = 0, sy = 0;
       for (const l of on) {
@@ -194,7 +197,8 @@ export async function findPlacement(gpu, sheet, labs, range, onStep = () => {}, 
       for (let d = -300; d <= 300; d += 5) {
         if (Math.abs(d) < 30) continue;
         const T = [c.T[0], c.T[1], c.T[2] + d * ex, c.T[3] + d * ey], cand = { T, hits: hitsOf(T) };
-        if (passes(cand)) found.push({ ...cand, d });
+        // never for fewer names than the ladder had
+        if (cand.hits >= on.length && passes(cand)) found.push({ ...cand, d });
       }
       found.sort((a, b) => b.hits - a.hits);
       const mine = [];
